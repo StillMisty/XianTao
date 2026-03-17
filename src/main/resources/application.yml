@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: XianTao
+    version: 0.0.1
+  threads:
+    virtual:
+      enabled: true
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/xiantao
+    username: postgres
+    password: 123456
+    driver-class-name: org.postgresql.Driver
+    # HikariCP 连接池配置（可选）
+    hikari:
+      minimum-idle: 10
+      maximum-pool-size: 50
+      idle-timeout: 30000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+      pool-name: XianTaoHikariCP
+
+# MyBatis-Flex 配置
+mybatis-flex:
+  mapper-locations: classpath*:/mappers/**/*.xml
+  type-aliases-package: top.stillmisty.xiantao.domain
+  configuration:
+    log-impl: org.apache.ibatis.logging.commons.JakartaCommonsLoggingImpl

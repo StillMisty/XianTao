@@ -1,0 +1,56 @@
+[versions]
+springBoot = "4.+"
+springAi = "2.+"
+# SimBot 相关版本
+simbotCore = "4.+"
+simbotComponent = "1.+"
+# Ktor 客户端版本
+ktor = "3.+"
+# 数据库相关版本
+mybatisFlex = "1.+"
+flyway = "12.+"
+postgresql = "42.+"
+# 其他依赖版本
+lombok = "1.+"
+junitLauncher = "1.10.+"
+dependencyManagement = "1.+"
+
+[libraries]
+# Spring Boot Starter 库
+spring-boot-starter-cache = { group = "org.springframework.boot", name = "spring-boot-starter-cache", version.ref = "springBoot" }
+spring-boot-starter-flyway = { group = "org.springframework.boot", name = "spring-boot-starter-flyway", version.ref = "springBoot" }
+spring-boot-starter-webmvc = { group = "org.springframework.boot", name = "spring-boot-starter-webmvc", version.ref = "springBoot" }
+spring-boot-devtools = { group = "org.springframework.boot", name = "spring-boot-devtools", version.ref = "springBoot" }
+spring-boot-starter-cache-test = { group = "org.springframework.boot", name = "spring-boot-starter-cache-test", version.ref = "springBoot" }
+spring-boot-starter-flyway-test = { group = "org.springframework.boot", name = "spring-boot-starter-flyway-test", version.ref = "springBoot" }
+spring-boot-starter-webmvc-test = { group = "org.springframework.boot", name = "spring-boot-starter-webmvc-test", version.ref = "springBoot" }
+spring-boot-starter-jdbc = { group = "org.springframework.boot", name = "spring-boot-starter-jdbc", version.ref = "springBoot" }
+
+# MyBatis Flex 库
+mybatis-flex-spring-boot4-starter = { group = "com.mybatis-flex", name = "mybatis-flex-spring-boot4-starter", version.ref = "mybatisFlex" }
+mybatis-flex-processor = { group = "com.mybatis-flex", name = "mybatis-flex-processor", version.ref = "mybatisFlex" }
+
+# Flyway 库
+flyway-database-postgresql = { group = "org.flywaydb", name = "flyway-database-postgresql", version.ref = "flyway" }
+# PostgreSQL 驱动
+postgresql = { group = "org.postgresql", name = "postgresql", version.ref = "postgresql" }
+
+# Lombok 库
+lombok = { group = "org.projectlombok", name = "lombok", version.ref = "lombok" }
+
+# Spring AI 库
+spring-ai-model = { group = "org.springframework.ai", name = "spring-ai-model", version.ref = "springAi" }
+
+# SimBot 库
+simbot-core-spring-boot-starter = { group = "love.forte.simbot", name = "simbot-core-spring-boot-starter", version.ref = "simbotCore" }
+simbot-component-onebot-v11-core = { group = "love.forte.simbot.component", name = "simbot-component-onebot-v11-core", version.ref = "simbotComponent" }
+
+# Ktor 客户端库
+ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio", version.ref = "ktor" }
+
+# JUnit 测试库
+junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher", version.ref = "junitLauncher" }
+
+[plugins]
+spring-boot = { id = "org.springframework.boot", version.ref = "springBoot" }
+dependency-management = { id = "io.spring.dependency-management", version.ref = "dependencyManagement" }
