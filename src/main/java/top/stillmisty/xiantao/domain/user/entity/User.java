@@ -5,7 +5,6 @@ import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import com.mybatisflex.core.keygen.KeyGenerators;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 
 import java.time.LocalDateTime;

@@ -8,11 +8,11 @@ CREATE TABLE xt_user (
                          coins             BIGINT NOT NULL DEFAULT 0,
                          spirit_stones     BIGINT NOT NULL DEFAULT 0,
     -- 四维属性
-                         stat_str          INT NOT NULL DEFAULT 10,
-                         stat_con          INT NOT NULL DEFAULT 10,
-                         stat_agi          INT NOT NULL DEFAULT 10,
-                         stat_wis          INT NOT NULL DEFAULT 10,
-                         free_stat_points  INT NOT NULL DEFAULT 0,
+                         stat_str          INT NOT NULL DEFAULT 2,
+                         stat_con          INT NOT NULL DEFAULT 2,
+                         stat_agi          INT NOT NULL DEFAULT 2,
+                         stat_wis          INT NOT NULL DEFAULT 2,
+                         free_stat_points  INT NOT NULL DEFAULT 2,
     -- 战斗与状态
                          hp_current        INT NOT NULL DEFAULT 100,
                          status            VARCHAR(32) NOT NULL DEFAULT 'IDLE',
