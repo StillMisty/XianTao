@@ -8,6 +8,7 @@ import lombok.Data;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
  * 游戏角色核心表实体
@@ -17,10 +18,10 @@ import java.time.LocalDateTime;
 public class User {
 
     /**
-     * 内部唯一角色 ID (雪花算法)
+     * 内部唯一角色 ID
      */
     @Id(keyType = KeyType.Generator, value = KeyGenerators.uuid)
-    private Long id;
+    private UUID id;
 
     /**
      * 玩家道号
