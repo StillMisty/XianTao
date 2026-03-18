@@ -43,4 +43,16 @@ public class UserAuth {
      * 绑定发生的时间
      */
     private LocalDateTime bindTime;
+
+    /**
+     * 创建新绑定
+     */
+    public static UserAuth init(PlatformType platform, String openId, UUID userId) {
+        UserAuth userAuth = new UserAuth();
+        userAuth.bindTime = LocalDateTime.now();
+        userAuth.platform = platform;
+        userAuth.platformOpenId = openId;
+        userAuth.userId = userId;
+        return userAuth;
+    }
 }

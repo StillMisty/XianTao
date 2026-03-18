@@ -5,8 +5,11 @@ import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import com.mybatisflex.core.keygen.KeyGenerators;
 import lombok.Data;
+import top.stillmisty.xiantao.domain.user.enums.AttributeType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -99,12 +102,200 @@ public class User {
     private Object extraData;
 
     /**
+     * 突破失败次数 (影响下一次突破成功率)
+     */
+    private Integer breakthroughFailCount;
+
+    /**
      * 角色创建时间
      */
     private LocalDateTime createTime;
 
     /**
-     * 最后一次数据更新时间
+     * 最后一次数据更新时间, pg 设置了触发器自动更新
      */
     private LocalDateTime updateTime;
+
+    // ===================== 业务逻辑方法 =====================
+
+    /**
+     * 初始化新用户（注册时调用）
+     */
+    public static User init() {
+        User user = new User();
+        user.level = 1;
+        user.exp = 0L;
+        user.coins = 100L; // 初始铜币
+        user.spiritStones = 0L;
+        user.statStr = 5;
+        user.statCon = 5;
+        user.statAgi = 5;
+        user.statWis = 5;
+        user.freeStatPoints = 0;
+        user.hpCurrent = user.calculateMaxHp();
+        user.status = UserStatus.IDLE;
+        user.locationId = "新手村";
+        user.afkStartTime = null;
+        user.breakthroughFailCount = 0;
+        user.createTime = LocalDateTime.now();
+        return user;
+    }
+
+    /**
+     * 计算最大生命值（基于体质）
+     */
+    public int calculateMaxHp() {
+        // 基础100 + 体质 * 20
+        return 100 + (statCon != null ? statCon : 5) * 20;
+    }
+
+    /**
+     * 计算升级到下一级所需经验
+     */
+    public long calculateExpToNextLevel() {
+        // 公式：100 * level^2
+        return 100L * level * level;
+    }
+
+    /**
+     * 计算当前等级可存储的最大经验值
+     */
+    public long calculateMaxExpStorage() {
+        // 最多存储为当前等级升级经验的5倍
+        return calculateExpToNextLevel() * 5;
+    }
+
+    /**
+     * 计算突破成功率
+     * 范围：[0, 100]
+     */
+    public double calculateBreakthroughSuccessRate() {
+        double baseMidpoint = 50;   // 基础概率减半的等级 (50)
+        double baseSteepness = 4.5;  // 基础概率下降的陡峭度
+        double minPity = 3;        // 最小失败补偿 (3%)
+        double maxPityOffset = 17;   // 额外最大补偿 (17% -> 总计20%)
+
+        // 计算基础概率 (0-100)
+        double rawBase = 100.0 / (1.0 + Math.pow((double) level / baseMidpoint, baseSteepness));
+
+        // 计算单次补偿增量
+        double rawPityGain = minPity + (maxPityOffset / (1.0 + Math.pow(level / 50.0, 2)));
+
+        // 计算当前总概率并应用范围限制 [0, 100]
+        double totalProb = Math.clamp(rawBase + (breakthroughFailCount * rawPityGain), 0.0, 100.0);
+
+        // 舍入到两位小数
+        return BigDecimal.valueOf(totalProb).setScale(2, RoundingMode.HALF_UP).doubleValue();
+    }
+
+    /**
+     * 检查是否可以升级
+     */
+    public boolean canLevelUp() {
+        return exp >= calculateExpToNextLevel();
+    }
+
+    /**
+     * 恢复生命值
+     * @param amount 恢复量
+     * @return 实际恢复量
+     */
+    public int heal(int amount) {
+        int maxHp = calculateMaxHp();
+        int oldHp = hpCurrent;
+        hpCurrent = Math.min(maxHp, hpCurrent + amount);
+        return hpCurrent - oldHp;
+    }
+
+    /**
+     * 消耗生命值（受伤）
+     * @param amount 伤害量
+     * @return 实际伤害量
+     */
+    public int takeDamage(int amount) {
+        int oldHp = hpCurrent;
+        hpCurrent = Math.max(0, hpCurrent - amount);
+        return oldHp - hpCurrent;
+    }
+
+    /**
+     * 是否满血
+     */
+    public boolean isFullHp() {
+        return hpCurrent >= calculateMaxHp();
+    }
+
+    /**
+     * 添加经验值（考虑存储上限）
+     * @param expToAdd 要添加的经验值
+     * @return 实际添加的经验值
+     */
+    public long addExp(long expToAdd) {
+        long maxStorage = calculateMaxExpStorage();
+        long currentStorage = exp - (level > 1 ? calculateExpToPrevLevel() : 0);
+        long availableSpace = maxStorage - currentStorage;
+        
+        long actualAdd = Math.min(expToAdd, availableSpace);
+        this.exp += actualAdd;
+        return actualAdd;
+    }
+
+    /**
+     * 计算从上一级到当前级所需经验
+     */
+    private long calculateExpToPrevLevel() {
+        if (level <= 1) return 0;
+        return 100L * (level - 1) * (level - 1);
+    }
+
+    /**
+     * 尝试突破升级
+     * @return 是否突破成功
+     */
+    public boolean attemptBreakthrough() {
+        double successRate = calculateBreakthroughSuccessRate();
+        boolean success = Math.random() < successRate;
+        
+        if (success) {
+            level++;
+            exp -= calculateExpToPrevLevel(); // 扣除升级所需经验
+            freeStatPoints++; // 获得1点自由属性点
+            breakthroughFailCount = 0; // 重置失败计数
+            hpCurrent = calculateMaxHp(); // 恢复满血
+        } else {
+            breakthroughFailCount++;
+        }
+        
+        return success;
+    }
+
+    /**
+     * 分配属性点
+     * @param statType 属性类型 (str, con, agi, wis)
+     * @param points 点数
+     * @return 是否分配成功
+     */
+    public boolean allocateStatPoints(AttributeType statType, int points) {
+        if (freeStatPoints < points || points <= 0) {
+            return false;
+        }
+        
+        switch (statType) {
+            case AttributeType.STR:
+                statStr += points;
+                break;
+            case AttributeType.CON:
+                statCon += points;
+                break;
+            case AttributeType.AGI:
+                statAgi += points;
+                break;
+            case AttributeType.WIS:
+                statWis += points;
+                break;
+        }
+        
+        freeStatPoints -= points;
+        return true;
+    }
 }
