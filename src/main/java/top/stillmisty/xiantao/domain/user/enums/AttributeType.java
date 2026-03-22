@@ -7,19 +7,17 @@ import lombok.Getter;
  */
 @Getter
 public enum AttributeType {
-    STR("str", "力量", "影响攻击力和锻造能力"),
-    CON("con", "体质", "影响生命值和物理防御"),
-    AGI("agi", "敏捷", "影响出手顺序和杀怪效率"),
-    WIS("wis", "智慧", "影响掉宝率和经验加成");
+    STR("str", "力量"),
+    CON("con", "体质"),
+    AGI("agi", "敏捷"),
+    WIS("wis", "智慧");
     
     private final String code;
     private final String name;
-    private final String description;
     
-    AttributeType(String code, String name, String description) {
+    AttributeType(String code, String name) {
         this.code = code;
         this.name = name;
-        this.description = description;
     }
 
     /**
