@@ -30,7 +30,6 @@ src/main/java/top/stillmisty/xiantao/
 │   ├── command/             # Centralized Command Implementations & Dispatchers (Platform-agnostic)
 │   ├── enums/               # Command Enums (e.g., CommandType, ActionCode)
 │   ├── onebotv11/           # OneBotV11 Listeners (Captures QQ input -> calls command/ -> returns view)
-│   ├── qq/                  # Official QQ Listeners (Captures QQ input -> calls command/ -> returns view)
 │   └── web/                 # Web REST APIs (Captures HTTP -> calls command/ -> returns JSON view)
 ├── domain/                  # Core Business Logic (Bounded Contexts)
 │   ├── user/                # User Context 
