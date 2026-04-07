@@ -27,8 +27,6 @@ Base package: `top.stillmisty.xiantao`
 src/main/java/top/stillmisty/xiantao/
 ├── config/                  # Spring, MyBatis-Flex, and Spring AI configurations
 ├── handle/                  # Presentation Layer / Multi-platform Entry & View
-│   ├── command/             # Centralized Command Implementations & Dispatchers (Platform-agnostic)
-│   ├── enums/               # Command Enums (e.g., CommandType, ActionCode)
 │   ├── onebotv11/           # OneBotV11 Listeners (Captures QQ input -> calls command/ -> returns view)
 │   └── web/                 # Web REST APIs (Captures HTTP -> calls command/ -> returns JSON view)
 ├── domain/                  # Core Business Logic (Bounded Contexts)
@@ -41,6 +39,7 @@ src/main/java/top/stillmisty/xiantao/
 │   ├── combat/              # TTK Combat Engine & D20 events
 │   ├── item/                # Inventory (JSONB), Crafting, Alchemy
 │   └── land/                # "Fudi" (Blessed Land) AI-driven management
+├── service/                 # Centralized Command Implementations & Dispatchers (Platform-agnostic)
 └── infrastructure/          # Infrastructure Implementation (Adapters)
     ├── mapper/              # MyBatis-Flex BaseMapper interfaces
     └── repository/          # Implementation of domain repository interfaces
