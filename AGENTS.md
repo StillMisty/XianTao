@@ -34,7 +34,6 @@ src/main/java/top/stillmisty/xiantao/
 │   │   ├── entity/          # DB Entities (e.g., User, UserAuth)
 │   │   ├── enums/           # Domain Enums (e.g., UserStatus)
 │   │   ├── repository/      # Repository Interfaces (Ports - DO NOT implement here)
-│   │   ├── service/         # Business Logic (Strictly protocol-agnostic & command-agnostic)
 │   │   └── vo/              # Value Objects / DTOs
 │   ├── combat/              # TTK Combat Engine & D20 events
 │   ├── item/                # Inventory (JSONB), Crafting, Alchemy

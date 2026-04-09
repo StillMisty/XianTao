@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew build:*)",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__query-docs",
+      "WebSearch",
+      "Bash(./gradlew compileJava build -x test --no-daemon)",
+      "Read(//mnt/c/Users/Still/Project/**)",
+      "Bash(./gradlew compileJava)",
+      "Bash(mv:*)",
+      "Bash(./gradlew compileTestJava)",
+      "Bash(xargs grep:*)",
+      "Bash(./gradlew clean:*)",
+      "Bash(grep \"C:\\\\\\\\\\\\\\\\Users\\\\\\\\\\\\\\\\Still\\\\\\\\\\\\\\\\Project\\\\\\\\\\\\\\\\XianTao\\\\\\\\\\\\\\\\src\\\\\\\\\\\\\\\\main\\\\\\\\\\\\\\\\java\\\\\\\\\\\\\\\\top\\\\\\\\\\\\\\\\stillmisty\\\\\\\\\\\\\\\\xiantao\\\\\\\\\\\\\\\\infrastructure\\\\\\\\\\\\\\\\repository\\\\\\\\\\\\\\\\ItemTemplateRepositoryImpl.java\" -A5)",
+      "Read(//tmp/**)"
+    ]
+  }
+}
