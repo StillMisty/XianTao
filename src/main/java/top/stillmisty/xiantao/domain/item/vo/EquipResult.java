@@ -26,16 +26,4 @@ public class EquipResult {
 
     // 穿戴后的属性变化
     private AttributeChange attributeChange;
-
-    @Data
-    @Builder
-    public static class AttributeChange {
-        private int strChange;
-        private int conChange;
-        private int agiChange;
-        private int wisChange;
-        private int attackChange;
-        private int defenseChange;
-        private int maxHpChange;
-    }
 }

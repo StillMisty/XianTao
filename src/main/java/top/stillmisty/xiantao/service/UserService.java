@@ -4,31 +4,41 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import love.forte.simbot.common.id.ID;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.UserAuth;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.domain.user.repository.UserAuthRepository;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 import top.stillmisty.xiantao.domain.user.vo.RegisterResult;
 
 import java.util.Optional;
 
+/**
+ * 用户服务
+ * 处理用户相关的业务逻辑
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UserService {
 
     private final UserRepository userRepository;
-
-    private final UserAuthService userAuthService;
+    private final UserAuthRepository userAuthRepository;
 
     /**
      * 创建新用户（注册）
      *
+     * @param platform 平台类型
+     * @param openId 平台用户ID
      * @param nickname 玩家道号
-     * @return 创建的用户实体
+     * @return 注册结果
      */
-    public RegisterResult createUser(PlatformType platform, ID openId, String nickname) {
-        var userAuth = userAuthService.findUserIdByOpenId(platform, openId);
-        if (userAuth.isPresent()) {
+    public RegisterResult createUser(PlatformType platform, String openId, String nickname) {
+        // 检查是否已注册
+        var existingAuth = userAuthRepository.findByPlatformAndOpenId(platform, openId);
+        if (existingAuth.isPresent()) {
             return new RegisterResult(
                     false,
                     "阁下已在仙路中~",
@@ -37,12 +47,20 @@ public class UserService {
             );
         }
 
+        // 创建用户
         var user = userRepository.save(
                 User.create()
                         .setNickname(nickname)
         );
 
-        log.info("Created user: {}", user);
+        log.info("创建用户成功 - UserId: {}, Nickname: {}", user.getId(), user.getNickname());
+
+        // 创建授权记录
+        UserAuth userAuth = UserAuth.init(platform, openId, user.getId());
+        userAuthRepository.save(userAuth);
+        
+        log.info("创建授权记录成功 - UserId: {}, Platform: {}, OpenId: {}", 
+                user.getId(), platform, openId);
 
         return new RegisterResult(
                 true,

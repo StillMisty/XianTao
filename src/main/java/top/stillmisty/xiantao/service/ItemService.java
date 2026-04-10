@@ -253,7 +253,7 @@ public class ItemService {
                     equipmentRepository.save(equipmentToEquip);
 
                     // 计算属性变化
-                    EquipResult.AttributeChange attributeChange = calculateAttributeChange(
+                    AttributeChange attributeChange = calculateAttributeChange(
                             replacedEquipment, equipmentToEquip);
 
                     String message;
@@ -303,7 +303,7 @@ public class ItemService {
         return equipmentRepository.findEquippedByUserIdAndSlot(userId, slot)
                 .map(equipment -> {
                     // 先获取装备属性用于计算变化
-                    UnequipResult.AttributeChange attributeChange = UnequipResult.AttributeChange.builder()
+                    AttributeChange attributeChange = AttributeChange.builder()
                             .strChange(-equipment.getStrBonus())
                             .conChange(-equipment.getConBonus())
                             .agiChange(-equipment.getAgiBonus())
@@ -336,7 +336,7 @@ public class ItemService {
     /**
      * 计算属性变化（用于装备时显示）
      */
-    private EquipResult.AttributeChange calculateAttributeChange(
+    private AttributeChange calculateAttributeChange(
             Equipment replacedEquipment, Equipment newEquipment) {
 
         int strChange = newEquipment.getStrBonus();
@@ -358,7 +358,7 @@ public class ItemService {
             maxHpChange -= replacedEquipment.getConBonus() * 20;
         }
 
-        return EquipResult.AttributeChange.builder()
+        return AttributeChange.builder()
                 .strChange(strChange)
                 .conChange(conChange)
                 .agiChange(agiChange)
