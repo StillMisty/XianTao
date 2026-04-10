@@ -7,7 +7,6 @@ import top.stillmisty.xiantao.domain.item.enums.Rarity;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 
 import java.util.List;
-import java.util.UUID;
 
 /**
  * 角色状态查看结果 VO
@@ -20,7 +19,7 @@ public class CharacterStatusResult {
     private boolean success;
     private String message;
 
-    private UUID userId;
+    private Long userId;
     private String nickname;
 
     // ===================== 境界进度 =====================
@@ -32,7 +31,7 @@ public class CharacterStatusResult {
     // ===================== 当前状态 =====================
     private UserStatus status;
     private String statusName;
-    private String locationId;
+    private Long locationId;
 
     // ===================== HP =====================
     private Integer hpCurrent;
@@ -79,7 +78,7 @@ public class CharacterStatusResult {
     @Data
     @Builder
     public static class EquipmentSummaryItem {
-        private UUID equipmentId;
+        private Long equipmentId;
         private String name;
         private EquipmentSlot slot;
         private String slotName;

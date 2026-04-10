@@ -8,7 +8,6 @@ import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 import top.stillmisty.xiantao.infrastructure.mapper.UserMapper;
 
 import java.util.Optional;
-import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
@@ -17,12 +16,12 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User save(User user) {
-        userMapper.insertOrUpdate(user);
+        userMapper.insertSelective(user);
         return user;
     }
 
     @Override
-    public Optional<User> findById(UUID id) {
+    public Optional<User> findById(Long id) {
         return Optional.ofNullable(userMapper.selectOneById(id));
     }
 

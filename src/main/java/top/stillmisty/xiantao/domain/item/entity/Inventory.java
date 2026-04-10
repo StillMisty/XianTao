@@ -7,7 +7,6 @@ import top.stillmisty.xiantao.domain.item.enums.ItemType;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -82,7 +81,7 @@ public class Inventory {
     /**
      * 移除物品
      */
-    public InventoryItem removeItem(UUID itemId) {
+    public InventoryItem removeItem(String itemId) {
         if (items == null) return null;
 
         for (int i = 0; i < items.size(); i++) {
@@ -98,7 +97,7 @@ public class Inventory {
     /**
      * 减少堆叠物品数量
      */
-    public int decreaseStackableItem(UUID itemId, int amount) {
+    public int decreaseStackableItem(String itemId, int amount) {
         if (items == null) return 0;
 
         for (int i = 0; i < items.size(); i++) {
@@ -119,7 +118,7 @@ public class Inventory {
     /**
      * 查找物品
      */
-    public InventoryItem findItem(UUID itemId) {
+    public InventoryItem findItem(String itemId) {
         if (items == null) return null;
 
         return items.stream()

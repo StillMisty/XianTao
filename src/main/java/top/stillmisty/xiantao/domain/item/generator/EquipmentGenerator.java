@@ -25,7 +25,7 @@ public class EquipmentGenerator {
      * @param template 装备模板
      * @return 生成的装备实例
      */
-    public Equipment generate(UUID userId, ItemTemplate template) {
+    public Equipment generate(Long userId, ItemTemplate template) {
         // 1. 根据掉落权重随机决定品质
         Rarity rarity = rollRarity(template);
 
@@ -74,7 +74,7 @@ public class EquipmentGenerator {
      * @param rarity   指定品质
      * @return 生成的装备实例
      */
-    public Equipment generateWithRarity(UUID userId, ItemTemplate template, Rarity rarity) {
+    public Equipment generateWithRarity(Long userId, ItemTemplate template, Rarity rarity) {
         double qualityMultiplier = rarity.getRandomQualityMultiplier();
         int finalAttack = calculateFluctuatedStat(template.getBaseAttack(), qualityMultiplier);
         int finalDefense = calculateFluctuatedStat(template.getBaseDefense(), qualityMultiplier);

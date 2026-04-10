@@ -1,15 +1,14 @@
 package top.stillmisty.xiantao.domain.user.entity;
 
 
+import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
-import com.mybatisflex.core.keygen.KeyGenerators;
 import lombok.Data;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 /**
  * 跨平台授权绑定表实体
@@ -21,13 +20,13 @@ public class UserAuth {
     /**
      * 绑定记录主键
      */
-    @Id(keyType = KeyType.Generator, value = KeyGenerators.uuid)
-    private UUID id;
+    @Id(keyType = KeyType.Auto)
+    private Long id;
 
     /**
      * 关联的游戏角色 ID
      */
-    private UUID userId;
+    private Long userId;
 
     /**
      * 平台类型
@@ -42,14 +41,14 @@ public class UserAuth {
     /**
      * 绑定发生的时间
      */
+    @Column(onInsertValue = "now()")
     private LocalDateTime bindTime;
 
     /**
      * 创建新绑定
      */
-    public static UserAuth init(PlatformType platform, String openId, UUID userId) {
+    public static UserAuth init(PlatformType platform, String openId, Long userId) {
         UserAuth userAuth = new UserAuth();
-        userAuth.bindTime = LocalDateTime.now();
         userAuth.platform = platform;
         userAuth.platformOpenId = openId;
         userAuth.userId = userId;

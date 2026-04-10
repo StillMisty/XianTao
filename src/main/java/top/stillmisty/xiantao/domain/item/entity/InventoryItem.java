@@ -5,8 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 
-import java.util.UUID;
-
 /**
  * 背包物品条目
  */
@@ -18,7 +16,7 @@ public class InventoryItem {
     /**
      * 物品实例ID (对于装备) 或 模板ID (对于堆叠物品)
      */
-    private UUID itemId;
+    private Long itemId;
 
     /**
      * 物品类型
@@ -38,14 +36,14 @@ public class InventoryItem {
     /**
      * 创建便捷方法 - 装备类物品
      */
-    public static InventoryItem forEquipment(UUID equipmentId, String name) {
+    public static InventoryItem forEquipment(Long equipmentId, String name) {
         return new InventoryItem(equipmentId, ItemType.EQUIPMENT, name, 1);
     }
 
     /**
      * 创建便捷方法 - 堆叠类物品
      */
-    public static InventoryItem forStackable(UUID templateId, ItemType itemType,
+    public static InventoryItem forStackable(Long templateId, ItemType itemType,
                                               String name, int quantity) {
         return new InventoryItem(templateId, itemType, name, quantity);
     }

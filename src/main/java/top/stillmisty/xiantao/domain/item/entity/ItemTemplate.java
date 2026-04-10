@@ -1,9 +1,9 @@
 package top.stillmisty.xiantao.domain.item.entity;
 
+import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
-import com.mybatisflex.core.keygen.KeyGenerators;
 import lombok.Data;
 import top.stillmisty.xiantao.domain.item.enums.EquipmentSlot;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
@@ -12,7 +12,6 @@ import top.stillmisty.xiantao.domain.item.enums.Rarity;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * 物品模板配置实体
@@ -25,8 +24,8 @@ public class ItemTemplate {
     /**
      * 模板ID（唯一标识）
      */
-    @Id(keyType = KeyType.Generator, value = KeyGenerators.uuid)
-    private UUID id;
+    @Id(keyType = KeyType.Auto)
+    private Long id;
 
     /**
      * 物品名称
@@ -109,11 +108,13 @@ public class ItemTemplate {
     /**
      * 创建时间
      */
+    @Column(onInsertValue = "now()")
     private LocalDateTime createTime;
 
     /**
      * 更新时间
      */
+    @Column(onUpdateValue = "now()", onInsertValue = "now()")
     private LocalDateTime updateTime;
 
     // ===================== 业务逻辑方法 =====================

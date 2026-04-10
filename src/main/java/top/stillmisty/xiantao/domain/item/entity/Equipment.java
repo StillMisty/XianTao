@@ -1,16 +1,15 @@
 package top.stillmisty.xiantao.domain.item.entity;
 
+import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
-import com.mybatisflex.core.keygen.KeyGenerators;
 import lombok.Data;
 import top.stillmisty.xiantao.domain.item.enums.EquipmentSlot;
 import top.stillmisty.xiantao.domain.item.enums.Rarity;
 
 import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * 装备实例实体
@@ -19,18 +18,18 @@ import java.util.UUID;
 @Table("xt_equipment")
 public class Equipment {
 
-    @Id(keyType = KeyType.Generator, value = KeyGenerators.uuid)
-    private UUID id;
+    @Id(keyType = KeyType.Auto)
+    private Long id;
 
     /**
      * 持有者用户ID
      */
-    private UUID userId;
+    private Long userId;
 
     /**
      * 物品模板ID (关联静态配置)
      */
-    private UUID templateId;
+    private Long templateId;
 
     /**
      * 装备名称 (从模板复制或自定义，包含品质前缀)
@@ -86,11 +85,13 @@ public class Equipment {
     /**
      * 创建时间
      */
+    @Column(onInsertValue = "now()")
     private LocalDateTime createTime;
 
     /**
-     * 更新时间 (数据库触发器自动更新)
+     * 更新时间
      */
+    @Column(onUpdateValue = "now()", onInsertValue = "now()")
     private LocalDateTime updateTime;
 
     // ===================== 业务逻辑方法 =====================
@@ -98,7 +99,7 @@ public class Equipment {
     /**
      * 创建装备实例
      */
-    public static Equipment create(UUID userId, UUID templateId, String name,
+    public static Equipment create(Long userId, Long templateId, String name,
                                     EquipmentSlot slot, Rarity rarity,
                                     Double qualityMultiplier,
                                     Map<String, Integer> affixes,

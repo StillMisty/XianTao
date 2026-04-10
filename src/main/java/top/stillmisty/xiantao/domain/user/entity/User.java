@@ -1,30 +1,34 @@
 package top.stillmisty.xiantao.domain.user.entity;
 
+import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
-import com.mybatisflex.core.keygen.KeyGenerators;
+import com.mybatisflex.core.activerecord.Model;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 import top.stillmisty.xiantao.domain.user.enums.AttributeType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 /**
  * 游戏角色核心表实体
  */
-@Data
+@EqualsAndHashCode(callSuper = true)
 @Table("xt_user")
-public class User {
+@Accessors(chain = true)
+@Data(staticConstructor = "create")
+public class User extends Model<User> {
 
     /**
      * 内部唯一角色 ID
      */
-    @Id(keyType = KeyType.Generator, value = KeyGenerators.uuid)
-    private UUID id;
+    @Id(keyType = KeyType.Auto)
+    private Long id;
 
     /**
      * 玩家道号
@@ -89,7 +93,7 @@ public class User {
     /**
      * 当前所在地图/区域 ID
      */
-    private String locationId;
+    private Long locationId;
 
     /**
      * 挂机开始时间戳 (用于结算收益)
@@ -107,39 +111,18 @@ public class User {
     private Integer breakthroughFailCount;
 
     /**
-     * 角色创建时间
+     * 创建时间
      */
+    @Column(onInsertValue = "now()")
     private LocalDateTime createTime;
 
     /**
-     * 最后一次数据更新时间, pg 设置了触发器自动更新
+     * 更新时间
      */
+    @Column(onUpdateValue = "now()", onInsertValue = "now()")
     private LocalDateTime updateTime;
 
     // ===================== 业务逻辑方法 =====================
-
-    /**
-     * 初始化新用户（注册时调用）
-     */
-    public static User init() {
-        User user = new User();
-        user.level = 1;
-        user.exp = 0L;
-        user.coins = 100L; // 初始铜币
-        user.spiritStones = 0L;
-        user.statStr = 5;
-        user.statCon = 5;
-        user.statAgi = 5;
-        user.statWis = 5;
-        user.freeStatPoints = 0;
-        user.hpCurrent = user.calculateMaxHp();
-        user.status = UserStatus.IDLE;
-        user.locationId = "新手村";
-        user.afkStartTime = null;
-        user.breakthroughFailCount = 0;
-        user.createTime = LocalDateTime.now();
-        return user;
-    }
 
     /**
      * 计算最大生命值（基于体质）

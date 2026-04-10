@@ -23,7 +23,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -48,7 +47,7 @@ public class ItemService {
      * @param userId 用户 ID
      * @return 角色完整状态 VO
      */
-    public CharacterStatusResult getCharacterStatus(UUID userId) {
+    public CharacterStatusResult getCharacterStatus(Long userId) {
         return userRepository.findById(userId)
                 .map(user -> {
                     // 获取已穿戴装备
@@ -98,7 +97,7 @@ public class ItemService {
                             .expPercentage(user.getExp() * 100.0 / user.calculateExpToNextLevel())
                             // 当前状态
                             .status(user.getStatus())
-                            .statusName(user.getStatus().getName())
+                            .statusName(user.getStatus() != null ? user.getStatus().getName() : "未知")
                             .locationId(user.getLocationId())
                             // HP
                             .hpCurrent(user.getHpCurrent())
@@ -144,7 +143,7 @@ public class ItemService {
      * @param userId 用户 ID
      * @return 背包内容 VO
      */
-    public InventoryResult getInventory(UUID userId) {
+    public InventoryResult getInventory(Long userId) {
         return userRepository.findById(userId)
                 .map(user -> {
                     // 获取并分类物品
@@ -208,7 +207,7 @@ public class ItemService {
      * @param itemName 物品名称
      * @return 装备穿戴结果
      */
-    public EquipResult equipItem(UUID userId, String itemName) {
+    public EquipResult equipItem(Long userId, String itemName) {
         return userRepository.findById(userId)
                 .flatMap(user -> {
                     // 查找未穿戴且名称匹配的装备
@@ -236,7 +235,7 @@ public class ItemService {
                     // 检查该部位是否已有装备
                     var currentEquipped = equipmentRepository.findEquippedByUserIdAndSlot(userId, slot);
 
-                    UUID replacedEquipmentId = null;
+                    Long replacedEquipmentId = null;
                     String replacedEquipmentName = null;
                     Equipment replacedEquipment = null;
 
@@ -291,7 +290,7 @@ public class ItemService {
      * @param slotName 部位名称（中文，如"武器"、"护甲"等）
      * @return 装备卸下结果
      */
-    public UnequipResult unequipItem(UUID userId, String slotName) {
+    public UnequipResult unequipItem(Long userId, String slotName) {
         // 查找对应的部位枚举
         EquipmentSlot slot = EquipmentSlot.fromChineseName(slotName);
         if (slot == null) {
@@ -402,7 +401,7 @@ public class ItemService {
      * @param quantity 数量
      * @return 是否添加成功
      */
-    public boolean addStackableItem(UUID userId, UUID templateId, ItemType itemType,
+    public boolean addStackableItem(Long userId, Long templateId, ItemType itemType,
                                      String name, int quantity) {
         return userRepository.findById(userId)
                 .map(user -> {
@@ -435,7 +434,7 @@ public class ItemService {
      * @param quantity 减少的数量
      * @return 实际减少的数量，如果物品不足则返回 -1
      */
-    public int reduceStackableItem(UUID userId, UUID templateId, int quantity) {
+    public int reduceStackableItem(Long userId, Long templateId, int quantity) {
         var existingItem = stackableItemRepository.findByUserIdAndTemplateId(userId, templateId);
 
         if (existingItem.isEmpty()) {
@@ -468,7 +467,7 @@ public class ItemService {
      * @param quantity 需要的数量
      * @return 是否足够
      */
-    public boolean hasEnoughStackableItem(UUID userId, UUID templateId, int quantity) {
+    public boolean hasEnoughStackableItem(Long userId, Long templateId, int quantity) {
         return stackableItemRepository.findByUserIdAndTemplateId(userId, templateId)
                 .map(item -> item.hasEnoughQuantity(quantity))
                 .orElse(false);
@@ -483,7 +482,7 @@ public class ItemService {
      * @param userId 用户 ID
      * @return 背包摘要 VO
      */
-    public InventorySummaryVO getInventorySummary(UUID userId) {
+    public InventorySummaryVO getInventorySummary(Long userId) {
         return userRepository.findById(userId)
                 .map(user -> {
                     // 获取所有装备和堆叠物品
@@ -527,7 +526,7 @@ public class ItemService {
      * @param userId 用户 ID
      * @return 装备列表 VO
      */
-    public EquipmentListResult getEquipmentList(UUID userId) {
+    public EquipmentListResult getEquipmentList(Long userId) {
         return userRepository.findById(userId)
                 .map(user -> {
                     List<Equipment> allEquipments = equipmentRepository.findByUserId(userId);
@@ -564,10 +563,10 @@ public class ItemService {
      * 用于 #查看 [装备UUID] 命令
      *
      * @param userId    用户 ID
-     * @param equipmentId 装备 UUID
+     * @param equipmentId 装备 ID
      * @return 装备详情 VO
      */
-    public EquipmentDetailVO getEquipmentDetail(UUID userId, UUID equipmentId) {
+    public EquipmentDetailVO getEquipmentDetail(Long userId, Long equipmentId) {
         return equipmentRepository.findById(equipmentId)
                 .filter(e -> e.getUserId().equals(userId))
                 .map(this::convertToEquipmentDetailVO)
@@ -584,7 +583,7 @@ public class ItemService {
      * @param tags   要搜索的标签列表（AND关系，需包含所有标签）
      * @return 匹配的物品列表
      */
-    public List<StackableItem> searchStackableItemsByTags(UUID userId, List<String> tags) {
+    public List<StackableItem> searchStackableItemsByTags(Long userId, List<String> tags) {
         if (tags == null || tags.isEmpty()) {
             return List.of();
         }
@@ -603,7 +602,7 @@ public class ItemService {
      * @param tags   要搜索的标签列表
      * @return 匹配的物品列表
      */
-    public List<StackableItem> searchStackableItemsByAnyTag(UUID userId, List<String> tags) {
+    public List<StackableItem> searchStackableItemsByAnyTag(Long userId, List<String> tags) {
         if (tags == null || tags.isEmpty()) {
             return List.of();
         }
@@ -622,7 +621,7 @@ public class ItemService {
      * @param type   物品类型
      * @return 匹配的物品列表
      */
-    public List<StackableItem> searchStackableItemsByType(UUID userId, ItemType type) {
+    public List<StackableItem> searchStackableItemsByType(Long userId, ItemType type) {
         return stackableItemRepository.findByUserId(userId).stream()
                 .filter(item -> item.getItemType() == type)
                 .toList();

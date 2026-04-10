@@ -8,7 +8,6 @@ import top.stillmisty.xiantao.domain.item.enums.Rarity;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * 装备详情 VO
@@ -22,7 +21,7 @@ public class EquipmentDetailVO {
      * 装备ID
      */
     @JsonProperty("id")
-    private UUID id;
+    private Long id;
 
     /**
      * 显示名称（含品质前缀）
@@ -35,7 +34,7 @@ public class EquipmentDetailVO {
      * 模板ID
      */
     @JsonProperty("template_id")
-    private UUID templateId;
+    private Long templateId;
 
     /**
      * 品质

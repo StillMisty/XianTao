@@ -1,15 +1,15 @@
 package top.stillmisty.xiantao.domain.item.entity;
 
+import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
-import com.mybatisflex.core.keygen.KeyGenerators;
 import lombok.Data;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * 堆叠类物品实例实体
@@ -25,12 +25,12 @@ public class StackableItem {
     /**
      * 持有者用户ID
      */
-    private UUID userId;
+    private Long userId;
 
     /**
      * 物品模板ID (关联静态配置)
      */
-    private UUID templateId;
+    private Long templateId;
 
     /**
      * 物品类型
@@ -74,11 +74,13 @@ public class StackableItem {
     /**
      * 创建时间
      */
+    @Column(onInsertValue = "now()")
     private LocalDateTime createTime;
 
     /**
      * 更新时间
      */
+    @Column(onUpdateValue = "now()", onInsertValue = "now()")
     private LocalDateTime updateTime;
 
     // ===================== 业务逻辑方法 =====================
@@ -86,7 +88,7 @@ public class StackableItem {
     /**
      * 创建堆叠物品实例
      */
-    public static StackableItem create(UUID userId, UUID templateId, ItemType itemType,
+    public static StackableItem create(Long userId, Long templateId, ItemType itemType,
                                        String name, Integer quantity) {
         StackableItem item = new StackableItem();
         item.userId = userId;
@@ -101,7 +103,7 @@ public class StackableItem {
     /**
      * 创建带标签的堆叠物品
      */
-    public static StackableItem createWithTags(UUID userId, UUID templateId, ItemType itemType,
+    public static StackableItem createWithTags(Long userId, Long templateId, ItemType itemType,
                                               String name, Integer quantity, List<String> tags) {
         StackableItem item = create(userId, templateId, itemType, name, quantity);
         item.tags = tags;
@@ -111,7 +113,7 @@ public class StackableItem {
     /**
      * 创建福地专供物品（种子/灵蛋）
      */
-    public static StackableItem createFudiItem(UUID userId, UUID templateId, ItemType itemType,
+    public static StackableItem createFudiItem(Long userId, Long templateId, ItemType itemType,
                                                String name, Integer quantity,
                                                Integer growTime, String yieldId, Integer surviveRate) {
         StackableItem item = create(userId, templateId, itemType, name, quantity);
@@ -164,7 +166,7 @@ public class StackableItem {
      */
     public boolean hasAllTags(List<String> requiredTags) {
         if (tags == null || tags.isEmpty()) return false;
-        return tags.containsAll(requiredTags.stream().map(String::toLowerCase).toList());
+        return new HashSet<>(tags).containsAll(requiredTags.stream().map(String::toLowerCase).toList());
     }
 
     /**

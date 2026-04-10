@@ -9,8 +9,8 @@ import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.mapper.ItemTemplateMapper;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -24,12 +24,12 @@ public class ItemTemplateRepositoryImpl implements ItemTemplateRepository {
     private final ItemTemplateMapper mapper;
 
     @Override
-    public Optional<ItemTemplate> findById(UUID templateId) {
+    public Optional<ItemTemplate> findById(Long templateId) {
         return Optional.ofNullable(mapper.selectOneById(templateId));
     }
 
     @Override
-    public List<ItemTemplate> findByIds(List<UUID> templateIds) {
+    public List<ItemTemplate> findByIds(List<Long> templateIds) {
         return mapper.selectListByIds(templateIds);
     }
 
@@ -37,7 +37,7 @@ public class ItemTemplateRepositoryImpl implements ItemTemplateRepository {
     public List<ItemTemplate> findByType(ItemType type) {
         // 先查询所有，然后在内存中过滤
         // 后续可以使用@Select注解写自定义SQL优化
-        return mapper.selectAll().stream()
+        return Objects.requireNonNull(mapper.selectAll()).stream()
                 .filter(t -> t.getType() == type)
                 .collect(Collectors.toList());
     }
@@ -47,7 +47,7 @@ public class ItemTemplateRepositoryImpl implements ItemTemplateRepository {
         if (types == null || types.isEmpty()) {
             return List.of();
         }
-        return mapper.selectAll().stream()
+        return Objects.requireNonNull(mapper.selectAll()).stream()
                 .filter(t -> types.contains(t.getType()))
                 .collect(Collectors.toList());
     }
@@ -112,12 +112,12 @@ public class ItemTemplateRepositoryImpl implements ItemTemplateRepository {
     }
 
     @Override
-    public void deleteById(UUID templateId) {
+    public void deleteById(Long templateId) {
         mapper.deleteById(templateId);
     }
 
     @Override
-    public boolean existsById(UUID templateId) {
+    public boolean existsById(Long templateId) {
         return mapper.selectOneById(templateId) != null;
     }
 }

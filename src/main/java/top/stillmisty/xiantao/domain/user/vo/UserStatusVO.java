@@ -5,7 +5,6 @@ import lombok.Data;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 /**
  * 用户状态 VO
@@ -14,7 +13,7 @@ import java.util.UUID;
 @Builder
 public class UserStatusVO {
     
-    private UUID userId;
+    private Long userId;
     private String nickname;
     private Integer level;
     private Long exp;

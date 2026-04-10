@@ -4,8 +4,6 @@ import lombok.Builder;
 import lombok.Data;
 import top.stillmisty.xiantao.domain.item.enums.EquipmentSlot;
 
-import java.util.UUID;
-
 /**
  * 卸下装备结果 VO
  */
@@ -16,7 +14,7 @@ public class UnequipResult {
     private boolean success;
     private String message;
 
-    private UUID equipmentId;
+    private Long equipmentId;
     private String equipmentName;
     private EquipmentSlot slot;
     private String slotName;

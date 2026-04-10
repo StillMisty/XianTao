@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
-import java.util.UUID;
 
 /**
  * 装备列表结果 VO
@@ -28,7 +27,7 @@ public class EquipmentListResult {
      * 用户ID
      */
     @JsonProperty("user_id")
-    private UUID userId;
+    private Long userId;
 
     /**
      * 装备列表

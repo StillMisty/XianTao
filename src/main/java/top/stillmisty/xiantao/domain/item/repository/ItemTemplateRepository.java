@@ -5,7 +5,6 @@ import top.stillmisty.xiantao.domain.item.enums.ItemType;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * 物品模板仓储接口
@@ -15,12 +14,12 @@ public interface ItemTemplateRepository {
     /**
      * 根据模板ID查找物品模板
      */
-    Optional<ItemTemplate> findById(UUID templateId);
+    Optional<ItemTemplate> findById(Long templateId);
 
     /**
      * 根据模板ID列表批量查找
      */
-    List<ItemTemplate> findByIds(List<UUID> templateIds);
+    List<ItemTemplate> findByIds(List<Long> templateIds);
 
     /**
      * 根据物品类型查找所有模板
@@ -75,10 +74,10 @@ public interface ItemTemplateRepository {
     /**
      * 删除物品模板
      */
-    void deleteById(UUID templateId);
+    void deleteById(Long templateId);
 
     /**
      * 检查模板ID是否存在
      */
-    boolean existsById(UUID templateId);
+    boolean existsById(Long templateId);
 }

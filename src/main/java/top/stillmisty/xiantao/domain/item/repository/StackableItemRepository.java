@@ -5,7 +5,6 @@ import top.stillmisty.xiantao.domain.item.enums.ItemType;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * 堆叠物品仓储接口
@@ -30,17 +29,17 @@ public interface StackableItemRepository {
     /**
      * 根据用户ID查找所有物品
      */
-    List<StackableItem> findByUserId(UUID userId);
+    List<StackableItem> findByUserId(Long userId);
 
     /**
      * 根据用户ID和物品类型查找物品
      */
-    List<StackableItem> findByUserIdAndItemType(UUID userId, ItemType itemType);
+    List<StackableItem> findByUserIdAndItemType(Long userId, ItemType itemType);
 
     /**
      * 根据用户ID和模板ID查找物品
      */
-    Optional<StackableItem> findByUserIdAndTemplateId(UUID userId, UUID templateId);
+    Optional<StackableItem> findByUserIdAndTemplateId(Long userId, Long templateId);
 
     /**
      * 根据ID列表批量查找物品
@@ -60,5 +59,5 @@ public interface StackableItemRepository {
     /**
      * 根据用户ID删除所有物品
      */
-    void deleteByUserId(UUID userId);
+    void deleteByUserId(Long userId);
 }

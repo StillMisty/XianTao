@@ -5,7 +5,6 @@ import lombok.Data;
 import top.stillmisty.xiantao.domain.item.enums.EquipmentSlot;
 
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * 用户战斗属性 VO (包含装备加成)
@@ -14,7 +13,7 @@ import java.util.UUID;
 @Builder
 public class UserCombatStatsVO {
 
-    private UUID userId;
+    private Long userId;
     private String nickname;
 
     // 基础属性

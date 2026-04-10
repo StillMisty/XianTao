@@ -3,7 +3,6 @@ package top.stillmisty.xiantao.domain.user.repository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 
 import java.util.Optional;
-import java.util.UUID;
 
 public interface UserRepository {
 
@@ -15,7 +14,7 @@ public interface UserRepository {
     /**
      * 根据ID查找用户
      */
-    Optional<User> findById(UUID id);
+    Optional<User> findById(Long id);
 
     /**
      * 检查昵称是否已存在

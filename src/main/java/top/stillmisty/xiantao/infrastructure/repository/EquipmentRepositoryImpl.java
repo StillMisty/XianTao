@@ -10,7 +10,6 @@ import top.stillmisty.xiantao.infrastructure.mapper.EquipmentMapper;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
@@ -31,19 +30,19 @@ public class EquipmentRepositoryImpl implements EquipmentRepository {
     }
 
     @Override
-    public Optional<Equipment> findById(UUID id) {
+    public Optional<Equipment> findById(Long id) {
         return Optional.ofNullable(equipmentMapper.selectOneById(id));
     }
 
     @Override
-    public List<Equipment> findByUserId(UUID userId) {
+    public List<Equipment> findByUserId(Long userId) {
         QueryWrapper query = new QueryWrapper()
                 .eq(Equipment::getUserId, userId);
         return equipmentMapper.selectListByQuery(query);
     }
 
     @Override
-    public List<Equipment> findEquippedByUserId(UUID userId) {
+    public List<Equipment> findEquippedByUserId(Long userId) {
         QueryWrapper query = new QueryWrapper()
                 .eq(Equipment::getUserId, userId)
                 .eq(Equipment::getEquipped, true);
@@ -51,7 +50,7 @@ public class EquipmentRepositoryImpl implements EquipmentRepository {
     }
 
     @Override
-    public Optional<Equipment> findEquippedByUserIdAndSlot(UUID userId, EquipmentSlot slot) {
+    public Optional<Equipment> findEquippedByUserIdAndSlot(Long userId, EquipmentSlot slot) {
         QueryWrapper query = new QueryWrapper()
                 .eq(Equipment::getUserId, userId)
                 .eq(Equipment::getSlot, slot)
@@ -60,7 +59,7 @@ public class EquipmentRepositoryImpl implements EquipmentRepository {
     }
 
     @Override
-    public List<Equipment> findByIds(List<UUID> ids) {
+    public List<Equipment> findByIds(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
             return List.of();
         }
@@ -70,12 +69,12 @@ public class EquipmentRepositoryImpl implements EquipmentRepository {
     }
 
     @Override
-    public void deleteById(UUID id) {
+    public void deleteById(Long id) {
         equipmentMapper.deleteById(id);
     }
 
     @Override
-    public void deleteByIds(List<UUID> ids) {
+    public void deleteByIds(List<Long> ids) {
         if (ids != null && !ids.isEmpty()) {
             ids.forEach(equipmentMapper::deleteById);
         }

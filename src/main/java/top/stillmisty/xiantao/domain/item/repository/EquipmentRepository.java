@@ -5,7 +5,6 @@ import top.stillmisty.xiantao.domain.item.enums.EquipmentSlot;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * 装备仓储接口
@@ -25,35 +24,35 @@ public interface EquipmentRepository {
     /**
      * 根据ID查找装备
      */
-    Optional<Equipment> findById(UUID id);
+    Optional<Equipment> findById(Long id);
 
     /**
      * 根据用户ID查找所有装备
      */
-    List<Equipment> findByUserId(UUID userId);
+    List<Equipment> findByUserId(Long userId);
 
     /**
      * 根据用户ID查找已穿戴的装备
      */
-    List<Equipment> findEquippedByUserId(UUID userId);
+    List<Equipment> findEquippedByUserId(Long userId);
 
     /**
      * 根据用户ID和部位查找已穿戴的装备
      */
-    Optional<Equipment> findEquippedByUserIdAndSlot(UUID userId, EquipmentSlot slot);
+    Optional<Equipment> findEquippedByUserIdAndSlot(Long userId, EquipmentSlot slot);
 
     /**
      * 根据ID列表批量查找装备
      */
-    List<Equipment> findByIds(List<UUID> ids);
+    List<Equipment> findByIds(List<Long> ids);
 
     /**
      * 删除装备
      */
-    void deleteById(UUID id);
+    void deleteById(Long id);
 
     /**
      * 批量删除装备
      */
-    void deleteByIds(List<UUID> ids);
+    void deleteByIds(List<Long> ids);
 }

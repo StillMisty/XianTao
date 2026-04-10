@@ -5,7 +5,6 @@ import lombok.Data;
 import top.stillmisty.xiantao.domain.item.entity.InventoryItem;
 
 import java.util.List;
-import java.util.UUID;
 
 /**
  * 背包查看结果 VO
@@ -18,7 +17,7 @@ public class InventoryResult {
     private boolean success;
     private String message;
 
-    private UUID userId;
+    private Long userId;
     private Integer capacity;
     private Integer currentSize;
 

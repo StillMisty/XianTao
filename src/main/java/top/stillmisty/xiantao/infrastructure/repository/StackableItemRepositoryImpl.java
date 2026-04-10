@@ -10,7 +10,6 @@ import top.stillmisty.xiantao.infrastructure.mapper.StackableItemMapper;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
@@ -36,14 +35,14 @@ public class StackableItemRepositoryImpl implements StackableItemRepository {
     }
 
     @Override
-    public List<StackableItem> findByUserId(UUID userId) {
+    public List<StackableItem> findByUserId(Long userId) {
         QueryWrapper query = new QueryWrapper()
                 .eq(StackableItem::getUserId, userId);
         return stackableItemMapper.selectListByQuery(query);
     }
 
     @Override
-    public List<StackableItem> findByUserIdAndItemType(UUID userId, ItemType itemType) {
+    public List<StackableItem> findByUserIdAndItemType(Long userId, ItemType itemType) {
         QueryWrapper query = new QueryWrapper()
                 .eq(StackableItem::getUserId, userId)
                 .eq(StackableItem::getItemType, itemType);
@@ -51,7 +50,7 @@ public class StackableItemRepositoryImpl implements StackableItemRepository {
     }
 
     @Override
-    public Optional<StackableItem> findByUserIdAndTemplateId(UUID userId, UUID templateId) {
+    public Optional<StackableItem> findByUserIdAndTemplateId(Long userId, Long templateId) {
         QueryWrapper query = new QueryWrapper()
                 .eq(StackableItem::getUserId, userId)
                 .eq(StackableItem::getTemplateId, templateId);
@@ -81,7 +80,7 @@ public class StackableItemRepositoryImpl implements StackableItemRepository {
     }
 
     @Override
-    public void deleteByUserId(UUID userId) {
+    public void deleteByUserId(Long userId) {
         QueryWrapper query = new QueryWrapper()
                 .eq(StackableItem::getUserId, userId);
         stackableItemMapper.deleteByQuery(query);
