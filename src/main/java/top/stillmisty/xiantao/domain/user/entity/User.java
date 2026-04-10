@@ -101,6 +101,18 @@ public class User extends Model<User> {
     private LocalDateTime afkStartTime;
 
     /**
+     * 旅行开始时间戳 (用于计算旅行进度)
+     */
+    @Column(onInsertValue = "null")
+    private LocalDateTime travelStartTime;
+
+    /**
+     * 旅行目的地地图 ID
+     */
+    @Column(onInsertValue = "0")
+    private Long travelDestinationId;
+
+    /**
      * JSONB 扩展字段 (存储称号、成就、小规模系统数据)
      */
     private Object extraData;
