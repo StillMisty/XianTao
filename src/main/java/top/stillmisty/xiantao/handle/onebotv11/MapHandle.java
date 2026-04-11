@@ -100,7 +100,7 @@ public class MapHandle {
      */
     @Listener
     @ContentTrim
-    @Filter("结束历练")
+    @Filter("历练结束")
     public void endTraining(MessageEvent event) {
         log.debug("收到结束历练请求 - AuthorId: {}", event.getAuthorId());
 

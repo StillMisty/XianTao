@@ -41,8 +41,8 @@ public class CultivationCommandHandler extends BaseCommandHandler {
 
         // 验证用户身份
         var authResult = authenticate(platform, openId);
-        if (!authResult.authenticated()) {
-            return authResult.errorMessage();
+        if (authResult.authenticated()) {
+            return "您已经踏上仙途了哦~";
         }
 
         var result = userService.createUser(platform, openId, nickname);
