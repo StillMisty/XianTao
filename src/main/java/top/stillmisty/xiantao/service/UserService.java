@@ -47,6 +47,16 @@ public class UserService {
             );
         }
 
+        // 检查道号是否已被占用
+        if (userRepository.existsByNickname(nickname)) {
+            return new RegisterResult(
+                    false,
+                    "此道号已被他人使用，请另择佳名~",
+                    null,
+                    null
+            );
+        }
+
         // 创建用户
         var user = userRepository.save(
                 User.create()
