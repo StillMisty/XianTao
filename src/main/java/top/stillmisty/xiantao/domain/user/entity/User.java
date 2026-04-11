@@ -126,6 +126,11 @@ public class User extends Model<User> {
     private Integer breakthroughFailCount;
 
     /**
+     * 上次洗点时间戳 (用于洗点冷却判定，3天冷却)
+     */
+    private LocalDateTime lastResetPointsTime;
+
+    /**
      * 创建时间
      */
     @Column(onInsertValue = "now()")
@@ -300,5 +305,80 @@ public class User extends Model<User> {
 
         freeStatPoints -= points;
         return true;
+    }
+
+    /**
+     * 重置所有属性点（洗点）
+     * 将所有已分配的属性点全部返还为可用属性点
+     */
+    public void resetAllStatPoints() {
+        // 计算总已分配点数
+        int totalAllocated = (statStr != null ? statStr : 5) + 
+                            (statCon != null ? statCon : 5) + 
+                            (statAgi != null ? statAgi : 5) + 
+                            (statWis != null ? statWis : 5);
+        
+        // 扣除基础值（每个属性基础值为5）
+        int baseStats = 5 * 4; // 四个属性，每个基础5点
+        int allocatedPoints = totalAllocated - baseStats;
+        
+        // 返还到可用属性点
+        freeStatPoints += allocatedPoints;
+        
+        // 重置为基础值
+        statStr = 5;
+        statCon = 5;
+        statAgi = 5;
+        statWis = 5;
+        
+        // 更新洗点时间
+        lastResetPointsTime = LocalDateTime.now();
+    }
+
+    /**
+     * 检查是否可以洗点（3天冷却）
+     *
+     * @return 是否可以洗点
+     */
+    public boolean canResetPoints() {
+        if (lastResetPointsTime == null) {
+            return true; // 从未洗过点，可以洗
+        }
+        
+        LocalDateTime now = LocalDateTime.now();
+        long hoursSinceLastReset = java.time.Duration.between(lastResetPointsTime, now).toHours();
+        return hoursSinceLastReset >= 72; // 3天 = 72小时
+    }
+
+    /**
+     * 获取下次可洗点的时间
+     *
+     * @return 下次可洗点时间
+     */
+    public LocalDateTime getNextResetTime() {
+        if (lastResetPointsTime == null) {
+            return LocalDateTime.now();
+        }
+        return lastResetPointsTime.plusHours(72);
+    }
+
+    /**
+     * 获取洗点冷却剩余小时数
+     *
+     * @return 剩余小时数
+     */
+    public long getResetCooldownHoursRemaining() {
+        if (lastResetPointsTime == null) {
+            return 0;
+        }
+        
+        LocalDateTime nextResetTime = getNextResetTime();
+        LocalDateTime now = LocalDateTime.now();
+        
+        if (now.isAfter(nextResetTime)) {
+            return 0;
+        }
+        
+        return java.time.Duration.between(now, nextResetTime).toHours();
     }
 }

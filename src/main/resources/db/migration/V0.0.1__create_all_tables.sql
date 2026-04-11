@@ -11,7 +11,7 @@
 -- 游戏角色核心表 (xt_user)
 CREATE TABLE xt_user (
     id                      BIGSERIAL PRIMARY KEY,
-    nickname                VARCHAR(64) NOT NULL,
+    nickname                VARCHAR(64) NOT NULL UNIQUE ,
     -- 游戏进度
     level                   INT         NOT NULL DEFAULT 1,
     exp                     BIGINT      NOT NULL DEFAULT 0,
@@ -29,6 +29,7 @@ CREATE TABLE xt_user (
     location_id             BIGINT      NOT NULL DEFAULT 0,
     training_start_time     TIMESTAMP,
     breakthrough_fail_count INT         NOT NULL DEFAULT 0,
+    last_reset_points_time  TIMESTAMP,
 
     -- 扩展数据
     extra_data              JSONB                DEFAULT '{}'::jsonb,
@@ -58,6 +59,7 @@ COMMENT ON COLUMN xt_user.status IS '当前状态';
 COMMENT ON COLUMN xt_user.location_id IS '当前所在地图 id';
 COMMENT ON COLUMN xt_user.training_start_time IS '历练开始时间戳 (用于结算收益)';
 COMMENT ON COLUMN xt_user.breakthrough_fail_count IS '突破失败次数 (影响下一次突破成功率)';
+COMMENT ON COLUMN xt_user.last_reset_points_time IS '上次洗点时间戳 (用于洗点冷却判定，3天冷却)';
 COMMENT ON COLUMN xt_user.extra_data IS 'JSONB 扩展字段 (存储称号、成就、小规模系统数据)';
 COMMENT ON COLUMN xt_user.create_time IS '角色创建时间';
 COMMENT ON COLUMN xt_user.update_time IS '最后一次数据更新时间';
@@ -85,6 +87,7 @@ COMMENT ON COLUMN xt_user.status IS '当前状态';
 COMMENT ON COLUMN xt_user.location_id IS '当前所在地图 id';
 COMMENT ON COLUMN xt_user.training_start_time IS '历练开始时间戳 (用于结算收益)';
 COMMENT ON COLUMN xt_user.breakthrough_fail_count IS '突破失败次数 (影响下一次突破成功率)';
+COMMENT ON COLUMN xt_user.last_reset_points_time IS '上次洗点时间戳 (用于洗点冷却判定，3天冷却)';
 COMMENT ON COLUMN xt_user.extra_data IS 'JSONB 扩展字段 (存储称号、成就、小规模系统数据)';
 COMMENT ON COLUMN xt_user.create_time IS '角色创建时间';
 COMMENT ON COLUMN xt_user.update_time IS '最后一次数据更新时间';

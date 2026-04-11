@@ -31,4 +31,11 @@ public class UserRepositoryImpl implements UserRepository {
                 .eq(User::getNickname, nickname);
         return userMapper.selectCountByQuery(query) > 0;
     }
+
+    @Override
+    public Optional<User> findByNickname(String nickname) {
+        QueryWrapper query = new QueryWrapper()
+                .eq(User::getNickname, nickname);
+        return Optional.ofNullable(userMapper.selectOneByQuery(query));
+    }
 }

@@ -2,6 +2,7 @@ package top.stillmisty.xiantao.domain.user.repository;
 
 import top.stillmisty.xiantao.domain.user.entity.User;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository {
@@ -20,4 +21,9 @@ public interface UserRepository {
      * 检查昵称是否已存在
      */
     boolean existsByNickname(String nickname);
+
+    /**
+     * 根据昵称查找用户
+     */
+    Optional<User> findByNickname(String nickname);
 }
