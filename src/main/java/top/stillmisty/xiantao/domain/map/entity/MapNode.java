@@ -62,7 +62,7 @@ public class MapNode extends Model<MapNode> {
     private Map<String, Integer> neighbors;
 
     /**
-     * 挂机掉落池/特产 (JSONB)
+     * 历练掉落池/特产 (JSONB)
      * 格式: [{"name": "毒龙草", "weight": 30}, {"name": "铁矿石", "weight": 50}]
      */
     @Column(typeHandler = PgJsonbTypeHandler.class)

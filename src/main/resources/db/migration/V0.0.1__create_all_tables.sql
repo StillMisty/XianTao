@@ -27,7 +27,7 @@ CREATE TABLE xt_user (
     hp_current              INT         NOT NULL DEFAULT 200,
     status                  VARCHAR(32) NOT NULL DEFAULT 'idle',
     location_id             BIGINT      NOT NULL DEFAULT 0,
-    afk_start_time          TIMESTAMP,
+    training_start_time     TIMESTAMP,
     breakthrough_fail_count INT         NOT NULL DEFAULT 0,
 
     -- 扩展数据
@@ -53,7 +53,7 @@ COMMENT ON COLUMN xt_user.free_stat_points IS '剩余可分配属性点';
 COMMENT ON COLUMN xt_user.hp_current IS '当前生命值';
 COMMENT ON COLUMN xt_user.status IS '当前状态';
 COMMENT ON COLUMN xt_user.location_id IS '当前所在地图 id';
-COMMENT ON COLUMN xt_user.afk_start_time IS '挂机开始时间戳 (用于结算收益)';
+COMMENT ON COLUMN xt_user.training_start_time IS '历练开始时间戳 (用于结算收益)';
 COMMENT ON COLUMN xt_user.breakthrough_fail_count IS '突破失败次数 (影响下一次突破成功率)';
 COMMENT ON COLUMN xt_user.extra_data IS 'JSONB 扩展字段 (存储称号、成就、小规模系统数据)';
 COMMENT ON COLUMN xt_user.create_time IS '角色创建时间';
@@ -263,9 +263,9 @@ INSERT INTO xt_item_template (name, type, tags, description, max_stack) VALUES
 ('疗伤丹', 'POTION', '["healing", "potion", "combat"]'::jsonb, '服用后恢复50点生命值，战斗外使用', 20),
 ('聚气丹', 'POTION', '["healing", "potion", "combat", "rare"]'::jsonb, '服用后恢复100点生命值，战斗外使用', 20),
 ('大还丹', 'POTION', '["healing", "potion", "rare", "combat"]'::jsonb, '恢复100% HP，战斗外使用', 20),
-('敏捷药剂', 'POTION', '["buff", "potion", "agi", "rare"]'::jsonb, '挂机增益，持续2小时内，敏捷+50', 10),
-('智慧药剂', 'POTION', '["buff", "potion", "wis", "rare"]'::jsonb, '挂机增益，持续2小时内，智慧+50', 10),
-('蛮力药剂', 'POTION', '["buff", "potion", "str", "rare"]'::jsonb, '挂机增益，持续2小时内，力量+50', 10);
+('敏捷药剂', 'POTION', '["buff", "potion", "agi", "rare"]'::jsonb, '历练增益，持续2小时内，敏捷+50', 10),
+('智慧药剂', 'POTION', '["buff", "potion", "wis", "rare"]'::jsonb, '历练增益，持续2小时内，智慧+50', 10),
+('蛮力药剂', 'POTION', '["buff", "potion", "str", "rare"]'::jsonb, '历练增益，持续2小时内，力量+50', 10);
 
 -- 草药类
 INSERT INTO xt_item_template (name, type, base_stat_bonus, tags, description, max_stack) VALUES

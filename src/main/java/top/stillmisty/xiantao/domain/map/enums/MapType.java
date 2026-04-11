@@ -15,9 +15,9 @@ public enum MapType {
     SAFE_TOWN("safe_town", "主城/安全区"),
 
     /**
-     * 挂机区
+     * 历练区
      */
-    AFK_ZONE("afk_zone", "挂机区"),
+    TRAINING_ZONE("training_zone", "历练区"),
 
     /**
      * 隐藏区

@@ -60,7 +60,7 @@ public class MapInfoVO {
     private List<String> adjacentMapNames;
 
     /**
-     * 挂机掉落池/特产 (JSONB)
+     * 历练掉落池/特产 (JSONB)
      * 格式: [{"name": "毒龙草", "weight": 30}, {"name": "铁矿石", "weight": 50}]
      */
     private List<Map<String, Object>> specialties;

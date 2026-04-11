@@ -2,7 +2,7 @@ package top.stillmisty.xiantao.handle.command;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import top.stillmisty.xiantao.domain.map.vo.AfkRewardVO;
+import top.stillmisty.xiantao.domain.map.vo.TrainingRewardVO;
 import top.stillmisty.xiantao.domain.map.vo.ExplorationResultVO;
 import top.stillmisty.xiantao.domain.map.vo.MapInfoVO;
 import top.stillmisty.xiantao.domain.map.vo.TravelResultVO;
@@ -23,20 +23,20 @@ public class MapCommandHandler extends BaseCommandHandler {
 
     private final MapService mapService;
     private final TravelService travelService;
-    private final AfkService afkService;
+    private final TrainingService trainingService;
     private final ExplorationService explorationService;
     private final ItemService itemService;
 
     public MapCommandHandler(
             UserAuthService userAuthService, ItemService itemService, MapService mapService, TravelService travelService,
-            AfkService afkService, ExplorationService explorationService,
+            TrainingService trainingService, ExplorationService explorationService,
             UserService userService
     ) {
         super(userAuthService, userService);
         this.itemService = itemService;
         this.mapService = mapService;
         this.travelService = travelService;
-        this.afkService = afkService;
+        this.trainingService = trainingService;
         this.explorationService = explorationService;
     }
 
@@ -115,14 +115,14 @@ public class MapCommandHandler extends BaseCommandHandler {
     }
 
     /**
-     * 处理挂机命令
+     * 处理历练命令
      *
      * @param platform 平台类型
      * @param openId   平台用户 ID
-     * @return 挂机结果消息
+     * @return 历练结果消息
      */
-    public String handleAfk(PlatformType platform, String openId) {
-        log.debug("处理挂机请求 - Platform: {}, OpenId: {}", platform, openId);
+    public String handleTraining(PlatformType platform, String openId) {
+        log.debug("处理历练请求 - Platform: {}, OpenId: {}", platform, openId);
 
         // 验证用户身份和状态
         var authResult = authenticateAndValidateStatus(platform, openId, UserStatus.IDLE);
@@ -130,21 +130,43 @@ public class MapCommandHandler extends BaseCommandHandler {
             return authResult.errorMessage();
         }
 
-        // 计算挂机奖励
-        AfkRewardVO rewards = afkService.calculateAfkRewards(authResult.userId());
+        // 计算历练奖励
+        TrainingRewardVO rewards = trainingService.calculateTrainingRewards(authResult.userId());
 
         // 应用奖励
         if (rewards.getCoins() != null && rewards.getCoins() > 0 ||
                 rewards.getSpiritStones() != null && rewards.getSpiritStones() > 0 ||
                 rewards.getItems() != null && !rewards.getItems().isEmpty()) {
 
-            boolean applied = afkService.applyAfkRewards(authResult.userId(), rewards);
+            boolean applied = trainingService.applyTrainingRewards(authResult.userId(), rewards);
             if (applied) {
-                return formatAfkReward(rewards);
+                return formatTrainingReward(rewards);
             }
         }
 
         return rewards.getSummary();
+    }
+
+    /**
+     * 处理结束历练命令
+     *
+     * @param platform 平台类型
+     * @param openId   平台用户 ID
+     * @return 历练结算结果消息
+     */
+    public String handleEndTraining(PlatformType platform, String openId) {
+        log.debug("处理结束历练请求 - Platform: {}, OpenId: {}", platform, openId);
+
+        // 验证用户身份
+        var authResult = authenticate(platform, openId);
+        if (!authResult.authenticated()) {
+            return authResult.errorMessage();
+        }
+
+        // 结束历练并应用奖励
+        TrainingRewardVO rewards = trainingService.endTraining(authResult.userId());
+
+        return formatTrainingReward(rewards);
     }
 
     /**
@@ -249,13 +271,13 @@ public class MapCommandHandler extends BaseCommandHandler {
     }
 
     /**
-     * 格式化挂机奖励
+     * 格式化历练奖励
      */
-    private String formatAfkReward(AfkRewardVO rewards) {
+    private String formatTrainingReward(TrainingRewardVO rewards) {
         StringBuilder sb = new StringBuilder();
-        sb.append("【挂机结算】\n");
+        sb.append("【历练结算】\n");
         sb.append(String.format("地图: %s\n", rewards.getMapName()));
-        sb.append(String.format("挂机时长: %d 分钟\n", rewards.getDurationMinutes()));
+        sb.append(String.format("历练时长: %d 分钟\n", rewards.getDurationMinutes()));
         sb.append(String.format("效率倍率: %.2fx\n\n", rewards.getEfficiencyMultiplier()));
 
         if (rewards.getCoins() != null && rewards.getCoins() > 0) {

@@ -98,9 +98,9 @@ public class User extends Model<User> {
     private Long locationId;
 
     /**
-     * 挂机开始时间戳 (用于结算收益)
+     * 历练开始时间戳 (用于结算收益)
      */
-    private LocalDateTime afkStartTime;
+    private LocalDateTime trainingStartTime;
 
     /**
      * 旅行开始时间戳 (用于计算旅行进度)

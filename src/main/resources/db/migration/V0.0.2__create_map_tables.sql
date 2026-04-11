@@ -39,11 +39,11 @@ COMMENT ON TABLE xt_map_node IS '地图节点表';
 COMMENT ON COLUMN xt_map_node.id IS '地图节点 ID';
 COMMENT ON COLUMN xt_map_node.name IS '地图名称';
 COMMENT ON COLUMN xt_map_node.description IS '地图描述';
-COMMENT ON COLUMN xt_map_node.map_type IS '地图类型 (safe_town, afk_zone, hidden_zone)';
+COMMENT ON COLUMN xt_map_node.map_type IS '地图类型 (safe_town, training_zone, hidden_zone)';
 COMMENT ON COLUMN xt_map_node.level_requirement IS '推荐等级';
 COMMENT ON COLUMN xt_map_node.travel_time_minutes IS '旅行耗时（分钟）';
 COMMENT ON COLUMN xt_map_node.neighbors IS '相邻地图及耗时 JSONB，格式: {"黑金主城": 5, "枯骨林": 10}';
-COMMENT ON COLUMN xt_map_node.specialties IS '挂机掉落池 JSONB，格式: [{"name": "毒龙草", "weight": 30}]';
+COMMENT ON COLUMN xt_map_node.specialties IS '历练掉落池 JSONB，格式: [{"name": "毒龙草", "weight": 30}]';
 COMMENT ON COLUMN xt_map_node.travel_events IS '旅行事件权重 JSONB，格式: [{"eventType": "ambush", "weight": 40}]';
 COMMENT ON COLUMN xt_map_node.create_time IS '创建时间';
 COMMENT ON COLUMN xt_map_node.update_time IS '更新时间';
@@ -99,7 +99,7 @@ INSERT INTO xt_map_node (name, description, map_type, level_requirement, travel_
 (
     '幽暗沼泽',
     '常年弥漫着毒雾的沼泽地，盛产珍稀毒草，但也潜伏着危险的沼泽生物。',
-    'afk_zone',
+    'training_zone',
     5,
     5,
     '{"黑金主城": 5, "枯骨林": 10}'::jsonb,
@@ -109,7 +109,7 @@ INSERT INTO xt_map_node (name, description, map_type, level_requirement, travel_
 (
     '枯骨林',
     '一片枯萎的森林，遍地白骨，传闻曾有强大的古兽陨落于此。',
-    'afk_zone',
+    'training_zone',
     10,
     10,
     '{"幽暗沼泽": 10, "迷雾洞窟": 15}'::jsonb,

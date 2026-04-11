@@ -32,6 +32,6 @@ public class UserStatusVO {
     private Long spiritStones;
     private Integer breakthroughFailCount;
     private Double nextBreakthroughRate;
-    private LocalDateTime afkStartTime;
+    private LocalDateTime trainingStartTime;
     private Long meditationDurationMinutes;
 }

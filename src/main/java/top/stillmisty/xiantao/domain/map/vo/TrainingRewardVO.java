@@ -7,28 +7,28 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 挂机奖励 VO
+ * 历练奖励 VO
  */
 @Data
 @Builder
-public class AfkRewardVO {
+public class TrainingRewardVO {
     /**
      * 用户 ID
      */
     private Long userId;
 
     /**
-     * 挂机地图 ID
+     * 历练地图 ID
      */
     private Long mapId;
 
     /**
-     * 挂机地图名称
+     * 历练地图名称
      */
     private String mapName;
 
     /**
-     * 挂机时长（分钟）
+     * 历练时长（分钟）
      */
     private Long durationMinutes;
 

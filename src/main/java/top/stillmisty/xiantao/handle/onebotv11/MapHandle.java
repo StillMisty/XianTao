@@ -13,7 +13,7 @@ import top.stillmisty.xiantao.handle.command.MapCommandHandler;
 
 /**
  * 地图管理监听器
- * 处理地图、旅行、挂机、探索相关命令
+ * 处理地图、旅行、历练、探索相关命令
  */
 @Slf4j
 @Component
@@ -79,15 +79,32 @@ public class MapHandle {
     }
 
     /**
-     * 处理挂机命令
+     * 处理历练命令
      */
     @Listener
     @ContentTrim
-    @Filter("挂机")
-    public void afk(MessageEvent event) {
-        log.debug("收到挂机请求 - AuthorId: {}", event.getAuthorId());
+    @Filter("历练")
+    public void training(MessageEvent event) {
+        log.debug("收到历练请求 - AuthorId: {}", event.getAuthorId());
 
-        String response = mapCommandHandler.handleAfk(
+        String response = mapCommandHandler.handleTraining(
+                PlatformType.ONE_BOT_V11,
+                event.getAuthorId().toString()
+        );
+
+        event.replyBlocking(response);
+    }
+
+    /**
+     * 处理结束历练命令
+     */
+    @Listener
+    @ContentTrim
+    @Filter("结束历练")
+    public void endTraining(MessageEvent event) {
+        log.debug("收到结束历练请求 - AuthorId: {}", event.getAuthorId());
+
+        String response = mapCommandHandler.handleEndTraining(
                 PlatformType.ONE_BOT_V11,
                 event.getAuthorId().toString()
         );

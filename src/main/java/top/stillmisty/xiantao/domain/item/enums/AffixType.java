@@ -34,7 +34,7 @@ public enum AffixType {
     LIFE_STEAL("life_steal", "吸血", null, "吸血"),
 
     /**
-     * 寻宝 - 挂机极品掉率+5%（仅金装）
+     * 寻宝 - 历练极品掉率+5%（仅金装）
      */
     TREASURE_HUNT("treasure_hunt", "寻宝", null, "寻宝");
 
