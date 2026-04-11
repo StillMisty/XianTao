@@ -5,9 +5,11 @@ import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import com.mybatisflex.core.activerecord.Model;
+import com.mybatisflex.core.handler.JacksonTypeHandler;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import top.stillmisty.xiantao.domain.map.enums.MapType;
+import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -56,18 +58,21 @@ public class MapNode extends Model<MapNode> {
      * 相邻地图 (JSONB)
      * 格式: {"黑金主城": 5, "枯骨林": 10}
      */
+    @Column(typeHandler = PgJsonbTypeHandler.class)
     private Map<String, Integer> neighbors;
 
     /**
      * 挂机掉落池/特产 (JSONB)
      * 格式: [{"name": "毒龙草", "weight": 30}, {"name": "铁矿石", "weight": 50}]
      */
+    @Column(typeHandler = PgJsonbTypeHandler.class)
     private List<Map<String, Object>> specialties;
 
     /**
      * 旅行事件权重 (JSONB)
      * 格式: [{"eventType": "ambush", "weight": 40}, {"eventType": "find_treasure", "weight": 10}]
      */
+    @Column(typeHandler = PgJsonbTypeHandler.class)
     private List<Map<String, Object>> travelEvents;
 
     /**

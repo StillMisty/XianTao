@@ -10,10 +10,12 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import top.stillmisty.xiantao.domain.user.enums.AttributeType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
+import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 /**
  * 游戏角色核心表实体
@@ -115,7 +117,8 @@ public class User extends Model<User> {
     /**
      * JSONB 扩展字段 (存储称号、成就、小规模系统数据)
      */
-    private Object extraData;
+    @Column(typeHandler = PgJsonbTypeHandler.class)
+    private Map<String, Object> extraData;
 
     /**
      * 突破失败次数 (影响下一次突破成功率)
@@ -192,6 +195,7 @@ public class User extends Model<User> {
 
     /**
      * 恢复生命值
+     *
      * @param amount 恢复量
      * @return 实际恢复量
      */
@@ -204,6 +208,7 @@ public class User extends Model<User> {
 
     /**
      * 消耗生命值（受伤）
+     *
      * @param amount 伤害量
      * @return 实际伤害量
      */
@@ -222,6 +227,7 @@ public class User extends Model<User> {
 
     /**
      * 添加经验值（考虑存储上限）
+     *
      * @param expToAdd 要添加的经验值
      * @return 实际添加的经验值
      */
@@ -229,7 +235,7 @@ public class User extends Model<User> {
         long maxStorage = calculateMaxExpStorage();
         long currentStorage = exp - (level > 1 ? calculateExpToPrevLevel() : 0);
         long availableSpace = maxStorage - currentStorage;
-        
+
         long actualAdd = Math.min(expToAdd, availableSpace);
         this.exp += actualAdd;
         return actualAdd;
@@ -245,12 +251,13 @@ public class User extends Model<User> {
 
     /**
      * 尝试突破升级
+     *
      * @return 是否突破成功
      */
     public boolean attemptBreakthrough() {
         double successRate = calculateBreakthroughSuccessRate();
         boolean success = Math.random() < successRate;
-        
+
         if (success) {
             level++;
             exp -= calculateExpToPrevLevel(); // 扣除升级所需经验
@@ -260,21 +267,22 @@ public class User extends Model<User> {
         } else {
             breakthroughFailCount++;
         }
-        
+
         return success;
     }
 
     /**
      * 分配属性点
+     *
      * @param statType 属性类型 (str, con, agi, wis)
-     * @param points 点数
+     * @param points   点数
      * @return 是否分配成功
      */
     public boolean allocateStatPoints(AttributeType statType, int points) {
         if (freeStatPoints < points || points <= 0) {
             return false;
         }
-        
+
         switch (statType) {
             case AttributeType.STR:
                 statStr += points;
@@ -289,7 +297,7 @@ public class User extends Model<User> {
                 statWis += points;
                 break;
         }
-        
+
         freeStatPoints -= points;
         return true;
     }

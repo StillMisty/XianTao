@@ -4,10 +4,12 @@ import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
+import com.mybatisflex.core.handler.JacksonTypeHandler;
 import lombok.Data;
 import top.stillmisty.xiantao.domain.item.enums.EquipmentSlot;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.enums.Rarity;
+import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -50,6 +52,7 @@ public class ItemTemplate {
     /**
      * 基础属性加成 JSONB: {"str":5,"con":3,"agi":2,"wis":0}
      */
+    @Column(typeHandler = PgJsonbTypeHandler.class)
     private Map<String, Integer> baseStats;
 
     /**
@@ -71,6 +74,7 @@ public class ItemTemplate {
      * 掉落权重 JSONB（仅装备类）
      * 示例: {"BROKEN": 50, "COMMON": 30, "RARE": 15, "EPIC": 4, "LEGENDARY": 1}
      */
+    @Column(typeHandler = PgJsonbTypeHandler.class)
     private Map<String, Integer> dropWeight;
 
     /**
@@ -78,6 +82,7 @@ public class ItemTemplate {
      * 用于：材料锻造需求、NPC喜好判断、地灵AI识别
      * 示例: ["ore", "metal", "forge_base"] 或 ["seed", "fire", "rare"]
      */
+    @Column(typeHandler = PgJsonbTypeHandler.class)
     private List<String> tags;
 
     /**

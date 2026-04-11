@@ -16,7 +16,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User save(User user) {
-        userMapper.insertSelective(user);
+        userMapper.insertOrUpdateSelective(user);
         return user;
     }
 

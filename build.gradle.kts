@@ -36,7 +36,7 @@ dependencies {
     implementation(libs.flyway.database.postgresql)
     compileOnly(libs.lombok)
     developmentOnly(libs.spring.boot.devtools)
-    runtimeOnly(libs.postgresql)
+    implementation(libs.postgresql)
     annotationProcessor(libs.lombok)
     testImplementation(libs.spring.boot.starter.cache.test)
     testImplementation(libs.spring.boot.starter.flyway.test)
