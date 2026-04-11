@@ -168,6 +168,12 @@ public class CultivationCommandHandler extends BaseCommandHandler {
         StringBuilder sb = new StringBuilder();
 
         sb.append(String.format("【%s】的修仙状态\n", status.getNickname()));
+
+        // 自身状态
+        if (status.getStatus() != null && status.getStatusName() != null) {
+            sb.append(String.format("状态：%s\n", status.getStatusName()));
+        }
+
         sb.append(String.format("境界：第%d层 (%.1f%%)\n", status.getLevel(), status.getExpPercentage()));
         sb.append(String.format("HP：%d/%d (%.1f%%)\n", status.getHpCurrent(), status.getHpMax(), status.getHpPercentage()));
         sb.append("\n");
