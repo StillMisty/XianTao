@@ -23,7 +23,7 @@ public class CultivationCommandHandler extends BaseCommandHandler {
     private final ItemService itemService;
 
     public CultivationCommandHandler(UserAuthService userAuthService, UserService userService, ItemService itemService) {
-        super(userAuthService);
+        super(userAuthService,userService);
         this.userService = userService;
         this.itemService = itemService;
     }

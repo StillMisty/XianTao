@@ -2,11 +2,10 @@ package top.stillmisty.xiantao.handle.command;
 
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import top.stillmisty.xiantao.domain.item.vo.CharacterStatusResult;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
-import top.stillmisty.xiantao.service.ItemService;
 import top.stillmisty.xiantao.service.UserAuthService;
+import top.stillmisty.xiantao.service.UserService;
 
 /**
  * 命令处理器基类
@@ -16,7 +15,7 @@ import top.stillmisty.xiantao.service.UserAuthService;
 public abstract class BaseCommandHandler {
 
     protected final UserAuthService userAuthService;
-    protected ItemService itemService;
+    protected final UserService userService;
 
     /**
      * 认证结果封装
@@ -53,18 +52,14 @@ public abstract class BaseCommandHandler {
      * @return 验证结果，如果成功返回null，失败返回错误消息
      */
     protected String validateUserStatus(Long userId, UserStatus requiredStatus) {
-        if (itemService == null) {
-            return "ItemService未初始化";
-        }
-
         // 获取用户状态
-        var characterStatus = itemService.getCharacterStatus(userId);
-        if (characterStatus == null || !characterStatus.isSuccess()) {
-            return "获取用户状态失败";
+        var user = userService.findById(userId);
+        if (user.isEmpty()) {
+            return "用户不存在";
         }
 
-        if (characterStatus.getStatus() != requiredStatus) {
-            String currentStatusName = characterStatus.getStatusName();
+        if (user.get().getStatus() != requiredStatus) {
+            String currentStatusName = user.get().getStatus() != null ? user.get().getStatus().getName() : "未知";
             String requiredStatusName = requiredStatus.getName();
             return String.format("您当前处于 %s 状态，无法进行此操作（需要 %s 状态）", currentStatusName, requiredStatusName);
         }

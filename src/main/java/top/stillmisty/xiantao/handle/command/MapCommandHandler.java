@@ -12,7 +12,6 @@ import top.stillmisty.xiantao.service.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * 地图命令处理器
@@ -30,9 +29,10 @@ public class MapCommandHandler extends BaseCommandHandler {
 
     public MapCommandHandler(
             UserAuthService userAuthService, ItemService itemService, MapService mapService, TravelService travelService,
-            AfkService afkService, ExplorationService explorationService
+            AfkService afkService, ExplorationService explorationService,
+            UserService userService
     ) {
-        super(userAuthService);
+        super(userAuthService, userService);
         this.itemService = itemService;
         this.mapService = mapService;
         this.travelService = travelService;
