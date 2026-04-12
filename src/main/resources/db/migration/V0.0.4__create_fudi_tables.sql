@@ -19,7 +19,7 @@ CREATE TABLE xt_fudi (
     spirit_stage INTEGER NOT NULL DEFAULT 1, -- 地灵形态阶段（1/2/3）
     spirit_energy INTEGER NOT NULL DEFAULT 100, -- 地灵精力值（0-100）
     spirit_affection INTEGER NOT NULL DEFAULT 0, -- 地灵好感度
-    emotion_state VARCHAR(20) NOT NULL DEFAULT 'CALM', -- 情绪状态
+    emotion_state VARCHAR(20) NOT NULL DEFAULT 'calm', -- 情绪状态
     
     -- 管理模式
     auto_mode BOOLEAN NOT NULL DEFAULT TRUE, -- 是否开启自动管理
@@ -50,8 +50,6 @@ CREATE TABLE xt_fudi (
 
 -- 索引
 CREATE INDEX idx_fudi_user_id ON xt_fudi(user_id);
-CREATE INDEX idx_fudi_mbti_type ON xt_fudi(mbti_type);
-CREATE INDEX idx_fudi_spirit_stage ON xt_fudi(spirit_stage);
 
 -- JSONB字段GIN索引（支持高效查询）
 CREATE INDEX idx_fudi_grid_layout ON xt_fudi USING GIN (grid_layout);

@@ -45,16 +45,6 @@ mybatis-flex:
   configuration:
     log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
 
-# Spring AI 配置
-
-# 地灵系统配置
-xiantao:
-  spirit:
-    # LLM 单次会话最大 Token
-    max-tokens: 800
-    # 降级开关：当 LLM 不可用时回退到规则匹配
-    enable-fallback: true
-
 # 日志配置
 logging:
   level:
