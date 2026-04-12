@@ -130,6 +130,9 @@ public class MapCommandHandler extends BaseCommandHandler {
             return authResult.errorMessage();
         }
 
+        // TODO: 这里应该是开始历练，但目前代码是结算历练
+        // 暂时保持原有逻辑，后续需要重构为开始历练+消耗体力
+        
         // 计算历练奖励
         TrainingRewardVO rewards = trainingService.calculateTrainingRewards(authResult.userId());
 

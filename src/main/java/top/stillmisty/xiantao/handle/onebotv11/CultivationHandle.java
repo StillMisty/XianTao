@@ -169,4 +169,22 @@ public class CultivationHandle {
 
         event.replyBlocking(response);
     }
+
+    /**
+     * 处理体力查询命令
+     * 格式：体力
+     */
+    @Listener
+    @ContentTrim
+    @Filter("体力")
+    public void queryStamina(MessageEvent event) {
+        log.debug("收到体力查询请求 - AuthorId: {}", event.getAuthorId());
+
+        String response = cultivationCommandHandler.handleStaminaQuery(
+                PlatformType.ONE_BOT_V11,
+                event.getAuthorId().toString()
+        );
+
+        event.replyBlocking(response);
+    }
 }

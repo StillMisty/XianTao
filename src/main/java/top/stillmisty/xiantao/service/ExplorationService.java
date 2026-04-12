@@ -29,18 +29,28 @@ public class ExplorationService {
     private final UserRepository userRepository;
     private final MapNodeRepository mapNodeRepository;
     private final ExplorationDescriptionFunction explorationDescriptionFunction;
+    private final StaminaService staminaService;
 
     // 探索配置
     private static final int EXPLORATION_TIME_COST_MINUTES = 10;
     private static final int EXPLORATION_STAMINA_COST = 20;
 
     /**
-     * 探索当前区域
+     * 探索当前区域（带体力检查）
      *
      * @param userId 用户 ID
      * @return 探索结果
      */
     public ExplorationResultVO exploreCurrentArea(Long userId) {
+        // 检查并消耗体力
+        var staminaResult = staminaService.checkAndConsumeExplorationStamina(userId);
+        if (!staminaResult.success()) {
+            return ExplorationResultVO.builder()
+                    .userId(userId)
+                    .description(staminaResult.message())
+                    .build();
+        }
+
         // 获取用户
         Optional<User> userOpt = userRepository.findById(userId);
         if (userOpt.isEmpty()) {

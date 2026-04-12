@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import love.forte.simbot.common.id.ID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import top.stillmisty.xiantao.domain.land.enums.MBTIPersonality;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.entity.UserAuth;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
@@ -13,6 +14,7 @@ import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 import top.stillmisty.xiantao.domain.user.vo.RegisterResult;
 
 import java.util.Optional;
+import java.util.Random;
 
 /**
  * 用户服务
@@ -26,6 +28,8 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserAuthRepository userAuthRepository;
+    private final FudiService fudiService;
+    private static final Random RANDOM = new Random();
 
     /**
      * 创建新用户（注册）
@@ -72,12 +76,26 @@ public class UserService {
         log.info("创建授权记录成功 - UserId: {}, Platform: {}, OpenId: {}", 
                 user.getId(), platform, openId);
 
+        // 自动为用户创建福地和地灵（随机分配MBTI人格）
+        MBTIPersonality randomMbti = getRandomMBTI();
+        fudiService.createFudi(user.getId(), randomMbti);
+        
+        log.info("创建福地成功 - UserId: {}, MBTI: {}", user.getId(), randomMbti.getCode());
+
         return new RegisterResult(
                 true,
                 "注册成功~",
                 user.getId(),
                 user.getNickname()
         );
+    }
+
+    /**
+     * 随机获取一个MBTI人格类型
+     */
+    private MBTIPersonality getRandomMBTI() {
+        MBTIPersonality[] personalities = MBTIPersonality.values();
+        return personalities[RANDOM.nextInt(personalities.length)];
     }
 
     /**

@@ -9,10 +9,7 @@ import top.stillmisty.xiantao.domain.item.vo.InventorySummaryVO;
 import top.stillmisty.xiantao.domain.user.enums.AttributeType;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.vo.*;
-import top.stillmisty.xiantao.service.CultivationService;
-import top.stillmisty.xiantao.service.ItemService;
-import top.stillmisty.xiantao.service.UserAuthService;
-import top.stillmisty.xiantao.service.UserService;
+import top.stillmisty.xiantao.service.*;
 
 /**
  * 修仙命令处理器
@@ -25,13 +22,16 @@ public class CultivationCommandHandler extends BaseCommandHandler {
     private final UserService userService;
     private final ItemService itemService;
     private final CultivationService cultivationService;
+    private final StaminaService staminaService;
 
     public CultivationCommandHandler(UserAuthService userAuthService, UserService userService, 
-                                    ItemService itemService, CultivationService cultivationService) {
+                                    ItemService itemService, CultivationService cultivationService,
+                                    StaminaService staminaService) {
         super(userAuthService,userService);
         this.userService = userService;
         this.itemService = itemService;
         this.cultivationService = cultivationService;
+        this.staminaService = staminaService;
     }
 
     /**
@@ -88,7 +88,32 @@ public class CultivationCommandHandler extends BaseCommandHandler {
         }
 
         // 格式化状态显示
-        return formatCharacterStatus(characterStatus);
+        StringBuilder sb = new StringBuilder();
+        sb.append(formatCharacterStatus(characterStatus));
+        sb.append("\n\n");
+        
+        // 添加体力信息
+        sb.append(staminaService.getStaminaInfo(authResult.userId()));
+        
+        return sb.toString();
+    }
+
+    /**
+     * 处理体力查询命令
+     *
+     * @param platform 平台类型
+     * @param openId 平台用户ID
+     * @return 体力信息
+     */
+    public String handleStaminaQuery(PlatformType platform, String openId) {
+        log.debug("处理体力查询 - Platform: {}, OpenId: {}", platform, openId);
+
+        var authResult = authenticate(platform, openId);
+        if (!authResult.authenticated()) {
+            return authResult.errorMessage();
+        }
+
+        return staminaService.getStaminaInfo(authResult.userId());
     }
 
     /**

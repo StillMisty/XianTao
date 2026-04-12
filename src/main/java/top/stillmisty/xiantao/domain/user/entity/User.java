@@ -88,6 +88,16 @@ public class User extends Model<User> {
     private Integer hpCurrent;
 
     /**
+     * 当前体力值
+     */
+    private Integer staminaCurrent;
+
+    /**
+     * 上次体力更新时间戳（用于离线恢复计算）
+     */
+    private LocalDateTime lastStaminaUpdateTime;
+
+    /**
      * 当前状态
      */
     private UserStatus status;
@@ -228,6 +238,98 @@ public class User extends Model<User> {
      */
     public boolean isFullHp() {
         return hpCurrent >= calculateMaxHp();
+    }
+
+    /**
+     * 计算最大体力值（基于体质）
+     */
+    public int calculateMaxStamina() {
+        // 基础100 + 体质 * 5
+        return 100 + (statCon != null ? statCon : 5) * 5;
+    }
+
+    /**
+     * 恢复体力
+     *
+     * @param amount 恢复量
+     * @return 实际恢复量
+     */
+    public int restoreStamina(int amount) {
+        int maxStamina = calculateMaxStamina();
+        int oldStamina = staminaCurrent;
+        staminaCurrent = Math.min(maxStamina, staminaCurrent + amount);
+        return staminaCurrent - oldStamina;
+    }
+
+    /**
+     * 消耗体力
+     *
+     * @param amount 消耗量
+     * @return 实际消耗量
+     */
+    public int consumeStamina(int amount) {
+        int oldStamina = staminaCurrent;
+        staminaCurrent = Math.max(0, staminaCurrent - amount);
+        return oldStamina - staminaCurrent;
+    }
+
+    /**
+     * 是否满体力
+     */
+    public boolean isFullStamina() {
+        return staminaCurrent >= calculateMaxStamina();
+    }
+
+    /**
+     * 检查是否有足够体力
+     *
+     * @param required 需要的体力值
+     * @return 是否有足够体力
+     */
+    public boolean hasEnoughStamina(int required) {
+        return staminaCurrent >= required;
+    }
+
+    /**
+     * 计算离线期间恢复的体力（懒加载）
+     * 空闲状态：每5分钟恢复1点
+     * 打坐状态：每分钟恢复2点
+     */
+    public int calculateOfflineStaminaRecovery() {
+        if (lastStaminaUpdateTime == null || status == null) {
+            return 0;
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        long minutesPassed = java.time.Duration.between(lastStaminaUpdateTime, now).toMinutes();
+        
+        if (minutesPassed <= 0) {
+            return 0;
+        }
+
+        int recoveryRate; // 每分钟恢复速率
+        if (status == UserStatus.MEDITATING) {
+            recoveryRate = 2; // 打坐状态每分钟恢复2点
+        } else if (status == UserStatus.IDLE) {
+            recoveryRate = 0; // 空闲状态每5分钟恢复1点，即每分钟0.2点
+        } else {
+            recoveryRate = 0; // 其他状态不恢复
+        }
+
+        int recoveredStamina;
+        if (status == UserStatus.IDLE) {
+            // 空闲状态：每5分钟恢复1点
+            recoveredStamina = (int) (minutesPassed / 5);
+        } else {
+            // 打坐状态：每分钟恢复2点
+            recoveredStamina = (int) (minutesPassed * recoveryRate);
+        }
+
+        // 更新最后更新时间
+        lastStaminaUpdateTime = now;
+        
+        // 应用恢复
+        return restoreStamina(recoveredStamina);
     }
 
     /**
