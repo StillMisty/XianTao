@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import love.forte.simbot.event.MessageEvent;
 import love.forte.simbot.quantcat.common.annotations.ContentTrim;
 import love.forte.simbot.quantcat.common.annotations.Filter;
+import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
@@ -68,7 +69,7 @@ public class FudiHandle {
     @Listener
     @ContentTrim
     @Filter("地灵 {{content}}")
-    public void handleFudiSpirit(MessageEvent event, String content) {
+    public void handleFudiSpirit(MessageEvent event, @FilterValue("content") String content) {
         log.debug("收到地灵自然语言请求 - AuthorId: {}, Content: {}", event.getAuthorId(), content);
 
         String response = fudiCommandHandler.handleSpiritChat(
@@ -87,7 +88,7 @@ public class FudiHandle {
     @Listener
     @ContentTrim
     @Filter("地灵聊天 {{content}}")
-    public void handleFudiSpiritPureChat(MessageEvent event, String content) {
+    public void handleFudiSpiritPureChat(MessageEvent event, @FilterValue("content") String content) {
         log.debug("收到地灵纯对话请求 - AuthorId: {}, Content: {}", event.getAuthorId(), content);
 
         String response = fudiCommandHandler.handleSpiritPureChat(
@@ -105,7 +106,7 @@ public class FudiHandle {
     @Listener
     @ContentTrim
     @Filter("种植 {{position}} {{cropName}}")
-    public void handlePlant(MessageEvent event, String position, String cropName) {
+    public void handlePlant(MessageEvent event, @FilterValue("position") String position, @FilterValue("cropName") String cropName) {
         log.debug("收到种植请求 - AuthorId: {}, Position: {}, CropName: {}", 
                 event.getAuthorId(), position, cropName);
         
@@ -125,7 +126,7 @@ public class FudiHandle {
     @Listener
     @ContentTrim
     @Filter("收获 {{position}}")
-    public void handleHarvest(MessageEvent event, String position) {
+    public void handleHarvest(MessageEvent event, @FilterValue("position") String position) {
         log.debug("收到收获请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
         
         String response = fudiCommandHandler.handleHarvest(
@@ -143,7 +144,7 @@ public class FudiHandle {
     @Listener
     @ContentTrim
     @Filter("建造 {{position}} {{cellType}}")
-    public void handleBuild(MessageEvent event, String position, String cellType) {
+    public void handleBuild(MessageEvent event, @FilterValue("position") String position, @FilterValue("cellType") String cellType) {
         log.debug("收到建造请求 - AuthorId: {}, Position: {}, CellType: {}", 
                 event.getAuthorId(), position, cellType);
         
@@ -163,7 +164,7 @@ public class FudiHandle {
     @Listener
     @ContentTrim
     @Filter("拆除 {{position}}")
-    public void handleRemove(MessageEvent event, String position) {
+    public void handleRemove(MessageEvent event, @FilterValue("position") String position) {
         log.debug("收到拆除请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
         
         String response = fudiCommandHandler.handleRemove(
@@ -181,7 +182,7 @@ public class FudiHandle {
     @Listener
     @ContentTrim
     @Filter("献祭 {{itemName}}")
-    public void handleSacrifice(MessageEvent event, String itemName) {
+    public void handleSacrifice(MessageEvent event, @FilterValue("itemName") String itemName) {
         log.debug("收到献祭请求 - AuthorId: {}, ItemName: {}", event.getAuthorId(), itemName);
         
         String response = fudiCommandHandler.handleSacrifice(
@@ -199,7 +200,7 @@ public class FudiHandle {
     @Listener
     @ContentTrim
     @Filter("喂养 {{position}} {{feedItem}}")
-    public void handleFeed(MessageEvent event, String position, String feedItem) {
+    public void handleFeed(MessageEvent event, @FilterValue("position") String position, @FilterValue("feedItem") String feedItem) {
         log.debug("收到喂养请求 - AuthorId: {}, Position: {}, FeedItem: {}", 
                 event.getAuthorId(), position, feedItem);
         
@@ -219,7 +220,7 @@ public class FudiHandle {
     @Listener
     @ContentTrim
     @Filter("#福地自动 {{mode}}")
-    public void handleAutoMode(MessageEvent event, String mode) {
+    public void handleAutoMode(MessageEvent event, @FilterValue("mode") String mode) {
         log.debug("收到福地自动请求 - AuthorId: {}, Mode: {}", event.getAuthorId(), mode);
         
         String response = fudiCommandHandler.handleAutoMode(
