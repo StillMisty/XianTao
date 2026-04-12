@@ -36,7 +36,7 @@ src/main/java/top/stillmisty/xiantao/
 │   │   ├── enums/           # Domain Enums (e.g., UserStatus)
 │   │   ├── repository/      # Repository Interfaces (Ports - DO NOT implement here)
 │   │   └── vo/              # Value Objects / DTOs
-│   ├── combat/              # TTK Combat Engine & D20 events
+│   ├── map/                 # Map Context
 │   ├── item/                # Inventory (JSONB), Crafting, Alchemy
 │   └── land/                # "Fudi" (Blessed Land) AI-driven management
 ├── service/                 # Centralized Command Implementations & Dispatchers (Platform-agnostic)
