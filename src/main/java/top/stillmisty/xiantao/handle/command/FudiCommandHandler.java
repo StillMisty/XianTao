@@ -9,6 +9,7 @@ import top.stillmisty.xiantao.domain.land.enums.WuxingType;
 import top.stillmisty.xiantao.domain.land.vo.FarmCellVO;
 import top.stillmisty.xiantao.domain.land.vo.FudiStatusVO;
 import top.stillmisty.xiantao.service.FudiService;
+import top.stillmisty.xiantao.service.SpiritChatService;
 import top.stillmisty.xiantao.service.UserAuthService;
 import top.stillmisty.xiantao.service.UserService;
 
@@ -23,10 +24,17 @@ import java.util.Map;
 public class FudiCommandHandler extends BaseCommandHandler {
 
     private final FudiService fudiService;
+    private final SpiritChatService spiritChatService;
 
-    public FudiCommandHandler(UserAuthService userAuthService, UserService userService, FudiService fudiService) {
+    public FudiCommandHandler(
+            UserAuthService userAuthService,
+            UserService userService,
+            FudiService fudiService,
+            SpiritChatService spiritChatService
+    ) {
         super(userAuthService, userService);
         this.fudiService = fudiService;
+        this.spiritChatService = spiritChatService;
     }
 
     /**
@@ -435,7 +443,67 @@ public class FudiCommandHandler extends BaseCommandHandler {
         sb.append("当前情绪：").append(status.getEmotionState().getEmoji()).append(" ").append(status.getEmotionState().getDescription()).append("\n");
         sb.append("━━━━━━━━━━━━━━━\n");
         sb.append("💡 与地灵互动可提升好感度");
-        
+
         return sb.toString();
+    }
+
+    // ===================== 地灵自然语言交互 =====================
+
+    /**
+     * 处理 @地灵 自然语言交互
+     * 完整流程：意图识别 -> 执行操作 -> MBTI 人格化回复
+     *
+     * @param platform 平台类型
+     * @param openId 用户 OpenID
+     * @param userInput 用户输入的自然语言
+     * @return 地灵回复
+     */
+    public String handleSpiritChat(PlatformType platform, String openId, String userInput) {
+        AuthResult authResult = authenticate(platform, openId);
+        if (!authResult.authenticated()) {
+            return authResult.errorMessage();
+        }
+
+        try {
+            log.info("处理地灵自然语言交互 - userId: {}, input: {}", authResult.userId(), userInput);
+            
+            // 调用SpiritChatService 进行完整交互
+            String response = spiritChatService.processSpiritInteraction(authResult.userId(), userInput);
+            
+            return response;
+        } catch (IllegalStateException e) {
+            return e.getMessage();
+        } catch (Exception e) {
+            log.error("地灵自然语言交互失败", e);
+            return "❌ 地灵暂时无法回应，请稍后再试。";
+        }
+    }
+
+    /**
+     * 处理纯地灵对话（不执行操作，仅对话）
+     *
+     * @param platform 平台类型
+     * @param openId 用户 OpenID
+     * @param userInput 用户输入
+     * @return 地灵的人格化回复
+     */
+    public String handleSpiritPureChat(PlatformType platform, String openId, String userInput) {
+        AuthResult authResult = authenticate(platform, openId);
+        if (!authResult.authenticated()) {
+            return authResult.errorMessage();
+        }
+
+        try {
+            log.info("处理地灵纯对话 - userId: {}, input: {}", authResult.userId(), userInput);
+            
+            String response = spiritChatService.chatWithSpirit(authResult.userId(), userInput);
+            
+            return response;
+        } catch (IllegalStateException e) {
+            return e.getMessage();
+        } catch (Exception e) {
+            log.error("地灵纯对话失败", e);
+            return "❌ 地灵暂时无法回应，请稍后再试。";
+        }
     }
 }

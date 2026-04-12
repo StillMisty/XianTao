@@ -69,13 +69,33 @@ public class FudiHandle {
     @ContentTrim
     @Filter("地灵 {{content}}")
     public void handleFudiSpirit(MessageEvent event, String content) {
-        log.debug("收到福地地灵请求 - AuthorId: {}", event.getAuthorId());
-        
-        String response = fudiCommandHandler.handleFudiSpirit(
+        log.debug("收到地灵自然语言请求 - AuthorId: {}, Content: {}", event.getAuthorId(), content);
+
+        String response = fudiCommandHandler.handleSpiritChat(
                 PlatformType.ONE_BOT_V11,
-                event.getAuthorId().toString()
+                event.getAuthorId().toString(),
+                content
         );
-        
+
+        event.replyBlocking(response);
+    }
+
+    /**
+     * 处理 @地灵 纯对话（不执行操作）
+     * 例如："地灵 你好"、"地灵 今天怎么样"
+     */
+    @Listener
+    @ContentTrim
+    @Filter("地灵聊天 {{content}}")
+    public void handleFudiSpiritPureChat(MessageEvent event, String content) {
+        log.debug("收到地灵纯对话请求 - AuthorId: {}, Content: {}", event.getAuthorId(), content);
+
+        String response = fudiCommandHandler.handleSpiritPureChat(
+                PlatformType.ONE_BOT_V11,
+                event.getAuthorId().toString(),
+                content
+        );
+
         event.replyBlocking(response);
     }
 

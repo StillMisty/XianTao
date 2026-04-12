@@ -33,6 +33,7 @@ dependencies {
     implementation(libs.spring.boot.starter.flyway)
     implementation(libs.spring.boot.starter.webmvc)
     implementation(libs.spring.boot.starter.jdbc)
+    implementation(libs.jackson.databind)
     implementation(libs.flyway.database.postgresql)
     compileOnly(libs.lombok)
     developmentOnly(libs.spring.boot.devtools)
