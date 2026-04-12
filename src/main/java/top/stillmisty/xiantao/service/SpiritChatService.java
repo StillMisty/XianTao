@@ -351,48 +351,28 @@ public class SpiritChatService {
         Set<String> occupiedPositions = new HashSet<>();
         StringBuilder sb = new StringBuilder();
         sb.append("福地网格状态（").append(gridSize).append("x").append(gridSize).append("）：\n");
-        sb.append("【已占地块】\n");
+        
+        // 统计各地块类型数量
+        Map<String, Integer> typeCount = new HashMap<>();
+        List<Map<String, Object>> farmCells = new ArrayList<>();
+        List<Map<String, Object>> penCells = new ArrayList<>();
+        List<Map<String, Object>> nodeCells = new ArrayList<>();
         
         for (var cell : cells) {
             String pos = (String) cell.get("pos");
             occupiedPositions.add(pos);
             String type = (String) cell.get("type");
-            String name = (String) cell.get("name");
+            typeCount.merge(type, 1, Integer::sum);
             
-            sb.append("- (").append(pos).append(") ").append(type);
-            
-            if (name != null && !name.isEmpty()) {
-                sb.append(" [").append(name).append("]");
+            switch (type) {
+                case "farm" -> farmCells.add(cell);
+                case "pen" -> penCells.add(cell);
+                case "node" -> nodeCells.add(cell);
+                default -> {}
             }
-            
-            // 添加作物生长信息
-            if (cell.containsKey("cropName")) {
-                String cropName = (String) cell.get("cropName");
-                Double progress = (Double) cell.get("growthProgress");
-                Boolean isMature = (Boolean) cell.get("isMature");
-                
-                sb.append(" 种植:").append(cropName);
-                if (isMature != null && isMature) {
-                    sb.append(" ✅可收获");
-                } else if (progress != null) {
-                    sb.append(String.format(" (%.0f%%)", progress * 100));
-                }
-            }
-            
-            // 添加灵兽信息
-            if (cell.containsKey("beastName")) {
-                String beastName = (String) cell.get("beastName");
-                Integer hunger = (Integer) cell.get("hunger");
-                sb.append(" 饲养:").append(beastName);
-                if (hunger != null) {
-                    sb.append(" 饥饿值:").append(hunger);
-                }
-            }
-            
-            sb.append("\n");
         }
         
-        // 计算并显示可用空位
+        // 计算可用空位
         List<String> emptyPositions = new ArrayList<>();
         for (int x = 0; x < gridSize; x++) {
             for (int y = 0; y < gridSize; y++) {
@@ -403,10 +383,87 @@ public class SpiritChatService {
             }
         }
         
-        sb.append("【可用空位】\n");
+        // 如果福地已满，提供简洁摘要
         if (emptyPositions.isEmpty()) {
-            sb.append("福地已满，无可用坐标。");
+            sb.append("【布局摘要】福地已满（").append(occupiedPositions.size()).append("/" ).append(gridSize * gridSize).append("）。\n");
+            
+            // 按类型汇总
+            if (!typeCount.isEmpty()) {
+                List<String> typeSummary = new ArrayList<>();
+                if (typeCount.containsKey("farm")) {
+                    typeSummary.add("灵田×" + typeCount.get("farm"));
+                }
+                if (typeCount.containsKey("pen")) {
+                    typeSummary.add("兽栏×" + typeCount.get("pen"));
+                }
+                if (typeCount.containsKey("node")) {
+                    typeSummary.add("阵眼×" + typeCount.get("node"));
+                }
+                sb.append("地块组成：").append(String.join("、", typeSummary)).append("\n");
+            }
+            
+            // 显示可收获的灵田
+            long matureFarmCount = farmCells.stream()
+                    .filter(cell -> Boolean.TRUE.equals(cell.get("isMature")))
+                    .count();
+            if (matureFarmCount > 0) {
+                sb.append("⚠️ 有 ").append(matureFarmCount).append(" 块灵田可收获。\n");
+            }
+            
+            // 显示饥饿的灵兽
+            long hungryBeastCount = penCells.stream()
+                    .filter(cell -> {
+                        Integer hunger = (Integer) cell.get("hunger");
+                        return hunger != null && hunger < 50;
+                    })
+                    .count();
+            if (hungryBeastCount > 0) {
+                sb.append("⚠️ 有 ").append(hungryBeastCount).append(" 只灵兽需要喂养。\n");
+            }
+            
+            sb.append("💡 提示：如需调整布局，可先拆除部分地块或等待福地升级扩建。");
         } else {
+            // 有空位时，显示详细列表
+            sb.append("【已占地块】\n");
+            for (var cell : cells) {
+                String pos = (String) cell.get("pos");
+                String type = (String) cell.get("type");
+                String name = (String) cell.get("name");
+                
+                sb.append("- (").append(pos).append(") ").append(type);
+                
+                if (name != null && !name.isEmpty()) {
+                    sb.append(" [").append(name).append("]");
+                }
+                
+                // 添加作物生长信息
+                if (cell.containsKey("cropName")) {
+                    String cropName = (String) cell.get("cropName");
+                    Double progress = (Double) cell.get("growthProgress");
+                    Boolean isMature = (Boolean) cell.get("isMature");
+                    
+                    sb.append(" 种植:").append(cropName);
+                    if (isMature != null && isMature) {
+                        sb.append(" ✅可收获");
+                    } else if (progress != null) {
+                        sb.append(String.format(" (%.0f%%)", progress * 100));
+                    }
+                }
+                
+                // 添加灵兽信息
+                if (cell.containsKey("beastName")) {
+                    String beastName = (String) cell.get("beastName");
+                    Integer hunger = (Integer) cell.get("hunger");
+                    sb.append(" 饲养:").append(beastName);
+                    if (hunger != null) {
+                        sb.append(" 饥饿值:").append(hunger);
+                    }
+                }
+                
+                sb.append("\n");
+            }
+            
+            sb.append("【可用空位】\n");
             sb.append("可用坐标：").append(String.join(", ", emptyPositions));
         }
         
