@@ -25,7 +25,7 @@ public class FudiHandle {
     @Listener
     @ContentTrim
     @Filter("福地")
-    public void handleFudi(MessageEvent event, String content) {
+    public void handleFudi(MessageEvent event) {
         log.debug("收到福地请求 - AuthorId: {}", event.getAuthorId());
         
         String response = fudiCommandHandler.handleFudiStatus(
@@ -39,7 +39,7 @@ public class FudiHandle {
     @Listener
     @ContentTrim
     @Filter("福地网格")
-    public void handleFudiGrid(MessageEvent event, String content) {
+    public void handleFudiGrid(MessageEvent event) {
         log.debug("收到福地网格请求 - AuthorId: {}", event.getAuthorId());
         
         String response = fudiCommandHandler.handleFudiGrid(
@@ -53,7 +53,7 @@ public class FudiHandle {
     @Listener
     @ContentTrim
     @Filter("福地灵气")
-    public void handleFudiAura(MessageEvent event, String content) {
+    public void handleFudiAura(MessageEvent event) {
         log.debug("收到福地灵气请求 - AuthorId: {}", event.getAuthorId());
         
         String response = fudiCommandHandler.handleFudiAura(
@@ -214,7 +214,7 @@ public class FudiHandle {
     @Listener
     @ContentTrim
     @Filter("#福地升级")
-    public void handleUpgrade(MessageEvent event, String content) {
+    public void handleUpgrade(MessageEvent event) {
         log.debug("收到福地升级请求 - AuthorId: {}", event.getAuthorId());
         
         String response = fudiCommandHandler.handleUpgrade(
@@ -228,7 +228,7 @@ public class FudiHandle {
     @Listener
     @ContentTrim
     @Filter("#福地扩建")
-    public void handleExpand(MessageEvent event, String content) {
+    public void handleExpand(MessageEvent event) {
         log.debug("收到福地扩建请求 - AuthorId: {}", event.getAuthorId());
         
         String response = fudiCommandHandler.handleExpand(
