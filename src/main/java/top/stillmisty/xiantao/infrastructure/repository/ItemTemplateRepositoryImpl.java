@@ -64,23 +64,38 @@ public class ItemTemplateRepositoryImpl implements ItemTemplateRepository {
 
     @Override
     public List<ItemTemplate> findByTag(String tag) {
-        // TODO: 实现PostgreSQL JSONB标签搜索
-        // 目前先返回空列表，后续使用自定义SQL实现
-        return List.of();
+        if (tag == null || tag.trim().isEmpty()) {
+            return List.of();
+        }
+        // 使用PostgreSQL JSONB操作符 @> 进行标签包含查询
+        // tags @> CAST(ARRAY['tag'] AS jsonb) 检查tags数组是否包含指定标签
+        return mapper.selectByTag(tag.toLowerCase());
     }
 
     @Override
     public List<ItemTemplate> findByTags(List<String> tags) {
-        // TODO: 实现PostgreSQL JSONB标签搜索
-        // 目前先返回空列表，后续使用自定义SQL实现
-        return List.of();
+        if (tags == null || tags.isEmpty()) {
+            return List.of();
+        }
+        // 使用PostgreSQL JSONB操作符 ?| 进行任一标签匹配
+        // tags ?| ARRAY['tag1', 'tag2'] 检查tags数组是否包含任一指定标签
+        List<String> lowerCaseTags = tags.stream()
+                .map(String::toLowerCase)
+                .toList();
+        return mapper.selectByAnyTags(lowerCaseTags);
     }
 
     @Override
     public List<ItemTemplate> findByAllTags(List<String> tags) {
-        // TODO: 实现PostgreSQL JSONB标签搜索
-        // 目前先返回空列表，后续使用自定义SQL实现
-        return List.of();
+        if (tags == null || tags.isEmpty()) {
+            return List.of();
+        }
+        // 使用PostgreSQL JSONB操作符 ?& 进行所有标签匹配
+        // tags ?& ARRAY['tag1', 'tag2'] 检查tags数组是否包含所有指定标签
+        List<String> lowerCaseTags = tags.stream()
+                .map(String::toLowerCase)
+                .toList();
+        return mapper.selectByAllTags(lowerCaseTags);
     }
 
     @Override
