@@ -39,7 +39,8 @@ postgresql = { group = "org.postgresql", name = "postgresql", version.ref = "pos
 lombok = { group = "org.projectlombok", name = "lombok", version.ref = "lombok" }
 
 # Spring AI 库
-spring-ai-model = { group = "org.springframework.ai", name = "spring-ai-model", version.ref = "springAi" }
+spring-ai-bom = { group = "org.springframework.ai", name = "spring-ai-bom", version.ref = "springAi" }
+spring-ai-starter-model-openai = { group = "org.springframework.ai", name = "spring-ai-starter-model-openai", version.ref = "springAi" }
 
 # SimBot 库
 simbot-core-spring-boot-starter = { group = "love.forte.simbot", name = "simbot-core-spring-boot-starter", version.ref = "simbotCore" }

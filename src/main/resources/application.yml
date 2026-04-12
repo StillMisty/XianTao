@@ -1,4 +1,6 @@
 spring:
+  profiles:
+    active: local
   application:
     name: XianTao
     version: 0.0.1
@@ -26,6 +28,15 @@ spring:
     baseline-version: "0"
     locations: classpath:db/migration
     validate-on-migrate: false
+  ai:
+    openai:
+          api-key: ${OPENAI_API_KEY:sk-placeholder}
+          base-url: ${OPENAI_BASE_URL:https://api.deepseek.com}
+          chat:
+            options:
+              model: ${OPENAI_MODEL:deepseek-chat}
+              temperature: 0.7
+              max-tokens: 1000
 
 # MyBatis-Flex 配置
 mybatis-flex:
@@ -33,6 +44,16 @@ mybatis-flex:
   type-aliases-package: top.stillmisty.xiantao.domain
   configuration:
     log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+
+# Spring AI 配置
+
+# 地灵系统配置
+xiantao:
+  spirit:
+    # LLM 单次会话最大 Token
+    max-tokens: 800
+    # 降级开关：当 LLM 不可用时回退到规则匹配
+    enable-fallback: true
 
 # 日志配置
 logging:
