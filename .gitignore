@@ -35,7 +35,9 @@ out/
 ### VS Code ###
 .vscode/
 
+## ai编程工具配置信息 ##
 .claude/
+.qwen/
 
 # 本地配置文件（包含敏感信息）
 src/main/resources/application-local.yml
