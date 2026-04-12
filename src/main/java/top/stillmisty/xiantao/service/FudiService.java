@@ -19,6 +19,7 @@ import top.stillmisty.xiantao.domain.land.vo.PenCellVO;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 福地服务层
@@ -610,6 +611,72 @@ public class FudiService {
     }
 
     // ===================== 辅助方法 =====================
+
+    /**
+     * 获取福地网格状态（供LLM查询可用坐标）
+     */
+    public Map<String, Object> getGridStatus(Long userId) {
+        Fudi fudi = getFudiByUserId(userId)
+                .orElseThrow(() -> new IllegalStateException("未找到福地"));
+
+        int gridSize = fudi.getGridSize();
+        List<Map<String, Object>> occupiedCells = new ArrayList<>();
+        List<String> emptyPositions = new ArrayList<>();
+
+        // 收集已占地块信息
+        if (fudi.getGridLayout() != null && fudi.getGridLayout().containsKey("cells")) {
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getGridLayout().get("cells");
+            
+            for (Map<String, Object> cell : cells) {
+                Map<String, Object> cellInfo = new HashMap<>();
+                cellInfo.put("position", cell.get("pos"));
+                cellInfo.put("type", cell.get("type"));
+                
+                if (CellType.FARM.getCode().equals(cell.get("type"))) {
+                    cellInfo.put("cropName", cell.get("crop_name"));
+                    cellInfo.put("element", cell.get("element"));
+                    
+                    // 懒加载计算生长进度
+                    updateGrowthProgress(cell);
+                    Double progress = (Double) cell.get("growth_progress");
+                    cellInfo.put("growthProgress", progress);
+                    cellInfo.put("isMature", progress != null && progress >= 1.0);
+                } else if (CellType.PEN.getCode().equals(cell.get("type"))) {
+                    cellInfo.put("beastName", cell.get("beast_name"));
+                    cellInfo.put("hunger", cell.get("hunger"));
+                } else if (CellType.NODE.getCode().equals(cell.get("type"))) {
+                    cellInfo.put("element", cell.get("element"));
+                    cellInfo.put("level", cell.get("level"));
+                }
+                
+                occupiedCells.add(cellInfo);
+            }
+        }
+
+        // 计算所有空位
+        Set<String> occupiedPositions = occupiedCells.stream()
+                .map(cell -> (String) cell.get("position"))
+                .collect(Collectors.toSet());
+
+        for (int x = 0; x < gridSize; x++) {
+            for (int y = 0; y < gridSize; y++) {
+                String pos = x + "," + y;
+                if (!occupiedPositions.contains(pos)) {
+                    emptyPositions.add(pos);
+                }
+            }
+        }
+
+        return Map.of(
+                "gridSize", gridSize,
+                "totalCells", gridSize * gridSize,
+                "occupiedCount", occupiedCells.size(),
+                "emptyCount", emptyPositions.size(),
+                "emptyPositions", emptyPositions,
+                "occupiedCells", occupiedCells
+        );
+    }
 
     /**
      * 检查坐标是否为空

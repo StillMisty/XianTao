@@ -131,7 +131,7 @@ public class SpiritPromptTemplates {
                 
                 玩家："在左上角种灵芝"
                 返回：{"intentType":"PLANT","parameters":{"position":"0,0","cropName":"灵芝"},"confidence":0.85}
-                
+
                 玩家："今天天气怎么样"
                 返回：{"intentType":"CHAT","parameters":{},"confidence":1.0}
                 """,
@@ -183,6 +183,77 @@ public class SpiritPromptTemplates {
                 spiritLevel,
                 spiritEnergy,
                 gridSummary
+        );
+    }
+
+    /**
+     * 构建 Function Calling 模式的系统提示词
+     * LLM 可以根据福地状态自主决定调用哪个工具
+     */
+    public String buildFunctionCallingPrompt(
+            MBTIPersonality mbtiType,
+            String emoji,
+            int auraCurrent,
+            int auraMax,
+            int spiritLevel,
+            int spiritEnergy,
+            int spiritAffection,
+            String gridDetail,
+            String emotionState
+    ) {
+        String dialogueStyle = MBTI_DIALOGUE_STYLES.getOrDefault(mbtiType, "普通、友好");
+
+        return String.format("""
+                你是%s（%s）性格的地灵，你的表情是%s。
+                你的对话风格：%s。
+                你当前的情绪：%s
+                
+                【当前福地完整状态】
+                - 灵气：%d/%d
+                - 地灵等级：Lv.%d
+                - 精力：%d/100
+                - 好感度：%d
+                
+                %s
+                
+                【可用工具】
+                你可以调用以下工具来管理福地：
+                1. plantCrop(position, cropName) - 种植灵药
+                2. harvestCrop(position) - 收获灵药（position可以是"all"表示全部收获）
+                3. buildCell(position, cellType) - 建造地块（cellType: 灵田/兽栏/阵眼）
+                4. removeCell(position) - 拆除地块
+                5. sacrificeItem(itemName) - 献祭物品换取灵气
+                6. feedBeast(position, feedName) - 喂养灵兽
+                
+                【重要规则】
+                1. 根据用户的自然语言指令和当前福地状态，自主判断需要调用哪个工具
+                2. 如果用户说“随便种点东西”，你应该选择一个空闲位置种植默认作物（如“灵草”）
+                3. 如果信息不足，可以先询问用户，或者根据常识推断合理参数
+                4. 工具调用后会自动执行，你只需要根据执行结果生成人格化回复
+                5. 如果用户只是聊天，不需要调用任何工具，直接回复即可
+                6. 保持 MBTI 人格特点，根据当前情绪调整语气
+                
+                【示例】
+                用户：“帮我随便种点东西”
+                → 你应该：调用 plantCrop("1,1", "灵草")，然后回复种植结果
+                
+                用户：“中间那块能收了吗？”
+                → 你应该：检查网格状态，如果成熟了则调用 harvestCrop("1,1")
+                
+                用户：“今天心情怎么样？”
+                → 你应该：不调用工具，直接根据情绪状态人格化回复
+                """,
+                mbtiType.getCode(),
+                mbtiType.getTitle(),
+                emoji,
+                dialogueStyle,
+                emotionState,
+                auraCurrent,
+                auraMax,
+                spiritLevel,
+                spiritEnergy,
+                spiritAffection,
+                gridDetail
         );
     }
 }

@@ -466,11 +466,8 @@ public class FudiCommandHandler extends BaseCommandHandler {
 
         try {
             log.info("处理地灵自然语言交互 - userId: {}, input: {}", authResult.userId(), userInput);
-            
-            // 调用SpiritChatService 进行完整交互
-            String response = spiritChatService.processSpiritInteraction(authResult.userId(), userInput);
-            
-            return response;
+
+            return spiritChatService.processSpiritInteraction(authResult.userId(), userInput);
         } catch (IllegalStateException e) {
             return e.getMessage();
         } catch (Exception e) {
@@ -495,10 +492,8 @@ public class FudiCommandHandler extends BaseCommandHandler {
 
         try {
             log.info("处理地灵纯对话 - userId: {}, input: {}", authResult.userId(), userInput);
-            
-            String response = spiritChatService.chatWithSpirit(authResult.userId(), userInput);
-            
-            return response;
+
+            return spiritChatService.chatWithSpirit(authResult.userId(), userInput);
         } catch (IllegalStateException e) {
             return e.getMessage();
         } catch (Exception e) {

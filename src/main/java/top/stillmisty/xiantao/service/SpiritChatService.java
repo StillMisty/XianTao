@@ -17,7 +17,7 @@ import top.stillmisty.xiantao.domain.land.enums.WuxingType;
 import top.stillmisty.xiantao.domain.land.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.land.vo.SpiritIntentVO;
 
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,6 +34,7 @@ public class SpiritChatService {
     private final FudiRepository fudiRepository;
     private final SpiritPromptTemplates promptTemplates;
     private final FudiService fudiService;
+    private final SpiritTools spiritTools;  // 注入工具类，用于 Function Calling
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${xiantao.spirit.enable-fallback:true}")
@@ -191,42 +192,36 @@ public class SpiritChatService {
     }
 
     /**
-     * 处理 @地灵 自然语言交互（完整流程：意图识别 -> 执行 -> 人格化回复）
+     * 处理 @地灵 自然语言交互（完整流程：Function Calling -> 人格化回复）
+     * 使用 Spring AI 的 Function Calling 机制，让 LLM 自主决定调用哪个工具
      *
      * @param userId 用户 ID
      * @param userInput 用户输入
      * @return 最终回复
      */
     public String processSpiritInteraction(Long userId, String userInput) {
+        // 设置用户上下文，供 SpiritTools 使用
+        UserContext.setCurrentUserId(userId);
         try {
-            // 1. 解析意图
-            SpiritIntentVO intent = parseIntent(userId, userInput);
-
-            // 2. 执行操作（如果有）
-            String operationResult = null;
-            if (intent.getIntentType() != SpiritIntentVO.IntentType.CHAT 
-                    && intent.getIntentType() != SpiritIntentVO.IntentType.UNKNOWN) {
-                operationResult = executeIntent(userId, intent);
-            }
-
-            // 3. 生成 MBTI 人格化回复
             Fudi fudi = fudiRepository.findByUserId(userId)
                     .orElseThrow(() -> new IllegalStateException("未找到福地"));
 
-            String chatPrompt = buildSystemPrompt(fudi);
-            
-            String userMessage = userInput;
-            if (operationResult != null) {
-                userMessage = userInput + "\n\n操作结果：" + operationResult;
-            }
+            // 更新灵气和情绪状态（懒加载）
+            fudi.updateAura();
+            fudi.updateEmotionState();
 
+            // 构建系统提示词，包含福地详细状态
+            String systemPrompt = buildSystemPromptWithFullState(fudi);
+
+            // 使用 Function Calling，LLM 会根据用户输入和福地状态自主决定调用哪个工具
             String response = spiritChatClient.prompt()
-                    .system(chatPrompt)
-                    .user(userMessage)
+                    .system(systemPrompt)
+                    .user(userInput)
+                    .tools(spiritTools)  // 注册所有可用工具
                     .call()
                     .content();
 
-            log.info("地灵交互完成 - userId: {}, intent: {}", userId, intent.getIntentType());
+            log.info("地灵交互完成 - userId: {}, input: {}", userId, userInput);
             return response;
 
         } catch (Exception e) {
@@ -237,20 +232,44 @@ public class SpiritChatService {
             }
             
             return "地灵暂时无法回应，请稍后再试。";
+        } finally {
+            // 清除用户上下文，防止内存泄漏
+            UserContext.clear();
         }
     }
 
     // ===================== 辅助方法 =====================
 
     /**
-     * 构建系统提示词（根据地灵形态阶段）
+     * 构建包含完整福地状态的系统提示词（用于 Function Calling）
+     */
+    private String buildSystemPromptWithFullState(Fudi fudi) {
+        String emoji = determineEmoji(fudi);
+        String gridDetail = buildGridDetailForLLM(fudi);
+        String emotionState = fudi.getEmotionState().getDescription();
+        
+        return promptTemplates.buildFunctionCallingPrompt(
+                fudi.getMbtiType(),
+                emoji,
+                fudi.getAuraCurrent(),
+                fudi.getAuraMax(),
+                fudi.getSpiritLevel(),
+                fudi.getSpiritEnergy(),
+                fudi.getSpiritAffection(),
+                gridDetail,
+                emotionState
+        );
+    }
+
+    /**
+     * 构建系统提示词（根据地灵形态阶段）- 保留用于纯对话场景
      */
     private String buildSystemPrompt(Fudi fudi) {
         String emoji = determineEmoji(fudi);
         
         // 阶段二及以上使用详细信息
         if (fudi.getSpiritStage() != SpiritStage.STAGE_1) {
-            String gridSummary = buildGridSummary(fudi);
+            String gridSummary = buildGridDetailForLLM(fudi);  // 使用新方法
             String emotionState = fudi.getEmotionState().getDescription();
             
             return promptTemplates.buildDetailedSpiritChatPrompt(
@@ -289,30 +308,109 @@ public class SpiritChatService {
     }
 
     /**
-     * 构建网格布局摘要
+     * 为 LLM 构建详细的网格状态描述（包含已占地块和可用空位）
      */
-    private String buildGridSummary(Fudi fudi) {
+    private String buildGridDetailForLLM(Fudi fudi) {
+        int gridSize = fudi.getGridSize();
+        
         if (fudi.getGridLayout() == null) {
-            return "空地";
+            // 生成所有可用坐标
+            StringBuilder sb = new StringBuilder();
+            sb.append("福地网格状态（").append(gridSize).append("x").append(gridSize).append("）：\n");
+            sb.append("当前为空，所有坐标均可使用。\n");
+            sb.append("可用坐标：");
+            List<String> emptyPositions = new ArrayList<>();
+            for (int x = 0; x < gridSize; x++) {
+                for (int y = 0; y < gridSize; y++) {
+                    emptyPositions.add(x + "," + y);
+                }
+            }
+            sb.append(String.join(", ", emptyPositions));
+            return sb.toString();
         }
 
         @SuppressWarnings("unchecked")
         var cells = (java.util.List<Map<String, Object>>) fudi.getGridLayout().get("cells");
         if (cells == null || cells.isEmpty()) {
-            return "空地";
+            // 生成所有可用坐标
+            StringBuilder sb = new StringBuilder();
+            sb.append("福地网格状态（").append(gridSize).append("x").append(gridSize).append("）：\n");
+            sb.append("当前为空，所有坐标均可使用。\n");
+            sb.append("可用坐标：");
+            List<String> emptyPositions = new ArrayList<>();
+            for (int x = 0; x < gridSize; x++) {
+                for (int y = 0; y < gridSize; y++) {
+                    emptyPositions.add(x + "," + y);
+                }
+            }
+            sb.append(String.join(", ", emptyPositions));
+            return sb.toString();
         }
 
-        int farmCount = 0, penCount = 0, nodeCount = 0;
+        // 收集已占地块信息
+        Set<String> occupiedPositions = new HashSet<>();
+        StringBuilder sb = new StringBuilder();
+        sb.append("福地网格状态（").append(gridSize).append("x").append(gridSize).append("）：\n");
+        sb.append("【已占地块】\n");
+        
         for (var cell : cells) {
+            String pos = (String) cell.get("pos");
+            occupiedPositions.add(pos);
             String type = (String) cell.get("type");
-            switch (type) {
-                case "farm" -> farmCount++;
-                case "pen" -> penCount++;
-                case "node" -> nodeCount++;
+            String name = (String) cell.get("name");
+            
+            sb.append("- (").append(pos).append(") ").append(type);
+            
+            if (name != null && !name.isEmpty()) {
+                sb.append(" [").append(name).append("]");
+            }
+            
+            // 添加作物生长信息
+            if (cell.containsKey("cropName")) {
+                String cropName = (String) cell.get("cropName");
+                Double progress = (Double) cell.get("growthProgress");
+                Boolean isMature = (Boolean) cell.get("isMature");
+                
+                sb.append(" 种植:").append(cropName);
+                if (isMature != null && isMature) {
+                    sb.append(" ✅可收获");
+                } else if (progress != null) {
+                    sb.append(String.format(" (%.0f%%)", progress * 100));
+                }
+            }
+            
+            // 添加灵兽信息
+            if (cell.containsKey("beastName")) {
+                String beastName = (String) cell.get("beastName");
+                Integer hunger = (Integer) cell.get("hunger");
+                sb.append(" 饲养:").append(beastName);
+                if (hunger != null) {
+                    sb.append(" 饥饿值:").append(hunger);
+                }
+            }
+            
+            sb.append("\n");
+        }
+        
+        // 计算并显示可用空位
+        List<String> emptyPositions = new ArrayList<>();
+        for (int x = 0; x < gridSize; x++) {
+            for (int y = 0; y < gridSize; y++) {
+                String pos = x + "," + y;
+                if (!occupiedPositions.contains(pos)) {
+                    emptyPositions.add(pos);
+                }
             }
         }
-
-        return String.format("灵田x%d, 兽栏x%d, 阵眼x%d", farmCount, penCount, nodeCount);
+        
+        sb.append("【可用空位】\n");
+        if (emptyPositions.isEmpty()) {
+            sb.append("福地已满，无可用坐标。");
+        } else {
+            sb.append("可用坐标：").append(String.join(", ", emptyPositions));
+        }
+        
+        return sb.toString();
     }
 
     /**

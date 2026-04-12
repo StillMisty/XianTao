@@ -28,9 +28,39 @@ public class SpiritTools {
     private final FudiService fudiService;
 
     /**
+     * 查询福地网格状态工具
+     */
+    @Tool(description = "查询福地的网格布局状态，包括哪些坐标是空的、哪些已被占用。在种植或建造前应该先调用此工具了解可用坐标。")
+    public GetGridStatusResponse getGridStatus() {
+        try {
+            Long userId = getCurrentUserId();
+            Map<String, Object> result = fudiService.getGridStatus(userId);
+            
+            int gridSize = (Integer) result.get("gridSize");
+            int occupiedCount = (Integer) result.get("occupiedCount");
+            int emptyCount = (Integer) result.get("emptyCount");
+            @SuppressWarnings("unchecked")
+            java.util.List<String> emptyPositions = (java.util.List<String>) result.get("emptyPositions");
+            
+            String message;
+            if (emptyCount == 0) {
+                message = String.format("福地已满（%dx%d网格，%d个地块全部占用）。", gridSize, gridSize, occupiedCount);
+            } else {
+                message = String.format("福地网格 %dx%d，已占用 %d 个地块，还有 %d 个空位。可用坐标：%s", 
+                        gridSize, gridSize, occupiedCount, emptyCount, String.join(", ", emptyPositions));
+            }
+            
+            return new GetGridStatusResponse(true, message, gridSize, occupiedCount, emptyCount, emptyPositions);
+        } catch (Exception e) {
+            log.error("查询网格状态失败", e);
+            return new GetGridStatusResponse(false, "查询失败：" + e.getMessage(), 0, 0, 0, java.util.List.of());
+        }
+    }
+
+    /**
      * 种植灵药工具
      */
-    @Tool(description = "在福地的指定坐标种植灵药。需要提供坐标（格式如'0,0'）和作物名称。")
+    @Tool(description = "在福地的指定坐标种植灵药。需要先调用getGridStatus确认坐标为空。需要提供坐标（格式如'0,0'）和作物名称。")
     public PlantCropResponse plantCrop(
             @ToolParam(description = "种植坐标，格式如'0,0'、'1,2'等") String position,
             @ToolParam(description = "作物名称，如'灵芝'、'人参'、'火莲'等") String cropName
@@ -210,15 +240,37 @@ public class SpiritTools {
     }
 
     /**
-     * 获取当前用户 ID（临时实现）
-     * TODO: 改为从 ThreadLocal 或 SecurityContext 获取
+     * 获取当前用户 ID（从 ThreadLocal 上下文获取）
      */
     private Long getCurrentUserId() {
-        // 临时返回测试 ID，实际应从用户上下文获取
-        throw new UnsupportedOperationException("需要从用户上下文获取 userId");
+        Long userId = UserContext.getCurrentUserId();
+        if (userId == null) {
+            throw new IllegalStateException("未找到用户上下文，请先设置 UserContext");
+        }
+        return userId;
     }
 
     // ===================== 响应 Record 定义 =====================
+
+    public record GetGridStatusResponse(
+            @JsonPropertyDescription("是否成功")
+            boolean success,
+            
+            @JsonPropertyDescription("结果消息")
+            String message,
+            
+            @JsonPropertyDescription("网格大小")
+            int gridSize,
+            
+            @JsonPropertyDescription("已占地块数")
+            int occupiedCount,
+            
+            @JsonPropertyDescription("空位数")
+            int emptyCount,
+            
+            @JsonPropertyDescription("可用坐标列表")
+            java.util.List<String> emptyPositions
+    ) {}
 
     public record PlantCropResponse(
             @JsonPropertyDescription("是否成功")
