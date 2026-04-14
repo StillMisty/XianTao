@@ -373,9 +373,9 @@ public class SpiritChatService {
             if (now.isAfter(matureTime) || now.isEqual(matureTime)) {
                 cell.put("growth_progress", 1.0);
             } else {
-                long totalDuration = java.time.Duration.between(plantTime, matureTime).toMillis();
-                long elapsedDuration = java.time.Duration.between(plantTime, now).toMillis();
-                double progress = Math.min(1.0, (double) elapsedDuration / totalDuration);
+                long totalSeconds = java.time.Duration.between(plantTime, matureTime).getSeconds();
+                long elapsedSeconds = java.time.Duration.between(plantTime, now).getSeconds();
+                double progress = Math.min(1.0, (double) elapsedSeconds / totalSeconds);
                 cell.put("growth_progress", progress);
             }
         } catch (Exception e) {
