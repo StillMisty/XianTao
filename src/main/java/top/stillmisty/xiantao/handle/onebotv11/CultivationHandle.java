@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import love.forte.simbot.event.MessageEvent;
 import love.forte.simbot.quantcat.common.annotations.ContentTrim;
 import love.forte.simbot.quantcat.common.annotations.Filter;
+import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
@@ -28,8 +29,8 @@ public class CultivationHandle {
      */
     @Listener
     @ContentTrim
-    @Filter("加点")
-    public void allocatePoints(MessageEvent event, String content) {
+    @Filter("加点 {{content}}")
+    public void allocatePoints(MessageEvent event, @FilterValue("content")  String content) {
         log.debug("收到加点请求 - AuthorId: {}, Content: {}", event.getAuthorId(), content);
 
         // 解析参数：加点 力量 5
@@ -101,23 +102,14 @@ public class CultivationHandle {
      */
     @Listener
     @ContentTrim
-    @Filter("护道")
-    public void establishProtection(MessageEvent event, String content) {
-        log.debug("收到护道请求 - AuthorId: {}, Content: {}", event.getAuthorId(), content);
-
-        // 解析参数：护道 张三
-        String[] parts = content.split("\\s+", 2);
-        if (parts.length < 2 || parts[1].trim().isEmpty()) {
-            event.replyBlocking("用法：护道 [道号]\n示例：护道 张三");
-            return;
-        }
-
-        String protegeNickname = parts[1].trim();
+    @Filter("护道 {{nickname}}")
+    public void establishProtection(MessageEvent event, @FilterValue("nickname") String nickname) {
+        log.debug("收到护道请求 - AuthorId: {}, Content: {}", event.getAuthorId(), nickname);
 
         String response = cultivationCommandHandler.handleEstablishProtection(
                 PlatformType.ONE_BOT_V11,
                 event.getAuthorId().toString(),
-                protegeNickname
+                nickname
         );
 
         event.replyBlocking(response);
@@ -130,23 +122,14 @@ public class CultivationHandle {
      */
     @Listener
     @ContentTrim
-    @Filter("护道解除")
-    public void removeProtection(MessageEvent event, String content) {
-        log.debug("收到护道解除请求 - AuthorId: {}, Content: {}", event.getAuthorId(), content);
-
-        // 解析参数：护道解除 张三
-        String[] parts = content.split("\\s+", 2);
-        if (parts.length < 2 || parts[1].trim().isEmpty()) {
-            event.replyBlocking("用法：护道解除 [道号]\n示例：护道解除 张三");
-            return;
-        }
-
-        String protegeNickname = parts[1].trim();
+    @Filter("护道解除 {{nickname}}")
+    public void removeProtection(MessageEvent event, @FilterValue("nickname") String nickname) {
+        log.debug("收到护道解除请求 - AuthorId: {}, Content: {}", event.getAuthorId(), nickname);
 
         String response = cultivationCommandHandler.handleRemoveProtection(
                 PlatformType.ONE_BOT_V11,
                 event.getAuthorId().toString(),
-                protegeNickname
+                nickname
         );
 
         event.replyBlocking(response);
