@@ -33,7 +33,7 @@ public class DaoProtectionRepositoryImpl implements DaoProtectionRepository {
     @Override
     public List<DaoProtection> findByProtectorId(Long protectorId) {
         QueryWrapper query = new QueryWrapper()
-                .eq(DaoProtection::getId, protectorId);
+                .eq(DaoProtection::getProtectorId, protectorId);
         return daoProtectionMapper.selectListByQuery(query);
     }
 
