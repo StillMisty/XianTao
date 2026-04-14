@@ -130,25 +130,24 @@ public class MapCommandHandler extends BaseCommandHandler {
             return authResult.errorMessage();
         }
 
-        // 获取当前地图的旅行时间作为历练时长参考
-        var characterStatus = itemService.getCharacterStatus(authResult.userId());
-        if (characterStatus == null || !characterStatus.isSuccess()) {
-            return "获取用户状态失败";
+        // TODO: 这里应该是开始历练，但目前代码是结算历练
+        // 暂时保持原有逻辑，后续需要重构为开始历练+消耗体力
+        
+        // 计算历练奖励
+        TrainingRewardVO rewards = trainingService.calculateTrainingRewards(authResult.userId());
+
+        // 应用奖励
+        if (rewards.getCoins() != null && rewards.getCoins() > 0 ||
+                rewards.getSpiritStones() != null && rewards.getSpiritStones() > 0 ||
+                rewards.getItems() != null && !rewards.getItems().isEmpty()) {
+
+            boolean applied = trainingService.applyTrainingRewards(authResult.userId(), rewards);
+            if (applied) {
+                return formatTrainingReward(rewards);
+            }
         }
 
-        // 获取当前地图信息
-        var currentMapOpt = mapService.getMapInfo(characterStatus.getLocationId());
-        if (currentMapOpt.isEmpty()) {
-            return "当前地图不存在";
-        }
-
-        // 使用地图的旅行时间作为默认历练时长(分钟)
-        long trainingDuration = currentMapOpt.get().getTravelTimeMinutes();
-        
-        // 开始历练并消耗体力
-        String result = trainingService.startTrainingWithStaminaCheck(authResult.userId(), trainingDuration);
-        
-        return result;
+        return rewards.getSummary();
     }
 
     /**
