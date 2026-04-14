@@ -6,6 +6,7 @@ import love.forte.simbot.common.id.ID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.land.enums.MBTIPersonality;
+import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.entity.UserAuth;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
@@ -29,7 +30,11 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserAuthRepository userAuthRepository;
     private final FudiService fudiService;
+    private final MapNodeRepository mapNodeRepository;
     private static final Random RANDOM = new Random();
+    
+    // 默认起始地图名称
+    private static final String DEFAULT_START_MAP_NAME = "黑金主城";
 
     /**
      * 创建新用户（注册）
@@ -61,13 +66,20 @@ public class UserService {
             );
         }
 
-        // 创建用户
+        // 获取默认起始地图ID
+        Long defaultLocationId = mapNodeRepository.findByName(DEFAULT_START_MAP_NAME)
+                .map(top.stillmisty.xiantao.domain.map.entity.MapNode::getId)
+                .orElse(1L); // 如果找不到默认地图，使用ID 1作为后备
+
+        // 创建用户并设置初始位置
         var user = userRepository.save(
                 User.create()
                         .setNickname(nickname)
+                        .setLocationId(defaultLocationId)
         );
 
-        log.info("创建用户成功 - UserId: {}, Nickname: {}", user.getId(), user.getNickname());
+        log.info("创建用户成功 - UserId: {}, Nickname: {}, LocationId: {}", 
+                user.getId(), user.getNickname(), user.getLocationId());
 
         // 创建授权记录
         UserAuth userAuth = UserAuth.init(platform, openId, user.getId());
