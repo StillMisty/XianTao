@@ -25,7 +25,8 @@ Base package: `top.stillmisty.xiantao`
 
 ```text
 src/main/java/top/stillmisty/xiantao/
-├── config/                  # Spring, MyBatis-Flex, and Spring AI configurations
+├── config/
+├── docs/
 ├── handle/                  # Presentation Layer / Multi-platform Entry & View
 │   ├── command/             # Unified command handling
 │   ├── onebotv11/           # OneBotV11 Listeners (Captures QQ input -> calls command/ -> returns view)

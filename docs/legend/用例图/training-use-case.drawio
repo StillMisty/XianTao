@@ -1,0 +1,87 @@
+<mxfile host="drawio-plugin" modified="2026-04-13T15:00:00.000Z" agent="Mozilla/5.0" version="22.1.22" type="embed">
+  <diagram id="fudi-interaction-use-case" name="福地交互用例图">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- 系统边界 -->
+        <mxCell id="system-boundary" value="福地系统 (Fudi System)" style="swimlane;whiteSpace=wrap;html=1;startSize=30;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" parent="1" vertex="1">
+          <mxGeometry x="160" y="40" width="620" height="740" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== 用例模块 1: 福地日常管理 ==================== -->
+        <mxCell id="uc-manage-fudi" value="福地日常管理&#xa;(Manage Fudi)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1" parent="system-boundary" vertex="1">
+          <mxGeometry x="40" y="140" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-build-cell" value="建造/拆除地块&#xa;(Build/Remove Cell)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="system-boundary" vertex="1">
+          <mxGeometry x="260" y="60" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-plant-crop" value="种植/收获作物&#xa;(Plant/Harvest Crop)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="system-boundary" vertex="1">
+          <mxGeometry x="260" y="145" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-feed-beast" value="喂养/献祭灵兽&#xa;(Feed/Sacrifice)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="system-boundary" vertex="1">
+          <mxGeometry x="260" y="230" width="130" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== 用例模块 2: 地灵交互 ==================== -->
+        <mxCell id="uc-spirit-chat" value="与地灵对话&#xa;(Spirit Chat)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1" parent="system-boundary" vertex="1">
+          <mxGeometry x="40" y="380" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-function-call" value="意图解析与执行&#xa;(Intent Execution)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="system-boundary" vertex="1">
+          <mxGeometry x="260" y="340" width="130" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-mbti-response" value="生成MBTI人格回复&#xa;(MBTI Response)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="system-boundary" vertex="1">
+          <mxGeometry x="260" y="430" width="130" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== 用例模块 3: 境界与进阶 ==================== -->
+        <mxCell id="uc-upgrade-core" value="升级聚灵核心&#xa;(Upgrade Core)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1" parent="system-boundary" vertex="1">
+          <mxGeometry x="40" y="550" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc-spirit-evolve" value="地灵形态演化&#xa;(Spirit Evolution)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="system-boundary" vertex="1">
+          <mxGeometry x="260" y="550" width="130" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uc-tribulation" value="触发渡天劫&#xa;(Tribulation)" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1" parent="system-boundary" vertex="1">
+          <mxGeometry x="40" y="650" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== 关系连线 ==================== -->
+
+        <!-- 包含关系 (Include) - 福地管理 -->
+        <mxCell id="edge-manage-build" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;endSize=10;dashed=1;html=1;exitX=1;exitY=0;entryX=0;entryY=0.5;" parent="system-boundary" source="uc-manage-fudi" target="uc-build-cell" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-manage-plant" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;endSize=10;dashed=1;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" parent="system-boundary" source="uc-manage-fudi" target="uc-plant-crop" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-manage-feed" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;endSize=10;dashed=1;html=1;exitX=1;exitY=1;entryX=0;entryY=0.5;" parent="system-boundary" source="uc-manage-fudi" target="uc-feed-beast" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 包含关系 (Include) - 地灵对话 -->
+        <mxCell id="edge-chat-function" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;endSize=10;dashed=1;html=1;exitX=1;exitY=0;entryX=0;entryY=0.5;" parent="system-boundary" source="uc-spirit-chat" target="uc-function-call" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-chat-mbti" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;endSize=10;dashed=1;html=1;exitX=1;exitY=1;entryX=0;entryY=0.5;" parent="system-boundary" source="uc-spirit-chat" target="uc-mbti-response" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 扩展关系 (Extend) - 形态演化 -->
+        <mxCell id="edge-extend-evolve" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="endArrow=open;endSize=10;dashed=1;html=1;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" parent="system-boundary" source="uc-spirit-evolve" target="uc-upgrade-core" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== 参与者及外连 ==================== -->
+        <mxCell id="actor-player" value="玩家&#xa;(Player)" style="shape=umlActor;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;html=1;outlineConnect=0;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="50" y="360" width="40" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="actor-llm" value="大语言模型&#xa;(LLM Actor)" style="shape=umlActor;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;html=1;outlineConnect=0;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="840" y="410" width="40" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- 主参与者(玩家)连线 -->
+        <mxCell id="edge-player-manage" style="endArrow=none;html=1;entryX=0;entryY=0.5;exitX=1;exitY=0.3333;" parent="1" source="actor-player" target="uc-manage-fud

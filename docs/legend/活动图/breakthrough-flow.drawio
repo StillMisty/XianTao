@@ -1,0 +1,193 @@
+<mxfile host="drawio-plugin" modified="2026-04-12T16:06:15.754Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36" version="22.1.22" etag="8sVh02WMVjsrJ0cUS7tg" type="embed">
+  <diagram id="TYmkdocNkM3AJpRVGIgs" name="Page-1">
+    <mxGraphModel dx="1121" dy="867" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="2000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="swimlane-platform" value="平台监听器 (Platform)" style="swimlane;startSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="40" y="40" width="220" height="1440" as="geometry" />
+        </mxCell>
+        <mxCell id="start" value="开始突破" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;strokeWidth=2;" parent="swimlane-platform" vertex="1">
+          <mxGeometry x="50" y="80" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="receive-breakthrough" value="接收突破命令" style="rounded=1;whiteSpace=wrap;html=1;" parent="swimlane-platform" vertex="1">
+          <mxGeometry x="30" y="160" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="authenticate-user" value="身份认证获取 userId" style="rounded=1;whiteSpace=wrap;html=1;" parent="swimlane-platform" vertex="1">
+          <mxGeometry x="30" y="240" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="call-handler" value="调用 handleBreakthrough()" style="rounded=1;whiteSpace=wrap;html=1;" parent="swimlane-platform" vertex="1">
+          <mxGeometry x="30" y="320" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="render-result" value="渲染并返回结果消息" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;strokeWidth=2;" parent="swimlane-platform" vertex="1">
+          <mxGeometry x="30" y="1360" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;" parent="swimlane-platform" source="start" target="receive-breakthrough" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;" parent="swimlane-platform" source="receive-breakthrough" target="authenticate-user" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;" parent="swimlane-platform" source="authenticate-user" target="call-handler" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="swimlane-handler" value="CultivationCommandHandler" style="swimlane;startSize=30;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="260" y="40" width="220" height="1440" as="geometry" />
+        </mxCell>
+        <mxCell id="validate-input" value="验证输入参数" style="rounded=1;whiteSpace=wrap;html=1;" parent="swimlane-handler" vertex="1">
+          <mxGeometry x="30" y="320" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="call-service" value="调用 attemptBreakthrough()" style="rounded=1;whiteSpace=wrap;html=1;" parent="swimlane-handler" vertex="1">
+          <mxGeometry x="30" y="400" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="format-fail-msg" value="格式化失败消息" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;" parent="swimlane-handler" vertex="1">
+          <mxGeometry x="30" y="1040" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="format-success-msg" value="格式化成功消息" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;" parent="swimlane-handler" vertex="1">
+          <mxGeometry x="30" y="1280" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;" parent="swimlane-handler" source="validate-input" target="call-service" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="swimlane-service" value="CultivationService" style="swimlane;startSize=30;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="480" y="40" width="300" height="1440" as="geometry" />
+        </mxCell>
+        <mxCell id="get-user" value="查询用户信息" style="rounded=1;whiteSpace=wrap;html=1;" parent="swimlane-service" vertex="1">
+          <mxGeometry x="70" y="400" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="check-exp" value="检查经验是否足够?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="swimlane-service" vertex="1">
+          <mxGeometry x="80" y="470" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="calc-success-rate" value="计算突破成功率" style="rounded=1;whiteSpace=wrap;html=1;" parent="swimlane-service" vertex="1">
+          <mxGeometry x="70" y="560" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="roll-dice" value="判定是否成功 (Dice)" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="swimlane-service" vertex="1">
+          <mxGeometry x="80" y="630" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="breakthrough-fail" value="触发突破失败" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="swimlane-service" vertex="1">
+          <mxGeometry x="20" y="720" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="breakthrough-success" value="触发突破成功" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="swimlane-service" vertex="1">
+          <mxGeometry x="160" y="800" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-7" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;" parent="swimlane-service" source="get-user" target="check-exp" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-8" value="是" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;fontColor=#2D7A19;fontStyle=1;" parent="swimlane-service" source="check-exp" target="calc-success-rate" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-10" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;" parent="swimlane-service" source="calc-success-rate" target="roll-dice" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-11" value="失败" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#b85450;strokeWidth=1.5;fontColor=#b85450;fontStyle=1;exitX=0;exitY=0.5;entryX=0.5;entryY=0;" parent="swimlane-service" source="roll-dice" target="breakthrough-fail" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-12" value="成功" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;fontColor=#2D7A19;fontStyle=1;exitX=1;exitY=0.5;entryX=0.5;entryY=0;" parent="swimlane-service" source="roll-dice" target="breakthrough-success" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="swimlane-domain" value="Domain / Repository" style="swimlane;startSize=30;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="780" y="40" width="360" height="1440" as="geometry" />
+        </mxCell>
+        <mxCell id="deduct-exp-fail" value="扣除标准修为值" style="rounded=1;whiteSpace=wrap;html=1;" parent="swimlane-domain" vertex="1">
+          <mxGeometry x="20" y="720" width="140" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="inc-fail-count" value="突破失败次数 +1" style="rounded=1;whiteSpace=wrap;html=1;" parent="swimlane-domain" vertex="1">
+          <mxGeometry x="20" y="880" width="140" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="clear-protection-fail" value="清除被护道关系" style="rounded=1;whiteSpace=wrap;html=1;" parent="swimlane-domain" vertex="1">
+          <mxGeometry x="20" y="960" width="140" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="save-user-fail" value="保存用户数据 (DB)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="swimlane-domain" vertex="1">
+          <mxGeometry x="20" y="1040" width="140" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="update-user-level" value="更新大境界等级 +1" style="rounded=1;whiteSpace=wrap;html=1;" parent="swimlane-domain" vertex="1">
+          <mxGeometry x="200" y="800" width="140" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="deduct-exp" value="扣除升级所需经验" style="rounded=1;whiteSpace=wrap;html=1;" parent="swimlane-domain" vertex="1">
+          <mxGeometry x="200" y="880" width="140" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="add-stat-point" value="获得 1 点自由属性" style="rounded=1;whiteSpace=wrap;html=1;" parent="swimlane-domain" vertex="1">
+          <mxGeometry x="200" y="960" width="140" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="reset-fail-count" value="重置失败计数为 0" style="rounded=1;whiteSpace=wrap;html=1;" parent="swimlane-domain" vertex="1">
+          <mxGeometry x="200" y="1040" width="140" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="clear-protection" value="清除被护道关系" style="rounded=1;whiteSpace=wrap;html=1;" parent="swimlane-domain" vertex="1">
+          <mxGeometry x="200" y="1120" width="140" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="restore-hp" value="恢复生命值至满值" style="rounded=1;whiteSpace=wrap;html=1;" parent="swimlane-domain" vertex="1">
+          <mxGeometry x="200" y="1200" width="140" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="save-user-success" value="保存用户数据 (DB)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="swimlane-domain" vertex="1">
+          <mxGeometry x="200" y="1280" width="140" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-15" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#b85450;strokeWidth=1.5;" parent="swimlane-domain" source="deduct-exp-fail" target="inc-fail-count" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-16" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#b85450;strokeWidth=1.5;" parent="swimlane-domain" source="inc-fail-count" target="clear-protection-fail" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-17" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#b85450;strokeWidth=1.5;" parent="swimlane-domain" source="clear-protection-fail" target="save-user-fail" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-18" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;" parent="swimlane-domain" source="update-user-level" target="deduct-exp" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-19" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;" parent="swimlane-domain" source="deduct-exp" target="add-stat-point" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-20" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;" parent="swimlane-domain" source="add-stat-point" target="reset-fail-count" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-21" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;" parent="swimlane-domain" source="reset-fail-count" target="clear-protection" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-22" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;" parent="swimlane-domain" source="clear-protection" target="restore-hp" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-23" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;" parent="swimlane-domain" source="restore-hp" target="save-user-success" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" parent="1" source="call-handler" target="validate-input" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-6" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" parent="1" source="call-service" target="get-user" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-9" value="否" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#b85450;strokeWidth=1.5;fontColor=#b85450;fontStyle=1;exitX=0;exitY=0.5;entryX=0.5;entryY=0;" parent="1" source="check-exp" target="format-fail-msg" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="370" y="540" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-13" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#b85450;strokeWidth=1.5;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" parent="1" source="breakthrough-fail" target="deduct-exp-fail" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-14" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" parent="1" source="breakthrough-success" target="update-user-level" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-24" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#b85450;strokeWidth=1.5;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" parent="1" source="save-user-fail" target="format-fail-msg" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-25" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" parent="1" source="save-user-success" target="format-success-msg" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-26" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#b85450;strokeWidth=1.5;exitX=0;exitY=0.5;entryX=0.5;entryY=0;" parent="1" source="format-fail-msg" target="render-result" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="150" y="1100" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-27" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;exitX=0;exitY=0.5;entryX=0.5;entryY=0;" parent="1" source="format-success-msg" target="render-result" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="150" y="1340" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

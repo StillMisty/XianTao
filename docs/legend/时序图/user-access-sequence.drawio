@@ -1,0 +1,203 @@
+<mxGraphModel adaptiveColors="auto">
+  <root>
+    <mxCell id="0"/>
+    <mxCell id="1" parent="0"/>
+    
+    <!-- Actor -->
+    <mxCell id="actor" value="用户" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" vertex="1" parent="1">
+      <mxGeometry x="40" y="40" width="30" height="60" as="geometry"/>
+    </mxCell>
+    
+    <!-- Platform Listener -->
+    <mxCell id="platform" value="Platform Listener&lt;br&gt;(OneBotV11/QQ/Web)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+      <mxGeometry x="140" y="40" width="120" height="60" as="geometry"/>
+    </mxCell>
+    
+    <!-- Command Handler -->
+    <mxCell id="handler" value="CultivationCommandHandler" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+      <mxGeometry x="320" y="40" width="140" height="60" as="geometry"/>
+    </mxCell>
+    
+    <!-- UserAuthService -->
+    <mxCell id="authService" value="UserAuthService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+      <mxGeometry x="520" y="40" width="120" height="60" as="geometry"/>
+    </mxCell>
+    
+    <!-- UserService -->
+    <mxCell id="userService" value="UserService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+      <mxGeometry x="700" y="40" width="120" height="60" as="geometry"/>
+    </mxCell>
+    
+    <!-- Repository -->
+    <mxCell id="repository" value="UserAuthRepository&lt;br&gt;/ UserRepository" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+      <mxGeometry x="880" y="40" width="140" height="60" as="geometry"/>
+    </mxCell>
+    
+    <!-- Database -->
+    <mxCell id="database" value="Database&lt;br&gt;(xt_user_auth / xt_user)" style="shape=cylinder;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;" vertex="1" parent="1">
+      <mxGeometry x="1080" y="40" width="80" height="60" as="geometry"/>
+    </mxCell>
+    
+    <!-- Lifelines -->
+    <mxCell id="lifeline-actor" value="" style="endArrow=none;html=1;dashed=1;" edge="1" parent="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="55" y="100" as="sourcePoint"/>
+        <mxPoint x="55" y="900" as="targetPoint"/>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="lifeline-platform" value="" style="endArrow=none;html=1;dashed=1;" edge="1" parent="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="200" y="100" as="sourcePoint"/>
+        <mxPoint x="200" y="900" as="targetPoint"/>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="lifeline-handler" value="" style="endArrow=none;html=1;dashed=1;" edge="1" parent="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="390" y="100" as="sourcePoint"/>
+        <mxPoint x="390" y="900" as="targetPoint"/>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="lifeline-authservice" value="" style="endArrow=none;html=1;dashed=1;" edge="1" parent="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="580" y="100" as="sourcePoint"/>
+        <mxPoint x="580" y="900" as="targetPoint"/>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="lifeline-userservice" value="" style="endArrow=none;html=1;dashed=1;" edge="1" parent="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="760" y="100" as="sourcePoint"/>
+        <mxPoint x="760" y="900" as="targetPoint"/>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="lifeline-repository" value="" style="endArrow=none;html=1;dashed=1;" edge="1" parent="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="950" y="100" as="sourcePoint"/>
+        <mxPoint x="950" y="900" as="targetPoint"/>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="lifeline-database" value="" style="endArrow=none;html=1;dashed=1;" edge="1" parent="1">
+      <mxGeometry width="50" height="50" relative="1" as="geometry">
+        <mxPoint x="1120" y="100" as="sourcePoint"/>
+        <mxPoint x="1120" y="900" as="targetPoint"/>
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Messages - Registration Flow -->
+    <mxCell id="msg1" value="我要修仙 [道号]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1" source="actor" target="platform">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    
+    <mxCell id="msg2" value="handleRegister(platform, openId, nickname)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="200" y="180" as="sourcePoint"/>
+        <mxPoint x="390" y="180" as="targetPoint"/>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="msg3" value="authenticate(platform, openId)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;jettySize=auto;orthogonalLoop=1;fontSize=10;" edge="1" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="390" y="230" as="sourcePoint"/>
+        <mxPoint x="580" y="230" as="targetPoint"/>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="msg4" value="findByPlatformAndOpenId()" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;jettySize=auto;orthogonalLoop=1;fontSize=10;" edge="1" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="580" y="270" as="sourcePoint"/>
+        <mxPoint x="950" y="270" as="targetPoint"/>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="msg5" value="SELECT FROM xt_user_auth" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;jettySize=auto;orthogonalLoop=1;fontSize=10;" edge="1" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="950" y="310" as="sourcePoint"/>
+        <mxPoint x="1120" y="310" as="targetPoint"/>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="msg6" value="Optional.empty (未注册)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;jettySize=auto;orthogonalLoop=1;fontSize=10;dashed=1;" edge="1" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="1120" y="350" as="sourcePoint"/>
+        <mxPoint x="950" y="350" as="targetPoint"/>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="msg7" value="createUser(platform, openId, nickname)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;jettySize=auto;orthogonalLoop=1;fontSize=10;" edge="1" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="390" y="400" as="sourcePoint"/>
+        <mxPoint x="760" y="400" as="targetPoint"/>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="msg8" value="INSERT INTO xt_user" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;jettySize=auto;orthogonalLoop=1;fontSize=10;" edge="1" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="760" y="440" as="sourcePoint"/>
+        <mxPoint x="950" y="440" as="targetPoint"/>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="msg9" value="INSERT INTO xt_user_auth" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;jettySize=auto;orthogonalLoop=1;fontSize=10;" edge="1" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="760" y="480" as="sourcePoint"/>
+        <mxPoint x="950" y="480" as="targetPoint"/>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="msg10" value="RegisterResult(success=true)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;jettySize=auto;orthogonalLoop=1;fontSize=10;dashed=1;" edge="1" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="760" y="520" as="sourcePoint"/>
+        <mxPoint x="390" y="520" as="targetPoint"/>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="msg11" value="欢迎踏入仙途！您的道号为：XXX" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;jettySize=auto;orthogonalLoop=1;fontSize=10;" edge="1" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="390" y="560" as="sourcePoint"/>
+        <mxPoint x="200" y="560" as="targetPoint"/>
+      </mxGeometry>
+    </mxCell>
+    
+    <mxCell id="msg12" value="回复消息" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;jettySize=auto;orthogonalLoop=1;" edge="1" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="200" y="600" as="sourcePoint"/>
+        <mxPoint x="55" y="600" as="targetPoint"/>
+      </mxGeometry>
+    </mxCell>
+    
+    <!-- Activation boxes -->
+    <mxCell id="act-platform" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+      <mxGeometry x="195" y="160" width="10" height="460" as="geometry"/>
+    </mxCell>
+    
+    <mxCell id="act-handler" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+      <mxGeometry x="385" y="160" width="10" height="460" as="geometry"/>
+    </mxCell>
+    
+    <mxCell id="act-authservice" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+      <mxGeometry x="575" y="210" width="10" height="160" as="geometry"/>
+    </mxCell>
+    
+    <mxCell id="act-userservice" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+      <mxGeometry x="755" y="380" width="10" height="160" as="geometry"/>
+    </mxCell>
+    
+    <mxCell id="act-repository" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+      <mxGeometry x="945" y="250" width="10" height="410" as="geometry"/>
+    </mxCell>
+    
+    <!-- Note -->
+    <mxCell id="note1" value="跨平台统一处理：&lt;br&gt;OneBotV11、QQ、Web&lt;br&gt;共享同一套命令逻辑" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="40" y="700" width="180" height="80" as="geometry"/>
+    </mxCell>
+    
+    <mxCell id="note2" value="DDD分层架构：&lt;br&gt;domain定义接口&lt;br&gt;infrastructure实现" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="880" y="700" width="160" height="80" as="geometry"/>
+    </mxCell>
+  </root>
+</mxGraphModel>

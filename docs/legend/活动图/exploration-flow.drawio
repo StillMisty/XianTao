@@ -1,0 +1,194 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.6.6 Chrome/144.0.7559.236 Electron/40.8.4 Safari/537.36" version="29.6.6">
+  <diagram id="vVUBzYv2jseol3F1TsE_" name="第 1 页">
+    <mxGraphModel dx="984" dy="595" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="1600" math="0" shadow="0" adaptiveColors="auto">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="swimlane-platform" parent="1" style="swimlane;startSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;" value="平台监听器 (Platform)" vertex="1">
+          <mxGeometry height="1220" width="240" x="40" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="start-explore" parent="swimlane-platform" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;strokeWidth=2;" value="开始探索" vertex="1">
+          <mxGeometry height="40" width="120" x="60" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="receive-explore-cmd" parent="swimlane-platform" style="rounded=1;whiteSpace=wrap;html=1;" value="接收探索命令" vertex="1">
+          <mxGeometry height="40" width="160" x="40" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="authenticate-explore" parent="swimlane-platform" style="rounded=1;whiteSpace=wrap;html=1;" value="身份认证获取 userId" vertex="1">
+          <mxGeometry height="40" width="160" x="40" y="190" as="geometry" />
+        </mxCell>
+        <mxCell id="call-handler-explore" parent="swimlane-platform" style="rounded=1;whiteSpace=wrap;html=1;" value="调用 CommandHandler" vertex="1">
+          <mxGeometry height="40" width="160" x="40" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="render-explore-result" parent="swimlane-platform" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;strokeWidth=2;" value="渲染并回复探索结果" vertex="1">
+          <mxGeometry height="40" width="160" x="40" y="1150" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-1" edge="1" parent="swimlane-platform" source="start-explore" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;" target="receive-explore-cmd">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-2" edge="1" parent="swimlane-platform" source="receive-explore-cmd" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;" target="authenticate-explore">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-3" edge="1" parent="swimlane-platform" source="authenticate-explore" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;" target="call-handler-explore">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="swimlane-handler" parent="1" style="swimlane;startSize=30;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;" value="CultivationCommandHandler" vertex="1">
+          <mxGeometry height="1220" width="240" x="280" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="validate-explore-state" parent="swimlane-handler" style="rounded=1;whiteSpace=wrap;html=1;" value="验证用户状态(IDLE)" vertex="1">
+          <mxGeometry height="40" width="160" x="40" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="call-explore-service" parent="swimlane-handler" style="rounded=1;whiteSpace=wrap;html=1;" value="调用 exploreCurrentArea()" vertex="1">
+          <mxGeometry height="40" width="160" x="40" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="format-explore-msg" parent="swimlane-handler" style="rounded=1;whiteSpace=wrap;html=1;" value="格式化探索结果消息" vertex="1">
+          <mxGeometry height="40" width="160" x="40" y="1150" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-5" edge="1" parent="swimlane-handler" source="validate-explore-state" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;" target="call-explore-service">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="swimlane-service" parent="1" style="swimlane;startSize=30;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;" value="Exploration / Stamina Service" vertex="1">
+          <mxGeometry height="1220" width="340" x="520" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="check-explore-stamina" parent="swimlane-service" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="检查体力是否足够" vertex="1">
+          <mxGeometry height="60" width="140" x="100" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="consume-20-stamina" parent="swimlane-service" style="rounded=1;whiteSpace=wrap;html=1;" value="扣除相应体力" vertex="1">
+          <mxGeometry height="40" width="160" x="90" y="410" as="geometry" />
+        </mxCell>
+        <mxCell id="get-current-map" parent="swimlane-service" style="rounded=1;whiteSpace=wrap;html=1;" value="获取当前地图信息" vertex="1">
+          <mxGeometry height="40" width="160" x="90" y="480" as="geometry" />
+        </mxCell>
+        <mxCell id="calc-effective-wis" parent="swimlane-service" style="rounded=1;whiteSpace=wrap;html=1;" value="计算有效智慧属性" vertex="1">
+          <mxGeometry height="40" width="160" x="90" y="550" as="geometry" />
+        </mxCell>
+        <mxCell id="determine-result-level" parent="swimlane-service" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="判定探索结果等级" vertex="1">
+          <mxGeometry height="60" width="140" x="100" y="630" as="geometry" />
+        </mxCell>
+        <mxCell id="generate-basic" parent="swimlane-service" style="rounded=1;whiteSpace=wrap;html=1;" value="基础发现(1-20)" vertex="1">
+          <mxGeometry height="40" width="140" x="20" y="730" as="geometry" />
+        </mxCell>
+        <mxCell id="generate-rare" parent="swimlane-service" style="rounded=1;whiteSpace=wrap;html=1;" value="稀有发现(21-50)" vertex="1">
+          <mxGeometry height="40" width="140" x="180" y="730" as="geometry" />
+        </mxCell>
+        <mxCell id="generate-major" parent="swimlane-service" style="rounded=1;whiteSpace=wrap;html=1;" value="重大发现(51-80)" vertex="1">
+          <mxGeometry height="40" width="140" x="20" y="800" as="geometry" />
+        </mxCell>
+        <mxCell id="generate-amazing" parent="swimlane-service" style="rounded=1;whiteSpace=wrap;html=1;" value="惊人发现(81+)" vertex="1">
+          <mxGeometry height="40" width="140" x="180" y="800" as="geometry" />
+        </mxCell>
+        <mxCell id="calc-exp-reward" parent="swimlane-service" style="rounded=1;whiteSpace=wrap;html=1;" value="计算经验与物品收益" vertex="1">
+          <mxGeometry height="40" width="160" x="90" y="880" as="geometry" />
+        </mxCell>
+        <mxCell id="call-llm-desc" parent="swimlane-service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" value="调用LLM生成美化描述" vertex="1">
+          <mxGeometry height="40" width="160" x="90" y="950" as="geometry" />
+        </mxCell>
+        <mxCell id="apply-explore-rewards" parent="swimlane-service" style="rounded=1;whiteSpace=wrap;html=1;" value="应用奖励到用户" vertex="1">
+          <mxGeometry height="40" width="160" x="90" y="1080" as="geometry" />
+        </mxCell>
+        <mxCell id="save-user-explore" parent="swimlane-service" style="rounded=1;whiteSpace=wrap;html=1;" value="保存用户数据库" vertex="1">
+          <mxGeometry height="40" width="160" x="90" y="1150" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-7" edge="1" parent="swimlane-service" source="check-explore-stamina" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;" target="consume-20-stamina" value="是">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-8" edge="1" parent="swimlane-service" source="consume-20-stamina" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;" target="get-current-map">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-9" edge="1" parent="swimlane-service" source="get-current-map" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;" target="calc-effective-wis">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-10" edge="1" parent="swimlane-service" source="calc-effective-wis" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;" target="determine-result-level">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-11" edge="1" parent="swimlane-service" source="determine-result-level" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" target="generate-basic" value="1-20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-12" edge="1" parent="swimlane-service" source="determine-result-level" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" target="generate-rare" value="21-50">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-13" edge="1" parent="swimlane-service" source="determine-result-level" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" target="generate-major" value="51-80">
+          <mxGeometry relative="1" x="0.3684" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="170" y="780" />
+              <mxPoint x="90" y="780" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-14" edge="1" parent="swimlane-service" source="determine-result-level" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" target="generate-amazing" value="81+">
+          <mxGeometry relative="1" x="0.3684" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="170" y="780" />
+              <mxPoint x="250" y="780" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-15" edge="1" parent="swimlane-service" source="generate-basic" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" target="calc-exp-reward">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="90" y="860" />
+              <mxPoint x="170" y="860" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-16" edge="1" parent="swimlane-service" source="generate-rare" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" target="calc-exp-reward">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="250" y="860" />
+              <mxPoint x="170" y="860" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-17" edge="1" parent="swimlane-service" source="generate-major" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" target="calc-exp-reward">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-18" edge="1" parent="swimlane-service" source="generate-amazing" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" target="calc-exp-reward">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-19" edge="1" parent="swimlane-service" source="calc-exp-reward" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;" target="call-llm-desc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-24" edge="1" parent="swimlane-service" source="apply-explore-rewards" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;" target="save-user-explore">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="swimlane-ai" parent="1" style="swimlane;startSize=30;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;" value="Spring AI (LLM)" vertex="1">
+          <mxGeometry height="1220" width="240" x="860" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="receive-prompt" parent="swimlane-ai" style="rounded=1;whiteSpace=wrap;html=1;" value="接收 Prompt 请求" vertex="1">
+          <mxGeometry height="40" width="160" x="40" y="950" as="geometry" />
+        </mxCell>
+        <mxCell id="generate-description" parent="swimlane-ai" style="rounded=1;whiteSpace=wrap;html=1;" value="生成个性化修仙文案" vertex="1">
+          <mxGeometry height="40" width="160" x="40" y="1015" as="geometry" />
+        </mxCell>
+        <mxCell id="return-description" parent="swimlane-ai" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="返回描述文本" vertex="1">
+          <mxGeometry height="40" width="160" x="40" y="1080" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-21" edge="1" parent="swimlane-ai" source="receive-prompt" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;" target="generate-description">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-22" edge="1" parent="swimlane-ai" source="generate-description" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;" target="return-description">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-4" edge="1" parent="1" source="call-handler-explore" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="validate-explore-state">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-6" edge="1" parent="1" source="call-explore-service" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="check-explore-stamina">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-20" edge="1" parent="1" source="call-llm-desc" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="receive-prompt">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-23" edge="1" parent="1" source="return-description" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" target="apply-explore-rewards">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-25" edge="1" parent="1" source="save-user-explore" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" target="format-explore-msg">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-26" edge="1" parent="1" source="format-explore-msg" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" target="render-explore-result">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

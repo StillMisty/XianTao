@@ -1,0 +1,146 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.6.6 Chrome/144.0.7559.236 Electron/40.8.4 Safari/537.36" version="29.6.6">
+  <diagram id="KzO0yJoGRTbe1Se9oP06" name="第 1 页">
+    <mxGraphModel dx="1722" dy="1042" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="1200" math="0" shadow="0" adaptiveColors="auto">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="swimlane-platform" parent="1" style="swimlane;startSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;" value="平台监听器 (Platform)" vertex="1">
+          <mxGeometry height="880" width="240" x="40" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="start" parent="swimlane-platform" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;strokeWidth=2;" value="开始" vertex="1">
+          <mxGeometry height="40" width="120" x="60" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="receive-msg" parent="swimlane-platform" style="rounded=1;whiteSpace=wrap;html=1;" value="接收用户消息" vertex="1">
+          <mxGeometry height="40" width="160" x="40" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="extract-info" parent="swimlane-platform" style="rounded=1;whiteSpace=wrap;html=1;" value="提取OpenID和平台类型" vertex="1">
+          <mxGeometry height="40" width="160" x="40" y="220" as="geometry" />
+        </mxCell>
+        <mxCell id="call-auth" parent="swimlane-platform" style="rounded=1;whiteSpace=wrap;html=1;" value="调用 authenticate()" vertex="1">
+          <mxGeometry height="40" width="160" x="40" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="render-response" parent="swimlane-platform" style="rounded=1;arcSize=50;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;strokeWidth=2;" value="渲染响应消息" vertex="1">
+          <mxGeometry height="40" width="160" x="40" y="720" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-1" edge="1" parent="swimlane-platform" source="start" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;" target="receive-msg">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-2" edge="1" parent="swimlane-platform" source="receive-msg" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;" target="extract-info">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-3" edge="1" parent="swimlane-platform" source="extract-info" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;" target="call-auth">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="swimlane-service" parent="1" style="swimlane;startSize=30;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;" value="UserAuthService" vertex="1">
+          <mxGeometry height="880" width="240" x="280" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="query-auth" parent="swimlane-service" style="rounded=1;whiteSpace=wrap;html=1;" value="查询 xt_user_auth 表" vertex="1">
+          <mxGeometry height="40" width="160" x="40" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="check-exists" parent="swimlane-service" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" value="是否已绑定?" vertex="1">
+          <mxGeometry height="60" width="120" x="60" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="return-userid" parent="swimlane-service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="返回”已注册“提示" vertex="1">
+          <mxGeometry height="40" width="160" x="40" y="490" as="geometry" />
+        </mxCell>
+        <mxCell id="return-unregistered" parent="swimlane-service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" value="返回&quot;未注册&quot;提示" vertex="1">
+          <mxGeometry height="40" width="160" x="40" y="640" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-5" edge="1" parent="swimlane-service" source="query-auth" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;" target="check-exists">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-6" edge="1" parent="swimlane-service" source="check-exists" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;fontStyle=1;" target="return-userid" value="是">
+          <mxGeometry relative="1" x="-0.2" as="geometry" />
+        </mxCell>
+        <mxCell id="swimlane-handler" parent="1" style="swimlane;startSize=30;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;" value="CultivationCommandHandler" vertex="1">
+          <mxGeometry height="880" width="240" x="520" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="check-register-cmd" parent="swimlane-handler" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" value="是否为注册命令?" vertex="1">
+          <mxGeometry height="60" width="120" x="60" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="validate-nickname" parent="swimlane-handler" style="rounded=1;whiteSpace=wrap;html=1;" value="验证道号唯一性" vertex="1">
+          <mxGeometry height="40" width="160" x="40" y="490" as="geometry" />
+        </mxCell>
+        <mxCell id="call-create-user" parent="swimlane-handler" style="rounded=1;whiteSpace=wrap;html=1;" value="调用 createUser()" vertex="1">
+          <mxGeometry height="40" width="160" x="40" y="570" as="geometry" />
+        </mxCell>
+        <mxCell id="format-success" parent="swimlane-handler" style="rounded=1;whiteSpace=wrap;html=1;" value="格式化成功消息" vertex="1">
+          <mxGeometry height="40" width="160" x="40" y="720" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-9" edge="1" parent="swimlane-handler" source="check-register-cmd" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;fontStyle=1;" target="validate-nickname" value="是">
+          <mxGeometry relative="1" x="-0.2" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-11" edge="1" parent="swimlane-handler" source="validate-nickname" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="call-create-user">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="120" y="540" />
+              <mxPoint x="120" y="540" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="swimlane-domain" parent="1" style="swimlane;startSize=30;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;" value="UserService / Domain" vertex="1">
+          <mxGeometry height="880" width="240" x="760" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="create-user-record" parent="swimlane-domain" style="rounded=1;whiteSpace=wrap;html=1;" value="创建 xt_user 记录" vertex="1">
+          <mxGeometry height="40" width="160" x="40" y="570" as="geometry" />
+        </mxCell>
+        <mxCell id="create-auth-record" parent="swimlane-domain" style="rounded=1;whiteSpace=wrap;html=1;" value="创建 xt_user_auth 记录" vertex="1">
+          <mxGeometry height="40" width="160" x="40" y="640" as="geometry" />
+        </mxCell>
+        <mxCell id="return-new-user" parent="swimlane-domain" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="返回新用户信息" vertex="1">
+          <mxGeometry height="40" width="160" x="40" y="720" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-13" edge="1" parent="swimlane-domain" source="create-user-record" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;" target="create-auth-record">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-14" edge="1" parent="swimlane-domain" source="create-auth-record" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;" target="return-new-user">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-4" edge="1" parent="1" source="call-auth" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="query-auth">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-7" edge="1" parent="1" source="check-exists" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;exitX=1;exitY=0.5;entryX=0;entryY=0.5;fontStyle=1;" target="check-register-cmd" value="否">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-12" edge="1" parent="1" source="call-create-user" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="create-user-record">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-15" edge="1" parent="1" source="return-new-user" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" target="format-success">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-16" edge="1" parent="1" source="format-success" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" target="render-response">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="240" y="780" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-17" edge="1" parent="1" source="return-unregistered" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#545b64;strokeWidth=1.5;exitX=0;exitY=0.5;entryX=0.5;entryY=0;" target="render-response">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="160" y="700" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="2-KiHqXlPYDhhvtD_uPo-1" edge="1" parent="1" source="return-userid" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;curved=0;" target="render-response">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="2-KiHqXlPYDhhvtD_uPo-2" edge="1" parent="1" source="check-register-cmd" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="return-unregistered">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="740" y="450" />
+              <mxPoint x="740" y="700" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="2-KiHqXlPYDhhvtD_uPo-3" connectable="0" parent="2-KiHqXlPYDhhvtD_uPo-2" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="否" vertex="1">
+          <mxGeometry relative="1" x="-0.3586" y="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
