@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @EnableSimbot
 public class XianTaoApplication {
 
-    static void main(String[] args) {
+    public static void main(String[] args) {
         SpringApplication.run(XianTaoApplication.class, args);
     }
 
