@@ -171,6 +171,11 @@ public class CultivationService {
             return BreakthroughResult.builder()
                     .success(false)
                     .message(String.format("修为不足，突破需要 %d 修为，当前仅有 %d 修为", expNeeded, user.getExp()))
+                    .successRate(user.calculateBreakthroughSuccessRate())
+                    .newLevel(user.getLevel())
+                    .freeStatPoints(user.getFreeStatPoints())
+                    .failCount(user.getBreakthroughFailCount())
+                    .nextBreakthroughRate(user.calculateBreakthroughSuccessRate())
                     .build();
         }
 

@@ -6,23 +6,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
 import top.stillmisty.xiantao.domain.item.entity.InventoryItem;
-import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.EquipmentSlot;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
-import top.stillmisty.xiantao.domain.item.enums.Rarity;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.domain.item.vo.*;
 import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.DaoProtection;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
+import top.stillmisty.xiantao.domain.user.repository.DaoProtectionRepository;
+import top.stillmisty.xiantao.domain.map.entity.MapNode;
+import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -39,6 +37,8 @@ public class ItemService {
     private final EquipmentRepository equipmentRepository;
     private final StackableItemRepository stackableItemRepository;
     private final ItemTemplateRepository itemTemplateRepository;
+    private final DaoProtectionRepository daoProtectionRepository;
+    private final MapNodeRepository mapNodeRepository;
 
     /**
      * 查看角色状态（状态）
@@ -85,6 +85,25 @@ public class ItemService {
                                     .toList())
                             .build();
 
+                    // 获取突破相关信息
+                    double breakthroughSuccessRate = user.calculateBreakthroughSuccessRate();
+                    Integer breakthroughFailCount = user.getBreakthroughFailCount() != null ? user.getBreakthroughFailCount() : 0;
+
+                    // 获取护道相关信息
+                    List<DaoProtection> protectingList = daoProtectionRepository.findByProtectorId(userId);
+                    List<DaoProtection> protectedByList = daoProtectionRepository.findByProtegeId(userId);
+
+                    // 转换为 VO
+                    List<CharacterStatusResult.ProtectionInfoVO> protectingVOList = convertToProtectionInfoVO(protectingList, user);
+                    List<CharacterStatusResult.ProtectionInfoVO> protectedByVOList = convertToProtectionInfoVOWithBonus(protectedByList, user);
+
+                    // 计算总护道加成
+                    double totalProtectionBonus = protectedByVOList.stream()
+                            .filter(info -> Boolean.TRUE.equals(info.getIsInSameLocation()))
+                            .mapToDouble(CharacterStatusResult.ProtectionInfoVO::getBonusPercentage)
+                            .sum();
+                    totalProtectionBonus = Math.min(20.0, totalProtectionBonus); // 上限 20%
+
                     return CharacterStatusResult.builder()
                             .success(true)
                             .message("")
@@ -126,6 +145,15 @@ public class ItemService {
                             // 货币
                             .coins(user.getCoins())
                             .spiritStones(user.getSpiritStones())
+                            // 突破相关
+                            .breakthroughSuccessRate(breakthroughSuccessRate)
+                            .breakthroughFailCount(breakthroughFailCount)
+                            // 护道相关
+                            .protectorCount(protectingList.size())
+                            .maxProtectorCount(3)
+                            .protectingList(protectingVOList)
+                            .protectedByList(protectedByVOList)
+                            .totalProtectionBonus(totalProtectionBonus)
                             // 装扮
                             .equipment(equipmentSummary)
                             .build();
@@ -671,5 +699,108 @@ public class ItemService {
                 .affixDescriptions(affixDescriptions)
                 .equipped(equipment.getEquipped())
                 .build();
+    }
+
+    /**
+     * 转换护道信息 VO（用于查询正在为谁护道）
+     */
+    private List<CharacterStatusResult.ProtectionInfoVO> convertToProtectionInfoVO(
+            List<DaoProtection> protections, User currentUser) {
+        if (protections == null || protections.isEmpty()) {
+            return List.of();
+        }
+
+        return protections.stream()
+                .map(protection -> {
+                    Optional<User> targetUserOpt = userRepository.findById(protection.getProtegeId());
+                    if (targetUserOpt.isEmpty()) {
+                        return null;
+                    }
+
+                    User targetUser = targetUserOpt.get();
+                    boolean inSameLocation = isInSameLocation(currentUser, targetUser);
+                    double bonus = calculateSingleProtectorBonus(currentUser, targetUser);
+
+                    return CharacterStatusResult.ProtectionInfoVO.builder()
+                            .userId(targetUser.getId())
+                            .userName(targetUser.getNickname())
+                            .userLevel(targetUser.getLevel())
+                            .locationId(targetUser.getLocationId())
+                            .locationName(getMapName(targetUser.getLocationId()))
+                            .isInSameLocation(inSameLocation)
+                            .bonusPercentage(bonus)
+                            .build();
+                })
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
+    /**
+     * 转换护道信息 VO（用于查询有谁在为自己护道，包含加成计算）
+     */
+    private List<CharacterStatusResult.ProtectionInfoVO> convertToProtectionInfoVOWithBonus(
+            List<DaoProtection> protections, User currentUser) {
+        if (protections == null || protections.isEmpty()) {
+            return List.of();
+        }
+
+        return protections.stream()
+                .map(protection -> {
+                    Optional<User> protectorOpt = userRepository.findById(protection.getProtectorId());
+                    if (protectorOpt.isEmpty()) {
+                        return null;
+                    }
+
+                    User protector = protectorOpt.get();
+                    boolean inSameLocation = isInSameLocation(currentUser, protector);
+                    
+                    // 只有同地点才提供加成
+                    double bonus = 0.0;
+                    if (inSameLocation) {
+                        bonus = calculateSingleProtectorBonus(protector, currentUser);
+                    }
+
+                    return CharacterStatusResult.ProtectionInfoVO.builder()
+                            .userId(protector.getId())
+                            .userName(protector.getNickname())
+                            .userLevel(protector.getLevel())
+                            .locationId(protector.getLocationId())
+                            .locationName(getMapName(protector.getLocationId()))
+                            .isInSameLocation(inSameLocation)
+                            .bonusPercentage(bonus)
+                            .build();
+                })
+                .filter(vo -> vo != null)
+                .toList();
+    }
+
+    /**
+     * 检查两个用户是否在同一地点
+     */
+    private boolean isInSameLocation(User user1, User user2) {
+        if (user1.getLocationId() == null || user2.getLocationId() == null) {
+            return false;
+        }
+        return user1.getLocationId().equals(user2.getLocationId());
+    }
+
+    /**
+     * 计算单个护道者的加成
+     * 公式：5% + (护道者境界层级 - 突破者境界层级) × 1%
+     */
+    private double calculateSingleProtectorBonus(User protector, User protege) {
+        int levelDiff = protector.getLevel() - protege.getLevel();
+        return 5.0 + (levelDiff * 1.0);
+    }
+
+    /**
+     * 获取地图名称
+     */
+    private String getMapName(Long mapId) {
+        if (mapId == null) {
+            return "未知";
+        }
+        Optional<MapNode> mapOpt = mapNodeRepository.findById(mapId);
+        return mapOpt.map(MapNode::getName).orElse("未知");
     }
 }

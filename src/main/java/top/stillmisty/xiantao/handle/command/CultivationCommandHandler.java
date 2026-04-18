@@ -383,6 +383,53 @@ public class CultivationCommandHandler extends BaseCommandHandler {
             sb.append(String.format("\n可用属性点：%d\n", status.getFreeStatPoints()));
         }
 
+        // 突破相关信息
+        if (status.getBreakthroughSuccessRate() != null) {
+            sb.append(String.format("\n【突破信息】\n"));
+            sb.append(String.format("  突破成功率：%.1f%%\n", status.getBreakthroughSuccessRate()));
+            if (status.getBreakthroughFailCount() != null && status.getBreakthroughFailCount() > 0) {
+                sb.append(String.format("  失败次数：%d（已累积补偿）\n", status.getBreakthroughFailCount()));
+            }
+        }
+
+        // 护道相关信息
+        if (status.getProtectorCount() != null || (status.getProtectedByList() != null && !status.getProtectedByList().isEmpty())) {
+            sb.append("\n【护道信息】\n");
+            
+            // 正在为谁护道
+            if (status.getProtectingList() != null && !status.getProtectingList().isEmpty()) {
+                sb.append(String.format("  你正在为 %d/%d 位道友护道\n", 
+                        status.getProtectorCount(), status.getMaxProtectorCount()));
+                for (var info : status.getProtectingList()) {
+                    String locationStatus = Boolean.TRUE.equals(info.getIsInSameLocation()) ? "[同地点]" : "[异地]";
+                    sb.append(String.format("    %s（第%d层）- %s %s - 加成%.1f%%\n",
+                            info.getUserName(), info.getUserLevel(),
+                            info.getLocationName(), locationStatus, info.getBonusPercentage()));
+                }
+            } else {
+                sb.append(String.format("  你正在为 %d/%d 位道友护道\n", 
+                        status.getProtectorCount() != null ? status.getProtectorCount() : 0,
+                        status.getMaxProtectorCount() != null ? status.getMaxProtectorCount() : 3));
+            }
+            
+            // 有谁在为自己护道
+            if (status.getProtectedByList() != null && !status.getProtectedByList().isEmpty()) {
+                sb.append(String.format("  有 %d 位道友为你护道，总加成：%.1f%%\n",
+                        status.getProtectedByList().size(),
+                        status.getTotalProtectionBonus() != null ? status.getTotalProtectionBonus() : 0.0));
+                for (var info : status.getProtectedByList()) {
+                    String locationStatus = Boolean.TRUE.equals(info.getIsInSameLocation()) ? "[同地点]" : "[异地]";
+                    String bonusText = Boolean.TRUE.equals(info.getIsInSameLocation()) ?
+                            String.format("加成%.1f%%", info.getBonusPercentage()) : "无法提供加成";
+                    sb.append(String.format("    %s（第%d层）- %s %s - %s\n",
+                            info.getUserName(), info.getUserLevel(),
+                            info.getLocationName(), locationStatus, bonusText));
+                }
+            } else {
+                sb.append("  无道友为你护道\n");
+            }
+        }
+
         sb.append(String.format("\n灵石：%d | 铜币：%d\n", status.getSpiritStones(), status.getCoins()));
 
         // 已穿戴装备
@@ -520,10 +567,23 @@ public class CultivationCommandHandler extends BaseCommandHandler {
     private String formatBreakthroughResult(BreakthroughResult result) {
         StringBuilder sb = new StringBuilder();
         sb.append(result.getMessage()).append("\n\n");
-        sb.append(String.format("突破成功率：%.1f%%\n", result.getSuccessRate()));
-        sb.append(String.format("当前境界：第%d层\n", result.getNewLevel()));
-        sb.append(String.format("可用属性点：%d\n", result.getFreeStatPoints()));
-        sb.append(String.format("下次突破成功率：%.1f%%", result.getNextBreakthroughRate()));
+        
+        if (result.getSuccessRate() != null) {
+            sb.append(String.format("突破成功率：%.1f%%\n", result.getSuccessRate()));
+        }
+        
+        if (result.getNewLevel() != null) {
+            sb.append(String.format("当前境界：第%d层\n", result.getNewLevel()));
+        }
+        
+        if (result.getFreeStatPoints() != null) {
+            sb.append(String.format("可用属性点：%d\n", result.getFreeStatPoints()));
+        }
+        
+        if (result.getNextBreakthroughRate() != null) {
+            sb.append(String.format("下次突破成功率：%.1f%%", result.getNextBreakthroughRate()));
+        }
+        
         return sb.toString();
     }
 

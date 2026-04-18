@@ -65,6 +65,17 @@ public class CharacterStatusResult {
     private Long coins;
     private Long spiritStones;
 
+    // ===================== 突破相关 =====================
+    private Double breakthroughSuccessRate; // 当前突破成功率
+    private Integer breakthroughFailCount; // 突破失败次数
+
+    // ===================== 护道相关 =====================
+    private Integer protectorCount; // 正在为多少人护道
+    private Integer maxProtectorCount; // 最大护道人数
+    private List<ProtectionInfoVO> protectingList; // 正在为谁护道
+    private List<ProtectionInfoVO> protectedByList; // 有谁在为自己护道
+    private Double totalProtectionBonus; // 总护道加成
+
     // ===================== 装扮 =====================
     private EquipmentSummary equipment;
 
@@ -90,5 +101,20 @@ public class CharacterStatusResult {
         private Integer wisBonus;
         private Integer attackBonus;
         private Integer defenseBonus;
+    }
+
+    /**
+     * 护道信息 VO
+     */
+    @Data
+    @Builder
+    public static class ProtectionInfoVO {
+        private Long userId;
+        private String userName;
+        private Integer userLevel;
+        private Long locationId;
+        private String locationName;
+        private Boolean isInSameLocation;
+        private Double bonusPercentage;
     }
 }
