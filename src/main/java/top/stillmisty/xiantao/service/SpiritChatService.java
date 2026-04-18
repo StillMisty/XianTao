@@ -10,6 +10,7 @@ import top.stillmisty.xiantao.domain.land.enums.MBTIPersonality;
 import top.stillmisty.xiantao.domain.land.enums.SpiritStage;
 import top.stillmisty.xiantao.domain.land.repository.FudiRepository;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -272,7 +273,11 @@ public class SpiritChatService {
             
             // 显示可收获的灵田
             long matureFarmCount = farmCells.stream()
-                    .filter(cell -> Boolean.TRUE.equals(cell.get("isMature")))
+                    .peek(this::updateGrowthProgress)
+                    .filter(cell -> {
+                        Double progress = (Double) cell.get("growth_progress");
+                        return progress != null && progress >= 1.0;
+                    })
                     .count();
             if (matureFarmCount > 0) {
                 sb.append("⚠️ 有 ").append(matureFarmCount).append(" 块灵田可收获。\n");
@@ -305,24 +310,31 @@ public class SpiritChatService {
                 }
                 
                 // 添加作物生长信息
-                if (cell.containsKey("cropName")) {
-                    String cropName = (String) cell.get("cropName");
-                    Double progress = (Double) cell.get("growthProgress");
-                    Boolean isMature = (Boolean) cell.get("isMature");
+                if ("farm".equals(type)) {
+                    // 懒加载计算生长进度
+                    updateGrowthProgress(cell);
                     
-                    sb.append(" 种植:").append(cropName);
-                    if (isMature != null && isMature) {
-                        sb.append(" ✅可收获");
-                    } else if (progress != null) {
-                        sb.append(String.format(" (%.0f%%)", progress * 100));
+                    String cropName = (String) cell.get("crop_name");
+                    Double progress = (Double) cell.get("growth_progress");
+                    Boolean isMature = progress != null && progress >= 1.0;
+                    
+                    if (cropName != null) {
+                        sb.append(" 种植:").append(cropName);
+                        if (isMature) {
+                            sb.append(" ✅可收获");
+                        } else if (progress != null) {
+                            sb.append(String.format(" (%.0f%%)", progress * 100));
+                        }
                     }
                 }
                 
                 // 添加灵兽信息
-                if (cell.containsKey("beastName")) {
-                    String beastName = (String) cell.get("beastName");
+                if ("pen".equals(type)) {
+                    String beastName = (String) cell.get("beast_name");
                     Integer hunger = (Integer) cell.get("hunger");
-                    sb.append(" 饲养:").append(beastName);
+                    if (beastName != null) {
+                        sb.append(" 饲养:").append(beastName);
+                    }
                     if (hunger != null) {
                         sb.append(" 饥饿值:").append(hunger);
                     }
@@ -336,6 +348,39 @@ public class SpiritChatService {
         }
         
         return sb.toString();
+    }
+
+    /**
+     * 更新地块的生长进度（懒加载）
+     */
+    private void updateGrowthProgress(Map<String, Object> cell) {
+        if (!"farm".equals(cell.get("type"))) {
+            return;
+        }
+        
+        String plantTimeStr = (String) cell.get("plant_time");
+        String matureTimeStr = (String) cell.get("mature_time");
+        
+        if (plantTimeStr == null || matureTimeStr == null) {
+            return;
+        }
+        
+        try {
+            LocalDateTime plantTime = LocalDateTime.parse(plantTimeStr);
+            LocalDateTime matureTime = LocalDateTime.parse(matureTimeStr);
+            LocalDateTime now = LocalDateTime.now();
+            
+            if (now.isAfter(matureTime) || now.isEqual(matureTime)) {
+                cell.put("growth_progress", 1.0);
+            } else {
+                long totalSeconds = java.time.Duration.between(plantTime, matureTime).getSeconds();
+                long elapsedSeconds = java.time.Duration.between(plantTime, now).getSeconds();
+                double progress = Math.min(1.0, (double) elapsedSeconds / totalSeconds);
+                cell.put("growth_progress", progress);
+            }
+        } catch (Exception e) {
+            // 解析失败，保持原值
+        }
     }
 
 

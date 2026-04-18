@@ -202,6 +202,9 @@ public class FudiService {
         String cropName = (String) cell.getOrDefault("crop_name", "未知灵草");
         String elementStr = (String) cell.get("element");
         WuxingType element = elementStr != null ? WuxingType.valueOf(elementStr) : null;
+        
+        // 懒加载计算生长进度，确保获取最新值
+        updateGrowthProgress(cell);
         Double growthProgress = (Double) cell.getOrDefault("growth_progress", 0.0);
 
         builder.name(cropName)
