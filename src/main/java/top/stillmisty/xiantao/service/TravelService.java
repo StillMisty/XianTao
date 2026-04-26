@@ -30,8 +30,7 @@ public class TravelService {
 
     private final UserRepository userRepository;
     private final MapNodeRepository mapNodeRepository;
-
-    public static final int STAMINA_COST_PER_MINUTE = 5;
+    private final StaminaService staminaService;
 
     /**
      * 开始旅行
@@ -103,11 +102,35 @@ public class TravelService {
         Integer travelTime = currentMap.getTravelTimeTo(targetMap.getName());
 
         if (useStamina) {
-            // 体力模式：立即完成
-            int staminaCost = travelTime * STAMINA_COST_PER_MINUTE;
+            // 体力模式：检查并消耗体力
+            var staminaResult = staminaService.checkAndConsumeTravelStamina(userId, travelTime);
+            if (!staminaResult.success()) {
+                // 体力不足，降级为真实时间模式
+                user.setStatus(UserStatus.RUNNING);
+                user.setTravelStartTime(LocalDateTime.now());
+                user.setTravelDestinationId(targetMapId);
+                userRepository.save(user);
 
-            // TODO: 检查体力是否足够（需要实现体力系统）
-            // 这里暂时假设体力足够
+                LocalDateTime estimatedArrival = LocalDateTime.now().plusMinutes(travelTime);
+
+                log.info("玩家 {} 体力不足，降级为真实时间旅行到 {}, 耗时 {} 分钟", userId, targetMap.getName(), travelTime);
+
+                return TravelResultVO.builder()
+                        .success(true)
+                        .message(String.format("体力不足！已自动切换为真实时间模式\n您开始前往 %s，预计 %d 分钟后到达", targetMap.getName(), travelTime))
+                        .fromMapId(currentMap.getId())
+                        .fromMapName(currentMap.getName())
+                        .toMapId(targetMap.getId())
+                        .toMapName(targetMap.getName())
+                        .useStamina(false)
+                        .travelTimeMinutes(travelTime)
+                        .arrived(false)
+                        .estimatedArrivalTime(estimatedArrival)
+                        .build();
+            }
+
+            int staminaCost = staminaResult.consumedStamina();
+            int remainingStamina = staminaResult.remainingStamina();
 
             // D20 骰点
             int d20Roll = rollD20();
@@ -120,11 +143,11 @@ public class TravelService {
             user.setLocationId(targetMapId);
             userRepository.save(user);
 
-            log.info("玩家 {} 体力旅行到 {}, 耗时 {} 分钟, D20: {}, 事件: {}", userId, targetMap.getName(), travelTime, d20Roll, eventType);
+            log.info("玩家 {} 体力旅行到 {}, 耗时 {} 分钟, 消耗体力: {}, D20: {}, 事件: {}", userId, targetMap.getName(), travelTime, staminaCost, d20Roll, eventType);
 
             return TravelResultVO.builder()
                     .success(true)
-                    .message(String.format("您消耗 %d 体力，已到达 %s", staminaCost, targetMap.getName()))
+                    .message(String.format("您消耗 %d 体力（剩余 %d），已到达 %s", staminaCost, remainingStamina, targetMap.getName()))
                     .fromMapId(currentMap.getId())
                     .fromMapName(currentMap.getName())
                     .toMapId(targetMap.getId())
@@ -255,7 +278,6 @@ public class TravelService {
      * @return 旅行结果
      */
     public TravelResultVO useStaminaToSkip(Long userId) {
-        // 获取用户
         Optional<User> userOpt = userRepository.findById(userId);
         if (userOpt.isEmpty()) {
             return TravelResultVO.builder()
@@ -266,7 +288,6 @@ public class TravelService {
 
         User user = userOpt.get();
 
-        // 检查用户状态
         if (user.getStatus() != UserStatus.RUNNING) {
             return TravelResultVO.builder()
                     .success(false)
@@ -274,11 +295,55 @@ public class TravelService {
                     .build();
         }
 
-        // 计算剩余时间
+        Long targetMapId = user.getTravelDestinationId();
+        if (targetMapId == null || targetMapId == 0) {
+            return TravelResultVO.builder()
+                    .success(false)
+                    .message("旅行目的地未设置")
+                    .build();
+        }
+
+        // 计算剩余旅行时间
         long minutesElapsed = Duration.between(user.getTravelStartTime(), LocalDateTime.now()).toMinutes();
 
-        // TODO: 获取目标地图并计算剩余旅行时间
-        // 这里暂时假设需要消耗剩余时间的体力
+        // 获取目标地图以计算总旅行时间
+        Optional<MapNode> targetMapOpt = mapNodeRepository.findById(targetMapId);
+        if (targetMapOpt.isEmpty()) {
+            return TravelResultVO.builder()
+                    .success(false)
+                    .message("目标地图不存在")
+                    .build();
+        }
+
+        // 获取当前地图以计算旅行时间
+        Optional<MapNode> currentMapOpt = mapNodeRepository.findById(user.getLocationId());
+        if (currentMapOpt.isEmpty()) {
+            return TravelResultVO.builder()
+                    .success(false)
+                    .message("当前地图不存在")
+                    .build();
+        }
+
+        Integer totalTravelTime = currentMapOpt.get().getTravelTimeTo(targetMapOpt.get().getName());
+        if (totalTravelTime == null) {
+            return TravelResultVO.builder()
+                    .success(false)
+                    .message("无法计算旅行时间")
+                    .build();
+        }
+
+        int remainingMinutes = Math.max(1, totalTravelTime - (int) minutesElapsed);
+
+        // 检查并消耗体力
+        var staminaResult = staminaService.checkAndConsumeTravelStamina(userId, remainingMinutes);
+        if (!staminaResult.success()) {
+            return TravelResultVO.builder()
+                    .success(false)
+                    .message(staminaResult.message())
+                    .build();
+        }
+
+        log.info("玩家 {} 使用体力跳过旅行，消耗 {} 体力", userId, staminaResult.consumedStamina());
 
         // 完成旅行
         return completeTravel(userId);

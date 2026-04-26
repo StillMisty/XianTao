@@ -89,7 +89,7 @@ public class MapCommandHandler extends BaseCommandHandler {
 
         // 计算需要的体力
         int travelTime = targetMap.getTravelTimeMinutes();
-        int staminaCost = travelTime * TravelService.STAMINA_COST_PER_MINUTE;
+        int staminaCost = travelTime * StaminaService.STAMINA_COST_PER_TRAVEL_MINUTE;
 
         // 判断是否使用体力模式
         // 优先使用体力，体力不足时才使用真实时间
@@ -106,12 +106,16 @@ public class MapCommandHandler extends BaseCommandHandler {
     }
 
     /**
-     * 检查体力是否足够
-     * TODO: 实现体力系统后需要修改此方法
+     * 检查体力是否足够进行旅行
      */
     private boolean hasEnoughStamina(top.stillmisty.xiantao.domain.item.vo.CharacterStatusResult characterStatus, int staminaCost) {
-        // 临时返回 true，需要实现体力系统后修改
-        return true;
+        var userOpt = userService.findById(characterStatus.getUserId());
+        if (userOpt.isEmpty()) {
+            return false;
+        }
+        // 触发懒加载离线体力恢复用于检查，实际持久化在 TravelService 中完成
+        userOpt.get().calculateOfflineStaminaRecovery();
+        return userOpt.get().hasEnoughStamina(staminaCost);
     }
 
     /**
@@ -131,7 +135,7 @@ public class MapCommandHandler extends BaseCommandHandler {
         }
 
         // TODO: 这里应该是开始历练，但目前代码是结算历练
-        // 暂时保持原有逻辑，后续需要重构为开始历练+消耗体力
+        // 暂时保持原有逻辑，后续需要重构为开始历练
         
         // 计算历练奖励
         TrainingRewardVO rewards = trainingService.calculateTrainingRewards(authResult.userId());

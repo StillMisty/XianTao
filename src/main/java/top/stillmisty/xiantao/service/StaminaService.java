@@ -23,8 +23,8 @@ public class StaminaService {
     private final UserRepository userRepository;
 
     // 体力消耗常量
-    private static final int STAMINA_COST_PER_TRAINING_MINUTE = 1; // 历练每分钟消耗1点
     private static final int STAMINA_COST_PER_EXPLORATION = 20; // 探索每次消耗20点
+    public static final int STAMINA_COST_PER_TRAVEL_MINUTE = 5; // 旅行每分钟消耗5点
     private static final int STAMINA_RECOVERY_PER_MEDITATION_MINUTE = 2; // 打坐每分钟恢复2点
 
     /**
@@ -60,19 +60,19 @@ public class StaminaService {
         }
         
         sb.append("━━━━━━━━━━━━━━━\n");
-        sb.append("💡 体力影响历练和探索，可通过打坐或使用丹药恢复");
+        sb.append("💡 体力影响探索和旅行，可通过打坐或使用丹药恢复");
         
         return sb.toString();
     }
 
     /**
-     * 检查并消耗历练体力
+     * 检查并消耗旅行体力
      *
      * @param userId 用户ID
-     * @param durationMinutes 历练时长（分钟）
+     * @param travelMinutes 旅行时长（分钟）
      * @return 是否成功，失败时返回错误消息
      */
-    public StaminaCheckResult checkAndConsumeTrainingStamina(Long userId, long durationMinutes) {
+    public StaminaCheckResult checkAndConsumeTravelStamina(Long userId, int travelMinutes) {
         Optional<User> userOpt = userRepository.findById(userId);
         if (userOpt.isEmpty()) {
             return StaminaCheckResult.failure("用户不存在");
@@ -83,11 +83,11 @@ public class StaminaService {
         // 懒加载计算离线恢复
         user.calculateOfflineStaminaRecovery();
 
-        int requiredStamina = (int) (durationMinutes * STAMINA_COST_PER_TRAINING_MINUTE);
+        int requiredStamina = travelMinutes * STAMINA_COST_PER_TRAVEL_MINUTE;
         
         if (!user.hasEnoughStamina(requiredStamina)) {
             return StaminaCheckResult.failure(
-                String.format("体力不足！需要 %d 点体力，当前仅有 %d 点。请先打坐恢复体力或使用丹药", 
+                String.format("体力不足！需要 %d 点体力，当前仅有 %d 点", 
                     requiredStamina, user.getStaminaCurrent())
             );
         }
@@ -96,7 +96,7 @@ public class StaminaService {
         int consumed = user.consumeStamina(requiredStamina);
         userRepository.save(user);
 
-        log.info("用户 {} 消耗 {} 点体力用于 {} 分钟历练", userId, consumed, durationMinutes);
+        log.info("用户 {} 消耗 {} 点体力用于 {} 分钟旅行", userId, consumed, travelMinutes);
         
         return StaminaCheckResult.success(consumed, user.getStaminaCurrent());
     }

@@ -28,7 +28,6 @@ public class TrainingService {
 
     private final UserRepository userRepository;
     private final MapNodeRepository mapNodeRepository;
-    private final StaminaService staminaService;
 
     // 历练基础收益配置
     private static final long BASE_COINS_PER_MINUTE = 10;
@@ -233,32 +232,6 @@ public class TrainingService {
 
         log.info("用户 {} 开始历练", userId);
         return true;
-    }
-
-    /**
-     * 开始历练（带体力检查）
-     *
-     * @param userId 用户 ID
-     * @param durationMinutes 历练时长（分钟）
-     * @return 开始结果消息
-     */
-    public String startTrainingWithStaminaCheck(Long userId, long durationMinutes) {
-        // 检查并消耗体力
-        var staminaResult = staminaService.checkAndConsumeTrainingStamina(userId, durationMinutes);
-        if (!staminaResult.success()) {
-            return staminaResult.message();
-        }
-
-        // 开始历练
-        boolean started = startTraining(userId);
-        if (!started) {
-            return "开始历练失败";
-        }
-
-        return String.format("✅ 开始历练！\n━━━━━━━━━━━━━━━\n消耗体力：%d 点\n剩余体力：%d 点\n预计时长：%d 分钟",
-                staminaResult.consumedStamina(),
-                staminaResult.remainingStamina(),
-                durationMinutes);
     }
 
     /**
