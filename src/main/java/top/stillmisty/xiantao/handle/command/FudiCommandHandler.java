@@ -4,8 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.land.enums.CellType;
-import top.stillmisty.xiantao.domain.land.enums.MBTIPersonality;
-import top.stillmisty.xiantao.domain.land.enums.WuxingType;
 import top.stillmisty.xiantao.domain.land.vo.FarmCellVO;
 import top.stillmisty.xiantao.domain.land.vo.FudiStatusVO;
 import top.stillmisty.xiantao.service.FudiService;
@@ -41,7 +39,7 @@ public class FudiCommandHandler extends BaseCommandHandler {
      * 处理 #福地 命令
      */
     public String handleFudiStatus(PlatformType platform, String openId) {
-        AuthResult authResult = authenticate(platform, openId);
+        AuthResult authResult = authenticateAndValidateUser(platform, openId);
         if (!authResult.authenticated()) {
             return authResult.errorMessage();
         }
@@ -58,7 +56,7 @@ public class FudiCommandHandler extends BaseCommandHandler {
      * 处理 #福地网格 命令
      */
     public String handleFudiGrid(PlatformType platform, String openId) {
-        AuthResult authResult = authenticate(platform, openId);
+        AuthResult authResult = authenticateAndValidateUser(platform, openId);
         if (!authResult.authenticated()) {
             return authResult.errorMessage();
         }
@@ -75,7 +73,7 @@ public class FudiCommandHandler extends BaseCommandHandler {
      * 处理 #福地灵气 命令
      */
     public String handleFudiAura(PlatformType platform, String openId) {
-        AuthResult authResult = authenticate(platform, openId);
+        AuthResult authResult = authenticateAndValidateUser(platform, openId);
         if (!authResult.authenticated()) {
             return authResult.errorMessage();
         }
@@ -92,7 +90,7 @@ public class FudiCommandHandler extends BaseCommandHandler {
      * 处理 #福地地灵 命令
      */
     public String handleFudiSpirit(PlatformType platform, String openId) {
-        AuthResult authResult = authenticate(platform, openId);
+        AuthResult authResult = authenticateAndValidateUser(platform, openId);
         if (!authResult.authenticated()) {
             return authResult.errorMessage();
         }
@@ -109,23 +107,14 @@ public class FudiCommandHandler extends BaseCommandHandler {
      * 处理 #种植 命令
      */
     public String handlePlant(PlatformType platform, String openId, String position, String cropName) {
-        AuthResult authResult = authenticate(platform, openId);
+        AuthResult authResult = authenticateAndValidateUser(platform, openId);
         if (!authResult.authenticated()) {
             return authResult.errorMessage();
         }
         
         try {
-            // TODO: 根据作物名称查找ID和五行属性
-            WuxingType element = WuxingType.WOOD; // 示例：默认木属性
-            Integer cropId = 101; // 示例：灵芝
-            
-            FarmCellVO result = fudiService.plantCrop(authResult.userId(), position, cropId, cropName, element);
-            return String.format("✅ 已在 (%s) 种植%s，预计 %.1f 小时后成熟。\n五行属性：%s\n生长修正：%.0f%%",
-                    position,
-                    cropName,
-                    result.getBaseGrowthHours() / result.getGrowthModifier(),
-                    element.getChineseName(),
-                    result.getGrowthModifier() * 100);
+            FarmCellVO result = fudiService.plantCropByName(authResult.userId(), position, cropName);
+            return formatPlantResult(result);
         } catch (IllegalStateException e) {
             return "❌ " + e.getMessage();
         } catch (Exception e) {
@@ -138,7 +127,7 @@ public class FudiCommandHandler extends BaseCommandHandler {
      * 处理 #收获 命令
      */
     public String handleHarvest(PlatformType platform, String openId, String position) {
-        AuthResult authResult = authenticate(platform, openId);
+        AuthResult authResult = authenticateAndValidateUser(platform, openId);
         if (!authResult.authenticated()) {
             return authResult.errorMessage();
         }
@@ -173,7 +162,7 @@ public class FudiCommandHandler extends BaseCommandHandler {
      * 处理 #建造 命令
      */
     public String handleBuild(PlatformType platform, String openId, String position, String cellTypeName) {
-        AuthResult authResult = authenticate(platform, openId);
+        AuthResult authResult = authenticateAndValidateUser(platform, openId);
         if (!authResult.authenticated()) {
             return authResult.errorMessage();
         }
@@ -197,7 +186,7 @@ public class FudiCommandHandler extends BaseCommandHandler {
      * 处理 #拆除 命令
      */
     public String handleRemove(PlatformType platform, String openId, String position) {
-        AuthResult authResult = authenticate(platform, openId);
+        AuthResult authResult = authenticateAndValidateUser(platform, openId);
         if (!authResult.authenticated()) {
             return authResult.errorMessage();
         }
@@ -219,7 +208,7 @@ public class FudiCommandHandler extends BaseCommandHandler {
      * 处理 #献祭 命令
      */
     public String handleSacrifice(PlatformType platform, String openId, String itemName) {
-        AuthResult authResult = authenticate(platform, openId);
+        AuthResult authResult = authenticateAndValidateUser(platform, openId);
         if (!authResult.authenticated()) {
             return authResult.errorMessage();
         }
@@ -230,10 +219,7 @@ public class FudiCommandHandler extends BaseCommandHandler {
                 return "⚠️ 批量献祭功能尚未实现。";
             }
             
-            // TODO: 根据物品名称查找ID
-            Long itemId = 1L; // 示例
-            int auraGain = fudiService.sacrificeItem(authResult.userId(), itemId);
-            
+            int auraGain = fudiService.sacrificeItemByName(authResult.userId(), itemName);
             return String.format("✅ 献祭成功！%s 转化为 %d 灵气。", itemName, auraGain);
         } catch (IllegalStateException e) {
             return "❌ " + e.getMessage();
@@ -247,20 +233,14 @@ public class FudiCommandHandler extends BaseCommandHandler {
      * 处理 #喂养 命令
      */
     public String handleFeed(PlatformType platform, String openId, String position, String feedItemName) {
-        AuthResult authResult = authenticate(platform, openId);
+        AuthResult authResult = authenticateAndValidateUser(platform, openId);
         if (!authResult.authenticated()) {
             return authResult.errorMessage();
         }
         
         try {
-            // TODO: 根据饲料名称查找ID
-            Integer feedItemId = 1; // 示例
-            
-            Map<String, Object> result = fudiService.feedBeast(authResult.userId(), position, feedItemId, feedItemName);
-            String beastName = (String) result.get("beastName");
-            int newHunger = (Integer) result.get("newHunger");
-            
-            return String.format("✅ 已喂养 (%s) 的%s，当前饥饿值：%d", position, beastName, newHunger);
+            Map<String, Object> result = fudiService.feedBeastByName(authResult.userId(), position, feedItemName);
+            return formatFeedResult(result);
         } catch (IllegalStateException e) {
             return "❌ " + e.getMessage();
         } catch (Exception e) {
@@ -273,7 +253,7 @@ public class FudiCommandHandler extends BaseCommandHandler {
      * 处理 #福地自动 命令
      */
     public String handleAutoMode(PlatformType platform, String openId, String mode) {
-        AuthResult authResult = authenticate(platform, openId);
+        AuthResult authResult = authenticateAndValidateUser(platform, openId);
         if (!authResult.authenticated()) {
             return authResult.errorMessage();
         }
@@ -292,7 +272,7 @@ public class FudiCommandHandler extends BaseCommandHandler {
      * 处理 #福地升级 命令
      */
     public String handleUpgrade(PlatformType platform, String openId) {
-        AuthResult authResult = authenticate(platform, openId);
+        AuthResult authResult = authenticateAndValidateUser(platform, openId);
         if (!authResult.authenticated()) {
             return authResult.errorMessage();
         }
@@ -310,7 +290,7 @@ public class FudiCommandHandler extends BaseCommandHandler {
      * 处理 #福地扩建 命令
      */
     public String handleExpand(PlatformType platform, String openId) {
-        AuthResult authResult = authenticate(platform, openId);
+        AuthResult authResult = authenticateAndValidateUser(platform, openId);
         if (!authResult.authenticated()) {
             return authResult.errorMessage();
         }
@@ -447,19 +427,36 @@ public class FudiCommandHandler extends BaseCommandHandler {
         return sb.toString();
     }
 
-    // ===================== 地灵自然语言交互 =====================
+    // ===================== 格式化输出方法 =====================
 
     /**
-     * 处理 @地灵 自然语言交互
-     * 完整流程：意图识别 -> 执行操作 -> MBTI 人格化回复
-     *
-     * @param platform 平台类型
-     * @param openId 用户 OpenID
-     * @param userInput 用户输入的自然语言
-     * @return 地灵回复
+     * 格式化种植结果
+     */
+    private String formatPlantResult(FarmCellVO result) {
+        return String.format("✅ 已在 (%s) 种植%s，预计 %.1f 小时后成熟。\n五行属性：%s\n生长修正：%.0f%%",
+                result.getPosition(),
+                result.getCropName(),
+                result.getActualGrowthHours(),
+                result.getElement().getChineseName(),
+                result.getGrowthModifier() * 100);
+    }
+
+    /**
+     * 格式化喂养结果
+     */
+    private String formatFeedResult(Map<String, Object> result) {
+        String beastName = (String) result.get("beastName");
+        int newHunger = (Integer) result.get("newHunger");
+        String position = (String) result.get("position");
+
+        return String.format("✅ 已喂养 (%s) 的%s，当前饥饿值：%d", position, beastName, newHunger);
+    }
+
+    /**
+     * 格式化福地整体状态
      */
     public String handleSpiritChat(PlatformType platform, String openId, String userInput) {
-        AuthResult authResult = authenticate(platform, openId);
+        AuthResult authResult = authenticateAndValidateUser(platform, openId);
         if (!authResult.authenticated()) {
             return authResult.errorMessage();
         }
@@ -485,7 +482,7 @@ public class FudiCommandHandler extends BaseCommandHandler {
      * @return 地灵的人格化回复
      */
     public String handleSpiritPureChat(PlatformType platform, String openId, String userInput) {
-        AuthResult authResult = authenticate(platform, openId);
+        AuthResult authResult = authenticateAndValidateUser(platform, openId);
         if (!authResult.authenticated()) {
             return authResult.errorMessage();
         }

@@ -8,7 +8,6 @@ import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 /**
  * 体力服务
@@ -24,7 +23,7 @@ public class StaminaService {
 
     // 体力消耗常量
     private static final int STAMINA_COST_PER_EXPLORATION = 20; // 探索每次消耗20点
-    public static final int STAMINA_COST_PER_TRAVEL_MINUTE = 5; // 旅行每分钟消耗5点
+    private static final int STAMINA_COST_PER_TRAVEL_MINUTE = 5;
     private static final int STAMINA_RECOVERY_PER_MEDITATION_MINUTE = 2; // 打坐每分钟恢复2点
 
     /**
@@ -34,12 +33,7 @@ public class StaminaService {
      * @return 体力信息字符串
      */
     public String getStaminaInfo(Long userId) {
-        Optional<User> userOpt = userRepository.findById(userId);
-        if (userOpt.isEmpty()) {
-            return "用户不存在";
-        }
-
-        User user = userOpt.get();
+        User user = userRepository.findById(userId).orElseThrow();
         
         // 懒加载计算离线恢复
         int recovered = user.calculateOfflineStaminaRecovery();
@@ -73,12 +67,7 @@ public class StaminaService {
      * @return 是否成功，失败时返回错误消息
      */
     public StaminaCheckResult checkAndConsumeTravelStamina(Long userId, int travelMinutes) {
-        Optional<User> userOpt = userRepository.findById(userId);
-        if (userOpt.isEmpty()) {
-            return StaminaCheckResult.failure("用户不存在");
-        }
-
-        User user = userOpt.get();
+        User user = userRepository.findById(userId).orElseThrow();
         
         // 懒加载计算离线恢复
         user.calculateOfflineStaminaRecovery();
@@ -108,12 +97,7 @@ public class StaminaService {
      * @return 是否成功，失败时返回错误消息
      */
     public StaminaCheckResult checkAndConsumeExplorationStamina(Long userId) {
-        Optional<User> userOpt = userRepository.findById(userId);
-        if (userOpt.isEmpty()) {
-            return StaminaCheckResult.failure("用户不存在");
-        }
-
-        User user = userOpt.get();
+        User user = userRepository.findById(userId).orElseThrow();
         
         // 懒加载计算离线恢复
         user.calculateOfflineStaminaRecovery();
@@ -142,12 +126,7 @@ public class StaminaService {
      * @return 恢复的体力值
      */
     public int restoreStaminaByMeditation(Long userId, long durationMinutes) {
-        Optional<User> userOpt = userRepository.findById(userId);
-        if (userOpt.isEmpty()) {
-            return 0;
-        }
-
-        User user = userOpt.get();
+        User user = userRepository.findById(userId).orElseThrow();
         
         // 计算恢复量
         int recoveryAmount = (int) (durationMinutes * STAMINA_RECOVERY_PER_MEDITATION_MINUTE);
@@ -169,12 +148,7 @@ public class StaminaService {
      * @return 实际恢复的体力值
      */
     public int restoreStaminaByItem(Long userId, int staminaAmount) {
-        Optional<User> userOpt = userRepository.findById(userId);
-        if (userOpt.isEmpty()) {
-            return 0;
-        }
-
-        User user = userOpt.get();
+        User user = userRepository.findById(userId).orElseThrow();
         
         int actualRecovered = user.restoreStamina(staminaAmount);
         userRepository.save(user);

@@ -48,120 +48,115 @@ public class ItemService {
      * @return 角色完整状态 VO
      */
     public CharacterStatusResult getCharacterStatus(Long userId) {
-        return userRepository.findById(userId)
-                .map(user -> {
-                    // 获取已穿戴装备
-                    List<Equipment> equippedItems = equipmentRepository.findEquippedByUserId(userId);
+        User user = userRepository.findById(userId).orElseThrow();
 
-                    // 计算装备加成
-                    int equipStr = 0, equipCon = 0, equipAgi = 0, equipWis = 0;
-                    int equipAttack = 0, equipDefense = 0;
+        // 获取已穿戴装备
+        List<Equipment> equippedItems = equipmentRepository.findEquippedByUserId(userId);
 
-                    for (Equipment equipment : equippedItems) {
-                        equipStr += equipment.getStrBonus();
-                        equipCon += equipment.getConBonus();
-                        equipAgi += equipment.getAgiBonus();
-                        equipWis += equipment.getWisBonus();
-                        equipAttack += equipment.getAttackBonus() != null ? equipment.getAttackBonus() : 0;
-                        equipDefense += equipment.getDefenseBonus() != null ? equipment.getDefenseBonus() : 0;
-                    }
+        // 计算装备加成
+        int equipStr = 0, equipCon = 0, equipAgi = 0, equipWis = 0;
+        int equipAttack = 0, equipDefense = 0;
 
-                    // 计算最终属性
-                    int totalStr = user.getStatStr() + equipStr;
-                    int totalCon = user.getStatCon() + equipCon;
-                    int totalAgi = user.getStatAgi() + equipAgi;
-                    int totalWis = user.getStatWis() + equipWis;
+        for (Equipment equipment : equippedItems) {
+            equipStr += equipment.getStrBonus();
+            equipCon += equipment.getConBonus();
+            equipAgi += equipment.getAgiBonus();
+            equipWis += equipment.getWisBonus();
+            equipAttack += equipment.getAttackBonus() != null ? equipment.getAttackBonus() : 0;
+            equipDefense += equipment.getDefenseBonus() != null ? equipment.getDefenseBonus() : 0;
+        }
 
-                    // 计算战斗属性
-                    int attack = totalStr * 2 + equipAttack;
-                    int defense = totalCon + equipDefense;
-                    int hpMax = 100 + totalCon * 20;
+        // 计算最终属性
+        int totalStr = user.getStatStr() + equipStr;
+        int totalCon = user.getStatCon() + equipCon;
+        int totalAgi = user.getStatAgi() + equipAgi;
+        int totalWis = user.getStatWis() + equipWis;
 
-                    // 转换装备为VO
-                    CharacterStatusResult.EquipmentSummary equipmentSummary = CharacterStatusResult.EquipmentSummary.builder()
-                            .totalEquipped(equippedItems.size())
-                            .items(equippedItems.stream()
-                                    .map(this::convertToEquipmentSummaryItem)
-                                    .toList())
-                            .build();
+        // 计算战斗属性
+        int attack = totalStr * 2 + equipAttack;
+        int defense = totalCon + equipDefense;
+        int hpMax = 100 + totalCon * 20;
 
-                    // 获取突破相关信息
-                    double breakthroughSuccessRate = user.calculateBreakthroughSuccessRate();
-                    Integer breakthroughFailCount = user.getBreakthroughFailCount() != null ? user.getBreakthroughFailCount() : 0;
+        // 转换装备为VO
+        CharacterStatusResult.EquipmentSummary equipmentSummary = CharacterStatusResult.EquipmentSummary.builder()
+                .totalEquipped(equippedItems.size())
+                .items(equippedItems.stream()
+                        .map(this::convertToEquipmentSummaryItem)
+                        .toList())
+                .build();
 
-                    // 获取护道相关信息
-                    List<DaoProtection> protectingList = daoProtectionRepository.findByProtectorId(userId);
-                    List<DaoProtection> protectedByList = daoProtectionRepository.findByProtegeId(userId);
+        // 获取突破相关信息
+        double breakthroughSuccessRate = user.calculateBreakthroughSuccessRate();
+        Integer breakthroughFailCount = user.getBreakthroughFailCount() != null ? user.getBreakthroughFailCount() : 0;
 
-                    // 转换为 VO
-                    List<CharacterStatusResult.ProtectionInfoVO> protectingVOList = convertToProtectionInfoVO(protectingList, user);
-                    List<CharacterStatusResult.ProtectionInfoVO> protectedByVOList = convertToProtectionInfoVOWithBonus(protectedByList, user);
+        // 获取护道相关信息
+        List<DaoProtection> protectingList = daoProtectionRepository.findByProtectorId(userId);
+        List<DaoProtection> protectedByList = daoProtectionRepository.findByProtegeId(userId);
 
-                    // 计算总护道加成
-                    double totalProtectionBonus = protectedByVOList.stream()
-                            .filter(info -> Boolean.TRUE.equals(info.getIsInSameLocation()))
-                            .mapToDouble(CharacterStatusResult.ProtectionInfoVO::getBonusPercentage)
-                            .sum();
-                    totalProtectionBonus = Math.min(20.0, totalProtectionBonus); // 上限 20%
+        // 转换为 VO
+        List<CharacterStatusResult.ProtectionInfoVO> protectingVOList = convertToProtectionInfoVO(protectingList, user);
+        List<CharacterStatusResult.ProtectionInfoVO> protectedByVOList = convertToProtectionInfoVOWithBonus(protectedByList, user);
 
-                    return CharacterStatusResult.builder()
-                            .success(true)
-                            .message("")
-                            .userId(user.getId())
-                            .nickname(user.getNickname())
-                            // 境界进度
-                            .level(user.getLevel())
-                            .exp(user.getExp())
-                            .expToNextLevel(user.calculateExpToNextLevel())
-                            .expPercentage(user.getExp() * 100.0 / user.calculateExpToNextLevel())
-                            // 当前状态
-                            .status(user.getStatus())
-                            .statusName(user.getStatus() != null ? user.getStatus().getName() : "未知")
-                            .locationId(user.getLocationId())
-                            // HP
-                            .hpCurrent(user.getHpCurrent())
-                            .hpMax(hpMax)
-                            .hpPercentage(user.getHpCurrent() * 100.0 / hpMax)
-                            // 基础属性
-                            .baseStr(user.getStatStr())
-                            .baseCon(user.getStatCon())
-                            .baseAgi(user.getStatAgi())
-                            .baseWis(user.getStatWis())
-                            // 装备加成
-                            .equipStr(equipStr)
-                            .equipCon(equipCon)
-                            .equipAgi(equipAgi)
-                            .equipWis(equipWis)
-                            // 最终属性
-                            .totalStr(totalStr)
-                            .totalCon(totalCon)
-                            .totalAgi(totalAgi)
-                            .totalWis(totalWis)
-                            // 战斗属性
-                            .attack(attack)
-                            .defense(defense)
-                            // 自由属性点
-                            .freeStatPoints(user.getFreeStatPoints())
-                            // 货币
-                            .coins(user.getCoins())
-                            .spiritStones(user.getSpiritStones())
-                            // 突破相关
-                            .breakthroughSuccessRate(breakthroughSuccessRate)
-                            .breakthroughFailCount(breakthroughFailCount)
-                            // 护道相关
-                            .protectorCount(protectingList.size())
-                            .maxProtectorCount(3)
-                            .protectingList(protectingVOList)
-                            .protectedByList(protectedByVOList)
-                            .totalProtectionBonus(totalProtectionBonus)
-                            // 装扮
-                            .equipment(equipmentSummary)
-                            .build();
-                })
-                .orElse(CharacterStatusResult.builder()
-                        .success(false)
-                        .message("用户不存在")
-                        .build());
+        // 计算总护道加成
+        double totalProtectionBonus = protectedByVOList.stream()
+                .filter(info -> Boolean.TRUE.equals(info.getIsInSameLocation()))
+                .mapToDouble(CharacterStatusResult.ProtectionInfoVO::getBonusPercentage)
+                .sum();
+        totalProtectionBonus = Math.min(20.0, totalProtectionBonus); // 上限 20%
+
+        return CharacterStatusResult.builder()
+                .success(true)
+                .message("")
+                .userId(user.getId())
+                .nickname(user.getNickname())
+                // 境界进度
+                .level(user.getLevel())
+                .exp(user.getExp())
+                .expToNextLevel(user.calculateExpToNextLevel())
+                .expPercentage(user.getExp() * 100.0 / user.calculateExpToNextLevel())
+                // 当前状态
+                .status(user.getStatus())
+                .statusName(user.getStatus() != null ? user.getStatus().getName() : "未知")
+                .locationId(user.getLocationId())
+                // HP
+                .hpCurrent(user.getHpCurrent())
+                .hpMax(hpMax)
+                .hpPercentage(user.getHpCurrent() * 100.0 / hpMax)
+                // 基础属性
+                .baseStr(user.getStatStr())
+                .baseCon(user.getStatCon())
+                .baseAgi(user.getStatAgi())
+                .baseWis(user.getStatWis())
+                // 装备加成
+                .equipStr(equipStr)
+                .equipCon(equipCon)
+                .equipAgi(equipAgi)
+                .equipWis(equipWis)
+                // 最终属性
+                .totalStr(totalStr)
+                .totalCon(totalCon)
+                .totalAgi(totalAgi)
+                .totalWis(totalWis)
+                // 战斗属性
+                .attack(attack)
+                .defense(defense)
+                // 自由属性点
+                .freeStatPoints(user.getFreeStatPoints())
+                // 货币
+                .coins(user.getCoins())
+                .spiritStones(user.getSpiritStones())
+                // 突破相关
+                .breakthroughSuccessRate(breakthroughSuccessRate)
+                .breakthroughFailCount(breakthroughFailCount)
+                // 护道相关
+                .protectorCount(protectingList.size())
+                .maxProtectorCount(3)
+                .protectingList(protectingVOList)
+                .protectedByList(protectedByVOList)
+                .totalProtectionBonus(totalProtectionBonus)
+                // 装扮
+                .equipment(equipmentSummary)
+                .build();
     }
 
     /**
@@ -172,59 +167,54 @@ public class ItemService {
      * @return 背包内容 VO
      */
     public InventoryResult getInventory(Long userId) {
-        return userRepository.findById(userId)
-                .map(user -> {
-                    // 获取并分类物品
-                    List<Equipment> allEquipments = equipmentRepository.findByUserId(userId);
-                    List<StackableItem> stackableItems = stackableItemRepository.findByUserId(userId);
+        User user = userRepository.findById(userId).orElseThrow();
 
-                    // 过滤并按稀有度排序未穿戴装备
-                    List<InventoryItem> equipments = allEquipments.stream()
-                            .filter(e -> !e.getEquipped())
-                            .sorted((a, b) -> b.getRarity().ordinal() - a.getRarity().ordinal())
-                            .map(e -> InventoryItem.forEquipment(e.getId(), e.getName()))
-                            .toList();
+        // 获取并分类物品
+        List<Equipment> allEquipments = equipmentRepository.findByUserId(userId);
+        List<StackableItem> stackableItems = stackableItemRepository.findByUserId(userId);
 
-                    // 按类型分组堆叠物品
-                    Map<ItemType, List<InventoryItem>> groupedItems = stackableItems.stream()
-                            .collect(Collectors.groupingBy(
-                                    StackableItem::getItemType,
-                                    Collectors.mapping(
-                                            item -> InventoryItem.forStackable(
-                                                    item.getTemplateId(),
-                                                    item.getItemType(),
-                                                    item.getName(),
-                                                    item.getQuantity()
-                                            ),
-                                            Collectors.toList()
-                                    )
-                            ));
+        // 过滤并按稀有度排序未穿戴装备
+        List<InventoryItem> equipments = allEquipments.stream()
+                .filter(e -> !e.getEquipped())
+                .sorted((a, b) -> b.getRarity().ordinal() - a.getRarity().ordinal())
+                .map(e -> InventoryItem.forEquipment(e.getId(), e.getName()))
+                .toList();
 
-                    // 计算总物品数量
-                    int totalSize = equipments.size()
-                            + groupedItems.getOrDefault(ItemType.MATERIAL, List.of()).size()
-                            + groupedItems.getOrDefault(ItemType.SEED, List.of()).size()
-                            + groupedItems.getOrDefault(ItemType.SPIRIT_EGG, List.of()).size()
-                            + groupedItems.getOrDefault(ItemType.CONSUMABLE, List.of()).size();
+        // 按类型分组堆叠物品
+        Map<ItemType, List<InventoryItem>> groupedItems = stackableItems.stream()
+                .collect(Collectors.groupingBy(
+                        StackableItem::getItemType,
+                        Collectors.mapping(
+                                item -> InventoryItem.forStackable(
+                                        item.getTemplateId(),
+                                        item.getItemType(),
+                                        item.getName(),
+                                        item.getQuantity()
+                                ),
+                                Collectors.toList()
+                        )
+                ));
 
-                    return InventoryResult.builder()
-                            .success(true)
-                            .userId(userId)
-                            .capacity(50)
-                            .currentSize(totalSize)
-                            .equipments(equipments)
-                            .materials(groupedItems.getOrDefault(ItemType.MATERIAL, List.of()))
-                            .seeds(groupedItems.getOrDefault(ItemType.SEED, List.of()))
-                            .spiritEggs(groupedItems.getOrDefault(ItemType.SPIRIT_EGG, List.of()))
-                            .consumables(groupedItems.getOrDefault(ItemType.CONSUMABLE, List.of()))
-                            .coins(user.getCoins())
-                            .spiritStones(user.getSpiritStones())
-                            .build();
-                })
-                .orElse(InventoryResult.builder()
-                        .success(false)
-                        .message("用户不存在")
-                        .build());
+        // 计算总物品数量
+        int totalSize = equipments.size()
+                + groupedItems.getOrDefault(ItemType.MATERIAL, List.of()).size()
+                + groupedItems.getOrDefault(ItemType.SEED, List.of()).size()
+                + groupedItems.getOrDefault(ItemType.SPIRIT_EGG, List.of()).size()
+                + groupedItems.getOrDefault(ItemType.CONSUMABLE, List.of()).size();
+
+        return InventoryResult.builder()
+                .success(true)
+                .userId(userId)
+                .capacity(50)
+                .currentSize(totalSize)
+                .equipments(equipments)
+                .materials(groupedItems.getOrDefault(ItemType.MATERIAL, List.of()))
+                .seeds(groupedItems.getOrDefault(ItemType.SEED, List.of()))
+                .spiritEggs(groupedItems.getOrDefault(ItemType.SPIRIT_EGG, List.of()))
+                .consumables(groupedItems.getOrDefault(ItemType.CONSUMABLE, List.of()))
+                .coins(user.getCoins())
+                .spiritStones(user.getSpiritStones())
+                .build();
     }
 
     /**
@@ -236,78 +226,73 @@ public class ItemService {
      * @return 装备穿戴结果
      */
     public EquipResult equipItem(Long userId, String itemName) {
-        return userRepository.findById(userId)
-                .flatMap(user -> {
-                    // 查找未穿戴且名称匹配的装备
-                    List<Equipment> availableEquipments = equipmentRepository.findByUserId(userId).stream()
-                            .filter(e -> !e.getEquipped() && e.getName().contains(itemName))
-                            .toList();
+        userRepository.findById(userId).orElseThrow();
 
-                    if (availableEquipments.isEmpty()) {
-                        return java.util.Optional.of(EquipResult.builder()
-                                .success(false)
-                                .message("背包中未找到名为 [" + itemName + "] 的装备")
-                                .build());
-                    }
+        // 查找未穿戴且名称匹配的装备
+        List<Equipment> availableEquipments = equipmentRepository.findByUserId(userId).stream()
+                .filter(e -> !e.getEquipped() && e.getName().contains(itemName))
+                .toList();
 
-                    if (availableEquipments.size() > 1) {
-                        return java.util.Optional.of(EquipResult.builder()
-                                .success(false)
-                                .message("找到多个名为 [" + itemName + "] 的装备，请使用更精确的名称")
-                                .build());
-                    }
+        if (availableEquipments.isEmpty()) {
+            return EquipResult.builder()
+                    .success(false)
+                    .message("背包中未找到名为 [" + itemName + "] 的装备")
+                    .build();
+        }
 
-                    Equipment equipmentToEquip = availableEquipments.getFirst();
-                    EquipmentSlot slot = equipmentToEquip.getSlot();
+        if (availableEquipments.size() > 1) {
+            return EquipResult.builder()
+                    .success(false)
+                    .message("找到多个名为 [" + itemName + "] 的装备，请使用更精确的名称")
+                    .build();
+        }
 
-                    // 检查该部位是否已有装备
-                    var currentEquipped = equipmentRepository.findEquippedByUserIdAndSlot(userId, slot);
+        Equipment equipmentToEquip = availableEquipments.getFirst();
+        EquipmentSlot slot = equipmentToEquip.getSlot();
 
-                    Long replacedEquipmentId = null;
-                    String replacedEquipmentName = null;
-                    Equipment replacedEquipment = null;
+        // 检查该部位是否已有装备
+        var currentEquipped = equipmentRepository.findEquippedByUserIdAndSlot(userId, slot);
 
-                    // 如果有装备，先卸下
-                    if (currentEquipped.isPresent()) {
-                        replacedEquipment = currentEquipped.get();
-                        replacedEquipment.setEquipped(false);
-                        equipmentRepository.save(replacedEquipment);
-                        replacedEquipmentId = replacedEquipment.getId();
-                        replacedEquipmentName = replacedEquipment.getName();
-                    }
+        Long replacedEquipmentId = null;
+        String replacedEquipmentName = null;
+        Equipment replacedEquipment = null;
 
-                    // 穿戴新装备
-                    equipmentToEquip.setEquipped(true);
-                    equipmentRepository.save(equipmentToEquip);
+        // 如果有装备，先卸下
+        if (currentEquipped.isPresent()) {
+            replacedEquipment = currentEquipped.get();
+            replacedEquipment.setEquipped(false);
+            equipmentRepository.save(replacedEquipment);
+            replacedEquipmentId = replacedEquipment.getId();
+            replacedEquipmentName = replacedEquipment.getName();
+        }
 
-                    // 计算属性变化
-                    AttributeChange attributeChange = calculateAttributeChange(
-                            replacedEquipment, equipmentToEquip);
+        // 穿戴新装备
+        equipmentToEquip.setEquipped(true);
+        equipmentRepository.save(equipmentToEquip);
 
-                    String message;
-                    if (replacedEquipmentName != null) {
-                        message = String.format("成功装备 [%s]，替换了 [%s]",
-                                equipmentToEquip.getName(), replacedEquipmentName);
-                    } else {
-                        message = String.format("成功装备 [%s]", equipmentToEquip.getName());
-                    }
+        // 计算属性变化
+        AttributeChange attributeChange = calculateAttributeChange(
+                replacedEquipment, equipmentToEquip);
 
-                    return java.util.Optional.of(EquipResult.builder()
-                            .success(true)
-                            .message(message)
-                            .equipmentId(equipmentToEquip.getId())
-                            .equipmentName(equipmentToEquip.getName())
-                            .slot(slot)
-                            .slotName(slot.getName())
-                            .replacedEquipmentId(replacedEquipmentId)
-                            .replacedEquipmentName(replacedEquipmentName)
-                            .attributeChange(attributeChange)
-                            .build());
-                })
-                .orElse(EquipResult.builder()
-                        .success(false)
-                        .message("用户不存在")
-                        .build());
+        String message;
+        if (replacedEquipmentName != null) {
+            message = String.format("成功装备 [%s]，替换了 [%s]",
+                    equipmentToEquip.getName(), replacedEquipmentName);
+        } else {
+            message = String.format("成功装备 [%s]", equipmentToEquip.getName());
+        }
+
+        return EquipResult.builder()
+                .success(true)
+                .message(message)
+                .equipmentId(equipmentToEquip.getId())
+                .equipmentName(equipmentToEquip.getName())
+                .slot(slot)
+                .slotName(slot.getName())
+                .replacedEquipmentId(replacedEquipmentId)
+                .replacedEquipmentName(replacedEquipmentName)
+                .attributeChange(attributeChange)
+                .build();
     }
 
     /**
@@ -431,27 +416,25 @@ public class ItemService {
      */
     public boolean addStackableItem(Long userId, Long templateId, ItemType itemType,
                                      String name, int quantity) {
-        return userRepository.findById(userId)
-                .map(user -> {
-                    // 查找是否已存在该物品
-                    var existingItem = stackableItemRepository.findByUserIdAndTemplateId(userId, templateId);
+        userRepository.findById(userId).orElseThrow();
 
-                    if (existingItem.isPresent()) {
-                        // 增加数量
-                        StackableItem item = existingItem.get();
-                        item.addQuantity(quantity);
-                        stackableItemRepository.save(item);
-                        log.info("增加堆叠物品数量: userId={}, templateId={}, quantity={}", userId, templateId, quantity);
-                    } else {
-                        // 创建新物品
-                        StackableItem newItem = StackableItem.create(userId, templateId, itemType, name, quantity);
-                        stackableItemRepository.save(newItem);
-                        log.info("添加新堆叠物品: userId={}, templateId={}, quantity={}", userId, templateId, quantity);
-                    }
+        // 查找是否已存在该物品
+        var existingItem = stackableItemRepository.findByUserIdAndTemplateId(userId, templateId);
 
-                    return true;
-                })
-                .orElse(false);
+        if (existingItem.isPresent()) {
+            // 增加数量
+            StackableItem item = existingItem.get();
+            item.addQuantity(quantity);
+            stackableItemRepository.save(item);
+            log.info("增加堆叠物品数量: userId={}, templateId={}, quantity={}", userId, templateId, quantity);
+        } else {
+            // 创建新物品
+            StackableItem newItem = StackableItem.create(userId, templateId, itemType, name, quantity);
+            stackableItemRepository.save(newItem);
+            log.info("添加新堆叠物品: userId={}, templateId={}, quantity={}", userId, templateId, quantity);
+        }
+
+        return true;
     }
 
     /**
@@ -511,40 +494,38 @@ public class ItemService {
      * @return 背包摘要 VO
      */
     public InventorySummaryVO getInventorySummary(Long userId) {
-        return userRepository.findById(userId)
-                .map(user -> {
-                    // 获取所有装备和堆叠物品
-                    List<Equipment> allEquipments = equipmentRepository.findByUserId(userId);
-                    List<StackableItem> stackableItems = stackableItemRepository.findByUserId(userId);
+        User user = userRepository.findById(userId).orElseThrow();
 
-                    // 过滤未穿戴装备并按品质分组统计
-                    Map<String, Integer> equipmentByQuality = allEquipments.stream()
-                            .filter(e -> !e.getEquipped())
-                            .collect(Collectors.groupingBy(
-                                    e -> e.getRarity().getName(),
-                                    Collectors.collectingAndThen(Collectors.counting(), Long::intValue)
-                            ));
+        // 获取所有装备和堆叠物品
+        List<Equipment> allEquipments = equipmentRepository.findByUserId(userId);
+        List<StackableItem> stackableItems = stackableItemRepository.findByUserId(userId);
 
-                    // 按类型统计堆叠物品
-                    Map<ItemType, Integer> stackableItemCount = new HashMap<>();
-                    for (StackableItem item : stackableItems) {
-                        stackableItemCount.merge(item.getItemType(), 1, Integer::sum);
-                    }
+        // 过滤未穿戴装备并按品质分组统计
+        Map<String, Integer> equipmentByQuality = allEquipments.stream()
+                .filter(e -> !e.getEquipped())
+                .collect(Collectors.groupingBy(
+                        e -> e.getRarity().getName(),
+                        Collectors.collectingAndThen(Collectors.counting(), Long::intValue)
+                ));
 
-                    // 计算总容量使用
-                    int usedSlots = (int) allEquipments.stream().filter(e -> !e.getEquipped()).count()
-                            + stackableItemCount.values().stream().mapToInt(Integer::intValue).sum();
+        // 按类型统计堆叠物品
+        Map<ItemType, Integer> stackableItemCount = new HashMap<>();
+        for (StackableItem item : stackableItems) {
+            stackableItemCount.merge(item.getItemType(), 1, Integer::sum);
+        }
 
-                    return InventorySummaryVO.builder()
-                            .capacity(50)
-                            .usedSlots(usedSlots)
-                            .equipmentByQuality(equipmentByQuality)
-                            .stackableItemCount(stackableItemCount)
-                            .coins(user.getCoins())
-                            .spiritStones(user.getSpiritStones())
-                            .build();
-                })
-                .orElse(null);
+        // 计算总容量使用
+        int usedSlots = (int) allEquipments.stream().filter(e -> !e.getEquipped()).count()
+                + stackableItemCount.values().stream().mapToInt(Integer::intValue).sum();
+
+        return InventorySummaryVO.builder()
+                .capacity(50)
+                .usedSlots(usedSlots)
+                .equipmentByQuality(equipmentByQuality)
+                .stackableItemCount(stackableItemCount)
+                .coins(user.getCoins())
+                .spiritStones(user.getSpiritStones())
+                .build();
     }
 
     /**
@@ -555,35 +536,30 @@ public class ItemService {
      * @return 装备列表 VO
      */
     public EquipmentListResult getEquipmentList(Long userId) {
-        return userRepository.findById(userId)
-                .map(user -> {
-                    List<Equipment> allEquipments = equipmentRepository.findByUserId(userId);
+        userRepository.findById(userId).orElseThrow();
 
-                    List<EquipmentDetailVO> equipments = allEquipments.stream()
-                            .filter(e -> !e.getEquipped())
-                            .sorted((a, b) -> {
-                                // 按品质排序：金>紫>蓝>绿>白
-                                int rarityCompare = b.getRarity().ordinal() - a.getRarity().ordinal();
-                                if (rarityCompare != 0) return rarityCompare;
-                                // 品质相同按锻造等级排序
-                                Integer aForge = a.getForgeLevel() != null ? a.getForgeLevel() : 0;
-                                Integer bForge = b.getForgeLevel() != null ? b.getForgeLevel() : 0;
-                                return bForge - aForge;
-                            })
-                            .map(this::convertToEquipmentDetailVO)
-                            .toList();
+        List<Equipment> allEquipments = equipmentRepository.findByUserId(userId);
 
-                    return EquipmentListResult.builder()
-                            .success(true)
-                            .userId(userId)
-                            .equipments(equipments)
-                            .totalCount(equipments.size())
-                            .build();
+        List<EquipmentDetailVO> equipments = allEquipments.stream()
+                .filter(e -> !e.getEquipped())
+                .sorted((a, b) -> {
+                    // 按品质排序：金>紫>蓝>绿>白
+                    int rarityCompare = b.getRarity().ordinal() - a.getRarity().ordinal();
+                    if (rarityCompare != 0) return rarityCompare;
+                    // 品质相同按锻造等级排序
+                    Integer aForge = a.getForgeLevel() != null ? a.getForgeLevel() : 0;
+                    Integer bForge = b.getForgeLevel() != null ? b.getForgeLevel() : 0;
+                    return bForge - aForge;
                 })
-                .orElse(EquipmentListResult.builder()
-                        .success(false)
-                        .message("用户不存在")
-                        .build());
+                .map(this::convertToEquipmentDetailVO)
+                .toList();
+
+        return EquipmentListResult.builder()
+                .success(true)
+                .userId(userId)
+                .equipments(equipments)
+                .totalCount(equipments.size())
+                .build();
     }
 
     /**

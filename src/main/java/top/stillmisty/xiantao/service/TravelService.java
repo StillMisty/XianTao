@@ -32,34 +32,18 @@ public class TravelService {
     private final MapNodeRepository mapNodeRepository;
     private final StaminaService staminaService;
 
+    private static final int STAMINA_COST_PER_TRAVEL_MINUTE = 5;
+
     /**
      * 开始旅行
      *
-     * @param userId       用户 ID
-     * @param targetMapId  目标地图 ID
-     * @param useStamina   是否使用体力模式
+     * @param userId        用户 ID
+     * @param mapName       目标地图名称
+     * @param forceRealTime 是否强制使用真实时间模式
      * @return 旅行结果
      */
-    public TravelResultVO startTravel(Long userId, Long targetMapId, boolean useStamina) {
-        // 获取用户
-        Optional<User> userOpt = userRepository.findById(userId);
-        if (userOpt.isEmpty()) {
-            return TravelResultVO.builder()
-                    .success(false)
-                    .message("用户不存在")
-                    .build();
-        }
-
-        User user = userOpt.get();
-
-        // 检查用户状态
-        if (user.getStatus() != UserStatus.IDLE) {
-            String statusName = user.getStatus() != null ? user.getStatus().getName() : "未知";
-            return TravelResultVO.builder()
-                    .success(false)
-                    .message(String.format("您当前处于 %s 状态，无法旅行", statusName))
-                    .build();
-        }
+    public TravelResultVO startTravel(Long userId, String mapName, boolean forceRealTime) {
+        User user = userRepository.findById(userId).orElseThrow();
 
         // 获取当前地图
         Optional<MapNode> currentMapOpt = mapNodeRepository.findById(user.getLocationId());
@@ -72,12 +56,12 @@ public class TravelService {
 
         MapNode currentMap = currentMapOpt.get();
 
-        // 获取目标地图
-        Optional<MapNode> targetMapOpt = mapNodeRepository.findById(targetMapId);
+        // 根据名称查找目标地图
+        Optional<MapNode> targetMapOpt = mapNodeRepository.findByName(mapName);
         if (targetMapOpt.isEmpty()) {
             return TravelResultVO.builder()
                     .success(false)
-                    .message("目标地图不存在")
+                    .message(String.format("未找到地图: %s", mapName))
                     .build();
         }
 
@@ -101,6 +85,18 @@ public class TravelService {
 
         Integer travelTime = currentMap.getTravelTimeTo(targetMap.getName());
 
+        // 决定是否使用体力模式
+        boolean useStamina = !forceRealTime && hasEnoughStamina(user, travelTime);
+
+        return executeTravel(userId, user, currentMap, targetMap, travelTime, useStamina);
+    }
+
+    /**
+     * 执行旅行逻辑
+     */
+    private TravelResultVO executeTravel(Long userId, User user, MapNode currentMap, MapNode targetMap,
+                                         Integer travelTime, boolean useStamina) {
+
         if (useStamina) {
             // 体力模式：检查并消耗体力
             var staminaResult = staminaService.checkAndConsumeTravelStamina(userId, travelTime);
@@ -108,7 +104,7 @@ public class TravelService {
                 // 体力不足，降级为真实时间模式
                 user.setStatus(UserStatus.RUNNING);
                 user.setTravelStartTime(LocalDateTime.now());
-                user.setTravelDestinationId(targetMapId);
+                user.setTravelDestinationId(targetMap.getId());
                 userRepository.save(user);
 
                 LocalDateTime estimatedArrival = LocalDateTime.now().plusMinutes(travelTime);
@@ -140,7 +136,7 @@ public class TravelService {
             String eventDescription = processTravelEvent(user, eventType);
 
             // 更新位置
-            user.setLocationId(targetMapId);
+            user.setLocationId(targetMap.getId());
             userRepository.save(user);
 
             log.info("玩家 {} 体力旅行到 {}, 耗时 {} 分钟, 消耗体力: {}, D20: {}, 事件: {}", userId, targetMap.getName(), travelTime, staminaCost, d20Roll, eventType);
@@ -164,7 +160,7 @@ public class TravelService {
             // 真实时间模式
             user.setStatus(UserStatus.RUNNING);
             user.setTravelStartTime(LocalDateTime.now());
-            user.setTravelDestinationId(targetMapId);
+            user.setTravelDestinationId(targetMap.getId());
             userRepository.save(user);
 
             LocalDateTime estimatedArrival = LocalDateTime.now().plusMinutes(travelTime);
@@ -193,24 +189,7 @@ public class TravelService {
      * @return 旅行结果
      */
     public TravelResultVO completeTravel(Long userId) {
-        // 获取用户
-        Optional<User> userOpt = userRepository.findById(userId);
-        if (userOpt.isEmpty()) {
-            return TravelResultVO.builder()
-                    .success(false)
-                    .message("用户不存在")
-                    .build();
-        }
-
-        User user = userOpt.get();
-
-        // 检查用户状态
-        if (user.getStatus() != UserStatus.RUNNING) {
-            return TravelResultVO.builder()
-                    .success(false)
-                    .message("您当前不在旅行状态")
-                    .build();
-        }
+        User user = userRepository.findById(userId).orElseThrow();
 
         // 检查是否到达时间
         if (user.getTravelStartTime() == null) {
@@ -249,9 +228,9 @@ public class TravelService {
         // 处理事件
         String eventDescription = processTravelEvent(user, eventType);
 
-        // 更新位置和状态
-        user.setLocationId(targetMapId);
+        // 移动玩家到目标地图
         user.setStatus(UserStatus.IDLE);
+        user.setLocationId(targetMap.getId());
         user.setTravelStartTime(null);
         user.setTravelDestinationId(null);
         userRepository.save(user);
@@ -278,22 +257,7 @@ public class TravelService {
      * @return 旅行结果
      */
     public TravelResultVO useStaminaToSkip(Long userId) {
-        Optional<User> userOpt = userRepository.findById(userId);
-        if (userOpt.isEmpty()) {
-            return TravelResultVO.builder()
-                    .success(false)
-                    .message("用户不存在")
-                    .build();
-        }
-
-        User user = userOpt.get();
-
-        if (user.getStatus() != UserStatus.RUNNING) {
-            return TravelResultVO.builder()
-                    .success(false)
-                    .message("您当前不在旅行状态")
-                    .build();
-        }
+        User user = userRepository.findById(userId).orElseThrow();
 
         Long targetMapId = user.getTravelDestinationId();
         if (targetMapId == null || targetMapId == 0) {
@@ -405,5 +369,14 @@ public class TravelService {
             }
             case SAFE_PASSAGE -> "一路平安，没有任何意外发生";
         };
+    }
+
+    /**
+     * 检查用户是否有足够体力进行旅行
+     */
+    private boolean hasEnoughStamina(User user, int travelTime) {
+        int staminaCost = travelTime * STAMINA_COST_PER_TRAVEL_MINUTE;
+        user.calculateOfflineStaminaRecovery();
+        return user.hasEnoughStamina(staminaCost);
     }
 }

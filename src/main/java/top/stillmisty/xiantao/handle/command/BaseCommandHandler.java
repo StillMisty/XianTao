@@ -68,6 +68,41 @@ public abstract class BaseCommandHandler {
     }
 
     /**
+     * 仅验证用户身份和用户实体存在（不检查状态）
+     *
+     * @param platform 平台类型
+     * @param openId 平台用户ID
+     * @return 认证结果
+     */
+    protected AuthResult authenticateAndValidateUser(PlatformType platform, String openId) {
+        var authResult = authenticate(platform, openId);
+        if (!authResult.authenticated()) {
+            return authResult;
+        }
+
+        String error = validateUserExists(authResult.userId());
+        if (error != null) {
+            return AuthResult.failure(error);
+        }
+
+        return authResult;
+    }
+
+    /**
+     * 验证用户实体是否存在
+     *
+     * @param userId 用户ID
+     * @return 验证通过返回null，失败返回错误消息
+     */
+    protected String validateUserExists(Long userId) {
+        var user = userService.findById(userId);
+        if (user.isEmpty()) {
+            return "用户不存在";
+        }
+        return null;
+    }
+
+    /**
      * 认证并验证用户状态为指定状态
      *
      * @param platform 平台类型

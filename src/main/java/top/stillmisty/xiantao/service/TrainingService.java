@@ -7,7 +7,9 @@ import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
 import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
 import top.stillmisty.xiantao.domain.map.vo.TrainingRewardVO;
+import top.stillmisty.xiantao.domain.map.vo.TrainingStartResult;
 import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 
 import java.time.Duration;
@@ -40,16 +42,7 @@ public class TrainingService {
      * @return 历练奖励
      */
     public TrainingRewardVO calculateTrainingRewards(Long userId) {
-        // 获取用户
-        Optional<User> userOpt = userRepository.findById(userId);
-        if (userOpt.isEmpty()) {
-            return TrainingRewardVO.builder()
-                    .userId(userId)
-                    .summary("用户不存在")
-                    .build();
-        }
-
-        User user = userOpt.get();
+        User user = userRepository.findById(userId).orElseThrow();
 
         // 检查是否有历练时间
         if (user.getTrainingStartTime() == null) {
@@ -137,12 +130,7 @@ public class TrainingService {
      * @return 是否成功
      */
     public boolean applyTrainingRewards(Long userId, TrainingRewardVO rewards) {
-        Optional<User> userOpt = userRepository.findById(userId);
-        if (userOpt.isEmpty()) {
-            return false;
-        }
-
-        User user = userOpt.get();
+        User user = userRepository.findById(userId).orElseThrow();
 
         // 添加货币
         if (rewards.getCoins() != null && rewards.getCoins() > 0) {
@@ -160,8 +148,6 @@ public class TrainingService {
             }
         }
 
-        // 重置历练时间
-        user.setTrainingStartTime(LocalDateTime.now());
         userRepository.save(user);
 
         log.info("用户 {} 的历练奖励已应用", userId);
@@ -175,15 +161,7 @@ public class TrainingService {
      * @return 历练结算结果
      */
     public TrainingRewardVO endTraining(Long userId) {
-        Optional<User> userOpt = userRepository.findById(userId);
-        if (userOpt.isEmpty()) {
-            return TrainingRewardVO.builder()
-                    .userId(userId)
-                    .summary("用户不存在")
-                    .build();
-        }
-
-        User user = userOpt.get();
+        User user = userRepository.findById(userId).orElseThrow();
 
         // 检查是否在历练中
         if (user.getTrainingStartTime() == null) {
@@ -197,18 +175,27 @@ public class TrainingService {
         // 计算奖励
         TrainingRewardVO rewards = calculateTrainingRewards(userId);
 
-        // 应用奖励
-        if (rewards.getCoins() != null && rewards.getCoins() > 0 ||
-                rewards.getSpiritStones() != null && rewards.getSpiritStones() > 0 ||
-                rewards.getItems() != null && !rewards.getItems().isEmpty()) {
+        // 应用货币奖励
+        if (rewards.getCoins() != null && rewards.getCoins() > 0) {
+            user.setCoins(user.getCoins() + rewards.getCoins());
+        }
+        if (rewards.getSpiritStones() != null && rewards.getSpiritStones() > 0) {
+            user.setSpiritStones(user.getSpiritStones() + rewards.getSpiritStones());
+        }
 
-            boolean applied = applyTrainingRewards(userId, rewards);
-            if (applied) {
-                log.info("用户 {} 结束历练并应用奖励", userId);
-                return rewards;
+        // TODO: 添加物品到背包（需要调用 ItemService）
+        if (rewards.getItems() != null && !rewards.getItems().isEmpty()) {
+            for (Map<String, Object> item : rewards.getItems()) {
+                log.info("添加物品到用户 {} 的背包: {} x{}", userId, item.get("name"), item.get("quantity"));
             }
         }
 
+        // 结束历练：恢复空闲状态，清除历练时间
+        user.setStatus(UserStatus.IDLE);
+        user.setTrainingStartTime(null);
+        userRepository.save(user);
+
+        log.info("用户 {} 结束历练并应用奖励", userId);
         return rewards;
     }
 
@@ -216,22 +203,40 @@ public class TrainingService {
      * 开始历练
      *
      * @param userId 用户 ID
-     * @return 是否成功
+     * @return 开始结果
      */
-    public boolean startTraining(Long userId) {
-        Optional<User> userOpt = userRepository.findById(userId);
-        if (userOpt.isEmpty()) {
-            return false;
+    public TrainingStartResult startTraining(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow();
+
+        // 获取地图名称
+        if (user.getLocationId() == null) {
+            return TrainingStartResult.builder()
+                    .success(false)
+                    .message("当前位置无效，无法开始历练")
+                    .build();
         }
 
-        User user = userOpt.get();
+        var mapName = mapNodeRepository.findById(user.getLocationId())
+                .map(MapNode::getName)
+                .orElse(null);
 
-        // 设置历练开始时间
+        if (mapName == null) {
+            return TrainingStartResult.builder()
+                    .success(false)
+                    .message("当前地图不存在，无法开始历练")
+                    .build();
+        }
+
+        // 设置历练开始时间和状态
         user.setTrainingStartTime(LocalDateTime.now());
+        user.setStatus(UserStatus.EXERCISING);
         userRepository.save(user);
 
-        log.info("用户 {} 开始历练", userId);
-        return true;
+        log.info("用户 {} 开始在 {} 历练", userId, mapName);
+        return TrainingStartResult.builder()
+                .success(true)
+                .mapName(mapName)
+                .build();
     }
 
     /**

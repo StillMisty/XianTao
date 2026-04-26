@@ -280,6 +280,16 @@ public class FudiService {
     }
 
     /**
+     * 根据物品名称献祭（名称解析在服务层完成）
+     */
+    public int sacrificeItemByName(Long userId, String itemName) {
+        // TODO: 根据物品名称查找ID
+        Long itemId = 1L; // 示例
+
+        return sacrificeItem(userId, itemId);
+    }
+
+    /**
      * 批量献祭指定品质的装备
      */
     public Map<String, Integer> sacrificeItemsByQuality(Long userId, String quality) {
@@ -347,7 +357,19 @@ public class FudiService {
                 .isMature(false)
                 .baseGrowthHours(baseGrowthHours)
                 .growthModifier(growthModifier)
+                .actualGrowthHours(actualGrowthHours)
                 .build();
+    }
+
+    /**
+     * 根据作物名称种植灵药（名称解析在服务层完成）
+     */
+    public FarmCellVO plantCropByName(Long userId, String position, String cropName) {
+        // TODO: 根据作物名称查找ID和五行属性
+        WuxingType element = WuxingType.WOOD; // 示例：默认木属性
+        Integer cropId = 101; // 示例：灵芝
+
+        return plantCrop(userId, position, cropId, cropName, element);
     }
 
     /**
@@ -611,6 +633,16 @@ public class FudiService {
                 "oldHunger", hunger,
                 "newHunger", newHunger
         );
+    }
+
+    /**
+     * 根据饲料名称喂养灵兽（名称解析在服务层完成）
+     */
+    public Map<String, Object> feedBeastByName(Long userId, String position, String feedItemName) {
+        // TODO: 根据饲料名称查找ID
+        Integer feedItemId = 1; // 示例
+
+        return feedBeast(userId, position, feedItemId, feedItemName);
     }
 
     // ===================== 辅助方法 =====================

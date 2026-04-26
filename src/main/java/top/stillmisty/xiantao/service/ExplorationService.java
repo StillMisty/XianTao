@@ -8,7 +8,6 @@ import top.stillmisty.xiantao.domain.map.entity.MapNode;
 import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
 import top.stillmisty.xiantao.domain.map.vo.ExplorationResultVO;
 import top.stillmisty.xiantao.domain.user.entity.User;
-import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 
 import java.util.ArrayList;
@@ -52,24 +51,7 @@ public class ExplorationService {
         }
 
         // 获取用户
-        Optional<User> userOpt = userRepository.findById(userId);
-        if (userOpt.isEmpty()) {
-            return ExplorationResultVO.builder()
-                    .userId(userId)
-                    .description("用户不存在")
-                    .build();
-        }
-
-        User user = userOpt.get();
-
-        // 检查用户状态
-        if (user.getStatus() != UserStatus.IDLE) {
-            String statusName = user.getStatus() != null ? user.getStatus().getName() : "未知";
-            return ExplorationResultVO.builder()
-                    .userId(userId)
-                    .description(String.format("您当前处于 %s 状态，无法探索", statusName))
-                    .build();
-        }
+        User user = userRepository.findById(userId).orElseThrow();
 
         // 获取当前地图
         Optional<MapNode> mapOpt = mapNodeRepository.findById(user.getLocationId());

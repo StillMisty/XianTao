@@ -76,7 +76,7 @@ public class CultivationCommandHandler extends BaseCommandHandler {
     public String handleStatus(PlatformType platform, String openId) {
         log.debug("处理状态查询 - Platform: {}, OpenId: {}", platform, openId);
 
-        var authResult = authenticate(platform, openId);
+        var authResult = authenticateAndValidateUser(platform, openId);
         if (!authResult.authenticated()) {
             return authResult.errorMessage();
         }
@@ -108,7 +108,7 @@ public class CultivationCommandHandler extends BaseCommandHandler {
     public String handleStaminaQuery(PlatformType platform, String openId) {
         log.debug("处理体力查询 - Platform: {}, OpenId: {}", platform, openId);
 
-        var authResult = authenticate(platform, openId);
+        var authResult = authenticateAndValidateUser(platform, openId);
         if (!authResult.authenticated()) {
             return authResult.errorMessage();
         }
@@ -126,16 +126,12 @@ public class CultivationCommandHandler extends BaseCommandHandler {
     public String handleInventory(PlatformType platform, String openId) {
         log.debug("处理背包查询 - Platform: {}, OpenId: {}", platform, openId);
 
-        var authResult = authenticate(platform, openId);
+        var authResult = authenticateAndValidateUser(platform, openId);
         if (!authResult.authenticated()) {
             return authResult.errorMessage();
         }
 
         var inventorySummary = itemService.getInventorySummary(authResult.userId());
-
-        if (inventorySummary == null) {
-            return "查询背包失败：用户不存在";
-        }
 
         return formatInventorySummary(inventorySummary);
     }
@@ -151,7 +147,7 @@ public class CultivationCommandHandler extends BaseCommandHandler {
     public String handleEquip(PlatformType platform, String openId, String itemName) {
         log.debug("处理装备穿戴 - Platform: {}, OpenId: {}, ItemName: {}", platform, openId, itemName);
 
-        var authResult = authenticate(platform, openId);
+        var authResult = authenticateAndValidateUser(platform, openId);
         if (!authResult.authenticated()) {
             return authResult.errorMessage();
         }
@@ -176,7 +172,7 @@ public class CultivationCommandHandler extends BaseCommandHandler {
     public String handleUnequip(PlatformType platform, String openId, String slotName) {
         log.debug("处理装备卸下 - Platform: {}, OpenId: {}, SlotName: {}", platform, openId, slotName);
 
-        var authResult = authenticate(platform, openId);
+        var authResult = authenticateAndValidateUser(platform, openId);
         if (!authResult.authenticated()) {
             return authResult.errorMessage();
         }
@@ -202,7 +198,7 @@ public class CultivationCommandHandler extends BaseCommandHandler {
     public String handleAllocatePoints(PlatformType platform, String openId, String attributeName, int points) {
         log.debug("处理属性加点 - Platform: {}, OpenId: {}, Attribute: {}, Points: {}", platform, openId, attributeName, points);
 
-        var authResult = authenticate(platform, openId);
+        var authResult = authenticateAndValidateUser(platform, openId);
         if (!authResult.authenticated()) {
             return authResult.errorMessage();
         }
@@ -232,7 +228,7 @@ public class CultivationCommandHandler extends BaseCommandHandler {
     public String handleResetPoints(PlatformType platform, String openId) {
         log.debug("处理洗点 - Platform: {}, OpenId: {}", platform, openId);
 
-        var authResult = authenticate(platform, openId);
+        var authResult = authenticateAndValidateUser(platform, openId);
         if (!authResult.authenticated()) {
             return authResult.errorMessage();
         }
@@ -256,7 +252,7 @@ public class CultivationCommandHandler extends BaseCommandHandler {
     public String handleBreakthrough(PlatformType platform, String openId) {
         log.debug("处理突破 - Platform: {}, OpenId: {}", platform, openId);
 
-        var authResult = authenticate(platform, openId);
+        var authResult = authenticateAndValidateUser(platform, openId);
         if (!authResult.authenticated()) {
             return authResult.errorMessage();
         }
@@ -277,7 +273,7 @@ public class CultivationCommandHandler extends BaseCommandHandler {
     public String handleEstablishProtection(PlatformType platform, String openId, String protegeNickname) {
         log.debug("处理护道 - Platform: {}, OpenId: {}, Protege: {}", platform, openId, protegeNickname);
 
-        var authResult = authenticate(platform, openId);
+        var authResult = authenticateAndValidateUser(platform, openId);
         if (!authResult.authenticated()) {
             return authResult.errorMessage();
         }
@@ -302,7 +298,7 @@ public class CultivationCommandHandler extends BaseCommandHandler {
     public String handleRemoveProtection(PlatformType platform, String openId, String protegeNickname) {
         log.debug("处理护道解除 - Platform: {}, OpenId: {}, Protege: {}", platform, openId, protegeNickname);
 
-        var authResult = authenticate(platform, openId);
+        var authResult = authenticateAndValidateUser(platform, openId);
         if (!authResult.authenticated()) {
             return authResult.errorMessage();
         }
@@ -326,7 +322,7 @@ public class CultivationCommandHandler extends BaseCommandHandler {
     public String handleQueryProtection(PlatformType platform, String openId) {
         log.debug("处理护道查询 - Platform: {}, OpenId: {}", platform, openId);
 
-        var authResult = authenticate(platform, openId);
+        var authResult = authenticateAndValidateUser(platform, openId);
         if (!authResult.authenticated()) {
             return authResult.errorMessage();
         }

@@ -47,15 +47,7 @@ public class CultivationService {
      * @return 分配结果
      */
     public AttributeAllocationResult allocateAttributePoints(Long userId, AttributeType attributeType, int points) {
-        Optional<User> userOpt = userRepository.findById(userId);
-        if (userOpt.isEmpty()) {
-            return AttributeAllocationResult.builder()
-                    .success(false)
-                    .message("用户不存在")
-                    .build();
-        }
-
-        User user = userOpt.get();
+        User user = userRepository.findById(userId).orElseThrow();
 
         // 验证点数
         if (points <= 0) {
@@ -102,15 +94,7 @@ public class CultivationService {
      * @return 洗点结果
      */
     public StatResetResult resetStatPoints(Long userId) {
-        Optional<User> userOpt = userRepository.findById(userId);
-        if (userOpt.isEmpty()) {
-            return StatResetResult.builder()
-                    .success(false)
-                    .message("用户不存在")
-                    .build();
-        }
-
-        User user = userOpt.get();
+        User user = userRepository.findById(userId).orElseThrow();
 
         // 检查冷却时间
         if (!user.canResetPoints()) {
@@ -155,15 +139,7 @@ public class CultivationService {
      * @return 突破结果
      */
     public BreakthroughResult attemptBreakthrough(Long userId) {
-        Optional<User> userOpt = userRepository.findById(userId);
-        if (userOpt.isEmpty()) {
-            return BreakthroughResult.builder()
-                    .success(false)
-                    .message("用户不存在")
-                    .build();
-        }
-
-        User user = userOpt.get();
+        User user = userRepository.findById(userId).orElseThrow();
 
         // 检查修为是否足够
         long expNeeded = user.calculateExpToNextLevel();
@@ -246,16 +222,7 @@ public class CultivationService {
      * @return 护道结果
      */
     public DaoProtectionResult establishProtection(Long protectorId, String protegeNickname) {
-        // 查找护道者
-        Optional<User> protectorOpt = userRepository.findById(protectorId);
-        if (protectorOpt.isEmpty()) {
-            return DaoProtectionResult.builder()
-                    .success(false)
-                    .message("护道者不存在")
-                    .build();
-        }
-
-        User protector = protectorOpt.get();
+        User protector = userRepository.findById(protectorId).orElseThrow();
 
         // 查找被护道者
         Optional<User> protegeOpt = findUserByNickname(protegeNickname);
@@ -366,15 +333,7 @@ public class CultivationService {
      * @return 护道查询结果
      */
     public DaoProtectionQueryResult queryProtectionInfo(Long userId) {
-        Optional<User> userOpt = userRepository.findById(userId);
-        if (userOpt.isEmpty()) {
-            return DaoProtectionQueryResult.builder()
-                    .success(false)
-                    .message("用户不存在")
-                    .build();
-        }
-
-        User user = userOpt.get();
+        User user = userRepository.findById(userId).orElseThrow();
 
         // 查询正在为谁护道
         List<DaoProtection> protectingList = daoProtectionRepository.findByProtectorId(userId);

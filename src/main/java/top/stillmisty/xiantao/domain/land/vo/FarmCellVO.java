@@ -61,4 +61,9 @@ public class FarmCellVO {
      * 实际生长速度修正系数
      */
     private Double growthModifier;
+
+    /**
+     * 实际生长时间（小时）= baseGrowthHours / growthModifier
+     */
+    private Double actualGrowthHours;
 }

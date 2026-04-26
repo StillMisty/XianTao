@@ -25,15 +25,13 @@ public class MapCommandHandler extends BaseCommandHandler {
     private final TravelService travelService;
     private final TrainingService trainingService;
     private final ExplorationService explorationService;
-    private final ItemService itemService;
 
     public MapCommandHandler(
-            UserAuthService userAuthService, ItemService itemService, MapService mapService, TravelService travelService,
+            UserAuthService userAuthService, MapService mapService, TravelService travelService,
             TrainingService trainingService, ExplorationService explorationService,
             UserService userService
     ) {
         super(userAuthService, userService);
-        this.itemService = itemService;
         this.mapService = mapService;
         this.travelService = travelService;
         this.trainingService = trainingService;
@@ -55,48 +53,14 @@ public class MapCommandHandler extends BaseCommandHandler {
                 platform, openId, mapName, forceRealTime
         );
 
-        // 验证用户身份
-        var authResult = authenticate(platform, openId);
+        // 验证用户身份和状态（必须空闲）
+        var authResult = authenticateAndValidateStatus(platform, openId, UserStatus.IDLE);
         if (!authResult.authenticated()) {
             return authResult.errorMessage();
         }
 
-        // 获取并验证用户状态
-        var characterStatus = itemService.getCharacterStatus(authResult.userId());
-        if (characterStatus == null || !characterStatus.isSuccess()) {
-            return "获取用户状态失败";
-        }
-
-        String idleError = validateUserStatus(authResult.userId(), UserStatus.IDLE);
-        if (idleError != null) {
-            return idleError;
-        }
-
-        // 获取目标地图
-        var targetMapOpt = mapService.getMapInfoByName(mapName);
-        if (targetMapOpt.isEmpty()) {
-            return String.format("未找到地图: %s", mapName);
-        }
-
-        MapInfoVO targetMap = targetMapOpt.get();
-        Long currentMapId = characterStatus.getLocationId();
-
-        // 验证旅行
-        String validationError = mapService.validateTravel(currentMapId, targetMap.getId(), characterStatus.getLevel());
-        if (validationError != null) {
-            return validationError;
-        }
-
-        // 计算需要的体力
-        int travelTime = targetMap.getTravelTimeMinutes();
-        int staminaCost = travelTime * StaminaService.STAMINA_COST_PER_TRAVEL_MINUTE;
-
-        // 判断是否使用体力模式
-        // 优先使用体力，体力不足时才使用真实时间
-        boolean useStamina = !forceRealTime && hasEnoughStamina(characterStatus, staminaCost);
-
-        // 开始旅行
-        TravelResultVO result = travelService.startTravel(authResult.userId(), targetMap.getId(), useStamina);
+        // 开始旅行（服务层处理地图解析、验证、体力决策）
+        TravelResultVO result = travelService.startTravel(authResult.userId(), mapName, forceRealTime);
 
         if (!result.isSuccess()) {
             return result.getMessage();
@@ -106,20 +70,7 @@ public class MapCommandHandler extends BaseCommandHandler {
     }
 
     /**
-     * 检查体力是否足够进行旅行
-     */
-    private boolean hasEnoughStamina(top.stillmisty.xiantao.domain.item.vo.CharacterStatusResult characterStatus, int staminaCost) {
-        var userOpt = userService.findById(characterStatus.getUserId());
-        if (userOpt.isEmpty()) {
-            return false;
-        }
-        // 触发懒加载离线体力恢复用于检查，实际持久化在 TravelService 中完成
-        userOpt.get().calculateOfflineStaminaRecovery();
-        return userOpt.get().hasEnoughStamina(staminaCost);
-    }
-
-    /**
-     * 处理历练命令
+     * 处理历练命令（开始历练）
      *
      * @param platform 平台类型
      * @param openId   平台用户 ID
@@ -128,30 +79,19 @@ public class MapCommandHandler extends BaseCommandHandler {
     public String handleTraining(PlatformType platform, String openId) {
         log.debug("处理历练请求 - Platform: {}, OpenId: {}", platform, openId);
 
-        // 验证用户身份和状态
+        // 验证用户身份和状态（必须空闲）
         var authResult = authenticateAndValidateStatus(platform, openId, UserStatus.IDLE);
         if (!authResult.authenticated()) {
             return authResult.errorMessage();
         }
 
-        // TODO: 这里应该是开始历练，但目前代码是结算历练
-        // 暂时保持原有逻辑，后续需要重构为开始历练
-        
-        // 计算历练奖励
-        TrainingRewardVO rewards = trainingService.calculateTrainingRewards(authResult.userId());
-
-        // 应用奖励
-        if (rewards.getCoins() != null && rewards.getCoins() > 0 ||
-                rewards.getSpiritStones() != null && rewards.getSpiritStones() > 0 ||
-                rewards.getItems() != null && !rewards.getItems().isEmpty()) {
-
-            boolean applied = trainingService.applyTrainingRewards(authResult.userId(), rewards);
-            if (applied) {
-                return formatTrainingReward(rewards);
-            }
+        // 开始历练
+        var result = trainingService.startTraining(authResult.userId());
+        if (!result.isSuccess()) {
+            return result.getMessage();
         }
 
-        return rewards.getSummary();
+        return String.format("开始在%s历练，使用「历练结束」结算收益。", result.getMapName());
     }
 
     /**
@@ -164,8 +104,8 @@ public class MapCommandHandler extends BaseCommandHandler {
     public String handleEndTraining(PlatformType platform, String openId) {
         log.debug("处理结束历练请求 - Platform: {}, OpenId: {}", platform, openId);
 
-        // 验证用户身份
-        var authResult = authenticate(platform, openId);
+        // 验证用户身份和状态（必须为历练中）
+        var authResult = authenticateAndValidateStatus(platform, openId, UserStatus.EXERCISING);
         if (!authResult.authenticated()) {
             return authResult.errorMessage();
         }
