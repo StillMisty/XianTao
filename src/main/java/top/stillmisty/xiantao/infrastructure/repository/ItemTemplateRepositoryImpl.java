@@ -28,10 +28,6 @@ public class ItemTemplateRepositoryImpl implements ItemTemplateRepository {
         return Optional.ofNullable(mapper.selectOneById(templateId));
     }
 
-    @Override
-    public List<ItemTemplate> findByIds(List<Long> templateIds) {
-        return mapper.selectListByIds(templateIds);
-    }
 
     @Override
     public List<ItemTemplate> findByType(ItemType type) {
@@ -52,63 +48,6 @@ public class ItemTemplateRepositoryImpl implements ItemTemplateRepository {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public List<ItemTemplate> findEquipmentTemplates() {
-        return findByType(ItemType.EQUIPMENT);
-    }
-
-    @Override
-    public List<ItemTemplate> findFudiItemTemplates() {
-        return findByTypes(List.of(ItemType.SEED, ItemType.SPIRIT_EGG));
-    }
-
-    @Override
-    public List<ItemTemplate> findByTag(String tag) {
-        if (tag == null || tag.trim().isEmpty()) {
-            return List.of();
-        }
-        // 使用PostgreSQL JSONB操作符 @> 进行标签包含查询
-        // tags @> CAST(ARRAY['tag'] AS jsonb) 检查tags数组是否包含指定标签
-        return mapper.selectByTag(tag.toLowerCase());
-    }
-
-    @Override
-    public List<ItemTemplate> findByTags(List<String> tags) {
-        if (tags == null || tags.isEmpty()) {
-            return List.of();
-        }
-        // 使用PostgreSQL JSONB操作符 ?| 进行任一标签匹配
-        // tags ?| ARRAY['tag1', 'tag2'] 检查tags数组是否包含任一指定标签
-        List<String> lowerCaseTags = tags.stream()
-                .map(String::toLowerCase)
-                .toList();
-        return mapper.selectByAnyTags(lowerCaseTags);
-    }
-
-    @Override
-    public List<ItemTemplate> findByAllTags(List<String> tags) {
-        if (tags == null || tags.isEmpty()) {
-            return List.of();
-        }
-        // 使用PostgreSQL JSONB操作符 ?& 进行所有标签匹配
-        // tags ?& ARRAY['tag1', 'tag2'] 检查tags数组是否包含所有指定标签
-        List<String> lowerCaseTags = tags.stream()
-                .map(String::toLowerCase)
-                .toList();
-        return mapper.selectByAllTags(lowerCaseTags);
-    }
-
-    @Override
-    public List<ItemTemplate> findEquipmentByLevelRange(int minLevel, int maxLevel) {
-        // 先查询所有装备，然后在内存中过滤
-        return Objects.requireNonNull(mapper.selectAll()).stream()
-                .filter(t -> t.getType() == ItemType.EQUIPMENT)
-                .filter(t -> {
-                    Integer level = t.getEquipLevel();
-                    return level != null && level >= minLevel && level <= maxLevel;
-                })
-                .collect(Collectors.toList());
-    }
 
     @Override
     public ItemTemplate save(ItemTemplate template) {
@@ -118,12 +57,6 @@ public class ItemTemplateRepositoryImpl implements ItemTemplateRepository {
             mapper.update(template);
         }
         return template;
-    }
-
-    @Override
-    public List<ItemTemplate> saveAll(List<ItemTemplate> templates) {
-        templates.forEach(this::save);
-        return templates;
     }
 
     @Override

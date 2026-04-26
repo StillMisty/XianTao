@@ -49,19 +49,4 @@ public class MapNodeRepositoryImpl implements MapNodeRepository {
                 .eq(MapNode::getMapType, mapType);
         return mapNodeMapper.selectListByQuery(query);
     }
-
-    @Override
-    public List<MapNode> findByLevelRange(Integer minLevel, Integer maxLevel) {
-        QueryWrapper query = new QueryWrapper()
-                .ge(MapNode::getLevelRequirement, minLevel)
-                .le(MapNode::getLevelRequirement, maxLevel);
-        return mapNodeMapper.selectListByQuery(query);
-    }
-
-    @Override
-    public boolean existsByName(String name) {
-        QueryWrapper query = new QueryWrapper()
-                .eq(MapNode::getName, name);
-        return mapNodeMapper.selectCountByQuery(query) > 0;
-    }
 }

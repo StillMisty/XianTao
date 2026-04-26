@@ -58,13 +58,6 @@ public class DaoProtectionRepositoryImpl implements DaoProtectionRepository {
     }
 
     @Override
-    public void deleteByProtectorId(Long protectorId) {
-        QueryWrapper query = new QueryWrapper()
-                .eq(DaoProtection::getProtectorId, protectorId);
-        daoProtectionMapper.deleteByQuery(query);
-    }
-
-    @Override
     public void deleteByProtegeId(Long protegeId) {
         QueryWrapper query = new QueryWrapper()
                 .eq(DaoProtection::getProtegeId, protegeId);

@@ -23,11 +23,6 @@ public class EquipmentRepositoryImpl implements EquipmentRepository {
         return equipment;
     }
 
-    @Override
-    public List<Equipment> saveAll(List<Equipment> equipments) {
-        equipments.forEach(equipmentMapper::insertOrUpdate);
-        return equipments;
-    }
 
     @Override
     public Optional<Equipment> findById(Long id) {
@@ -59,24 +54,7 @@ public class EquipmentRepositoryImpl implements EquipmentRepository {
     }
 
     @Override
-    public List<Equipment> findByIds(List<Long> ids) {
-        if (ids == null || ids.isEmpty()) {
-            return List.of();
-        }
-        QueryWrapper query = new QueryWrapper()
-                .in(Equipment::getId, ids);
-        return equipmentMapper.selectListByQuery(query);
-    }
-
-    @Override
     public void deleteById(Long id) {
         equipmentMapper.deleteById(id);
-    }
-
-    @Override
-    public void deleteByIds(List<Long> ids) {
-        if (ids != null && !ids.isEmpty()) {
-            ids.forEach(equipmentMapper::deleteById);
-        }
     }
 }
