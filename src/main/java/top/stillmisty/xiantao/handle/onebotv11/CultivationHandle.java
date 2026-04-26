@@ -30,7 +30,7 @@ public class CultivationHandle {
     @Listener
     @ContentTrim
     @Filter("加点 {{content}}")
-    public void allocatePoints(MessageEvent event, @FilterValue("content")  String content) {
+    public void allocatePoints(MessageEvent event, @FilterValue("content") String content) {
         log.debug("收到加点请求 - AuthorId: {}, Content: {}", event.getAuthorId(), content);
 
         // 解析参数：加点 力量 5

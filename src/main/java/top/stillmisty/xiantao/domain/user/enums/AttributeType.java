@@ -11,10 +11,10 @@ public enum AttributeType {
     CON("con", "体质"),
     AGI("agi", "敏捷"),
     WIS("wis", "智慧");
-    
+
     private final String code;
     private final String name;
-    
+
     AttributeType(String code, String name) {
         this.code = code;
         this.name = name;
@@ -26,18 +26,6 @@ public enum AttributeType {
     public static AttributeType fromCode(String code) {
         for (AttributeType type : values()) {
             if (type.code.equalsIgnoreCase(code)) {
-                return type;
-            }
-        }
-        return null;
-    }
-    
-    /**
-     * 根据中文名称查找属性类型
-     */
-    public static AttributeType fromChineseName(String name) {
-        for (AttributeType type : values()) {
-            if (type.name.equals(name)) {
                 return type;
             }
         }

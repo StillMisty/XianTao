@@ -59,20 +59,6 @@ public enum AffixType {
     }
 
     /**
-     * 检查是否为特殊词条（仅金装）
-     */
-    public boolean isSpecial() {
-        return this == LIFE_STEAL || this == TREASURE_HUNT;
-    }
-
-    /**
-     * 检查是否为属性词条（可随机生成）
-     */
-    public boolean isAttributeAffix() {
-        return statField != null;
-    }
-
-    /**
      * 从代码获取词条类型
      */
     public static AffixType fromCode(String code) {
@@ -96,5 +82,12 @@ public enum AffixType {
      */
     public static AffixType[] getSpecialAffixes() {
         return new AffixType[]{LIFE_STEAL, TREASURE_HUNT};
+    }
+
+    /**
+     * 检查是否为特殊词条（仅金装）
+     */
+    public boolean isSpecial() {
+        return this == LIFE_STEAL || this == TREASURE_HUNT;
     }
 }

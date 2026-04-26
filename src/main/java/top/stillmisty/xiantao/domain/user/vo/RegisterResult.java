@@ -1,8 +1,5 @@
 package top.stillmisty.xiantao.domain.user.vo;
 
-import lombok.Builder;
-import lombok.Data;
-
 /**
  * 注册结果 VO
  */

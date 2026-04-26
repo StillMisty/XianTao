@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 public class UserStatusVO {
-    
+
     private Long userId;
     private String nickname;
     private Integer level;

@@ -249,88 +249,13 @@ public class Fudi extends Model<Fudi> {
         }
     }
 
-    /**
-     * 计算灵气上限
-     * 公式：1000 + 聚灵核心等级 × 200
-     */
-    public int calculateAuraMax() {
-        return 1000 + (coreLevel != null ? coreLevel : 0) * 200;
-    }
 
     /**
      * 献祭装备获得灵气
-     * 公式：物品基础价值 × 品质系数 × (1 + 物品等级 × 0.05)
      */
     public int calculateSacrificeAura(int itemBaseValue, double qualityMultiplier, int itemLevel) {
         double result = itemBaseValue * qualityMultiplier * (1 + itemLevel * 0.05);
         return (int) result;
-    }
-
-    /**
-     * 检查是否可以扩建
-     */
-    public boolean canExpand() {
-        if (gridSize >= 5) {
-            return false;
-        }
-        if (coreLevel == null) {
-            return false;
-        }
-
-        int requiredCoreLevel = gridSize == 3 ? 10 : 15;
-        return coreLevel >= requiredCoreLevel;
-    }
-
-    /**
-     * 扩建福地
-     */
-    public boolean expand() {
-        if (!canExpand()) {
-            return false;
-        }
-        gridSize++;
-        return true;
-    }
-
-    /**
-     * 计算天劫攻击力
-     * 公式：玩家等级 × 100 + 福地规模系数 × 200
-     */
-    public int calculateTribulationAttack(int playerLevel) {
-        double scaleFactor = switch (gridSize) {
-            case 3 -> 1.0;
-            case 4 -> 1.5;
-            case 5 -> 2.0;
-            default -> 1.0;
-        };
-        return playerLevel * 100 + (int) (scaleFactor * 200);
-    }
-
-    /**
-     * 计算福地总防御
-     * 公式：Σ(阵眼耐久度) + Σ(灵兽战力评分) + 玩家力量(STR)评分 × 10 + 地灵等级 × 50
-     */
-    public int calculateTotalDefense(Integer playerStr) {
-        int nodeDefense = 0;
-        int beastPower = 0;
-
-        if (gridLayout != null && gridLayout.containsKey("cells")) {
-            @SuppressWarnings("unchecked")
-            List<Map<String, Object>> cells = (List<Map<String, Object>>) gridLayout.get("cells");
-            for (Map<String, Object> cell : cells) {
-                String type = (String) cell.get("type");
-                if ("node".equals(type) && cell.containsKey("durability")) {
-                    nodeDefense += (Integer) cell.get("durability");
-                } else if ("pen".equals(type) && cell.containsKey("beast_tier")) {
-                    beastPower += (Integer) cell.get("beast_tier") * 100;
-                }
-            }
-        }
-
-        int strScore = (playerStr != null ? playerStr : 5) * 10;
-        int spiritScore = (spiritLevel != null ? spiritLevel : 1) * 50;
-
-        return nodeDefense + beastPower + strScore + spiritScore;
     }
 
     /**

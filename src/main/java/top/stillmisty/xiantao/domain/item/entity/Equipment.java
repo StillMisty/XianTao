@@ -4,7 +4,6 @@ import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
-import com.mybatisflex.core.handler.JacksonTypeHandler;
 import lombok.Data;
 import top.stillmisty.xiantao.domain.item.enums.EquipmentSlot;
 import top.stillmisty.xiantao.domain.item.enums.Rarity;
@@ -103,12 +102,14 @@ public class Equipment {
     /**
      * 创建装备实例
      */
-    public static Equipment create(Long userId, Long templateId, String name,
-                                    EquipmentSlot slot, Rarity rarity,
-                                    Double qualityMultiplier,
-                                    Map<String, Integer> affixes,
-                                    Map<String, Integer> statBonus,
-                                    Integer attackBonus, Integer defenseBonus) {
+    public static Equipment create(
+            Long userId, Long templateId, String name,
+            EquipmentSlot slot, Rarity rarity,
+            Double qualityMultiplier,
+            Map<String, Integer> affixes,
+            Map<String, Integer> statBonus,
+            Integer attackBonus, Integer defenseBonus
+    ) {
         Equipment equipment = new Equipment();
         equipment.userId = userId;
         equipment.templateId = templateId;

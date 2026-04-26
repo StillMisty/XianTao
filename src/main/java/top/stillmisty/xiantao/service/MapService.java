@@ -71,9 +71,9 @@ public class MapService {
     /**
      * 验证旅行
      *
-     * @param currentMapId  当前地图 ID
-     * @param targetMapId   目标地图 ID
-     * @param playerLevel   玩家等级
+     * @param currentMapId 当前地图 ID
+     * @param targetMapId  目标地图 ID
+     * @param playerLevel  玩家等级
      * @return 验证结果（错误消息，null 表示验证通过）
      */
     public String validateTravel(Long currentMapId, Long targetMapId, int playerLevel) {
@@ -86,7 +86,7 @@ public class MapService {
         MapNode targetMap = targetMapOpt.get();
 
         // 检查玩家等级是否满足要求
-        if (!targetMap.isAccessibleBy(playerLevel)) {
+        if (targetMap.isAccessibleBy(playerLevel)) {
             return String.format("您需要达到 %d 级才能前往 %s", targetMap.getLevelRequirement(), targetMap.getName());
         }
 
@@ -94,7 +94,7 @@ public class MapService {
         Optional<MapNode> currentMapOpt = mapNodeRepository.findById(currentMapId);
         if (currentMapOpt.isPresent()) {
             MapNode currentMap = currentMapOpt.get();
-            if (!currentMap.isAdjacentTo(targetMap.getName())) {
+            if (currentMap.isAdjacentTo(targetMap.getName())) {
                 return String.format("%s 与 %s 不相邻，无法直接前往", currentMap.getName(), targetMap.getName());
             }
         }

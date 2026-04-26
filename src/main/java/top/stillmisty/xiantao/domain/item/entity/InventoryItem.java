@@ -43,8 +43,10 @@ public class InventoryItem {
     /**
      * 创建便捷方法 - 堆叠类物品
      */
-    public static InventoryItem forStackable(Long templateId, ItemType itemType,
-                                              String name, int quantity) {
+    public static InventoryItem forStackable(
+            Long templateId, ItemType itemType,
+            String name, int quantity
+    ) {
         return new InventoryItem(templateId, itemType, name, quantity);
     }
 }

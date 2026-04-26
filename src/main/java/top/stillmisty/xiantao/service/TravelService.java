@@ -14,8 +14,6 @@ import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -28,11 +26,10 @@ import java.util.Optional;
 @Transactional
 public class TravelService {
 
+    private static final int STAMINA_COST_PER_TRAVEL_MINUTE = 5;
     private final UserRepository userRepository;
     private final MapNodeRepository mapNodeRepository;
     private final StaminaService staminaService;
-
-    private static final int STAMINA_COST_PER_TRAVEL_MINUTE = 5;
 
     /**
      * 开始旅行
@@ -68,7 +65,7 @@ public class TravelService {
         MapNode targetMap = targetMapOpt.get();
 
         // 检查是否相邻
-        if (!currentMap.isAdjacentTo(targetMap.getName())) {
+        if (currentMap.isAdjacentTo(targetMap.getName())) {
             return TravelResultVO.builder()
                     .success(false)
                     .message(String.format("%s 与 %s 不相邻，无法直接前往", currentMap.getName(), targetMap.getName()))
@@ -76,7 +73,7 @@ public class TravelService {
         }
 
         // 检查等级要求
-        if (!targetMap.isAccessibleBy(user.getLevel())) {
+        if (targetMap.isAccessibleBy(user.getLevel())) {
             return TravelResultVO.builder()
                     .success(false)
                     .message(String.format("您需要达到 %d 级才能前往 %s", targetMap.getLevelRequirement(), targetMap.getName()))
@@ -94,8 +91,10 @@ public class TravelService {
     /**
      * 执行旅行逻辑
      */
-    private TravelResultVO executeTravel(Long userId, User user, MapNode currentMap, MapNode targetMap,
-                                         Integer travelTime, boolean useStamina) {
+    private TravelResultVO executeTravel(
+            Long userId, User user, MapNode currentMap, MapNode targetMap,
+            Integer travelTime, boolean useStamina
+    ) {
 
         if (useStamina) {
             // 体力模式：检查并消耗体力
@@ -324,7 +323,7 @@ public class TravelService {
      * 计算旅行事件
      *
      * @param mapNode 地图节点
-     * @param d20Roll  D20 骰点结果
+     * @param d20Roll D20 骰点结果
      * @return 事件类型
      */
     private TravelEventType calculateTravelEvent(MapNode mapNode, int d20Roll) {
@@ -345,8 +344,8 @@ public class TravelService {
     /**
      * 处理旅行事件
      *
-     * @param user       用户
-     * @param eventType  事件类型
+     * @param user      用户
+     * @param eventType 事件类型
      * @return 事件描述
      */
     private String processTravelEvent(User user, TravelEventType eventType) {
@@ -363,10 +362,8 @@ public class TravelService {
                 user.setCoins(user.getCoins() + coins);
                 yield String.format("运气真好！您在路边发现了一个宝箱，获得了 %d 铜币", coins);
             }
-            case WEATHER -> {
-                // 毒雾天气，额外消耗体力
-                yield "遭遇毒雾天气，视线受阻，小心翼翼地通过了";
-            }
+            case WEATHER -> // 毒雾天气，额外消耗体力
+                    "遭遇毒雾天气，视线受阻，小心翼翼地通过了";
             case SAFE_PASSAGE -> "一路平安，没有任何意外发生";
         };
     }

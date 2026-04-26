@@ -13,6 +13,7 @@ public interface ItemTemplateMapper extends BaseMapper<ItemTemplate> {
 
     /**
      * 根据单个标签查找物品模板（使用PostgreSQL JSONB操作符 @>）
+     *
      * @param tag 标签名称
      * @return 物品模板列表
      */
@@ -21,6 +22,7 @@ public interface ItemTemplateMapper extends BaseMapper<ItemTemplate> {
 
     /**
      * 根据多个标签查找物品模板（包含任一标签，使用 ?| 操作符）
+     *
      * @param tags 标签列表
      * @return 物品模板列表
      */
@@ -28,6 +30,7 @@ public interface ItemTemplateMapper extends BaseMapper<ItemTemplate> {
 
     /**
      * 根据多个标签查找物品模板（包含所有标签，使用 ?& 操作符）
+     *
      * @param tags 标签列表
      * @return 物品模板列表
      */

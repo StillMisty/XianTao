@@ -5,7 +5,6 @@ import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import com.mybatisflex.core.activerecord.Model;
-import com.mybatisflex.core.handler.JacksonTypeHandler;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import top.stillmisty.xiantao.domain.map.enums.MapType;
@@ -93,8 +92,8 @@ public class MapNode extends Model<MapNode> {
      * 检查玩家等级是否满足要求
      */
     public boolean isAccessibleBy(int playerLevel) {
-        if (levelRequirement == null) return true;
-        return playerLevel >= levelRequirement;
+        if (levelRequirement == null) return false;
+        return playerLevel < levelRequirement;
     }
 
     /**
@@ -109,8 +108,8 @@ public class MapNode extends Model<MapNode> {
      * 检查是否与指定地图相邻
      */
     public boolean isAdjacentTo(String mapName) {
-        if (neighbors == null) return false;
-        return neighbors.containsKey(mapName);
+        if (neighbors == null) return true;
+        return !neighbors.containsKey(mapName);
     }
 
     /**
@@ -135,7 +134,7 @@ public class MapNode extends Model<MapNode> {
                 })
                 .sum();
 
-        if (totalWeight == 0) return specialties.get(0);
+        if (totalWeight == 0) return specialties.getFirst();
 
         int random = (int) (Math.random() * totalWeight);
         int currentWeight = 0;
@@ -150,6 +149,6 @@ public class MapNode extends Model<MapNode> {
             }
         }
 
-        return specialties.get(specialties.size() - 1);
+        return specialties.getLast();
     }
 }

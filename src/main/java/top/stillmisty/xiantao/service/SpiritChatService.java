@@ -6,7 +6,6 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.config.SpiritPromptTemplates;
 import top.stillmisty.xiantao.domain.land.entity.Fudi;
-import top.stillmisty.xiantao.domain.land.enums.MBTIPersonality;
 import top.stillmisty.xiantao.domain.land.enums.SpiritStage;
 import top.stillmisty.xiantao.domain.land.repository.FudiRepository;
 
@@ -25,14 +24,13 @@ public class SpiritChatService {
     private final ChatClient spiritChatClient;
     private final FudiRepository fudiRepository;
     private final SpiritPromptTemplates promptTemplates;
-    private final FudiService fudiService;
     private final SpiritTools spiritTools;  // 注入工具类，用于 Function Calling
 
     /**
      * 与地灵进行 MBTI 人格化对话
      * 单次会话，无记忆
      *
-     * @param userId 用户 ID
+     * @param userId    用户 ID
      * @param userInput 用户输入
      * @return 地灵的人格化回复
      */
@@ -69,7 +67,7 @@ public class SpiritChatService {
      * 处理 @地灵 自然语言交互（完整流程：Function Calling -> 人格化回复）
      * 使用 Spring AI 的 Function Calling 机制，让 LLM 自主决定调用哪个工具
      *
-     * @param userId 用户 ID
+     * @param userId    用户 ID
      * @param userInput 用户输入
      * @return 最终回复
      */
@@ -116,7 +114,7 @@ public class SpiritChatService {
         String emoji = determineEmoji(fudi);
         String gridDetail = buildGridDetailForLLM(fudi);
         String emotionState = fudi.getEmotionState().getDescription();
-        
+
         return promptTemplates.buildFunctionCallingPrompt(
                 fudi.getMbtiType(),
                 emoji,
@@ -135,12 +133,12 @@ public class SpiritChatService {
      */
     private String buildSystemPrompt(Fudi fudi) {
         String emoji = determineEmoji(fudi);
-        
+
         // 阶段二及以上使用详细信息
         if (fudi.getSpiritStage() != SpiritStage.STAGE_1) {
             String gridSummary = buildGridDetailForLLM(fudi);  // 使用新方法
             String emotionState = fudi.getEmotionState().getDescription();
-            
+
             return promptTemplates.buildDetailedSpiritChatPrompt(
                     fudi.getMbtiType(),
                     emoji,
@@ -181,7 +179,7 @@ public class SpiritChatService {
      */
     private String buildGridDetailForLLM(Fudi fudi) {
         int gridSize = fudi.getGridSize();
-        
+
         if (fudi.getGridLayout() == null) {
             // 生成所有可用坐标
             StringBuilder sb = new StringBuilder();
@@ -220,27 +218,28 @@ public class SpiritChatService {
         Set<String> occupiedPositions = new HashSet<>();
         StringBuilder sb = new StringBuilder();
         sb.append("福地网格状态（").append(gridSize).append("x").append(gridSize).append("）：\n");
-        
+
         // 统计各地块类型数量
         Map<String, Integer> typeCount = new HashMap<>();
         List<Map<String, Object>> farmCells = new ArrayList<>();
         List<Map<String, Object>> penCells = new ArrayList<>();
         List<Map<String, Object>> nodeCells = new ArrayList<>();
-        
+
         for (var cell : cells) {
             String pos = (String) cell.get("pos");
             occupiedPositions.add(pos);
             String type = (String) cell.get("type");
             typeCount.merge(type, 1, Integer::sum);
-            
+
             switch (type) {
                 case "farm" -> farmCells.add(cell);
                 case "pen" -> penCells.add(cell);
                 case "node" -> nodeCells.add(cell);
-                default -> {}
+                default -> {
+                }
             }
         }
-        
+
         // 计算可用空位
         List<String> emptyPositions = new ArrayList<>();
         for (int x = 0; x < gridSize; x++) {
@@ -251,11 +250,11 @@ public class SpiritChatService {
                 }
             }
         }
-        
+
         // 如果福地已满，提供简洁摘要
         if (emptyPositions.isEmpty()) {
-            sb.append("【布局摘要】福地已满（").append(occupiedPositions.size()).append("/" ).append(gridSize * gridSize).append("）。\n");
-            
+            sb.append("【布局摘要】福地已满（").append(occupiedPositions.size()).append("/").append(gridSize * gridSize).append("）。\n");
+
             // 按类型汇总
             if (!typeCount.isEmpty()) {
                 List<String> typeSummary = new ArrayList<>();
@@ -270,7 +269,7 @@ public class SpiritChatService {
                 }
                 sb.append("地块组成：").append(String.join("、", typeSummary)).append("\n");
             }
-            
+
             // 显示可收获的灵田
             long matureFarmCount = farmCells.stream()
                     .peek(this::updateGrowthProgress)
@@ -282,7 +281,7 @@ public class SpiritChatService {
             if (matureFarmCount > 0) {
                 sb.append("⚠️ 有 ").append(matureFarmCount).append(" 块灵田可收获。\n");
             }
-            
+
             // 显示饥饿的灵兽
             long hungryBeastCount = penCells.stream()
                     .filter(cell -> {
@@ -293,7 +292,7 @@ public class SpiritChatService {
             if (hungryBeastCount > 0) {
                 sb.append("⚠️ 有 ").append(hungryBeastCount).append(" 只灵兽需要喂养。\n");
             }
-            
+
             sb.append("💡 提示：如需调整布局，可先拆除部分地块或等待福地升级扩建。");
         } else {
             // 有空位时，显示详细列表
@@ -302,22 +301,22 @@ public class SpiritChatService {
                 String pos = (String) cell.get("pos");
                 String type = (String) cell.get("type");
                 String name = (String) cell.get("name");
-                
+
                 sb.append("- (").append(pos).append(") ").append(type);
-                
+
                 if (name != null && !name.isEmpty()) {
                     sb.append(" [").append(name).append("]");
                 }
-                
+
                 // 添加作物生长信息
                 if ("farm".equals(type)) {
                     // 懒加载计算生长进度
                     updateGrowthProgress(cell);
-                    
+
                     String cropName = (String) cell.get("crop_name");
                     Double progress = (Double) cell.get("growth_progress");
                     Boolean isMature = progress != null && progress >= 1.0;
-                    
+
                     if (cropName != null) {
                         sb.append(" 种植:").append(cropName);
                         if (isMature) {
@@ -327,7 +326,7 @@ public class SpiritChatService {
                         }
                     }
                 }
-                
+
                 // 添加灵兽信息
                 if ("pen".equals(type)) {
                     String beastName = (String) cell.get("beast_name");
@@ -339,14 +338,14 @@ public class SpiritChatService {
                         sb.append(" 饥饿值:").append(hunger);
                     }
                 }
-                
+
                 sb.append("\n");
             }
-            
+
             sb.append("【可用空位】\n");
             sb.append("可用坐标：").append(String.join(", ", emptyPositions));
         }
-        
+
         return sb.toString();
     }
 
@@ -357,19 +356,19 @@ public class SpiritChatService {
         if (!"farm".equals(cell.get("type"))) {
             return;
         }
-        
+
         String plantTimeStr = (String) cell.get("plant_time");
         String matureTimeStr = (String) cell.get("mature_time");
-        
+
         if (plantTimeStr == null || matureTimeStr == null) {
             return;
         }
-        
+
         try {
             LocalDateTime plantTime = LocalDateTime.parse(plantTimeStr);
             LocalDateTime matureTime = LocalDateTime.parse(matureTimeStr);
             LocalDateTime now = LocalDateTime.now();
-            
+
             if (now.isAfter(matureTime) || now.isEqual(matureTime)) {
                 cell.put("growth_progress", 1.0);
             } else {

@@ -18,7 +18,7 @@ import top.stillmisty.xiantao.handle.command.CultivationCommandHandler;
 @Component
 @RequiredArgsConstructor
 public class StatusHandle {
-    
+
     private final CultivationCommandHandler commandHandler;
 
     @Listener
@@ -26,12 +26,12 @@ public class StatusHandle {
     @Filter("状态")
     public void status(MessageEvent event) {
         log.debug("收到状态查询请求 - AuthorId: {}", event.getAuthorId());
-        
+
         String response = commandHandler.handleStatus(
-            PlatformType.ONE_BOT_V11, 
-            event.getAuthorId().toString()
+                PlatformType.ONE_BOT_V11,
+                event.getAuthorId().toString()
         );
-        
+
         event.replyBlocking(response);
     }
 }

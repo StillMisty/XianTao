@@ -5,23 +5,23 @@ package top.stillmisty.xiantao.service;
  * 用于在 Function Calling 中传递当前用户 ID
  */
 public class UserContext {
-    
+
     private static final ThreadLocal<Long> currentUser = new ThreadLocal<>();
-    
-    /**
-     * 设置当前用户 ID
-     */
-    public static void setCurrentUserId(Long userId) {
-        currentUser.set(userId);
-    }
-    
+
     /**
      * 获取当前用户 ID
      */
     public static Long getCurrentUserId() {
         return currentUser.get();
     }
-    
+
+    /**
+     * 设置当前用户 ID
+     */
+    public static void setCurrentUserId(Long userId) {
+        currentUser.set(userId);
+    }
+
     /**
      * 清除当前用户 ID（防止内存泄漏）
      */

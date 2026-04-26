@@ -28,12 +28,11 @@ import java.util.Optional;
 @Transactional
 public class TrainingService {
 
-    private final UserRepository userRepository;
-    private final MapNodeRepository mapNodeRepository;
-
     // 历练基础收益配置
     private static final long BASE_COINS_PER_MINUTE = 10;
     private static final long BASE_SPIRIT_STONES_PER_HOUR = 5;
+    private final UserRepository userRepository;
+    private final MapNodeRepository mapNodeRepository;
 
     /**
      * 计算历练奖励（懒加载评估）
@@ -106,8 +105,10 @@ public class TrainingService {
             }
         }
 
-        log.info("用户 {} 历练奖励计算 - 时长: {} 分钟, 铜币: {}, 灵石: {}, 物品数: {}",
-                userId, minutesTraining, coins, spiritStones, items.size());
+        log.info(
+                "用户 {} 历练奖励计算 - 时长: {} 分钟, 铜币: {}, 灵石: {}, 物品数: {}",
+                userId, minutesTraining, coins, spiritStones, items.size()
+        );
 
         return TrainingRewardVO.builder()
                 .userId(userId)

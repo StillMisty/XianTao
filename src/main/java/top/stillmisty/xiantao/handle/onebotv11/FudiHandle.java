@@ -28,12 +28,12 @@ public class FudiHandle {
     @Filter("福地")
     public void handleFudi(MessageEvent event) {
         log.debug("收到福地请求 - AuthorId: {}", event.getAuthorId());
-        
+
         String response = fudiCommandHandler.handleFudiStatus(
                 PlatformType.ONE_BOT_V11,
                 event.getAuthorId().toString()
         );
-        
+
         event.replyBlocking(response);
     }
 
@@ -42,12 +42,12 @@ public class FudiHandle {
     @Filter("福地网格")
     public void handleFudiGrid(MessageEvent event) {
         log.debug("收到福地网格请求 - AuthorId: {}", event.getAuthorId());
-        
+
         String response = fudiCommandHandler.handleFudiGrid(
                 PlatformType.ONE_BOT_V11,
                 event.getAuthorId().toString()
         );
-        
+
         event.replyBlocking(response);
     }
 
@@ -56,12 +56,12 @@ public class FudiHandle {
     @Filter("福地灵气")
     public void handleFudiAura(MessageEvent event) {
         log.debug("收到福地灵气请求 - AuthorId: {}", event.getAuthorId());
-        
+
         String response = fudiCommandHandler.handleFudiAura(
                 PlatformType.ONE_BOT_V11,
                 event.getAuthorId().toString()
         );
-        
+
         event.replyBlocking(response);
     }
 
@@ -107,16 +107,18 @@ public class FudiHandle {
     @ContentTrim
     @Filter("种植 {{position}} {{cropName}}")
     public void handlePlant(MessageEvent event, @FilterValue("position") String position, @FilterValue("cropName") String cropName) {
-        log.debug("收到种植请求 - AuthorId: {}, Position: {}, CropName: {}", 
-                event.getAuthorId(), position, cropName);
-        
+        log.debug(
+                "收到种植请求 - AuthorId: {}, Position: {}, CropName: {}",
+                event.getAuthorId(), position, cropName
+        );
+
         String response = fudiCommandHandler.handlePlant(
                 PlatformType.ONE_BOT_V11,
                 event.getAuthorId().toString(),
                 position,
                 cropName
         );
-        
+
         event.replyBlocking(response);
     }
 
@@ -128,13 +130,13 @@ public class FudiHandle {
     @Filter("收获 {{position}}")
     public void handleHarvest(MessageEvent event, @FilterValue("position") String position) {
         log.debug("收到收获请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
-        
+
         String response = fudiCommandHandler.handleHarvest(
                 PlatformType.ONE_BOT_V11,
                 event.getAuthorId().toString(),
                 position
         );
-        
+
         event.replyBlocking(response);
     }
 
@@ -145,16 +147,18 @@ public class FudiHandle {
     @ContentTrim
     @Filter("建造 {{position}} {{cellType}}")
     public void handleBuild(MessageEvent event, @FilterValue("position") String position, @FilterValue("cellType") String cellType) {
-        log.debug("收到建造请求 - AuthorId: {}, Position: {}, CellType: {}", 
-                event.getAuthorId(), position, cellType);
-        
+        log.debug(
+                "收到建造请求 - AuthorId: {}, Position: {}, CellType: {}",
+                event.getAuthorId(), position, cellType
+        );
+
         String response = fudiCommandHandler.handleBuild(
                 PlatformType.ONE_BOT_V11,
                 event.getAuthorId().toString(),
                 position,
                 cellType
         );
-        
+
         event.replyBlocking(response);
     }
 
@@ -166,13 +170,13 @@ public class FudiHandle {
     @Filter("拆除 {{position}}")
     public void handleRemove(MessageEvent event, @FilterValue("position") String position) {
         log.debug("收到拆除请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
-        
+
         String response = fudiCommandHandler.handleRemove(
                 PlatformType.ONE_BOT_V11,
                 event.getAuthorId().toString(),
                 position
         );
-        
+
         event.replyBlocking(response);
     }
 
@@ -184,13 +188,13 @@ public class FudiHandle {
     @Filter("献祭 {{itemName}}")
     public void handleSacrifice(MessageEvent event, @FilterValue("itemName") String itemName) {
         log.debug("收到献祭请求 - AuthorId: {}, ItemName: {}", event.getAuthorId(), itemName);
-        
+
         String response = fudiCommandHandler.handleSacrifice(
                 PlatformType.ONE_BOT_V11,
                 event.getAuthorId().toString(),
                 itemName
         );
-        
+
         event.replyBlocking(response);
     }
 
@@ -201,16 +205,18 @@ public class FudiHandle {
     @ContentTrim
     @Filter("喂养 {{position}} {{feedItem}}")
     public void handleFeed(MessageEvent event, @FilterValue("position") String position, @FilterValue("feedItem") String feedItem) {
-        log.debug("收到喂养请求 - AuthorId: {}, Position: {}, FeedItem: {}", 
-                event.getAuthorId(), position, feedItem);
-        
+        log.debug(
+                "收到喂养请求 - AuthorId: {}, Position: {}, FeedItem: {}",
+                event.getAuthorId(), position, feedItem
+        );
+
         String response = fudiCommandHandler.handleFeed(
                 PlatformType.ONE_BOT_V11,
                 event.getAuthorId().toString(),
                 position,
                 feedItem
         );
-        
+
         event.replyBlocking(response);
     }
 
@@ -222,13 +228,13 @@ public class FudiHandle {
     @Filter("#福地自动 {{mode}}")
     public void handleAutoMode(MessageEvent event, @FilterValue("mode") String mode) {
         log.debug("收到福地自动请求 - AuthorId: {}, Mode: {}", event.getAuthorId(), mode);
-        
+
         String response = fudiCommandHandler.handleAutoMode(
                 PlatformType.ONE_BOT_V11,
                 event.getAuthorId().toString(),
                 mode
         );
-        
+
         event.replyBlocking(response);
     }
 
@@ -237,12 +243,12 @@ public class FudiHandle {
     @Filter("#福地升级")
     public void handleUpgrade(MessageEvent event) {
         log.debug("收到福地升级请求 - AuthorId: {}", event.getAuthorId());
-        
+
         String response = fudiCommandHandler.handleUpgrade(
                 PlatformType.ONE_BOT_V11,
                 event.getAuthorId().toString()
         );
-        
+
         event.replyBlocking(response);
     }
 
@@ -251,12 +257,12 @@ public class FudiHandle {
     @Filter("#福地扩建")
     public void handleExpand(MessageEvent event) {
         log.debug("收到福地扩建请求 - AuthorId: {}", event.getAuthorId());
-        
+
         String response = fudiCommandHandler.handleExpand(
                 PlatformType.ONE_BOT_V11,
                 event.getAuthorId().toString()
         );
-        
+
         event.replyBlocking(response);
     }
 }

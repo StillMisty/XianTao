@@ -10,11 +10,7 @@ import top.stillmisty.xiantao.domain.map.vo.ExplorationResultVO;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * 探索服务
@@ -25,14 +21,13 @@ import java.util.Optional;
 @Transactional
 public class ExplorationService {
 
+    // 探索配置
+    private static final int EXPLORATION_TIME_COST_MINUTES = 10;
+    private static final int EXPLORATION_STAMINA_COST = 20;
     private final UserRepository userRepository;
     private final MapNodeRepository mapNodeRepository;
     private final ExplorationDescriptionFunction explorationDescriptionFunction;
     private final StaminaService staminaService;
-
-    // 探索配置
-    private static final int EXPLORATION_TIME_COST_MINUTES = 10;
-    private static final int EXPLORATION_STAMINA_COST = 20;
 
     /**
      * 探索当前区域（带体力检查）
@@ -129,17 +124,17 @@ public class ExplorationService {
                 .staminaCost(EXPLORATION_STAMINA_COST);
 
         // 根据有效智慧等级确定探索结果
-        if (effectiveWisdom >= 1 && effectiveWisdom <= 20) {
+        if (effectiveWisdom <= 20) {
             // 基础材料
             builder.eventType("发现基础材料");
             builder.description(""); // 由 LLM 生成
             builder.foundItems(findBasicItems(mapNode, 1));
-        } else if (effectiveWisdom >= 21 && effectiveWisdom <= 50) {
+        } else if (effectiveWisdom <= 50) {
             // 稀有材料
             builder.eventType("发现稀有材料");
             builder.description(""); // 由 LLM 生成
             builder.foundItems(findRareItems(mapNode, 1));
-        } else if (effectiveWisdom >= 51 && effectiveWisdom <= 80) {
+        } else if (effectiveWisdom <= 80) {
             // 稀有材料 + 小概率配方
             builder.eventType("重大发现");
             builder.description(""); // 由 LLM 生成
@@ -225,6 +220,6 @@ public class ExplorationService {
     private long calculateExpGained(int wisdom, int mapLevel) {
         // 基础经验 10，每点智慧增加 2 经验
         // 地图等级越高，获得的经验越多（每级增加 5 经验）
-        return 10 + (wisdom * 2) + (mapLevel * 5);
+        return 10 + (wisdom * 2L) + (mapLevel * 5L);
     }
 }

@@ -4,7 +4,6 @@ import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
-import com.mybatisflex.core.handler.JacksonTypeHandler;
 import lombok.Data;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
@@ -91,8 +90,10 @@ public class StackableItem {
     /**
      * 创建堆叠物品实例
      */
-    public static StackableItem create(Long userId, Long templateId, ItemType itemType,
-                                       String name, Integer quantity) {
+    public static StackableItem create(
+            Long userId, Long templateId, ItemType itemType,
+            String name, Integer quantity
+    ) {
         StackableItem item = new StackableItem();
         item.userId = userId;
         item.templateId = templateId;
@@ -100,29 +101,6 @@ public class StackableItem {
         item.name = name;
         item.quantity = quantity;
         item.createTime = LocalDateTime.now();
-        return item;
-    }
-
-    /**
-     * 创建带标签的堆叠物品
-     */
-    public static StackableItem createWithTags(Long userId, Long templateId, ItemType itemType,
-                                              String name, Integer quantity, List<String> tags) {
-        StackableItem item = create(userId, templateId, itemType, name, quantity);
-        item.tags = tags;
-        return item;
-    }
-
-    /**
-     * 创建福地专供物品（种子/灵蛋）
-     */
-    public static StackableItem createFudiItem(Long userId, Long templateId, ItemType itemType,
-                                               String name, Integer quantity,
-                                               Integer growTime, String yieldId, Integer surviveRate) {
-        StackableItem item = create(userId, templateId, itemType, name, quantity);
-        item.growTime = growTime;
-        item.yieldId = yieldId;
-        item.surviveRate = surviveRate;
         return item;
     }
 
@@ -138,6 +116,7 @@ public class StackableItem {
 
     /**
      * 减少数量
+     *
      * @param amount 减少的数量
      * @return 是否还有剩余
      */
@@ -170,12 +149,5 @@ public class StackableItem {
     public boolean hasAllTags(List<String> requiredTags) {
         if (tags == null || tags.isEmpty()) return false;
         return new HashSet<>(tags).containsAll(requiredTags.stream().map(String::toLowerCase).toList());
-    }
-
-    /**
-     * 是否为福地专供物品
-     */
-    public boolean isFudiItem() {
-        return itemType != null && itemType.isFudiItem();
     }
 }

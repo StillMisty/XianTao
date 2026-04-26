@@ -202,26 +202,6 @@ public class User extends Model<User> {
     }
 
     /**
-     * 检查是否可以升级
-     */
-    public boolean canLevelUp() {
-        return exp >= calculateExpToNextLevel();
-    }
-
-    /**
-     * 恢复生命值
-     *
-     * @param amount 恢复量
-     * @return 实际恢复量
-     */
-    public int heal(int amount) {
-        int maxHp = calculateMaxHp();
-        int oldHp = hpCurrent;
-        hpCurrent = Math.min(maxHp, hpCurrent + amount);
-        return hpCurrent - oldHp;
-    }
-
-    /**
      * 消耗生命值（受伤）
      *
      * @param amount 伤害量
@@ -231,13 +211,6 @@ public class User extends Model<User> {
         int oldHp = hpCurrent;
         hpCurrent = Math.max(0, hpCurrent - amount);
         return oldHp - hpCurrent;
-    }
-
-    /**
-     * 是否满血
-     */
-    public boolean isFullHp() {
-        return hpCurrent >= calculateMaxHp();
     }
 
     /**
@@ -274,13 +247,6 @@ public class User extends Model<User> {
     }
 
     /**
-     * 是否满体力
-     */
-    public boolean isFullStamina() {
-        return staminaCurrent >= calculateMaxStamina();
-    }
-
-    /**
      * 检查是否有足够体力
      *
      * @param required 需要的体力值
@@ -302,11 +268,21 @@ public class User extends Model<User> {
 
         LocalDateTime now = LocalDateTime.now();
         long minutesPassed = java.time.Duration.between(lastStaminaUpdateTime, now).toMinutes();
-        
+
         if (minutesPassed <= 0) {
             return 0;
         }
 
+        int recoveredStamina = getRecoveredStamina(minutesPassed);
+
+        // 更新最后更新时间
+        lastStaminaUpdateTime = now;
+
+        // 应用恢复
+        return restoreStamina(recoveredStamina);
+    }
+
+    private int getRecoveredStamina(long minutesPassed) {
         int recoveryRate; // 每分钟恢复速率
         if (status == UserStatus.MEDITATING) {
             recoveryRate = 2; // 打坐状态每分钟恢复2点
@@ -324,12 +300,7 @@ public class User extends Model<User> {
             // 打坐状态：每分钟恢复2点
             recoveredStamina = (int) (minutesPassed * recoveryRate);
         }
-
-        // 更新最后更新时间
-        lastStaminaUpdateTime = now;
-        
-        // 应用恢复
-        return restoreStamina(recoveredStamina);
+        return recoveredStamina;
     }
 
     /**
@@ -354,28 +325,6 @@ public class User extends Model<User> {
     private long calculateExpToPrevLevel() {
         if (level <= 1) return 0;
         return 100L * (level - 1) * (level - 1);
-    }
-
-    /**
-     * 尝试突破升级
-     *
-     * @return 是否突破成功
-     */
-    public boolean attemptBreakthrough() {
-        double successRate = calculateBreakthroughSuccessRate();
-        boolean success = Math.random() < successRate;
-
-        if (success) {
-            level++;
-            exp -= calculateExpToPrevLevel(); // 扣除升级所需经验
-            freeStatPoints++; // 获得1点自由属性点
-            breakthroughFailCount = 0; // 重置失败计数
-            hpCurrent = calculateMaxHp(); // 恢复满血
-        } else {
-            breakthroughFailCount++;
-        }
-
-        return success;
     }
 
     /**
@@ -415,24 +364,24 @@ public class User extends Model<User> {
      */
     public void resetAllStatPoints() {
         // 计算总已分配点数
-        int totalAllocated = (statStr != null ? statStr : 5) + 
-                            (statCon != null ? statCon : 5) + 
-                            (statAgi != null ? statAgi : 5) + 
-                            (statWis != null ? statWis : 5);
-        
+        int totalAllocated = (statStr != null ? statStr : 5) +
+                (statCon != null ? statCon : 5) +
+                (statAgi != null ? statAgi : 5) +
+                (statWis != null ? statWis : 5);
+
         // 扣除基础值（每个属性基础值为5）
         int baseStats = 5 * 4; // 四个属性，每个基础5点
         int allocatedPoints = totalAllocated - baseStats;
-        
+
         // 返还到可用属性点
         freeStatPoints += allocatedPoints;
-        
+
         // 重置为基础值
         statStr = 5;
         statCon = 5;
         statAgi = 5;
         statWis = 5;
-        
+
         // 更新洗点时间
         lastResetPointsTime = LocalDateTime.now();
     }
@@ -446,7 +395,7 @@ public class User extends Model<User> {
         if (lastResetPointsTime == null) {
             return true; // 从未洗过点，可以洗
         }
-        
+
         LocalDateTime now = LocalDateTime.now();
         long hoursSinceLastReset = java.time.Duration.between(lastResetPointsTime, now).toHours();
         return hoursSinceLastReset >= 72; // 3天 = 72小时
@@ -473,14 +422,14 @@ public class User extends Model<User> {
         if (lastResetPointsTime == null) {
             return 0;
         }
-        
+
         LocalDateTime nextResetTime = getNextResetTime();
         LocalDateTime now = LocalDateTime.now();
-        
+
         if (now.isAfter(nextResetTime)) {
             return 0;
         }
-        
+
         return java.time.Duration.between(now, nextResetTime).toHours();
     }
 }

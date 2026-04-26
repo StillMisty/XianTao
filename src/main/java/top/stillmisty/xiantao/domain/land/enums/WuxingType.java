@@ -23,6 +23,14 @@ public enum WuxingType {
         this.chineseName = chineseName;
     }
 
+    public static WuxingType fromCode(int code) {
+        for (WuxingType type : values()) {
+            if (type.code == code) {
+                return type;
+            }
+        }
+        throw new IllegalArgumentException("Unknown WuxingType code: " + code);
+    }
     /**
      * 检查是否克制目标五行
      */
@@ -65,23 +73,5 @@ public enum WuxingType {
             return 1.3;
         }
         return 1.0;
-    }
-
-    public static WuxingType fromCode(int code) {
-        for (WuxingType type : values()) {
-            if (type.code == code) {
-                return type;
-            }
-        }
-        throw new IllegalArgumentException("Unknown WuxingType code: " + code);
-    }
-
-    public static WuxingType fromChineseName(String name) {
-        for (WuxingType type : values()) {
-            if (type.chineseName.equals(name)) {
-                return type;
-            }
-        }
-        throw new IllegalArgumentException("Unknown WuxingType name: " + name);
     }
 }

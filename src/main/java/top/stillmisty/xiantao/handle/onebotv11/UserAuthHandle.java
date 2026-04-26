@@ -19,21 +19,21 @@ import top.stillmisty.xiantao.handle.command.CultivationCommandHandler;
 @Component
 @RequiredArgsConstructor
 public class UserAuthHandle {
-    
+
     private final CultivationCommandHandler commandHandler;
-    
+
     @Listener
     @ContentTrim
     @Filter("我要修仙 {{nickname}}")
     public void register(OneBotMessageEvent event, @FilterValue("nickname") String nickname) {
         log.info("收到注册请求 - AuthorId: {}, Nickname: {}", event.getAuthorId(), nickname);
-        
+
         String response = commandHandler.handleRegister(
-            PlatformType.ONE_BOT_V11,
-            event.getAuthorId().toString(),
-            nickname
+                PlatformType.ONE_BOT_V11,
+                event.getAuthorId().toString(),
+                nickname
         );
-        
+
         event.replyBlocking(response);
     }
 }

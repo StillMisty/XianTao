@@ -35,14 +35,4 @@ public interface MapNodeRepository {
      * 根据类型查找地图节点
      */
     List<MapNode> findByType(MapType mapType);
-
-    /**
-     * 根据等级范围查找地图节点
-     */
-    List<MapNode> findByLevelRange(Integer minLevel, Integer maxLevel);
-
-    /**
-     * 检查地图名称是否存在
-     */
-    boolean existsByName(String name);
 }

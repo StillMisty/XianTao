@@ -1,6 +1,5 @@
 package top.stillmisty.xiantao.handle.command;
 
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
@@ -18,23 +17,10 @@ public abstract class BaseCommandHandler {
     protected final UserService userService;
 
     /**
-     * 认证结果封装
-     */
-    protected record AuthResult(boolean authenticated, Long userId, String errorMessage) {
-        public static AuthResult success(Long userId) {
-            return new AuthResult(true, userId, null);
-        }
-
-        public static AuthResult failure(String message) {
-            return new AuthResult(false, null, message);
-        }
-    }
-
-    /**
      * 验证用户身份并返回用户ID
      *
      * @param platform 平台类型
-     * @param openId 平台用户ID
+     * @param openId   平台用户ID
      * @return 认证结果
      */
     protected AuthResult authenticate(PlatformType platform, String openId) {
@@ -47,7 +33,7 @@ public abstract class BaseCommandHandler {
     /**
      * 验证用户状态
      *
-     * @param userId 用户ID
+     * @param userId         用户ID
      * @param requiredStatus 期望的用户状态
      * @return 验证结果，如果成功返回null，失败返回错误消息
      */
@@ -71,7 +57,7 @@ public abstract class BaseCommandHandler {
      * 仅验证用户身份和用户实体存在（不检查状态）
      *
      * @param platform 平台类型
-     * @param openId 平台用户ID
+     * @param openId   平台用户ID
      * @return 认证结果
      */
     protected AuthResult authenticateAndValidateUser(PlatformType platform, String openId) {
@@ -105,8 +91,8 @@ public abstract class BaseCommandHandler {
     /**
      * 认证并验证用户状态为指定状态
      *
-     * @param platform 平台类型
-     * @param openId 平台用户ID
+     * @param platform       平台类型
+     * @param openId         平台用户ID
      * @param requiredStatus 期望的用户状态
      * @return 认证结果，包含用户ID或错误消息
      */
@@ -124,5 +110,18 @@ public abstract class BaseCommandHandler {
         }
 
         return authResult;
+    }
+
+    /**
+     * 认证结果封装
+     */
+    protected record AuthResult(boolean authenticated, Long userId, String errorMessage) {
+        public static AuthResult success(Long userId) {
+            return new AuthResult(true, userId, null);
+        }
+
+        public static AuthResult failure(String message) {
+            return new AuthResult(false, null, message);
+        }
     }
 }

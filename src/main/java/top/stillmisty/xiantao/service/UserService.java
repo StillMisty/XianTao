@@ -2,7 +2,6 @@ package top.stillmisty.xiantao.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import love.forte.simbot.common.id.ID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.land.enums.MBTIPersonality;
@@ -26,16 +25,16 @@ import java.util.Random;
 @Transactional
 public class UserService {
 
+    private static final Random RANDOM = new Random();
     private final UserRepository userRepository;
     private final UserAuthRepository userAuthRepository;
     private final FudiService fudiService;
-    private static final Random RANDOM = new Random();
 
     /**
      * 创建新用户（注册）
      *
      * @param platform 平台类型
-     * @param openId 平台用户ID
+     * @param openId   平台用户ID
      * @param nickname 玩家道号
      * @return 注册结果
      */
@@ -72,15 +71,17 @@ public class UserService {
         // 创建授权记录
         UserAuth userAuth = UserAuth.init(platform, openId, user.getId());
         userAuthRepository.save(userAuth);
-        
-        log.info("创建授权记录成功 - UserId: {}, Platform: {}, OpenId: {}", 
-                user.getId(), platform, openId);
+
+        log.info(
+                "创建授权记录成功 - UserId: {}, Platform: {}, OpenId: {}",
+                user.getId(), platform, openId
+        );
 
         // 自动为用户创建福地和地灵（随机分配MBTI人格）
-        MBTIPersonality randomMbti = getRandomMBTI();
-        fudiService.createFudi(user.getId(), randomMbti);
-        
-        log.info("创建福地成功 - UserId: {}, MBTI: {}", user.getId(), randomMbti.getCode());
+        MBTIPersonality randomMBTI = getRandomMBTI();
+        fudiService.createFudi(user.getId(), randomMBTI);
+
+        log.info("创建福地成功 - UserId: {}, MBTI: {}", user.getId(), randomMBTI.getCode());
 
         return new RegisterResult(
                 true,

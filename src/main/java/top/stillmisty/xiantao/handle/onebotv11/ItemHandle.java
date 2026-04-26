@@ -19,9 +19,9 @@ import top.stillmisty.xiantao.handle.command.CultivationCommandHandler;
 @Component
 @RequiredArgsConstructor
 public class ItemHandle {
-    
+
     private final CultivationCommandHandler commandHandler;
-    
+
     /**
      * 处理背包查询命令
      */
@@ -30,15 +30,15 @@ public class ItemHandle {
     @Filter("背包")
     public void inventory(MessageEvent event) {
         log.debug("收到背包查询请求 - AuthorId: {}", event.getAuthorId());
-        
+
         String response = commandHandler.handleInventory(
-            PlatformType.ONE_BOT_V11,
-            event.getAuthorId().toString()
+                PlatformType.ONE_BOT_V11,
+                event.getAuthorId().toString()
         );
-        
+
         event.replyBlocking(response);
     }
-    
+
     /**
      * 处理装备穿戴命令
      * 格式：装备 [物品名]
@@ -48,16 +48,16 @@ public class ItemHandle {
     @Filter("装备 {{itemName}}")
     public void equip(MessageEvent event, @FilterValue("itemName") String itemName) {
         log.debug("收到装备穿戴请求 - AuthorId: {}, ItemName: {}", event.getAuthorId(), itemName);
-        
+
         String response = commandHandler.handleEquip(
-            PlatformType.ONE_BOT_V11,
-            event.getAuthorId().toString(),
-            itemName
+                PlatformType.ONE_BOT_V11,
+                event.getAuthorId().toString(),
+                itemName
         );
-        
+
         event.replyBlocking(response);
     }
-    
+
     /**
      * 处理装备卸下命令
      * 格式：卸下 [部位]
@@ -67,13 +67,13 @@ public class ItemHandle {
     @Filter("卸下 {{slotName}}")
     public void unequip(MessageEvent event, @FilterValue("slotName") String slotName) {
         log.debug("收到装备卸下请求 - AuthorId: {}, SlotName: {}", event.getAuthorId(), slotName);
-        
+
         String response = commandHandler.handleUnequip(
-            PlatformType.ONE_BOT_V11,
-            event.getAuthorId().toString(),
-            slotName
+                PlatformType.ONE_BOT_V11,
+                event.getAuthorId().toString(),
+                slotName
         );
-        
+
         event.replyBlocking(response);
     }
 }

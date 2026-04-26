@@ -101,7 +101,7 @@ public class ItemTemplateRepositoryImpl implements ItemTemplateRepository {
     @Override
     public List<ItemTemplate> findEquipmentByLevelRange(int minLevel, int maxLevel) {
         // 先查询所有装备，然后在内存中过滤
-        return mapper.selectAll().stream()
+        return Objects.requireNonNull(mapper.selectAll()).stream()
                 .filter(t -> t.getType() == ItemType.EQUIPMENT)
                 .filter(t -> {
                     Integer level = t.getEquipLevel();

@@ -28,8 +28,10 @@ public class ExplorationDescriptionFunction {
     @Description("生成探索美化的描述文本，基于地图名称、事件类型和发现物品")
     public Function<ExplorationDescriptionFunction.Request, ExplorationDescriptionFunction.Response> generateExplorationDescription() {
         return request -> {
-            log.debug("生成探索描述 - MapName: {}, EventType: {}, FoundItems: {}",
-                    request.mapName(), request.eventType(), request.foundItems());
+            log.debug(
+                    "生成探索描述 - MapName: {}, EventType: {}, FoundItems: {}",
+                    request.mapName(), request.eventType(), request.foundItems()
+            );
 
             // 生成美化描述
             String description = generateBeautifiedDescription(
@@ -53,10 +55,14 @@ public class ExplorationDescriptionFunction {
 
         // 根据事件类型生成描述
         switch (eventType) {
-            case "发现基础材料" -> sb.append("的探索中，您仔细搜寻着每一个角落。阳光透过树梢洒下，您在一丛灌木下发现了一些有用的基础材料。");
-            case "发现稀有材料" -> sb.append("的深处，凭借您的智慧，您敏锐地察觉到了空气中微弱的灵气波动。经过仔细搜寻，您找到了一些稀有材料！");
-            case "重大发现" -> sb.append("的探索中，您的智慧指引您发现了一个隐秘的角落。除了一些珍贵的稀有材料，您还在一块古老的石碑上发现了一份完整的配方！");
-            case "惊人发现" -> sb.append("的探索中，您的智慧令您震惊！您不仅发现了大量稀有材料，还找到一份失传已久的古老配方。更令您惊喜的是，在一处隐蔽的洞穴中，您发现了一颗散发着神秘光芒的灵蛋！");
+            case "发现基础材料" ->
+                    sb.append("的探索中，您仔细搜寻着每一个角落。阳光透过树梢洒下，您在一丛灌木下发现了一些有用的基础材料。");
+            case "发现稀有材料" ->
+                    sb.append("的深处，凭借您的智慧，您敏锐地察觉到了空气中微弱的灵气波动。经过仔细搜寻，您找到了一些稀有材料！");
+            case "重大发现" ->
+                    sb.append("的探索中，您的智慧指引您发现了一个隐秘的角落。除了一些珍贵的稀有材料，您还在一块古老的石碑上发现了一份完整的配方！");
+            case "惊人发现" ->
+                    sb.append("的探索中，您的智慧令您震惊！您不仅发现了大量稀有材料，还找到一份失传已久的古老配方。更令您惊喜的是，在一处隐蔽的洞穴中，您发现了一颗散发着神秘光芒的灵蛋！");
             default -> sb.append("的探索中，您发现了一些有趣的东西。");
         }
 
@@ -88,7 +94,8 @@ public class ExplorationDescriptionFunction {
             @JsonProperty(value = "foundItems")
             @JsonPropertyDescription("发现的物品名称列表，如['毒龙草', '铁矿石']")
             List<String> foundItems
-    ) {}
+    ) {
+    }
 
     /**
      * 探索描述生成响应
@@ -97,5 +104,6 @@ public class ExplorationDescriptionFunction {
     public record Response(
             @JsonPropertyDescription("美化的探索描述文本")
             String description
-    ) {}
+    ) {
+    }
 }

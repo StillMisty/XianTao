@@ -88,14 +88,12 @@ public class CultivationCommandHandler extends BaseCommandHandler {
         }
 
         // 格式化状态显示
-        StringBuilder sb = new StringBuilder();
-        sb.append(formatCharacterStatus(characterStatus));
-        sb.append("\n\n");
-        
-        // 添加体力信息
-        sb.append(staminaService.getStaminaInfo(authResult.userId()));
-        
-        return sb.toString();
+
+        return formatCharacterStatus(characterStatus) +
+                "\n\n" +
+
+                // 添加体力信息
+                staminaService.getStaminaInfo(authResult.userId());
     }
 
     /**
@@ -305,10 +303,6 @@ public class CultivationCommandHandler extends BaseCommandHandler {
 
         var result = cultivationService.removeProtection(authResult.userId(), protegeNickname);
 
-        if (!result.isSuccess()) {
-            return result.getMessage();
-        }
-
         return result.getMessage();
     }
 
@@ -381,7 +375,7 @@ public class CultivationCommandHandler extends BaseCommandHandler {
 
         // 突破相关信息
         if (status.getBreakthroughSuccessRate() != null) {
-            sb.append(String.format("\n【突破信息】\n"));
+            sb.append("\n【突破信息】\n");
             sb.append(String.format("  突破成功率：%.1f%%\n", status.getBreakthroughSuccessRate()));
             if (status.getBreakthroughFailCount() != null && status.getBreakthroughFailCount() > 0) {
                 sb.append(String.format("  失败次数：%d（已累积补偿）\n", status.getBreakthroughFailCount()));
@@ -534,27 +528,23 @@ public class CultivationCommandHandler extends BaseCommandHandler {
      * 格式化属性分配结果
      */
     private String formatAttributeAllocationResult(AttributeAllocationResult result) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(result.getMessage()).append("\n");
-        sb.append(String.format("当前%s：%d\n", result.getAttributeName(), result.getCurrentAttributeValue()));
-        sb.append(String.format("剩余可用属性点：%d", result.getRemainingPoints()));
-        return sb.toString();
+        return result.getMessage() + "\n" +
+                String.format("当前%s：%d\n", result.getAttributeName(), result.getCurrentAttributeValue()) +
+                String.format("剩余可用属性点：%d", result.getRemainingPoints());
     }
 
     /**
      * 格式化洗点结果
      */
     private String formatStatResetResult(StatResetResult result) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(result.getMessage()).append("\n\n");
-        sb.append("【重置详情】\n");
-        sb.append(String.format("  力量：-%d\n", result.getResetStr()));
-        sb.append(String.format("  体质：-%d\n", result.getResetCon()));
-        sb.append(String.format("  敏捷：-%d\n", result.getResetAgi()));
-        sb.append(String.format("  智慧：-%d\n", result.getResetWis()));
-        sb.append(String.format("\n返还总属性点：%d\n", result.getTotalFreePoints()));
-        sb.append(String.format("下次可洗点时间：%d小时后", result.getCooldownHoursRemaining()));
-        return sb.toString();
+        return result.getMessage() + "\n\n" +
+                "【重置详情】\n" +
+                String.format("  力量：-%d\n", result.getResetStr()) +
+                String.format("  体质：-%d\n", result.getResetCon()) +
+                String.format("  敏捷：-%d\n", result.getResetAgi()) +
+                String.format("  智慧：-%d\n", result.getResetWis()) +
+                String.format("\n返还总属性点：%d\n", result.getTotalFreePoints()) +
+                String.format("下次可洗点时间：%d小时后", result.getCooldownHoursRemaining());
     }
 
     /**
@@ -587,14 +577,12 @@ public class CultivationCommandHandler extends BaseCommandHandler {
      * 格式化护道结果
      */
     private String formatProtectionResult(DaoProtectionResult result) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(result.getMessage()).append("\n\n");
-        sb.append("【护道详情】\n");
-        sb.append(String.format("  护道者：%s（第%d层）\n", result.getProtectorName(), result.getProtectorLevel()));
-        sb.append(String.format("  被护道者：%s（第%d层）\n", result.getProtegeName(), result.getProtegeLevel()));
-        sb.append(String.format("  单人加成：%.1f%%\n", result.getSingleProtectorBonus()));
-        sb.append(String.format("  是否同地点：%s", result.getIsInSameLocation() ? "是" : "否"));
-        return sb.toString();
+        return result.getMessage() + "\n\n" +
+                "【护道详情】\n" +
+                String.format("  护道者：%s（第%d层）\n", result.getProtectorName(), result.getProtectorLevel()) +
+                String.format("  被护道者：%s（第%d层）\n", result.getProtegeName(), result.getProtegeLevel()) +
+                String.format("  单人加成：%.1f%%\n", result.getSingleProtectorBonus()) +
+                String.format("  是否同地点：%s", result.getIsInSameLocation() ? "是" : "否");
     }
 
     /**

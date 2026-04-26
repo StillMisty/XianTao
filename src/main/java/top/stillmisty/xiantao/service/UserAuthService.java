@@ -23,7 +23,7 @@ public class UserAuthService {
      * 根据平台和OpenID查找用户授权
      *
      * @param platform 平台类型
-     * @param openId 平台用户ID
+     * @param openId   平台用户ID
      * @return 用户授权信息
      */
     public Optional<UserAuth> findUserIdByOpenId(PlatformType platform, ID openId) {
@@ -34,13 +34,13 @@ public class UserAuthService {
      * 根据平台和OpenID查找用户授权
      *
      * @param platform 平台类型
-     * @param openId 平台用户ID字符串
+     * @param openId   平台用户ID字符串
      * @return 用户授权信息
      */
     public Optional<UserAuth> findUserIdByOpenId(PlatformType platform, String openId) {
         return userAuthRepository.findByPlatformAndOpenId(platform, openId);
     }
-    
+
     /**
      * 保存用户授权
      *

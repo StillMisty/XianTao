@@ -28,22 +28,21 @@ import java.util.Optional;
 @Transactional
 public class CultivationService {
 
-    private final UserRepository userRepository;
-    private final DaoProtectionRepository daoProtectionRepository;
-    private final MapNodeRepository mapNodeRepository;
-
     // 护道系统常量
     private static final int MAX_PROTECTOR_COUNT = 3; // 护道者最多同时为3人护道
     private static final double BASE_BONUS_PERCENTAGE = 5.0; // 基础加成5%
     private static final double LEVEL_DIFF_BONUS_PERCENTAGE = 1.0; // 每级差距额外1%
     private static final double MAX_TOTAL_BONUS_PERCENTAGE = 20.0; // 总加成上限20%
+    private final UserRepository userRepository;
+    private final DaoProtectionRepository daoProtectionRepository;
+    private final MapNodeRepository mapNodeRepository;
 
     /**
      * 分配属性点
      *
-     * @param userId 用户ID
+     * @param userId        用户ID
      * @param attributeType 属性类型
-     * @param points 点数
+     * @param points        点数
      * @return 分配结果
      */
     public AttributeAllocationResult allocateAttributePoints(Long userId, AttributeType attributeType, int points) {
@@ -100,7 +99,7 @@ public class CultivationService {
         if (!user.canResetPoints()) {
             long hoursRemaining = user.getResetCooldownHoursRemaining();
             LocalDateTime nextResetTime = user.getNextResetTime();
-            
+
             return StatResetResult.builder()
                     .success(false)
                     .message(String.format("道基尚未稳固，距离下次散功重修还需 %d 小时", hoursRemaining))
@@ -191,8 +190,8 @@ public class CultivationService {
                     .build();
         } else {
             // 突破失败
-            long expLoss = expNeeded; // 扣除当前境界升至下境界所需的标准修为值
-            long newExp = Math.max(0, user.getExp() - expLoss);
+            // 扣除当前境界升至下境界所需的标准修为值
+            long newExp = Math.max(0, user.getExp() - expNeeded);
             user.setExp(newExp);
             user.setBreakthroughFailCount(user.getBreakthroughFailCount() + 1);
 
@@ -203,7 +202,7 @@ public class CultivationService {
 
             return BreakthroughResult.builder()
                     .success(true)
-                    .message(String.format("突破失败！道基反噬，损失 %d 修为，当前修为 %d", expLoss, newExp))
+                    .message(String.format("突破失败！道基反噬，损失 %d 修为，当前修为 %d", expNeeded, newExp))
                     .breakthroughSuccess(false)
                     .successRate(finalSuccessRate)
                     .newLevel(user.getLevel())
@@ -217,7 +216,7 @@ public class CultivationService {
     /**
      * 建立护道关系
      *
-     * @param protectorId 护道者ID
+     * @param protectorId     护道者ID
      * @param protegeNickname 被护道者的道号
      * @return 护道结果
      */
@@ -239,8 +238,10 @@ public class CultivationService {
         if (protector.getLevel() < protege.getLevel()) {
             return DaoProtectionResult.builder()
                     .success(false)
-                    .message(String.format("你的境界（第%d层）低于%s（第%d层），无法为其护道", 
-                            protector.getLevel(), protege.getNickname(), protege.getLevel()))
+                    .message(String.format(
+                            "你的境界（第%d层）低于%s（第%d层），无法为其护道",
+                            protector.getLevel(), protege.getNickname(), protege.getLevel()
+                    ))
                     .build();
         }
 
@@ -273,8 +274,10 @@ public class CultivationService {
 
         return DaoProtectionResult.builder()
                 .success(true)
-                .message(String.format("已与%s建立护道契约！当其在同地点突破时，你将提供 %.1f%% 的成功率加成", 
-                        protege.getNickname(), singleBonus))
+                .message(String.format(
+                        "已与%s建立护道契约！当其在同地点突破时，你将提供 %.1f%% 的成功率加成",
+                        protege.getNickname(), singleBonus
+                ))
                 .protectorId(protector.getId())
                 .protectorName(protector.getNickname())
                 .protectorLevel(protector.getLevel())
@@ -289,7 +292,7 @@ public class CultivationService {
     /**
      * 解除护道关系
      *
-     * @param protectorId 护道者ID
+     * @param protectorId     护道者ID
      * @param protegeNickname 被护道者的道号
      * @return 解除结果
      */
@@ -338,23 +341,23 @@ public class CultivationService {
         // 查询正在为谁护道
         List<DaoProtection> protectingList = daoProtectionRepository.findByProtectorId(userId);
         List<ProtectionInfo> protectingInfoList = new ArrayList<>();
-        
+
         for (DaoProtection protection : protectingList) {
             Optional<User> protegeOpt = userRepository.findById(protection.getProtegeId());
             if (protegeOpt.isPresent()) {
                 User protege = protegeOpt.get();
                 boolean inSameLocation = isInSameLocation(user, protege);
                 double bonus = calculateSingleProtectorBonus(user, protege);
-                
+
                 protectingInfoList.add(ProtectionInfo.builder()
-                        .userId(protege.getId())
-                        .userName(protege.getNickname())
-                        .userLevel(protege.getLevel())
-                        .locationId(protege.getLocationId())
-                        .locationName(getMapName(protege.getLocationId()))
-                        .isInSameLocation(inSameLocation)
-                        .bonusPercentage(bonus)
-                        .build());
+                                               .userId(protege.getId())
+                                               .userName(protege.getNickname())
+                                               .userLevel(protege.getLevel())
+                                               .locationId(protege.getLocationId())
+                                               .locationName(getMapName(protege.getLocationId()))
+                                               .isInSameLocation(inSameLocation)
+                                               .bonusPercentage(bonus)
+                                               .build());
             }
         }
 
@@ -369,7 +372,7 @@ public class CultivationService {
             if (protectorOpt.isPresent()) {
                 User protector = protectorOpt.get();
                 boolean inSameLocation = isInSameLocation(user, protector);
-                
+
                 // 只有同地点才提供加成
                 double bonus = 0.0;
                 if (inSameLocation) {
@@ -377,16 +380,16 @@ public class CultivationService {
                     totalBonus += bonus;
                     sameLocationCount++;
                 }
-                
+
                 protectedByInfoList.add(ProtectionInfo.builder()
-                        .userId(protector.getId())
-                        .userName(protector.getNickname())
-                        .userLevel(protector.getLevel())
-                        .locationId(protector.getLocationId())
-                        .locationName(getMapName(protector.getLocationId()))
-                        .isInSameLocation(inSameLocation)
-                        .bonusPercentage(bonus)
-                        .build());
+                                                .userId(protector.getId())
+                                                .userName(protector.getNickname())
+                                                .userLevel(protector.getLevel())
+                                                .locationId(protector.getLocationId())
+                                                .locationName(getMapName(protector.getLocationId()))
+                                                .isInSameLocation(inSameLocation)
+                                                .bonusPercentage(bonus)
+                                                .build());
             }
         }
 
@@ -399,8 +402,10 @@ public class CultivationService {
         } else if (sameLocationCount == 0) {
             message = "虽有道友护道，但皆不在同地点，无法提供加成。";
         } else {
-            message = String.format("共有 %d 位道友为你护道，其中 %d 位在同地点，总加成 %.1f%%", 
-                    protectedByInfoList.size(), sameLocationCount, totalBonus);
+            message = String.format(
+                    "共有 %d 位道友为你护道，其中 %d 位在同地点，总加成 %.1f%%",
+                    protectedByInfoList.size(), sameLocationCount, totalBonus
+            );
         }
 
         return DaoProtectionQueryResult.builder()
@@ -468,7 +473,7 @@ public class CultivationService {
             Optional<User> protectorOpt = userRepository.findById(protection.getProtectorId());
             if (protectorOpt.isPresent()) {
                 User protector = protectorOpt.get();
-                
+
                 // 检查是否在同地点
                 if (isInSameLocation(protector, protege)) {
                     totalBonus += calculateSingleProtectorBonus(protector, protege);

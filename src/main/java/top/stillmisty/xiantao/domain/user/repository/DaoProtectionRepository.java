@@ -41,11 +41,6 @@ public interface DaoProtectionRepository {
     void deleteById(Long id);
 
     /**
-     * 删除特定护道者的所有护道关系
-     */
-    void deleteByProtectorId(Long protectorId);
-
-    /**
      * 删除特定被护道者的所有护道关系
      */
     void deleteByProtegeId(Long protegeId);

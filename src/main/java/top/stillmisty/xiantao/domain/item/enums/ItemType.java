@@ -56,11 +56,13 @@ public enum ItemType {
         this.name = name;
     }
 
-    /**
-     * 检查是否为可堆叠物品
-     */
-    public boolean isStackable() {
-        return this != EQUIPMENT;
+    public static ItemType fromCode(String code) {
+        for (ItemType type : values()) {
+            if (type.code.equalsIgnoreCase(code)) {
+                return type;
+            }
+        }
+        return null;
     }
 
     /**
@@ -75,21 +77,5 @@ public enum ItemType {
      */
     public boolean isAlchemyItem() {
         return this == HERB || this == POTION;
-    }
-
-    /**
-     * 检查是否需要标签字段
-     */
-    public boolean requiresTags() {
-        return this == MATERIAL || this == HERB || this == POTION || this == GIFT;
-    }
-
-    public static ItemType fromCode(String code) {
-        for (ItemType type : values()) {
-            if (type.code.equalsIgnoreCase(code)) {
-                return type;
-            }
-        }
-        return null;
     }
 }

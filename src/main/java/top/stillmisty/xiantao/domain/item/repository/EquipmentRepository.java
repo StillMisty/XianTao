@@ -17,11 +17,6 @@ public interface EquipmentRepository {
     Equipment save(Equipment equipment);
 
     /**
-     * 批量保存装备
-     */
-    List<Equipment> saveAll(List<Equipment> equipments);
-
-    /**
      * 根据ID查找装备
      */
     Optional<Equipment> findById(Long id);
@@ -42,17 +37,7 @@ public interface EquipmentRepository {
     Optional<Equipment> findEquippedByUserIdAndSlot(Long userId, EquipmentSlot slot);
 
     /**
-     * 根据ID列表批量查找装备
-     */
-    List<Equipment> findByIds(List<Long> ids);
-
-    /**
      * 删除装备
      */
     void deleteById(Long id);
-
-    /**
-     * 批量删除装备
-     */
-    void deleteByIds(List<Long> ids);
 }

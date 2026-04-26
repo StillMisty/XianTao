@@ -53,19 +53,8 @@ public enum TravelEventType {
     }
 
     /**
-     * 根据中文名称查找事件类型
-     */
-    public static TravelEventType fromChineseName(String name) {
-        for (TravelEventType type : values()) {
-            if (type.name.equals(name)) {
-                return type;
-            }
-        }
-        return null;
-    }
-
-    /**
      * 根据权重随机获取事件类型
+     *
      * @param eventTypeWeights 事件权重表 (eventTypeName -> weight)
      * @return 随机事件类型
      */
