@@ -77,7 +77,7 @@ public class TravelService {
         MapNode targetMap = targetMapOpt.get();
 
         // 检查是否相邻
-        if (currentMap.isAdjacentTo(targetMap.getName())) {
+        if (!currentMap.isAdjacentTo(targetMap.getName())) {
             return TravelResultVO.builder()
                     .success(false)
                     .message(String.format("%s 与 %s 不相邻，无法直接前往", currentMap.getName(), targetMap.getName()))
@@ -85,7 +85,7 @@ public class TravelService {
         }
 
         // 检查等级要求
-        if (targetMap.isAccessibleBy(user.getLevel())) {
+        if (!targetMap.isAccessibleBy(user.getLevel())) {
             return TravelResultVO.builder()
                     .success(false)
                     .message(String.format("您需要达到 %d 级才能前往 %s", targetMap.getLevelRequirement(), targetMap.getName()))

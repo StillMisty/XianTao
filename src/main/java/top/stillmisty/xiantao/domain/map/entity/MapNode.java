@@ -92,8 +92,8 @@ public class MapNode extends Model<MapNode> {
      * 检查玩家等级是否满足要求
      */
     public boolean isAccessibleBy(int playerLevel) {
-        if (levelRequirement == null) return false;
-        return playerLevel < levelRequirement;
+        if (levelRequirement == null) return true;
+        return playerLevel >= levelRequirement;
     }
 
     /**
@@ -108,8 +108,8 @@ public class MapNode extends Model<MapNode> {
      * 检查是否与指定地图相邻
      */
     public boolean isAdjacentTo(String mapName) {
-        if (neighbors == null) return true;
-        return !neighbors.containsKey(mapName);
+        if (neighbors == null) return false;
+        return neighbors.containsKey(mapName);
     }
 
     /**
