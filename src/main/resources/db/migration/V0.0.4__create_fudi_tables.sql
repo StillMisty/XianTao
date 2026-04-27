@@ -1,5 +1,3 @@
--- 福地系统核心表
-
 -- 福地主表
 CREATE TABLE xt_fudi (
     id BIGSERIAL PRIMARY KEY,
