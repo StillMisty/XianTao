@@ -163,15 +163,6 @@ public class SpiritPromptTemplates {
                         
                         %s
                         
-                        【可用工具】
-                        你可以调用以下工具来管理福地：
-                        1. plantCrop(position, cropName) - 种植灵药
-                        2. harvestCrop(position) - 收获灵药（position可以是"all"表示全部收获）
-                        3. buildCell(position, cellType) - 建造地块（cellType: 灵田/兽栏/阵眼）
-                        4. removeCell(position) - 拆除地块
-                        5. sacrificeItem(itemName) - 献祭物品换取灵气
-                        6. feedBeast(position, feedName) - 喂养灵兽
-                        
                         【重要规则】
                         1. 根据用户的自然语言指令和当前福地状态，自主判断需要调用哪个工具
                         2. 如果用户说“随便种点东西”，你应该选择一个空闲位置种植默认作物（如“灵草”）
