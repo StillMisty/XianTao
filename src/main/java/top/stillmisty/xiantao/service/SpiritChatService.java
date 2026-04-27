@@ -6,7 +6,6 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.config.SpiritPromptTemplates;
 import top.stillmisty.xiantao.domain.land.entity.Fudi;
-import top.stillmisty.xiantao.domain.land.enums.SpiritStage;
 import top.stillmisty.xiantao.domain.land.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 
@@ -36,60 +35,17 @@ public class SpiritChatService {
         return new ServiceResult.Success<>(chatWithSpirit(auth.userId(), userInput));
     }
 
-    public ServiceResult<String> processSpiritInteraction(PlatformType platform, String openId, String userInput) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
-        return new ServiceResult.Success<>(processSpiritInteraction(auth.userId(), userInput));
-    }
-
     // ===================== 内部 API（需预先完成认证） =====================
 
     /**
-     * 与地灵进行 MBTI 人格化对话
-     * 单次会话，无记忆
+     * 与地灵进行自然语言交互（统一 Function Calling 模式）
+     * 使用 Spring AI 的 Function Calling 机制，让 LLM 自主决定是纯聊天还是调用工具
      *
      * @param userId    用户 ID
      * @param userInput 用户输入
      * @return 地灵的人格化回复
      */
     public String chatWithSpirit(Long userId, String userInput) {
-        try {
-            Fudi fudi = fudiRepository.findByUserId(userId)
-                    .orElseThrow(() -> new IllegalStateException("未找到福地"));
-
-            // 更新灵气（懒加载）
-            fudi.updateAura();
-            fudi.updateEmotionState();
-
-            // 构建系统提示词
-            String systemPrompt = buildSystemPrompt(fudi);
-
-            // 调用 LLM
-            String response = spiritChatClient.prompt()
-                    .system(systemPrompt)
-                    .user(userInput)
-                    .call()
-                    .content();
-
-            log.info("地灵对话成功 - userId: {}, mbti: {}, input: {}", userId, fudi.getMbtiType(), userInput);
-            return response;
-
-        } catch (Exception e) {
-            log.error("地灵对话失败 - userId: {}, error: {}", userId, e.getMessage(), e);
-            return "地灵暂时无法回应，请稍后再试。";
-        }
-    }
-
-
-    /**
-     * 处理 @地灵 自然语言交互（完整流程：Function Calling -> 人格化回复）
-     * 使用 Spring AI 的 Function Calling 机制，让 LLM 自主决定调用哪个工具
-     *
-     * @param userId    用户 ID
-     * @param userInput 用户输入
-     * @return 最终回复
-     */
-    public String processSpiritInteraction(Long userId, String userInput) {
         // 设置用户上下文，供 SpiritTools 使用
         UserContext.setCurrentUserId(userId);
         try {
@@ -100,8 +56,8 @@ public class SpiritChatService {
             fudi.updateAura();
             fudi.updateEmotionState();
 
-            // 构建系统提示词，包含福地详细状态
-            String systemPrompt = buildSystemPromptWithFullState(fudi);
+            // 构建系统提示词
+            String systemPrompt = buildPrompt(fudi);
 
             // 使用 Function Calling，LLM 会根据用户输入和福地状态自主决定调用哪个工具
             String response = spiritChatClient.prompt()
@@ -111,11 +67,11 @@ public class SpiritChatService {
                     .call()
                     .content();
 
-            log.info("地灵交互完成 - userId: {}, input: {}", userId, userInput);
+            log.info("地灵对话成功 - userId: {}, mbti: {}, input: {}", userId, fudi.getMbtiType(), userInput);
             return response;
 
         } catch (Exception e) {
-            log.error("地灵交互失败 - userId: {}, error: {}", userId, e.getMessage(), e);
+            log.error("地灵对话失败 - userId: {}, error: {}", userId, e.getMessage(), e);
             return "地灵暂时无法回应，请稍后再试。";
         } finally {
             // 清除用户上下文，防止内存泄漏
@@ -126,70 +82,22 @@ public class SpiritChatService {
     // ===================== 辅助方法 =====================
 
     /**
-     * 构建包含完整福地状态的系统提示词（用于 Function Calling）
+     * 构建统一的地灵 Function Calling 系统提示词
      */
-    private String buildSystemPromptWithFullState(Fudi fudi) {
-        String emoji = determineEmoji(fudi);
+    private String buildPrompt(Fudi fudi) {
         String gridDetail = buildGridDetailForLLM(fudi);
         String emotionState = fudi.getEmotionState().getDescription();
 
-        return promptTemplates.buildFunctionCallingPrompt(
+        return promptTemplates.buildSpiritPrompt(
                 fudi.getMbtiType(),
-                emoji,
                 fudi.getAuraCurrent(),
                 fudi.getAuraMax(),
-                fudi.getSpiritLevel(),
+                fudi.getCoreLevel(),
                 fudi.getSpiritEnergy(),
                 fudi.getSpiritAffection(),
                 gridDetail,
                 emotionState
         );
-    }
-
-    /**
-     * 构建系统提示词（根据地灵形态阶段）- 保留用于纯对话场景
-     */
-    private String buildSystemPrompt(Fudi fudi) {
-        String emoji = determineEmoji(fudi);
-
-        // 阶段二及以上使用详细信息
-        if (fudi.getSpiritStage() != SpiritStage.STAGE_1) {
-            String gridSummary = buildGridDetailForLLM(fudi);  // 使用新方法
-            String emotionState = fudi.getEmotionState().getDescription();
-
-            return promptTemplates.buildDetailedSpiritChatPrompt(
-                    fudi.getMbtiType(),
-                    emoji,
-                    fudi.getAuraCurrent(),
-                    fudi.getAuraMax(),
-                    fudi.getSpiritLevel(),
-                    fudi.getSpiritEnergy(),
-                    gridSummary,
-                    emotionState
-            );
-        }
-
-        return promptTemplates.buildSpiritChatPrompt(
-                fudi.getMbtiType(),
-                emoji,
-                fudi.getAuraCurrent(),
-                fudi.getAuraMax(),
-                fudi.getSpiritLevel(),
-                fudi.getSpiritEnergy()
-        );
-    }
-
-    /**
-     * 根据地灵 MBTI 和五行确定 Emoji
-     */
-    private String determineEmoji(Fudi fudi) {
-        return switch (fudi.getMbtiType().getCategory()) {
-            case "理性" -> "⚙️";
-            case "理想" -> "🌸";
-            case "行动" -> "🔥";
-            case "关怀" -> "🌊";
-            default -> "🐾";
-        };
     }
 
     /**
@@ -399,6 +307,4 @@ public class SpiritChatService {
             // 解析失败，保持原值
         }
     }
-
-
 }

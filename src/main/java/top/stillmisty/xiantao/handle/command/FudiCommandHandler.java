@@ -136,14 +136,6 @@ public class FudiCommandHandler {
 
     public String handleSpiritChat(PlatformType platform, String openId, String userInput) {
         log.info("处理地灵自然语言交互 - platform: {}, input: {}", platform, userInput);
-        return switch (spiritChatService.processSpiritInteraction(platform, openId, userInput)) {
-            case ServiceResult.Failure(var msg) -> msg;
-            case ServiceResult.Success(var response) -> response;
-        };
-    }
-
-    public String handleSpiritPureChat(PlatformType platform, String openId, String userInput) {
-        log.info("处理地灵纯对话 - platform: {}, input: {}", platform, userInput);
         return switch (spiritChatService.chatWithSpirit(platform, openId, userInput)) {
             case ServiceResult.Failure(var msg) -> msg;
             case ServiceResult.Success(var response) -> response;
@@ -158,9 +150,8 @@ public class FudiCommandHandler {
         sb.append("━━━━━━━━━━━━━━━\n");
         sb.append("🔮 灵气：").append(status.getAuraCurrent()).append("/").append(status.getAuraMax()).append("\n");
         sb.append("⚡ 每小时消耗：").append(status.getAuraHourlyCost()).append(" 灵气\n");
-        sb.append("🌟 地灵等级：Lv.").append(status.getSpiritLevel()).append("\n");
-        sb.append("🎭 地灵人格：").append(status.getMbtiType().getCode()).append("（").append(status.getMbtiType().getTitle()).append("）\n");
-        sb.append("📊 形态阶段：").append(status.getSpiritStage().getName()).append("\n");
+        sb.append("🏰 福地等级：Lv.").append(status.getCoreLevel()).append("\n");
+        sb.append("🎭 地灵人格：").append(status.getMbtiType().getCode()).append("\n");
         sb.append("😊 地灵情绪：").append(status.getEmotionState().getEmoji()).append(" ").append(status.getEmotionState().getDescription()).append("\n");
         sb.append("⚙️ 自动管理：").append(status.getAutoMode() ? "✅ 开启" : "❌ 关闭").append("\n");
         sb.append("🛌 蛰伏模式：").append(status.getDormantMode() ? "⚠️ 激活" : "✅ 未激活").append("\n");
@@ -222,11 +213,9 @@ public class FudiCommandHandler {
     private String formatSpiritInfo(FudiStatusVO status) {
         return "🧚 【地灵信息】\n" +
                 "━━━━━━━━━━━━━━━\n" +
-                "MBTI人格：" + status.getMbtiType().getCode() + "（" + status.getMbtiType().getTitle() + "）\n" +
-                "基础表情：" + status.getMbtiType().getEmoji() + "\n" +
-                "形态阶段：" + status.getSpiritStage().getName() + "\n" +
-                "  ┗ 特性：" + status.getSpiritStage().getFeatures() + "\n" +
-                "地灵等级：Lv." + status.getSpiritLevel() + "\n" +
+                "MBTI人格：" + status.getMbtiType().getCode() + "\n" +
+                "语气风格：" + status.getMbtiType().getToneStyle() + "\n" +
+                "福地等级：Lv." + status.getCoreLevel() + "\n" +
                 "好感度：" + status.getSpiritAffection() + " 点\n" +
                 "精力值：" + status.getSpiritEnergy() + "/100\n" +
                 "当前情绪：" + status.getEmotionState().getEmoji() + " " + status.getEmotionState().getDescription() + "\n" +

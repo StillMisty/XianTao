@@ -10,7 +10,6 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import top.stillmisty.xiantao.domain.land.enums.EmotionState;
 import top.stillmisty.xiantao.domain.land.enums.MBTIPersonality;
-import top.stillmisty.xiantao.domain.land.enums.SpiritStage;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
 
 import java.time.LocalDateTime;
@@ -58,19 +57,9 @@ public class Fudi extends Model<Fudi> {
     private Integer gridSize;
 
     /**
-     * 地灵等级
-     */
-    private Integer spiritLevel;
-
-    /**
      * 地灵MBTI人格类型（锁定）
      */
     private MBTIPersonality mbtiType;
-
-    /**
-     * 地灵当前形态阶段
-     */
-    private SpiritStage spiritStage;
 
     /**
      * 地灵当前精力值（0-100）

@@ -124,9 +124,6 @@ public class FudiService {
             throw new IllegalStateException("用户已拥有福地");
         }
 
-        // 根据MBTI和五行确定初始Emoji
-        String baseEmoji = determineBaseEmoji(mbtiType);
-
         // 初始化福地
         Fudi fudi = Fudi.create();
         fudi.setUserId(userId);
@@ -134,9 +131,7 @@ public class FudiService {
         fudi.setAuraMax(1000); // 初始灵气上限
         fudi.setCoreLevel(1);
         fudi.setGridSize(3);
-        fudi.setSpiritLevel(1);
         fudi.setMbtiType(mbtiType);
-        fudi.setSpiritStage(SpiritStage.STAGE_1);
         fudi.setSpiritEnergy(100);
         fudi.setSpiritAffection(0);
         fudi.setEmotionState(EmotionState.CALM);
@@ -154,29 +149,14 @@ public class FudiService {
         // 初始化地灵配置
         Map<String, Object> spiritConfig = new HashMap<>();
         spiritConfig.put("mbti_type", mbtiType.getCode());
-        spiritConfig.put("base_emoji", baseEmoji);
-        spiritConfig.put("current_stage", 1);
+        spiritConfig.put("tone_style", mbtiType.getToneStyle());
         spiritConfig.put("emotion_state", "calm");
-        spiritConfig.put("expression_variants", List.of("😊", "😐", "😰", "😴", "😤", "🥳"));
         fudi.setSpiritConfig(spiritConfig);
 
         fudi.setLastAuraUpdate(LocalDateTime.now());
         fudi.setLastOnlineTime(LocalDateTime.now());
 
         return fudiRepository.save(fudi);
-    }
-
-    /**
-     * 根据MBTI确定基础Emoji
-     */
-    private String determineBaseEmoji(MBTIPersonality mbti) {
-        return switch (mbti.getCategory()) {
-            case "理性" -> "⚙️";
-            case "理想" -> "🌸";
-            case "行动" -> "🔥";
-            case "关怀" -> "🌊";
-            default -> "🐾";
-        };
     }
 
     /**
@@ -218,9 +198,7 @@ public class FudiService {
                 .auraHourlyCost(fudi.calculateHourlyAuraCost())
                 .coreLevel(fudi.getCoreLevel())
                 .gridSize(fudi.getGridSize())
-                .spiritLevel(fudi.getSpiritLevel())
                 .mbtiType(fudi.getMbtiType())
-                .spiritStage(fudi.getSpiritStage())
                 .spiritEnergy(fudi.getSpiritEnergy())
                 .spiritAffection(fudi.getSpiritAffection())
                 .emotionState(fudi.getEmotionState())

@@ -82,25 +82,6 @@ public class FudiHandle {
     }
 
     /**
-     * 处理 @地灵 纯对话（不执行操作）
-     * 例如："地灵 你好"、"地灵 今天怎么样"
-     */
-    @Listener
-    @ContentTrim
-    @Filter("地灵聊天 {{content}}")
-    public void handleFudiSpiritPureChat(MessageEvent event, @FilterValue("content") String content) {
-        log.debug("收到地灵纯对话请求 - AuthorId: {}, Content: {}", event.getAuthorId(), content);
-
-        String response = fudiCommandHandler.handleSpiritPureChat(
-                PlatformType.ONE_BOT_V11,
-                event.getAuthorId().toString(),
-                content
-        );
-
-        event.replyBlocking(response);
-    }
-
-    /**
      * 种植 <坐标> <作物名称>
      */
     @Listener

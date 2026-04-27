@@ -14,9 +14,7 @@ CREATE TABLE xt_fudi (
     grid_size INTEGER NOT NULL DEFAULT 3, -- 网格大小（3/4/5）
     
     -- 地灵信息
-    spirit_level INTEGER NOT NULL DEFAULT 1, -- 地灵等级
     mbti_type VARCHAR(4) NOT NULL, -- MBTI人格类型（如INTJ）
-    spirit_stage INTEGER NOT NULL DEFAULT 1, -- 地灵形态阶段（1/2/3）
     spirit_energy INTEGER NOT NULL DEFAULT 100, -- 地灵精力值（0-100）
     spirit_affection INTEGER NOT NULL DEFAULT 0, -- 地灵好感度
     emotion_state VARCHAR(20) NOT NULL DEFAULT 'calm', -- 情绪状态
@@ -63,9 +61,8 @@ COMMENT ON COLUMN xt_fudi.aura_current IS '当前灵气值';
 COMMENT ON COLUMN xt_fudi.aura_max IS '灵气上限（由聚灵核心等级决定）';
 COMMENT ON COLUMN xt_fudi.core_level IS '聚灵核心等级';
 COMMENT ON COLUMN xt_fudi.grid_size IS '福地网格大小（3/4/5）';
-COMMENT ON COLUMN xt_fudi.spirit_level IS '地灵等级';
+COMMENT ON COLUMN xt_fudi.core_level IS '聚灵核心等级（福地等级）';
 COMMENT ON COLUMN xt_fudi.mbti_type IS '地灵MBTI人格类型（锁定，不可更改）';
-COMMENT ON COLUMN xt_fudi.spirit_stage IS '地灵形态阶段（1=初创之灵/2=底蕴之灵/3=化形之灵）';
 COMMENT ON COLUMN xt_fudi.spirit_energy IS '地灵精力值（0-100，每天恢复100点）';
 COMMENT ON COLUMN xt_fudi.spirit_affection IS '地灵好感度';
 COMMENT ON COLUMN xt_fudi.emotion_state IS '地灵当前情绪状态';

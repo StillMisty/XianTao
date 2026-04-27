@@ -4,7 +4,6 @@ import lombok.Builder;
 import lombok.Data;
 import top.stillmisty.xiantao.domain.land.enums.EmotionState;
 import top.stillmisty.xiantao.domain.land.enums.MBTIPersonality;
-import top.stillmisty.xiantao.domain.land.enums.SpiritStage;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -51,19 +50,9 @@ public class FudiStatusVO {
     private Integer gridSize;
 
     /**
-     * 地灵等级
-     */
-    private Integer spiritLevel;
-
-    /**
      * 地灵MBTI人格
      */
     private MBTIPersonality mbtiType;
-
-    /**
-     * 地灵形态阶段
-     */
-    private SpiritStage spiritStage;
 
     /**
      * 地灵精力值
