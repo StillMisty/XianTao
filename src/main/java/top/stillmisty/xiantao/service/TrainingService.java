@@ -4,6 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
+import top.stillmisty.xiantao.domain.item.enums.ItemType;
+import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
 import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
 import top.stillmisty.xiantao.domain.map.vo.TrainingRewardVO;
@@ -35,6 +38,8 @@ public class TrainingService {
     private final UserRepository userRepository;
     private final MapNodeRepository mapNodeRepository;
     private final AuthenticationService authService;
+    private final ItemService itemService;
+    private final ItemTemplateRepository itemTemplateRepository;
 
     // ===================== 公开 API（含认证） =====================
 
@@ -159,11 +164,16 @@ public class TrainingService {
             user.setSpiritStones(user.getSpiritStones() + rewards.getSpiritStones());
         }
 
-        // TODO: 添加物品到背包（需要调用 ItemService）
-        // 这里暂时只记录日志
+        // 添加物品到背包
         if (rewards.getItems() != null && !rewards.getItems().isEmpty()) {
             for (Map<String, Object> item : rewards.getItems()) {
-                log.info("添加物品到用户 {} 的背包: {} x{}", userId, item.get("name"), item.get("quantity"));
+                String name = (String) item.get("name");
+                Long templateId = toLong(item.get("templateId"));
+                int quantity = ((Number) item.get("quantity")).intValue();
+                ItemType itemType = itemTemplateRepository.findById(templateId)
+                        .map(ItemTemplate::getType)
+                        .orElse(ItemType.MATERIAL);
+                itemService.addStackableItem(userId, templateId, itemType, name, quantity);
             }
         }
 
@@ -202,10 +212,16 @@ public class TrainingService {
             user.setSpiritStones(user.getSpiritStones() + rewards.getSpiritStones());
         }
 
-        // TODO: 添加物品到背包（需要调用 ItemService）
+        // 添加物品到背包
         if (rewards.getItems() != null && !rewards.getItems().isEmpty()) {
             for (Map<String, Object> item : rewards.getItems()) {
-                log.info("添加物品到用户 {} 的背包: {} x{}", userId, item.get("name"), item.get("quantity"));
+                String name = (String) item.get("name");
+                Long templateId = toLong(item.get("templateId"));
+                int quantity = ((Number) item.get("quantity")).intValue();
+                ItemType itemType = itemTemplateRepository.findById(templateId)
+                        .map(ItemTemplate::getType)
+                        .orElse(ItemType.MATERIAL);
+                itemService.addStackableItem(userId, templateId, itemType, name, quantity);
             }
         }
 
@@ -317,5 +333,14 @@ public class TrainingService {
         }
 
         return items;
+    }
+
+    /**
+     * 安全转换为 Long
+     */
+    private Long toLong(Object value) {
+        if (value instanceof Long longVal) return longVal;
+        if (value instanceof Number number) return number.longValue();
+        throw new IllegalArgumentException("无法转换为 Long: " + value);
     }
 }

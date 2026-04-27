@@ -4,6 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
+import top.stillmisty.xiantao.domain.item.enums.ItemType;
+import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
 import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
 import top.stillmisty.xiantao.domain.map.vo.ExplorationResultVO;
@@ -31,6 +34,8 @@ public class ExplorationService {
     private final ExplorationDescriptionFunction explorationDescriptionFunction;
     private final StaminaService staminaService;
     private final AuthenticationService authService;
+    private final ItemService itemService;
+    private final ItemTemplateRepository itemTemplateRepository;
 
     // ===================== 公开 API（含认证） =====================
 
@@ -80,10 +85,16 @@ public class ExplorationService {
         user.addExp(expGained);
         result.setExpGained(expGained);
 
-        // TODO: 添加物品到背包
+        // 添加物品到背包
         if (result.getFoundItems() != null && !result.getFoundItems().isEmpty()) {
             for (Map<String, Object> item : result.getFoundItems()) {
-                log.info("用户 {} 探索获得物品: {} x{}", userId, item.get("name"), item.get("quantity"));
+                String name = (String) item.get("name");
+                Long templateId = toLong(item.get("templateId"));
+                int quantity = ((Number) item.get("quantity")).intValue();
+                ItemType itemType = itemTemplateRepository.findById(templateId)
+                        .map(ItemTemplate::getType)
+                        .orElse(ItemType.MATERIAL);
+                itemService.addStackableItem(userId, templateId, itemType, name, quantity);
             }
         }
 
@@ -234,5 +245,14 @@ public class ExplorationService {
         // 基础经验 10，每点智慧增加 2 经验
         // 地图等级越高，获得的经验越多（每级增加 5 经验）
         return 10 + (wisdom * 2L) + (mapLevel * 5L);
+    }
+
+    /**
+     * 安全转换为 Long
+     */
+    private Long toLong(Object value) {
+        if (value instanceof Long longVal) return longVal;
+        if (value instanceof Number number) return number.longValue();
+        throw new IllegalArgumentException("无法转换为 Long: " + value);
     }
 }
