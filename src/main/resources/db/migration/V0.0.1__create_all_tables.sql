@@ -153,7 +153,7 @@ CREATE TABLE xt_item_template (
 COMMENT ON TABLE xt_item_template IS '物品模板配置表';
 COMMENT ON COLUMN xt_item_template.id IS '模板ID';
 COMMENT ON COLUMN xt_item_template.name IS '物品名称';
-COMMENT ON COLUMN xt_item_template.type IS '物品类型';
+COMMENT ON COLUMN xt_item_template.type IS '物品类型 (EQUIPMENT, MATERIAL, SEED, SPIRIT_EGG, CONSUMABLE, HERB, POTION, GIFT, EVOLUTION_STONE, BEAST_EGG, BEAST_MATERIAL)';
 COMMENT ON COLUMN xt_item_template.rarity IS '稀有度';
 COMMENT ON COLUMN xt_item_template.slot IS '装备部位 (仅装备类)';
 COMMENT ON COLUMN xt_item_template.equip_level IS '装备等级（仅装备类，用于计算词条数值）';
@@ -162,7 +162,7 @@ COMMENT ON COLUMN xt_item_template.base_attack IS '基础攻击力';
 COMMENT ON COLUMN xt_item_template.base_defense IS '基础防御力';
 COMMENT ON COLUMN xt_item_template.drop_weight IS '掉落权重 JSONB（仅装备类），示例: {"BROKEN": 50, "COMMON": 30, "RARE": 15, "EPIC": 4, "LEGENDARY": 1}';
 COMMENT ON COLUMN xt_item_template.tags IS '物品标签 JSONB，用于AI检索和NPC交互，示例: ["ore", "metal", "forge_base"]';
-COMMENT ON COLUMN xt_item_template.grow_time IS '生长时间（小时，仅种子/灵蛋）';
+COMMENT ON COLUMN xt_item_template.grow_time IS '生长/孵化时间（小时，种子/灵蛋/灵兽卵）';
 COMMENT ON COLUMN xt_item_template.yield_id IS '成熟后产出的物品模板ID（仅种子/灵蛋）';
 COMMENT ON COLUMN xt_item_template.survive_rate IS '存活率百分比（仅种子/灵蛋）';
 COMMENT ON COLUMN xt_item_template.max_stack IS '最大堆叠数量';
@@ -247,7 +247,7 @@ COMMENT ON TABLE xt_inventory_item IS '物品实例表 (堆叠类物品)';
 COMMENT ON COLUMN xt_inventory_item.id IS '物品实例ID';
 COMMENT ON COLUMN xt_inventory_item.user_id IS '持有者用户ID';
 COMMENT ON COLUMN xt_inventory_item.template_id IS '物品模板ID';
-COMMENT ON COLUMN xt_inventory_item.item_type IS '物品类型 (MATERIAL, SEED, SPIRIT_EGG, CONSUMABLE)';
+COMMENT ON COLUMN xt_inventory_item.item_type IS '物品类型 (MATERIAL, SEED, SPIRIT_EGG, CONSUMABLE, HERB, POTION, GIFT, EVOLUTION_STONE, BEAST_EGG, BEAST_MATERIAL)';
 COMMENT ON COLUMN xt_inventory_item.name IS '物品名称 (从模板复制)';
 COMMENT ON COLUMN xt_inventory_item.quantity IS '数量';
 COMMENT ON COLUMN xt_inventory_item.tags IS '物品标签 JSONB，用于AI检索和NPC交互';
@@ -344,3 +344,23 @@ INSERT INTO xt_item_template (name, type, base_stat_bonus, tags, description, ma
 ('赤火莲', 'HERB', '{"str":3,"con":0,"agi":0,"wis":2}'::jsonb, '["herb", "fire", "rare", "harvest"]'::jsonb, '火属性仙草，炼制火系丹药的主材', 50),
 ('玄冰莲', 'HERB', '{"str":0,"con":3,"agi":0,"wis":2}'::jsonb, '["herb", "ice", "rare", "harvest"]'::jsonb, '冰属性仙草，炼制冰系丹药的主材', 50),
 ('金芝', 'HERB', '{"str":5,"con":5,"agi":0,"wis":5}'::jsonb, '["herb", "gold", "legendary", "harvest"]'::jsonb, '传说中的金芝，极为珍贵的仙草', 5);
+
+-- 进化石
+INSERT INTO xt_item_template (name, type, tags, description, max_stack) VALUES
+('进化石', 'EVOLUTION_STONE', '["evolution", "rare"]'::jsonb, '蕴含天地精华的灵石，可用于灵兽进化与品质突破', 50);
+
+-- 灵兽卵
+INSERT INTO xt_item_template (name, type, tags, grow_time, yield_id, survive_rate, description, max_stack) VALUES
+('灵狐卵', 'BEAST_EGG', '["beast_egg", "common"]'::jsonb, 72, 'beast_fox', 80, '孵化后可获得灵狐，等阶T1，需72小时', 10),
+('灵鹤卵', 'BEAST_EGG', '["beast_egg", "common"]'::jsonb, 72, 'beast_crane', 80, '孵化后可获得灵鹤，等阶T1，需72小时', 10),
+('火麟卵', 'BEAST_EGG', '["beast_egg", "fire", "rare"]'::jsonb, 96, 'beast_kirin', 65, '孵化后可获得火麒麟，等阶T2，需96小时', 5),
+('玄龟卵', 'BEAST_EGG', '["beast_egg", "water", "rare"]'::jsonb, 96, 'beast_turtle', 65, '孵化后可获得玄龟，等阶T2，需96小时', 5),
+('金龙卵', 'BEAST_EGG', '["beast_egg", "gold", "legendary"]'::jsonb, 168, 'beast_gold_dragon', 30, '孵化后可获得金龙，等阶T4，需168小时', 1);
+
+-- 灵兽材料（产出物）
+INSERT INTO xt_item_template (name, type, tags, description, max_stack) VALUES
+('灵狐毛皮', 'BEAST_MATERIAL', '["beast_material", "common"]'::jsonb, '灵狐自然脱落的毛皮，蕴含微弱灵气', 99),
+('灵鹤翎羽', 'BEAST_MATERIAL', '["beast_material", "common"]'::jsonb, '灵鹤脱落的翎羽，轻若无物', 99),
+('火麟鳞片', 'BEAST_MATERIAL', '["beast_material", "fire", "rare"]'::jsonb, '火麒麟脱落的神鳞，蕴含火属灵气', 50),
+('玄龟甲片', 'BEAST_MATERIAL', '["beast_material", "water", "rare"]'::jsonb, '玄龟自然脱落的甲壳碎片，极为坚韧', 50),
+('金龙鳞', 'BEAST_MATERIAL', '["beast_material", "gold", "legendary"]'::jsonb, '金龙脱落的鳞片，蕴含龙脉之气', 20);

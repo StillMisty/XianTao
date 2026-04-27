@@ -180,22 +180,92 @@ public class FudiHandle {
     }
 
     /**
-     * 喂养 <坐标> <饲料名称>
+     * 升级 <坐标>
      */
     @Listener
     @ContentTrim
-    @Filter("喂养 {{position}} {{feedItem}}")
-    public void handleFeed(MessageEvent event, @FilterValue("position") String position, @FilterValue("feedItem") String feedItem) {
-        log.debug(
-                "收到喂养请求 - AuthorId: {}, Position: {}, FeedItem: {}",
-                event.getAuthorId(), position, feedItem
+    @Filter("升级 {{position}}")
+    public void handleUpgradeCell(MessageEvent event, @FilterValue("position") String position) {
+        log.debug("收到升级请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
+
+        String response = fudiCommandHandler.handleUpgradeCell(
+                PlatformType.ONE_BOT_V11,
+                event.getAuthorId().toString(),
+                position
         );
 
-        String response = fudiCommandHandler.handleFeed(
+        event.replyBlocking(response);
+    }
+
+    /**
+     * 孵化 <坐标> <兽卵名>
+     */
+    @Listener
+    @ContentTrim
+    @Filter("孵化 {{position}} {{eggName}}")
+    public void handleHatch(MessageEvent event, @FilterValue("position") String position, @FilterValue("eggName") String eggName) {
+        log.debug("收到孵化请求 - AuthorId: {}, Position: {}, EggName: {}", event.getAuthorId(), position, eggName);
+
+        String response = fudiCommandHandler.handleHatch(
                 PlatformType.ONE_BOT_V11,
                 event.getAuthorId().toString(),
                 position,
-                feedItem
+                eggName
+        );
+
+        event.replyBlocking(response);
+    }
+
+    /**
+     * 收取 <坐标> 或 收取 all
+     */
+    @Listener
+    @ContentTrim
+    @Filter("收取 {{position}}")
+    public void handleCollect(MessageEvent event, @FilterValue("position") String position) {
+        log.debug("收到收取请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
+
+        String response = fudiCommandHandler.handleCollect(
+                PlatformType.ONE_BOT_V11,
+                event.getAuthorId().toString(),
+                position
+        );
+
+        event.replyBlocking(response);
+    }
+
+    /**
+     * 放生 <坐标>
+     */
+    @Listener
+    @ContentTrim
+    @Filter("放生 {{position}}")
+    public void handleRelease(MessageEvent event, @FilterValue("position") String position) {
+        log.debug("收到放生请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
+
+        String response = fudiCommandHandler.handleRelease(
+                PlatformType.ONE_BOT_V11,
+                event.getAuthorId().toString(),
+                position
+        );
+
+        event.replyBlocking(response);
+    }
+
+    /**
+     * 进化 <坐标> <升阶/升品>
+     */
+    @Listener
+    @ContentTrim
+    @Filter("进化 {{position}} {{mode}}")
+    public void handleEvolve(MessageEvent event, @FilterValue("position") String position, @FilterValue("mode") String mode) {
+        log.debug("收到进化请求 - AuthorId: {}, Position: {}, Mode: {}", event.getAuthorId(), position, mode);
+
+        String response = fudiCommandHandler.handleEvolve(
+                PlatformType.ONE_BOT_V11,
+                event.getAuthorId().toString(),
+                position,
+                mode
         );
 
         event.replyBlocking(response);

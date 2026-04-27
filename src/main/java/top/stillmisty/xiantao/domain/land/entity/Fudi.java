@@ -8,6 +8,7 @@ import com.mybatisflex.core.activerecord.Model;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import top.stillmisty.xiantao.domain.land.enums.BeastQuality;
 import top.stillmisty.xiantao.domain.land.enums.EmotionState;
 import top.stillmisty.xiantao.domain.land.enums.MBTIPersonality;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
@@ -157,7 +158,9 @@ public class Fudi extends Model<Fudi> {
                 String type = (String) cell.get("type");
                 if ("pen".equals(type) && cell.containsKey("beast_tier")) {
                     int tier = (Integer) cell.get("beast_tier");
-                    beastCost += tier * 5;
+                    double qualityMultiplier = cell.containsKey("quality") ?
+                            getPenQualityAuraMultiplier((String) cell.get("quality")) : 1.0;
+                    beastCost += (int) (tier * 5 * qualityMultiplier);
                 } else if ("node".equals(type) && cell.containsKey("level")) {
                     int level = (Integer) cell.get("level");
                     nodeCost += level * 3;
@@ -245,6 +248,17 @@ public class Fudi extends Model<Fudi> {
     public int calculateSacrificeAura(int itemBaseValue, double qualityMultiplier, int itemLevel) {
         double result = itemBaseValue * qualityMultiplier * (1 + itemLevel * 0.05);
         return (int) result;
+    }
+
+    /**
+     * 从JSONB字段解析灵兽品质灵气消耗倍率
+     */
+    private static double getPenQualityAuraMultiplier(String qualityCode) {
+        try {
+            return BeastQuality.fromCode(qualityCode).getAuraCostMultiplier();
+        } catch (IllegalArgumentException e) {
+            return 1.0;
+        }
     }
 
     /**

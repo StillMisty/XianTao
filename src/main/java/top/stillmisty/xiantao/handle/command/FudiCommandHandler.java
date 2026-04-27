@@ -115,10 +115,59 @@ public class FudiCommandHandler {
         };
     }
 
-    public String handleFeed(PlatformType platform, String openId, String position, String feedItemName) {
-        return switch (fudiService.feedBeastByName(platform, openId, position, feedItemName)) {
+    public String handleUpgradeCell(PlatformType platform, String openId, String position) {
+        return switch (fudiService.upgradeCell(platform, openId, position)) {
             case ServiceResult.Failure(var msg) -> "❌ " + msg;
-            case ServiceResult.Success(var result) -> formatFeedResult(result);
+            case ServiceResult.Success(var result) -> {
+                String typeName = (String) result.get("type");
+                int oldLevel = (Integer) result.get("oldLevel");
+                int newLevel = (Integer) result.get("newLevel");
+                yield String.format("✅ 已将 (%s) 的%s从 Lv%d 升级至 Lv%d", position, typeName, oldLevel, newLevel);
+            }
+        };
+    }
+
+    public String handleHatch(PlatformType platform, String openId, String position, String eggName) {
+        return switch (fudiService.hatchBeast(platform, openId, position, eggName)) {
+            case ServiceResult.Failure(var msg) -> "❌ " + msg;
+            case ServiceResult.Success(var vo) -> formatHatchResult(vo);
+        };
+    }
+
+    public String handleCollect(PlatformType platform, String openId, String position) {
+        if ("all".equalsIgnoreCase(position)) {
+            return switch (fudiService.collectAllProduce(platform, openId)) {
+                case ServiceResult.Failure(var msg) -> "❌ " + msg;
+                case ServiceResult.Success(var result) -> {
+                    int positions = (Integer) result.get("totalPositions");
+                    int items = (Integer) result.get("totalItems");
+                    yield items == 0 ? "📦 没有可收取的灵兽产出。" :
+                            String.format("✅ 从 %d 个兽栏收取了 %d 件灵兽材料。", positions, items);
+                }
+            };
+        }
+        return switch (fudiService.collectProduce(platform, openId, position)) {
+            case ServiceResult.Failure(var msg) -> "❌ " + msg;
+            case ServiceResult.Success(var vo) ->
+                    String.format("✅ 从 (%s) 收取了 %d 件%s。", vo.getPosition(), vo.getTotalProduced(), vo.getItemName());
+        };
+    }
+
+    public String handleRelease(PlatformType platform, String openId, String position) {
+        return switch (fudiService.releaseBeast(platform, openId, position)) {
+            case ServiceResult.Failure(var msg) -> "❌ " + msg;
+            case ServiceResult.Success(var result) -> {
+                String beastName = (String) result.get("beastName");
+                int essenceValue = (Integer) result.get("essenceValue");
+                yield String.format("✅ 已放生%s，获得灵兽精华（价值 %d 灵气）。", beastName, essenceValue);
+            }
+        };
+    }
+
+    public String handleEvolve(PlatformType platform, String openId, String position, String mode) {
+        return switch (fudiService.evolveBeast(platform, openId, position, mode)) {
+            case ServiceResult.Failure(var msg) -> "❌ " + msg;
+            case ServiceResult.Success(var vo) -> formatEvolveResult(vo, mode);
         };
     }
 
@@ -175,13 +224,19 @@ public class FudiCommandHandler {
             for (var cell : status.getCellDetails()) {
                 sb.append("📍 (").append(cell.getPosition()).append(") ");
                 sb.append(cell.getType().getChineseName());
+                if (cell.getCellLevel() != null && cell.getCellLevel() > 1) {
+                    sb.append(" Lv").append(cell.getCellLevel());
+                }
                 if (cell.getName() != null) sb.append(" - ").append(cell.getName());
                 if (cell.getGrowthProgress() != null) {
                     int percent = (int) (cell.getGrowthProgress() * 100);
                     sb.append(" [").append(percent).append("%]");
                     if (Boolean.TRUE.equals(cell.getIsMature())) sb.append(" ✅ 可收获");
                 }
-                if (cell.getHunger() != null) sb.append(" 饥饿值:").append(cell.getHunger());
+                if (cell.getQuality() != null) sb.append(" ").append(cell.getQuality());
+                if (cell.getProductionStored() != null && cell.getProductionStored() > 0)
+                    sb.append(" 📦x").append(cell.getProductionStored());
+                if (Boolean.TRUE.equals(cell.getIsIncubating())) sb.append(" 🥚孵化中");
                 if (cell.getDurability() != null) sb.append(" 耐久:").append(cell.getDurability());
                 sb.append("\n");
             }
@@ -231,10 +286,25 @@ public class FudiCommandHandler {
         );
     }
 
-    private String formatFeedResult(Map<String, Object> result) {
-        String beastName = (String) result.get("beastName");
-        int newHunger = (Integer) result.get("newHunger");
-        String position = (String) result.get("position");
-        return String.format("✅ 已喂养 (%s) 的%s，当前饥饿值：%d", position, beastName, newHunger);
+    private String formatHatchResult(top.stillmisty.xiantao.domain.land.vo.PenCellVO result) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("✅ 已开始在 (%s) 孵化%s！\n", result.getPosition(), result.getBeastName()));
+        sb.append(String.format("品质：%s | 等阶：T%d\n", result.getQuality(), result.getTier()));
+        if (result.isMutant()) {
+            sb.append("✨ 变异灵兽！特性：").append(String.join(",", result.getMutationTraits())).append("\n");
+        }
+        sb.append(String.format("预计 %.1f 小时后孵化完成。", 
+                java.time.Duration.between(java.time.LocalDateTime.now(), result.getMatureTime()).toHours()));
+        return sb.toString();
+    }
+
+    private String formatEvolveResult(top.stillmisty.xiantao.domain.land.vo.PenCellVO result, String mode) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("✅ %s成功！\n", mode));
+        sb.append(String.format("灵兽：%s | 等阶：T%d | 品质：%s\n", result.getBeastName(), result.getTier(), result.getQuality()));
+        if (result.isMutant()) {
+            sb.append("能力：").append(String.join(",", result.getMutationTraits())).append("\n");
+        }
+        return sb.toString();
     }
 }

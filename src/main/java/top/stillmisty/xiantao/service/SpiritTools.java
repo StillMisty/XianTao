@@ -7,6 +7,7 @@ import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.land.enums.CellType;
+import top.stillmisty.xiantao.domain.land.vo.BeastProduceVO;
 import top.stillmisty.xiantao.domain.land.vo.FarmCellVO;
 
 import java.util.Map;
@@ -202,29 +203,41 @@ public class SpiritTools {
     }
 
     /**
-     * 喂养灵兽工具
+     * 收取灵兽产出工具
      */
-    @Tool(description = "喂养福地中指定兽栏的灵兽。需要提供坐标和饲料名称。")
-    public FeedBeastResponse feedBeast(
-            @ToolParam(description = "兽栏坐标，格式如'0,0'") String position,
-            @ToolParam(description = "饲料名称") String feedName
+    @Tool(description = "收取福地中指定兽栏的灵兽产出物。坐标可以是具体坐标或'all'表示全部收取。")
+    public CollectProduceResponse collectProduce(
+            @ToolParam(description = "收取坐标，格式如'0,0'，或'all'表示全部收取") String position
     ) {
         try {
             Long userId = getCurrentUserId();
 
-            Map<String, Object> result = fudiService.feedBeastByName(userId, position, feedName);
-            String beastName = (String) result.get("beastName");
-            int newHunger = (Integer) result.get("newHunger");
+            if ("all".equalsIgnoreCase(position)) {
+                Map<String, Object> result = fudiService.collectAllProduce(userId);
+                int positions = (Integer) result.get("totalPositions");
+                int items = (Integer) result.get("totalItems");
 
-            return new FeedBeastResponse(
-                    true,
-                    String.format("已喂养 (%s) 的%s，当前饥饿值：%d", position, beastName, newHunger),
-                    position,
-                    beastName
-            );
+                String message;
+                if (items == 0) {
+                    message = "现在没有可收取的灵兽产出物。";
+                } else {
+                    message = String.format("已从 %d 个兽栏收取了 %d 件灵兽材料。", positions, items);
+                }
+
+                return new CollectProduceResponse(true, message, position, items);
+            } else {
+                BeastProduceVO result = fudiService.collectProduce(userId, position);
+
+                return new CollectProduceResponse(
+                        true,
+                        String.format("已从 (%s) 收取了 %d 件%s。", result.getPosition(), result.getTotalProduced(), result.getItemName()),
+                        position,
+                        result.getTotalProduced()
+                );
+            }
         } catch (Exception e) {
-            log.error("喂养灵兽失败: position={}, feedName={}", position, feedName, e);
-            return new FeedBeastResponse(false, "喂养失败：" + e.getMessage(), position, null);
+            log.error("收取灵兽产出失败: position={}", position, e);
+            return new CollectProduceResponse(false, "收取失败：" + e.getMessage(), position, 0);
         }
     }
 
@@ -334,18 +347,18 @@ public class SpiritTools {
     ) {
     }
 
-    public record FeedBeastResponse(
+    public record CollectProduceResponse(
             @JsonPropertyDescription("是否成功")
             boolean success,
 
             @JsonPropertyDescription("结果消息")
             String message,
 
-            @JsonPropertyDescription("兽栏坐标")
+            @JsonPropertyDescription("收取坐标")
             String position,
 
-            @JsonPropertyDescription("灵兽名称")
-            String beastName
+            @JsonPropertyDescription("收取数量")
+            int collected
     ) {
     }
 }

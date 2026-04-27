@@ -103,4 +103,14 @@ public class FudiStatusVO {
      * 网格布局详情
      */
     private List<CellDetailVO> cellDetails;
+
+    /**
+     * 灵兽总数
+     */
+    private Integer totalBeasts;
+
+    /**
+     * 灵气耗尽倒计时（所有灵兽蛰伏时的剩余时间，秒）
+     */
+    private Long auraDepleteCountdownSeconds;
 }
