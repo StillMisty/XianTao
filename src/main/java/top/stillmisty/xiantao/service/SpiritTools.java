@@ -7,7 +7,6 @@ import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.land.enums.CellType;
-import top.stillmisty.xiantao.domain.land.enums.WuxingType;
 import top.stillmisty.xiantao.domain.land.vo.FarmCellVO;
 
 import java.util.Map;
@@ -61,17 +60,12 @@ public class SpiritTools {
     @Tool(description = "在福地的指定坐标种植灵药。需要先调用getGridStatus确认坐标为空。需要提供坐标（格式如'0,0'）和作物名称。")
     public PlantCropResponse plantCrop(
             @ToolParam(description = "种植坐标，格式如'0,0'、'1,2'等") String position,
-            @ToolParam(description = "作物名称，如'灵芝'、'人参'、'火莲'等") String cropName
+            @ToolParam(description = "作物名称，如'灵草种子'、'赤火莲子'、'玄冰莲子'、'金芝种子'等") String cropName
     ) {
         try {
-            // TODO: 从用户上下文获取 userId
             Long userId = getCurrentUserId();
 
-            // TODO: 根据作物名称查询真实的 cropId 和 element
-            WuxingType element = WuxingType.WOOD;
-            Integer cropId = 101;
-
-            FarmCellVO result = fudiService.plantCrop(userId, position, cropId, cropName, element);
+            FarmCellVO result = fudiService.plantCropByName(userId, position, cropName);
 
             return new PlantCropResponse(
                     true,
@@ -193,9 +187,7 @@ public class SpiritTools {
                 return new SacrificeItemResponse(false, "批量献祭功能尚未实现。", itemName, 0);
             }
 
-            // TODO: 根据物品名称查找真实 ID
-            Long itemId = 1L;
-            int auraGain = fudiService.sacrificeItem(userId, itemId);
+            int auraGain = fudiService.sacrificeItemByName(userId, itemName);
 
             return new SacrificeItemResponse(
                     true,
@@ -220,10 +212,7 @@ public class SpiritTools {
         try {
             Long userId = getCurrentUserId();
 
-            // TODO: 根据饲料名称查找真实 ID
-            Integer feedItemId = 1;
-
-            Map<String, Object> result = fudiService.feedBeast(userId, position, feedItemId, feedName);
+            Map<String, Object> result = fudiService.feedBeastByName(userId, position, feedName);
             String beastName = (String) result.get("beastName");
             int newHunger = (Integer) result.get("newHunger");
 

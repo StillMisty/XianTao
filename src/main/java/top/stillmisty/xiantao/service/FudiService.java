@@ -4,8 +4,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import top.stillmisty.xiantao.domain.item.entity.Equipment;
+import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
+import top.stillmisty.xiantao.domain.item.entity.StackableItem;
+import top.stillmisty.xiantao.domain.item.enums.ItemType;
+import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
+import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
+import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.domain.land.entity.Fudi;
-import top.stillmisty.xiantao.domain.land.enums.*;
+import top.stillmisty.xiantao.domain.land.enums.CellType;
+import top.stillmisty.xiantao.domain.land.enums.EmotionState;
+import top.stillmisty.xiantao.domain.land.enums.MBTIPersonality;
+import top.stillmisty.xiantao.domain.land.enums.WuxingType;
 import top.stillmisty.xiantao.domain.land.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.land.vo.CellDetailVO;
 import top.stillmisty.xiantao.domain.land.vo.FarmCellVO;
@@ -29,6 +39,9 @@ public class FudiService {
     private final FudiRepository fudiRepository;
     private final ItemService itemService;
     private final AuthenticationService authService;
+    private final ItemTemplateRepository itemTemplateRepository;
+    private final EquipmentRepository equipmentRepository;
+    private final StackableItemRepository stackableItemRepository;
 
     // ===================== 公开 API（含认证） =====================
 
@@ -304,28 +317,33 @@ public class FudiService {
     /**
      * 献祭装备获得灵气
      */
-    public int sacrificeItem(Long userId, Long itemId) {
+    public int sacrificeItem(Long userId, Long equipmentId) {
         Fudi fudi = getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
 
-        // TODO: 从背包获取物品
-        // Item item = itemService.getItem(userId, itemId);
+        Equipment equipment = equipmentRepository.findById(equipmentId)
+                .orElseThrow(() -> new IllegalStateException("未找到装备"));
 
-        // 示例：假设物品数据
-        int itemLevel = 10;
-        String quality = "GREEN"; // WHITE, GREEN, BLUE, PURPLE, ORANGE
-        int baseValue = itemLevel * 10;
+        if (!equipment.getUserId().equals(userId)) {
+            throw new IllegalStateException("该装备不属于你");
+        }
 
-        double qualityMultiplier = switch (quality) {
-            case "WHITE" -> 0.5;
-            case "GREEN" -> 1.0;
-            case "BLUE" -> 2.0;
-            case "PURPLE" -> 5.0;
-            case "ORANGE" -> 10.0;
-            default -> 1.0;
-        };
+        if (equipment.getEquipped()) {
+            throw new IllegalStateException("不能献祭已穿戴的装备，请先卸下");
+        }
+
+        int itemLevel = equipment.getForgeLevel() != null ? equipment.getForgeLevel() : 1;
+        double qualityMultiplier = equipment.getQualityMultiplier() != null ? equipment.getQualityMultiplier() : 1.0;
+        int baseValue = equipment.getFinalAttack() + equipment.getFinalDefense();
+
+        if (baseValue <= 0) {
+            baseValue = 10;
+        }
 
         int auraGain = fudi.calculateSacrificeAura(baseValue, qualityMultiplier, itemLevel);
+
+        // 删除装备
+        equipmentRepository.deleteById(equipmentId);
 
         // 添加灵气（不能超过上限）
         int newAura = Math.min(fudi.getAuraMax(), fudi.getAuraCurrent() + auraGain);
@@ -334,18 +352,27 @@ public class FudiService {
 
         fudiRepository.save(fudi);
 
-        log.info("用户 {} 献祭物品 ID={}, 获得灵气 {}", userId, itemId, auraGain);
+        log.info("用户 {} 献祭装备 ID={} ({}), 获得灵气 {}", userId, equipmentId, equipment.getName(), auraGain);
         return auraGain;
     }
 
     /**
-     * 根据物品名称献祭（名称解析在服务层完成）
+     * 根据物品名称献祭装备
      */
     public int sacrificeItemByName(Long userId, String itemName) {
-        // TODO: 根据物品名称查找ID
-        Long itemId = 1L; // 示例
+        List<Equipment> equipments = equipmentRepository.findByUserId(userId).stream()
+                .filter(e -> !e.getEquipped() && e.getName().contains(itemName))
+                .toList();
 
-        return sacrificeItem(userId, itemId);
+        if (equipments.isEmpty()) {
+            throw new IllegalStateException("背包中未找到 [%s]".formatted(itemName));
+        }
+
+        if (equipments.size() > 1) {
+            throw new IllegalStateException("找到多个 [%s]，请使用更精确的名称".formatted(itemName));
+        }
+
+        return sacrificeItem(userId, equipments.getFirst().getId());
     }
 
     /**
@@ -421,13 +448,22 @@ public class FudiService {
     }
 
     /**
-     * 根据作物名称种植灵药（名称解析在服务层完成）
+     * 根据作物名称种植灵药（从背包消耗种子）
      */
     public FarmCellVO plantCropByName(Long userId, String position, String cropName) {
-        // TODO: 根据作物名称查找ID和五行属性
-        WuxingType element = WuxingType.WOOD; // 示例：默认木属性
-        Integer cropId = 101; // 示例：灵芝
+        ItemTemplate seedTemplate = findSeedTemplateByName(cropName);
 
+        // 检查背包中有该种子
+        var stackableItem = stackableItemRepository.findByUserIdAndTemplateId(userId, seedTemplate.getId())
+                .orElseThrow(() -> new IllegalStateException("背包中没有 [%s]".formatted(cropName)));
+
+        // 消耗 1 颗种子
+        itemService.reduceStackableItem(userId, seedTemplate.getId(), 1);
+
+        // 根据种子标签决定五行元素
+        WuxingType element = resolveElement(seedTemplate);
+
+        Integer cropId = seedTemplate.getId().intValue();
         return plantCrop(userId, position, cropId, cropName, element);
     }
 
@@ -569,17 +605,12 @@ public class FudiService {
     }
 
     /**
-     * 获取基础生长时间（小时）
+     * 获取基础生长时间（小时），从物品模板表查询
      */
     private double getBaseGrowthHours(Integer cropId) {
-        // TODO: 从作物模板表查询
-        // 示例：不同作物有不同的生长时间
-        return switch (cropId) {
-            case 101 -> 4.0; // 灵芝
-            case 102 -> 6.0; // 人参
-            case 103 -> 8.0; // 火莲
-            default -> 5.0;
-        };
+        return itemTemplateRepository.findById((long) cropId)
+                .map(template -> template.getGrowTime() != null ? template.getGrowTime().doubleValue() : 5.0)
+                .orElse(5.0);
     }
 
     // ===================== 建造/拆除系统 =====================
@@ -695,12 +726,23 @@ public class FudiService {
     }
 
     /**
-     * 根据饲料名称喂养灵兽（名称解析在服务层完成）
+     * 根据饲料名称喂养灵兽（从背包消耗饲料）
      */
     public Map<String, Object> feedBeastByName(Long userId, String position, String feedItemName) {
-        // TODO: 根据饲料名称查找ID
-        Integer feedItemId = 1; // 示例
+        List<StackableItem> items = stackableItemRepository.findByUserId(userId).stream()
+                .filter(item -> item.getName().contains(feedItemName))
+                .toList();
 
+        if (items.isEmpty()) {
+            throw new IllegalStateException("背包中没有 [%s]".formatted(feedItemName));
+        }
+
+        StackableItem feedItem = items.getFirst();
+
+        // 消耗 1 份饲料
+        itemService.reduceStackableItem(userId, feedItem.getTemplateId(), 1);
+
+        Integer feedItemId = feedItem.getTemplateId().intValue();
         return feedBeast(userId, position, feedItemId, feedItemName);
     }
 
@@ -853,5 +895,43 @@ public class FudiService {
         }
 
         return modifier;
+    }
+
+    /**
+     * 根据名称查找种子模板
+     */
+    private ItemTemplate findSeedTemplateByName(String name) {
+        return itemTemplateRepository.findByType(ItemType.SEED).stream()
+                .filter(t -> t.getName().equals(name) || t.getName().contains(name))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("未找到种子: %s".formatted(name)));
+    }
+
+    /**
+     * 根据物品模板标签解析五行元素
+     */
+    private WuxingType resolveElement(ItemTemplate template) {
+        if (template.getTags() != null) {
+            for (String tag : template.getTags()) {
+                switch (tag.toLowerCase()) {
+                    case "fire" -> {
+                        return WuxingType.FIRE;
+                    }
+                    case "water", "ice" -> {
+                        return WuxingType.WATER;
+                    }
+                    case "wood" -> {
+                        return WuxingType.WOOD;
+                    }
+                    case "gold", "metal" -> {
+                        return WuxingType.METAL;
+                    }
+                    case "earth" -> {
+                        return WuxingType.EARTH;
+                    }
+                }
+            }
+        }
+        return WuxingType.WOOD;
     }
 }
