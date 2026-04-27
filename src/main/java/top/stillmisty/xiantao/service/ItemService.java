@@ -359,7 +359,7 @@ public class ItemService {
         if (slot == null) {
             return UnequipResult.builder()
                     .success(false)
-                    .message("无效的装备部位，可选：武器、护甲、头盔、鞋子、饰品")
+                    .message("无效的装备部位，可选：武器、护甲、饰品")
                     .build();
         }
 

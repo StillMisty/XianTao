@@ -1,14 +1,3 @@
--- ============================================================================
--- XianTao 地图种子数据
--- 版本: V0.0.6
--- 说明: 全部地图节点、地图连接、初始用户位置设置
--- 依赖: V0.0.5（物品模板必须先存在）
--- ============================================================================
-
--- ============================================================================
--- 地图节点（共 12 个：4 个原有 + 8 个新增）
--- ============================================================================
-
 INSERT INTO xt_map_node (name, description, map_type, level_requirement, travel_time_minutes, neighbors, specialties, travel_events) VALUES
 
 -- ── 黑金主城（起始主城）──
@@ -31,7 +20,7 @@ INSERT INTO xt_map_node (name, description, map_type, level_requirement, travel_
     5,
     5,
     '{"黑金主城": 5, "枯骨林": 10}'::jsonb,
-    '[{"name": "毒龙草", "weight": 30, "templateId": 62}, {"name": "史莱姆粘液", "weight": 50, "templateId": 85}, {"name": "灵草", "weight": 20, "templateId": 58}]'::jsonb,
+    '[{"name": "毒龙草", "weight": 30, "templateId": 51}, {"name": "史莱姆粘液", "weight": 50, "templateId": 74}, {"name": "灵草", "weight": 20, "templateId": 47}]'::jsonb,
     '[{"eventType": "ambush", "weight": 40}, {"eventType": "find_treasure", "weight": 10}, {"eventType": "weather", "weight": 50}]'::jsonb
 ),
 
@@ -43,7 +32,7 @@ INSERT INTO xt_map_node (name, description, map_type, level_requirement, travel_
     10,
     10,
     '{"幽暗沼泽": 10, "迷雾洞窟": 15, "黑风岭": 10}'::jsonb,
-    '[{"name": "铁矿石", "weight": 45, "templateId": 91}, {"name": "骨片", "weight": 30, "templateId": 84}, {"name": "灵草", "weight": 25, "templateId": 58}]'::jsonb,
+    '[{"name": "铁矿石", "weight": 45, "templateId": 80}, {"name": "骨片", "weight": 30, "templateId": 73}, {"name": "灵草", "weight": 25, "templateId": 47}]'::jsonb,
     '[{"eventType": "ambush", "weight": 50}, {"eventType": "find_treasure", "weight": 15}, {"eventType": "weather", "weight": 35}]'::jsonb
 ),
 
@@ -55,7 +44,7 @@ INSERT INTO xt_map_node (name, description, map_type, level_requirement, travel_
     15,
     15,
     '{"枯骨林": 15, "青云山": 12}'::jsonb,
-    '[{"name": "秘银", "weight": 30, "templateId": 98}, {"name": "古代遗物", "weight": 10, "templateId": 108}, {"name": "灵玉", "weight": 35, "templateId": 88}, {"name": "噬魂菇", "weight": 25, "templateId": 65}]'::jsonb,
+    '[{"name": "秘银", "weight": 30, "templateId": 87}, {"name": "古代遗物", "weight": 10, "templateId": 97}, {"name": "灵玉", "weight": 35, "templateId": 77}, {"name": "噬魂菇", "weight": 25, "templateId": 54}]'::jsonb,
     '[{"eventType": "ambush", "weight": 60}, {"eventType": "find_treasure", "weight": 20}, {"eventType": "weather", "weight": 20}]'::jsonb
 ),
 
@@ -67,7 +56,7 @@ INSERT INTO xt_map_node (name, description, map_type, level_requirement, travel_
     18,
     8,
     '{"枯骨林": 10, "万妖窟": 12, "青云山": 8}'::jsonb,
-    '[{"name": "龙血草", "weight": 15, "templateId": 72}, {"name": "星辰铁", "weight": 25, "templateId": 96}, {"name": "冰魄花", "weight": 20, "templateId": 64}, {"name": "灵草", "weight": 40, "templateId": 58}]'::jsonb,
+    '[{"name": "龙血草", "weight": 15, "templateId": 61}, {"name": "星辰铁", "weight": 25, "templateId": 85}, {"name": "冰魄花", "weight": 20, "templateId": 53}, {"name": "灵草", "weight": 40, "templateId": 47}]'::jsonb,
     '[{"eventType": "ambush", "weight": 45}, {"eventType": "find_treasure", "weight": 15}, {"eventType": "weather", "weight": 40}]'::jsonb
 ),
 
@@ -91,7 +80,7 @@ INSERT INTO xt_map_node (name, description, map_type, level_requirement, travel_
     25,
     12,
     '{"黑风岭": 12, "雷霆崖": 15, "太古遗迹": 30}'::jsonb,
-    '[{"name": "噬魂菇", "weight": 25, "templateId": 65}, {"name": "灵玉", "weight": 35, "templateId": 88}, {"name": "黑铁矿石", "weight": 40, "templateId": 89}]'::jsonb,
+    '[{"name": "噬魂菇", "weight": 25, "templateId": 54}, {"name": "灵玉", "weight": 35, "templateId": 77}, {"name": "黑铁矿石", "weight": 40, "templateId": 78}]'::jsonb,
     '[{"eventType": "ambush", "weight": 55}, {"eventType": "find_treasure", "weight": 10}, {"eventType": "weather", "weight": 35}]'::jsonb
 ),
 
@@ -103,7 +92,7 @@ INSERT INTO xt_map_node (name, description, map_type, level_requirement, travel_
     30,
     15,
     '{"青云山": 10, "万妖窟": 15, "天火山": 15}'::jsonb,
-    '[{"name": "雷鹰翎羽", "weight": 20, "templateId": 179}, {"name": "星辰铁", "weight": 25, "templateId": 96}, {"name": "精铁", "weight": 55, "templateId": 87}]'::jsonb,
+    '[{"name": "雷鹰翎羽", "weight": 20, "templateId": 168}, {"name": "星辰铁", "weight": 25, "templateId": 85}, {"name": "精铁", "weight": 55, "templateId": 76}]'::jsonb,
     '[{"eventType": "ambush", "weight": 50}, {"eventType": "find_treasure", "weight": 12}, {"eventType": "weather", "weight": 38}]'::jsonb
 ),
 
@@ -115,7 +104,7 @@ INSERT INTO xt_map_node (name, description, map_type, level_requirement, travel_
     35,
     25,
     '{"天火山": 20, "归墟海": 25}'::jsonb,
-    '[{"name": "天心花", "weight": 12, "templateId": 73}, {"name": "混沌石", "weight": 8, "templateId": 106}, {"name": "龙骨", "weight": 15, "templateId": 104}, {"name": "噬魂菇", "weight": 25, "templateId": 65}, {"name": "玄铁剑", "weight": 40, "templateId": 5}]'::jsonb,
+    '[{"name": "天心花", "weight": 12, "templateId": 62}, {"name": "混沌石", "weight": 8, "templateId": 95}, {"name": "龙骨", "weight": 15, "templateId": 93}, {"name": "噬魂菇", "weight": 25, "templateId": 54}, {"name": "玄铁剑", "weight": 40, "templateId": 5}]'::jsonb,
     '[{"eventType": "ambush", "weight": 60}, {"eventType": "find_treasure", "weight": 10}, {"eventType": "weather", "weight": 30}]'::jsonb
 ),
 
@@ -127,7 +116,7 @@ INSERT INTO xt_map_node (name, description, map_type, level_requirement, travel_
     40,
     20,
     '{"雷霆崖": 15, "葬仙谷": 20}'::jsonb,
-    '[{"name": "太阳真金", "weight": 15, "templateId": 102}, {"name": "凤羽", "weight": 8, "templateId": 105}, {"name": "龙血草", "weight": 20, "templateId": 72}, {"name": "赤火莲", "weight": 57, "templateId": 77}]'::jsonb,
+    '[{"name": "太阳真金", "weight": 15, "templateId": 91}, {"name": "凤羽", "weight": 8, "templateId": 94}, {"name": "龙血草", "weight": 20, "templateId": 61}, {"name": "赤火莲", "weight": 57, "templateId": 66}]'::jsonb,
     '[{"eventType": "ambush", "weight": 55}, {"eventType": "find_treasure", "weight": 15}, {"eventType": "weather", "weight": 30}]'::jsonb
 ),
 
@@ -139,7 +128,7 @@ INSERT INTO xt_map_node (name, description, map_type, level_requirement, travel_
     45,
     30,
     '{"葬仙谷": 25}'::jsonb,
-    '[{"name": "万年玄冰", "weight": 20, "templateId": 99}, {"name": "冰凤羽毛", "weight": 10, "templateId": 182}, {"name": "秘银", "weight": 30, "templateId": 98}, {"name": "玄冰莲", "weight": 40, "templateId": 78}]'::jsonb,
+    '[{"name": "万年玄冰", "weight": 20, "templateId": 88}, {"name": "冰凤羽毛", "weight": 10, "templateId": 171}, {"name": "秘银", "weight": 30, "templateId": 87}, {"name": "玄冰莲", "weight": 40, "templateId": 67}]'::jsonb,
     '[{"eventType": "ambush", "weight": 50}, {"eventType": "find_treasure", "weight": 20}, {"eventType": "weather", "weight": 30}]'::jsonb
 ),
 
@@ -151,13 +140,9 @@ INSERT INTO xt_map_node (name, description, map_type, level_requirement, travel_
     50,
     35,
     '{"万妖窟": 30}'::jsonb,
-    '[{"name": "河图洛书", "weight": 3, "templateId": 155}, {"name": "混沌石", "weight": 10, "templateId": 106}, {"name": "金芝种子", "weight": 12, "templateId": 125}, {"name": "乾坤戒", "weight": 5, "templateId": 24}, {"name": "灵戒", "weight": 70, "templateId": 23}]'::jsonb,
+    '[{"name": "河图洛书", "weight": 3, "templateId": 144}, {"name": "混沌石", "weight": 10, "templateId": 95}, {"name": "金芝种子", "weight": 12, "templateId": 114}, {"name": "乾坤戒", "weight": 5, "templateId": 24}, {"name": "灵戒", "weight": 70, "templateId": 23}]'::jsonb,
     '[{"eventType": "ambush", "weight": 70}, {"eventType": "find_treasure", "weight": 25}, {"eventType": "weather", "weight": 5}]'::jsonb
 );
-
--- ============================================================================
--- 地图连接（共 13 条，全部双向）
--- ============================================================================
 
 INSERT INTO xt_map_connection (from_map_id, to_map_id, travel_time_minutes, bidirectional) VALUES
 -- 黑金主城 <-> 幽暗沼泽
@@ -186,12 +171,3 @@ INSERT INTO xt_map_connection (from_map_id, to_map_id, travel_time_minutes, bidi
 ((SELECT id FROM xt_map_node WHERE name = '葬仙谷'), (SELECT id FROM xt_map_node WHERE name = '归墟海'), 25, true),
 -- 万妖窟 <-> 太古遗迹
 ((SELECT id FROM xt_map_node WHERE name = '万妖窟'), (SELECT id FROM xt_map_node WHERE name = '太古遗迹'), 30, true);
-
--- ============================================================================
--- 初始用户位置设置
--- ============================================================================
-
--- 将所有用户的 location_id 设置为黑金主城
-UPDATE xt_user
-SET location_id = (SELECT id FROM xt_map_node WHERE name = '黑金主城')
-WHERE location_id = 0;

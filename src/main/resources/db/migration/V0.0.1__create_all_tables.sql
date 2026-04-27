@@ -16,7 +16,7 @@ CREATE TABLE xt_user (
     hp_current              INT         NOT NULL DEFAULT 200,
     stamina_current         INT         NOT NULL DEFAULT 100,
     status                  VARCHAR(32) NOT NULL DEFAULT 'idle',
-    location_id             BIGINT      NOT NULL DEFAULT 0,
+    location_id             BIGINT      NOT NULL DEFAULT 1,
     training_start_time     TIMESTAMP,
     breakthrough_fail_count INT         NOT NULL DEFAULT 0,
     last_reset_points_time  TIMESTAMP,

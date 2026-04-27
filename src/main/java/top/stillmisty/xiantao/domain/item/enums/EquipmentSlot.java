@@ -22,17 +22,7 @@ public enum EquipmentSlot {
     /**
      * 饰品
      */
-    ACCESSORY("accessory", "饰品"),
-
-    /**
-     * 头盔
-     */
-    HELMET("helmet", "头盔"),
-
-    /**
-     * 鞋子
-     */
-    BOOTS("boots", "鞋子");
+    ACCESSORY("accessory", "饰品");
 
     @EnumValue
     private final String code;

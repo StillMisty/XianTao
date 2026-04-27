@@ -31,23 +31,6 @@ INSERT INTO xt_item_template (name, type, rarity, slot, equip_level, base_stat_b
 ('灵戒',        'EQUIPMENT', 'RARE',      'ACCESSORY', 20, '{"str":2,"con":2,"agi":2,"wis":5}'::jsonb, 0, 0, '{"BROKEN": 30, "COMMON": 30, "RARE": 25, "EPIC": 12, "LEGENDARY": 3}'::jsonb, '蕴含灵力的戒指', 1),
 ('乾坤戒',      'EQUIPMENT', 'LEGENDARY',  'ACCESSORY', 40, '{"str":5,"con":5,"agi":5,"wis":8}'::jsonb, 0, 0, '{"BROKEN": 20, "COMMON": 30, "RARE": 25, "EPIC": 20, "LEGENDARY": 5}'::jsonb, '内含一方小世界，可纳百川', 1);
 
--- 装备 —— 头盔
-INSERT INTO xt_item_template (name, type, rarity, slot, equip_level, base_stat_bonus, base_defense, drop_weight, description, max_stack) VALUES
-('布帽',        'EQUIPMENT', 'BROKEN',    'HELMET',  1, '{"str":0,"con":0,"agi":0,"wis":0}'::jsonb,  1, '{"BROKEN": 60, "COMMON": 25, "RARE": 10, "EPIC": 4, "LEGENDARY": 1}'::jsonb, '普通的布帽', 1),
-('铁盔',        'EQUIPMENT', 'BROKEN',    'HELMET', 10, '{"str":0,"con":2,"agi":0,"wis":0}'::jsonb,  3, '{"BROKEN": 50, "COMMON": 30, "RARE": 15, "EPIC": 4, "LEGENDARY": 1}'::jsonb, '铁制的头盔', 1),
-('银冠',        'EQUIPMENT', 'COMMON',    'HELMET', 15, '{"str":0,"con":2,"agi":1,"wis":2}'::jsonb,  5, '{"BROKEN": 40, "COMMON": 35, "RARE": 20, "EPIC": 4, "LEGENDARY": 1}'::jsonb, '银质的修士冠', 1),
-('灵冠',        'EQUIPMENT', 'RARE',      'HELMET', 20, '{"str":0,"con":3,"agi":2,"wis":5}'::jsonb,  8, '{"BROKEN": 40, "COMMON": 30, "RARE": 20, "EPIC": 8, "LEGENDARY": 2}'::jsonb, '修仙者佩戴的灵冠', 1),
-('星辰冠',      'EQUIPMENT', 'EPIC',      'HELMET', 30, '{"str":2,"con":3,"agi":3,"wis":8}'::jsonb, 12, '{"BROKEN": 30, "COMMON": 30, "RARE": 25, "EPIC": 12, "LEGENDARY": 3}'::jsonb, '冠上镶嵌星辰碎片，可借周天星斗之力', 1);
-
--- 装备 —— 鞋子
-INSERT INTO xt_item_template (name, type, rarity, slot, equip_level, base_stat_bonus, base_defense, drop_weight, description, max_stack) VALUES
-('草鞋',        'EQUIPMENT', 'BROKEN',    'BOOTS',  1, '{"str":0,"con":0,"agi":1,"wis":0}'::jsonb,  0, '{"BROKEN": 60, "COMMON": 25, "RARE": 10, "EPIC": 4, "LEGENDARY": 1}'::jsonb, '草编的简陋鞋子', 1),
-('皮靴',        'EQUIPMENT', 'BROKEN',    'BOOTS', 10, '{"str":0,"con":1,"agi":3,"wis":0}'::jsonb,  1, '{"BROKEN": 50, "COMMON": 30, "RARE": 15, "EPIC": 4, "LEGENDARY": 1}'::jsonb, '轻便的皮靴', 1),
-('铁履',        'EQUIPMENT', 'COMMON',    'BOOTS', 15, '{"str":0,"con":2,"agi":2,"wis":0}'::jsonb,  2, '{"BROKEN": 40, "COMMON": 35, "RARE": 20, "EPIC": 4, "LEGENDARY": 1}'::jsonb, '铁底布履', 1),
-('踏云靴',      'EQUIPMENT', 'RARE',      'BOOTS', 28, '{"str":0,"con":3,"agi":10,"wis":0}'::jsonb,  3, '{"BROKEN": 30, "COMMON": 30, "RARE": 25, "EPIC": 12, "LEGENDARY": 3}'::jsonb, '可踏空而行', 1),
-('风行靴',      'EQUIPMENT', 'RARE',      'BOOTS', 20, '{"str":0,"con":2,"agi":8,"wis":0}'::jsonb,  3, '{"BROKEN": 40, "COMMON": 30, "RARE": 20, "EPIC": 8, "LEGENDARY": 2}'::jsonb, '穿上如踏风而行', 1),
-('云履',        'EQUIPMENT', 'EPIC',      'BOOTS', 30, '{"str":0,"con":2,"agi":12,"wis":0}'::jsonb,  5, '{"BROKEN": 30, "COMMON": 30, "RARE": 25, "EPIC": 12, "LEGENDARY": 3}'::jsonb, '踏云而行的仙履，穿戴者身轻如燕', 1);
-
 -- 丹药 / 消耗品
 INSERT INTO xt_item_template (name, type, tags, description, max_stack) VALUES
 -- 恢复类
