@@ -1,9 +1,10 @@
-CREATE TABLE xt_dao_protection (
-    id                  BIGSERIAL PRIMARY KEY,
-    protector_id        BIGINT       NOT NULL,
-    protege_id          BIGINT       NOT NULL,
-    create_time         TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    update_time         TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+CREATE TABLE xt_dao_protection
+(
+    id           BIGSERIAL PRIMARY KEY,
+    protector_id BIGINT    NOT NULL,
+    protege_id   BIGINT    NOT NULL,
+    create_time  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_time  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_protector FOREIGN KEY (protector_id) REFERENCES xt_user (id) ON DELETE CASCADE,
     CONSTRAINT fk_protege FOREIGN KEY (protege_id) REFERENCES xt_user (id) ON DELETE CASCADE,
     CONSTRAINT uq_protection UNIQUE (protector_id, protege_id)

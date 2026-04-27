@@ -11,6 +11,7 @@ import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 堆叠类物品实例实体
@@ -53,7 +54,7 @@ public class StackableItem {
      * 示例: ["ore", "metal", "forge_base"] 或 ["seed", "fire", "rare"]
      */
     @Column(typeHandler = PgJsonbTypeHandler.class)
-    private List<String> tags;
+    private Set<String> tags;
 
     /**
      * 生长时间（小时，仅种子/灵蛋）
@@ -148,6 +149,6 @@ public class StackableItem {
      */
     public boolean hasAllTags(List<String> requiredTags) {
         if (tags == null || tags.isEmpty()) return false;
-        return new HashSet<>(tags).containsAll(requiredTags.stream().map(String::toLowerCase).toList());
+        return tags.containsAll(requiredTags.stream().map(String::toLowerCase).toList());
     }
 }

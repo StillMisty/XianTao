@@ -1,20 +1,17 @@
--- ============================================================================
--- 地图系统
--- ============================================================================
-
 -- 地图节点表 (xt_map_node)
-CREATE TABLE xt_map_node (
-    id                      BIGSERIAL PRIMARY KEY,
-    name                    VARCHAR(128) NOT NULL,
-    description             TEXT,
-    map_type                VARCHAR(32)  NOT NULL,
-    level_requirement       INT         NOT NULL DEFAULT 1,
-    travel_time_minutes     INT         NOT NULL DEFAULT 5,
-    neighbors               JSONB                DEFAULT '{}'::jsonb,
-    specialties             JSONB                DEFAULT '[]'::jsonb,
-    travel_events           JSONB                DEFAULT '[]'::jsonb,
-    create_time             TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    update_time             TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+CREATE TABLE xt_map_node
+(
+    id                  BIGSERIAL PRIMARY KEY,
+    name                VARCHAR(128) NOT NULL,
+    description         TEXT,
+    map_type            VARCHAR(32)  NOT NULL,
+    level_requirement   INT          NOT NULL DEFAULT 1,
+    travel_time_minutes INT          NOT NULL DEFAULT 5,
+    neighbors           JSONB                 DEFAULT '{}'::jsonb,
+    specialties         JSONB                 DEFAULT '[]'::jsonb,
+    travel_events       JSONB                 DEFAULT '[]'::jsonb,
+    create_time         TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_time         TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT uq_map_node_name UNIQUE (name)
 );
 
@@ -39,14 +36,15 @@ CREATE INDEX idx_map_node_specialties ON xt_map_node USING GIN (specialties);
 CREATE INDEX idx_map_node_travel_events ON xt_map_node USING GIN (travel_events);
 
 -- 地图连接表 (xt_map_connection)
-CREATE TABLE xt_map_connection (
+CREATE TABLE xt_map_connection
+(
     id                  BIGSERIAL PRIMARY KEY,
-    from_map_id         BIGINT       NOT NULL,
-    to_map_id           BIGINT       NOT NULL,
-    travel_time_minutes INT          NOT NULL DEFAULT 5,
-    bidirectional       BOOLEAN      NOT NULL DEFAULT true,
-    create_time         TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    update_time         TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    from_map_id         BIGINT    NOT NULL,
+    to_map_id           BIGINT    NOT NULL,
+    travel_time_minutes INT       NOT NULL DEFAULT 5,
+    bidirectional       BOOLEAN   NOT NULL DEFAULT true,
+    create_time         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_time         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_connection_from_map FOREIGN KEY (from_map_id) REFERENCES xt_map_node (id) ON DELETE CASCADE,
     CONSTRAINT fk_connection_to_map FOREIGN KEY (to_map_id) REFERENCES xt_map_node (id) ON DELETE CASCADE
 );

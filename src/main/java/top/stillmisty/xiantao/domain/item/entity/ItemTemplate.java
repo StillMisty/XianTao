@@ -12,6 +12,7 @@ import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.Map;
 
 /**
@@ -82,7 +83,7 @@ public class ItemTemplate {
      * 示例: ["ore", "metal", "forge_base"] 或 ["seed", "fire", "rare"]
      */
     @Column(typeHandler = PgJsonbTypeHandler.class)
-    private List<String> tags;
+    private Set<String> tags;
 
     /**
      * 生长时间（小时，仅种子/灵蛋）
@@ -122,27 +123,6 @@ public class ItemTemplate {
     private LocalDateTime updateTime;
 
     // ===================== 业务逻辑方法 =====================
-
-    /**
-     * 检查是否为装备类
-     */
-    public boolean isEquipment() {
-        return type != null && type == ItemType.EQUIPMENT;
-    }
-
-    /**
-     * 检查是否为福地专供类
-     */
-    public boolean isFudiItem() {
-        return type != null && type.isFudiItem();
-    }
-
-    /**
-     * 检查是否为炼药类
-     */
-    public boolean isAlchemyItem() {
-        return type != null && type.isAlchemyItem();
-    }
 
     /**
      * 检查是否包含指定标签

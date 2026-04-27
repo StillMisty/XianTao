@@ -21,8 +21,7 @@ public class InventoryVO {
     private List<InventoryItem> equipments;
     private List<InventoryItem> materials;
     private List<InventoryItem> seeds;
-    private List<InventoryItem> spiritEggs;
-    private List<InventoryItem> consumables;
+    private List<InventoryItem> beastEggs;
 
     // 货币
     private Long coins;

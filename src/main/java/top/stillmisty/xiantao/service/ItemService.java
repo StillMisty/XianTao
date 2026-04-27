@@ -246,8 +246,7 @@ public class ItemService {
         int totalSize = equipments.size()
                 + groupedItems.getOrDefault(ItemType.MATERIAL, List.of()).size()
                 + groupedItems.getOrDefault(ItemType.SEED, List.of()).size()
-                + groupedItems.getOrDefault(ItemType.SPIRIT_EGG, List.of()).size()
-                + groupedItems.getOrDefault(ItemType.CONSUMABLE, List.of()).size();
+                + groupedItems.getOrDefault(ItemType.BEAST_EGG, List.of()).size();
 
         return InventoryResult.builder()
                 .success(true)
@@ -257,8 +256,7 @@ public class ItemService {
                 .equipments(equipments)
                 .materials(groupedItems.getOrDefault(ItemType.MATERIAL, List.of()))
                 .seeds(groupedItems.getOrDefault(ItemType.SEED, List.of()))
-                .spiritEggs(groupedItems.getOrDefault(ItemType.SPIRIT_EGG, List.of()))
-                .consumables(groupedItems.getOrDefault(ItemType.CONSUMABLE, List.of()))
+                .beastEggs(groupedItems.getOrDefault(ItemType.BEAST_EGG, List.of()))
                 .coins(user.getCoins())
                 .spiritStones(user.getSpiritStones())
                 .build();

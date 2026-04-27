@@ -1,34 +1,35 @@
-CREATE TABLE xt_user (
-    id                      BIGSERIAL PRIMARY KEY,
-    nickname                VARCHAR(64) NOT NULL UNIQUE ,
+CREATE TABLE xt_user
+(
+    id                       BIGSERIAL PRIMARY KEY,
+    nickname                 VARCHAR(64) NOT NULL UNIQUE,
     -- 游戏进度
-    level                   INT         NOT NULL DEFAULT 1,
-    exp                     BIGINT      NOT NULL DEFAULT 0,
-    coins                   BIGINT      NOT NULL DEFAULT 0,
-    spirit_stones           BIGINT      NOT NULL DEFAULT 0,
+    level                    INT         NOT NULL DEFAULT 1,
+    exp                      BIGINT      NOT NULL DEFAULT 0,
+    coins                    BIGINT      NOT NULL DEFAULT 0,
+    spirit_stones            BIGINT      NOT NULL DEFAULT 0,
     -- 四维属性
-    stat_str                INT         NOT NULL DEFAULT 5,
-    stat_con                INT         NOT NULL DEFAULT 5,
-    stat_agi                INT         NOT NULL DEFAULT 5,
-    stat_wis                INT         NOT NULL DEFAULT 5,
-    free_stat_points        INT         NOT NULL DEFAULT 0,
+    stat_str                 INT         NOT NULL DEFAULT 5,
+    stat_con                 INT         NOT NULL DEFAULT 5,
+    stat_agi                 INT         NOT NULL DEFAULT 5,
+    stat_wis                 INT         NOT NULL DEFAULT 5,
+    free_stat_points         INT         NOT NULL DEFAULT 0,
     -- 战斗与状态
-    hp_current              INT         NOT NULL DEFAULT 200,
-    stamina_current         INT         NOT NULL DEFAULT 100,
-    status                  VARCHAR(32) NOT NULL DEFAULT 'idle',
-    location_id             BIGINT      NOT NULL DEFAULT 1,
-    training_start_time     TIMESTAMP,
-    breakthrough_fail_count INT         NOT NULL DEFAULT 0,
-    last_reset_points_time  TIMESTAMP,
+    hp_current               INT         NOT NULL DEFAULT 200,
+    stamina_current          INT         NOT NULL DEFAULT 100,
+    status                   VARCHAR(32) NOT NULL DEFAULT 'idle',
+    location_id              BIGINT      NOT NULL DEFAULT 1,
+    training_start_time      TIMESTAMP,
+    breakthrough_fail_count  INT         NOT NULL DEFAULT 0,
+    last_reset_points_time   TIMESTAMP,
     last_stamina_update_time TIMESTAMP,
-    travel_start_time       TIMESTAMP,
-    travel_destination_id   BIGINT,
+    travel_start_time        TIMESTAMP,
+    travel_destination_id    BIGINT,
 
     -- 扩展数据
-    extra_data              JSONB                DEFAULT '{}'::jsonb,
+    extra_data               JSONB                DEFAULT '{}'::jsonb,
     -- 时间戳
-    create_time             TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    update_time             TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    create_time              TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_time              TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     -- 唯一约束：道号必须唯一
     CONSTRAINT uq_nickname UNIQUE (nickname)
@@ -67,7 +68,8 @@ COMMENT ON COLUMN xt_user.create_time IS '角色创建时间';
 COMMENT ON COLUMN xt_user.update_time IS '最后一次数据更新时间';
 
 -- 跨平台授权绑定表 (xt_user_auth)
-CREATE TABLE xt_user_auth (
+CREATE TABLE xt_user_auth
+(
     id               BIGSERIAL PRIMARY KEY,
     user_id          BIGINT       NOT NULL,
     platform         VARCHAR(32)  NOT NULL,
@@ -91,19 +93,16 @@ COMMENT ON COLUMN xt_user_auth.bind_time IS '绑定发生的时间';
 -- 索引：通过角色ID反查绑定情况
 CREATE INDEX idx_xt_user_auth_user_id ON xt_user_auth (user_id);
 
--- ============================================================================
--- 物品系统
--- ============================================================================
-
 -- 物品模板配置表 (xt_item_template)
-CREATE TABLE xt_item_template (
+CREATE TABLE xt_item_template
+(
     id              BIGSERIAL PRIMARY KEY,
     name            VARCHAR(128) NOT NULL,
     type            VARCHAR(32)  NOT NULL,
     rarity          VARCHAR(32)  NOT NULL DEFAULT 'common',
     slot            VARCHAR(32),
     equip_level     INT          NOT NULL DEFAULT 0,
-    base_stat_bonus JSONB                 DEFAULT '{"str":0,"con":0,"agi":0,"wis":0}'::jsonb,
+    base_stat_bonus JSONB                 DEFAULT '{}'::jsonb,
     base_attack     INT          NOT NULL DEFAULT 0,
     base_defense    INT          NOT NULL DEFAULT 0,
     drop_weight     JSONB                 DEFAULT '{}'::jsonb,
@@ -120,7 +119,7 @@ CREATE TABLE xt_item_template (
 COMMENT ON TABLE xt_item_template IS '物品模板配置表';
 COMMENT ON COLUMN xt_item_template.id IS '模板ID';
 COMMENT ON COLUMN xt_item_template.name IS '物品名称';
-COMMENT ON COLUMN xt_item_template.type IS '物品类型 (EQUIPMENT, MATERIAL, SEED, SPIRIT_EGG, CONSUMABLE, HERB, POTION, GIFT, EVOLUTION_STONE, BEAST_EGG, BEAST_MATERIAL)';
+COMMENT ON COLUMN xt_item_template.type IS '物品类型 (EQUIPMENT, MATERIAL, SEED, BEAST_EGG, POTION, EVOLUTION_STONE)';
 COMMENT ON COLUMN xt_item_template.rarity IS '稀有度';
 COMMENT ON COLUMN xt_item_template.slot IS '装备部位 (仅装备类)';
 COMMENT ON COLUMN xt_item_template.equip_level IS '装备等级（仅装备类，用于计算词条数值）';
@@ -139,22 +138,23 @@ COMMENT ON COLUMN xt_item_template.description IS '物品描述';
 CREATE INDEX idx_item_template_tags ON xt_item_template USING GIN (tags);
 
 -- 装备实例表 (xt_equipment)
-CREATE TABLE xt_equipment (
-    id                  BIGSERIAL PRIMARY KEY,
-    user_id             BIGINT       NOT NULL,
-    template_id         BIGINT       NOT NULL,
-    name                VARCHAR(128) NOT NULL,
-    slot                VARCHAR(32)  NOT NULL,
-    rarity              VARCHAR(32)  NOT NULL DEFAULT 'common',
-    stat_bonus          JSONB                 DEFAULT '{"str":0,"con":0,"agi":0,"wis":0}'::jsonb,
-    attack_bonus        INT          NOT NULL DEFAULT 0,
-    defense_bonus       INT          NOT NULL DEFAULT 0,
-    equipped            BOOLEAN      NOT NULL DEFAULT FALSE,
-    quality_multiplier  DOUBLE PRECISION,
-    affixes             JSONB                 DEFAULT '{}'::jsonb,
-    forge_level         INT          DEFAULT 0,
-    create_time         TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    update_time         TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+CREATE TABLE xt_equipment
+(
+    id                 BIGSERIAL PRIMARY KEY,
+    user_id            BIGINT       NOT NULL,
+    template_id        BIGINT       NOT NULL,
+    name               VARCHAR(128) NOT NULL,
+    slot               VARCHAR(32)  NOT NULL,
+    rarity             VARCHAR(32)  NOT NULL DEFAULT 'common',
+    stat_bonus         JSONB                 DEFAULT '{}'::jsonb,
+    attack_bonus       INT          NOT NULL DEFAULT 0,
+    defense_bonus      INT          NOT NULL DEFAULT 0,
+    equipped           BOOLEAN      NOT NULL DEFAULT FALSE,
+    quality_multiplier DOUBLE PRECISION,
+    affixes            JSONB                 DEFAULT '{}'::jsonb,
+    forge_level        INT                   DEFAULT 0,
+    create_time        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_time        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     -- 外键关联
     CONSTRAINT fk_equipment_user FOREIGN KEY (user_id) REFERENCES xt_user (id) ON DELETE CASCADE,
@@ -187,19 +187,20 @@ CREATE INDEX idx_xt_equipment_stat_bonus ON xt_equipment USING GIN (stat_bonus);
 CREATE INDEX idx_equipment_affixes ON xt_equipment USING GIN (affixes);
 
 -- 物品实例表 (xt_inventory_item)
-CREATE TABLE xt_inventory_item (
-    id              BIGSERIAL PRIMARY KEY,
-    user_id         BIGINT       NOT NULL,
-    template_id     BIGINT       NOT NULL,
-    item_type       VARCHAR(32)  NOT NULL,
-    name            VARCHAR(128) NOT NULL,
-    quantity        INT          NOT NULL DEFAULT 1,
-    tags            JSONB                 DEFAULT '[]'::jsonb,
-    grow_time       INT,
-    yield_id        VARCHAR(64),
-    survive_rate    INT,
-    create_time     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    update_time     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+CREATE TABLE xt_inventory_item
+(
+    id           BIGSERIAL PRIMARY KEY,
+    user_id      BIGINT       NOT NULL,
+    template_id  BIGINT       NOT NULL,
+    item_type    VARCHAR(32)  NOT NULL,
+    name         VARCHAR(128) NOT NULL,
+    quantity     INT          NOT NULL DEFAULT 1,
+    tags         JSONB                 DEFAULT '[]'::jsonb,
+    grow_time    INT,
+    yield_id     VARCHAR(64),
+    survive_rate INT,
+    create_time  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_time  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     -- 外键关联
     CONSTRAINT fk_inventory_item_user FOREIGN KEY (user_id) REFERENCES xt_user (id) ON DELETE CASCADE,
@@ -214,7 +215,7 @@ COMMENT ON TABLE xt_inventory_item IS '物品实例表 (堆叠类物品)';
 COMMENT ON COLUMN xt_inventory_item.id IS '物品实例ID';
 COMMENT ON COLUMN xt_inventory_item.user_id IS '持有者用户ID';
 COMMENT ON COLUMN xt_inventory_item.template_id IS '物品模板ID';
-COMMENT ON COLUMN xt_inventory_item.item_type IS '物品类型 (MATERIAL, SEED, SPIRIT_EGG, CONSUMABLE, HERB, POTION, GIFT, EVOLUTION_STONE, BEAST_EGG, BEAST_MATERIAL)';
+COMMENT ON COLUMN xt_inventory_item.item_type IS '物品类型 (MATERIAL, SEED, BEAST_EGG, POTION, EVOLUTION_STONE)';
 COMMENT ON COLUMN xt_inventory_item.name IS '物品名称 (从模板复制)';
 COMMENT ON COLUMN xt_inventory_item.quantity IS '数量';
 COMMENT ON COLUMN xt_inventory_item.tags IS '物品标签 JSONB，用于AI检索和NPC交互';

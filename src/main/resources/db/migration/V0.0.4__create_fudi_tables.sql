@@ -1,42 +1,47 @@
 -- 福地主表
-CREATE TABLE xt_fudi (
-    id BIGSERIAL PRIMARY KEY,
-    user_id BIGINT NOT NULL UNIQUE, -- 玩家ID（每个玩家只能有一个福地）
-    
+CREATE TABLE xt_fudi
+(
+    id                     BIGSERIAL PRIMARY KEY,
+    user_id                BIGINT      NOT NULL UNIQUE,              -- 玩家ID（每个玩家只能有一个福地）
+
     -- 灵气系统
-    aura_current INTEGER NOT NULL DEFAULT 0, -- 当前灵气值
-    aura_max INTEGER NOT NULL DEFAULT 1000, -- 灵气上限
-    core_level INTEGER NOT NULL DEFAULT 1, -- 聚灵核心等级
-    
+    aura_current           INTEGER     NOT NULL DEFAULT 0,           -- 当前灵气值
+    aura_max               INTEGER     NOT NULL DEFAULT 1000,        -- 灵气上限
+    core_level             INTEGER     NOT NULL DEFAULT 1,           -- 聚灵核心等级
+
     -- 福地规模
-    grid_size INTEGER NOT NULL DEFAULT 3, -- 网格大小（3/4/5）
-    
+    grid_size              INTEGER     NOT NULL DEFAULT 3,           -- 网格大小（3/4/5）
+
     -- 地灵信息
-    mbti_type VARCHAR(4) NOT NULL, -- MBTI人格类型（如INTJ）
-    spirit_energy INTEGER NOT NULL DEFAULT 100, -- 地灵精力值（0-100）
-    spirit_affection INTEGER NOT NULL DEFAULT 0, -- 地灵好感度
-    emotion_state VARCHAR(20) NOT NULL DEFAULT 'calm', -- 情绪状态
-    
+    mbti_type              VARCHAR(4)  NOT NULL,                     -- MBTI人格类型（如INTJ）
+    spirit_energy          INTEGER     NOT NULL DEFAULT 100,         -- 地灵精力值（0-100）
+    spirit_affection       INTEGER     NOT NULL DEFAULT 0,           -- 地灵好感度
+    emotion_state          VARCHAR(20) NOT NULL DEFAULT 'calm',      -- 情绪状态
+
     -- 管理模式
-    auto_mode BOOLEAN NOT NULL DEFAULT TRUE, -- 是否开启自动管理
-    dormant_mode BOOLEAN NOT NULL DEFAULT FALSE, -- 是否处于蛰伏模式
-    
+    auto_mode              BOOLEAN     NOT NULL DEFAULT TRUE,        -- 是否开启自动管理
+    dormant_mode           BOOLEAN     NOT NULL DEFAULT FALSE,       -- 是否处于蛰伏模式
+
     -- 时间戳
-    last_aura_update TIMESTAMP NOT NULL DEFAULT NOW(), -- 上次灵气计算时间
-    last_online_time TIMESTAMP NOT NULL DEFAULT NOW(), -- 上次上线时间
-    last_tribulation_time TIMESTAMP, -- 天劫最后发生时间
-    tribulation_win_streak INTEGER NOT NULL DEFAULT 0, -- 天劫连续胜利次数
-    
+    last_aura_update       TIMESTAMP   NOT NULL DEFAULT NOW(),       -- 上次灵气计算时间
+    last_online_time       TIMESTAMP   NOT NULL DEFAULT NOW(),       -- 上次上线时间
+    last_tribulation_time  TIMESTAMP,                                -- 天劫最后发生时间
+    tribulation_win_streak INTEGER     NOT NULL DEFAULT 0,           -- 天劫连续胜利次数
+
     -- JSONB字段
-    grid_layout JSONB NOT NULL DEFAULT '{"grid_size": 3, "core_level": 1, "cells": []}'::jsonb, -- 福地网格布局
-    spirit_config JSONB, -- 地灵配置（人格、表情、形态等）
-    scorched_cells JSONB DEFAULT '[]'::jsonb, -- 焦土地块坐标列表
-    
+    grid_layout            JSONB       NOT NULL DEFAULT '{
+      "grid_size": 3,
+      "core_level": 1,
+      "cells": []
+    }'::jsonb,                                                       -- 福地网格布局
+    spirit_config          JSONB,                                    -- 地灵配置（人格、表情、形态等）
+    scorched_cells         JSONB                DEFAULT '[]'::jsonb, -- 焦土地块坐标列表
+
     -- 审计字段
-    create_time TIMESTAMP NOT NULL DEFAULT NOW(),
-    update_time TIMESTAMP NOT NULL DEFAULT NOW(),
-    
-    CONSTRAINT fk_fudi_user FOREIGN KEY (user_id) REFERENCES xt_user(id) ON DELETE CASCADE,
+    create_time            TIMESTAMP   NOT NULL DEFAULT NOW(),
+    update_time            TIMESTAMP   NOT NULL DEFAULT NOW(),
+
+    CONSTRAINT fk_fudi_user FOREIGN KEY (user_id) REFERENCES xt_user (id) ON DELETE CASCADE,
     CONSTRAINT chk_grid_size CHECK (grid_size IN (3, 4, 5)),
     CONSTRAINT chk_aura_current CHECK (aura_current >= 0),
     CONSTRAINT chk_aura_max CHECK (aura_max > 0),
@@ -45,7 +50,7 @@ CREATE TABLE xt_fudi (
 );
 
 -- 索引
-CREATE INDEX idx_fudi_user_id ON xt_fudi(user_id);
+CREATE INDEX idx_fudi_user_id ON xt_fudi (user_id);
 
 -- JSONB字段GIN索引（支持高效查询）
 CREATE INDEX idx_fudi_grid_layout ON xt_fudi USING GIN (grid_layout);
