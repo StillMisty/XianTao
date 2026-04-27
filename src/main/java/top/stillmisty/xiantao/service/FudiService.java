@@ -6,24 +6,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
-import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.domain.land.entity.Fudi;
-import top.stillmisty.xiantao.domain.land.enums.BeastQuality;
-import top.stillmisty.xiantao.domain.land.enums.CellType;
-import top.stillmisty.xiantao.domain.land.enums.EmotionState;
-import top.stillmisty.xiantao.domain.land.enums.MBTIPersonality;
-import top.stillmisty.xiantao.domain.land.enums.MutationTrait;
-import top.stillmisty.xiantao.domain.land.enums.WuxingType;
+import top.stillmisty.xiantao.domain.land.enums.*;
 import top.stillmisty.xiantao.domain.land.repository.FudiRepository;
-import top.stillmisty.xiantao.domain.land.vo.BeastProduceVO;
-import top.stillmisty.xiantao.domain.land.vo.CellDetailVO;
-import top.stillmisty.xiantao.domain.land.vo.FarmCellVO;
-import top.stillmisty.xiantao.domain.land.vo.FudiStatusVO;
-import top.stillmisty.xiantao.domain.land.vo.PenCellVO;
+import top.stillmisty.xiantao.domain.land.vo.*;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 
 import java.time.LocalDateTime;
@@ -1211,8 +1201,10 @@ public class FudiService {
         }
 
         fudiRepository.save(fudi);
-        log.info("用户 {} 进化坐标 {} 的灵兽 T{}->T{}{}", userId, position, currentTier, newTier,
-                qualityUpgraded ? " (品质连带提升!)" : "");
+        log.info(
+                "用户 {} 进化坐标 {} 的灵兽 T{}->T{}{}", userId, position, currentTier, newTier,
+                qualityUpgraded ? " (品质连带提升!)" : ""
+        );
 
         return buildPenCellVO(cell);
     }
