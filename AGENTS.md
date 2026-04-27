@@ -27,12 +27,12 @@ Base package: `top.stillmisty.xiantao`
 src/main/java/top/stillmisty/xiantao/
 ├── config/
 ├── docs/
-├── handle/                  # Presentation Layer / Multi-platform Entry & View
-│   ├── command/             # Unified command handling
-│   ├── onebotv11/           # OneBotV11 Listeners (Captures QQ input -> calls command/ -> returns view)
-│   └── web/                 # Web REST APIs (Captures HTTP -> calls command/ -> returns JSON view)
-├── domain/                  # Core Business Logic (Bounded Contexts)
-│   ├── user/                # User Context 
+├── handle/                  # Presentation Layer — I/O parsing + text formatting only
+│   ├── command/             # View formatters (VO → plain text String)
+│   ├── onebotv11/           # OneBotV11 Listeners (parse QQ input → call service → call formatter)
+│   └── web/                 # Web REST Controllers (parse HTTP → call service → wrap as JSON)
+├── domain/                  # Core Domain Logic (Bounded Contexts)
+│   ├── user/                # User Context
 │   │   ├── entity/          # DB Entities (e.g., User, UserAuth)
 │   │   ├── enums/           # Domain Enums (e.g., UserStatus)
 │   │   ├── repository/      # Repository Interfaces (Ports - DO NOT implement here)
@@ -40,7 +40,10 @@ src/main/java/top/stillmisty/xiantao/
 │   ├── map/                 # Map Context
 │   ├── item/                # Inventory (JSONB), Crafting, Alchemy
 │   └── land/                # "Fudi" (Blessed Land) AI-driven management
-├── service/                 # Centralized Command Implementations & Dispatchers (Platform-agnostic)
+├── service/                 # Application Service Layer (auth + orchestration + business logic)
+│   ├── AuthenticationService.java  # Unified identity auth (platform + openId → userId)
+│   ├── ServiceResult.java          # sealed Success<T> | Failure<T> — all public APIs return this
+│   └── *Service.java               # Public (含认证) + internal (需预先完成认证) methods
 └── infrastructure/          # Infrastructure Implementation (Adapters)
     ├── mapper/              # MyBatis-Flex BaseMapper interfaces
     └── repository/          # Implementation of domain repository interfaces
@@ -50,15 +53,27 @@ src/main/java/top/stillmisty/xiantao/
 
 ### 3.1 Cross-Platform Command Flow (`handle/`)
 The `handle/` package handles all external inputs. A single `#afk` command might come from OneBotV11, Official QQ, or Web.
-- **Rule**: Platform-specific packages (`onebotv11/`, `qq/`, `web/`) are ONLY responsible for parsing platform I/O and returning platform-specific Views (e.g., QQ message segments, HTTP JSON).
-- **Flow**: `Platform Listener` -> `handle/command/ (Dispatcher)` -> `domain/*/service/` -> `handle/command/ (Format Text/Data)` -> `Platform Listener (Render View)`.
-- **Command Implementations**: The actual orchestration of user intent must be centralized in `handle/command/`.
+- **Rule**: Platform-specific packages (`onebotv11/`, `qq/`, `web/`) are ONLY responsible for parsing platform I/O and calling the **Service layer**.
+- **Rule**: `handle/command/` classes are **pure View formatters** — they receive structured VO/DTO from Service layer and convert them to plain text. They contain **zero business logic, zero auth logic**.
+- **Flow**: `Platform Listener` → `Service (auth + business → VO)` → `handle/command/ (format VO → text)` → `Platform Listener (render view)`.
+- **Auth**: All identity verification is centralized in `service/AuthenticationService`. Service public methods accept `(PlatformType, String openId, ...)`, resolve identity internally, and return `ServiceResult<T>` (`Success<T>` or `Failure<T>`).
 
-### 3.2 Domain & Infrastructure Separation
+### 3.2 ServiceResult<T> — Unified Return Type
+All service-layer public methods return `ServiceResult<T>`, a sealed interface with two variants:
+- `Success<T>(T data)` — auth passed, business executed, carries domain VO
+- `Failure<T>(String errorMessage)` — auth failed, carries user-readable message
+- **Handle layer resolves via pattern matching** (`switch` exhaustiveness check), never by null-checking VO fields.
+
+### 3.3 Service Layer Two-Tier API
+Each `*Service.java` exposes two tiers of methods:
+- **Public** (`(PlatformType, String openId, ...)`): Performs auth via `AuthenticationService`, then delegates to internal method. Returns `ServiceResult<T>`.
+- **Internal** (`(Long userId, ...)`): Assumes pre-authenticated userId. Returns raw VO/DTO. Called by other services and LLM tools.
+
+### 3.4 Domain & Infrastructure Separation
 - **Dependency Rule**: `domain` MUST NOT depend on `infrastructure` or `handle`.
 - **Repositories**: `domain/user/repository/UserRepository.java` is an interface. `infrastructure/repository/UserRepositoryImpl.java` implements it and injects MyBatis-Flex's Mapper.
 
-### 3.3 Concurrency & Java 25 Features
+### 3.5 Concurrency & Java 25 Features
 - **Virtual Threads**: SimBot processes highly concurrent chat messages. All `handle/` listeners and `service/` methods MUST be compatible with Virtual Threads. Avoid `ThreadLocal` blocking operations.
 
 ## 4. Game Domain Specifics (MUD Rules)
@@ -86,6 +101,7 @@ When you (the AI) are asked to implement a new feature, follow this exact sequen
 2. **Domain**: Create Entity, VO, and Repository Interface in `domain/`.
 3. **Database**: Create the Flyway migration script in `src/main/resources/db/migration/`.
 4. **Infra**: Implement Mapper and RepositoryImpl in `infrastructure/`.
-5. **Logic**: Implement pure Business Logic in `domain/*/service/`.
-6. **Command**: Implement the cross-platform command logic in `handle/command/`.
-7. **Entry/View**: Add the listener trigger in the appropriate platform package (`onebotv11/`, `qq/`, `web/`) and call the command logic.
+5. **Logic**: Implement pure Business Logic in `service/` — internal methods taking `Long userId`.
+6. **Auth**: Add public entry method `(PlatformType, String openId, ...)` in the same Service, calling `AuthenticationService` and returning `ServiceResult<T>`.
+7. **Command**: Create `handle/command/XxxCommandHandler` — call Service public method, pattern-match `ServiceResult`, format VO to text. Zero auth logic.
+8. **Entry/View**: Add the listener trigger in the appropriate platform package (`onebotv11/`, `qq/`, `web/`) and call the command handler.

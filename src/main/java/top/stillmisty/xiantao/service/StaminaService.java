@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 
 /**
@@ -22,14 +23,22 @@ public class StaminaService {
     private static final int STAMINA_COST_PER_TRAVEL_MINUTE = 5;
     private static final int STAMINA_RECOVERY_PER_MEDITATION_MINUTE = 2; // 打坐每分钟恢复2点
     private final UserRepository userRepository;
+    private final AuthenticationService authService;
+
+    // ===================== 公开 API（含认证） =====================
+
+    public ServiceResult<StaminaInfoVO> getStaminaInfo(PlatformType platform, String openId) {
+        var auth = authService.authenticateAndValidateUser(platform, openId);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        return new ServiceResult.Success<>(getStaminaInfo(auth.userId()));
+    }
+
+    // ===================== 内部 API（需预先完成认证） =====================
 
     /**
-     * 获取用户体力信息
-     *
-     * @param userId 用户ID
-     * @return 体力信息字符串
+     * 获取用户体力信息（返回结构化 VO）
      */
-    public String getStaminaInfo(Long userId) {
+    public StaminaInfoVO getStaminaInfo(Long userId) {
         User user = userRepository.findById(userId).orElseThrow();
 
         // 懒加载计算离线恢复
@@ -40,20 +49,7 @@ public class StaminaService {
         int maxStamina = user.calculateMaxStamina();
         int percent = (int) ((double) currentStamina / maxStamina * 100);
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("💪 【体力状态】\n");
-        sb.append("━━━━━━━━━━━━━━━\n");
-        sb.append("当前体力：").append(currentStamina).append("/").append(maxStamina)
-                .append(" (").append(percent).append("%)\n");
-
-        if (recovered > 0) {
-            sb.append("离线恢复：+").append(recovered).append(" 体力\n");
-        }
-
-        sb.append("━━━━━━━━━━━━━━━\n");
-        sb.append("💡 体力影响探索和旅行，可通过打坐或使用丹药恢复");
-
-        return sb.toString();
+        return new StaminaInfoVO(currentStamina, maxStamina, percent, recovered);
     }
 
     /**

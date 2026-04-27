@@ -8,6 +8,8 @@ import top.stillmisty.xiantao.domain.map.entity.MapNode;
 import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
 import top.stillmisty.xiantao.domain.map.vo.ExplorationResultVO;
 import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 
 import java.util.*;
@@ -28,6 +30,17 @@ public class ExplorationService {
     private final MapNodeRepository mapNodeRepository;
     private final ExplorationDescriptionFunction explorationDescriptionFunction;
     private final StaminaService staminaService;
+    private final AuthenticationService authService;
+
+    // ===================== 公开 API（含认证） =====================
+
+    public ServiceResult<ExplorationResultVO> exploreCurrentArea(PlatformType platform, String openId) {
+        var auth = authService.authenticateAndValidateStatus(platform, openId, UserStatus.IDLE);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        return new ServiceResult.Success<>(exploreCurrentArea(auth.userId()));
+    }
+
+    // ===================== 内部 API（需预先完成认证） =====================
 
     /**
      * 探索当前区域（带体力检查）

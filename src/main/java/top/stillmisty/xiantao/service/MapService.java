@@ -8,6 +8,7 @@ import top.stillmisty.xiantao.domain.map.entity.MapNode;
 import top.stillmisty.xiantao.domain.map.enums.MapType;
 import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
 import top.stillmisty.xiantao.domain.map.vo.MapInfoVO;
+import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +23,17 @@ import java.util.Optional;
 public class MapService {
 
     private final MapNodeRepository mapNodeRepository;
+    private final AuthenticationService authService;
+
+    // ===================== 公开 API（含认证） =====================
+
+    public ServiceResult<List<MapInfoVO>> getAllMaps(PlatformType platform, String openId) {
+        var auth = authService.authenticate(platform, openId);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        return new ServiceResult.Success<>(getAllMaps());
+    }
+
+    // ===================== 内部 API（需预先完成认证） =====================
 
     /**
      * 获取地图信息

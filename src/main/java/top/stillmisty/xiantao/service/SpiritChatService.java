@@ -8,6 +8,7 @@ import top.stillmisty.xiantao.config.SpiritPromptTemplates;
 import top.stillmisty.xiantao.domain.land.entity.Fudi;
 import top.stillmisty.xiantao.domain.land.enums.SpiritStage;
 import top.stillmisty.xiantao.domain.land.repository.FudiRepository;
+import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -24,7 +25,24 @@ public class SpiritChatService {
     private final ChatClient spiritChatClient;
     private final FudiRepository fudiRepository;
     private final SpiritPromptTemplates promptTemplates;
-    private final SpiritTools spiritTools;  // 注入工具类，用于 Function Calling
+    private final SpiritTools spiritTools;
+    private final AuthenticationService authService;
+
+    // ===================== 公开 API（含认证） =====================
+
+    public ServiceResult<String> chatWithSpirit(PlatformType platform, String openId, String userInput) {
+        var auth = authService.authenticateAndValidateUser(platform, openId);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        return new ServiceResult.Success<>(chatWithSpirit(auth.userId(), userInput));
+    }
+
+    public ServiceResult<String> processSpiritInteraction(PlatformType platform, String openId, String userInput) {
+        var auth = authService.authenticateAndValidateUser(platform, openId);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        return new ServiceResult.Success<>(processSpiritInteraction(auth.userId(), userInput));
+    }
+
+    // ===================== 内部 API（需预先完成认证） =====================
 
     /**
      * 与地灵进行 MBTI 人格化对话

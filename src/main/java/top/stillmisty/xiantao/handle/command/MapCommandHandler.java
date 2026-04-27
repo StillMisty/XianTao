@@ -1,204 +1,77 @@
 package top.stillmisty.xiantao.handle.command;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import top.stillmisty.xiantao.domain.map.vo.TrainingRewardVO;
 import top.stillmisty.xiantao.domain.map.vo.ExplorationResultVO;
 import top.stillmisty.xiantao.domain.map.vo.MapInfoVO;
+import top.stillmisty.xiantao.domain.map.vo.TrainingRewardVO;
 import top.stillmisty.xiantao.domain.map.vo.TravelResultVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
-import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.service.*;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * 地图命令处理器
- * 集中处理跨平台的地图相关命令逻辑
+ * 地图命令处理器（纯 View 层）
  */
 @Slf4j
 @Component
-public class MapCommandHandler extends BaseCommandHandler {
+@RequiredArgsConstructor
+public class MapCommandHandler {
 
     private final MapService mapService;
     private final TravelService travelService;
     private final TrainingService trainingService;
     private final ExplorationService explorationService;
 
-    public MapCommandHandler(
-            UserAuthService userAuthService, MapService mapService, TravelService travelService,
-            TrainingService trainingService, ExplorationService explorationService,
-            UserService userService
-    ) {
-        super(userAuthService, userService);
-        this.mapService = mapService;
-        this.travelService = travelService;
-        this.trainingService = trainingService;
-        this.explorationService = explorationService;
-    }
-
-    /**
-     * 处理前往命令
-     *
-     * @param platform      平台类型
-     * @param openId        平台用户 ID
-     * @param mapName       目标地图名称
-     * @param forceRealTime 是否强制使用真实时间模式
-     * @return 旅行结果消息
-     */
     public String handleGoTo(PlatformType platform, String openId, String mapName, boolean forceRealTime) {
-        log.debug(
-                "处理前往请求 - Platform: {}, OpenId: {}, MapName: {}, ForceRealTime: {}",
-                platform, openId, mapName, forceRealTime
-        );
-
-        // 验证用户身份和状态（必须空闲）
-        var authResult = authenticateAndValidateStatus(platform, openId, UserStatus.IDLE);
-        if (!authResult.authenticated()) {
-            return authResult.errorMessage();
-        }
-
-        // 开始旅行（服务层处理地图解析、验证、体力决策）
-        TravelResultVO result = travelService.startTravel(authResult.userId(), mapName, forceRealTime);
-
-        if (!result.isSuccess()) {
-            return result.getMessage();
-        }
-
-        return formatTravelResult(result);
+        log.debug("处理前往请求 - Platform: {}, OpenId: {}, MapName: {}", platform, openId, mapName);
+        return switch (travelService.startTravel(platform, openId, mapName, forceRealTime)) {
+            case ServiceResult.Failure(var msg) -> msg;
+            case ServiceResult.Success(var vo) -> vo.isSuccess() ? formatTravelResult(vo) : vo.getMessage();
+        };
     }
 
-    /**
-     * 处理历练命令（开始历练）
-     *
-     * @param platform 平台类型
-     * @param openId   平台用户 ID
-     * @return 历练结果消息
-     */
     public String handleTraining(PlatformType platform, String openId) {
         log.debug("处理历练请求 - Platform: {}, OpenId: {}", platform, openId);
-
-        // 验证用户身份和状态（必须空闲）
-        var authResult = authenticateAndValidateStatus(platform, openId, UserStatus.IDLE);
-        if (!authResult.authenticated()) {
-            return authResult.errorMessage();
-        }
-
-        // 开始历练
-        var result = trainingService.startTraining(authResult.userId());
-        if (!result.isSuccess()) {
-            return result.getMessage();
-        }
-
-        return String.format("开始在%s历练，使用「历练结束」结算收益。", result.getMapName());
+        return switch (trainingService.startTraining(platform, openId)) {
+            case ServiceResult.Failure(var msg) -> msg;
+            case ServiceResult.Success(var vo) ->
+                    vo.isSuccess() ? String.format("开始在%s历练，使用「历练结束」结算收益。", vo.getMapName()) : vo.getMessage();
+        };
     }
 
-    /**
-     * 处理结束历练命令
-     *
-     * @param platform 平台类型
-     * @param openId   平台用户 ID
-     * @return 历练结算结果消息
-     */
     public String handleEndTraining(PlatformType platform, String openId) {
         log.debug("处理结束历练请求 - Platform: {}, OpenId: {}", platform, openId);
-
-        // 验证用户身份和状态（必须为历练中）
-        var authResult = authenticateAndValidateStatus(platform, openId, UserStatus.EXERCISING);
-        if (!authResult.authenticated()) {
-            return authResult.errorMessage();
-        }
-
-        // 结束历练并应用奖励
-        TrainingRewardVO rewards = trainingService.endTraining(authResult.userId());
-
-        return formatTrainingReward(rewards);
+        return switch (trainingService.endTraining(platform, openId)) {
+            case ServiceResult.Failure(var msg) -> msg;
+            case ServiceResult.Success(var vo) -> formatTrainingReward(vo);
+        };
     }
 
-    /**
-     * 处理探索命令
-     *
-     * @param platform 平台类型
-     * @param openId   平台用户 ID
-     * @return 探索结果消息
-     */
     public String handleExplore(PlatformType platform, String openId) {
         log.debug("处理探索请求 - Platform: {}, OpenId: {}", platform, openId);
-
-        // 验证用户身份和状态
-        var authResult = authenticateAndValidateStatus(platform, openId, UserStatus.IDLE);
-        if (!authResult.authenticated()) {
-            return authResult.errorMessage();
-        }
-
-        // 执行探索
-        ExplorationResultVO result = explorationService.exploreCurrentArea(authResult.userId());
-
-        return formatExplorationResult(result);
+        return switch (explorationService.exploreCurrentArea(platform, openId)) {
+            case ServiceResult.Failure(var msg) -> msg;
+            case ServiceResult.Success(var vo) -> formatExplorationResult(vo);
+        };
     }
 
-    /**
-     * 格式化地图列表
-     */
-    private String formatMapList(List<MapInfoVO> maps) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("【世界地图】\n\n");
-
-        for (MapInfoVO map : maps) {
-            sb.append(String.format("【%s】%s (等级: %d)\n", map.getMapTypeName(), map.getName(), map.getLevelRequirement()));
-
-            if (map.getDescription() != null && !map.getDescription().isEmpty()) {
-                sb.append(String.format("  描述: %s\n", map.getDescription()));
-            }
-
-            if (map.getAdjacentMapNames() != null && !map.getAdjacentMapNames().isEmpty()) {
-                sb.append("  相邻: ");
-                sb.append(String.join(", ", map.getAdjacentMapNames()));
-                sb.append("\n");
-            }
-
-            sb.append("\n");
-        }
-
-        sb.append("使用「前往 [地图名]」开始旅行，或使用「探索」探索当前区域。");
-
-        return sb.toString();
-    }
-
-    /**
-     * 处理地图列表命令
-     *
-     * @param platform 平台类型
-     * @param openId   平台用户 ID
-     * @return 地图列表信息
-     */
     public String handleMapList(PlatformType platform, String openId) {
         log.debug("处理地图列表查询 - Platform: {}, OpenId: {}", platform, openId);
-
-        var authResult = authenticate(platform, openId);
-        if (!authResult.authenticated()) {
-            return authResult.errorMessage();
-        }
-
-        List<MapInfoVO> allMaps = mapService.getAllMaps();
-
-        if (allMaps.isEmpty()) {
-            return "暂无可用地图";
-        }
-
-        return formatMapList(allMaps);
+        return switch (mapService.getAllMaps(platform, openId)) {
+            case ServiceResult.Failure(var msg) -> msg;
+            case ServiceResult.Success(var vo) -> vo.isEmpty() ? "暂无可用地图" : formatMapList(vo);
+        };
     }
 
-    // ===================== 响应格式化方法 =====================
+    // ===================== 文本格式化方法 =====================
 
-    /**
-     * 格式化旅行结果
-     */
     private String formatTravelResult(TravelResultVO result) {
         StringBuilder sb = new StringBuilder();
         sb.append(result.getMessage()).append("\n");
-
         if (result.isArrived()) {
             if (result.getEventType() != null) {
                 sb.append("\n【路途事件】\n");
@@ -213,20 +86,15 @@ public class MapCommandHandler extends BaseCommandHandler {
                 sb.append(String.format("\n预计到达时间: %s", result.getEstimatedArrivalTime()));
             }
         }
-
         return sb.toString();
     }
 
-    /**
-     * 格式化历练奖励
-     */
     private String formatTrainingReward(TrainingRewardVO rewards) {
         StringBuilder sb = new StringBuilder();
         sb.append("【历练结算】\n");
         sb.append(String.format("地图: %s\n", rewards.getMapName()));
         sb.append(String.format("历练时长: %d 分钟\n", rewards.getDurationMinutes()));
         sb.append(String.format("效率倍率: %.2fx\n\n", rewards.getEfficiencyMultiplier()));
-
         if (rewards.getCoins() != null && rewards.getCoins() > 0) {
             sb.append(String.format("铜币: +%d\n", rewards.getCoins()));
         }
@@ -239,28 +107,21 @@ public class MapCommandHandler extends BaseCommandHandler {
                 sb.append(String.format("  %s x%d\n", item.get("name"), item.get("quantity")));
             }
         }
-
         return sb.toString();
     }
 
-    /**
-     * 格式化探索结果
-     */
     private String formatExplorationResult(ExplorationResultVO result) {
         StringBuilder sb = new StringBuilder();
         sb.append("【探索结果】\n");
         sb.append(String.format("地图: %s\n", result.getMapName()));
         sb.append(String.format("智慧值: %d\n", result.getWisdom()));
         sb.append(String.format("消耗: %d 分钟 / %d 体力\n\n", result.getTimeCostMinutes(), result.getStaminaCost()));
-
         if (result.getEventType() != null) {
             sb.append(String.format("【%s】\n", result.getEventType()));
         }
-
         if (result.getDescription() != null) {
             sb.append(result.getDescription()).append("\n\n");
         }
-
         if (result.getFoundItems() != null && !result.getFoundItems().isEmpty()) {
             sb.append("【发现物品】\n");
             for (Map<String, Object> item : result.getFoundItems()) {
@@ -268,15 +129,31 @@ public class MapCommandHandler extends BaseCommandHandler {
             }
             sb.append("\n");
         }
-
         if (result.getRecipeName() != null) {
             sb.append(String.format("【发现配方】%s\n\n", result.getRecipeName()));
         }
-
         if (result.getExpGained() != null && result.getExpGained() > 0) {
             sb.append(String.format("【获得经验】+%d\n", result.getExpGained()));
         }
+        return sb.toString();
+    }
 
+    private String formatMapList(List<MapInfoVO> maps) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("【世界地图】\n\n");
+        for (MapInfoVO map : maps) {
+            sb.append(String.format("【%s】%s (等级: %d)\n", map.getMapTypeName(), map.getName(), map.getLevelRequirement()));
+            if (map.getDescription() != null && !map.getDescription().isEmpty()) {
+                sb.append(String.format("  描述: %s\n", map.getDescription()));
+            }
+            if (map.getAdjacentMapNames() != null && !map.getAdjacentMapNames().isEmpty()) {
+                sb.append("  相邻: ");
+                sb.append(String.join(", ", map.getAdjacentMapNames()));
+                sb.append("\n");
+            }
+            sb.append("\n");
+        }
+        sb.append("使用「前往 [地图名]」开始旅行，或使用「探索」探索当前区域。");
         return sb.toString();
     }
 }

@@ -5,17 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.land.entity.Fudi;
-import top.stillmisty.xiantao.domain.land.enums.CellType;
-import top.stillmisty.xiantao.domain.land.enums.EmotionState;
-import top.stillmisty.xiantao.domain.land.enums.MBTIPersonality;
-import top.stillmisty.xiantao.domain.land.enums.SpiritStage;
-import top.stillmisty.xiantao.domain.land.enums.WuxingType;
+import top.stillmisty.xiantao.domain.land.enums.*;
 import top.stillmisty.xiantao.domain.land.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.land.vo.CellDetailVO;
 import top.stillmisty.xiantao.domain.land.vo.FarmCellVO;
 import top.stillmisty.xiantao.domain.land.vo.FudiStatusVO;
-import top.stillmisty.xiantao.domain.land.vo.NodeCellVO;
-import top.stillmisty.xiantao.domain.land.vo.PenCellVO;
+import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -33,6 +28,91 @@ public class FudiService {
 
     private final FudiRepository fudiRepository;
     private final ItemService itemService;
+    private final AuthenticationService authService;
+
+    // ===================== 公开 API（含认证） =====================
+
+    public ServiceResult<FudiStatusVO> getFudiStatus(PlatformType platform, String openId) {
+        var auth = authService.authenticateAndValidateUser(platform, openId);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        try {
+            return new ServiceResult.Success<>(getFudiStatus(auth.userId()));
+        } catch (IllegalStateException e) {
+            return new ServiceResult.Failure<>(e.getMessage());
+        }
+    }
+
+    public ServiceResult<FarmCellVO> plantCropByName(PlatformType platform, String openId, String position, String cropName) {
+        var auth = authService.authenticateAndValidateUser(platform, openId);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        try {
+            return new ServiceResult.Success<>(plantCropByName(auth.userId(), position, cropName));
+        } catch (IllegalStateException e) {
+            return new ServiceResult.Failure<>(e.getMessage());
+        }
+    }
+
+    public ServiceResult<Map<String, Object>> harvestCrop(PlatformType platform, String openId, String position) {
+        var auth = authService.authenticateAndValidateUser(platform, openId);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        try {
+            return new ServiceResult.Success<>(harvestCrop(auth.userId(), position));
+        } catch (IllegalStateException e) {
+            return new ServiceResult.Failure<>(e.getMessage());
+        }
+    }
+
+    public ServiceResult<Map<String, Object>> harvestAllCrops(PlatformType platform, String openId) {
+        var auth = authService.authenticateAndValidateUser(platform, openId);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        try {
+            return new ServiceResult.Success<>(harvestAllCrops(auth.userId()));
+        } catch (IllegalStateException e) {
+            return new ServiceResult.Failure<>(e.getMessage());
+        }
+    }
+
+    public ServiceResult<Map<String, Object>> buildCell(PlatformType platform, String openId, String position, CellType type) {
+        var auth = authService.authenticateAndValidateUser(platform, openId);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        try {
+            return new ServiceResult.Success<>(buildCell(auth.userId(), position, type));
+        } catch (IllegalStateException e) {
+            return new ServiceResult.Failure<>(e.getMessage());
+        }
+    }
+
+    public ServiceResult<Map<String, Object>> removeCell(PlatformType platform, String openId, String position) {
+        var auth = authService.authenticateAndValidateUser(platform, openId);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        try {
+            return new ServiceResult.Success<>(removeCell(auth.userId(), position));
+        } catch (IllegalStateException e) {
+            return new ServiceResult.Failure<>(e.getMessage());
+        }
+    }
+
+    public ServiceResult<Integer> sacrificeItemByName(PlatformType platform, String openId, String itemName) {
+        var auth = authService.authenticateAndValidateUser(platform, openId);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        try {
+            return new ServiceResult.Success<>(sacrificeItemByName(auth.userId(), itemName));
+        } catch (IllegalStateException e) {
+            return new ServiceResult.Failure<>(e.getMessage());
+        }
+    }
+
+    public ServiceResult<Map<String, Object>> feedBeastByName(PlatformType platform, String openId, String position, String feedItemName) {
+        var auth = authService.authenticateAndValidateUser(platform, openId);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        try {
+            return new ServiceResult.Success<>(feedBeastByName(auth.userId(), position, feedItemName));
+        } catch (IllegalStateException e) {
+            return new ServiceResult.Failure<>(e.getMessage());
+        }
+    }
+
+    // ===================== 内部 API（需预先完成认证） =====================
 
     // ===================== 福地基础管理 =====================
 
@@ -189,7 +269,8 @@ public class FudiService {
                 case FARM -> buildFarmCellDetail(builder, cell);
                 case PEN -> buildPenCellDetail(builder, cell);
                 case NODE -> buildNodeCellDetail(builder, cell);
-                default -> {}
+                default -> {
+                }
             }
 
             details.add(builder.build());
@@ -202,7 +283,7 @@ public class FudiService {
         String cropName = (String) cell.getOrDefault("crop_name", "未知灵草");
         String elementStr = (String) cell.get("element");
         WuxingType element = elementStr != null ? WuxingType.valueOf(elementStr) : null;
-        
+
         // 懒加载计算生长进度，确保获取最新值
         updateGrowthProgress(cell);
         Double growthProgress = (Double) cell.getOrDefault("growth_progress", 0.0);
@@ -251,7 +332,7 @@ public class FudiService {
 
         // TODO: 从背包获取物品
         // Item item = itemService.getItem(userId, itemId);
-        
+
         // 示例：假设物品数据
         int itemLevel = 10;
         String quality = "GREEN"; // WHITE, GREEN, BLUE, PURPLE, ORANGE
@@ -267,7 +348,7 @@ public class FudiService {
         };
 
         int auraGain = fudi.calculateSacrificeAura(baseValue, qualityMultiplier, itemLevel);
-        
+
         // 添加灵气（不能超过上限）
         int newAura = Math.min(fudi.getAuraMax(), fudi.getAuraCurrent() + auraGain);
         fudi.setAuraCurrent(newAura);
@@ -297,7 +378,7 @@ public class FudiService {
         // 1. 查询背包中所有指定品质的装备
         // 2. 逐个献祭
         // 3. 返回统计信息
-        
+
         return Map.of(
                 "count", 0,
                 "totalAura", 0
@@ -320,7 +401,7 @@ public class FudiService {
 
         // 计算生长速度修正（基于相邻地块五行）
         double growthModifier = calculateGrowthModifier(fudi, position, element);
-        
+
         // 基础生长时间（小时）
         double baseGrowthHours = getBaseGrowthHours(cropId);
         double actualGrowthHours = baseGrowthHours / growthModifier;
@@ -390,7 +471,7 @@ public class FudiService {
 
         // 懒加载计算生长进度
         updateGrowthProgress(cell);
-        
+
         Double progress = (Double) cell.get("growth_progress");
         if (progress == null || progress < 1.0) {
             throw new IllegalStateException("灵药尚未成熟");
@@ -435,7 +516,7 @@ public class FudiService {
 
         @SuppressWarnings("unchecked")
         List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getGridLayout().get("cells");
-        
+
         List<String> toRemove = new ArrayList<>();
         int totalYield = 0;
         int harvestedCount = 0;
@@ -447,17 +528,17 @@ public class FudiService {
 
             // 懒加载计算生长进度
             updateGrowthProgress(cell);
-            
+
             Double progress = (Double) cell.get("growth_progress");
             if (progress != null && progress >= 1.0) {
                 String cropName = (String) cell.get("crop_name");
                 Integer cropId = (Integer) cell.get("crop_id");
                 int yield = calculateYield(cropId, fudi.getCoreLevel());
-                
+
                 toRemove.add((String) cell.get("pos"));
                 totalYield += yield;
                 harvestedCount++;
-                
+
                 log.info("收获 {}，获得 {} x{}", cell.get("pos"), cropName, yield);
             }
         }
@@ -485,14 +566,14 @@ public class FudiService {
         if (cell.containsKey("mature_time")) {
             LocalDateTime matureTime = LocalDateTime.parse((String) cell.get("mature_time"));
             LocalDateTime now = LocalDateTime.now();
-            
+
             if (now.isAfter(matureTime) || now.isEqual(matureTime)) {
                 cell.put("growth_progress", 1.0);
             } else {
                 LocalDateTime plantTime = LocalDateTime.parse((String) cell.get("plant_time"));
                 long totalSeconds = java.time.Duration.between(plantTime, matureTime).getSeconds();
                 long elapsedSeconds = java.time.Duration.between(plantTime, now).getSeconds();
-                
+
                 double progress = Math.min(1.0, (double) elapsedSeconds / totalSeconds);
                 cell.put("growth_progress", progress);
             }
@@ -613,7 +694,7 @@ public class FudiService {
         Integer hunger = (Integer) cell.getOrDefault("hunger", 100);
         int feedAmount = 30; // 每次喂食恢复30饥饿值
         int newHunger = Math.min(100, hunger + feedAmount);
-        
+
         cell.put("hunger", newHunger);
         cell.put("last_feed_time", LocalDateTime.now().toString());
 
@@ -662,16 +743,16 @@ public class FudiService {
         if (fudi.getGridLayout() != null && fudi.getGridLayout().containsKey("cells")) {
             @SuppressWarnings("unchecked")
             List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getGridLayout().get("cells");
-            
+
             for (Map<String, Object> cell : cells) {
                 Map<String, Object> cellInfo = new HashMap<>();
                 cellInfo.put("position", cell.get("pos"));
                 cellInfo.put("type", cell.get("type"));
-                
+
                 if (CellType.FARM.getCode().equals(cell.get("type"))) {
                     cellInfo.put("cropName", cell.get("crop_name"));
                     cellInfo.put("element", cell.get("element"));
-                    
+
                     // 懒加载计算生长进度
                     updateGrowthProgress(cell);
                     Double progress = (Double) cell.get("growth_progress");
@@ -684,7 +765,7 @@ public class FudiService {
                     cellInfo.put("element", cell.get("element"));
                     cellInfo.put("level", cell.get("level"));
                 }
-                
+
                 occupiedCells.add(cellInfo);
             }
         }
@@ -730,7 +811,7 @@ public class FudiService {
 
         @SuppressWarnings("unchecked")
         List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getGridLayout().get("cells");
-        
+
         return cells.stream()
                 .filter(cell -> position.equals(cell.get("pos")))
                 .findFirst()

@@ -9,6 +9,7 @@ import top.stillmisty.xiantao.domain.map.enums.TravelEventType;
 import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
 import top.stillmisty.xiantao.domain.map.vo.TravelResultVO;
 import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 
@@ -30,6 +31,17 @@ public class TravelService {
     private final UserRepository userRepository;
     private final MapNodeRepository mapNodeRepository;
     private final StaminaService staminaService;
+    private final AuthenticationService authService;
+
+    // ===================== 公开 API（含认证） =====================
+
+    public ServiceResult<TravelResultVO> startTravel(PlatformType platform, String openId, String mapName, boolean forceRealTime) {
+        var auth = authService.authenticateAndValidateStatus(platform, openId, UserStatus.IDLE);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        return new ServiceResult.Success<>(startTravel(auth.userId(), mapName, forceRealTime));
+    }
+
+    // ===================== 内部 API（需预先完成认证） =====================
 
     /**
      * 开始旅行

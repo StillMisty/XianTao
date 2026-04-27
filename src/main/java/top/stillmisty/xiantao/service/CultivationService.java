@@ -9,6 +9,7 @@ import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
 import top.stillmisty.xiantao.domain.user.entity.DaoProtection;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.AttributeType;
+import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.repository.DaoProtectionRepository;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 import top.stillmisty.xiantao.domain.user.vo.*;
@@ -36,6 +37,47 @@ public class CultivationService {
     private final UserRepository userRepository;
     private final DaoProtectionRepository daoProtectionRepository;
     private final MapNodeRepository mapNodeRepository;
+    private final AuthenticationService authService;
+
+    // ===================== 公开 API（含认证） =====================
+
+    public ServiceResult<AttributeAllocationResult> allocateAttributePoints(PlatformType platform, String openId, AttributeType attributeType, int points) {
+        var auth = authService.authenticateAndValidateUser(platform, openId);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        return new ServiceResult.Success<>(allocateAttributePoints(auth.userId(), attributeType, points));
+    }
+
+    public ServiceResult<StatResetResult> resetStatPoints(PlatformType platform, String openId) {
+        var auth = authService.authenticateAndValidateUser(platform, openId);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        return new ServiceResult.Success<>(resetStatPoints(auth.userId()));
+    }
+
+    public ServiceResult<BreakthroughResult> attemptBreakthrough(PlatformType platform, String openId) {
+        var auth = authService.authenticateAndValidateUser(platform, openId);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        return new ServiceResult.Success<>(attemptBreakthrough(auth.userId()));
+    }
+
+    public ServiceResult<DaoProtectionResult> establishProtection(PlatformType platform, String openId, String protegeNickname) {
+        var auth = authService.authenticateAndValidateUser(platform, openId);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        return new ServiceResult.Success<>(establishProtection(auth.userId(), protegeNickname));
+    }
+
+    public ServiceResult<DaoProtectionResult> removeProtection(PlatformType platform, String openId, String protegeNickname) {
+        var auth = authService.authenticateAndValidateUser(platform, openId);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        return new ServiceResult.Success<>(removeProtection(auth.userId(), protegeNickname));
+    }
+
+    public ServiceResult<DaoProtectionQueryResult> queryProtectionInfo(PlatformType platform, String openId) {
+        var auth = authService.authenticateAndValidateUser(platform, openId);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        return new ServiceResult.Success<>(queryProtectionInfo(auth.userId()));
+    }
+
+    // ===================== 内部 API（需预先完成认证） =====================
 
     /**
      * 分配属性点

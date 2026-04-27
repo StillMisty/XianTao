@@ -9,6 +9,7 @@ import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
 import top.stillmisty.xiantao.domain.map.vo.TrainingRewardVO;
 import top.stillmisty.xiantao.domain.map.vo.TrainingStartResult;
 import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 
@@ -33,6 +34,23 @@ public class TrainingService {
     private static final long BASE_SPIRIT_STONES_PER_HOUR = 5;
     private final UserRepository userRepository;
     private final MapNodeRepository mapNodeRepository;
+    private final AuthenticationService authService;
+
+    // ===================== 公开 API（含认证） =====================
+
+    public ServiceResult<TrainingStartResult> startTraining(PlatformType platform, String openId) {
+        var auth = authService.authenticateAndValidateStatus(platform, openId, UserStatus.IDLE);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        return new ServiceResult.Success<>(startTraining(auth.userId()));
+    }
+
+    public ServiceResult<TrainingRewardVO> endTraining(PlatformType platform, String openId) {
+        var auth = authService.authenticateAndValidateStatus(platform, openId, UserStatus.EXERCISING);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        return new ServiceResult.Success<>(endTraining(auth.userId()));
+    }
+
+    // ===================== 内部 API（需预先完成认证） =====================
 
     /**
      * 计算历练奖励（懒加载评估）

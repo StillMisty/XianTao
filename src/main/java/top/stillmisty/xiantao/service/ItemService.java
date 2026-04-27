@@ -10,15 +10,15 @@ import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.EquipmentSlot;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
-import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.domain.item.vo.*;
-import top.stillmisty.xiantao.domain.user.entity.User;
-import top.stillmisty.xiantao.domain.user.entity.DaoProtection;
-import top.stillmisty.xiantao.domain.user.repository.UserRepository;
-import top.stillmisty.xiantao.domain.user.repository.DaoProtectionRepository;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
 import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
+import top.stillmisty.xiantao.domain.user.entity.DaoProtection;
+import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.domain.user.repository.DaoProtectionRepository;
+import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -36,9 +36,37 @@ public class ItemService {
     private final UserRepository userRepository;
     private final EquipmentRepository equipmentRepository;
     private final StackableItemRepository stackableItemRepository;
-    private final ItemTemplateRepository itemTemplateRepository;
     private final DaoProtectionRepository daoProtectionRepository;
     private final MapNodeRepository mapNodeRepository;
+    private final AuthenticationService authService;
+
+    // ===================== 公开 API（含认证） =====================
+
+    public ServiceResult<CharacterStatusResult> getCharacterStatus(PlatformType platform, String openId) {
+        var auth = authService.authenticateAndValidateUser(platform, openId);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        return new ServiceResult.Success<>(getCharacterStatus(auth.userId()));
+    }
+
+    public ServiceResult<InventorySummaryVO> getInventorySummary(PlatformType platform, String openId) {
+        var auth = authService.authenticateAndValidateUser(platform, openId);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        return new ServiceResult.Success<>(getInventorySummary(auth.userId()));
+    }
+
+    public ServiceResult<EquipResult> equipItem(PlatformType platform, String openId, String itemName) {
+        var auth = authService.authenticateAndValidateUser(platform, openId);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        return new ServiceResult.Success<>(equipItem(auth.userId(), itemName));
+    }
+
+    public ServiceResult<UnequipResult> unequipItem(PlatformType platform, String openId, String slotName) {
+        var auth = authService.authenticateAndValidateUser(platform, openId);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        return new ServiceResult.Success<>(unequipItem(auth.userId(), slotName));
+    }
+
+    // ===================== 内部 API（需预先完成认证） =====================
 
     /**
      * 查看角色状态（状态）
@@ -81,8 +109,8 @@ public class ItemService {
         CharacterStatusResult.EquipmentSummary equipmentSummary = CharacterStatusResult.EquipmentSummary.builder()
                 .totalEquipped(equippedItems.size())
                 .items(equippedItems.stream()
-                        .map(this::convertToEquipmentSummaryItem)
-                        .toList())
+                               .map(this::convertToEquipmentSummaryItem)
+                               .toList())
                 .build();
 
         // 获取突破相关信息
@@ -221,7 +249,7 @@ public class ItemService {
      * 装备穿戴（装备 [物品名]）
      * 将背包中的武器或防具穿戴到身上，直接影响四维属性与攻防数值
      *
-     * @param userId 用户 ID
+     * @param userId   用户 ID
      * @param itemName 物品名称
      * @return 装备穿戴结果
      */
@@ -276,8 +304,10 @@ public class ItemService {
 
         String message;
         if (replacedEquipmentName != null) {
-            message = String.format("成功装备 [%s]，替换了 [%s]",
-                    equipmentToEquip.getName(), replacedEquipmentName);
+            message = String.format(
+                    "成功装备 [%s]，替换了 [%s]",
+                    equipmentToEquip.getName(), replacedEquipmentName
+            );
         } else {
             message = String.format("成功装备 [%s]", equipmentToEquip.getName());
         }
@@ -299,7 +329,7 @@ public class ItemService {
      * 装备卸下（卸下 [部位]）
      * 将身上的装备放回背包
      *
-     * @param userId 用户 ID
+     * @param userId   用户 ID
      * @param slotName 部位名称（中文，如"武器"、"护甲"等）
      * @return 装备卸下结果
      */
@@ -341,9 +371,9 @@ public class ItemService {
                             .build();
                 })
                 .orElse(UnequipResult.builder()
-                        .success(false)
-                        .message("[" + slotName + "] 部位未穿戴任何装备")
-                        .build());
+                                .success(false)
+                                .message("[" + slotName + "] 部位未穿戴任何装备")
+                                .build());
     }
 
     /**
@@ -407,15 +437,17 @@ public class ItemService {
     /**
      * 添加堆叠物品到背包
      *
-     * @param userId 用户 ID
+     * @param userId     用户 ID
      * @param templateId 物品模板 ID
-     * @param itemType 物品类型
-     * @param name 物品名称
-     * @param quantity 数量
+     * @param itemType   物品类型
+     * @param name       物品名称
+     * @param quantity   数量
      * @return 是否添加成功
      */
-    public boolean addStackableItem(Long userId, Long templateId, ItemType itemType,
-                                     String name, int quantity) {
+    public boolean addStackableItem(
+            Long userId, Long templateId, ItemType itemType,
+            String name, int quantity
+    ) {
         userRepository.findById(userId).orElseThrow();
 
         // 查找是否已存在该物品
@@ -440,9 +472,9 @@ public class ItemService {
     /**
      * 减少堆叠物品数量
      *
-     * @param userId 用户 ID
+     * @param userId     用户 ID
      * @param templateId 物品模板 ID
-     * @param quantity 减少的数量
+     * @param quantity   减少的数量
      * @return 实际减少的数量，如果物品不足则返回 -1
      */
     public int reduceStackableItem(Long userId, Long templateId, int quantity) {
@@ -473,9 +505,9 @@ public class ItemService {
     /**
      * 检查堆叠物品数量是否足够
      *
-     * @param userId 用户 ID
+     * @param userId     用户 ID
      * @param templateId 物品模板 ID
-     * @param quantity 需要的数量
+     * @param quantity   需要的数量
      * @return 是否足够
      */
     public boolean hasEnoughStackableItem(Long userId, Long templateId, int quantity) {
@@ -566,7 +598,7 @@ public class ItemService {
      * 查看装备详细属性
      * 用于 #查看 [装备UUID] 命令
      *
-     * @param userId    用户 ID
+     * @param userId      用户 ID
      * @param equipmentId 装备 ID
      * @return 装备详情 VO
      */
@@ -729,7 +761,7 @@ public class ItemService {
 
                     User protector = protectorOpt.get();
                     boolean inSameLocation = isInSameLocation(currentUser, protector);
-                    
+
                     // 只有同地点才提供加成
                     double bonus = 0.0;
                     if (inSameLocation) {
