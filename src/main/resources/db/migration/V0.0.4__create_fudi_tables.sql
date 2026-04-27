@@ -7,7 +7,7 @@ CREATE TABLE xt_fudi
     -- 灵气系统
     aura_current           INTEGER     NOT NULL DEFAULT 0,           -- 当前灵气值
     aura_max               INTEGER     NOT NULL DEFAULT 1000,        -- 灵气上限
-    core_level             INTEGER     NOT NULL DEFAULT 1,           -- 聚灵核心等级
+    tribulation_stage      INTEGER     NOT NULL DEFAULT 0,           -- 当前劫数（每渡过一次天劫+1）
 
     -- 福地规模
     grid_size              INTEGER     NOT NULL DEFAULT 3,           -- 网格大小（3/4/5）
@@ -31,11 +31,11 @@ CREATE TABLE xt_fudi
     -- JSONB字段
     grid_layout            JSONB       NOT NULL DEFAULT '{
       "grid_size": 3,
-      "core_level": 1,
+       "tribulation_stage": 0,
       "cells": []
     }'::jsonb,                                                       -- 福地网格布局
     spirit_config          JSONB,                                    -- 地灵配置（人格、表情、形态等）
-    scorched_cells         JSONB                DEFAULT '[]'::jsonb, -- 焦土地块坐标列表
+
 
     -- 审计字段
     create_time            TIMESTAMP   NOT NULL DEFAULT NOW(),
@@ -45,7 +45,7 @@ CREATE TABLE xt_fudi
     CONSTRAINT chk_grid_size CHECK (grid_size IN (3, 4, 5)),
     CONSTRAINT chk_aura_current CHECK (aura_current >= 0),
     CONSTRAINT chk_aura_max CHECK (aura_max > 0),
-    CONSTRAINT chk_core_level CHECK (core_level >= 1),
+    CONSTRAINT chk_tribulation_stage CHECK (tribulation_stage >= 0),
     CONSTRAINT chk_spirit_energy CHECK (spirit_energy >= 0 AND spirit_energy <= 100)
 );
 
@@ -61,10 +61,9 @@ COMMENT ON TABLE xt_fudi IS '福地系统核心表';
 COMMENT ON COLUMN xt_fudi.id IS '福地唯一ID';
 COMMENT ON COLUMN xt_fudi.user_id IS '所属玩家ID';
 COMMENT ON COLUMN xt_fudi.aura_current IS '当前灵气值';
-COMMENT ON COLUMN xt_fudi.aura_max IS '灵气上限（由聚灵核心等级决定）';
-COMMENT ON COLUMN xt_fudi.core_level IS '聚灵核心等级';
+COMMENT ON COLUMN xt_fudi.aura_max IS '灵气上限（由劫数和天劫胜利积累）';
+COMMENT ON COLUMN xt_fudi.tribulation_stage IS '当前劫数（每渡过一次天劫+1）';
 COMMENT ON COLUMN xt_fudi.grid_size IS '福地网格大小（3/4/5）';
-COMMENT ON COLUMN xt_fudi.core_level IS '聚灵核心等级（福地等级）';
 COMMENT ON COLUMN xt_fudi.mbti_type IS '地灵MBTI人格类型（锁定，不可更改）';
 COMMENT ON COLUMN xt_fudi.spirit_energy IS '地灵精力值（0-100，每天恢复100点）';
 COMMENT ON COLUMN xt_fudi.spirit_affection IS '地灵好感度';
@@ -77,4 +76,3 @@ COMMENT ON COLUMN xt_fudi.last_tribulation_time IS '天劫最后发生时间';
 COMMENT ON COLUMN xt_fudi.tribulation_win_streak IS '天劫连续胜利次数';
 COMMENT ON COLUMN xt_fudi.grid_layout IS '福地网格布局（JSONB存储）';
 COMMENT ON COLUMN xt_fudi.spirit_config IS '地灵配置（JSONB存储人格、表情、形态等）';
-COMMENT ON COLUMN xt_fudi.scorched_cells IS '焦土地块坐标列表（JSONB存储）';

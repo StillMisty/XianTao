@@ -17,7 +17,7 @@ public class SpiritPromptTemplates {
      * @param mbtiType         MBTI 人格类型
      * @param auraCurrent      当前灵气
      * @param auraMax          灵气上限
-     * @param fudiLevel        福地等级
+     * @param fudiLevel        劫数
      * @param spiritEnergy     精力值
      * @param spiritAffection  好感度
      * @param gridDetail       网格状态详情（空则显示占位描述）
@@ -46,7 +46,7 @@ public class SpiritPromptTemplates {
                         
                         【福地状态】
                         - 灵气：%d/%d
-                        - 福地等级：Lv.%d
+                        - 劫数：%d
                         - 精力：%d/100
                         - 好感度：%d
                         

@@ -11,6 +11,7 @@ import lombok.experimental.Accessors;
 import top.stillmisty.xiantao.domain.land.enums.BeastQuality;
 import top.stillmisty.xiantao.domain.land.enums.EmotionState;
 import top.stillmisty.xiantao.domain.land.enums.MBTIPersonality;
+import top.stillmisty.xiantao.domain.land.enums.MutationTrait;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
 
 import java.time.LocalDateTime;
@@ -43,14 +44,14 @@ public class Fudi extends Model<Fudi> {
     private Integer auraCurrent;
 
     /**
-     * 灵气上限（由聚灵核心等级决定）
+     * 灵气上限（由劫数和天劫胜利积累）
      */
     private Integer auraMax;
 
     /**
-     * 聚灵核心等级
+     * 当前劫数（每渡过一次天劫+1，无上限）
      */
-    private Integer coreLevel;
+    private Integer tribulationStage;
 
     /**
      * 福地网格大小（3/4/5）
@@ -118,12 +119,6 @@ public class Fudi extends Model<Fudi> {
      * 天劫连续胜利次数
      */
     private Integer tribulationWinStreak;
-
-    /**
-     * 焦土地块坐标列表（JSONB存储）
-     */
-    @Column(typeHandler = PgJsonbTypeHandler.class)
-    private List<String> scorchedCells;
 
     /**
      * 创建时间
@@ -241,13 +236,77 @@ public class Fudi extends Model<Fudi> {
         }
     }
 
-
     /**
      * 献祭装备获得灵气
      */
     public int calculateSacrificeAura(int itemBaseValue, double qualityMultiplier, int itemLevel) {
         double result = itemBaseValue * qualityMultiplier * (1 + itemLevel * 0.05);
         return (int) result;
+    }
+
+    /**
+     * 更新地灵情绪状态（基于灵气、精力、焦土等日常因素，不覆盖天劫）
+     */
+    public void updateEmotionState() {
+        if (spiritEnergy != null && spiritEnergy <= 0) {
+            emotionState = EmotionState.FATIGUED;
+            return;
+        }
+
+        double auraRatio = auraCurrent.doubleValue() / auraMax.doubleValue();
+        if (auraRatio < 0.3) {
+            emotionState = EmotionState.ANXIOUS;
+        } else if (auraRatio > 0.8) {
+            emotionState = EmotionState.HAPPY;
+        } else {
+            emotionState = EmotionState.CALM;
+        }
+    }
+
+    /**
+     * 计算福地防御力（用于天劫结算）
+     * 公式：Σ(阵眼耐久) + Σ(灵兽战力×护主加成) + 玩家STR × 10 + 劫数 × 50
+     *
+     * @param playerStr 玩家力量值
+     * @return 福地总防御力
+     */
+    @SuppressWarnings("unchecked")
+    public int calculateTribulationDefense(int playerStr) {
+        int defense = playerStr * 10 + (tribulationStage != null ? tribulationStage : 0) * 50;
+
+        if (gridLayout == null || !gridLayout.containsKey("cells")) {
+            return defense;
+        }
+
+        List<Map<String, Object>> cells = (List<Map<String, Object>>) gridLayout.get("cells");
+        for (Map<String, Object> cell : cells) {
+            String type = (String) cell.get("type");
+            if ("node".equals(type) && cell.containsKey("durability")) {
+                defense += ((Number) cell.get("durability")).intValue();
+            } else if ("pen".equals(type) && cell.containsKey("power_score")) {
+                double power = ((Number) cell.get("power_score")).doubleValue();
+                // 护主特性：灵兽携带GUARDIAN变异时战力+50%
+                if (cell.containsKey("mutation_traits")) {
+                    List<String> traits = (List<String>) cell.get("mutation_traits");
+                    if (traits.contains(MutationTrait.GUARDIAN.getCode())) {
+                        power *= 1.5;
+                    }
+                }
+                defense += (int) power;
+            }
+        }
+
+        return defense;
+    }
+
+    /**
+     * 计算下次天劫触发时间
+     */
+    public LocalDateTime calculateNextTribulationTime() {
+        if (lastTribulationTime == null) {
+            return createTime.plusDays(7);
+        }
+        return lastTribulationTime.plusDays(7);
     }
 
     /**
@@ -258,27 +317,6 @@ public class Fudi extends Model<Fudi> {
             return BeastQuality.fromCode(qualityCode).getAuraCostMultiplier();
         } catch (IllegalArgumentException e) {
             return 1.0;
-        }
-    }
-
-    /**
-     * 更新地灵情绪状态
-     */
-    public void updateEmotionState() {
-        if (spiritEnergy != null && spiritEnergy <= 0) {
-            emotionState = EmotionState.FATIGUED;
-            return;
-        }
-
-        double auraRatio = auraCurrent.doubleValue() / auraMax.doubleValue();
-        if (scorchedCells != null && !scorchedCells.isEmpty()) {
-            emotionState = EmotionState.ANGRY;
-        } else if (auraRatio < 0.3) {
-            emotionState = EmotionState.ANXIOUS;
-        } else if (auraRatio > 0.8) {
-            emotionState = EmotionState.HAPPY;
-        } else {
-            emotionState = EmotionState.CALM;
         }
     }
 }

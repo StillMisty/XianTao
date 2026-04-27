@@ -15,6 +15,7 @@ import top.stillmisty.xiantao.domain.land.enums.*;
 import top.stillmisty.xiantao.domain.land.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.land.vo.*;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -37,6 +38,7 @@ public class FudiService {
     private final EquipmentRepository equipmentRepository;
     private final StackableItemRepository stackableItemRepository;
     private final ItemResolver itemResolver;
+    private final UserRepository userRepository;
 
     // ===================== 公开 API（含认证） =====================
 
@@ -217,7 +219,7 @@ public class FudiService {
         fudi.setUserId(userId);
         fudi.setAuraCurrent(500); // 初始灵气
         fudi.setAuraMax(1000); // 初始灵气上限
-        fudi.setCoreLevel(1);
+        fudi.setTribulationStage(0);
         fudi.setGridSize(3);
         fudi.setMbtiType(mbtiType);
         fudi.setSpiritEnergy(100);
@@ -230,7 +232,7 @@ public class FudiService {
         // 初始化网格布局
         Map<String, Object> gridLayout = new HashMap<>();
         gridLayout.put("grid_size", 3);
-        gridLayout.put("core_level", 1);
+        gridLayout.put("tribulation_stage", 0);
         gridLayout.put("cells", new ArrayList<>());
         fudi.setGridLayout(gridLayout);
 
@@ -263,19 +265,32 @@ public class FudiService {
     }
 
     /**
-     * 获取福地状态VO
+     * 获取福地状态VO（含懒求值天劫结算）
      */
     public FudiStatusVO getFudiStatus(Long userId) {
-        Fudi fudi = getFudiByUserId(userId)
+        Fudi fudi = fudiRepository.findByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
 
-        return buildFudiStatusVO(fudi);
+        // 懒加载更新灵气
+        fudi.updateAura();
+
+        // 懒求值天劫结算
+        var user = userRepository.findById(userId).orElseThrow();
+        String tribulationResult = resolveTribulation(fudi, user.getLevel(), user.getStatStr());
+
+        // 若无天劫触发，日常更新情绪状态
+        if (tribulationResult == null) {
+            fudi.updateEmotionState();
+        }
+
+        fudiRepository.save(fudi);
+        return buildFudiStatusVO(fudi, tribulationResult);
     }
 
     /**
      * 构建福地状态VO
      */
-    private FudiStatusVO buildFudiStatusVO(Fudi fudi) {
+    private FudiStatusVO buildFudiStatusVO(Fudi fudi, String tribulationResult) {
         List<CellDetailVO> cellDetails = buildCellDetails(fudi);
 
         int totalBeasts = (int) cellDetails.stream().filter(c -> c.getType() == CellType.PEN && c.getName() != null).count();
@@ -298,7 +313,7 @@ public class FudiService {
                 .auraCurrent(fudi.getAuraCurrent())
                 .auraMax(fudi.getAuraMax())
                 .auraHourlyCost(fudi.calculateHourlyAuraCost())
-                .coreLevel(fudi.getCoreLevel())
+                .tribulationStage(fudi.getTribulationStage())
                 .gridSize(fudi.getGridSize())
                 .mbtiType(fudi.getMbtiType())
                 .spiritEnergy(fudi.getSpiritEnergy())
@@ -307,23 +322,120 @@ public class FudiService {
                 .autoMode(fudi.getAutoMode())
                 .dormantMode(fudi.getDormantMode())
                 .occupiedCells(fudi.getOccupiedCellCount())
-                .scorchedCells(fudi.getScorchedCells() != null ? fudi.getScorchedCells().size() : 0)
+                .tribulationWinStreak(fudi.getTribulationWinStreak())
                 .lastTribulationTime(fudi.getLastTribulationTime())
-                .nextTribulationTime(calculateNextTribulationTime(fudi))
+                .nextTribulationTime(fudi.calculateNextTribulationTime())
                 .cellDetails(cellDetails)
                 .totalBeasts(totalBeasts)
+                .tribulationResult(tribulationResult)
                 .auraDepleteCountdownSeconds(depletionCountdown > 0 ? depletionCountdown : null)
                 .build();
     }
 
+    // ===================== 天劫系统 =====================
+
     /**
-     * 计算下次天劫时间
+     * 懒求值天劫结算
+     * 规则：距离上次天劫（或创建时间）满7天即触发
+     *
+     * @return 结算结果消息（null表示非天劫期）
      */
-    private LocalDateTime calculateNextTribulationTime(Fudi fudi) {
-        if (fudi.getLastTribulationTime() == null) {
-            return fudi.getCreateTime().plusDays(7);
+    private String resolveTribulation(Fudi fudi, int playerLevel, int playerStr) {
+        LocalDateTime referenceTime = fudi.getLastTribulationTime() != null
+                ? fudi.getLastTribulationTime()
+                : fudi.getCreateTime();
+
+        if (java.time.Duration.between(referenceTime, LocalDateTime.now()).toDays() < 7) {
+            return null; // 未到天劫期
         }
-        return fudi.getLastTribulationTime().plusDays(7);
+
+        // 计算攻防
+        int attack = playerLevel * 80 + fudi.getTribulationStage() * 200;
+        int defense = fudi.calculateTribulationDefense(playerStr);
+
+        fudi.setLastTribulationTime(LocalDateTime.now());
+
+        if (defense > attack) {
+            return applyTribulationWin(fudi, attack, defense);
+        } else {
+            return applyTribulationLoss(fudi, attack, defense);
+        }
+    }
+
+    /**
+     * 天劫胜利：连胜+1、好感+5、灵气上限增长、劫数+1
+     */
+    @SuppressWarnings("unchecked")
+    private String applyTribulationWin(Fudi fudi, int attack, int defense) {
+        int oldStage = fudi.getTribulationStage();
+        int newWinStreak = fudi.getTribulationWinStreak() + 1;
+        int oldAffection = fudi.getSpiritAffection();
+        int oldAuraMax = fudi.getAuraMax();
+        int newStage = oldStage + 1;
+
+        fudi.setTribulationWinStreak(newWinStreak);
+        fudi.setTribulationStage(newStage);
+        fudi.setSpiritAffection(oldAffection + 5);
+        fudi.setAuraMax(oldAuraMax + newWinStreak * 100);
+        fudi.setEmotionState(EmotionState.EXCITED);
+
+        // 稀有产出（占位，后续扩展）
+        // TODO: 根据劫数掉落稀有物品
+
+        return String.format(
+                "⚡ 天劫降临！福地成功抵御！\n" +
+                "   攻击力：%d ｜ 防御力：%d ｜ 胜利！\n" +
+                "   劫数：%d → %d ｜ 连胜×%d\n" +
+                "   灵气上限：%d → %d ｜ 好感度：%d → %d",
+                attack, defense,
+                oldStage, newStage, newWinStreak,
+                oldAuraMax, fudi.getAuraMax(), oldAffection, fudi.getSpiritAffection()
+        );
+    }
+
+    /**
+     * 天劫失败：连胜归零、按差额清空地块、减好感
+     */
+    @SuppressWarnings("unchecked")
+    private String applyTribulationLoss(Fudi fudi, int attack, int defense) {
+        int oldWinStreak = fudi.getTribulationWinStreak();
+        int oldAffection = fudi.getSpiritAffection();
+
+        // 计算差额
+        int diff = attack - defense;
+        int occupiedCount = fudi.getOccupiedCellCount();
+        double ratio = Math.min(1.0, (double) diff / attack);
+        int clearCount = Math.min(occupiedCount, Math.max(1, (int) Math.ceil(ratio * occupiedCount)));
+
+        // 随机选择并清空地块
+        List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getGridLayout().get("cells");
+        List<Integer> occupiedIndices = new ArrayList<>();
+        for (int i = 0; i < cells.size(); i++) {
+            if (!"empty".equals(cells.get(i).get("type"))) {
+                occupiedIndices.add(i);
+            }
+        }
+        Collections.shuffle(occupiedIndices);
+        for (int i = 0; i < clearCount && i < occupiedIndices.size(); i++) {
+            int idx = occupiedIndices.get(i);
+            cells.set(idx, new HashMap<String, Object>() {{
+                put("type", "empty");
+            }});
+        }
+
+        fudi.setTribulationWinStreak(0);
+        fudi.setSpiritAffection(Math.max(0, oldAffection - clearCount));
+        fudi.setEmotionState(EmotionState.ANGRY);
+
+        return String.format(
+                "⚡ 天劫降临！福地未能抵御…\n" +
+                "   攻击力：%d ｜ 防御力：%d ｜ 差额：%d\n" +
+                "   连胜×%d → 中断，被毁地块：%d 个\n" +
+                "   好感度：%d → %d",
+                attack, defense, diff,
+                oldWinStreak, clearCount,
+                oldAffection, fudi.getSpiritAffection()
+        );
     }
 
     /**
@@ -699,7 +811,7 @@ public class FudiService {
 
         String cropName = (String) cell.get("crop_name");
         Integer cropId = (Integer) cell.get("crop_id");
-        int yield = calculateYield(cropId, fudi.getCoreLevel());
+            int yield = calculateYield(cropId, fudi.getTribulationStage());
 
         // 跨类型五行加成：相邻PEN相生 +20%产量
         WuxingType element = cell.containsKey("element") ? WuxingType.valueOf((String) cell.get("element")) : null;
@@ -776,7 +888,7 @@ public class FudiService {
 
             String cropName = (String) cell.get("crop_name");
             Integer cropId = (Integer) cell.get("crop_id");
-            int yield = calculateYield(cropId, fudi.getCoreLevel());
+        int yield = calculateYield(cropId, fudi.getTribulationStage());
 
             WuxingType element = cell.containsKey("element") ? WuxingType.valueOf((String) cell.get("element")) : null;
             if (element != null) {
@@ -842,10 +954,10 @@ public class FudiService {
     /**
      * 计算产量
      */
-    private int calculateYield(Integer cropId, int coreLevel) {
-        // 基础产量 1-3，聚灵核心等级提供加成
+    private int calculateYield(Integer cropId, int tribulationStage) {
+        // 基础产量 1-3，劫数提供加成
         int baseYield = 1 + new Random().nextInt(3);
-        int bonus = coreLevel / 5; // 每5级核心等级+1产量
+        int bonus = tribulationStage / 5; // 每5劫+1产量
         return baseYield + bonus;
     }
 

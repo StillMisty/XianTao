@@ -43,7 +43,7 @@
 | `xt_map_node`       | V0.0.2 | 地图节点 (JSONB neighbors, specialties, travel_events, GIN)    |
 | `xt_map_connection` | V0.0.2 | 地图连通关系                                                     |
 | `xt_dao_protection` | V0.0.3 | 护道关系                                                       |
-| `xt_fudi`           | V0.0.4 | 福地 (JSONB grid_layout, spirit_config, scorched_cells, GIN) |
+| `xt_fudi`           | V0.0.4 | 福地 (JSONB grid_layout, spirit_config, GIN) |
 
 ## 初始地图
 

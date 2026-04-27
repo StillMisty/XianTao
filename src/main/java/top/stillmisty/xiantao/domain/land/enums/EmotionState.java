@@ -12,7 +12,7 @@ public enum EmotionState {
     CALM("calm", "😐", "正常状态"),
     ANXIOUS("anxious", "😰", "灵气低于30%"),
     FATIGUED("fatigued", "😴", "精力耗尽"),
-    ANGRY("angry", "😤", "天劫失败后地块被毁"),
+    ANGRY("angry", "😤", "天劫失利，地块被毁"),
     EXCITED("excited", "🥳", "天劫胜利或玩家升级福地");
 
     @EnumValue

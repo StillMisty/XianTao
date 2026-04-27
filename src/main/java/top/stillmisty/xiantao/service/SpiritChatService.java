@@ -92,7 +92,7 @@ public class SpiritChatService {
                 fudi.getMbtiType(),
                 fudi.getAuraCurrent(),
                 fudi.getAuraMax(),
-                fudi.getCoreLevel(),
+                fudi.getTribulationStage(),
                 fudi.getSpiritEnergy(),
                 fudi.getSpiritAffection(),
                 gridDetail,

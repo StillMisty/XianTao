@@ -40,9 +40,9 @@ public class FudiStatusVO {
     private Integer auraHourlyCost;
 
     /**
-     * 聚灵核心等级
+     * 当前劫数
      */
-    private Integer coreLevel;
+    private Integer tribulationStage;
 
     /**
      * 福地网格大小
@@ -85,9 +85,9 @@ public class FudiStatusVO {
     private Integer occupiedCells;
 
     /**
-     * 焦土地块数
+     * 天劫连续胜利次数
      */
-    private Integer scorchedCells;
+    private Integer tribulationWinStreak;
 
     /**
      * 天劫最后发生时间
@@ -98,6 +98,11 @@ public class FudiStatusVO {
      * 下次天劫时间
      */
     private LocalDateTime nextTribulationTime;
+
+    /**
+     * 刚结算的天劫结果消息（非天劫期为null）
+     */
+    private String tribulationResult;
 
     /**
      * 网格布局详情

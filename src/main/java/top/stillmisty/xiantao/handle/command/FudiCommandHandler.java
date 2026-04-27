@@ -192,20 +192,23 @@ public class FudiCommandHandler {
 
     private String formatFudiStatus(FudiStatusVO status) {
         StringBuilder sb = new StringBuilder();
+
+        // 天劫刚结算时，前置显示结果
+        if (status.getTribulationResult() != null) {
+            sb.append(status.getTribulationResult()).append("\n\n");
+        }
+
         sb.append("🏔️ 【福地状态】\n");
         sb.append("━━━━━━━━━━━━━━━\n");
         sb.append("🔮 灵气：").append(status.getAuraCurrent()).append("/").append(status.getAuraMax()).append("\n");
         sb.append("⚡ 每小时消耗：").append(status.getAuraHourlyCost()).append(" 灵气\n");
-        sb.append("🏰 福地等级：Lv.").append(status.getCoreLevel()).append("\n");
+        sb.append("⛈️ 劫数：").append(status.getTribulationStage()).append("  连胜×").append(status.getTribulationWinStreak()).append("\n");
         sb.append("🎭 地灵人格：").append(status.getMbtiType().getCode()).append("\n");
         sb.append("😊 地灵情绪：").append(status.getEmotionState().getEmoji()).append(" ").append(status.getEmotionState().getDescription()).append("\n");
         sb.append("⚙️ 自动管理：").append(status.getAutoMode() ? "✅ 开启" : "❌ 关闭").append("\n");
         sb.append("🛌 蛰伏模式：").append(status.getDormantMode() ? "⚠️ 激活" : "✅ 未激活").append("\n");
         sb.append("📐 网格大小：").append(status.getGridSize()).append("x").append(status.getGridSize()).append("\n");
         sb.append("🏗️ 已占地块：").append(status.getOccupiedCells()).append("/").append(status.getGridSize() * status.getGridSize()).append("\n");
-        if (status.getScorchedCells() > 0) {
-            sb.append("🔥 焦土地块：").append(status.getScorchedCells()).append("\n");
-        }
         sb.append("━━━━━━━━━━━━━━━\n");
         sb.append("💡 使用 #福地网格 查看详细布局");
         return sb.toString();
@@ -256,7 +259,7 @@ public class FudiCommandHandler {
         if (hourlyCost > 0) {
             sb.append("预计可用：").append(current / hourlyCost).append(" 小时\n");
         }
-        sb.append("聚灵核心等级：Lv.").append(status.getCoreLevel()).append("\n");
+        sb.append("⛈️ 劫数：Lv.").append(status.getTribulationStage()).append("\n");
         sb.append("━━━━━━━━━━━━━━━\n");
         sb.append("💡 使用 #献祭 装备可补充灵气");
         return sb.toString();
@@ -267,7 +270,7 @@ public class FudiCommandHandler {
                 "━━━━━━━━━━━━━━━\n" +
                 "MBTI人格：" + status.getMbtiType().getCode() + "\n" +
                 "语气风格：" + status.getMbtiType().getToneStyle() + "\n" +
-                "福地等级：Lv." + status.getCoreLevel() + "\n" +
+                "劫数：" + status.getTribulationStage() + "\n" +
                 "好感度：" + status.getSpiritAffection() + " 点\n" +
                 "精力值：" + status.getSpiritEnergy() + "/100\n" +
                 "当前情绪：" + status.getEmotionState().getEmoji() + " " + status.getEmotionState().getDescription() + "\n" +
