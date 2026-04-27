@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
+import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 
 /**
  * 统一身份认证服务
@@ -14,7 +15,7 @@ import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 public class AuthenticationService {
 
     private final UserAuthService userAuthService;
-    private final UserService userService;
+    private final UserRepository userRepository;
 
     /**
      * 仅验证平台绑定（不检查 User 实体是否存在）
@@ -33,7 +34,7 @@ public class AuthenticationService {
         if (!authResult.authenticated()) {
             return authResult;
         }
-        var user = userService.findById(authResult.userId());
+        var user = userRepository.findById(authResult.userId());
         if (user.isEmpty()) {
             return AuthResult.failure("用户不存在");
         }
@@ -48,7 +49,7 @@ public class AuthenticationService {
         if (!authResult.authenticated()) {
             return authResult;
         }
-        var user = userService.findById(authResult.userId());
+        var user = userRepository.findById(authResult.userId());
         if (user.isEmpty()) {
             return AuthResult.failure("用户不存在");
         }

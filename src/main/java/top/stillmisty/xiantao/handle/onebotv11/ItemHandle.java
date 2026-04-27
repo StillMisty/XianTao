@@ -40,8 +40,50 @@ public class ItemHandle {
     }
 
     /**
+     * 处理种子列表命令
+     */
+    @Listener
+    @ContentTrim
+    @Filter("背包 种子")
+    public void listSeeds(MessageEvent event) {
+        String response = commandHandler.handleSeedInventory(
+                PlatformType.ONE_BOT_V11,
+                event.getAuthorId().toString()
+        );
+        event.replyBlocking(response);
+    }
+
+    /**
+     * 处理装备列表命令
+     */
+    @Listener
+    @ContentTrim
+    @Filter("背包 装备")
+    public void listEquipment(MessageEvent event) {
+        String response = commandHandler.handleEquipmentInventory(
+                PlatformType.ONE_BOT_V11,
+                event.getAuthorId().toString()
+        );
+        event.replyBlocking(response);
+    }
+
+    /**
+     * 处理兽卵列表命令
+     */
+    @Listener
+    @ContentTrim
+    @Filter("背包 兽卵")
+    public void listEggs(MessageEvent event) {
+        String response = commandHandler.handleEggInventory(
+                PlatformType.ONE_BOT_V11,
+                event.getAuthorId().toString()
+        );
+        event.replyBlocking(response);
+    }
+
+    /**
      * 处理装备穿戴命令
-     * 格式：装备 [物品名]
+     * 格式：装备 [物品名/编号]
      */
     @Listener
     @ContentTrim

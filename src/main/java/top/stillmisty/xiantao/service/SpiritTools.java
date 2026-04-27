@@ -22,6 +22,7 @@ import java.util.Map;
 public class SpiritTools {
 
     private final FudiService fudiService;
+    private final ItemService itemService;
 
     /**
      * 查询福地网格状态工具
@@ -56,17 +57,68 @@ public class SpiritTools {
     }
 
     /**
+     * 查询玩家背包工具
+     */
+    @Tool(description = "查询玩家背包中的物品列表。可以查看种子、装备或兽卵。返回编号列表，后续可以使用编号代替名称来操作物品。")
+    public String queryBag(
+            @ToolParam(description = "要查询的类别：种子、装备、兽卵") String category
+    ) {
+        try {
+            Long userId = getCurrentUserId();
+            var response = switch (category) {
+                case "种子" -> {
+                    var list = itemService.getSeedInventory(userId);
+                    if (list.isEmpty()) yield "背包中没有种子。";
+                    var sb = new StringBuilder("【种子列表】\n");
+                    for (var e : list) {
+                        sb.append(e.index()).append(". ").append(e.name());
+                        if (e.quantity() > 1) sb.append(" x").append(e.quantity());
+                        sb.append(" [").append(e.metadata()).append("]\n");
+                    }
+                    yield sb.toString().strip();
+                }
+                case "装备" -> {
+                    var list = itemService.getEquipmentInventory(userId);
+                    if (list.isEmpty()) yield "背包中没有可装备的物品。";
+                    var sb = new StringBuilder("【装备列表】\n");
+                    for (var e : list) {
+                        sb.append(e.index()).append(". ").append(e.name());
+                        sb.append(" [").append(e.metadata()).append("]\n");
+                    }
+                    yield sb.toString().strip();
+                }
+                case "兽卵" -> {
+                    var list = itemService.getEggInventory(userId);
+                    if (list.isEmpty()) yield "背包中没有兽卵。";
+                    var sb = new StringBuilder("【兽卵列表】\n");
+                    for (var e : list) {
+                        sb.append(e.index()).append(". ").append(e.name());
+                        if (e.quantity() > 1) sb.append(" x").append(e.quantity());
+                        sb.append(" [").append(e.metadata()).append("]\n");
+                    }
+                    yield sb.toString().strip();
+                }
+                default -> "支持的类别：种子、装备、兽卵";
+            };
+            return response;
+        } catch (Exception e) {
+            log.error("查询背包失败: category={}", category, e);
+            return "查询背包失败：" + e.getMessage();
+        }
+    }
+
+    /**
      * 种植灵药工具
      */
-    @Tool(description = "在福地的指定坐标种植灵药。需要先调用getGridStatus确认坐标为空。需要提供坐标（格式如'0,0'）和作物名称。")
+    @Tool(description = "在福地的指定坐标种植灵药。需要先调用getGridStatus确认坐标为空，再调用queryBag('种子')查看可用种子的编号。提供坐标（格式如'0,0'）和种子名称或编号。")
     public PlantCropResponse plantCrop(
             @ToolParam(description = "种植坐标，格式如'0,0'、'1,2'等") String position,
-            @ToolParam(description = "作物名称，如'灵草种子'、'赤火莲子'、'玄冰莲子'、'金芝种子'等") String cropName
+            @ToolParam(description = "种子编号或名称。先调用queryBag('种子')查看编号，例如'1'、'2'，或直接使用名称如'灵草种子'") String cropName
     ) {
         try {
             Long userId = getCurrentUserId();
 
-            FarmCellVO result = fudiService.plantCropByName(userId, position, cropName);
+            FarmCellVO result = fudiService.plantCropByInput(userId, position, cropName);
 
             return new PlantCropResponse(
                     true,
@@ -176,9 +228,9 @@ public class SpiritTools {
     /**
      * 献祭物品工具
      */
-    @Tool(description = "献祭背包中的装备换取灵气。可以指定物品名称或'all'表示献祭所有白色品质装备。")
+    @Tool(description = "献祭背包中的装备换取灵气。先调用queryBag('装备')查看可用装备的编号。可以指定装备编号、名称或'all'。")
     public SacrificeItemResponse sacrificeItem(
-            @ToolParam(description = "物品名称，或'all'表示批量献祭") String itemName
+            @ToolParam(description = "装备编号或名称，例如'1'、'2'，或装备名称。'all'表示批量献祭但尚未实现") String itemName
     ) {
         try {
             Long userId = getCurrentUserId();
@@ -188,7 +240,7 @@ public class SpiritTools {
                 return new SacrificeItemResponse(false, "批量献祭功能尚未实现。", itemName, 0);
             }
 
-            int auraGain = fudiService.sacrificeItemByName(userId, itemName);
+            int auraGain = fudiService.sacrificeItemByInput(userId, itemName);
 
             return new SacrificeItemResponse(
                     true,

@@ -36,6 +36,7 @@ public class FudiService {
     private final ItemTemplateRepository itemTemplateRepository;
     private final EquipmentRepository equipmentRepository;
     private final StackableItemRepository stackableItemRepository;
+    private final ItemResolver itemResolver;
 
     // ===================== 公开 API（含认证） =====================
 
@@ -54,6 +55,16 @@ public class FudiService {
         if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
         try {
             return new ServiceResult.Success<>(plantCropByName(auth.userId(), position, cropName));
+        } catch (IllegalStateException e) {
+            return new ServiceResult.Failure<>(e.getMessage());
+        }
+    }
+
+    public ServiceResult<FarmCellVO> plantCropByInput(PlatformType platform, String openId, String position, String input) {
+        var auth = authService.authenticateAndValidateUser(platform, openId);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        try {
+            return new ServiceResult.Success<>(plantCropByInput(auth.userId(), position, input));
         } catch (IllegalStateException e) {
             return new ServiceResult.Failure<>(e.getMessage());
         }
@@ -109,6 +120,16 @@ public class FudiService {
         }
     }
 
+    public ServiceResult<Integer> sacrificeItemByInput(PlatformType platform, String openId, String input) {
+        var auth = authService.authenticateAndValidateUser(platform, openId);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        try {
+            return new ServiceResult.Success<>(sacrificeItemByInput(auth.userId(), input));
+        } catch (IllegalStateException e) {
+            return new ServiceResult.Failure<>(e.getMessage());
+        }
+    }
+
     public ServiceResult<Map<String, Object>> upgradeCell(PlatformType platform, String openId, String position) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
         if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
@@ -124,6 +145,16 @@ public class FudiService {
         if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
         try {
             return new ServiceResult.Success<>(hatchBeast(auth.userId(), position, eggName));
+        } catch (IllegalStateException e) {
+            return new ServiceResult.Failure<>(e.getMessage());
+        }
+    }
+
+    public ServiceResult<PenCellVO> hatchBeastByInput(PlatformType platform, String openId, String position, String input) {
+        var auth = authService.authenticateAndValidateUser(platform, openId);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        try {
+            return new ServiceResult.Success<>(hatchBeastByInput(auth.userId(), position, input));
         } catch (IllegalStateException e) {
             return new ServiceResult.Failure<>(e.getMessage());
         }
@@ -448,6 +479,25 @@ public class FudiService {
     }
 
     /**
+     * 按输入（编号或名称）献祭装备
+     */
+    public int sacrificeItemByInput(Long userId, String input) {
+        var result = itemResolver.resolveEquipment(userId, input);
+        return switch (result) {
+            case ItemResolver.Found(var equipment, var index) -> sacrificeItem(userId, equipment.getId());
+            case ItemResolver.NotFound(var name) ->
+                    throw new IllegalStateException("背包中未找到 [" + name + "] 相关的装备");
+            case ItemResolver.Ambiguous(var name, var candidates) -> {
+                var sb = new StringBuilder("找到多个装备，请使用编号：\n");
+                for (var e : candidates) {
+                    sb.append(e.index()).append(". ").append(e.name()).append(" [").append(e.metadata()).append("]\n");
+                }
+                throw new IllegalStateException(sb.toString().strip());
+            }
+        };
+    }
+
+    /**
      * 批量献祭指定品质的装备
      */
     public Map<String, Integer> sacrificeItemsByQuality(Long userId, String quality) {
@@ -573,6 +623,44 @@ public class FudiService {
         }
 
         return plantCrop(userId, position, cropId, cropName, element, cropTier);
+    }
+
+    /**
+     * 按输入（编号或名称）种植灵药
+     */
+    public FarmCellVO plantCropByInput(Long userId, String position, String input) {
+        var result = itemResolver.resolveSeed(userId, input);
+        return switch (result) {
+            case ItemResolver.Found(var template, var index) -> {
+                var stackableItem = stackableItemRepository
+                        .findByUserIdAndTemplateId(userId, template.getId())
+                        .orElseThrow(() -> new IllegalStateException("背包中没有 [" + template.getName() + "]"));
+
+                itemService.reduceStackableItem(userId, template.getId(), 1);
+
+                WuxingType element = resolveElement(template);
+                int growTime = template.getGrowTime() != null ? template.getGrowTime() : 24;
+                int cropTier = getCropTier(growTime);
+                Integer cropId = template.getId().intValue();
+                String cropName = template.getName();
+
+                Fudi fudi = getFudiByUserId(userId).orElseThrow(() -> new IllegalStateException("未找到福地"));
+                Map<String, Object> existingCell = getCellByPosition(fudi, position);
+                if (existingCell != null && !CellType.FARM.getCode().equals(existingCell.get("type"))) {
+                    throw new IllegalStateException("坐标 " + position + " 已有其他类型地块");
+                }
+
+                yield plantCrop(userId, position, cropId, cropName, element, cropTier);
+            }
+            case ItemResolver.NotFound(var name) -> throw new IllegalStateException("背包中未找到种子 [" + name + "]");
+            case ItemResolver.Ambiguous(var name, var candidates) -> {
+                var sb = new StringBuilder("找到多个种子，请使用编号：\n");
+                for (var e : candidates) {
+                    sb.append(e.index()).append(". ").append(e.name()).append(" x").append(e.quantity()).append(" (").append(e.metadata()).append(")\n");
+                }
+                throw new IllegalStateException(sb.toString().strip());
+            }
+        };
     }
 
     /**
@@ -984,6 +1072,115 @@ public class FudiService {
                 .lifespanDays(tier * 7.0 * quality.getLifespanMultiplier())
                 .birthTime(now)
                 .build();
+    }
+
+    /**
+     * 按输入（编号或名称）孵化灵兽
+     */
+    public PenCellVO hatchBeastByInput(Long userId, String position, String input) {
+        var result = itemResolver.resolveEgg(userId, input);
+        return switch (result) {
+            case ItemResolver.Found(var template, var index) -> {
+                var stackableItem = stackableItemRepository
+                        .findByUserIdAndTemplateId(userId, template.getId())
+                        .orElseThrow(() -> new IllegalStateException("背包中没有 [" + template.getName() + "]"));
+
+                itemService.reduceStackableItem(userId, template.getId(), 1);
+
+                var fudi = getFudiByUserId(userId)
+                        .orElseThrow(() -> new IllegalStateException("未找到福地"));
+
+                var cell = getCellByPosition(fudi, position);
+                if (cell == null || !CellType.PEN.getCode().equals(cell.get("type"))) {
+                    throw new IllegalStateException("坐标 " + position + " 不是兽栏");
+                }
+                if (cell.containsKey("beast_id") && (Integer) cell.get("beast_id") > 0) {
+                    throw new IllegalStateException("该兽栏已有灵兽，请先放生");
+                }
+
+                int tier = getCropTier(template.getGrowTime() != null ? template.getGrowTime() : 72);
+
+                int cellLevel = (Integer) cell.getOrDefault("cell_level", 1);
+                if (cellLevel < tier) {
+                    throw new IllegalStateException("灵兽等阶(T%d)需要至少Lv%d兽栏".formatted(tier, tier));
+                }
+
+                int hatchAuraCost = tier * 200 + 200;
+                fudi.updateAura();
+                if (fudi.getAuraCurrent() < hatchAuraCost) {
+                    throw new IllegalStateException("灵气不足（孵化需 %d，当前 %d）".formatted(hatchAuraCost, fudi.getAuraCurrent()));
+                }
+                fudi.setAuraCurrent(fudi.getAuraCurrent() - hatchAuraCost);
+
+                BeastQuality quality = rollBeastQuality();
+                WuxingType element = resolveElement(template);
+
+                boolean isMutant = new java.util.Random().nextInt(100) < 5;
+                List<String> mutationTraits = new ArrayList<>();
+                if (isMutant) {
+                    mutationTraits.add(rollRandomTrait());
+                }
+
+                double levelSpeed = getLevelSpeedMultiplier(cellLevel, tier);
+                double wuxingModifier = calculateGrowthModifier(fudi, position, element);
+                double productionInterval = 4.0 / (levelSpeed * (wuxingModifier > 0 ? wuxingModifier : 1.0));
+                double baseHatchHours = 24 + tier * 8;
+                double hatchHours = baseHatchHours / (levelSpeed * (wuxingModifier > 0 ? wuxingModifier : 1.0));
+
+                String beastName = template.getName().replace("兽卵", "").replace("蛋", "灵兽");
+                LocalDateTime now = LocalDateTime.now();
+
+                cell.put("beast_id", template.getId().intValue());
+                cell.put("beast_name", beastName);
+                cell.put("tier", tier);
+                cell.put("element", element.name());
+                cell.put("quality", quality.getCode());
+                cell.put("quality_ordinal", quality.getOrder());
+                cell.put("is_mutant", isMutant);
+                cell.put("mutation_traits", mutationTraits);
+                cell.put("is_incubating", true);
+                cell.put("hatch_time", now.toString());
+                cell.put("mature_time", now.plusHours((long) hatchHours).toString());
+                cell.put("production_stored", 0);
+                cell.put("last_production_time", now.toString());
+                cell.put("production_interval_hours", productionInterval);
+                cell.put("lifespan_days", tier * 7.0 * quality.getLifespanMultiplier());
+                cell.put("birth_time", now.toString());
+                cell.put("power_score", tier * 10);
+                cell.put("evolution_count", 0);
+
+                fudiRepository.save(fudi);
+
+                yield PenCellVO.builder()
+                        .position(position)
+                        .cellLevel(cellLevel)
+                        .beastId(template.getId().intValue())
+                        .beastName(beastName)
+                        .tier(tier)
+                        .element(element)
+                        .quality(quality.getChineseName())
+                        .qualityOrdinal(quality.getOrder())
+                        .isMutant(isMutant)
+                        .mutationTraits(mutationTraits)
+                        .isIncubating(true)
+                        .hatchTime(now)
+                        .matureTime(now.plusHours((long) hatchHours))
+                        .productionIntervalHours(productionInterval)
+                        .productionStored(0)
+                        .powerScore(tier * 10)
+                        .lifespanDays(tier * 7.0 * quality.getLifespanMultiplier())
+                        .birthTime(now)
+                        .build();
+            }
+            case ItemResolver.NotFound(var name) -> throw new IllegalStateException("背包中未找到兽卵 [" + name + "]");
+            case ItemResolver.Ambiguous(var name, var candidates) -> {
+                var sb = new StringBuilder("找到多个兽卵，请使用编号：\n");
+                for (var e : candidates) {
+                    sb.append(e.index()).append(". ").append(e.name()).append(" x").append(e.quantity()).append(" (").append(e.metadata()).append(")\n");
+                }
+                throw new IllegalStateException(sb.toString().strip());
+            }
+        };
     }
 
     // ===================== 灵兽系统 — 产出 =====================

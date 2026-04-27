@@ -5,11 +5,18 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
+import top.stillmisty.xiantao.domain.item.enums.ItemType;
 
 import java.util.List;
 
 @Mapper
 public interface ItemTemplateMapper extends BaseMapper<ItemTemplate> {
+
+    /**
+     * 根据物品类型查找模板（使用PostgreSQL枚举类型过滤）
+     */
+    @Select("SELECT * FROM xt_item_template WHERE type = #{type}")
+    List<ItemTemplate> selectByType(@Param("type") ItemType type);
 
     /**
      * 根据单个标签查找物品模板（使用PostgreSQL JSONB操作符 @>）
@@ -35,4 +42,13 @@ public interface ItemTemplateMapper extends BaseMapper<ItemTemplate> {
      * @return 物品模板列表
      */
     List<ItemTemplate> selectByAllTags(@Param("tags") List<String> tags);
+
+    /**
+     * 根据多个物品类型查找模板
+     */
+    @Select("<script>"
+            + "SELECT * FROM xt_item_template WHERE type IN "
+            + "<foreach item='type' collection='types' open='(' separator=',' close=')'>#{type}</foreach>"
+            + "</script>")
+    List<ItemTemplate> selectByTypes(@Param("types") List<ItemType> types);
 }

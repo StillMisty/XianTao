@@ -9,9 +9,7 @@ import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.mapper.ItemTemplateMapper;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * 物品模板仓储实现
@@ -31,11 +29,7 @@ public class ItemTemplateRepositoryImpl implements ItemTemplateRepository {
 
     @Override
     public List<ItemTemplate> findByType(ItemType type) {
-        // 先查询所有，然后在内存中过滤
-        // 后续可以使用@Select注解写自定义SQL优化
-        return Objects.requireNonNull(mapper.selectAll()).stream()
-                .filter(t -> t.getType() == type)
-                .collect(Collectors.toList());
+        return mapper.selectByType(type);
     }
 
     @Override
@@ -43,9 +37,7 @@ public class ItemTemplateRepositoryImpl implements ItemTemplateRepository {
         if (types == null || types.isEmpty()) {
             return List.of();
         }
-        return Objects.requireNonNull(mapper.selectAll()).stream()
-                .filter(t -> types.contains(t.getType()))
-                .collect(Collectors.toList());
+        return mapper.selectByTypes(types);
     }
 
 

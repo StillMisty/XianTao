@@ -6,10 +6,13 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.item.vo.AttributeChange;
 import top.stillmisty.xiantao.domain.item.vo.CharacterStatusResult;
 import top.stillmisty.xiantao.domain.item.vo.InventorySummaryVO;
+import top.stillmisty.xiantao.domain.item.vo.ItemEntry;
 import top.stillmisty.xiantao.domain.user.enums.AttributeType;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.vo.*;
 import top.stillmisty.xiantao.service.*;
+
+import java.util.List;
 
 /**
  * 修仙命令处理器（纯 View 层）
@@ -71,6 +74,27 @@ public class CultivationCommandHandler {
         };
     }
 
+    public String handleSeedInventory(PlatformType platform, String openId) {
+        return switch (itemService.getSeedInventory(platform, openId)) {
+            case ServiceResult.Failure(var msg) -> msg;
+            case ServiceResult.Success(var entries) -> formatItemList("种子", entries);
+        };
+    }
+
+    public String handleEquipmentInventory(PlatformType platform, String openId) {
+        return switch (itemService.getEquipmentInventory(platform, openId)) {
+            case ServiceResult.Failure(var msg) -> msg;
+            case ServiceResult.Success(var entries) -> formatItemList("装备", entries);
+        };
+    }
+
+    public String handleEggInventory(PlatformType platform, String openId) {
+        return switch (itemService.getEggInventory(platform, openId)) {
+            case ServiceResult.Failure(var msg) -> msg;
+            case ServiceResult.Success(var entries) -> formatItemList("兽卵", entries);
+        };
+    }
+
     public String handleEquip(PlatformType platform, String openId, String itemName) {
         log.debug("处理装备穿戴 - Platform: {}, OpenId: {}, ItemName: {}", platform, openId, itemName);
         return switch (itemService.equipItem(platform, openId, itemName)) {
@@ -95,7 +119,8 @@ public class CultivationCommandHandler {
         }
         return switch (cultivationService.allocateAttributePoints(platform, openId, attributeType, points)) {
             case ServiceResult.Failure(var msg) -> msg;
-            case ServiceResult.Success(var vo) -> vo.isSuccess() ? formatAttributeAllocationResult(vo) : vo.getMessage();
+            case ServiceResult.Success(var vo) ->
+                    vo.isSuccess() ? formatAttributeAllocationResult(vo) : vo.getMessage();
         };
     }
 
@@ -195,21 +220,29 @@ public class CultivationCommandHandler {
                 sb.append(String.format("  你正在为 %d/%d 位道友护道\n", status.getProtectorCount(), status.getMaxProtectorCount()));
                 for (var info : status.getProtectingList()) {
                     String locationStatus = Boolean.TRUE.equals(info.getIsInSameLocation()) ? "[同地点]" : "[异地]";
-                    sb.append(String.format("    %s（第%d层）- %s %s - 加成%.1f%%\n",
-                            info.getUserName(), info.getUserLevel(), info.getLocationName(), locationStatus, info.getBonusPercentage()));
+                    sb.append(String.format(
+                            "    %s（第%d层）- %s %s - 加成%.1f%%\n",
+                            info.getUserName(), info.getUserLevel(), info.getLocationName(), locationStatus, info.getBonusPercentage()
+                    ));
                 }
             } else {
-                sb.append(String.format("  你正在为 %d/%d 位道友护道\n",
-                        status.getProtectorCount() != null ? status.getProtectorCount() : 0, status.getMaxProtectorCount() != null ? status.getMaxProtectorCount() : 3));
+                sb.append(String.format(
+                        "  你正在为 %d/%d 位道友护道\n",
+                        status.getProtectorCount() != null ? status.getProtectorCount() : 0, status.getMaxProtectorCount() != null ? status.getMaxProtectorCount() : 3
+                ));
             }
             if (status.getProtectedByList() != null && !status.getProtectedByList().isEmpty()) {
-                sb.append(String.format("  有 %d 位道友为你护道，总加成：%.1f%%\n",
-                        status.getProtectedByList().size(), status.getTotalProtectionBonus() != null ? status.getTotalProtectionBonus() : 0.0));
+                sb.append(String.format(
+                        "  有 %d 位道友为你护道，总加成：%.1f%%\n",
+                        status.getProtectedByList().size(), status.getTotalProtectionBonus() != null ? status.getTotalProtectionBonus() : 0.0
+                ));
                 for (var info : status.getProtectedByList()) {
                     String locationStatus = Boolean.TRUE.equals(info.getIsInSameLocation()) ? "[同地点]" : "[异地]";
                     String bonusText = Boolean.TRUE.equals(info.getIsInSameLocation()) ? String.format("加成%.1f%%", info.getBonusPercentage()) : "无法提供加成";
-                    sb.append(String.format("    %s（第%d层）- %s %s - %s\n",
-                            info.getUserName(), info.getUserLevel(), info.getLocationName(), locationStatus, bonusText));
+                    sb.append(String.format(
+                            "    %s（第%d层）- %s %s - %s\n",
+                            info.getUserName(), info.getUserLevel(), info.getLocationName(), locationStatus, bonusText
+                    ));
                 }
             } else {
                 sb.append("  无道友为你护道\n");
@@ -219,9 +252,23 @@ public class CultivationCommandHandler {
         if (status.getEquipment() != null && !status.getEquipment().getItems().isEmpty()) {
             sb.append("\n【已穿戴装备】\n");
             status.getEquipment().getItems().forEach(item ->
-                    sb.append(String.format("  %s：%s [%s]\n", item.getSlotName(), item.getName(), item.getRarityName())));
+                                                             sb.append(String.format("  %s：%s [%s]\n", item.getSlotName(), item.getName(), item.getRarityName())));
         }
         return sb.toString();
+    }
+
+    private String formatItemList(String title, List<ItemEntry> entries) {
+        if (entries.isEmpty()) {
+            return "【" + title + "列表】（空）";
+        }
+        var sb = new StringBuilder("【" + title + "列表】\n");
+        for (var e : entries) {
+            sb.append(e.index()).append(". ").append(e.name());
+            if (e.quantity() > 1) sb.append(" x").append(e.quantity());
+            if (!e.metadata().isBlank()) sb.append(" [").append(e.metadata()).append("]");
+            sb.append("\n");
+        }
+        return sb.toString().strip();
     }
 
     private String formatInventorySummary(InventorySummaryVO inventory) {
@@ -256,8 +303,10 @@ public class CultivationCommandHandler {
             if (change.getConChange() != 0) sb.append(formatAttrChange("体质", change.getConChange())).append("\n");
             if (change.getAgiChange() != 0) sb.append(formatAttrChange("敏捷", change.getAgiChange())).append("\n");
             if (change.getWisChange() != 0) sb.append(formatAttrChange("智慧", change.getWisChange())).append("\n");
-            if (change.getAttackChange() != 0) sb.append(formatAttrChange("攻击", change.getAttackChange())).append("\n");
-            if (change.getDefenseChange() != 0) sb.append(formatAttrChange("防御", change.getDefenseChange())).append("\n");
+            if (change.getAttackChange() != 0)
+                sb.append(formatAttrChange("攻击", change.getAttackChange())).append("\n");
+            if (change.getDefenseChange() != 0)
+                sb.append(formatAttrChange("防御", change.getDefenseChange())).append("\n");
             if (change.getMaxHpChange() != 0) sb.append(formatAttrChange("HP上限", change.getMaxHpChange()));
         }
         return sb.toString();
@@ -302,7 +351,8 @@ public class CultivationCommandHandler {
         if (result.getSuccessRate() != null) sb.append(String.format("突破成功率：%.1f%%\n", result.getSuccessRate()));
         if (result.getNewLevel() != null) sb.append(String.format("当前境界：第%d层\n", result.getNewLevel()));
         if (result.getFreeStatPoints() != null) sb.append(String.format("可用属性点：%d\n", result.getFreeStatPoints()));
-        if (result.getNextBreakthroughRate() != null) sb.append(String.format("下次突破成功率：%.1f%%", result.getNextBreakthroughRate()));
+        if (result.getNextBreakthroughRate() != null)
+            sb.append(String.format("下次突破成功率：%.1f%%", result.getNextBreakthroughRate()));
         return sb.toString();
     }
 
@@ -322,8 +372,10 @@ public class CultivationCommandHandler {
             sb.append(String.format("\n【你正在为以下道友护道】(%d/%d)\n", result.getProtectingCount(), result.getMaxProtectingCount()));
             for (var info : result.getProtectingList()) {
                 String locationStatus = info.getIsInSameLocation() ? "[同地点]" : "[异地]";
-                sb.append(String.format("  %s（第%d层）- %s %s - 加成%.1f%%\n",
-                        info.getUserName(), info.getUserLevel(), info.getLocationName(), locationStatus, info.getBonusPercentage()));
+                sb.append(String.format(
+                        "  %s（第%d层）- %s %s - 加成%.1f%%\n",
+                        info.getUserName(), info.getUserLevel(), info.getLocationName(), locationStatus, info.getBonusPercentage()
+                ));
             }
         } else {
             sb.append("\n【你正在为以下道友护道】无\n");
@@ -333,8 +385,10 @@ public class CultivationCommandHandler {
             for (var info : result.getProtectedByList()) {
                 String locationStatus = info.getIsInSameLocation() ? "[同地点]" : "[异地]";
                 String bonusText = info.getIsInSameLocation() ? String.format("加成%.1f%%", info.getBonusPercentage()) : "无法提供加成";
-                sb.append(String.format("  %s（第%d层）- %s %s - %s\n",
-                        info.getUserName(), info.getUserLevel(), info.getLocationName(), locationStatus, bonusText));
+                sb.append(String.format(
+                        "  %s（第%d层）- %s %s - %s\n",
+                        info.getUserName(), info.getUserLevel(), info.getLocationName(), locationStatus, bonusText
+                ));
             }
         } else {
             sb.append("\n【以下道友正在为你护道】无\n");

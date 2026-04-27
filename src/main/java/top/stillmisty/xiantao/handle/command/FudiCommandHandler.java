@@ -11,8 +11,6 @@ import top.stillmisty.xiantao.service.FudiService;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.SpiritChatService;
 
-import java.util.Map;
-
 /**
  * 福地命令处理器（纯 View 层）
  */
@@ -53,7 +51,7 @@ public class FudiCommandHandler {
     }
 
     public String handlePlant(PlatformType platform, String openId, String position, String cropName) {
-        return switch (fudiService.plantCropByName(platform, openId, position, cropName)) {
+        return switch (fudiService.plantCropByInput(platform, openId, position, cropName)) {
             case ServiceResult.Failure(var msg) -> "❌ " + msg;
             case ServiceResult.Success(var vo) -> formatPlantResult(vo);
         };
@@ -104,14 +102,13 @@ public class FudiCommandHandler {
         };
     }
 
-    public String handleSacrifice(PlatformType platform, String openId, String itemName) {
-        if ("all".equalsIgnoreCase(itemName)) {
+    public String handleSacrifice(PlatformType platform, String openId, String input) {
+        if ("all".equalsIgnoreCase(input)) {
             return "⚠️ 批量献祭功能尚未实现。";
         }
-        return switch (fudiService.sacrificeItemByName(platform, openId, itemName)) {
+        return switch (fudiService.sacrificeItemByInput(platform, openId, input)) {
             case ServiceResult.Failure(var msg) -> "❌ " + msg;
-            case ServiceResult.Success(var auraGain) ->
-                    String.format("✅ 献祭成功！%s 转化为 %d 灵气。", itemName, auraGain);
+            case ServiceResult.Success(var auraGain) -> String.format("✅ 献祭成功！获得 %d 灵气。", auraGain);
         };
     }
 
@@ -128,7 +125,7 @@ public class FudiCommandHandler {
     }
 
     public String handleHatch(PlatformType platform, String openId, String position, String eggName) {
-        return switch (fudiService.hatchBeast(platform, openId, position, eggName)) {
+        return switch (fudiService.hatchBeastByInput(platform, openId, position, eggName)) {
             case ServiceResult.Failure(var msg) -> "❌ " + msg;
             case ServiceResult.Success(var vo) -> formatHatchResult(vo);
         };
@@ -293,8 +290,10 @@ public class FudiCommandHandler {
         if (result.isMutant()) {
             sb.append("✨ 变异灵兽！特性：").append(String.join(",", result.getMutationTraits())).append("\n");
         }
-        sb.append(String.format("预计 %.1f 小时后孵化完成。", 
-                java.time.Duration.between(java.time.LocalDateTime.now(), result.getMatureTime()).toHours()));
+        sb.append(String.format(
+                "预计 %.1f 小时后孵化完成。",
+                java.time.Duration.between(java.time.LocalDateTime.now(), result.getMatureTime()).toHours()
+        ));
         return sb.toString();
     }
 

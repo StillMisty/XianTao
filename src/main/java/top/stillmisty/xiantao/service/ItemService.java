@@ -39,6 +39,7 @@ public class ItemService {
     private final DaoProtectionRepository daoProtectionRepository;
     private final MapNodeRepository mapNodeRepository;
     private final AuthenticationService authService;
+    private final ItemResolver itemResolver;
 
     // ===================== 公开 API（含认证） =====================
 
@@ -52,6 +53,24 @@ public class ItemService {
         var auth = authService.authenticateAndValidateUser(platform, openId);
         if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
         return new ServiceResult.Success<>(getInventorySummary(auth.userId()));
+    }
+
+    public ServiceResult<List<ItemEntry>> getSeedInventory(PlatformType platform, String openId) {
+        var auth = authService.authenticateAndValidateUser(platform, openId);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        return new ServiceResult.Success<>(getSeedInventory(auth.userId()));
+    }
+
+    public ServiceResult<List<ItemEntry>> getEquipmentInventory(PlatformType platform, String openId) {
+        var auth = authService.authenticateAndValidateUser(platform, openId);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        return new ServiceResult.Success<>(getEquipmentInventory(auth.userId()));
+    }
+
+    public ServiceResult<List<ItemEntry>> getEggInventory(PlatformType platform, String openId) {
+        var auth = authService.authenticateAndValidateUser(platform, openId);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        return new ServiceResult.Success<>(getEggInventory(auth.userId()));
     }
 
     public ServiceResult<EquipResult> equipItem(PlatformType platform, String openId, String itemName) {
@@ -246,36 +265,37 @@ public class ItemService {
     }
 
     /**
-     * 装备穿戴（装备 [物品名]）
+     * 装备穿戴（装备 [物品名/编号]）
      * 将背包中的武器或防具穿戴到身上，直接影响四维属性与攻防数值
+     * 支持按名称或编号选取
      *
-     * @param userId   用户 ID
-     * @param itemName 物品名称
+     * @param userId 用户 ID
+     * @param input  物品名称或编号
      * @return 装备穿戴结果
      */
-    public EquipResult equipItem(Long userId, String itemName) {
+    public EquipResult equipItem(Long userId, String input) {
         userRepository.findById(userId).orElseThrow();
 
-        // 查找未穿戴且名称匹配的装备
-        List<Equipment> availableEquipments = equipmentRepository.findByUserId(userId).stream()
-                .filter(e -> !e.getEquipped() && e.getName().contains(itemName))
-                .toList();
-
-        if (availableEquipments.isEmpty()) {
+        var result = itemResolver.resolveEquipment(userId, input);
+        if (result instanceof ItemResolver.NotFound<?> n) {
             return EquipResult.builder()
                     .success(false)
-                    .message("背包中未找到名为 [" + itemName + "] 的装备")
+                    .message("背包中未找到 [" + n.input() + "] 相关的装备")
+                    .build();
+        }
+        if (result instanceof ItemResolver.Ambiguous<?> a) {
+            var sb = new StringBuilder("找到多个装备，请使用编号：\n");
+            for (var e : a.candidates()) {
+                sb.append(e.index()).append(". ").append(e.name()).append(" [").append(e.metadata()).append("]\n");
+            }
+            return EquipResult.builder()
+                    .success(false)
+                    .message(sb.toString().strip())
                     .build();
         }
 
-        if (availableEquipments.size() > 1) {
-            return EquipResult.builder()
-                    .success(false)
-                    .message("找到多个名为 [" + itemName + "] 的装备，请使用更精确的名称")
-                    .build();
-        }
-
-        Equipment equipmentToEquip = availableEquipments.getFirst();
+        var found = (ItemResolver.Found<Equipment>) result;
+        Equipment equipmentToEquip = found.item();
         EquipmentSlot slot = equipmentToEquip.getSlot();
 
         // 检查该部位是否已有装备
@@ -607,6 +627,20 @@ public class ItemService {
                 .filter(e -> e.getUserId().equals(userId))
                 .map(this::convertToEquipmentDetailVO)
                 .orElse(null);
+    }
+
+    // ===================== 背包细览方法（编号列表） =====================
+
+    public List<ItemEntry> getSeedInventory(Long userId) {
+        return itemResolver.listSeeds(userId);
+    }
+
+    public List<ItemEntry> getEquipmentInventory(Long userId) {
+        return itemResolver.listEquipment(userId);
+    }
+
+    public List<ItemEntry> getEggInventory(Long userId) {
+        return itemResolver.listEggs(userId);
     }
 
     // ===================== 标签搜索方法（地灵AI联动） =====================
