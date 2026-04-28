@@ -38,31 +38,29 @@ public class SpiritChatService {
     // ===================== 内部 API（需预先完成认证） =====================
 
     public String chatWithSpirit(Long userId, String userInput) {
-        UserContext.setCurrentUserId(userId);
         try {
-            Fudi fudi = fudiRepository.findByUserId(userId)
-                    .orElseThrow(() -> new IllegalStateException("未找到福地"));
+            return ScopedValue.where(UserContext.CURRENT_USER, userId).call(() -> {
+                Fudi fudi = fudiRepository.findByUserId(userId)
+                        .orElseThrow(() -> new IllegalStateException("未找到福地"));
 
-            fudi.updateAura();
-            fudi.updateEmotionState();
+                fudi.updateAura();
+                fudi.updateEmotionState();
 
-            String systemPrompt = buildPrompt(fudi);
+                String systemPrompt = buildPrompt(fudi);
 
-            String response = spiritChatClient.prompt()
-                    .system(systemPrompt)
-                    .user(userInput)
-                    .tools(spiritTools)
-                    .call()
-                    .content();
+                String response = spiritChatClient.prompt()
+                        .system(systemPrompt)
+                        .user(userInput)
+                        .tools(spiritTools)
+                        .call()
+                        .content();
 
-            log.info("地灵对话成功 - userId: {}, mbti: {}, input: {}", userId, fudi.getMbtiType(), userInput);
-            return response;
-
+                log.info("地灵对话成功 - userId: {}, mbti: {}, input: {}", userId, fudi.getMbtiType(), userInput);
+                return response;
+            });
         } catch (Exception e) {
             log.error("地灵对话失败 - userId: {}, error: {}", userId, e.getMessage(), e);
             return "地灵暂时无法回应，请稍后再试。";
-        } finally {
-            UserContext.clear();
         }
     }
 
@@ -85,7 +83,7 @@ public class SpiritChatService {
     }
 
     /**
-     * 为 LLM 构建详细的网格状态描述（包含已占地块和可用空位）
+     * 为 LLM 构建详细的地块状态描述
      */
     private String buildGridDetailForLLM(Fudi fudi) {
         if (fudi.getGridLayout() == null) {
