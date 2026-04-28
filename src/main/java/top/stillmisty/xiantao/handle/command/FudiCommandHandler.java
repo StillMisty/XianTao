@@ -104,11 +104,36 @@ public class FudiCommandHandler {
 
     public String handleSacrifice(PlatformType platform, String openId, String input) {
         if ("all".equalsIgnoreCase(input)) {
-            return "⚠️ 批量献祭功能尚未实现。";
+            return switch (fudiService.sacrificeAllItems(platform, openId)) {
+                case ServiceResult.Failure(var msg) -> "❌ " + msg;
+                case ServiceResult.Success(var result) -> {
+                    int count = result.get("count");
+                    int totalAura = result.get("totalAura");
+                    yield String.format("✅ 批量献祭完成！共献祭 %d 件装备，获得 %d 灵气。", count, totalAura);
+                }
+            };
+        }
+        if (isQualityKeyword(input)) {
+            return switch (fudiService.sacrificeItemsByQuality(platform, openId, input)) {
+                case ServiceResult.Failure(var msg) -> "❌ " + msg;
+                case ServiceResult.Success(var result) -> {
+                    int count = result.get("count");
+                    int totalAura = result.get("totalAura");
+                    yield String.format("✅ 献祭完成！共献祭 %d 件装备，获得 %d 灵气。", count, totalAura);
+                }
+            };
         }
         return switch (fudiService.sacrificeItemByInput(platform, openId, input)) {
             case ServiceResult.Failure(var msg) -> "❌ " + msg;
             case ServiceResult.Success(var auraGain) -> String.format("✅ 献祭成功！获得 %d 灵气。", auraGain);
+        };
+    }
+
+    private boolean isQualityKeyword(String input) {
+        return switch (input) {
+            case "白色", "绿色", "蓝色", "紫色", "金色",
+                 "破旧", "普通", "稀有", "史诗", "传说" -> true;
+            default -> false;
         };
     }
 

@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
+import top.stillmisty.xiantao.domain.item.enums.Rarity;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
@@ -590,8 +591,101 @@ public class FudiService {
         };
     }
 
+    public ServiceResult<Map<String, Integer>> sacrificeAllItems(PlatformType platform, String openId) {
+        var auth = authService.authenticateAndValidateUser(platform, openId);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        try {
+            return new ServiceResult.Success<>(sacrificeAllItems(auth.userId()));
+        } catch (IllegalStateException e) {
+            return new ServiceResult.Failure<>(e.getMessage());
+        }
+    }
+
+    public ServiceResult<Map<String, Integer>> sacrificeItemsByQuality(PlatformType platform, String openId, String quality) {
+        var auth = authService.authenticateAndValidateUser(platform, openId);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        try {
+            return new ServiceResult.Success<>(sacrificeItemsByQuality(auth.userId(), quality));
+        } catch (IllegalStateException e) {
+            return new ServiceResult.Failure<>(e.getMessage());
+        }
+    }
+
+    public Map<String, Integer> sacrificeAllItems(Long userId) {
+        Fudi fudi = getFudiByUserId(userId)
+                .orElseThrow(() -> new IllegalStateException("未找到福地"));
+
+        List<Equipment> unequipped = equipmentRepository.findByUserId(userId).stream()
+                .filter(e -> !e.getEquipped())
+                .toList();
+
+        if (unequipped.isEmpty()) {
+            throw new IllegalStateException("背包中没有可献祭的装备");
+        }
+
+        int totalAura = 0;
+        int count = 0;
+        for (Equipment equipment : unequipped) {
+            totalAura += calculateItemAura(equipment, fudi);
+            equipmentRepository.deleteById(equipment.getId());
+            count++;
+        }
+
+        fudi.setAuraCurrent(Math.min(fudi.getAuraMax(), fudi.getAuraCurrent() + totalAura));
+        fudi.setLastAuraUpdate(LocalDateTime.now());
+        fudiRepository.save(fudi);
+
+        log.info("用户 {} 批量献祭 {} 件装备, 获得总灵气 {}", userId, count, totalAura);
+        return Map.of("count", count, "totalAura", totalAura);
+    }
+
     public Map<String, Integer> sacrificeItemsByQuality(Long userId, String quality) {
-        return Map.of("count", 0, "totalAura", 0);
+        Fudi fudi = getFudiByUserId(userId)
+                .orElseThrow(() -> new IllegalStateException("未找到福地"));
+
+        Rarity targetRarity = parseRarity(quality);
+
+        List<Equipment> filtered = equipmentRepository.findByUserId(userId).stream()
+                .filter(e -> !e.getEquipped() && e.getRarity() == targetRarity)
+                .toList();
+
+        if (filtered.isEmpty()) {
+            throw new IllegalStateException("背包中没有" + targetRarity.getName() + "品质的可献祭装备");
+        }
+
+        int totalAura = 0;
+        int count = 0;
+        for (Equipment equipment : filtered) {
+            totalAura += calculateItemAura(equipment, fudi);
+            equipmentRepository.deleteById(equipment.getId());
+            count++;
+        }
+
+        fudi.setAuraCurrent(Math.min(fudi.getAuraMax(), fudi.getAuraCurrent() + totalAura));
+        fudi.setLastAuraUpdate(LocalDateTime.now());
+        fudiRepository.save(fudi);
+
+        log.info("用户 {} 批量献祭 {} 件{}品质装备, 获得总灵气 {}", userId, count, targetRarity.getName(), totalAura);
+        return Map.of("count", count, "totalAura", totalAura);
+    }
+
+    private int calculateItemAura(Equipment equipment, Fudi fudi) {
+        int itemLevel = equipment.getForgeLevel() != null ? equipment.getForgeLevel() : 1;
+        double qualityMultiplier = equipment.getQualityMultiplier() != null ? equipment.getQualityMultiplier() : 1.0;
+        int baseValue = equipment.getFinalAttack() + equipment.getFinalDefense();
+        if (baseValue <= 0) baseValue = 10;
+        return fudi.calculateSacrificeAura(baseValue, qualityMultiplier, itemLevel);
+    }
+
+    private Rarity parseRarity(String input) {
+        return switch (input) {
+            case "白色", "破旧" -> Rarity.BROKEN;
+            case "绿色", "普通" -> Rarity.COMMON;
+            case "蓝色", "稀有" -> Rarity.RARE;
+            case "紫色", "史诗" -> Rarity.EPIC;
+            case "金色", "传说" -> Rarity.LEGENDARY;
+            default -> throw new IllegalStateException("未知品质: " + input + "，可选：白色/绿色/蓝色/紫色/金色");
+        };
     }
 
     // ===================== 种植/收获系统 =====================

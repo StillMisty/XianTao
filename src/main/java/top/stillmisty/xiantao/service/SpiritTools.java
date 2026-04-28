@@ -228,15 +228,31 @@ public class SpiritTools {
     /**
      * 献祭物品工具
      */
-    @Tool(description = "献祭背包中的装备换取灵气。先调用queryBag('装备')查看可用装备的编号。可以指定装备编号、名称或'all'。")
+    @Tool(description = "献祭背包中的装备换取灵气。先调用queryBag('装备')查看可用装备的编号。可以指定装备编号、名称、品质(白色/绿色/蓝色/紫色/金色)或'all'。")
     public SacrificeItemResponse sacrificeItem(
-            @ToolParam(description = "装备编号或名称，例如'1'、'2'，或装备名称。'all'表示批量献祭但尚未实现") String itemName
+            @ToolParam(description = "装备编号或名称，例如'1'、'2'，或装备名称。'all'表示献祭全部装备，品质名称(如'绿色')表示献祭指定品质的所有装备") String itemName
     ) {
         try {
             Long userId = getCurrentUserId();
 
             if ("all".equalsIgnoreCase(itemName)) {
-                return new SacrificeItemResponse(false, "批量献祭功能尚未实现。", itemName, 0);
+                Map<String, Integer> result = fudiService.sacrificeAllItems(userId);
+                return new SacrificeItemResponse(
+                        true,
+                        String.format("批量献祭完成！共献祭 %d 件装备，获得 %d 灵气。", result.get("count"), result.get("totalAura")),
+                        "all",
+                        result.get("totalAura")
+                );
+            }
+
+            if (isQualityKeyword(itemName)) {
+                Map<String, Integer> result = fudiService.sacrificeItemsByQuality(userId, itemName);
+                return new SacrificeItemResponse(
+                        true,
+                        String.format("献祭完成！共献祭 %d 件%s品质装备，获得 %d 灵气。", result.get("count"), itemName, result.get("totalAura")),
+                        itemName,
+                        result.get("totalAura")
+                );
             }
 
             int auraGain = fudiService.sacrificeItemByInput(userId, itemName);
@@ -251,6 +267,14 @@ public class SpiritTools {
             log.error("献祭物品失败: itemName={}", itemName, e);
             return new SacrificeItemResponse(false, "献祭失败：" + e.getMessage(), itemName, 0);
         }
+    }
+
+    private boolean isQualityKeyword(String input) {
+        return switch (input) {
+            case "白色", "绿色", "蓝色", "紫色", "金色",
+                 "破旧", "普通", "稀有", "史诗", "传说" -> true;
+            default -> false;
+        };
     }
 
     /**
