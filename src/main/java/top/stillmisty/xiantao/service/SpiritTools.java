@@ -7,6 +7,7 @@ import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.land.enums.CellType;
+import top.stillmisty.xiantao.domain.land.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.land.vo.BeastProduceVO;
 import top.stillmisty.xiantao.domain.land.vo.FarmCellVO;
 
@@ -23,6 +24,7 @@ public class SpiritTools {
 
     private final FudiService fudiService;
     private final ItemService itemService;
+    private final FudiRepository fudiRepository;
 
     /**
      * 查询福地网格状态工具
@@ -317,6 +319,69 @@ public class SpiritTools {
     }
 
     /**
+     * 赠送礼物工具
+     */
+    @Tool(description = "赠送背包中的物品给地灵。当地灵表示喜欢某物或玩家主动送礼时调用。参数为物品名称。")
+    public GiveGiftResponse giveGift(
+            @ToolParam(description = "物品名称，如'精铁剑'、'灵石'等") String itemName
+    ) {
+        try {
+            Long userId = getCurrentUserId();
+            Map<String, Object> result = fudiService.giveGift(userId, itemName);
+
+            String reaction = (String) result.get("reaction");
+            int change = (Integer) result.get("change");
+            String giftName = (String) result.get("itemName");
+            boolean isLiked = Boolean.TRUE.equals(result.get("isLiked"));
+            boolean isDisliked = Boolean.TRUE.equals(result.get("isDisliked"));
+
+            String message;
+            if (isLiked) {
+                message = String.format("地灵收到%s，非常开心！好感度 %+d", giftName, change);
+            } else if (isDisliked) {
+                message = String.format("地灵嫌弃地看了一眼%s，好感度 %d", giftName, change);
+            } else {
+                message = String.format("地灵礼貌地收下了%s，好感度 %+d", giftName, change);
+            }
+
+            return new GiveGiftResponse(true, message, giftName, change, reaction);
+        } catch (Exception e) {
+            log.error("赠送礼物失败: itemName={}", itemName, e);
+            return new GiveGiftResponse(false, "送礼失败：" + e.getMessage(), itemName, 0, "");
+        }
+    }
+
+    /**
+     * 冒犯上报工具（由 LLM 主动调用）
+     */
+    @Tool(description = "当玩家说了不礼貌、冒犯、或让地灵不开心的话时调用此工具。由地灵自主判断是否需要调用。")
+    public ReportOffenseResponse reportPlayerOffense(
+            @ToolParam(description = "玩家说了什么") String reason,
+            @ToolParam(description = "冒犯程度 1~5（1=轻微冒犯，5=严重冒犯）") int severity
+    ) {
+        try {
+            Long userId = getCurrentUserId();
+            var fudi = fudiService.getFudiByUserId(userId)
+                    .orElseThrow(() -> new IllegalStateException("未找到福地"));
+
+            int clampedSeverity = Math.max(1, Math.min(5, severity));
+            int oldAffection = fudi.getSpiritAffection();
+            fudi.addAffection(-clampedSeverity);
+            fudiRepository.save(fudi);
+
+            log.info(
+                    "地灵冒犯上报 - userId: {}, reason: {}, severity: {}, affection: {} -> {}",
+                    userId, reason, clampedSeverity, oldAffection, fudi.getSpiritAffection()
+            );
+
+            return new ReportOffenseResponse(true, reason, clampedSeverity);
+        } catch (Exception e) {
+            log.error("冒犯上报失败: reason={}", reason, e);
+            return new ReportOffenseResponse(false, reason, 0);
+        }
+    }
+
+    /**
      * 获取当前用户 ID（从 ThreadLocal 上下文获取）
      */
     private Long getCurrentUserId() {
@@ -434,6 +499,36 @@ public class SpiritTools {
 
             @JsonPropertyDescription("收取数量")
             int collected
+    ) {
+    }
+
+    public record GiveGiftResponse(
+            @JsonPropertyDescription("是否成功")
+            boolean success,
+
+            @JsonPropertyDescription("结果消息")
+            String message,
+
+            @JsonPropertyDescription("物品名称")
+            String itemName,
+
+            @JsonPropertyDescription("好感度变化")
+            int affectionChange,
+
+            @JsonPropertyDescription("地灵反应")
+            String reaction
+    ) {
+    }
+
+    public record ReportOffenseResponse(
+            @JsonPropertyDescription("是否成功")
+            boolean success,
+
+            @JsonPropertyDescription("冒犯原因")
+            String reason,
+
+            @JsonPropertyDescription("冒犯程度 1~5")
+            int severity
     ) {
     }
 }

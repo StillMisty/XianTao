@@ -233,5 +233,20 @@ public class FudiHandle {
         event.replyBlocking(response);
     }
 
+    @Listener
+    @ContentTrim
+    @Filter("#地灵送礼 {{itemName}}")
+    public void handleGiveGift(MessageEvent event, @FilterValue("itemName") String itemName) {
+        log.debug("收到送礼请求 - AuthorId: {}, ItemName: {}", event.getAuthorId(), itemName);
+
+        String response = fudiCommandHandler.handleGiveGift(
+                PlatformType.ONE_BOT_V11,
+                event.getAuthorId().toString(),
+                itemName
+        );
+
+        event.replyBlocking(response);
+    }
+
 
 }

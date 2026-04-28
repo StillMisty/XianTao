@@ -25,6 +25,7 @@ spring-boot-starter-cache-test = { group = "org.springframework.boot", name = "s
 spring-boot-starter-flyway-test = { group = "org.springframework.boot", name = "spring-boot-starter-flyway-test", version.ref = "springBoot" }
 spring-boot-starter-webmvc-test = { group = "org.springframework.boot", name = "spring-boot-starter-webmvc-test", version.ref = "springBoot" }
 spring-boot-starter-jdbc = { group = "org.springframework.boot", name = "spring-boot-starter-jdbc", version.ref = "springBoot" }
+spring-boot-starter-aop = { group = "org.springframework.boot", name = "spring-boot-starter-aop", version.ref = "springBoot" }
 
 # MyBatis Flex 库
 mybatis-flex-spring-boot4-starter = { group = "com.mybatis-flex", name = "mybatis-flex-spring-boot4-starter", version.ref = "mybatisFlex" }

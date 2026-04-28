@@ -70,6 +70,36 @@ public class FudiStatusVO {
     private Integer spiritAffection;
 
     /**
+     * 好感度上限
+     */
+    private Integer affectionMax;
+
+    /**
+     * 地灵精力上限（随劫数成长）
+     */
+    private Integer energyMax;
+
+    /**
+     * 地灵形态名
+     */
+    private String spiritForm;
+
+    /**
+     * 地灵形态中文名
+     */
+    private String spiritFormName;
+
+    /**
+     * 地灵喜好的物品 tag
+     */
+    private List<String> likedTags;
+
+    /**
+     * 地灵讨厌的物品 tag
+     */
+    private List<String> dislikedTags;
+
+    /**
      * 地灵情绪状态
      */
     private EmotionState emotionState;

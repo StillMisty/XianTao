@@ -201,6 +201,19 @@ public class FudiCommandHandler {
         };
     }
 
+    public String handleGiveGift(PlatformType platform, String openId, String itemName) {
+        return switch (fudiService.giveGift(platform, openId, itemName)) {
+            case ServiceResult.Failure(var msg) -> "❌ " + msg;
+            case ServiceResult.Success(var result) -> {
+                int change = (Integer) result.get("change");
+                String name = (String) result.get("itemName");
+                String reaction = (String) result.get("reaction");
+                String prefix = change > 0 ? "✅" : "😅";
+                yield String.format("%s 地灵收到了%s（%s），好感度 %+d", prefix, name, reaction, change);
+            }
+        };
+    }
+
     // ===================== 文本格式化方法 =====================
 
     private String formatFudiStatus(FudiStatusVO status) {
@@ -284,16 +297,25 @@ public class FudiCommandHandler {
     }
 
     private String formatSpiritInfo(FudiStatusVO status) {
-        return "🧚 【地灵信息】\n" +
-                "━━━━━━━━━━━━━━━\n" +
-                "MBTI人格：" + status.getMbtiType().getCode() + "\n" +
-                "语气风格：" + status.getMbtiType().getToneStyle() + "\n" +
-                "劫数：" + status.getTribulationStage() + "\n" +
-                "好感度：" + status.getSpiritAffection() + " 点\n" +
-                "精力值：" + status.getSpiritEnergy() + "/100\n" +
-                "当前情绪：" + status.getEmotionState().getEmoji() + " " + status.getEmotionState().getDescription() + "\n" +
-                "━━━━━━━━━━━━━━━\n" +
-                "💡 与地灵互动可提升好感度";
+        StringBuilder sb = new StringBuilder();
+        sb.append("🧚 【地灵信息】\n");
+        sb.append("━━━━━━━━━━━━━━━\n");
+        sb.append("形态：").append(status.getSpiritFormName() != null ? status.getSpiritFormName() : "未知形态").append("\n");
+        sb.append("MBTI人格：").append(status.getMbtiType().getCode()).append("\n");
+        sb.append("语气风格：").append(status.getMbtiType().getToneStyle()).append("\n");
+        sb.append("劫数：").append(status.getTribulationStage()).append("\n");
+        sb.append("好感度：").append(status.getSpiritAffection()).append("/").append(status.getAffectionMax()).append(" 点\n");
+        sb.append("精力值：").append(status.getSpiritEnergy()).append("/").append(status.getEnergyMax()).append("\n");
+        sb.append("当前情绪：").append(status.getEmotionState().getEmoji()).append(" ").append(status.getEmotionState().getDescription()).append("\n");
+        if (status.getLikedTags() != null && !status.getLikedTags().isEmpty()) {
+            sb.append("喜爱：").append(String.join("、", status.getLikedTags())).append("\n");
+        }
+        if (status.getDislikedTags() != null && !status.getDislikedTags().isEmpty()) {
+            sb.append("厌恶：").append(String.join("、", status.getDislikedTags())).append("\n");
+        }
+        sb.append("━━━━━━━━━━━━━━━\n");
+        sb.append("💡 与地灵互动可提升好感度 ｜ #地灵送礼 [物品名] 赠送礼物");
+        return sb.toString();
     }
 
     private String formatPlantResult(FarmCellVO result) {

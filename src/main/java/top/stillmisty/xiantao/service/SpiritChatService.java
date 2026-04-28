@@ -8,9 +8,12 @@ import top.stillmisty.xiantao.config.SpiritPromptTemplates;
 import top.stillmisty.xiantao.domain.land.entity.Fudi;
 import top.stillmisty.xiantao.domain.land.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.service.annotation.ConsumeSpiritEnergy;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 地灵对话核心服务
@@ -37,6 +40,7 @@ public class SpiritChatService {
 
     // ===================== 内部 API（需预先完成认证） =====================
 
+    @ConsumeSpiritEnergy(5)
     public String chatWithSpirit(Long userId, String userInput) {
         try {
             return ScopedValue.where(UserContext.CURRENT_USER, userId).call(() -> {
@@ -78,7 +82,9 @@ public class SpiritChatService {
                 fudi.getSpiritEnergy(),
                 fudi.getSpiritAffection(),
                 gridDetail,
-                emotionState
+                emotionState,
+                fudi.getSpiritEnergyMax(),
+                fudi.getForm()
         );
     }
 

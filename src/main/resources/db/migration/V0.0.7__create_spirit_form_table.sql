@@ -1,0 +1,176 @@
+-- 地灵形态定义表
+CREATE TABLE xt_spirit_form
+(
+    id            SERIAL PRIMARY KEY,
+    name          VARCHAR(50) NOT NULL UNIQUE,              -- 形态名
+    description   TEXT        NOT NULL,                     -- 梗向描述
+    liked_tags    JSONB       NOT NULL DEFAULT '[]'::jsonb, -- 该形态喜欢的物品tag候选池
+    disliked_tags JSONB       NOT NULL DEFAULT '[]'::jsonb  -- 该形态讨厌的物物品tag候选池
+);
+
+-- JSONB字段GIN索引
+CREATE INDEX idx_spirit_form_liked_tags ON xt_spirit_form USING GIN (liked_tags);
+CREATE INDEX idx_spirit_form_disliked_tags ON xt_spirit_form USING GIN (disliked_tags);
+
+-- 注释
+COMMENT ON TABLE xt_spirit_form IS '地灵形态定义表';
+COMMENT ON COLUMN xt_spirit_form.name IS '形态名（如小狐妖、春秋蝉）';
+COMMENT ON COLUMN xt_spirit_form.description IS '梗向描述';
+COMMENT ON COLUMN xt_spirit_form.liked_tags IS '该形态喜欢的物品tag候选池';
+COMMENT ON COLUMN xt_spirit_form.disliked_tags IS '该形态讨厌的物品tag候选池';
+
+-- ===================== 种子数据 =====================
+
+-- 1. 小狐妖
+INSERT INTO xt_spirit_form (name, description, liked_tags, disliked_tags)
+VALUES ('小狐妖',
+        '一只毛茸茸的九尾幼狐，喜欢蹭人但傲娇不承认，九条尾巴是她的骄傲。',
+        '[
+          "wine",
+          "art",
+          "book",
+          "prestige",
+          "shiny",
+          "jadeite",
+          "peach"
+        ]'::jsonb,
+        '[
+          "common",
+          "ore",
+          "forge_base",
+          "bone",
+          "slime",
+          "insect"
+        ]'::jsonb);
+
+-- 2. 春秋蝉
+INSERT INTO xt_spirit_form (name, description, liked_tags, disliked_tags)
+VALUES ('春秋蝉',
+        '晶莹剔透的金蝉，趴在耳畔低语时间之道。看尽时光流转，对凡间事物淡然处之。',
+        '[
+          "time",
+          "medicinal",
+          "art",
+          "book",
+          "jadeite",
+          "sacred",
+          "prestige"
+        ]'::jsonb,
+        '[
+          "common",
+          "forge_base",
+          "ore",
+          "bone",
+          "beast",
+          "meat"
+        ]'::jsonb);
+
+-- 3. 石中鲤
+INSERT INTO xt_spirit_form (name, description, liked_tags, disliked_tags)
+VALUES ('石中鲤',
+        '在一块灵石中游弋的小锦鲤，据说是远古大能的宠物遗种。能带来好运。',
+        '[
+          "gem",
+          "ore",
+          "shiny",
+          "jadeite",
+          "water",
+          "sacred",
+          "light"
+        ]'::jsonb,
+        '[
+          "common",
+          "weed",
+          "slime",
+          "bone",
+          "insect",
+          "rotten"
+        ]'::jsonb);
+
+-- 4. 剑灵残片
+INSERT INTO xt_spirit_form (name, description, liked_tags, disliked_tags)
+VALUES ('剑灵残片',
+        '上古神剑的碎片所化剑灵，身负剑意，性格冷傲。对弱者不屑一顾。',
+        '[
+          "weapon",
+          "forge",
+          "forge_base",
+          "metal",
+          "sharp",
+          "sacred",
+          "blood"
+        ]'::jsonb,
+        '[
+          "common",
+          "weed",
+          "flower",
+          "food",
+          "sweet",
+          "toy"
+        ]'::jsonb);
+
+-- 5. 千年何首乌
+INSERT INTO xt_spirit_form (name, description, liked_tags, disliked_tags)
+VALUES ('千年何首乌',
+        '一只成了精的何首乌，长着人形的根须，走路一蹦一跳。说话喜欢引经据典像个老学究。',
+        '[
+          "medicinal",
+          "herb",
+          "book",
+          "wood",
+          "time",
+          "sacred",
+          "art"
+        ]'::jsonb,
+        '[
+          "metal",
+          "forge",
+          "forge_base",
+          "beast",
+          "blood",
+          "ore"
+        ]'::jsonb);
+
+-- 6. 乌云踏雪
+INSERT INTO xt_spirit_form (name, description, liked_tags, disliked_tags)
+VALUES ('乌云踏雪',
+        '一只通体乌黑的麒麟幼崽，四蹄踏雪，性格活泼好动。最喜欢在灵田里打滚。',
+        '[
+          "beast",
+          "sacred",
+          "shiny",
+          "prestige",
+          "food",
+          "meat",
+          "sweet"
+        ]'::jsonb,
+        '[
+          "common",
+          "weed",
+          "slime",
+          "insect",
+          "rotten",
+          "bone"
+        ]'::jsonb);
+
+-- 7. 酒葫芦
+INSERT INTO xt_spirit_form (name, description, liked_tags, disliked_tags)
+VALUES ('酒葫芦',
+        '一个成了精的紫金酒葫芦，据说里面装着仙人酿的琼浆。性格豪爽，说话带三分醉意。',
+        '[
+          "wine",
+          "food",
+          "sweet",
+          "fruit",
+          "art",
+          "book",
+          "jadeite"
+        ]'::jsonb,
+        '[
+          "common",
+          "weed",
+          "ore",
+          "forge_base",
+          "slime",
+          "bone"
+        ]'::jsonb);

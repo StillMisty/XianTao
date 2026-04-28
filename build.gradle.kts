@@ -33,6 +33,7 @@ dependencies {
     annotationProcessor(libs.mybatis.flex.processor)
     implementation(libs.spring.boot.starter.flyway)
     implementation(libs.spring.boot.starter.webmvc)
+    implementation(libs.spring.boot.starter.aop)
     implementation(libs.spring.boot.starter.jdbc)
     implementation(libs.jackson.databind)
     implementation(libs.flyway.database.postgresql)

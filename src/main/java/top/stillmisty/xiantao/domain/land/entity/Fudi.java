@@ -59,7 +59,12 @@ public class Fudi extends Model<Fudi> {
     private MBTIPersonality mbtiType;
 
     /**
-     * 地灵当前精力值（0-100）
+     * 地灵形态名（如fox、cicada）
+     */
+    private String form;
+
+    /**
+     * 地灵当前精力值
      */
     private Integer spiritEnergy;
 
@@ -67,6 +72,11 @@ public class Fudi extends Model<Fudi> {
      * 地灵好感度
      */
     private Integer spiritAffection;
+
+    /**
+     * 好感度上限（默认1000）
+     */
+    private Integer affectionMax;
 
     /**
      * 地灵当前情绪状态
@@ -87,6 +97,11 @@ public class Fudi extends Model<Fudi> {
      * 上次上线时间
      */
     private LocalDateTime lastOnlineTime;
+
+    /**
+     * 精力最后更新时间（用于懒恢复计算）
+     */
+    private LocalDateTime lastEnergyUpdate;
 
     /**
      * 福地网格布局（JSONB存储）
@@ -272,6 +287,70 @@ public class Fudi extends Model<Fudi> {
             return createTime.plusDays(7);
         }
         return lastTribulationTime.plusDays(7);
+    }
+
+    /**
+     * 获取精力上限（随劫数成长）
+     * 公式：100 + 劫数 × 20
+     */
+    public int getSpiritEnergyMax() {
+        int stage = tribulationStage != null ? tribulationStage : 0;
+        return 100 + stage * 20;
+    }
+
+    /**
+     * 懒恢复精力
+     * 恢复量 = 精力上限 × 5% × 距上次使用小时数，最多恢复到上限
+     */
+    public void restoreEnergy() {
+        if (lastEnergyUpdate == null || spiritEnergy == null) {
+            lastEnergyUpdate = LocalDateTime.now();
+            return;
+        }
+
+        int maxEnergy = getSpiritEnergyMax();
+        if (spiritEnergy >= maxEnergy) return;
+
+        long hoursElapsed = java.time.Duration.between(lastEnergyUpdate, LocalDateTime.now()).toHours();
+        if (hoursElapsed <= 0) return;
+
+        int recoveryRate = (int) (maxEnergy * 0.05 * hoursElapsed);
+        if (recoveryRate > 0) {
+            spiritEnergy = Math.min(maxEnergy, spiritEnergy + recoveryRate);
+        }
+    }
+
+    /**
+     * 计算实际精力消耗（含好感减免）
+     * 实际消耗 = 基础消耗 × (1 - min(0.5, affection / 1000))
+     */
+    public int calculateEnergyConsumption(int baseCost) {
+        int affection = spiritAffection != null ? spiritAffection : 0;
+        int maxAffection = affectionMax != null ? affectionMax : 1000;
+        double discount = Math.min(0.5, (double) affection / maxAffection);
+        return (int) Math.max(1, baseCost * (1.0 - discount));
+    }
+
+    /**
+     * 扣除精力，返回是否耗尽（≤0触发放松）
+     */
+    public boolean deductEnergy(int cost) {
+        if (spiritEnergy == null) spiritEnergy = 0;
+        spiritEnergy = Math.max(0, spiritEnergy - cost);
+        if (spiritEnergy <= 0) {
+            emotionState = EmotionState.FATIGUED;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 设置好感度（限制在 [0, affectionMax] 范围内）
+     */
+    public void addAffection(int amount) {
+        int maxAffection = affectionMax != null ? affectionMax : 1000;
+        spiritAffection = Math.max(0, Math.min(maxAffection,
+                (spiritAffection != null ? spiritAffection : 0) + amount));
     }
 
     /**
