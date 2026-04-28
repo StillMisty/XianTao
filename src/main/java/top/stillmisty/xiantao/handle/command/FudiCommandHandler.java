@@ -168,18 +168,6 @@ public class FudiCommandHandler {
         };
     }
 
-    public String handleAutoMode(PlatformType platform, String openId, String mode) {
-        return "⚠️ 福地自动管理模式切换功能尚未实现。";
-    }
-
-    public String handleUpgrade(PlatformType platform, String openId) {
-        return "⚠️ 福地升级功能尚未实现。";
-    }
-
-    public String handleExpand(PlatformType platform, String openId) {
-        return "📐 劫数达到 3/6/9... 时将自动解锁新地块，无需手动扩建。";
-    }
-
     public String handleSpiritChat(PlatformType platform, String openId, String userInput) {
         log.info("处理地灵自然语言交互 - platform: {}, input: {}", platform, userInput);
         return switch (spiritChatService.chatWithSpirit(platform, openId, userInput)) {

@@ -22,7 +22,6 @@ public class FudiHandle {
 
     private final FudiCommandHandler fudiCommandHandler;
 
-
     @Listener
     @ContentTrim
     @Filter("福地")
@@ -65,7 +64,6 @@ public class FudiHandle {
         event.replyBlocking(response);
     }
 
-
     @Listener
     @ContentTrim
     @Filter("地灵 {{content}}")
@@ -81,17 +79,11 @@ public class FudiHandle {
         event.replyBlocking(response);
     }
 
-    /**
-     * 种植 <坐标> <作物名称>
-     */
     @Listener
     @ContentTrim
-    @Filter("种植 {{position}} {{cropName}}")
+    @Filter("#福地种植 {{position}} {{cropName}}")
     public void handlePlant(MessageEvent event, @FilterValue("position") String position, @FilterValue("cropName") String cropName) {
-        log.debug(
-                "收到种植请求 - AuthorId: {}, Position: {}, CropName: {}",
-                event.getAuthorId(), position, cropName
-        );
+        log.debug("收到种植请求 - AuthorId: {}, Position: {}, CropName: {}", event.getAuthorId(), position, cropName);
 
         String response = fudiCommandHandler.handlePlant(
                 PlatformType.ONE_BOT_V11,
@@ -103,12 +95,9 @@ public class FudiHandle {
         event.replyBlocking(response);
     }
 
-    /**
-     * 收获 <坐标> 或 收获 all
-     */
     @Listener
     @ContentTrim
-    @Filter("收获 {{position}}")
+    @Filter("#福地收获 {{position}}")
     public void handleHarvest(MessageEvent event, @FilterValue("position") String position) {
         log.debug("收到收获请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
 
@@ -121,17 +110,11 @@ public class FudiHandle {
         event.replyBlocking(response);
     }
 
-    /**
-     * 建造 <坐标> <地块类型>
-     */
     @Listener
     @ContentTrim
-    @Filter("建造 {{position}} {{cellType}}")
+    @Filter("#福地建造 {{position}} {{cellType}}")
     public void handleBuild(MessageEvent event, @FilterValue("position") String position, @FilterValue("cellType") String cellType) {
-        log.debug(
-                "收到建造请求 - AuthorId: {}, Position: {}, CellType: {}",
-                event.getAuthorId(), position, cellType
-        );
+        log.debug("收到建造请求 - AuthorId: {}, Position: {}, CellType: {}", event.getAuthorId(), position, cellType);
 
         String response = fudiCommandHandler.handleBuild(
                 PlatformType.ONE_BOT_V11,
@@ -143,12 +126,9 @@ public class FudiHandle {
         event.replyBlocking(response);
     }
 
-    /**
-     * 拆除 <坐标>
-     */
     @Listener
     @ContentTrim
-    @Filter("拆除 {{position}}")
+    @Filter("#福地拆除 {{position}}")
     public void handleRemove(MessageEvent event, @FilterValue("position") String position) {
         log.debug("收到拆除请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
 
@@ -161,12 +141,9 @@ public class FudiHandle {
         event.replyBlocking(response);
     }
 
-    /**
-     * 献祭 <物品名称> 或 #献祭 all
-     */
     @Listener
     @ContentTrim
-    @Filter("献祭 {{itemName}}")
+    @Filter("#福地献祭 {{itemName}}")
     public void handleSacrifice(MessageEvent event, @FilterValue("itemName") String itemName) {
         log.debug("收到献祭请求 - AuthorId: {}, ItemName: {}", event.getAuthorId(), itemName);
 
@@ -179,12 +156,9 @@ public class FudiHandle {
         event.replyBlocking(response);
     }
 
-    /**
-     * 升级 <坐标>
-     */
     @Listener
     @ContentTrim
-    @Filter("升级 {{position}}")
+    @Filter("#福地升级 {{position}}")
     public void handleUpgradeCell(MessageEvent event, @FilterValue("position") String position) {
         log.debug("收到升级请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
 
@@ -197,12 +171,9 @@ public class FudiHandle {
         event.replyBlocking(response);
     }
 
-    /**
-     * 孵化 <坐标> <兽卵名>
-     */
     @Listener
     @ContentTrim
-    @Filter("孵化 {{position}} {{eggName}}")
+    @Filter("#福地孵化 {{position}} {{eggName}}")
     public void handleHatch(MessageEvent event, @FilterValue("position") String position, @FilterValue("eggName") String eggName) {
         log.debug("收到孵化请求 - AuthorId: {}, Position: {}, EggName: {}", event.getAuthorId(), position, eggName);
 
@@ -216,12 +187,9 @@ public class FudiHandle {
         event.replyBlocking(response);
     }
 
-    /**
-     * 收取 <坐标> 或 收取 all
-     */
     @Listener
     @ContentTrim
-    @Filter("收取 {{position}}")
+    @Filter("#福地收取 {{position}}")
     public void handleCollect(MessageEvent event, @FilterValue("position") String position) {
         log.debug("收到收取请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
 
@@ -234,12 +202,9 @@ public class FudiHandle {
         event.replyBlocking(response);
     }
 
-    /**
-     * 放生 <坐标>
-     */
     @Listener
     @ContentTrim
-    @Filter("放生 {{position}}")
+    @Filter("#福地放生 {{position}}")
     public void handleRelease(MessageEvent event, @FilterValue("position") String position) {
         log.debug("收到放生请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
 
@@ -252,12 +217,9 @@ public class FudiHandle {
         event.replyBlocking(response);
     }
 
-    /**
-     * 进化 <坐标> <升阶/升品>
-     */
     @Listener
     @ContentTrim
-    @Filter("进化 {{position}} {{mode}}")
+    @Filter("#福地进化 {{position}} {{mode}}")
     public void handleEvolve(MessageEvent event, @FilterValue("position") String position, @FilterValue("mode") String mode) {
         log.debug("收到进化请求 - AuthorId: {}, Position: {}, Mode: {}", event.getAuthorId(), position, mode);
 
@@ -271,49 +233,5 @@ public class FudiHandle {
         event.replyBlocking(response);
     }
 
-    /**
-     * 福地自动 <开/关>
-     */
-    @Listener
-    @ContentTrim
-    @Filter("#福地自动 {{mode}}")
-    public void handleAutoMode(MessageEvent event, @FilterValue("mode") String mode) {
-        log.debug("收到福地自动请求 - AuthorId: {}, Mode: {}", event.getAuthorId(), mode);
 
-        String response = fudiCommandHandler.handleAutoMode(
-                PlatformType.ONE_BOT_V11,
-                event.getAuthorId().toString(),
-                mode
-        );
-
-        event.replyBlocking(response);
-    }
-
-    @Listener
-    @ContentTrim
-    @Filter("#福地升级")
-    public void handleUpgrade(MessageEvent event) {
-        log.debug("收到福地升级请求 - AuthorId: {}", event.getAuthorId());
-
-        String response = fudiCommandHandler.handleUpgrade(
-                PlatformType.ONE_BOT_V11,
-                event.getAuthorId().toString()
-        );
-
-        event.replyBlocking(response);
-    }
-
-    @Listener
-    @ContentTrim
-    @Filter("#福地扩建")
-    public void handleExpand(MessageEvent event) {
-        log.debug("收到福地扩建请求 - AuthorId: {}", event.getAuthorId());
-
-        String response = fudiCommandHandler.handleExpand(
-                PlatformType.ONE_BOT_V11,
-                event.getAuthorId().toString()
-        );
-
-        event.replyBlocking(response);
-    }
 }
