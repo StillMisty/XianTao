@@ -3,7 +3,6 @@ package top.stillmisty.xiantao.domain.land.vo;
 import lombok.Builder;
 import lombok.Data;
 import top.stillmisty.xiantao.domain.land.enums.CellType;
-import top.stillmisty.xiantao.domain.land.enums.WuxingType;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,9 +13,8 @@ import java.util.List;
 @Data
 @Builder
 public class CellDetailVO {
-    private String position;
+    private Integer cellId;
     private CellType type;
-    private WuxingType element;
     private String name;
     private Integer cellLevel;
     private Integer level;

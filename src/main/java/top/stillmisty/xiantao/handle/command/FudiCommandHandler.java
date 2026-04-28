@@ -74,7 +74,7 @@ public class FudiCommandHandler {
             case ServiceResult.Success(var result) -> {
                 String cropName = (String) result.get("cropName");
                 int yield = (Integer) result.get("yield");
-                yield String.format("✅ 已收获 (%s) 的%s，获得 %d 份。", position, cropName, yield);
+                yield String.format("✅ 已收获地块 %s 的%s，获得 %d 份。", position, cropName, yield);
             }
         };
     }
@@ -88,7 +88,7 @@ public class FudiCommandHandler {
         }
         return switch (fudiService.buildCell(platform, openId, position, cellType)) {
             case ServiceResult.Failure(var msg) -> "❌ " + msg;
-            case ServiceResult.Success(_) -> String.format("✅ 已在 (%s) 建造%s。", position, cellTypeName);
+            case ServiceResult.Success(_) -> String.format("✅ 已在地块 %s 建造%s。", position, cellTypeName);
         };
     }
 
@@ -97,7 +97,7 @@ public class FudiCommandHandler {
             case ServiceResult.Failure(var msg) -> "❌ " + msg;
             case ServiceResult.Success(var result) -> {
                 String typeName = (String) result.get("type");
-                yield String.format("✅ 已拆除 (%s) 的%s。", position, typeName);
+                yield String.format("✅ 已拆除地块 %s 的%s。", position, typeName);
             }
         };
     }
@@ -119,7 +119,7 @@ public class FudiCommandHandler {
                 String typeName = (String) result.get("type");
                 int oldLevel = (Integer) result.get("oldLevel");
                 int newLevel = (Integer) result.get("newLevel");
-                yield String.format("✅ 已将 (%s) 的%s从 Lv%d 升级至 Lv%d", position, typeName, oldLevel, newLevel);
+                yield String.format("✅ 已将地块 %s 的%s从 Lv%d 升级至 Lv%d", position, typeName, oldLevel, newLevel);
             }
         };
     }
@@ -146,7 +146,7 @@ public class FudiCommandHandler {
         return switch (fudiService.collectProduce(platform, openId, position)) {
             case ServiceResult.Failure(var msg) -> "❌ " + msg;
             case ServiceResult.Success(var vo) ->
-                    String.format("✅ 从 (%s) 收取了 %d 件%s。", vo.getPosition(), vo.getTotalProduced(), vo.getItemName());
+                    String.format("✅ 从地块 %s 收取了 %d 件%s。", vo.getCellId(), vo.getTotalProduced(), vo.getItemName());
         };
     }
 
@@ -177,7 +177,7 @@ public class FudiCommandHandler {
     }
 
     public String handleExpand(PlatformType platform, String openId) {
-        return "⚠️ 福地扩建功能尚未实现。";
+        return "📐 劫数达到 3/6/9... 时将自动解锁新地块，无需手动扩建。";
     }
 
     public String handleSpiritChat(PlatformType platform, String openId, String userInput) {
@@ -206,9 +206,11 @@ public class FudiCommandHandler {
         sb.append("🎭 地灵人格：").append(status.getMbtiType().getCode()).append("\n");
         sb.append("😊 地灵情绪：").append(status.getEmotionState().getEmoji()).append(" ").append(status.getEmotionState().getDescription()).append("\n");
         sb.append("⚙️ 自动管理：").append(status.getAutoMode() ? "✅ 开启" : "❌ 关闭").append("\n");
-        sb.append("🛌 蛰伏模式：").append(status.getDormantMode() ? "⚠️ 激活" : "✅ 未激活").append("\n");
-        sb.append("📐 网格大小：").append(status.getGridSize()).append("x").append(status.getGridSize()).append("\n");
-        sb.append("🏗️ 已占地块：").append(status.getOccupiedCells()).append("/").append(status.getGridSize() * status.getGridSize()).append("\n");
+        sb.append("📐 地块总数：").append(status.getTotalCells()).append("\n");
+        sb.append("🏗️ 已占地块：").append(status.getOccupiedCells()).append("/").append(status.getTotalCells()).append("\n");
+        if (Boolean.TRUE.equals(status.getIsAuraDepleted())) {
+            sb.append("⚠️ 灵气已耗尽！除献祭外其他功能不可用\n");
+        }
         sb.append("━━━━━━━━━━━━━━━\n");
         sb.append("💡 使用 #福地网格 查看详细布局");
         return sb.toString();
@@ -222,7 +224,7 @@ public class FudiCommandHandler {
             sb.append("（空地，尚未建造任何地块）\n");
         } else {
             for (var cell : status.getCellDetails()) {
-                sb.append("📍 (").append(cell.getPosition()).append(") ");
+                sb.append("📍 #").append(cell.getCellId()).append(" ");
                 sb.append(cell.getType().getChineseName());
                 if (cell.getCellLevel() != null && cell.getCellLevel() > 1) {
                     sb.append(" Lv").append(cell.getCellLevel());
@@ -259,6 +261,9 @@ public class FudiCommandHandler {
         if (hourlyCost > 0) {
             sb.append("预计可用：").append(current / hourlyCost).append(" 小时\n");
         }
+        if (status.getIsAuraDepleted()) {
+            sb.append("⚠️ 灵气已耗尽！除献祭外其他功能不可用\n");
+        }
         sb.append("⛈️ 劫数：Lv.").append(status.getTribulationStage()).append("\n");
         sb.append("━━━━━━━━━━━━━━━\n");
         sb.append("💡 使用 #献祭 装备可补充灵气");
@@ -280,15 +285,14 @@ public class FudiCommandHandler {
 
     private String formatPlantResult(FarmCellVO result) {
         return String.format(
-                "✅ 已在 (%s) 种植%s，预计 %.1f 小时后成熟。\n五行属性：%s\n生长修正：%.0f%%",
-                result.getPosition(), result.getCropName(), result.getActualGrowthHours(),
-                result.getElement().getChineseName(), result.getGrowthModifier() * 100
+                "✅ 已在地块 %s 种植%s，预计 %.1f 小时后成熟。",
+                result.getCellId(), result.getCropName(), result.getActualGrowthHours()
         );
     }
 
     private String formatHatchResult(top.stillmisty.xiantao.domain.land.vo.PenCellVO result) {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("✅ 已开始在 (%s) 孵化%s！\n", result.getPosition(), result.getBeastName()));
+        sb.append(String.format("✅ 已开始在地块 %s 孵化%s！\n", result.getCellId(), result.getBeastName()));
         sb.append(String.format("品质：%s | 等阶：T%d\n", result.getQuality(), result.getTier()));
         if (result.isMutant()) {
             sb.append("✨ 变异灵兽！特性：").append(String.join(",", result.getMutationTraits())).append("\n");

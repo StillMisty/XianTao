@@ -45,9 +45,14 @@ public class FudiStatusVO {
     private Integer tribulationStage;
 
     /**
-     * 福地网格大小
+     * 地块总数（含空地）
      */
-    private Integer gridSize;
+    private Integer totalCells;
+
+    /**
+     * 灵气是否耗尽（耗尽时除献祭外所有功能不可用）
+     */
+    private Boolean isAuraDepleted;
 
     /**
      * 地灵MBTI人格
@@ -73,11 +78,6 @@ public class FudiStatusVO {
      * 是否自动管理模式
      */
     private Boolean autoMode;
-
-    /**
-     * 是否蛰伏模式
-     */
-    private Boolean dormantMode;
 
     /**
      * 已占地块数

@@ -37,33 +37,21 @@ public class SpiritChatService {
 
     // ===================== 内部 API（需预先完成认证） =====================
 
-    /**
-     * 与地灵进行自然语言交互（统一 Function Calling 模式）
-     * 使用 Spring AI 的 Function Calling 机制，让 LLM 自主决定是纯聊天还是调用工具
-     *
-     * @param userId    用户 ID
-     * @param userInput 用户输入
-     * @return 地灵的人格化回复
-     */
     public String chatWithSpirit(Long userId, String userInput) {
-        // 设置用户上下文，供 SpiritTools 使用
         UserContext.setCurrentUserId(userId);
         try {
             Fudi fudi = fudiRepository.findByUserId(userId)
                     .orElseThrow(() -> new IllegalStateException("未找到福地"));
 
-            // 更新灵气和情绪状态（懒加载）
             fudi.updateAura();
             fudi.updateEmotionState();
 
-            // 构建系统提示词
             String systemPrompt = buildPrompt(fudi);
 
-            // 使用 Function Calling，LLM 会根据用户输入和福地状态自主决定调用哪个工具
             String response = spiritChatClient.prompt()
                     .system(systemPrompt)
                     .user(userInput)
-                    .tools(spiritTools)  // 注册所有可用工具
+                    .tools(spiritTools)
                     .call()
                     .content();
 
@@ -74,16 +62,12 @@ public class SpiritChatService {
             log.error("地灵对话失败 - userId: {}, error: {}", userId, e.getMessage(), e);
             return "地灵暂时无法回应，请稍后再试。";
         } finally {
-            // 清除用户上下文，防止内存泄漏
             UserContext.clear();
         }
     }
 
     // ===================== 辅助方法 =====================
 
-    /**
-     * 构建统一的地灵 Function Calling 系统提示词
-     */
     private String buildPrompt(Fudi fudi) {
         String gridDetail = buildGridDetailForLLM(fudi);
         String emotionState = fudi.getEmotionState().getDescription();
@@ -104,145 +88,68 @@ public class SpiritChatService {
      * 为 LLM 构建详细的网格状态描述（包含已占地块和可用空位）
      */
     private String buildGridDetailForLLM(Fudi fudi) {
-        int gridSize = fudi.getGridSize();
-
         if (fudi.getGridLayout() == null) {
-            // 生成所有可用坐标
-            StringBuilder sb = new StringBuilder();
-            sb.append("福地网格状态（").append(gridSize).append("x").append(gridSize).append("）：\n");
-            sb.append("当前为空，所有坐标均可使用。\n");
-            sb.append("可用坐标：");
-            List<String> emptyPositions = new ArrayList<>();
-            for (int x = 0; x < gridSize; x++) {
-                for (int y = 0; y < gridSize; y++) {
-                    emptyPositions.add(x + "," + y);
-                }
-            }
-            sb.append(String.join(", ", emptyPositions));
-            return sb.toString();
+            return "福地尚未开辟任何地块。";
         }
 
         @SuppressWarnings("unchecked")
         var cells = (java.util.List<Map<String, Object>>) fudi.getGridLayout().get("cells");
         if (cells == null || cells.isEmpty()) {
-            // 生成所有可用坐标
-            StringBuilder sb = new StringBuilder();
-            sb.append("福地网格状态（").append(gridSize).append("x").append(gridSize).append("）：\n");
-            sb.append("当前为空，所有坐标均可使用。\n");
-            sb.append("可用坐标：");
-            List<String> emptyPositions = new ArrayList<>();
-            for (int x = 0; x < gridSize; x++) {
-                for (int y = 0; y < gridSize; y++) {
-                    emptyPositions.add(x + "," + y);
-                }
-            }
-            sb.append(String.join(", ", emptyPositions));
-            return sb.toString();
+            return "福地尚未开辟任何地块。";
         }
 
-        // 收集已占地块信息
-        Set<String> occupiedPositions = new HashSet<>();
-        StringBuilder sb = new StringBuilder();
-        sb.append("福地网格状态（").append(gridSize).append("x").append(gridSize).append("）：\n");
-
-        // 统计各地块类型数量
-        Map<String, Integer> typeCount = new HashMap<>();
-        List<Map<String, Object>> farmCells = new ArrayList<>();
-        List<Map<String, Object>> penCells = new ArrayList<>();
-        List<Map<String, Object>> nodeCells = new ArrayList<>();
+        int totalCells = cells.size();
+        List<Map<String, Object>> occupiedCells = new ArrayList<>();
+        List<Integer> emptyCellIds = new ArrayList<>();
 
         for (var cell : cells) {
-            String pos = (String) cell.get("pos");
-            occupiedPositions.add(pos);
             String type = (String) cell.get("type");
-            typeCount.merge(type, 1, Integer::sum);
+            if ("empty".equals(type)) {
+                emptyCellIds.add((Integer) cell.get("cell_id"));
+            } else {
+                occupiedCells.add(cell);
+            }
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("福地状态（共").append(totalCells).append("个地块）：\n");
+
+        int farmCount = 0, penCount = 0, nodeCount = 0;
+        for (var cell : occupiedCells) {
+            String type = (String) cell.get("type");
+            switch (type) {
+                case "farm" -> farmCount++;
+                case "pen" -> penCount++;
+                case "node" -> nodeCount++;
+            }
+        }
+
+        List<String> typeSummary = new ArrayList<>();
+        if (farmCount > 0) typeSummary.add("灵田×" + farmCount);
+        if (penCount > 0) typeSummary.add("兽栏×" + penCount);
+        if (nodeCount > 0) typeSummary.add("阵眼×" + nodeCount);
+        if (!typeSummary.isEmpty()) {
+            sb.append("地块组成：").append(String.join("、", typeSummary)).append("\n");
+        }
+
+        if (emptyCellIds.isEmpty()) {
+            sb.append("所有地块已使用。如需调整布局可先拆除部分地块。\n");
+        } else {
+            sb.append("可用空地块编号：").append(emptyCellIds.toString()).append("\n");
+        }
+
+        sb.append("【已占地块详情】\n");
+        for (var cell : occupiedCells) {
+            Integer cellId = (Integer) cell.get("cell_id");
+            String type = (String) cell.get("type");
+            sb.append("- [").append(cellId).append("] ").append(type);
 
             switch (type) {
-                case "farm" -> farmCells.add(cell);
-                case "pen" -> penCells.add(cell);
-                case "node" -> nodeCells.add(cell);
-                default -> {
-                }
-            }
-        }
-
-        // 计算可用空位
-        List<String> emptyPositions = new ArrayList<>();
-        for (int x = 0; x < gridSize; x++) {
-            for (int y = 0; y < gridSize; y++) {
-                String pos = x + "," + y;
-                if (!occupiedPositions.contains(pos)) {
-                    emptyPositions.add(pos);
-                }
-            }
-        }
-
-        // 如果福地已满，提供简洁摘要
-        if (emptyPositions.isEmpty()) {
-            sb.append("【布局摘要】福地已满（").append(occupiedPositions.size()).append("/").append(gridSize * gridSize).append("）。\n");
-
-            // 按类型汇总
-            if (!typeCount.isEmpty()) {
-                List<String> typeSummary = new ArrayList<>();
-                if (typeCount.containsKey("farm")) {
-                    typeSummary.add("灵田×" + typeCount.get("farm"));
-                }
-                if (typeCount.containsKey("pen")) {
-                    typeSummary.add("兽栏×" + typeCount.get("pen"));
-                }
-                if (typeCount.containsKey("node")) {
-                    typeSummary.add("阵眼×" + typeCount.get("node"));
-                }
-                sb.append("地块组成：").append(String.join("、", typeSummary)).append("\n");
-            }
-
-            // 显示可收获的灵田
-            long matureFarmCount = farmCells.stream()
-                    .peek(this::updateGrowthProgress)
-                    .filter(cell -> {
-                        Double progress = (Double) cell.get("growth_progress");
-                        return progress != null && progress >= 1.0;
-                    })
-                    .count();
-            if (matureFarmCount > 0) {
-                sb.append("⚠️ 有 ").append(matureFarmCount).append(" 块灵田可收获。\n");
-            }
-
-            // 显示饥饿的灵兽
-            long hungryBeastCount = penCells.stream()
-                    .filter(cell -> {
-                        Integer hunger = (Integer) cell.get("hunger");
-                        return hunger != null && hunger < 50;
-                    })
-                    .count();
-            if (hungryBeastCount > 0) {
-                sb.append("⚠️ 有 ").append(hungryBeastCount).append(" 只灵兽需要喂养。\n");
-            }
-
-            sb.append("💡 提示：如需调整布局，可先拆除部分地块或等待福地升级扩建。");
-        } else {
-            // 有空位时，显示详细列表
-            sb.append("【已占地块】\n");
-            for (var cell : cells) {
-                String pos = (String) cell.get("pos");
-                String type = (String) cell.get("type");
-                String name = (String) cell.get("name");
-
-                sb.append("- (").append(pos).append(") ").append(type);
-
-                if (name != null && !name.isEmpty()) {
-                    sb.append(" [").append(name).append("]");
-                }
-
-                // 添加作物生长信息
-                if ("farm".equals(type)) {
-                    // 懒加载计算生长进度
+                case "farm" -> {
                     updateGrowthProgress(cell);
-
                     String cropName = (String) cell.get("crop_name");
                     Double progress = (Double) cell.get("growth_progress");
                     Boolean isMature = progress != null && progress >= 1.0;
-
                     if (cropName != null) {
                         sb.append(" 种植:").append(cropName);
                         if (isMature) {
@@ -252,24 +159,47 @@ public class SpiritChatService {
                         }
                     }
                 }
-
-                // 添加灵兽信息
-                if ("pen".equals(type)) {
+                case "pen" -> {
                     String beastName = (String) cell.get("beast_name");
-                    Integer hunger = (Integer) cell.get("hunger");
                     if (beastName != null) {
                         sb.append(" 饲养:").append(beastName);
                     }
+                    Integer hunger = (Integer) cell.get("hunger");
                     if (hunger != null) {
                         sb.append(" 饥饿值:").append(hunger);
                     }
                 }
-
-                sb.append("\n");
+                case "node" -> {
+                    Integer level = (Integer) cell.get("level");
+                    sb.append(" Lv.").append(level);
+                }
             }
+            sb.append("\n");
+        }
 
-            sb.append("【可用空位】\n");
-            sb.append("可用坐标：").append(String.join(", ", emptyPositions));
+        // 检查是否有可收获的灵田
+        long matureFarmCount = occupiedCells.stream()
+                .filter(c -> "farm".equals(c.get("type")))
+                .peek(this::updateGrowthProgress)
+                .filter(c -> {
+                    Double progress = (Double) c.get("growth_progress");
+                    return progress != null && progress >= 1.0;
+                })
+                .count();
+        if (matureFarmCount > 0) {
+            sb.append("⚠️ 有 ").append(matureFarmCount).append(" 块灵田可收获。\n");
+        }
+
+        // 检查饥饿的灵兽
+        long hungryBeastCount = occupiedCells.stream()
+                .filter(c -> "pen".equals(c.get("type")))
+                .filter(c -> {
+                    Integer hunger = (Integer) c.get("hunger");
+                    return hunger != null && hunger < 50;
+                })
+                .count();
+        if (hungryBeastCount > 0) {
+            sb.append("⚠️ 有 ").append(hungryBeastCount).append(" 只灵兽需要喂养。\n");
         }
 
         return sb.toString();
@@ -279,16 +209,12 @@ public class SpiritChatService {
      * 更新地块的生长进度（懒加载）
      */
     private void updateGrowthProgress(Map<String, Object> cell) {
-        if (!"farm".equals(cell.get("type"))) {
-            return;
-        }
+        if (!"farm".equals(cell.get("type"))) return;
 
         String plantTimeStr = (String) cell.get("plant_time");
         String matureTimeStr = (String) cell.get("mature_time");
 
-        if (plantTimeStr == null || matureTimeStr == null) {
-            return;
-        }
+        if (plantTimeStr == null || matureTimeStr == null) return;
 
         try {
             LocalDateTime plantTime = LocalDateTime.parse(plantTimeStr);

@@ -2,8 +2,6 @@ package top.stillmisty.xiantao.domain.land.vo;
 
 import lombok.Builder;
 import lombok.Data;
-import top.stillmisty.xiantao.domain.land.enums.WuxingType;
-
 /**
  * 阵眼地块值对象
  */
@@ -11,19 +9,14 @@ import top.stillmisty.xiantao.domain.land.enums.WuxingType;
 @Builder
 public class NodeCellVO {
     /**
-     * 坐标位置（格式："x,y"）
+     * 地块编号
      */
-    private String position;
+    private Integer cellId;
 
     /**
      * 阵眼等级
      */
     private Integer level;
-
-    /**
-     * 五行属性
-     */
-    private WuxingType element;
 
     /**
      * 当前耐久度

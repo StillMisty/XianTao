@@ -9,7 +9,7 @@ import lombok.Data;
 @Data
 @Builder
 public class BeastProduceVO {
-    private String position;
+    private Integer cellId;
     private String beastName;
     private int totalProduced;
     private int itemTemplateId;

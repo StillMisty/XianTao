@@ -2,8 +2,6 @@ package top.stillmisty.xiantao.domain.land.vo;
 
 import lombok.Builder;
 import lombok.Data;
-import top.stillmisty.xiantao.domain.land.enums.WuxingType;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -13,12 +11,11 @@ import java.util.List;
 @Data
 @Builder
 public class PenCellVO {
-    private String position;
+    private Integer cellId;
     private Integer cellLevel;
     private Integer beastId;
     private String beastName;
     private Integer tier;
-    private WuxingType element;
     private String quality;
     private Integer qualityOrdinal;
     private boolean isMutant;

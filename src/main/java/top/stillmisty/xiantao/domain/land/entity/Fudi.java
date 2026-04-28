@@ -54,11 +54,6 @@ public class Fudi extends Model<Fudi> {
     private Integer tribulationStage;
 
     /**
-     * 福地网格大小（3/4/5）
-     */
-    private Integer gridSize;
-
-    /**
      * 地灵MBTI人格类型（锁定）
      */
     private MBTIPersonality mbtiType;
@@ -82,11 +77,6 @@ public class Fudi extends Model<Fudi> {
      * 是否开启自动管理模式
      */
     private Boolean autoMode;
-
-    /**
-     * 是否处于蛰伏模式（离线保底）
-     */
-    private Boolean dormantMode;
 
     /**
      * 上次灵气计算时间
@@ -136,10 +126,10 @@ public class Fudi extends Model<Fudi> {
 
     /**
      * 计算每小时灵气消耗
-     * 公式：基础消耗(10) + 已占地块数 × 2 + Σ(灵兽等阶 × 5) + Σ(阵眼等级 × 3)
+     * 公式：已占地块数 × 2 + Σ(灵兽等阶 × 5 × 品质倍率) + Σ(阵眼等级 × 3)
+     * 灵气耗尽后所有功能（除献祭外）不可用
      */
     public int calculateHourlyAuraCost() {
-        int baseCost = 10;
         int occupiedCells = getOccupiedCellCount();
         int cellCost = occupiedCells * 2;
 
@@ -163,7 +153,7 @@ public class Fudi extends Model<Fudi> {
             }
         }
 
-        return baseCost + cellCost + beastCost + nodeCost;
+        return cellCost + beastCost + nodeCost;
     }
 
     /**
@@ -183,6 +173,7 @@ public class Fudi extends Model<Fudi> {
     /**
      * 懒加载计算当前灵气值
      * 根据 (当前时间 - 上次更新时间) × 每小时消耗 计算实际消耗
+     * 灵气可降至 0，耗尽后所有功能（除献祭外）不可用
      */
     public int calculateCurrentAura() {
         if (lastAuraUpdate == null) {
@@ -196,30 +187,9 @@ public class Fudi extends Model<Fudi> {
             return auraCurrent;
         }
 
-        int hourlyCost;
-        if (Boolean.TRUE.equals(dormantMode)) {
-            // 蛰伏模式：最低保护 1 灵气/小时
-            hourlyCost = 1;
-        } else {
-            hourlyCost = calculateHourlyAuraCost();
-        }
-
+        int hourlyCost = calculateHourlyAuraCost();
         int totalCost = (int) (hoursElapsed * hourlyCost);
-        int newAura = Math.max(0, auraCurrent - totalCost);
-
-        // 检查是否触发蛰伏模式
-        if (!Boolean.TRUE.equals(dormantMode) && newAura < auraMax * 0.1) {
-            // 离线超过 24 小时且灵气不足 10%，触发蛰伏
-            long offlineHours = java.time.Duration.between(lastOnlineTime, now).toHours();
-            if (offlineHours >= 24) {
-                dormantMode = true;
-                hourlyCost = 1;
-                totalCost = (int) (hoursElapsed * hourlyCost);
-                newAura = Math.max(0, auraCurrent - totalCost);
-            }
-        }
-
-        return newAura;
+        return Math.max(0, auraCurrent - totalCost);
     }
 
     /**
@@ -229,11 +199,6 @@ public class Fudi extends Model<Fudi> {
         auraCurrent = calculateCurrentAura();
         lastAuraUpdate = LocalDateTime.now();
         lastOnlineTime = LocalDateTime.now();
-
-        // 上线后自动解除蛰伏
-        if (Boolean.TRUE.equals(dormantMode)) {
-            dormantMode = false;
-        }
     }
 
     /**

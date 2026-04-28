@@ -27,29 +27,29 @@ public class SpiritTools {
     /**
      * 查询福地网格状态工具
      */
-    @Tool(description = "查询福地的网格布局状态，包括哪些坐标是空的、哪些已被占用。在种植或建造前应该先调用此工具了解可用坐标。")
+    @Tool(description = "查询福地的网格布局状态，包括哪些地块编号是空的、哪些已被占用。在种植或建造前应该先调用此工具了解可用地块编号。")
     public GetGridStatusResponse getGridStatus() {
         try {
             Long userId = getCurrentUserId();
             Map<String, Object> result = fudiService.getGridStatus(userId);
 
-            int gridSize = (Integer) result.get("gridSize");
+            int totalCells = (Integer) result.get("totalCells");
             int occupiedCount = (Integer) result.get("occupiedCount");
             int emptyCount = (Integer) result.get("emptyCount");
             @SuppressWarnings("unchecked")
-            java.util.List<String> emptyPositions = (java.util.List<String>) result.get("emptyPositions");
+            java.util.List<Integer> emptyCellIds = (java.util.List<Integer>) result.get("emptyCellIds");
 
             String message;
             if (emptyCount == 0) {
-                message = String.format("福地已满（%dx%d网格，%d个地块全部占用）。", gridSize, gridSize, occupiedCount);
+                message = String.format("福地已满（共%d个地块，全部占用）。", totalCells);
             } else {
                 message = String.format(
-                        "福地网格 %dx%d，已占用 %d 个地块，还有 %d 个空位。可用坐标：%s",
-                        gridSize, gridSize, occupiedCount, emptyCount, String.join(", ", emptyPositions)
+                        "福地共 %d 个地块，已占用 %d 个，还有 %d 个空位。可用地块编号：%s",
+                        totalCells, occupiedCount, emptyCount, emptyCellIds.toString()
                 );
             }
 
-            return new GetGridStatusResponse(true, message, gridSize, occupiedCount, emptyCount, emptyPositions);
+            return new GetGridStatusResponse(true, message, totalCells, occupiedCount, emptyCount, emptyCellIds);
         } catch (Exception e) {
             log.error("查询网格状态失败", e);
             return new GetGridStatusResponse(false, "查询失败：" + e.getMessage(), 0, 0, 0, java.util.List.of());
@@ -110,9 +110,9 @@ public class SpiritTools {
     /**
      * 种植灵药工具
      */
-    @Tool(description = "在福地的指定坐标种植灵药。需要先调用getGridStatus确认坐标为空，再调用queryBag('种子')查看可用种子的编号。提供坐标（格式如'0,0'）和种子名称或编号。")
+    @Tool(description = "在福地的指定地块编号种植灵药。需要先调用getGridStatus确认地块为空，再调用queryBag('种子')查看可用种子的编号。提供地块编号（如1、2等）和种子名称或编号。")
     public PlantCropResponse plantCrop(
-            @ToolParam(description = "种植坐标，格式如'0,0'、'1,2'等") String position,
+            @ToolParam(description = "种植地块编号，如'1'、'2'等") String position,
             @ToolParam(description = "种子编号或名称。先调用queryBag('种子')查看编号，例如'1'、'2'，或直接使用名称如'灵草种子'") String cropName
     ) {
         try {
@@ -123,8 +123,8 @@ public class SpiritTools {
             return new PlantCropResponse(
                     true,
                     String.format(
-                            "已在 (%s) 种植%s，预计 %.1f 小时后成熟。",
-                            position, cropName, result.getBaseGrowthHours() / result.getGrowthModifier()
+                            "已在地块 %s 种植%s，预计 %.1f 小时后成熟。",
+                            position, cropName, result.getBaseGrowthHours()
                     ),
                     position,
                     cropName
@@ -138,9 +138,9 @@ public class SpiritTools {
     /**
      * 收获灵药工具
      */
-    @Tool(description = "收获福地中指定坐标的成熟灵药。坐标可以是具体坐标或'all'表示全部收获。")
+    @Tool(description = "收获福地中指定地块编号的成熟灵药。编号可以是具体数字或'all'表示全部收获。")
     public HarvestCropResponse harvestCrop(
-            @ToolParam(description = "收获坐标，格式如'0,0'，或'all'表示全部收获") String position
+            @ToolParam(description = "收获地块编号，如'1'、'2'，或'all'表示全部收获") String position
     ) {
         try {
             Long userId = getCurrentUserId();
@@ -165,7 +165,7 @@ public class SpiritTools {
 
                 return new HarvestCropResponse(
                         true,
-                        String.format("已收获 (%s) 的%s，获得 %d 份。", position, cropName, yield),
+                        String.format("已收获地块 %s 的%s，获得 %d 份。", position, cropName, yield),
                         position,
                         yield
                 );
@@ -179,9 +179,9 @@ public class SpiritTools {
     /**
      * 建造地块工具
      */
-    @Tool(description = "在福地的指定坐标建造地块，可以建造灵田、兽栏或阵眼。")
+    @Tool(description = "在福地的指定地块编号建造地块，可以建造灵田、兽栏或阵眼。")
     public BuildCellResponse buildCell(
-            @ToolParam(description = "建造坐标，格式如'0,0'") String position,
+            @ToolParam(description = "建造地块编号，如'1'、'2'等") String position,
             @ToolParam(description = "地块类型：灵田、兽栏、阵眼") String cellType
     ) {
         try {
@@ -192,7 +192,7 @@ public class SpiritTools {
 
             return new BuildCellResponse(
                     true,
-                    String.format("已在 (%s) 建造%s。", position, cellType),
+                    String.format("已在地块 %s 建造%s。", position, cellType),
                     position,
                     cellType
             );
@@ -205,9 +205,9 @@ public class SpiritTools {
     /**
      * 拆除地块工具
      */
-    @Tool(description = "拆除福地中指定坐标的地块。")
+    @Tool(description = "拆除福地中指定地块编号的建筑。")
     public RemoveCellResponse removeCell(
-            @ToolParam(description = "拆除坐标，格式如'0,0'") String position
+            @ToolParam(description = "拆除地块编号，如'1'、'2'等") String position
     ) {
         try {
             Long userId = getCurrentUserId();
@@ -216,7 +216,7 @@ public class SpiritTools {
 
             return new RemoveCellResponse(
                     true,
-                    String.format("已拆除 (%s) 的%s。", position, typeName),
+                    String.format("已拆除地块 %s 的%s。", position, typeName),
                     position
             );
         } catch (Exception e) {
@@ -236,7 +236,6 @@ public class SpiritTools {
             Long userId = getCurrentUserId();
 
             if ("all".equalsIgnoreCase(itemName)) {
-                // TODO: 实现批量献祭
                 return new SacrificeItemResponse(false, "批量献祭功能尚未实现。", itemName, 0);
             }
 
@@ -257,9 +256,9 @@ public class SpiritTools {
     /**
      * 收取灵兽产出工具
      */
-    @Tool(description = "收取福地中指定兽栏的灵兽产出物。坐标可以是具体坐标或'all'表示全部收取。")
+    @Tool(description = "收取福地中指定兽栏的灵兽产出物。编号可以是具体数字或'all'表示全部收取。")
     public CollectProduceResponse collectProduce(
-            @ToolParam(description = "收取坐标，格式如'0,0'，或'all'表示全部收取") String position
+            @ToolParam(description = "收取地块编号，如'1'、'2'，或'all'表示全部收取") String position
     ) {
         try {
             Long userId = getCurrentUserId();
@@ -282,7 +281,7 @@ public class SpiritTools {
 
                 return new CollectProduceResponse(
                         true,
-                        String.format("已从 (%s) 收取了 %d 件%s。", result.getPosition(), result.getTotalProduced(), result.getItemName()),
+                        String.format("已从地块 %s 收取了 %d 件%s。", position, result.getTotalProduced(), result.getItemName()),
                         position,
                         result.getTotalProduced()
                 );
@@ -313,8 +312,8 @@ public class SpiritTools {
             @JsonPropertyDescription("结果消息")
             String message,
 
-            @JsonPropertyDescription("网格大小")
-            int gridSize,
+            @JsonPropertyDescription("地块总数")
+            int totalCells,
 
             @JsonPropertyDescription("已占地块数")
             int occupiedCount,
@@ -322,8 +321,8 @@ public class SpiritTools {
             @JsonPropertyDescription("空位数")
             int emptyCount,
 
-            @JsonPropertyDescription("可用坐标列表")
-            java.util.List<String> emptyPositions
+            @JsonPropertyDescription("可用地块编号列表")
+            java.util.List<Integer> emptyCellIds
     ) {
     }
 
@@ -334,7 +333,7 @@ public class SpiritTools {
             @JsonPropertyDescription("结果消息")
             String message,
 
-            @JsonPropertyDescription("种植坐标")
+            @JsonPropertyDescription("种植地块编号")
             String position,
 
             @JsonPropertyDescription("作物名称")
@@ -349,7 +348,7 @@ public class SpiritTools {
             @JsonPropertyDescription("结果消息")
             String message,
 
-            @JsonPropertyDescription("收获坐标")
+            @JsonPropertyDescription("收获地块编号")
             String position,
 
             @JsonPropertyDescription("收获数量")
@@ -364,7 +363,7 @@ public class SpiritTools {
             @JsonPropertyDescription("结果消息")
             String message,
 
-            @JsonPropertyDescription("建造坐标")
+            @JsonPropertyDescription("建造地块编号")
             String position,
 
             @JsonPropertyDescription("地块类型")
@@ -379,7 +378,7 @@ public class SpiritTools {
             @JsonPropertyDescription("结果消息")
             String message,
 
-            @JsonPropertyDescription("拆除坐标")
+            @JsonPropertyDescription("拆除地块编号")
             String position
     ) {
     }
@@ -406,7 +405,7 @@ public class SpiritTools {
             @JsonPropertyDescription("结果消息")
             String message,
 
-            @JsonPropertyDescription("收取坐标")
+            @JsonPropertyDescription("收取地块编号")
             String position,
 
             @JsonPropertyDescription("收取数量")
