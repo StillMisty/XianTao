@@ -29,21 +29,18 @@ public class CultivationHandle {
      */
     @Listener
     @ContentTrim
-    @Filter("加点 {{content}}")
-    public void allocatePoints(MessageEvent event, @FilterValue("content") String content) {
-        log.debug("收到加点请求 - AuthorId: {}, Content: {}", event.getAuthorId(), content);
+    @Filter("加点 {{attr}} {{count}}")
+    public void allocatePoints(MessageEvent event, @FilterValue("attr") String attr, @FilterValue("count") String count) {
+        log.debug("收到加点请求 - AuthorId: {}, Attr: {}, Count: {}", event.getAuthorId(), attr, count);
 
-        // 解析参数：加点 力量 5
-        String[] parts = content.split("\\s+");
-        if (parts.length < 3) {
+        if (attr == null || attr.isEmpty()) {
             event.replyBlocking("用法：加点 [属性名] [数值]\n示例：加点 力量 5\n可用属性：力量、体质、敏捷、智慧");
             return;
         }
 
-        String attributeName = parts[1];
         int points;
         try {
-            points = Integer.parseInt(parts[2]);
+            points = Integer.parseInt(count);
         } catch (NumberFormatException e) {
             event.replyBlocking("点数必须为数字");
             return;
@@ -52,7 +49,7 @@ public class CultivationHandle {
         String response = cultivationCommandHandler.handleAllocatePoints(
                 PlatformType.ONE_BOT_V11,
                 event.getAuthorId().toString(),
-                attributeName,
+                attr,
                 points
         );
 
