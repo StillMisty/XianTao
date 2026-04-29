@@ -52,11 +52,6 @@ public class Fudi extends Model<Fudi> {
     private Integer tribulationStage;
 
     /**
-     * 是否开启自动管理模式
-     */
-    private Boolean autoMode;
-
-    /**
      * 上次灵气计算时间
      */
     private LocalDateTime lastAuraUpdate;

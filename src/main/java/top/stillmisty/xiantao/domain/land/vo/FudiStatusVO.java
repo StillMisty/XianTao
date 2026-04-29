@@ -105,11 +105,6 @@ public class FudiStatusVO {
     private EmotionState emotionState;
 
     /**
-     * 是否自动管理模式
-     */
-    private Boolean autoMode;
-
-    /**
      * 已占地块数
      */
     private Integer occupiedCells;

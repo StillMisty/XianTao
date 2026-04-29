@@ -231,7 +231,6 @@ public class FudiCommandHandler {
         sb.append("⛈️ 劫数：").append(status.getTribulationStage()).append("  连胜×").append(status.getTribulationWinStreak()).append("\n");
         sb.append("🎭 地灵人格：").append(status.getMbtiType().getCode()).append("\n");
         sb.append("😊 地灵情绪：").append(status.getEmotionState().getEmoji()).append(" ").append(status.getEmotionState().getDescription()).append("\n");
-        sb.append("⚙️ 自动管理：").append(status.getAutoMode() ? "✅ 开启" : "❌ 关闭").append("\n");
         sb.append("📐 地块总数：").append(status.getTotalCells()).append("\n");
         sb.append("🏗️ 已占地块：").append(status.getOccupiedCells()).append("/").append(status.getTotalCells()).append("\n");
         if (Boolean.TRUE.equals(status.getIsAuraDepleted())) {

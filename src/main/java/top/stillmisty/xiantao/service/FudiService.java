@@ -227,7 +227,6 @@ public class FudiService {
         fudi.setAuraCurrent(500);
         fudi.setAuraMax(1000);
         fudi.setTribulationStage(0);
-        fudi.setAutoMode(true);
         fudi.setTribulationWinStreak(0);
 
         Map<String, Object> gridLayout = new HashMap<>();
@@ -392,7 +391,6 @@ public class FudiService {
                 .likedTags(likedTags)
                 .dislikedTags(dislikedTags)
                 .emotionState(spirit != null ? spirit.getEmotionState() : null)
-                .autoMode(fudi.getAutoMode())
                 .occupiedCells(fudi.getOccupiedCellCount())
                 .tribulationWinStreak(fudi.getTribulationWinStreak())
                 .lastTribulationTime(fudi.getLastTribulationTime())

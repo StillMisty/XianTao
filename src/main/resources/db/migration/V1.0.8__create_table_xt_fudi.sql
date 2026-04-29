@@ -9,9 +9,6 @@ CREATE TABLE xt_fudi
     aura_max               INTEGER     NOT NULL DEFAULT 1000,
     tribulation_stage      INTEGER     NOT NULL DEFAULT 0,
 
-    -- 管理模式
-    auto_mode              BOOLEAN     NOT NULL DEFAULT TRUE,
-
     -- 时间戳
     last_aura_update       TIMESTAMP   NOT NULL DEFAULT NOW(),
     last_online_time       TIMESTAMP   NOT NULL DEFAULT NOW(),
@@ -46,7 +43,6 @@ COMMENT ON COLUMN xt_fudi.user_id IS '所属玩家ID';
 COMMENT ON COLUMN xt_fudi.aura_current IS '当前灵气值';
 COMMENT ON COLUMN xt_fudi.aura_max IS '灵气上限（由劫数和天劫胜利积累）';
 COMMENT ON COLUMN xt_fudi.tribulation_stage IS '当前劫数（每渡过一次天劫+1）';
-COMMENT ON COLUMN xt_fudi.auto_mode IS '是否开启自动管理模式';
 COMMENT ON COLUMN xt_fudi.last_aura_update IS '上次灵气计算时间（用于懒加载）';
 COMMENT ON COLUMN xt_fudi.last_online_time IS '上次上线时间（用于离线时长计算）';
 COMMENT ON COLUMN xt_fudi.last_tribulation_time IS '天劫最后发生时间';
