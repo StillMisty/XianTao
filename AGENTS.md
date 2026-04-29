@@ -1,7 +1,7 @@
 # AGENTS.md — XianTao (仙道)
 
 ## Tech Stack
-Java 25 · Spring Boot 4.x · Spring AI 2.x · MyBatis-Flex · PostgreSQL 18 (JSONB) · SimBot
+Java 25 · Spring Boot 4.x · Spring AI 2.x · MyBatis-Flex · PostgreSQL 18 (JSONB) · SimBot · Gradle + KTS
 
 ## Architecture
 
