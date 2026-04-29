@@ -62,7 +62,7 @@ public class Fudi extends Model<Fudi> {
     private LocalDateTime lastOnlineTime;
 
     /**
-     * 福地网格布局（JSONB存储）
+     * 福地地块布局（JSONB存储）
      */
     @Column(typeHandler = PgJsonbTypeHandler.class)
     private Map<String, Object> gridLayout;

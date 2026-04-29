@@ -130,7 +130,7 @@ public class FudiStatusVO {
     private String tribulationResult;
 
     /**
-     * 网格布局详情
+     * 地块布局详情
      */
     private List<CellDetailVO> cellDetails;
 

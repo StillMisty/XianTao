@@ -20,7 +20,7 @@ public class SpiritPromptTemplates {
      * @param fudiLevel       劫数
      * @param spiritEnergy    精力值
      * @param spiritAffection 好感度
-     * @param gridDetail      网格状态详情（空则显示占位描述）
+     * @param gridDetail      地块状态详情（空则显示占位描述）
      * @param emotionState    情绪状态
      * @param energyMax       精力上限
      * @param spiritForm      地灵形态id

@@ -38,9 +38,9 @@ public class FudiHandle {
 
     @Listener
     @ContentTrim
-    @Filter("福地网格")
+    @Filter("福地地块")
     public void handleFudiGrid(MessageEvent event) {
-        log.debug("收到福地网格请求 - AuthorId: {}", event.getAuthorId());
+        log.debug("收到福地地块请求 - AuthorId: {}", event.getAuthorId());
 
         String response = fudiCommandHandler.handleFudiGrid(
                 PlatformType.ONE_BOT_V11,

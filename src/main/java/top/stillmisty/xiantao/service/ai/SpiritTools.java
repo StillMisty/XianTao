@@ -32,9 +32,9 @@ public class SpiritTools {
     private final SpiritRepository spiritRepository;
 
     /**
-     * 查询福地网格状态工具
+     * 查询福地地块状态工具
      */
-    @Tool(description = "查询福地的网格布局状态，包括哪些地块编号是空的、哪些已被占用。在种植或建造前应该先调用此工具了解可用地块编号。")
+    @Tool(description = "查询福地的地块布局状态，包括哪些地块编号是空的、哪些已被占用。在种植或建造前应该先调用此工具了解可用地块编号。")
     public GetGridStatusResponse getGridStatus() {
         try {
             Long userId = getCurrentUserId();
@@ -58,7 +58,7 @@ public class SpiritTools {
 
             return new GetGridStatusResponse(true, message, totalCells, occupiedCount, emptyCount, emptyCellIds);
         } catch (Exception e) {
-            log.error("查询网格状态失败", e);
+            log.error("查询地块状态失败", e);
             return new GetGridStatusResponse(false, "查询失败：" + e.getMessage(), 0, 0, 0, java.util.List.of());
         }
     }

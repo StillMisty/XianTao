@@ -1898,7 +1898,7 @@ public class FudiService {
     }
 
     /**
-     * 获取福地网格状态（供LLM查询可用地块编号）
+     * 获取福地地块状态（供LLM查询可用地块编号）
      */
     public Map<String, Object> getGridStatus(Long userId) {
         Fudi fudi = getFudiByUserId(userId)

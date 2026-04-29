@@ -237,13 +237,13 @@ public class FudiCommandHandler {
             sb.append("⚠️ 灵气已耗尽！除献祭外其他功能不可用\n");
         }
         sb.append("━━━━━━━━━━━━━━━\n");
-        sb.append("💡 使用 #福地网格 查看详细布局");
+        sb.append("💡 使用 #福地地块 查看详细布局");
         return sb.toString();
     }
 
     private String formatGridLayout(FudiStatusVO status) {
         StringBuilder sb = new StringBuilder();
-        sb.append("🗺️ 【福地网格布局】\n");
+        sb.append("🗺️ 【福地地块布局】\n");
         sb.append("━━━━━━━━━━━━━━━\n");
         if (status.getCellDetails() == null || status.getCellDetails().isEmpty()) {
             sb.append("（空地，尚未建造任何地块）\n");
