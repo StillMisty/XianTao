@@ -36,12 +36,7 @@ public class FudiCommandHandler {
         };
     }
 
-    public String handleFudiAura(PlatformType platform, String openId) {
-        return switch (fudiService.getFudiStatus(platform, openId)) {
-            case ServiceResult.Failure(var msg) -> msg;
-            case ServiceResult.Success(var vo) -> formatAuraInfo(vo);
-        };
-    }
+
 
     public String handleFudiSpirit(PlatformType platform, String openId) {
         return switch (fudiService.getFudiStatus(platform, openId)) {
@@ -229,6 +224,7 @@ public class FudiCommandHandler {
         sb.append("🔮 灵气：").append(status.getAuraCurrent()).append("/").append(status.getAuraMax()).append("\n");
         sb.append("⚡ 每小时消耗：").append(status.getAuraHourlyCost()).append(" 灵气\n");
         sb.append("⛈️ 劫数：").append(status.getTribulationStage()).append("  连胜×").append(status.getTribulationWinStreak()).append("\n");
+        sb.append("🧚 地灵形态：").append(status.getSpiritFormName() != null ? status.getSpiritFormName() : "未知形态").append("\n");
         sb.append("🎭 地灵人格：").append(status.getMbtiType().getCode()).append("\n");
         sb.append("😊 地灵情绪：").append(status.getEmotionState().getEmoji()).append(" ").append(status.getEmotionState().getDescription()).append("\n");
         sb.append("📐 地块总数：").append(status.getTotalCells()).append("\n");
@@ -273,27 +269,7 @@ public class FudiCommandHandler {
         return sb.toString();
     }
 
-    private String formatAuraInfo(FudiStatusVO status) {
-        int current = status.getAuraCurrent();
-        int max = status.getAuraMax();
-        int hourlyCost = status.getAuraHourlyCost();
-        int percent = (int) ((double) current / max * 100);
-        StringBuilder sb = new StringBuilder();
-        sb.append("🔮 【灵气详情】\n");
-        sb.append("━━━━━━━━━━━━━━━\n");
-        sb.append("当前灵气：").append(current).append("/").append(max).append(" (").append(percent).append("%)\n");
-        sb.append("每小时消耗：").append(hourlyCost).append(" 灵气\n");
-        if (hourlyCost > 0) {
-            sb.append("预计可用：").append(current / hourlyCost).append(" 小时\n");
-        }
-        if (status.getIsAuraDepleted()) {
-            sb.append("⚠️ 灵气已耗尽！除献祭外其他功能不可用\n");
-        }
-        sb.append("⛈️ 劫数：Lv.").append(status.getTribulationStage()).append("\n");
-        sb.append("━━━━━━━━━━━━━━━\n");
-        sb.append("💡 使用 #献祭 装备可补充灵气");
-        return sb.toString();
-    }
+
 
     private String formatSpiritInfo(FudiStatusVO status) {
         StringBuilder sb = new StringBuilder();

@@ -217,7 +217,7 @@ public class FudiService {
     /**
      * 创建新福地（随机分配地灵形态）
      */
-    public Fudi createFudi(Long userId, MBTIPersonality mbtiType) {
+    public void createFudi(Long userId, MBTIPersonality mbtiType) {
         if (fudiRepository.existsByUserId(userId)) {
             throw new IllegalStateException("用户已拥有福地");
         }
@@ -243,7 +243,7 @@ public class FudiService {
         spiritRepository.save(spirit);
 
         autoExpandCells(fudi);
-        return fudi;
+        fudiRepository.save(fudi);
     }
 
     /**
@@ -335,6 +335,7 @@ public class FudiService {
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
 
         fudi.updateAura();
+        autoExpandCells(fudi);
 
         var user = userRepository.findById(userId).orElseThrow();
         String tribulationResult = resolveTribulation(fudi, user.getLevel(), user.getStatStr());

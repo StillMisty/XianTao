@@ -50,19 +50,7 @@ public class FudiHandle {
         event.replyBlocking(response);
     }
 
-    @Listener
-    @ContentTrim
-    @Filter("福地灵气")
-    public void handleFudiAura(MessageEvent event) {
-        log.debug("收到福地灵气请求 - AuthorId: {}", event.getAuthorId());
 
-        String response = fudiCommandHandler.handleFudiAura(
-                PlatformType.ONE_BOT_V11,
-                event.getAuthorId().toString()
-        );
-
-        event.replyBlocking(response);
-    }
 
     @Listener
     @ContentTrim
