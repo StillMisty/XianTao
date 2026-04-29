@@ -69,7 +69,7 @@ public class FudiHandle {
 
     @Listener
     @ContentTrim
-    @Filter("#福地种植 {{position}} {{cropName}}")
+    @Filter("福地种植 {{position}} {{cropName}}")
     public void handlePlant(MessageEvent event, @FilterValue("position") String position, @FilterValue("cropName") String cropName) {
         log.debug("收到种植请求 - AuthorId: {}, Position: {}, CropName: {}", event.getAuthorId(), position, cropName);
 
@@ -85,7 +85,7 @@ public class FudiHandle {
 
     @Listener
     @ContentTrim
-    @Filter("#福地收获 {{position}}")
+    @Filter("福地收获 {{position}}")
     public void handleHarvest(MessageEvent event, @FilterValue("position") String position) {
         log.debug("收到收获请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
 
@@ -100,7 +100,7 @@ public class FudiHandle {
 
     @Listener
     @ContentTrim
-    @Filter("#福地建造 {{position}} {{cellType}}")
+    @Filter("福地建造 {{position}} {{cellType}}")
     public void handleBuild(MessageEvent event, @FilterValue("position") String position, @FilterValue("cellType") String cellType) {
         log.debug("收到建造请求 - AuthorId: {}, Position: {}, CellType: {}", event.getAuthorId(), position, cellType);
 
@@ -116,7 +116,7 @@ public class FudiHandle {
 
     @Listener
     @ContentTrim
-    @Filter("#福地拆除 {{position}}")
+    @Filter("福地拆除 {{position}}")
     public void handleRemove(MessageEvent event, @FilterValue("position") String position) {
         log.debug("收到拆除请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
 
@@ -131,7 +131,7 @@ public class FudiHandle {
 
     @Listener
     @ContentTrim
-    @Filter("#福地献祭 {{itemName}}")
+    @Filter("福地献祭 {{itemName}}")
     public void handleSacrifice(MessageEvent event, @FilterValue("itemName") String itemName) {
         log.debug("收到献祭请求 - AuthorId: {}, ItemName: {}", event.getAuthorId(), itemName);
 
@@ -146,7 +146,7 @@ public class FudiHandle {
 
     @Listener
     @ContentTrim
-    @Filter("#福地升级 {{position}}")
+    @Filter("福地升级 {{position}}")
     public void handleUpgradeCell(MessageEvent event, @FilterValue("position") String position) {
         log.debug("收到升级请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
 
@@ -161,7 +161,7 @@ public class FudiHandle {
 
     @Listener
     @ContentTrim
-    @Filter("#福地孵化 {{position}} {{eggName}}")
+    @Filter("福地孵化 {{position}} {{eggName}}")
     public void handleHatch(MessageEvent event, @FilterValue("position") String position, @FilterValue("eggName") String eggName) {
         log.debug("收到孵化请求 - AuthorId: {}, Position: {}, EggName: {}", event.getAuthorId(), position, eggName);
 
@@ -177,7 +177,7 @@ public class FudiHandle {
 
     @Listener
     @ContentTrim
-    @Filter("#福地收取 {{position}}")
+    @Filter("福地收取 {{position}}")
     public void handleCollect(MessageEvent event, @FilterValue("position") String position) {
         log.debug("收到收取请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
 
@@ -192,7 +192,7 @@ public class FudiHandle {
 
     @Listener
     @ContentTrim
-    @Filter("#福地放生 {{position}}")
+    @Filter("福地放生 {{position}}")
     public void handleRelease(MessageEvent event, @FilterValue("position") String position) {
         log.debug("收到放生请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
 
@@ -207,7 +207,7 @@ public class FudiHandle {
 
     @Listener
     @ContentTrim
-    @Filter("#福地进化 {{position}} {{mode}}")
+    @Filter("福地进化 {{position}} {{mode}}")
     public void handleEvolve(MessageEvent event, @FilterValue("position") String position, @FilterValue("mode") String mode) {
         log.debug("收到进化请求 - AuthorId: {}, Position: {}, Mode: {}", event.getAuthorId(), position, mode);
 
@@ -223,7 +223,7 @@ public class FudiHandle {
 
     @Listener
     @ContentTrim
-    @Filter("#地灵送礼 {{itemName}}")
+    @Filter("地灵送礼 {{itemName}}")
     public void handleGiveGift(MessageEvent event, @FilterValue("itemName") String itemName) {
         log.debug("收到送礼请求 - AuthorId: {}, ItemName: {}", event.getAuthorId(), itemName);
 

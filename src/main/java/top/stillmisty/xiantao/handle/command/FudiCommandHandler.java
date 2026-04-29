@@ -233,7 +233,7 @@ public class FudiCommandHandler {
             sb.append("⚠️ 灵气已耗尽！除献祭外其他功能不可用\n");
         }
         sb.append("━━━━━━━━━━━━━━━\n");
-        sb.append("💡 使用 #福地地块 查看详细布局");
+        sb.append("💡 输入「福地地块」查看详细布局");
         return sb.toString();
     }
 
@@ -265,7 +265,7 @@ public class FudiCommandHandler {
             }
         }
         sb.append("━━━━━━━━━━━━━━━\n");
-        sb.append("💡 使用 #种植/#建造/#收获 进行操作");
+        sb.append("💡 输入「福地种植」「福地建造」「福地收获」等指令进行操作");
         return sb.toString();
     }
 
@@ -289,7 +289,7 @@ public class FudiCommandHandler {
             sb.append("厌恶：").append(String.join("、", status.getDislikedTags())).append("\n");
         }
         sb.append("━━━━━━━━━━━━━━━\n");
-        sb.append("💡 与地灵互动可提升好感度 ｜ #地灵送礼 [物品名] 赠送礼物");
+        sb.append("💡 与地灵互动可提升好感度 ｜ 输入「地灵送礼 [物品名]」赠送礼物");
         return sb.toString();
     }
 
