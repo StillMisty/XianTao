@@ -59,9 +59,9 @@ public class Fudi extends Model<Fudi> {
     private MBTIPersonality mbtiType;
 
     /**
-     * 地灵形态名（如fox、cicada）
+     * 地灵形态id（关联xt_spirit表）
      */
-    private String form;
+    private Integer spiritId;
 
     /**
      * 地灵当前精力值

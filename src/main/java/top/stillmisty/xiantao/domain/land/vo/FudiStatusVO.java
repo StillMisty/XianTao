@@ -80,7 +80,7 @@ public class FudiStatusVO {
     private Integer energyMax;
 
     /**
-     * 地灵形态名
+     * 地灵形态id
      */
     private String spiritForm;
 

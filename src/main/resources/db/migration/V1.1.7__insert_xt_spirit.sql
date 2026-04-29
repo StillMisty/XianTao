@@ -1,5 +1,5 @@
 -- 地灵形态定义
-INSERT INTO xt_spirit_form (name, description, liked_tags, disliked_tags) VALUES
+INSERT INTO xt_spirit (name, description, liked_tags, disliked_tags) VALUES
 ('小狐妖', '一只毛茸茸的九尾幼狐，喜欢蹭人但傲娇不承认，九条尾巴是她的骄傲。', '["wine","art","book","prestige","shiny","jadeite","peach"]'::jsonb, '["common","ore","forge_base","bone","slime","insect"]'::jsonb),
 ('春秋蝉', '晶莹剔透的金蝉，趴在耳畔低语时间之道。看尽时光流转，对凡间事物淡然处之。', '["time","medicinal","art","book","jadeite","sacred","prestige"]'::jsonb, '["common","forge_base","ore","bone","beast","meat"]'::jsonb),
 ('石中鲤', '在一块灵石中游弋的小锦鲤，据说是远古大能的宠物遗种。能带来好运。', '["gem","ore","shiny","jadeite","water","sacred","light"]'::jsonb, '["common","weed","slime","bone","insect","rotten"]'::jsonb),

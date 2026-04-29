@@ -2,36 +2,36 @@
 CREATE TABLE xt_fudi
 (
     id                     BIGSERIAL PRIMARY KEY,
-    user_id                BIGINT      NOT NULL UNIQUE,         -- 玩家ID（每个玩家只能有一个福地）
+    user_id                BIGINT      NOT NULL UNIQUE,
 
     -- 灵气系统
-    aura_current           INTEGER     NOT NULL DEFAULT 0,      -- 当前灵气值
-    aura_max               INTEGER     NOT NULL DEFAULT 1000,   -- 灵气上限
-    tribulation_stage      INTEGER     NOT NULL DEFAULT 0,      -- 当前劫数（每渡过一次天劫+1）
+    aura_current           INTEGER     NOT NULL DEFAULT 0,
+    aura_max               INTEGER     NOT NULL DEFAULT 1000,
+    tribulation_stage      INTEGER     NOT NULL DEFAULT 0,
 
     -- 地灵信息
-    mbti_type              VARCHAR(4)  NOT NULL,                -- MBTI人格类型（如INTJ）
-    form                   VARCHAR(50),                         -- 地灵形态名（如fox、cicada）
-    spirit_energy          INTEGER     NOT NULL DEFAULT 100,    -- 地灵精力值
-    spirit_affection       INTEGER     NOT NULL DEFAULT 0,      -- 地灵好感度
-    affection_max          INTEGER     NOT NULL DEFAULT 1000,   -- 好感度上限
-    emotion_state          VARCHAR(20) NOT NULL DEFAULT 'calm', -- 情绪状态
+    mbti_type              VARCHAR(4)  NOT NULL,
+    spirit_id              INTEGER,
+    spirit_energy          INTEGER     NOT NULL DEFAULT 100,
+    spirit_affection       INTEGER     NOT NULL DEFAULT 0,
+    affection_max          INTEGER     NOT NULL DEFAULT 1000,
+    emotion_state          VARCHAR(20) NOT NULL DEFAULT 'calm',
 
     -- 管理模式
-    auto_mode              BOOLEAN     NOT NULL DEFAULT TRUE,   -- 是否开启自动管理模式
+    auto_mode              BOOLEAN     NOT NULL DEFAULT TRUE,
 
     -- 时间戳
-    last_aura_update       TIMESTAMP   NOT NULL DEFAULT NOW(),  -- 上次灵气计算时间
-    last_online_time       TIMESTAMP   NOT NULL DEFAULT NOW(),  -- 上次上线时间
-    last_energy_update     TIMESTAMP   NOT NULL DEFAULT NOW(),  -- 精力最后更新时间
-    last_tribulation_time  TIMESTAMP,                           -- 天劫最后发生时间
-    tribulation_win_streak INTEGER     NOT NULL DEFAULT 0,      -- 天劫连续胜利次数
+    last_aura_update       TIMESTAMP   NOT NULL DEFAULT NOW(),
+    last_online_time       TIMESTAMP   NOT NULL DEFAULT NOW(),
+    last_energy_update     TIMESTAMP   NOT NULL DEFAULT NOW(),
+    last_tribulation_time  TIMESTAMP,
+    tribulation_win_streak INTEGER     NOT NULL DEFAULT 0,
 
     -- JSONB字段
     grid_layout            JSONB       NOT NULL DEFAULT '{
       "cells": []
-    }'::jsonb,                                                  -- 福地网格布局（cell_id从1开始连续递增，empty保留槽位）
-    spirit_config          JSONB,                               -- 地灵配置（人格、表情、形态等）
+    }'::jsonb,
+    spirit_config          JSONB,
 
 
     -- 审计字段
@@ -61,7 +61,7 @@ COMMENT ON COLUMN xt_fudi.aura_current IS '当前灵气值';
 COMMENT ON COLUMN xt_fudi.aura_max IS '灵气上限（由劫数和天劫胜利积累）';
 COMMENT ON COLUMN xt_fudi.tribulation_stage IS '当前劫数（每渡过一次天劫+1）';
 COMMENT ON COLUMN xt_fudi.mbti_type IS '地灵MBTI人格类型（锁定，不可更改）';
-COMMENT ON COLUMN xt_fudi.form IS '地灵形态名（如fox、cicada，创建时随机分配，不可更改）';
+COMMENT ON COLUMN xt_fudi.spirit_id IS '地灵形态id（关联xt_spirit表）';
 COMMENT ON COLUMN xt_fudi.spirit_energy IS '地灵精力值（上限随劫数成长）';
 COMMENT ON COLUMN xt_fudi.spirit_affection IS '地灵好感度';
 COMMENT ON COLUMN xt_fudi.affection_max IS '好感度上限（默认1000）';

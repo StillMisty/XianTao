@@ -23,7 +23,7 @@ public class SpiritPromptTemplates {
      * @param gridDetail      网格状态详情（空则显示占位描述）
      * @param emotionState    情绪状态
      * @param energyMax       精力上限
-     * @param spiritForm      地灵形态名
+     * @param spiritForm      地灵形态id
      * @return 系统提示词
      */
     public String buildSpiritPrompt(

@@ -75,6 +75,8 @@ public class SpiritChatService {
     private String buildPrompt(Fudi fudi) {
         String gridDetail = buildGridDetailForLLM(fudi);
         String emotionState = fudi.getEmotionState().getDescription();
+        Map<String, Object> config = fudi.getSpiritConfig();
+        String formName = config != null ? (String) config.get("form_name") : null;
 
         return promptTemplates.buildSpiritPrompt(
                 fudi.getMbtiType(),
@@ -86,7 +88,7 @@ public class SpiritChatService {
                 gridDetail,
                 emotionState,
                 fudi.getSpiritEnergyMax(),
-                fudi.getForm()
+                formName
         );
     }
 

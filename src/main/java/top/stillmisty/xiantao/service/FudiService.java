@@ -245,8 +245,8 @@ public class FudiService {
         spiritConfig.put("tone_style", mbtiType.getToneStyle());
         spiritConfig.put("emotion_state", "calm");
         // 形态偏好存入 spiritConfig JSONB
-        if (fudi.getForm() != null) {
-            spiritConfig.put("form", fudi.getForm());
+        if (fudi.getSpiritId() != null) {
+            spiritConfig.put("spirit_id", fudi.getSpiritId());
         }
         fudi.setSpiritConfig(spiritConfig);
 
@@ -259,14 +259,14 @@ public class FudiService {
     }
 
     /**
-     * 随机分配地灵形态（从 xt_spirit_form 表中随机抽取）
+     * 随机分配地灵形态（从 xt_spirit 表中随机抽取）
      */
     private void assignRandomSpiritForm(Fudi fudi) {
         List<SpiritForm> allForms = spiritFormMapper.selectAll();
         if (allForms.isEmpty()) return;
 
         SpiritForm randomForm = allForms.get(new Random().nextInt(allForms.size()));
-        fudi.setForm(randomForm.getName());
+        fudi.setSpiritId(randomForm.getId());
 
         // 随机抽取 3~5 个喜好
         List<String> likedPool = new ArrayList<>(randomForm.getLikedTags());
@@ -283,7 +283,7 @@ public class FudiService {
             spiritConfig = new HashMap<>();
             fudi.setSpiritConfig(spiritConfig);
         }
-        spiritConfig.put("form", randomForm.getName());
+        spiritConfig.put("spirit_id", randomForm.getId());
         spiritConfig.put("form_name", randomForm.getName());
         spiritConfig.put("liked_tags", selectedLikes);
         spiritConfig.put("disliked_tags", selectedDislikes);
@@ -399,7 +399,7 @@ public class FudiService {
                 .spiritAffection(fudi.getSpiritAffection())
                 .affectionMax(fudi.getAffectionMax())
                 .energyMax(fudi.getSpiritEnergyMax())
-                .spiritForm(fudi.getForm())
+                .spiritForm(formName)
                 .spiritFormName(formName)
                 .likedTags(likedTags)
                 .dislikedTags(dislikedTags)
