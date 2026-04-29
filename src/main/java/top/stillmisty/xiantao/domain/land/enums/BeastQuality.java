@@ -4,7 +4,7 @@ import com.mybatisflex.annotation.EnumValue;
 import lombok.Getter;
 
 /**
- * 灵兽品质（修仙风）
+ * 灵兽品质
  */
 @Getter
 public enum BeastQuality {
@@ -24,8 +24,10 @@ public enum BeastQuality {
 
     private final int order;
 
-    BeastQuality(String code, String chineseName, double outputMultiplier, double auraCostMultiplier,
-                 double lifespanMultiplier, int hatchWeight) {
+    BeastQuality(
+            String code, String chineseName, double outputMultiplier, double auraCostMultiplier,
+            double lifespanMultiplier, int hatchWeight
+    ) {
         this.code = code;
         this.chineseName = chineseName;
         this.outputMultiplier = outputMultiplier;
@@ -58,9 +60,5 @@ public enum BeastQuality {
             case SAINT -> DIVINE;
             case DIVINE -> throw new IllegalStateException("神品已是最高品质");
         };
-    }
-
-    public int getOrder() {
-        return order;
     }
 }

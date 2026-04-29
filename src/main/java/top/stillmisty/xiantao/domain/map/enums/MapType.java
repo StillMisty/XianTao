@@ -12,7 +12,7 @@ public enum MapType {
     /**
      * 主城/安全区
      */
-    SAFE_TOWN("safe_town", "主城/安全区"),
+    SAFE_TOWN("safe_town", "安全区"),
 
     /**
      * 历练区
@@ -20,9 +20,9 @@ public enum MapType {
     TRAINING_ZONE("training_zone", "历练区"),
 
     /**
-     * 隐藏区
+     * 秘境
      */
-    HIDDEN_ZONE("hidden_zone", "隐藏区");
+    HIDDEN_ZONE("hidden_zone", "秘境");
 
     @EnumValue
     private final String code;

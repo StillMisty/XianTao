@@ -1,7 +1,9 @@
 package top.stillmisty.xiantao.domain.user.vo;
 
 import lombok.Builder;
-import lombok.Data; /**
+import lombok.Data;
+
+/**
  * 护道信息内部类
  */
 @Data

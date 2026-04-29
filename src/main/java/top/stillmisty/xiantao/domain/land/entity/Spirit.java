@@ -10,6 +10,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import top.stillmisty.xiantao.domain.land.enums.EmotionState;
 import top.stillmisty.xiantao.domain.land.enums.MBTIPersonality;
+
 import java.time.LocalDateTime;
 
 @EqualsAndHashCode(callSuper = true)
@@ -84,8 +85,11 @@ public class Spirit extends Model<Spirit> {
 
     public void addAffection(int amount) {
         int maxAff = affectionMax != null ? affectionMax : 1000;
-        affection = Math.max(0, Math.min(maxAff,
-                (affection != null ? affection : 0) + amount));
+        affection = Math.clamp(
+                (affection != null ? affection : 0) + amount,
+                0,
+                maxAff
+        );
     }
 
     public void updateEmotionState(int auraCurrent, int auraMax) {

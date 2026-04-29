@@ -9,7 +9,7 @@ import lombok.Data;
 @Data
 @Builder
 public class BreakthroughResult {
-    
+
     private boolean success;
     private String message;
     private Boolean breakthroughSuccess;

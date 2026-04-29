@@ -139,40 +139,6 @@ public class TrainingService {
     }
 
     /**
-     * 应用历练奖励
-     *
-     * @param userId  用户 ID
-     * @param rewards 奖励
-     * @return 是否成功
-     */
-    public boolean applyTrainingRewards(Long userId, TrainingRewardVO rewards) {
-        User user = userRepository.findById(userId).orElseThrow();
-
-        // 添加经验
-        if (rewards.getExp() != null && rewards.getExp() > 0) {
-            user.addExp(rewards.getExp());
-        }
-
-        // 添加物品到背包
-        if (rewards.getItems() != null && !rewards.getItems().isEmpty()) {
-            for (Map<String, Object> item : rewards.getItems()) {
-                String name = (String) item.get("name");
-                Long templateId = toLong(item.get("templateId"));
-                int quantity = ((Number) item.get("quantity")).intValue();
-                ItemType itemType = itemTemplateRepository.findById(templateId)
-                        .map(ItemTemplate::getType)
-                        .orElse(ItemType.MATERIAL);
-                itemService.addStackableItem(userId, templateId, itemType, name, quantity);
-            }
-        }
-
-        userRepository.save(user);
-
-        log.info("用户 {} 的历练奖励已应用", userId);
-        return true;
-    }
-
-    /**
      * 结束历练并应用奖励
      *
      * @param userId 用户 ID

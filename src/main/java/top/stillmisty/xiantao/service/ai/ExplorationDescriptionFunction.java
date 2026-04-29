@@ -20,17 +20,16 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ExplorationDescriptionFunction {
 
-    private final ChatClient chatClient;
-
     private static final String SYSTEM_PROMPT = """
             你是一个仙侠世界的旁白叙述者。
             根据给出的探索信息，将其改写为一段身临其境的探索描述。
-
+            
             要求：
             1. 语言优美，充满仙侠意境与画面感
             2. 融入探索「从外围逐步深入核心」的推进感
             3. 只返回描述文本，不要添加任何说明、标记或前缀
             """;
+    private final ChatClient chatClient;
 
     /**
      * 将探索结果美化为仙侠风格旁白
@@ -86,12 +85,9 @@ public class ExplorationDescriptionFunction {
         sb.append("在").append(request.mapName());
 
         switch (request.eventType()) {
-            case "发现基础材料" ->
-                    sb.append("的探索中，您仔细搜寻着每一个角落，发现了一些有用的基础材料。");
-            case "发现稀有材料" ->
-                    sb.append("的深处，您敏锐地察觉到了空气中微弱的灵气波动，找到了一些稀有材料！");
-            case "重大发现" ->
-                    sb.append("的探索中，您发现了一个隐秘的角落，还找到了一份完整的配方！");
+            case "发现基础材料" -> sb.append("的探索中，您仔细搜寻着每一个角落，发现了一些有用的基础材料。");
+            case "发现稀有材料" -> sb.append("的深处，您敏锐地察觉到了空气中微弱的灵气波动，找到了一些稀有材料！");
+            case "重大发现" -> sb.append("的探索中，您发现了一个隐秘的角落，还找到了一份完整的配方！");
             case "惊人发现" ->
                     sb.append("的探索中，您不仅发现了大量稀有材料和古老配方，还发现了一颗散发着神秘光芒的灵蛋！");
             default -> sb.append("的探索中，您发现了一些有趣的东西。");

@@ -1,7 +1,6 @@
 package top.stillmisty.xiantao.service;
 
 import lombok.RequiredArgsConstructor;
-import love.forte.simbot.common.id.ID;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.user.entity.UserAuth;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
@@ -18,17 +17,6 @@ import java.util.Optional;
 public class UserAuthService {
 
     private final UserAuthRepository userAuthRepository;
-
-    /**
-     * 根据平台和OpenID查找用户授权
-     *
-     * @param platform 平台类型
-     * @param openId   平台用户ID
-     * @return 用户授权信息
-     */
-    public Optional<UserAuth> findUserIdByOpenId(PlatformType platform, ID openId) {
-        return userAuthRepository.findByPlatformAndOpenId(platform, openId.toString());
-    }
 
     /**
      * 根据平台和OpenID查找用户授权

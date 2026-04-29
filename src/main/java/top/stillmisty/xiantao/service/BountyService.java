@@ -82,7 +82,8 @@ public class BountyService {
                 .map(b -> new BountyVO(
                         b.getId(), b.getName(), b.getDescription(),
                         b.getDurationMinutes(), b.getRewards(),
-                        b.getRequireLevel(), b.getEventWeight()))
+                        b.getRequireLevel(), b.getEventWeight()
+                ))
                 .toList();
     }
 
@@ -118,8 +119,10 @@ public class BountyService {
         user.setStatus(UserStatus.BOUNTY);
         userRepository.save(user);
 
-        log.info("用户 {} 接取悬赏: {} (ID={}, 耗时{}分, 预存物品数={})",
-                userId, bounty.getName(), bountyId, bounty.getDurationMinutes(), predeterminedRewards.size());
+        log.info(
+                "用户 {} 接取悬赏: {} (ID={}, 耗时{}分, 预存物品数={})",
+                userId, bounty.getName(), bountyId, bounty.getDurationMinutes(), predeterminedRewards.size()
+        );
 
         return String.format("已接取悬赏「%s」，预计 %d 分钟后完成。", bounty.getName(), bounty.getDurationMinutes());
     }
@@ -185,14 +188,17 @@ public class BountyService {
         user.setStatus(UserStatus.IDLE);
         userRepository.save(user);
 
-        log.info("用户 {} 完成悬赏: {} (耗时{}分, 物品数={}, 灵石={})",
-                userId, record.getBountyName(), minutesElapsed, items.size(), spiritStones);
+        log.info(
+                "用户 {} 完成悬赏: {} (耗时{}分, 物品数={}, 灵石={})",
+                userId, record.getBountyName(), minutesElapsed, items.size(), spiritStones
+        );
 
         return new BountyRewardVO(
                 userId, record.getBountyId(), record.getBountyName(), mapNode.getName(),
                 minutesElapsed,
                 beautified != null ? beautified : rewardDescription,
-                eventDescription, items, spiritStones, hasBeastEgg);
+                eventDescription, items, spiritStones, hasBeastEgg
+        );
     }
 
     public String abandonBounty(Long userId) {
@@ -333,8 +339,8 @@ public class BountyService {
             if (!sb.isEmpty()) sb.append(" ");
             sb.append("获得物品：");
             sb.append(items.stream()
-                    .map(i -> String.format("%s x%d", i.get("name"), i.get("quantity")))
-                    .collect(Collectors.joining("、")));
+                              .map(i -> String.format("%s x%d", i.get("name"), i.get("quantity")))
+                              .collect(Collectors.joining("、")));
             sb.append("。");
         }
         if (hasBeastEgg) {
@@ -382,9 +388,11 @@ public class BountyService {
 
     // ===================== LLM 美化 =====================
 
-    private String beautifyBountyCompletion(MapNode mapNode, String bountyName,
-                                            String rewardDescription, String eventDescription,
-                                            List<Map<String, Object>> items) {
+    private String beautifyBountyCompletion(
+            MapNode mapNode, String bountyName,
+            String rewardDescription, String eventDescription,
+            List<Map<String, Object>> items
+    ) {
         List<String> itemNames = null;
         if (items != null && !items.isEmpty()) {
             itemNames = items.stream().map(i -> (String) i.get("name")).toList();

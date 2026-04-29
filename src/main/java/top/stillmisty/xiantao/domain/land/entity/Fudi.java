@@ -97,6 +97,17 @@ public class Fudi extends Model<Fudi> {
     // ===================== 业务逻辑方法 =====================
 
     /**
+     * 从JSONB字段解析灵兽品质灵气消耗倍率
+     */
+    private static double getPenQualityAuraMultiplier(String qualityCode) {
+        try {
+            return BeastQuality.fromCode(qualityCode).getAuraCostMultiplier();
+        } catch (IllegalArgumentException e) {
+            return 1.0;
+        }
+    }
+
+    /**
      * 计算每小时灵气消耗
      * 公式：已占地块数 × 2 + Σ(灵兽等阶 × 5 × 品质倍率) + Σ(阵眼等级 × 3)
      * 灵气耗尽后所有功能（除献祭外）不可用
@@ -225,16 +236,5 @@ public class Fudi extends Model<Fudi> {
             return createTime.plusDays(7);
         }
         return lastTribulationTime.plusDays(7);
-    }
-
-    /**
-     * 从JSONB字段解析灵兽品质灵气消耗倍率
-     */
-    private static double getPenQualityAuraMultiplier(String qualityCode) {
-        try {
-            return BeastQuality.fromCode(qualityCode).getAuraCostMultiplier();
-        } catch (IllegalArgumentException e) {
-            return 1.0;
-        }
     }
 }
