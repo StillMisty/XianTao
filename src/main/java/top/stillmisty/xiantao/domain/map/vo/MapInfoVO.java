@@ -39,14 +39,9 @@ public class MapInfoVO {
     private String mapTypeName;
 
     /**
-     * 推荐等级
+     * 要求等级
      */
     private Integer levelRequirement;
-
-    /**
-     * 旅行耗时（分钟）
-     */
-    private Integer travelTimeMinutes;
 
     /**
      * 相邻地图 (JSONB)

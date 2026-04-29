@@ -19,7 +19,7 @@ COMMENT ON COLUMN xt_map_node.id IS '地图节点 ID';
 COMMENT ON COLUMN xt_map_node.name IS '地图名称';
 COMMENT ON COLUMN xt_map_node.description IS '地图描述';
 COMMENT ON COLUMN xt_map_node.map_type IS '地图类型 (safe_town, training_zone, hidden_zone)';
-COMMENT ON COLUMN xt_map_node.level_requirement IS '推荐等级';
+COMMENT ON COLUMN xt_map_node.level_requirement IS '要求等级';
 COMMENT ON COLUMN xt_map_node.neighbors IS '相邻地图及耗时 JSONB，格式: {"黑金主城": 5, "枯骨林": 10}';
 COMMENT ON COLUMN xt_map_node.specialties IS '历练掉落池 JSONB，格式: [{"name": "毒龙草", "weight": 30}]';
 COMMENT ON COLUMN xt_map_node.travel_events IS '旅行事件权重 JSONB，格式: [{"eventType": "ambush", "weight": 40}]';

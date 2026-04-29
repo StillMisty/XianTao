@@ -125,7 +125,6 @@ public class MapService {
                 .mapType(mapNode.getMapType())
                 .mapTypeName(mapNode.getMapType().getName())
                 .levelRequirement(mapNode.getLevelRequirement())
-                .travelTimeMinutes(mapNode.getTravelTimeMinutes())
                 .neighbors(mapNode.getNeighbors())
                 .adjacentMapNames(mapNode.getAdjacentMapNames())
                 .specialties(mapNode.getSpecialties())
