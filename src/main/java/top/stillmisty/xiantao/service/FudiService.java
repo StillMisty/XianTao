@@ -12,12 +12,14 @@ import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.domain.land.entity.Fudi;
+import top.stillmisty.xiantao.domain.land.entity.Spirit;
 import top.stillmisty.xiantao.domain.land.entity.SpiritForm;
 import top.stillmisty.xiantao.domain.land.enums.*;
 import top.stillmisty.xiantao.domain.land.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.land.vo.*;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
+import top.stillmisty.xiantao.domain.land.repository.SpiritRepository;
 import top.stillmisty.xiantao.infrastructure.mapper.SpiritFormMapper;
 import top.stillmisty.xiantao.service.annotation.ConsumeSpiritEnergy;
 
@@ -43,6 +45,7 @@ public class FudiService {
     private final StackableItemRepository stackableItemRepository;
     private final ItemResolver itemResolver;
     private final UserRepository userRepository;
+    private final SpiritRepository spiritRepository;
     private final SpiritFormMapper spiritFormMapper;
 
     // ===================== 公开 API（含认证） =====================
@@ -224,76 +227,47 @@ public class FudiService {
         fudi.setAuraCurrent(500);
         fudi.setAuraMax(1000);
         fudi.setTribulationStage(0);
-        fudi.setMbtiType(mbtiType);
-        fudi.setSpiritEnergy(100);
-        fudi.setSpiritAffection(0);
-        fudi.setAffectionMax(1000);
-        fudi.setEmotionState(EmotionState.CALM);
         fudi.setAutoMode(true);
         fudi.setTribulationWinStreak(0);
-        fudi.setLastEnergyUpdate(LocalDateTime.now());
-
-        // 随机分配地灵形态
-        assignRandomSpiritForm(fudi);
 
         Map<String, Object> gridLayout = new HashMap<>();
         gridLayout.put("cells", new ArrayList<>());
         fudi.setGridLayout(gridLayout);
 
-        Map<String, Object> spiritConfig = new HashMap<>();
-        spiritConfig.put("mbti_type", mbtiType.getCode());
-        spiritConfig.put("tone_style", mbtiType.getToneStyle());
-        spiritConfig.put("emotion_state", "calm");
-        // 形态偏好存入 spiritConfig JSONB
-        if (fudi.getSpiritId() != null) {
-            spiritConfig.put("spirit_id", fudi.getSpiritId());
-        }
-        fudi.setSpiritConfig(spiritConfig);
-
         fudi.setLastAuraUpdate(LocalDateTime.now());
         fudi.setLastOnlineTime(LocalDateTime.now());
 
         fudi = fudiRepository.save(fudi);
+
+        // 创建地灵实例（随机分配形态）
+        Spirit spirit = createSpiritForFudi(fudi, mbtiType);
+        spiritRepository.save(spirit);
+
         autoExpandCells(fudi);
         return fudi;
     }
 
     /**
-     * 随机分配地灵形态（从 xt_spirit 表中随机抽取）
+     * 创建地灵实例（随机分配形态）
      */
-    private void assignRandomSpiritForm(Fudi fudi) {
+    private Spirit createSpiritForFudi(Fudi fudi, MBTIPersonality mbtiType) {
         List<SpiritForm> allForms = spiritFormMapper.selectAll();
-        if (allForms.isEmpty()) return;
 
-        SpiritForm randomForm = allForms.get(new Random().nextInt(allForms.size()));
-        fudi.setSpiritId(randomForm.getId());
+        Spirit spirit = Spirit.create();
+        spirit.setFudiId(fudi.getId());
+        spirit.setEnergy(100);
+        spirit.setAffection(0);
+        spirit.setAffectionMax(1000);
+        spirit.setEmotionState(EmotionState.CALM);
+        spirit.setMbtiType(mbtiType);
+        spirit.setLastEnergyUpdate(LocalDateTime.now());
 
-        // 随机抽取 3~5 个喜好
-        List<String> likedPool = new ArrayList<>(randomForm.getLikedTags());
-        List<String> dislikedPool = new ArrayList<>(randomForm.getDislikedTags());
-
-        int likeCount = 3 + new Random().nextInt(3); // 3~5
-        int dislikeCount = 2 + new Random().nextInt(2); // 2~3
-
-        List<String> selectedLikes = pickRandom(likedPool, likeCount);
-        List<String> selectedDislikes = pickRandom(dislikedPool, dislikeCount);
-
-        Map<String, Object> spiritConfig = fudi.getSpiritConfig();
-        if (spiritConfig == null) {
-            spiritConfig = new HashMap<>();
-            fudi.setSpiritConfig(spiritConfig);
+        if (!allForms.isEmpty()) {
+            SpiritForm randomForm = allForms.get(new Random().nextInt(allForms.size()));
+            spirit.setFormId(randomForm.getId().intValue());
         }
-        spiritConfig.put("spirit_id", randomForm.getId());
-        spiritConfig.put("form_name", randomForm.getName());
-        spiritConfig.put("liked_tags", selectedLikes);
-        spiritConfig.put("disliked_tags", selectedDislikes);
-    }
 
-    private <T> List<T> pickRandom(List<T> pool, int count) {
-        if (pool == null || pool.isEmpty()) return List.of();
-        List<T> shuffled = new ArrayList<>(pool);
-        Collections.shuffle(shuffled);
-        return shuffled.subList(0, Math.min(count, shuffled.size()));
+        return spirit;
     }
 
     /**
@@ -303,8 +277,11 @@ public class FudiService {
         Optional<Fudi> fudiOpt = fudiRepository.findByUserId(userId);
         fudiOpt.ifPresent(fudi -> {
             fudi.updateAura();
-            fudi.restoreEnergy();
-            fudi.updateEmotionState();
+            spiritRepository.findByFudiId(fudi.getId()).ifPresent(spirit -> {
+                spirit.restoreEnergy(fudi.getTribulationStage());
+                spirit.updateEmotionState(fudi.getAuraCurrent(), fudi.getAuraMax());
+                spiritRepository.save(spirit);
+            });
             autoExpandCells(fudi);
             fudiRepository.save(fudi);
         });
@@ -359,14 +336,18 @@ public class FudiService {
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
 
         fudi.updateAura();
-        fudi.restoreEnergy();
 
         var user = userRepository.findById(userId).orElseThrow();
         String tribulationResult = resolveTribulation(fudi, user.getLevel(), user.getStatStr());
 
-        if (tribulationResult == null) {
-            fudi.updateEmotionState();
-        }
+        // 精力恢复与情绪更新（天劫结算后可能已修改情绪）
+        spiritRepository.findByFudiId(fudi.getId()).ifPresent(spirit -> {
+            spirit.restoreEnergy(fudi.getTribulationStage());
+            if (tribulationResult == null) {
+                spirit.updateEmotionState(fudi.getAuraCurrent(), fudi.getAuraMax());
+            }
+            spiritRepository.save(spirit);
+        });
 
         fudiRepository.save(fudi);
         return buildFudiStatusVO(fudi, tribulationResult);
@@ -377,13 +358,20 @@ public class FudiService {
 
         int totalBeasts = (int) cellDetails.stream().filter(c -> c.getType() == CellType.PEN && c.getName() != null).count();
 
-        // 从 spiritConfig 读取形态和喜好信息
-        Map<String, Object> config = fudi.getSpiritConfig();
-        String formName = config != null ? (String) config.get("form_name") : null;
-        @SuppressWarnings("unchecked")
-        List<String> likedTags = config != null ? (List<String>) config.get("liked_tags") : null;
-        @SuppressWarnings("unchecked")
-        List<String> dislikedTags = config != null ? (List<String>) config.get("disliked_tags") : null;
+        Spirit spirit = spiritRepository.findByFudiId(fudi.getId()).orElse(null);
+
+        // 从 SpiritForm 表读取形态名和喜好
+        String formName = null;
+        List<String> likedTags = null;
+        List<String> dislikedTags = null;
+        if (spirit != null && spirit.getFormId() != null) {
+            SpiritForm form = spiritFormMapper.selectOneById(spirit.getFormId().longValue());
+            if (form != null) {
+                formName = form.getName();
+                likedTags = new ArrayList<>(form.getLikedTags());
+                dislikedTags = new ArrayList<>(form.getDislikedTags());
+            }
+        }
 
         return FudiStatusVO.builder()
                 .fudiId(fudi.getId())
@@ -394,16 +382,16 @@ public class FudiService {
                 .tribulationStage(fudi.getTribulationStage())
                 .totalCells(getTotalCellCount(fudi))
                 .isAuraDepleted(fudi.getAuraCurrent() <= 0)
-                .mbtiType(fudi.getMbtiType())
-                .spiritEnergy(fudi.getSpiritEnergy())
-                .spiritAffection(fudi.getSpiritAffection())
-                .affectionMax(fudi.getAffectionMax())
-                .energyMax(fudi.getSpiritEnergyMax())
+                .mbtiType(spirit != null ? spirit.getMbtiType() : null)
+                .spiritEnergy(spirit != null ? spirit.getEnergy() : null)
+                .spiritAffection(spirit != null ? spirit.getAffection() : null)
+                .affectionMax(spirit != null ? spirit.getAffectionMax() : null)
+                .energyMax(spirit != null ? spirit.getEnergyMax(fudi.getTribulationStage()) : null)
                 .spiritForm(formName)
                 .spiritFormName(formName)
                 .likedTags(likedTags)
                 .dislikedTags(dislikedTags)
-                .emotionState(fudi.getEmotionState())
+                .emotionState(spirit != null ? spirit.getEmotionState() : null)
                 .autoMode(fudi.getAutoMode())
                 .occupiedCells(fudi.getOccupiedCellCount())
                 .tribulationWinStreak(fudi.getTribulationWinStreak())
@@ -448,7 +436,8 @@ public class FudiService {
      * affection ≥ 800 AND defense ≥ attack × 80% AND defense < attack
      */
     private boolean checkTribulationCompassion(Fudi fudi, int attack, int defense) {
-        int affection = fudi.getSpiritAffection() != null ? fudi.getSpiritAffection() : 0;
+        Spirit spirit = spiritRepository.findByFudiId(fudi.getId()).orElse(null);
+        int affection = spirit != null && spirit.getAffection() != null ? spirit.getAffection() : 0;
         return affection >= 800 && defense >= attack * 0.8 && defense < attack;
     }
 
@@ -465,9 +454,13 @@ public class FudiService {
         fudi.setTribulationWinStreak(newWinStreak);
         fudi.setTribulationStage(newStage);
         fudi.setAuraMax(oldAuraMax + newWinStreak * 100);
-        fudi.setSpiritEnergy(0);
-        fudi.setEmotionState(EmotionState.FATIGUED);
-        fudi.setLastEnergyUpdate(LocalDateTime.now());
+
+        spiritRepository.findByFudiId(fudi.getId()).ifPresent(spirit -> {
+            spirit.setEnergy(0);
+            spirit.setEmotionState(EmotionState.FATIGUED);
+            spirit.setLastEnergyUpdate(LocalDateTime.now());
+            spiritRepository.save(spirit);
+        });
 
         return "🛡️⚡ 天劫降临！地灵燃烧灵体为你挡下了天雷……\n" +
                 "   攻击力：" + attack + " ｜ 防御力：" + defense + " ｜ 怜悯庇护！\n" +
@@ -480,15 +473,20 @@ public class FudiService {
     private String applyTribulationWin(Fudi fudi, int attack, int defense) {
         int oldStage = fudi.getTribulationStage();
         int newWinStreak = fudi.getTribulationWinStreak() + 1;
-        int oldAffection = fudi.getSpiritAffection();
         int oldAuraMax = fudi.getAuraMax();
         int newStage = oldStage + 1;
 
         fudi.setTribulationWinStreak(newWinStreak);
         fudi.setTribulationStage(newStage);
-        fudi.addAffection(5);
         fudi.setAuraMax(oldAuraMax + newWinStreak * 100);
-        fudi.setEmotionState(EmotionState.EXCITED);
+
+        Spirit spirit = spiritRepository.findByFudiId(fudi.getId()).orElse(null);
+        int oldAffection = spirit != null ? spirit.getAffection() : 0;
+        if (spirit != null) {
+            spirit.addAffection(5);
+            spirit.setEmotionState(EmotionState.EXCITED);
+            spiritRepository.save(spirit);
+        }
 
         return String.format(
                 "⚡ 天劫降临！福地成功抵御！\n" +
@@ -497,14 +495,16 @@ public class FudiService {
                         "   灵气上限：%d → %d ｜ 好感度：%d → %d",
                 attack, defense,
                 oldStage, newStage, newWinStreak,
-                oldAuraMax, fudi.getAuraMax(), oldAffection, fudi.getSpiritAffection()
+                oldAuraMax, fudi.getAuraMax(), oldAffection, spirit != null ? spirit.getAffection() : 0
         );
     }
 
     @SuppressWarnings("unchecked")
     private String applyTribulationLoss(Fudi fudi, int attack, int defense) {
         int oldWinStreak = fudi.getTribulationWinStreak();
-        int oldAffection = fudi.getSpiritAffection();
+
+        Spirit spirit = spiritRepository.findByFudiId(fudi.getId()).orElse(null);
+        int oldAffection = spirit != null ? spirit.getAffection() : 0;
 
         int diff = attack - defense;
         int occupiedCount = fudi.getOccupiedCellCount();
@@ -528,8 +528,12 @@ public class FudiService {
         }
 
         fudi.setTribulationWinStreak(0);
-        fudi.addAffection(-clearCount);
-        fudi.setEmotionState(EmotionState.ANGRY);
+
+        if (spirit != null) {
+            spirit.addAffection(-clearCount);
+            spirit.setEmotionState(EmotionState.ANGRY);
+            spiritRepository.save(spirit);
+        }
 
         return String.format(
                 "⚡ 天劫降临！福地未能抵御…\n" +
@@ -538,7 +542,7 @@ public class FudiService {
                         "   好感度：%d → %d",
                 attack, defense, diff,
                 oldWinStreak, clearCount,
-                oldAffection, fudi.getSpiritAffection()
+                oldAffection, spirit != null ? spirit.getAffection() : 0
         );
     }
 
@@ -798,11 +802,13 @@ public class FudiService {
      * 统一扣除精力（懒恢复 + 好感减免 + 情绪更新 + 保存）
      */
     private void consumeSpiritEnergy(Fudi fudi, int baseCost) {
-        fudi.restoreEnergy();
-        int actualCost = fudi.calculateEnergyConsumption(baseCost);
-        fudi.deductEnergy(actualCost);
-        fudi.setLastEnergyUpdate(LocalDateTime.now());
-        fudiRepository.save(fudi);
+        spiritRepository.findByFudiId(fudi.getId()).ifPresent(spirit -> {
+            spirit.restoreEnergy(fudi.getTribulationStage());
+            int actualCost = spirit.calculateEnergyConsumption(baseCost);
+            spirit.deductEnergy(actualCost);
+            spirit.setLastEnergyUpdate(LocalDateTime.now());
+            spiritRepository.save(spirit);
+        });
     }
 
     /**
@@ -1063,10 +1069,14 @@ public class FudiService {
 
         // 批量收获额外精力扣除（第一个已由 consumeSpiritEnergy(5) 扣除）
         if (harvestedCount > 1) {
-            fudi.restoreEnergy();
-            int extraCost = fudi.calculateEnergyConsumption(5 * (harvestedCount - 1));
-            fudi.deductEnergy(extraCost);
-            fudi.setLastEnergyUpdate(LocalDateTime.now());
+            final int extraHarvestCount = harvestedCount;
+            spiritRepository.findByFudiId(fudi.getId()).ifPresent(spirit -> {
+                spirit.restoreEnergy(fudi.getTribulationStage());
+                int extraCost = spirit.calculateEnergyConsumption(5 * (extraHarvestCount - 1));
+                spirit.deductEnergy(extraCost);
+                spirit.setLastEnergyUpdate(LocalDateTime.now());
+                spiritRepository.save(spirit);
+            });
         }
         fudiRepository.save(fudi);
 
@@ -1407,12 +1417,17 @@ public class FudiService {
         // 获取物品质量倍率
         double qualityMultiplier = gift.getQualityMultiplier() != null ? gift.getQualityMultiplier() : 1.0;
 
-        // 从 spiritConfig 获取喜好
-        Map<String, Object> config = fudi.getSpiritConfig();
-        @SuppressWarnings("unchecked")
-        List<String> likedTags = config != null ? (List<String>) config.get("liked_tags") : List.of();
-        @SuppressWarnings("unchecked")
-        List<String> dislikedTags = config != null ? (List<String>) config.get("disliked_tags") : List.of();
+        // 从 SpiritForm 获取喜好
+        Spirit spirit = spiritRepository.findByFudiId(fudi.getId())
+                .orElseThrow(() -> new IllegalStateException("地灵不存在"));
+
+        Set<String> likedTags = Set.of();
+        Set<String> dislikedTags = Set.of();
+        SpiritForm spiritForm = spiritFormMapper.selectOneById(spirit.getFormId().longValue());
+        if (spiritForm != null) {
+            likedTags = spiritForm.getLikedTags() != null ? spiritForm.getLikedTags() : Set.of();
+            dislikedTags = spiritForm.getDislikedTags() != null ? spiritForm.getDislikedTags() : Set.of();
+        }
 
         Set<String> itemTags = template != null && template.getTags() != null ?
                 template.getTags() : Set.of();
@@ -1421,7 +1436,7 @@ public class FudiService {
         boolean isLiked = itemTags.stream().anyMatch(likedTags::contains);
         boolean isDisliked = itemTags.stream().anyMatch(dislikedTags::contains);
 
-        int oldAffection = fudi.getSpiritAffection();
+        int oldAffection = spirit.getAffection();
         int change;
         String reaction;
 
@@ -1441,17 +1456,18 @@ public class FudiService {
             reaction = "平淡";
         }
 
-        fudi.addAffection(change);
+        spirit.addAffection(change);
 
         // 删除物品
         equipmentRepository.deleteById(gift.getId());
 
+        spiritRepository.save(spirit);
         fudiRepository.save(fudi);
 
         Map<String, Object> result = new HashMap<>();
         result.put("itemName", gift.getName());
         result.put("oldAffection", oldAffection);
-        result.put("newAffection", fudi.getSpiritAffection());
+        result.put("newAffection", spirit.getAffection());
         result.put("change", change);
         result.put("reaction", reaction);
         result.put("isLiked", isLiked);
@@ -1610,7 +1626,8 @@ public class FudiService {
         }
         fudi.setAuraCurrent(fudi.getAuraCurrent() - cost);
 
-        int affectionBonus = fudi.getSpiritAffection() != null ? Math.min(15, fudi.getSpiritAffection() / 7) : 0;
+        Spirit spirit = spiritRepository.findByFudiId(fudi.getId()).orElse(null);
+        int affectionBonus = spirit != null && spirit.getAffection() != null ? Math.min(15, spirit.getAffection() / 7) : 0;
         int successRate = 85 + affectionBonus;
         boolean success = new Random().nextInt(100) < successRate;
 
@@ -1668,7 +1685,8 @@ public class FudiService {
         }
         fudi.setAuraCurrent(fudi.getAuraCurrent() - cost);
 
-        int affectionBonus = fudi.getSpiritAffection() != null ? Math.min(20, fudi.getSpiritAffection() / 5) : 0;
+        Spirit spirit = spiritRepository.findByFudiId(fudi.getId()).orElse(null);
+        int affectionBonus = spirit != null && spirit.getAffection() != null ? Math.min(20, spirit.getAffection() / 5) : 0;
         int successRate = 60 + affectionBonus;
         boolean success = new Random().nextInt(100) < successRate;
 

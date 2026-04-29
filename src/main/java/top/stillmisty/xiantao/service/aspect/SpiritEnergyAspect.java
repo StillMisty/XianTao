@@ -7,7 +7,9 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.land.entity.Fudi;
+import top.stillmisty.xiantao.domain.land.entity.Spirit;
 import top.stillmisty.xiantao.domain.land.repository.FudiRepository;
+import top.stillmisty.xiantao.domain.land.repository.SpiritRepository;
 import top.stillmisty.xiantao.service.annotation.ConsumeSpiritEnergy;
 
 import java.time.LocalDateTime;
@@ -23,6 +25,7 @@ import java.time.LocalDateTime;
 public class SpiritEnergyAspect {
 
     private final FudiRepository fudiRepository;
+    private final SpiritRepository spiritRepository;
 
     @Around("@annotation(consumeSpiritEnergy)")
     public Object handleEnergyConsumption(ProceedingJoinPoint joinPoint, ConsumeSpiritEnergy consumeSpiritEnergy) throws Throwable {
@@ -36,22 +39,27 @@ public class SpiritEnergyAspect {
             return joinPoint.proceed();
         }
 
+        Spirit spirit = spiritRepository.findByFudiId(fudi.getId()).orElse(null);
+        if (spirit == null) {
+            return joinPoint.proceed();
+        }
+
         // 懒恢复精力
-        fudi.restoreEnergy();
+        spirit.restoreEnergy(fudi.getTribulationStage());
 
         // 计算实际消耗（含好感减免）
         int baseCost = consumeSpiritEnergy.value();
-        int actualCost = fudi.calculateEnergyConsumption(baseCost);
+        int actualCost = spirit.calculateEnergyConsumption(baseCost);
 
         // 扣除精力
-        fudi.deductEnergy(actualCost);
-        fudi.setLastEnergyUpdate(LocalDateTime.now());
+        spirit.deductEnergy(actualCost);
+        spirit.setLastEnergyUpdate(LocalDateTime.now());
 
-        fudiRepository.save(fudi);
+        spiritRepository.save(spirit);
 
         log.debug(
                 "地灵精力扣除 - userId: {}, baseCost: {}, actualCost: {}, remaining: {}/{}",
-                userId, baseCost, actualCost, fudi.getSpiritEnergy(), fudi.getSpiritEnergyMax()
+                userId, baseCost, actualCost, spirit.getEnergy(), spirit.getEnergyMax(fudi.getTribulationStage())
         );
 
         return joinPoint.proceed();

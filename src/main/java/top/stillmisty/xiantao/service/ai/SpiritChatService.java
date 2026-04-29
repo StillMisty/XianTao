@@ -5,8 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.land.entity.Fudi;
+import top.stillmisty.xiantao.domain.land.entity.Spirit;
+import top.stillmisty.xiantao.domain.land.entity.SpiritForm;
 import top.stillmisty.xiantao.domain.land.repository.FudiRepository;
+import top.stillmisty.xiantao.domain.land.repository.SpiritRepository;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.infrastructure.mapper.SpiritFormMapper;
 import top.stillmisty.xiantao.service.AuthenticationService;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
@@ -28,6 +32,8 @@ public class SpiritChatService {
 
     private final ChatClient spiritChatClient;
     private final FudiRepository fudiRepository;
+    private final SpiritRepository spiritRepository;
+    private final SpiritFormMapper spiritFormMapper;
     private final SpiritPromptTemplates promptTemplates;
     private final SpiritTools spiritTools;
     private final AuthenticationService authService;
@@ -48,11 +54,14 @@ public class SpiritChatService {
             return ScopedValue.where(UserContext.CURRENT_USER, userId).call(() -> {
                 Fudi fudi = fudiRepository.findByUserId(userId)
                         .orElseThrow(() -> new IllegalStateException("未找到福地"));
+                Spirit spirit = spiritRepository.findByFudiId(fudi.getId())
+                        .orElseThrow(() -> new IllegalStateException("地灵不存在"));
 
                 fudi.updateAura();
-                fudi.updateEmotionState();
+                spirit.updateEmotionState(fudi.getAuraCurrent(), fudi.getAuraMax());
+                spiritRepository.save(spirit);
 
-                String systemPrompt = buildPrompt(fudi);
+                String systemPrompt = buildPrompt(fudi, spirit);
 
                 String response = spiritChatClient.prompt()
                         .system(systemPrompt)
@@ -61,7 +70,7 @@ public class SpiritChatService {
                         .call()
                         .content();
 
-                log.info("地灵对话成功 - userId: {}, mbti: {}, input: {}", userId, fudi.getMbtiType(), userInput);
+                log.info("地灵对话成功 - userId: {}, mbti: {}, input: {}", userId, spirit.getMbtiType(), userInput);
                 return response;
             });
         } catch (Exception e) {
@@ -72,22 +81,25 @@ public class SpiritChatService {
 
     // ===================== 辅助方法 =====================
 
-    private String buildPrompt(Fudi fudi) {
+    private String buildPrompt(Fudi fudi, Spirit spirit) {
         String gridDetail = buildGridDetailForLLM(fudi);
-        String emotionState = fudi.getEmotionState().getDescription();
-        Map<String, Object> config = fudi.getSpiritConfig();
-        String formName = config != null ? (String) config.get("form_name") : null;
+        String emotionState = spirit.getEmotionState().getDescription();
+        String formName = null;
+        if (spirit.getFormId() != null) {
+            SpiritForm form = spiritFormMapper.selectOneById(spirit.getFormId().longValue());
+            if (form != null) formName = form.getName();
+        }
 
         return promptTemplates.buildSpiritPrompt(
-                fudi.getMbtiType(),
+                spirit.getMbtiType(),
                 fudi.getAuraCurrent(),
                 fudi.getAuraMax(),
                 fudi.getTribulationStage(),
-                fudi.getSpiritEnergy(),
-                fudi.getSpiritAffection(),
+                spirit.getEnergy(),
+                spirit.getAffection(),
                 gridDetail,
                 emotionState,
-                fudi.getSpiritEnergyMax(),
+                spirit.getEnergyMax(fudi.getTribulationStage()),
                 formName
         );
     }
@@ -161,7 +173,7 @@ public class SpiritChatService {
                     if (cropName != null) {
                         sb.append(" 种植:").append(cropName);
                         if (isMature) {
-                            sb.append(" ✅可收获");
+                            sb.append(" 可收获✅");
                         } else if (progress != null) {
                             sb.append(String.format(" (%.0f%%)", progress * 100));
                         }
@@ -195,7 +207,7 @@ public class SpiritChatService {
                 })
                 .count();
         if (matureFarmCount > 0) {
-            sb.append("⚠️ 有 ").append(matureFarmCount).append(" 块灵田可收获。\n");
+            sb.append("有 ").append(matureFarmCount).append(" 块灵田可收获。\n");
         }
 
         // 检查饥饿的灵兽
@@ -207,7 +219,7 @@ public class SpiritChatService {
                 })
                 .count();
         if (hungryBeastCount > 0) {
-            sb.append("⚠️ 有 ").append(hungryBeastCount).append(" 只灵兽需要喂养。\n");
+            sb.append("有 ").append(hungryBeastCount).append(" 只灵兽需要喂养。\n");
         }
 
         return sb.toString();

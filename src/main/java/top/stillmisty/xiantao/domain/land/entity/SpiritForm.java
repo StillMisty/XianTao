@@ -16,7 +16,7 @@ import java.util.Set;
  * 地灵形态定义实体
  */
 @EqualsAndHashCode(callSuper = true)
-@Table("xt_spirit")
+@Table("xt_spirit_form")
 @Accessors(chain = true)
 @Data(staticConstructor = "create")
 public class SpiritForm extends Model<SpiritForm> {

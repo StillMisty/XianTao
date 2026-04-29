@@ -6,8 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Service;
+import top.stillmisty.xiantao.domain.land.entity.Spirit;
 import top.stillmisty.xiantao.domain.land.enums.CellType;
 import top.stillmisty.xiantao.domain.land.repository.FudiRepository;
+import top.stillmisty.xiantao.domain.land.repository.SpiritRepository;
 import top.stillmisty.xiantao.domain.land.vo.BeastProduceVO;
 import top.stillmisty.xiantao.domain.land.vo.FarmCellVO;
 import top.stillmisty.xiantao.service.FudiService;
@@ -28,6 +30,7 @@ public class SpiritTools {
     private final FudiService fudiService;
     private final ItemService itemService;
     private final FudiRepository fudiRepository;
+    private final SpiritRepository spiritRepository;
 
     /**
      * 查询福地网格状态工具
@@ -367,14 +370,17 @@ public class SpiritTools {
             var fudi = fudiService.getFudiByUserId(userId)
                     .orElseThrow(() -> new IllegalStateException("未找到福地"));
 
+            var spirit = spiritRepository.findByFudiId(fudi.getId())
+                    .orElseThrow(() -> new IllegalStateException("地灵不存在"));
+
             int clampedSeverity = Math.max(1, Math.min(5, severity));
-            int oldAffection = fudi.getSpiritAffection();
-            fudi.addAffection(-clampedSeverity);
-            fudiRepository.save(fudi);
+            int oldAffection = spirit.getAffection();
+            spirit.addAffection(-clampedSeverity);
+            spiritRepository.save(spirit);
 
             log.info(
                     "地灵冒犯上报 - userId: {}, reason: {}, severity: {}, affection: {} -> {}",
-                    userId, reason, clampedSeverity, oldAffection, fudi.getSpiritAffection()
+                    userId, reason, clampedSeverity, oldAffection, spirit.getAffection()
             );
 
             return new ReportOffenseResponse(true, reason, clampedSeverity);
