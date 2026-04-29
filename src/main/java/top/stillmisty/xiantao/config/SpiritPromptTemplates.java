@@ -65,7 +65,7 @@ public class SpiritPromptTemplates {
                         - 精力：%d/%d
                         - 好感度：%d
                         
-                        【网格状态】
+                        【地块状态】
                         %s
                         
                         【规则】
