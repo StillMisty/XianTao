@@ -37,7 +37,7 @@ public class MapCommandHandler {
         return switch (trainingService.startTraining(platform, openId)) {
             case ServiceResult.Failure(var msg) -> msg;
             case ServiceResult.Success(var vo) ->
-                    vo.isSuccess() ? String.format("开始在%s历练，使用「历练结束」结算收益。", vo.getMapName()) : vo.getMessage();
+                    vo.isSuccess() ? String.format("开始在%s历练，使用「历练结算」结算收益。", vo.getMapName()) : vo.getMessage();
         };
     }
 

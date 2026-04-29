@@ -44,7 +44,7 @@ public class MapHandle {
 
     @Listener
     @ContentTrim
-    @Filter("历练结束")
+    @Filter("历练结算")
     public void endTraining(MessageEvent event) {
         String response = mapCommandHandler.handleEndTraining(PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
         event.replyBlocking(response);
