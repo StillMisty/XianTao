@@ -26,6 +26,14 @@ public class ItemTemplateRepositoryImpl implements ItemTemplateRepository {
         return Optional.ofNullable(mapper.selectOneById(templateId));
     }
 
+    @Override
+    public List<ItemTemplate> findByIds(List<Long> templateIds) {
+        if (templateIds == null || templateIds.isEmpty()) {
+            return List.of();
+        }
+        return mapper.selectListByIds(templateIds);
+    }
+
 
     @Override
     public List<ItemTemplate> findByType(ItemType type) {

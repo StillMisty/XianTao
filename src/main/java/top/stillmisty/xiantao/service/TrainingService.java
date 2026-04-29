@@ -18,10 +18,7 @@ import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * 历练服务
@@ -33,8 +30,7 @@ import java.util.Optional;
 public class TrainingService {
 
     // 历练基础收益配置
-    private static final long BASE_COINS_PER_MINUTE = 10;
-    private static final long BASE_SPIRIT_STONES_PER_HOUR = 5;
+    private static final long BASE_EXP_PER_MINUTE = 2;
     private final UserRepository userRepository;
     private final MapNodeRepository mapNodeRepository;
     private final AuthenticationService authService;
@@ -99,21 +95,17 @@ public class TrainingService {
         // 计算效率倍率（基于敏捷）
         double efficiencyMultiplier = calculateEfficiencyMultiplier(user.getStatAgi());
 
-        // 计算奖励
-        long coins = calculateCoinsReward(minutesTraining, efficiencyMultiplier);
-        long spiritStones = calculateSpiritStonesReward(minutesTraining);
+        // 计算经验
+        long expGained = (long) (BASE_EXP_PER_MINUTE * minutesTraining * efficiencyMultiplier);
 
-        // 计算物品奖励
+        // 计算物品奖励（仅基础材料）
         List<Map<String, Object>> items = calculateItemsReward(minutesTraining, efficiencyMultiplier, mapNode);
 
         // 生成摘要
         StringBuilder summary = new StringBuilder();
         summary.append(String.format("历练时长: %d 分钟\n", minutesTraining));
-        if (coins > 0) {
-            summary.append(String.format("铜币: +%d\n", coins));
-        }
-        if (spiritStones > 0) {
-            summary.append(String.format("灵石: +%d\n", spiritStones));
+        if (expGained > 0) {
+            summary.append(String.format("经验: +%d\n", expGained));
         }
         if (!items.isEmpty()) {
             summary.append("物品: ");
@@ -129,8 +121,8 @@ public class TrainingService {
         }
 
         log.info(
-                "用户 {} 历练奖励计算 - 时长: {} 分钟, 铜币: {}, 灵石: {}, 物品数: {}",
-                userId, minutesTraining, coins, spiritStones, items.size()
+                "用户 {} 历练奖励计算 - 时长: {} 分钟, 经验: {}, 物品数: {}",
+                userId, minutesTraining, expGained, items.size()
         );
 
         return TrainingRewardVO.builder()
@@ -139,8 +131,7 @@ public class TrainingService {
                 .mapName(mapNode.getName())
                 .durationMinutes(minutesTraining)
                 .efficiencyMultiplier(efficiencyMultiplier)
-                .coins(coins)
-                .spiritStones(spiritStones)
+                .exp(expGained)
                 .items(items)
                 .summary(summary.toString())
                 .build();
@@ -156,12 +147,9 @@ public class TrainingService {
     public boolean applyTrainingRewards(Long userId, TrainingRewardVO rewards) {
         User user = userRepository.findById(userId).orElseThrow();
 
-        // 添加货币
-        if (rewards.getCoins() != null && rewards.getCoins() > 0) {
-            user.setCoins(user.getCoins() + rewards.getCoins());
-        }
-        if (rewards.getSpiritStones() != null && rewards.getSpiritStones() > 0) {
-            user.setSpiritStones(user.getSpiritStones() + rewards.getSpiritStones());
+        // 添加经验
+        if (rewards.getExp() != null && rewards.getExp() > 0) {
+            user.addExp(rewards.getExp());
         }
 
         // 添加物品到背包
@@ -204,12 +192,9 @@ public class TrainingService {
         // 计算奖励
         TrainingRewardVO rewards = calculateTrainingRewards(userId);
 
-        // 应用货币奖励
-        if (rewards.getCoins() != null && rewards.getCoins() > 0) {
-            user.setCoins(user.getCoins() + rewards.getCoins());
-        }
-        if (rewards.getSpiritStones() != null && rewards.getSpiritStones() > 0) {
-            user.setSpiritStones(user.getSpiritStones() + rewards.getSpiritStones());
+        // 应用经验
+        if (rewards.getExp() != null && rewards.getExp() > 0) {
+            user.addExp(rewards.getExp());
         }
 
         // 添加物品到背包
@@ -283,52 +268,57 @@ public class TrainingService {
     }
 
     /**
-     * 计算铜币奖励
-     */
-    private long calculateCoinsReward(long minutesTraining, double efficiencyMultiplier) {
-        return (long) (BASE_COINS_PER_MINUTE * minutesTraining * efficiencyMultiplier);
-    }
-
-    /**
-     * 计算灵石奖励
-     */
-    private long calculateSpiritStonesReward(long minutesTraining) {
-        long hoursTraining = minutesTraining / 60;
-        return hoursTraining * BASE_SPIRIT_STONES_PER_HOUR;
-    }
-
-    /**
-     * 计算物品奖励
+     * 计算物品奖励（仅基础材料：rarity=common）
      */
     private List<Map<String, Object>> calculateItemsReward(long minutesTraining, double efficiencyMultiplier, MapNode mapNode) {
         List<Map<String, Object>> items = new ArrayList<>();
+        if (mapNode.getSpecialties() == null || mapNode.getSpecialties().isEmpty()) return items;
 
-        // 根据历练时长和效率倍率计算物品掉落次数
+        List<Map<String, Object>> commonPool = mapNode.getSpecialties().stream()
+                .filter(s -> {
+                    Object rarity = s.get("rarity");
+                    return rarity == null || "common".equals(rarity);
+                })
+                .toList();
+        if (commonPool.isEmpty()) return items;
+
         int dropChances = (int) (minutesTraining / 10 * efficiencyMultiplier);
 
         for (int i = 0; i < dropChances; i++) {
-            Map<String, Object> specialty = mapNode.getRandomSpecialty();
-            if (specialty != null) {
-                // 随机数量 1-3
-                int quantity = (int) (Math.random() * 3) + 1;
-
-                // 检查是否已存在该物品
-                boolean exists = false;
-                for (Map<String, Object> existing : items) {
-                    if (existing.get("name").equals(specialty.get("name"))) {
-                        existing.put("quantity", (Integer) existing.get("quantity") + quantity);
-                        exists = true;
-                        break;
-                    }
+            // 从 common 池中按权重随机选取
+            int totalWeight = commonPool.stream()
+                    .mapToInt(s -> ((Number) s.getOrDefault("weight", 1)).intValue())
+                    .sum();
+            if (totalWeight == 0) continue;
+            int roll = (int) (Math.random() * totalWeight);
+            int cumulative = 0;
+            Map<String, Object> selected = null;
+            for (Map<String, Object> s : commonPool) {
+                cumulative += ((Number) s.getOrDefault("weight", 1)).intValue();
+                if (roll < cumulative) {
+                    selected = s;
+                    break;
                 }
+            }
+            if (selected == null) continue;
 
-                if (!exists) {
-                    Map<String, Object> item = new java.util.HashMap<>();
-                    item.put("name", specialty.get("name"));
-                    item.put("templateId", specialty.get("templateId"));
-                    item.put("quantity", quantity);
-                    items.add(item);
+            int quantity = (int) (Math.random() * 3) + 1;
+
+            // 合并同名物品
+            boolean exists = false;
+            for (Map<String, Object> existing : items) {
+                if (existing.get("name").equals(selected.get("name"))) {
+                    existing.put("quantity", (Integer) existing.get("quantity") + quantity);
+                    exists = true;
+                    break;
                 }
+            }
+            if (!exists) {
+                Map<String, Object> item = new HashMap<>();
+                item.put("name", selected.get("name"));
+                item.put("templateId", selected.get("templateId"));
+                item.put("quantity", quantity);
+                items.add(item);
             }
         }
 

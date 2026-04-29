@@ -3,7 +3,8 @@ package top.stillmisty.xiantao.handle.command;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import top.stillmisty.xiantao.domain.map.vo.ExplorationResultVO;
+import top.stillmisty.xiantao.domain.bounty.vo.BountyRewardVO;
+import top.stillmisty.xiantao.domain.bounty.vo.BountyVO;
 import top.stillmisty.xiantao.domain.map.vo.MapInfoVO;
 import top.stillmisty.xiantao.domain.map.vo.TrainingRewardVO;
 import top.stillmisty.xiantao.domain.map.vo.TravelResultVO;
@@ -13,9 +14,6 @@ import top.stillmisty.xiantao.service.*;
 import java.util.List;
 import java.util.Map;
 
-/**
- * 地图命令处理器（纯 View 层）
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -24,7 +22,7 @@ public class MapCommandHandler {
     private final MapService mapService;
     private final TravelService travelService;
     private final TrainingService trainingService;
-    private final ExplorationService explorationService;
+    private final BountyService bountyService;
 
     public String handleGoTo(PlatformType platform, String openId, String mapName, boolean forceRealTime) {
         log.debug("处理前往请求 - Platform: {}, OpenId: {}, MapName: {}", platform, openId, mapName);
@@ -51,14 +49,6 @@ public class MapCommandHandler {
         };
     }
 
-    public String handleExplore(PlatformType platform, String openId) {
-        log.debug("处理探索请求 - Platform: {}, OpenId: {}", platform, openId);
-        return switch (explorationService.exploreCurrentArea(platform, openId)) {
-            case ServiceResult.Failure(var msg) -> msg;
-            case ServiceResult.Success(var vo) -> formatExplorationResult(vo);
-        };
-    }
-
     public String handleMapList(PlatformType platform, String openId) {
         log.debug("处理地图列表查询 - Platform: {}, OpenId: {}", platform, openId);
         return switch (mapService.getAllMaps(platform, openId)) {
@@ -67,7 +57,46 @@ public class MapCommandHandler {
         };
     }
 
-    // ===================== 文本格式化方法 =====================
+    // ===================== 悬赏命令 =====================
+
+    public String handleBountyList(PlatformType platform, String openId) {
+        log.debug("处理悬赏列表 - Platform: {}, OpenId: {}", platform, openId);
+        return switch (bountyService.listBounties(platform, openId)) {
+            case ServiceResult.Failure(var msg) -> msg;
+            case ServiceResult.Success(var vo) -> formatBountyList(vo);
+        };
+    }
+
+    public String handleStartBounty(PlatformType platform, String openId, String bountyId) {
+        log.debug("处理接取悬赏 - Platform: {}, OpenId: {}, BountyId: {}", platform, openId, bountyId);
+        try {
+            Long id = Long.parseLong(bountyId);
+            return switch (bountyService.startBounty(platform, openId, id)) {
+                case ServiceResult.Failure(var msg) -> msg;
+                case ServiceResult.Success(var msg) -> msg;
+            };
+        } catch (NumberFormatException e) {
+            return "请输入有效的悬赏编号";
+        }
+    }
+
+    public String handleCompleteBounty(PlatformType platform, String openId) {
+        log.debug("处理完成悬赏 - Platform: {}, OpenId: {}", platform, openId);
+        return switch (bountyService.completeBounty(platform, openId)) {
+            case ServiceResult.Failure(var msg) -> msg;
+            case ServiceResult.Success(var vo) -> formatBountyReward(vo);
+        };
+    }
+
+    public String handleAbandonBounty(PlatformType platform, String openId) {
+        log.debug("处理放弃悬赏 - Platform: {}, OpenId: {}", platform, openId);
+        return switch (bountyService.abandonBounty(platform, openId)) {
+            case ServiceResult.Failure(var msg) -> msg;
+            case ServiceResult.Success(var msg) -> msg;
+        };
+    }
+
+    // ===================== 文本格式化 =====================
 
     private String formatTravelResult(TravelResultVO result) {
         StringBuilder sb = new StringBuilder();
@@ -95,11 +124,8 @@ public class MapCommandHandler {
         sb.append(String.format("地图: %s\n", rewards.getMapName()));
         sb.append(String.format("历练时长: %d 分钟\n", rewards.getDurationMinutes()));
         sb.append(String.format("效率倍率: %.2fx\n\n", rewards.getEfficiencyMultiplier()));
-        if (rewards.getCoins() != null && rewards.getCoins() > 0) {
-            sb.append(String.format("铜币: +%d\n", rewards.getCoins()));
-        }
-        if (rewards.getSpiritStones() != null && rewards.getSpiritStones() > 0) {
-            sb.append(String.format("灵石: +%d\n", rewards.getSpiritStones()));
+        if (rewards.getExp() != null && rewards.getExp() > 0) {
+            sb.append(String.format("经验: +%d\n", rewards.getExp()));
         }
         if (rewards.getItems() != null && !rewards.getItems().isEmpty()) {
             sb.append("物品:\n");
@@ -110,30 +136,44 @@ public class MapCommandHandler {
         return sb.toString();
     }
 
-    private String formatExplorationResult(ExplorationResultVO result) {
+    private String formatBountyList(List<BountyVO> bounties) {
+        if (bounties == null || bounties.isEmpty()) {
+            return "当前地图没有可接取的悬赏。";
+        }
         StringBuilder sb = new StringBuilder();
-        sb.append("【探索结果】\n");
-        sb.append(String.format("地图: %s\n", result.getMapName()));
-        sb.append(String.format("智慧值: %d\n", result.getWisdom()));
-        sb.append(String.format("消耗: %d 分钟 / %d 体力\n\n", result.getTimeCostMinutes(), result.getStaminaCost()));
-        if (result.getEventType() != null) {
-            sb.append(String.format("【%s】\n", result.getEventType()));
-        }
-        if (result.getDescription() != null) {
-            sb.append(result.getDescription()).append("\n\n");
-        }
-        if (result.getFoundItems() != null && !result.getFoundItems().isEmpty()) {
-            sb.append("【发现物品】\n");
-            for (Map<String, Object> item : result.getFoundItems()) {
-                sb.append(String.format("  %s x%d\n", item.get("name"), item.get("quantity")));
+        sb.append("【悬赏列表】\n\n");
+        for (BountyVO b : bounties) {
+            sb.append(String.format("ID: %d | %s（%d 分钟）\n", b.id(), b.name(), b.durationMinutes()));
+            if (b.description() != null && !b.description().isEmpty()) {
+                sb.append(String.format("  %s\n", b.description()));
             }
+            sb.append(String.format("  要求等级: %d\n", b.requireLevel()));
             sb.append("\n");
         }
-        if (result.getRecipeName() != null) {
-            sb.append(String.format("【发现配方】%s\n\n", result.getRecipeName()));
+        sb.append("使用「接悬赏 [ID]」接取，完成后「交悬赏」结算。");
+        return sb.toString();
+    }
+
+    private String formatBountyReward(BountyRewardVO reward) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("【悬赏完成】\n");
+        sb.append(String.format("悬赏: %s\n", reward.bountyName()));
+        sb.append(String.format("地点: %s\n", reward.mapName()));
+        sb.append(String.format("耗时: %d 分钟\n", reward.durationMinutes()));
+
+        if (reward.eventDescription() != null) {
+            sb.append(String.format("\n【途中事件】%s\n", reward.eventDescription()));
         }
-        if (result.getExpGained() != null && result.getExpGained() > 0) {
-            sb.append(String.format("【获得经验】+%d\n", result.getExpGained()));
+
+        if (reward.rewardDescription() != null) {
+            sb.append("\n").append(reward.rewardDescription()).append("\n");
+        }
+
+        if (reward.items() != null && !reward.items().isEmpty()) {
+            sb.append("物品:\n");
+            for (Map<String, Object> item : reward.items()) {
+                sb.append(String.format("  %s x%d\n", item.get("name"), item.get("quantity")));
+            }
         }
         return sb.toString();
     }
@@ -153,7 +193,7 @@ public class MapCommandHandler {
             }
             sb.append("\n");
         }
-        sb.append("使用「前往 [地图名]」开始旅行，或使用「探索」探索当前区域。");
+        sb.append("使用「前往 [地图名]」开始旅行。");
         return sb.toString();
     }
 }

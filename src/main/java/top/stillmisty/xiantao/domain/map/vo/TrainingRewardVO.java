@@ -48,6 +48,11 @@ public class TrainingRewardVO {
     private Long spiritStones;
 
     /**
+     * 获得的经验
+     */
+    private Long exp;
+
+    /**
      * 获得的物品（格式: [{"name": "毒龙草", "quantity": 5, "templateId": 1}]）
      */
     private List<Map<String, Object>> items;

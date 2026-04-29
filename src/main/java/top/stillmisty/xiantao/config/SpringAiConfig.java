@@ -1,6 +1,7 @@
 package top.stillmisty.xiantao.config;
 
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -18,5 +19,15 @@ public class SpringAiConfig {
     @Bean
     public ChatClient spiritChatClient(ChatClient.Builder builder) {
         return builder.build();
+    }
+
+    /**
+     * 通用美化 ChatClient（控制token长度为150）
+     */
+    @Bean
+    public ChatClient chatClient(ChatClient.Builder builder) {
+        return builder
+                .defaultOptions(OpenAiChatOptions.builder().maxTokens(150))
+                .build();
     }
 }

@@ -11,10 +11,6 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.command.MapCommandHandler;
 
-/**
- * 地图管理监听器
- * 处理地图、旅行、历练、探索相关命令
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -22,110 +18,75 @@ public class MapHandle {
 
     private final MapCommandHandler mapCommandHandler;
 
-    /**
-     * 处理地图列表命令
-     */
     @Listener
     @ContentTrim
     @Filter("地图")
     public void mapList(MessageEvent event) {
-        log.debug("收到地图列表请求 - AuthorId: {}", event.getAuthorId());
-
-        String response = mapCommandHandler.handleMapList(
-                PlatformType.ONE_BOT_V11,
-                event.getAuthorId().toString()
-        );
-
+        String response = mapCommandHandler.handleMapList(PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
         event.replyBlocking(response);
     }
 
-    /**
-     * 处理前往命令
-     * 优先使用体力，体力不足时使用真实时间
-     */
     @Listener
     @ContentTrim
     @Filter("前往 {{mapName}}")
     public void goTo(MessageEvent event, @FilterValue("mapName") String mapName) {
-        log.debug("收到前往请求 - AuthorId: {}, MapName: {}", event.getAuthorId(), mapName);
-
-        String response = mapCommandHandler.handleGoTo(
-                PlatformType.ONE_BOT_V11,
-                event.getAuthorId().toString(),
-                mapName,
-                false // 自动判断是否使用体力
-        );
-
+        String response = mapCommandHandler.handleGoTo(PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), mapName, false);
         event.replyBlocking(response);
     }
 
-    /**
-     * 处理前往命令（强制使用真实时间）
-     */
     @Listener
     @ContentTrim
     @Filter("前往 {{mapName}} 等待")
     public void goToWait(MessageEvent event, @FilterValue("mapName") String mapName) {
-        log.debug("收到前往请求（等待模式）- AuthorId: {}, MapName: {}", event.getAuthorId(), mapName);
-
-        String response = mapCommandHandler.handleGoTo(
-                PlatformType.ONE_BOT_V11,
-                event.getAuthorId().toString(),
-                mapName,
-                true // 强制使用真实时间模式
-        );
-
+        String response = mapCommandHandler.handleGoTo(PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), mapName, true);
         event.replyBlocking(response);
     }
 
-    /**
-     * 处理历练命令
-     */
     @Listener
     @ContentTrim
     @Filter("历练")
     public void training(MessageEvent event) {
-        log.debug("收到历练请求 - AuthorId: {}", event.getAuthorId());
-
-        String response = mapCommandHandler.handleTraining(
-                PlatformType.ONE_BOT_V11,
-                event.getAuthorId().toString()
-        );
-
+        String response = mapCommandHandler.handleTraining(PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
         event.replyBlocking(response);
     }
 
-    /**
-     * 处理结束历练命令
-     */
     @Listener
     @ContentTrim
     @Filter("历练结束")
     public void endTraining(MessageEvent event) {
-        log.debug("收到结束历练请求 - AuthorId: {}", event.getAuthorId());
-
-        String response = mapCommandHandler.handleEndTraining(
-                PlatformType.ONE_BOT_V11,
-                event.getAuthorId().toString()
-        );
-
+        String response = mapCommandHandler.handleEndTraining(PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
         event.replyBlocking(response);
     }
 
-    /**
-     * 处理探索命令
-     */
     @Listener
     @ContentTrim
-    @Filter("探索")
-    public void explore(MessageEvent event) {
-        log.debug("收到探索请求 - AuthorId: {}", event.getAuthorId());
+    @Filter("悬赏列表")
+    public void bountyList(MessageEvent event) {
+        String response = mapCommandHandler.handleBountyList(PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
+        event.replyBlocking(response);
+    }
 
-        String response = mapCommandHandler.handleExplore(
-                PlatformType.ONE_BOT_V11,
-                event.getAuthorId().toString()
-        );
+    @Listener
+    @ContentTrim
+    @Filter("悬赏接取 {{bountyId}}")
+    public void startBounty(MessageEvent event, @FilterValue("bountyId") String bountyId) {
+        String response = mapCommandHandler.handleStartBounty(PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), bountyId);
+        event.replyBlocking(response);
+    }
 
+    @Listener
+    @ContentTrim
+    @Filter("悬赏提交")
+    public void completeBounty(MessageEvent event) {
+        String response = mapCommandHandler.handleCompleteBounty(PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
+        event.replyBlocking(response);
+    }
+
+    @Listener
+    @ContentTrim
+    @Filter("悬赏放弃")
+    public void abandonBounty(MessageEvent event) {
+        String response = mapCommandHandler.handleAbandonBounty(PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
         event.replyBlocking(response);
     }
 }

@@ -27,7 +27,12 @@ public enum UserStatus {
     /**
      * 赶路
      */
-    RUNNING("running", "赶路");
+    RUNNING("running", "赶路"),
+
+    /**
+     * 悬赏
+     */
+    BOUNTY("bounty", "悬赏");
 
 
     @EnumValue
