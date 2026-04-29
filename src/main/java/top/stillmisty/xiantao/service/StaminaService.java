@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
+import top.stillmisty.xiantao.domain.user.vo.StaminaInfoVO;
 
 /**
  * 体力服务

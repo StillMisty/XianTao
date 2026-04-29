@@ -1,4 +1,4 @@
-package top.stillmisty.xiantao.service;
+package top.stillmisty.xiantao.domain.user.vo;
 
 /**
  * StaminaService 返回的体力状态 VO。
