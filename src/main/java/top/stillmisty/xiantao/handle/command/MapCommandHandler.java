@@ -24,9 +24,9 @@ public class MapCommandHandler {
     private final TrainingService trainingService;
     private final BountyService bountyService;
 
-    public String handleGoTo(PlatformType platform, String openId, String mapName, boolean forceRealTime) {
+    public String handleGoTo(PlatformType platform, String openId, String mapName) {
         log.debug("处理前往请求 - Platform: {}, OpenId: {}, MapName: {}", platform, openId, mapName);
-        return switch (travelService.startTravel(platform, openId, mapName, forceRealTime)) {
+        return switch (travelService.startTravel(platform, openId, mapName)) {
             case ServiceResult.Failure(var msg) -> msg;
             case ServiceResult.Success(var vo) -> vo.isSuccess() ? formatTravelResult(vo) : vo.getMessage();
         };

@@ -37,7 +37,11 @@ src/main/java/top/stillmisty/xiantao/
 │   │   ├── enums/           # Domain Enums (e.g., UserStatus)
 │   │   ├── repository/      # Repository Interfaces (Ports - DO NOT implement here)
 │   │   └── vo/              # Value Objects / DTOs
-│   ├── map/                 # Map Context
+│   ├── map/                 # Map Context (MapNode, Travel, Training)
+│   ├── bounty/              # Bounty Context
+│   │   ├── entity/          # Bounty, UserBounty
+│   │   ├── repository/      # BountyRepository, UserBountyRepository
+│   │   └── vo/              # BountyVO, BountyRewardVO
 │   ├── item/                # Inventory (JSONB), Crafting, Alchemy
 │   └── land/                # "Fudi" (Blessed Land) AI-driven management
 ├── service/                 # Application Service Layer (auth + orchestration + business logic)
@@ -76,22 +80,11 @@ Each `*Service.java` exposes two tiers of methods:
 ### 3.5 Concurrency & Java 25 Features
 - **Virtual Threads**: SimBot processes highly concurrent chat messages. All `handle/` listeners and `service/` methods MUST be compatible with Virtual Threads. Avoid `ThreadLocal` blocking operations.
 
-## 4. Game Domain Specifics (MUD Rules)
-
-AI Agents generating game logic must respect the mathematical models:
-- **Combat (TTK Model)**: Combat is instant (Time-To-Kill). No turn-based loops. Calculate `Player TTK` vs `Enemy TTK` via `HP / Max(1, ATK - DEF)`.
-- **AFK Calculations (Lazy Evaluation)**: Do not use cron jobs for offline rewards. Calculate AFK gains lazily when the player invokes `#status` or `#stop_afk`, based on `currentTime - afkStartTime`.
-
-## 5. Database & PostgreSQL 18 Guidelines
-
-- **JSONB is First-Class**: For extensible structures like player inventory (`xt_inventory`), NPC Tavern cards (`xt_npc_card`), and item traits, use PostgreSQL `JSONB` columns.
-- **MyBatis-Flex Mapping**: Map `JSONB` columns using MyBatis-Flex's `JacksonTypeHandler`.
-- **Indexing**: Always create `GIN` indexes in Flyway scripts when querying inside JSONB fields.
-
 ## 6. Spring AI 2 & LLM Integration
 
 The "Earth Spirit" (地灵) and NPC Tavern interactions are powered by LLMs.
 - **Function Calling**: Tools available to the AI must be defined as `java.util.function.Function` Spring `@Bean`s. Use `@Description` to explicitly explain the tool's purpose to the LLM (e.g., `executePlantSeed`).
+- **Narrative Beautification**: `ExplorationDescriptionFunction` is a `@Component` with a plain `beautify(Request)` method. It uses `ChatClient` to rewrite structured game events (bounty completions, exploration) into immersive xianxia-style narration. Output length is controlled via `maxTokens` default option on the `ChatClient` bean, NOT via prompt text.
 - **Safety**: The AI ONLY outputs intents/JSON. State mutations (deducting items, adding stats) MUST be executed by the Java backend codebase, never directly by AI.
 
 ## 7. AI Agent Development Workflow (For Cursor/Windsurf/Cline)

@@ -20,11 +20,6 @@ public enum UserStatus {
     EXERCISING("exercising", "历练"),
 
     /**
-     * 打坐
-     */
-    MEDITATING("meditating", "打坐"),
-
-    /**
      * 赶路
      */
     RUNNING("running", "赶路"),

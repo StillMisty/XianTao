@@ -30,15 +30,7 @@ public class MapHandle {
     @ContentTrim
     @Filter("前往 {{mapName}}")
     public void goTo(MessageEvent event, @FilterValue("mapName") String mapName) {
-        String response = mapCommandHandler.handleGoTo(PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), mapName, false);
-        event.replyBlocking(response);
-    }
-
-    @Listener
-    @ContentTrim
-    @Filter("前往 {{mapName}} 等待")
-    public void goToWait(MessageEvent event, @FilterValue("mapName") String mapName) {
-        String response = mapCommandHandler.handleGoTo(PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), mapName, true);
+        String response = mapCommandHandler.handleGoTo(PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), mapName);
         event.replyBlocking(response);
     }
 
@@ -58,6 +50,8 @@ public class MapHandle {
         event.replyBlocking(response);
     }
 
+    // ===================== 悬赏命令 =====================
+
     @Listener
     @ContentTrim
     @Filter("悬赏列表")
@@ -68,7 +62,7 @@ public class MapHandle {
 
     @Listener
     @ContentTrim
-    @Filter("悬赏接取 {{bountyId}}")
+    @Filter("接悬赏 {{bountyId}}")
     public void startBounty(MessageEvent event, @FilterValue("bountyId") String bountyId) {
         String response = mapCommandHandler.handleStartBounty(PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), bountyId);
         event.replyBlocking(response);
@@ -76,7 +70,7 @@ public class MapHandle {
 
     @Listener
     @ContentTrim
-    @Filter("悬赏提交")
+    @Filter("交悬赏")
     public void completeBounty(MessageEvent event) {
         String response = mapCommandHandler.handleCompleteBounty(PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
         event.replyBlocking(response);
@@ -84,7 +78,7 @@ public class MapHandle {
 
     @Listener
     @ContentTrim
-    @Filter("悬赏放弃")
+    @Filter("放弃悬赏")
     public void abandonBounty(MessageEvent event) {
         String response = mapCommandHandler.handleAbandonBounty(PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
         event.replyBlocking(response);

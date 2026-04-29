@@ -26,7 +26,6 @@ public class CultivationCommandHandler {
     private final UserService userService;
     private final ItemService itemService;
     private final CultivationService cultivationService;
-    private final StaminaService staminaService;
 
     /**
      * 注册（UserService.createUser 内部做重复注册检查）
@@ -47,22 +46,7 @@ public class CultivationCommandHandler {
         var status = itemService.getCharacterStatus(platform, openId);
         return switch (status) {
             case ServiceResult.Failure(var msg) -> msg;
-            case ServiceResult.Success(var vo) -> {
-                var stamina = staminaService.getStaminaInfo(platform, openId);
-                String staminaText = switch (stamina) {
-                    case ServiceResult.Failure(var m) -> m;
-                    case ServiceResult.Success(var svo) -> formatStaminaInfo(svo);
-                };
-                yield formatCharacterStatus(vo) + "\n\n" + staminaText;
-            }
-        };
-    }
-
-    public String handleStaminaQuery(PlatformType platform, String openId) {
-        log.debug("处理体力查询 - Platform: {}, OpenId: {}", platform, openId);
-        return switch (staminaService.getStaminaInfo(platform, openId)) {
-            case ServiceResult.Failure(var msg) -> msg;
-            case ServiceResult.Success(var vo) -> formatStaminaInfo(vo);
+            case ServiceResult.Success(var vo) -> formatCharacterStatus(vo);
         };
     }
 
@@ -165,20 +149,6 @@ public class CultivationCommandHandler {
     }
 
     // ===================== 文本格式化方法 =====================
-
-    private String formatStaminaInfo(StaminaInfoVO info) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("💪 【体力状态】\n");
-        sb.append("━━━━━━━━━━━━━━━\n");
-        sb.append("当前体力：").append(info.currentStamina()).append("/").append(info.maxStamina())
-                .append(" (").append(info.percent()).append("%)\n");
-        if (info.offlineRecovered() > 0) {
-            sb.append("离线恢复：+").append(info.offlineRecovered()).append(" 体力\n");
-        }
-        sb.append("━━━━━━━━━━━━━━━\n");
-        sb.append("💡 体力影响探索和旅行，可通过打坐或使用丹药恢复");
-        return sb.toString();
-    }
 
     private String formatCharacterStatus(CharacterStatusResult status) {
         StringBuilder sb = new StringBuilder();
