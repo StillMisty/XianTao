@@ -268,27 +268,24 @@ public class BountyService {
         var specialties = mapNode.getSpecialties();
         if (specialties == null || specialties.isEmpty()) return List.of();
 
-        List<Map<String, Object>> rarePool = specialties.stream()
-                .filter(s -> "rare".equals(s.get("rarity")))
-                .toList();
-        if (rarePool.isEmpty()) return List.of();
+        // Batch lookup item templates
+        Map<Long, ItemTemplate> templateMap = itemTemplateRepository.findByIds(new ArrayList<>(specialties.keySet()))
+                .stream()
+                .collect(Collectors.toMap(ItemTemplate::getId, t -> t));
 
-        int totalWeight = rarePool.stream()
-                .mapToInt(s -> ((Number) s.getOrDefault("weight", 1)).intValue())
-                .sum();
+        int totalWeight = specialties.values().stream().mapToInt(Integer::intValue).sum();
 
         List<Map<String, Object>> items = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             int roll = rng.nextInt(Math.max(1, totalWeight));
             int cum = 0;
-            for (Map<String, Object> specialty : rarePool) {
-                cum += ((Number) specialty.getOrDefault("weight", 1)).intValue();
+            for (Map.Entry<Long, Integer> entry : specialties.entrySet()) {
+                cum += entry.getValue();
                 if (roll < cum) {
+                    Long templateId = entry.getKey();
+                    ItemTemplate template = templateMap.get(templateId);
+                    String name = template != null ? template.getName() : "未知物品";
                     Map<String, Object> item = new HashMap<>();
-                    Long templateId = toLong(specialty.get("templateId"));
-                    String name = itemTemplateRepository.findById(templateId)
-                            .map(ItemTemplate::getName)
-                            .orElse("未知物品");
                     item.put("templateId", templateId);
                     item.put("name", name);
                     item.put("quantity", 1);
@@ -358,14 +355,7 @@ public class BountyService {
         int d20Roll = (int) (Math.random() * 20) + 1;
         if (d20Roll > 10) return null;
 
-        Map<String, Integer> eventWeights = new HashMap<>();
-        for (Map<String, Object> event : mapNode.getTravelEvents()) {
-            String eventType = (String) event.get("eventType");
-            Integer weight = ((Number) event.getOrDefault("weight", 1)).intValue();
-            eventWeights.put(eventType, weight);
-        }
-
-        TravelEventType eventType = TravelEventType.randomEvent(eventWeights);
+        TravelEventType eventType = TravelEventType.randomEvent(mapNode.getTravelEvents());
         if (eventType == TravelEventType.SAFE_PASSAGE) return null;
 
         String description = processEvent(user, eventType);

@@ -12,32 +12,30 @@ public enum TravelEventType {
     /**
      * 遇袭
      */
-    AMBUSH("ambush", "遇袭", 40),
+    AMBUSH("ambush", "遇袭"),
 
     /**
      * 捡漏
      */
-    FIND_TREASURE("find_treasure", "捡漏", 10),
+    FIND_TREASURE("find_treasure", "捡漏"),
 
     /**
      * 毒雾天气
      */
-    WEATHER("weather", "毒雾天气", 50),
+    WEATHER("weather", "毒雾天气"),
 
     /**
      * 安全通行
      */
-    SAFE_PASSAGE("safe_passage", "安全通行", 0);
+    SAFE_PASSAGE("safe_passage", "安全通行");
 
     @EnumValue
     private final String code;
     private final String name;
-    private final int weight;
 
-    TravelEventType(String code, String name, int weight) {
+    TravelEventType(String code, String name) {
         this.code = code;
         this.name = name;
-        this.weight = weight;
     }
 
     /**
@@ -74,7 +72,7 @@ public enum TravelEventType {
         for (TravelEventType type : values()) {
             if (type == SAFE_PASSAGE) continue; // 跳过安全通行
 
-            Integer weight = eventTypeWeights.get(type.getName());
+            Integer weight = eventTypeWeights.get(type.getCode());
             if (weight == null) weight = 0;
 
             currentWeight += weight;

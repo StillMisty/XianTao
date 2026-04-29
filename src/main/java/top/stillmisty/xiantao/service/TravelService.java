@@ -145,13 +145,7 @@ public class TravelService {
 
     private TravelEventType calculateTravelEvent(MapNode mapNode, int d20Roll) {
         if (d20Roll <= 10 && mapNode.getTravelEvents() != null && !mapNode.getTravelEvents().isEmpty()) {
-            Map<String, Integer> eventWeights = new java.util.HashMap<>();
-            for (Map<String, Object> event : mapNode.getTravelEvents()) {
-                String eventType = (String) event.get("eventType");
-                Integer weight = ((Number) event.getOrDefault("weight", 1)).intValue();
-                eventWeights.put(eventType, weight);
-            }
-            return TravelEventType.randomEvent(eventWeights);
+            return TravelEventType.randomEvent(mapNode.getTravelEvents());
         }
         return TravelEventType.SAFE_PASSAGE;
     }

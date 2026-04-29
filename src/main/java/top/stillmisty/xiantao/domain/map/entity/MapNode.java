@@ -57,17 +57,17 @@ public class MapNode extends Model<MapNode> {
 
     /**
      * 历练掉落池/特产 (JSONB)
-     * 格式: [{"name": "毒龙草", "weight": 30}, {"name": "铁矿石", "weight": 50}]
+     * 格式: {"1": 30, "2": 50} (templateId → weight)
      */
     @Column(typeHandler = PgJsonbTypeHandler.class)
-    private List<Map<String, Object>> specialties;
+    private Map<Long, Integer> specialties;
 
     /**
      * 旅行事件权重 (JSONB)
-     * 格式: [{"eventType": "ambush", "weight": 40}, {"eventType": "find_treasure", "weight": 10}]
+     * 格式: {"ambush": 40, "find_treasure": 10} (eventType → weight)
      */
     @Column(typeHandler = PgJsonbTypeHandler.class)
-    private List<Map<String, Object>> travelEvents;
+    private Map<String, Integer> travelEvents;
 
     /**
      * 创建时间
@@ -113,37 +113,5 @@ public class MapNode extends Model<MapNode> {
     public List<String> getAdjacentMapNames() {
         if (neighbors == null) return List.of();
         return List.copyOf(neighbors.keySet());
-    }
-
-    /**
-     * 从特产中随机获取一个
-     */
-    public Map<String, Object> getRandomSpecialty() {
-        if (specialties == null || specialties.isEmpty()) return null;
-
-        int totalWeight = specialties.stream()
-                .mapToInt(item -> {
-                    Object weightObj = item.get("weight");
-                    if (weightObj == null) return 1;
-                    return ((Number) weightObj).intValue();
-                })
-                .sum();
-
-        if (totalWeight == 0) return specialties.getFirst();
-
-        int random = (int) (Math.random() * totalWeight);
-        int currentWeight = 0;
-
-        for (Map<String, Object> specialty : specialties) {
-            Object weightObj = specialty.get("weight");
-            int weight = (weightObj == null) ? 1 : ((Number) weightObj).intValue();
-
-            currentWeight += weight;
-            if (random < currentWeight) {
-                return specialty;
-            }
-        }
-
-        return specialties.getLast();
     }
 }

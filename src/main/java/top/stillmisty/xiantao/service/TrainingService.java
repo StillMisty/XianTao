@@ -19,6 +19,7 @@ import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 历练服务
@@ -272,40 +273,33 @@ public class TrainingService {
      */
     private List<Map<String, Object>> calculateItemsReward(long minutesTraining, double efficiencyMultiplier, MapNode mapNode) {
         List<Map<String, Object>> items = new ArrayList<>();
-        if (mapNode.getSpecialties() == null || mapNode.getSpecialties().isEmpty()) return items;
+        var specialties = mapNode.getSpecialties();
+        if (specialties == null || specialties.isEmpty()) return items;
 
-        List<Map<String, Object>> commonPool = mapNode.getSpecialties().stream()
-                .filter(s -> {
-                    Object rarity = s.get("rarity");
-                    return rarity == null || "common".equals(rarity);
-                })
-                .toList();
-        if (commonPool.isEmpty()) return items;
+        // Batch lookup item templates for name resolution
+        Map<Long, ItemTemplate> templateMap = itemTemplateRepository.findByIds(new ArrayList<>(specialties.keySet()))
+                .stream()
+                .collect(Collectors.toMap(ItemTemplate::getId, t -> t));
 
         int dropChances = (int) (minutesTraining / 10 * efficiencyMultiplier);
 
         for (int i = 0; i < dropChances; i++) {
-            // 从 common 池中按权重随机选取
-            int totalWeight = commonPool.stream()
-                    .mapToInt(s -> ((Number) s.getOrDefault("weight", 1)).intValue())
-                    .sum();
+            int totalWeight = specialties.values().stream().mapToInt(Integer::intValue).sum();
             if (totalWeight == 0) continue;
             int roll = (int) (Math.random() * totalWeight);
             int cumulative = 0;
-            Map<String, Object> selected = null;
-            for (Map<String, Object> s : commonPool) {
-                cumulative += ((Number) s.getOrDefault("weight", 1)).intValue();
+            Long selectedTemplateId = null;
+            for (Map.Entry<Long, Integer> entry : specialties.entrySet()) {
+                cumulative += entry.getValue();
                 if (roll < cumulative) {
-                    selected = s;
+                    selectedTemplateId = entry.getKey();
                     break;
                 }
             }
-            if (selected == null) continue;
+            if (selectedTemplateId == null) continue;
 
             int quantity = (int) (Math.random() * 3) + 1;
 
-            // 合并同名物品（按 templateId 去重）
-            Object selectedTemplateId = selected.get("templateId");
             boolean exists = false;
             for (Map<String, Object> existing : items) {
                 if (Objects.equals(existing.get("templateId"), selectedTemplateId)) {
@@ -315,12 +309,10 @@ public class TrainingService {
                 }
             }
             if (!exists) {
-                Long templateId = toLong(selectedTemplateId);
-                String name = itemTemplateRepository.findById(templateId)
-                        .map(ItemTemplate::getName)
-                        .orElse("未知物品");
+                ItemTemplate template = templateMap.get(selectedTemplateId);
+                String name = template != null ? template.getName() : "未知物品";
                 Map<String, Object> item = new HashMap<>();
-                item.put("templateId", templateId);
+                item.put("templateId", selectedTemplateId);
                 item.put("name", name);
                 item.put("quantity", quantity);
                 items.add(item);

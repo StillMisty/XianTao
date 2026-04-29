@@ -56,13 +56,13 @@ public class MapInfoVO {
 
     /**
      * 历练掉落池/特产 (JSONB)
-     * 格式: [{"name": "毒龙草", "weight": 30}, {"name": "铁矿石", "weight": 50}]
+     * 格式: {"1": 30, "2": 50} (templateId → weight)
      */
-    private List<Map<String, Object>> specialties;
+    private Map<Long, Integer> specialties;
 
     /**
      * 旅行事件权重 (JSONB)
-     * 格式: [{"eventType": "ambush", "weight": 40}, {"eventType": "find_treasure", "weight": 10}]
+     * 格式: {"ambush": 40, "find_treasure": 10} (eventType → weight)
      */
-    private List<Map<String, Object>> travelEvents;
+    private Map<String, Integer> travelEvents;
 }
