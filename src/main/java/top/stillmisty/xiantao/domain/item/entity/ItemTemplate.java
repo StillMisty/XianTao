@@ -12,8 +12,8 @@ import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 物品模板配置实体
@@ -30,7 +30,7 @@ public class ItemTemplate {
     private Long id;
 
     /**
-     * 物品名称
+     * 物品名称（全表唯一，可跨环境用作语义标识）
      */
     private String name;
 
@@ -40,68 +40,28 @@ public class ItemTemplate {
     private ItemType type;
 
     /**
-     * 装备部位（仅装备类）
-     */
-    private EquipmentSlot slot;
-
-    /**
      * 基础稀有度（仅装备类，用于掉落权重计算）
      */
     private Rarity baseRarity;
 
     /**
-     * 基础属性加成 JSONB: {"str":5,"con":3,"agi":2,"wis":0}
+     * 类型特有属性 JSONB
+     * 装备: {"slot":"WEAPON","equip_level":1,"base_attack":2,"base_defense":0,"base_stat_bonus":{"str":1},"drop_weight":{...}}
+     * 种子: {"grow_time":24,"yields":["灵草"],"survive_rate":90}
+     * 灵兽卵: {"grow_time":72,"yields":["火灵兽"],"survive_rate":70}
      */
     @Column(typeHandler = PgJsonbTypeHandler.class)
-    private Map<String, Integer> baseStats;
-
-    /**
-     * 基础攻击力（仅武器）
-     */
-    private Integer baseAttack;
-
-    /**
-     * 基础防御力（仅防具）
-     */
-    private Integer baseDefense;
-
-    /**
-     * 装备等级（仅装备类，用于计算词条数值）
-     */
-    private Integer equipLevel;
-
-    /**
-     * 掉落权重 JSONB（仅装备类）
-     * 示例: {"BROKEN": 50, "COMMON": 30, "RARE": 15, "EPIC": 4, "LEGENDARY": 1}
-     */
-    @Column(typeHandler = PgJsonbTypeHandler.class)
-    private Map<String, Integer> dropWeight;
+    private Map<String, Object> properties;
 
     /**
      * 物品标签 JSONB
      * 用于：材料锻造需求、NPC喜好判断、地灵AI识别
-     * 示例: ["ore", "metal", "forge_base"] 或 ["seed", "fire", "rare"]
      */
     @Column(typeHandler = PgJsonbTypeHandler.class)
     private Set<String> tags;
 
     /**
-     * 生长时间（小时，仅种子/灵蛋）
-     */
-    private Integer growTime;
-
-    /**
-     * 成熟后产出的物品模板ID（仅种子/灵蛋）
-     */
-    private String yieldId;
-
-    /**
-     * 存活率百分比（仅种子/灵蛋）
-     */
-    private Integer surviveRate;
-
-    /**
-     * 最大堆叠数量（仅标品）
+     * 最大堆叠数量
      */
     private Integer maxStack;
 
@@ -140,19 +100,110 @@ public class ItemTemplate {
         return tags.containsAll(requiredTags.stream().map(String::toLowerCase).toList());
     }
 
+    // ===================== properties 访问器 =====================
+
+    /**
+     * 获取装备部位（仅装备类）
+     */
+    public EquipmentSlot getSlot() {
+        if (properties == null) return null;
+        Object val = properties.get("slot");
+        return val != null ? EquipmentSlot.valueOf((String) val) : null;
+    }
+
+    /**
+     * 获取装备等级（仅装备类）
+     */
+    public Integer getEquipLevel() {
+        if (properties == null) return 0;
+        Object val = properties.get("equip_level");
+        return val instanceof Number n ? n.intValue() : 0;
+    }
+
+    /**
+     * 获取基础攻击力（仅装备类）
+     */
+    public Integer getBaseAttack() {
+        if (properties == null) return 0;
+        Object val = properties.get("base_attack");
+        return val instanceof Number n ? n.intValue() : 0;
+    }
+
+    /**
+     * 获取基础防御力（仅装备类）
+     */
+    public Integer getBaseDefense() {
+        if (properties == null) return 0;
+        Object val = properties.get("base_defense");
+        return val instanceof Number n ? n.intValue() : 0;
+    }
+
+    /**
+     * 获取基础属性加成 JSONB（仅装备类）
+     */
+    @SuppressWarnings("unchecked")
+    public Map<String, Integer> getBaseStats() {
+        if (properties == null) return Map.of();
+        return (Map<String, Integer>) properties.getOrDefault("base_stat_bonus", Map.of());
+    }
+
+    /**
+     * 获取掉落权重 JSONB（仅装备类）
+     */
+    @SuppressWarnings("unchecked")
+    public Map<String, Integer> getDropWeight() {
+        if (properties == null) return Map.of();
+        return (Map<String, Integer>) properties.getOrDefault("drop_weight", Map.of());
+    }
+
+    /**
+     * 获取生长/孵化时间（小时，仅种子/灵兽卵）
+     */
+    public Integer getGrowTime() {
+        if (properties == null) return null;
+        Object val = properties.get("grow_time");
+        return val instanceof Number n ? n.intValue() : null;
+    }
+
+    /**
+     * 获取成熟后产出的物品名称集合（仅种子/灵兽卵）
+     */
+    @SuppressWarnings("unchecked")
+    public Set<String> getYields() {
+        if (properties == null) return Set.of();
+        Object val = properties.get("yields");
+        if (val instanceof List<?> list) return Set.copyOf((List<String>) list);
+        return Set.of();
+    }
+
+    /**
+     * 获取首个产出的物品名称
+     */
+    public String getYieldName() {
+        return getYields().stream().findFirst().orElse(null);
+    }
+
+    /**
+     * 获取存活率百分比（仅种子/灵兽卵）
+     */
+    public Integer getSurviveRate() {
+        if (properties == null) return null;
+        Object val = properties.get("survive_rate");
+        return val instanceof Number n ? n.intValue() : null;
+    }
+
     /**
      * 获取指定品质的掉落权重
      */
     public Integer getDropWeightForRarity(Rarity rarity) {
-        if (dropWeight == null) return 0;
-        return dropWeight.getOrDefault(rarity.getCode(), 0);
+        Map<String, Integer> dw = getDropWeight();
+        return dw.getOrDefault(rarity.getCode(), 0);
     }
 
     /**
      * 获取总掉落权重
      */
     public int getTotalDropWeight() {
-        if (dropWeight == null) return 0;
-        return dropWeight.values().stream().mapToInt(Integer::intValue).sum();
+        return getDropWeight().values().stream().mapToInt(Integer::intValue).sum();
     }
 }

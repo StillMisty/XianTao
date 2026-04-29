@@ -44,6 +44,12 @@ public interface ItemTemplateMapper extends BaseMapper<ItemTemplate> {
     List<ItemTemplate> selectByAllTags(@Param("tags") List<String> tags);
 
     /**
+     * 根据物品名称查找模板
+     */
+    @Select("SELECT * FROM xt_item_template WHERE name = #{name}")
+    ItemTemplate selectByName(@Param("name") String name);
+
+    /**
      * 根据多个物品类型查找模板
      */
     @Select("<script>"

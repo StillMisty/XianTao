@@ -17,6 +17,11 @@ public interface ItemTemplateRepository {
     Optional<ItemTemplate> findById(Long templateId);
 
     /**
+     * 根据名称查找物品模板
+     */
+    Optional<ItemTemplate> findByName(String name);
+
+    /**
      * 根据模板ID列表批量查找物品模板
      */
     List<ItemTemplate> findByIds(List<Long> templateIds);

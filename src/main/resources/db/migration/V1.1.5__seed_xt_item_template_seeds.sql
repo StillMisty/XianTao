@@ -1,0 +1,20 @@
+-- 种子 (id 98-115)
+INSERT INTO xt_item_template (id, name, type, rarity, properties, tags, description, max_stack) VALUES
+(98, '灵草种子', 'SEED', 'COMMON', '{"grow_time":24,"yields":["灵草"],"survive_rate":90}', '["seed","spirit","common"]'::jsonb, '灵草种子，成熟需24小时，产出灵草', 99),
+(99, '铜骨草种子', 'SEED', 'COMMON', '{"grow_time":18,"yields":["铜骨草"],"survive_rate":90}', '["seed","common"]'::jsonb, '铜骨草种子，成熟需18小时', 99),
+(100, '清心草种子', 'SEED', 'COMMON', '{"grow_time":24,"yields":["清心草"],"survive_rate":85}', '["seed","common"]'::jsonb, '清心草种子，成熟需24小时', 99),
+(101, '银叶草种子', 'SEED', 'COMMON', '{"grow_time":18,"yields":["银叶草"],"survive_rate":90}', '["seed","common"]'::jsonb, '银叶草种子，成熟需18小时', 99),
+(102, '赤火莲子', 'SEED', 'RARE', '{"grow_time":48,"yields":["赤火莲"],"survive_rate":80}', '["seed","fire","rare"]'::jsonb, '火属性种子，成熟需48小时，产出赤火莲', 50),
+(103, '玄冰莲子', 'SEED', 'RARE', '{"grow_time":48,"yields":["玄冰莲"],"survive_rate":80}', '["seed","ice","rare"]'::jsonb, '冰属性种子，成熟需48小时，产出玄冰莲', 50),
+(104, '冰魄花种子', 'SEED', 'RARE', '{"grow_time":36,"yields":["冰魄花"],"survive_rate":80}', '["seed","ice","rare"]'::jsonb, '冰魄花种子，成熟需36小时，产出冰魄花', 50),
+(105, '幽冥花种子', 'SEED', 'RARE', '{"grow_time":60,"yields":["幽冥花"],"survive_rate":65}', '["seed","dark","rare"]'::jsonb, '幽冥花种子，成熟需60小时', 30),
+(106, '紫金藤种子', 'SEED', 'RARE', '{"grow_time":36,"yields":["紫金藤"],"survive_rate":75}', '["seed","rare"]'::jsonb, '紫金藤种子，成熟需36小时', 30),
+(107, '九幽兰种子', 'SEED', 'RARE', '{"grow_time":72,"yields":["九幽兰"],"survive_rate":55}', '["seed","dark","rare"]'::jsonb, '九幽兰种子，成熟需72小时', 20),
+(108, '万年玄参种子', 'SEED', 'RARE', '{"grow_time":96,"yields":["万年玄参"],"survive_rate":50}', '["seed","prestige","rare"]'::jsonb, '万年玄参种子，成熟需96小时', 10),
+(109, '朱雀血藤种子', 'SEED', 'EPIC', '{"grow_time":72,"yields":["朱雀血藤"],"survive_rate":55}', '["seed","fire","epic"]'::jsonb, '朱雀血藤种子，成熟需72小时', 20),
+(110, '天山雪莲种子', 'SEED', 'EPIC', '{"grow_time":96,"yields":["天山雪莲"],"survive_rate":45}', '["seed","ice","epic"]'::jsonb, '天山雪莲种子，成熟需96小时', 10),
+(111, '龙血草种子', 'SEED', 'EPIC', '{"grow_time":48,"yields":["龙血草"],"survive_rate":70}', '["seed","dragon","epic"]'::jsonb, '龙血草种子，成熟需48小时', 30),
+(112, '天心花种子', 'SEED', 'EPIC', '{"grow_time":60,"yields":["天心花"],"survive_rate":60}', '["seed","spirit","epic"]'::jsonb, '天心花种子，成熟需60小时，仅在月圆之夜可播种', 20),
+(113, '长生果种子', 'SEED', 'EPIC', '{"grow_time":120,"yields":["长生果"],"survive_rate":30}', '["seed","epic","longevity"]'::jsonb, '长生果种子，成熟需120小时', 5),
+(114, '金芝种子', 'SEED', 'LEGENDARY', '{"grow_time":72,"yields":["金芝"],"survive_rate":50}', '["seed","gold","legendary"]'::jsonb, '稀有金芝种子，成熟需72小时，产出金芝', 10),
+(115, '菩提叶种子', 'SEED', 'LEGENDARY', '{"grow_time":120,"yields":["菩提叶"],"survive_rate":25}', '["seed","wisdom","legendary"]'::jsonb, '菩提叶种子，成熟需120小时', 1);

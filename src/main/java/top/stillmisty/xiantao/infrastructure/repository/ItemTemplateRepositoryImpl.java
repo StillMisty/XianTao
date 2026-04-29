@@ -27,6 +27,11 @@ public class ItemTemplateRepositoryImpl implements ItemTemplateRepository {
     }
 
     @Override
+    public Optional<ItemTemplate> findByName(String name) {
+        return Optional.ofNullable(mapper.selectByName(name));
+    }
+
+    @Override
     public List<ItemTemplate> findByIds(List<Long> templateIds) {
         if (templateIds == null || templateIds.isEmpty()) {
             return List.of();
