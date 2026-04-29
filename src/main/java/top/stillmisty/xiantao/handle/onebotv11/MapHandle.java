@@ -62,7 +62,7 @@ public class MapHandle {
 
     @Listener
     @ContentTrim
-    @Filter("接悬赏 {{bountyId}}")
+    @Filter("悬赏接取 {{bountyId}}")
     public void startBounty(MessageEvent event, @FilterValue("bountyId") String bountyId) {
         String response = mapCommandHandler.handleStartBounty(PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), bountyId);
         event.replyBlocking(response);
@@ -70,7 +70,7 @@ public class MapHandle {
 
     @Listener
     @ContentTrim
-    @Filter("交悬赏")
+    @Filter("悬赏提交")
     public void completeBounty(MessageEvent event) {
         String response = mapCommandHandler.handleCompleteBounty(PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
         event.replyBlocking(response);
@@ -78,7 +78,7 @@ public class MapHandle {
 
     @Listener
     @ContentTrim
-    @Filter("放弃悬赏")
+    @Filter("悬赏放弃")
     public void abandonBounty(MessageEvent event) {
         String response = mapCommandHandler.handleAbandonBounty(PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
         event.replyBlocking(response);
