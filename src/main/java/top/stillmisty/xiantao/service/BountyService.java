@@ -285,8 +285,12 @@ public class BountyService {
                 cum += ((Number) specialty.getOrDefault("weight", 1)).intValue();
                 if (roll < cum) {
                     Map<String, Object> item = new HashMap<>();
-                    item.put("name", specialty.get("name"));
-                    item.put("templateId", specialty.get("templateId"));
+                    Long templateId = toLong(specialty.get("templateId"));
+                    String name = itemTemplateRepository.findById(templateId)
+                            .map(ItemTemplate::getName)
+                            .orElse("未知物品");
+                    item.put("templateId", templateId);
+                    item.put("name", name);
                     item.put("quantity", 1);
                     items.add(item);
                     break;

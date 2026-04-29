@@ -304,19 +304,24 @@ public class TrainingService {
 
             int quantity = (int) (Math.random() * 3) + 1;
 
-            // 合并同名物品
+            // 合并同名物品（按 templateId 去重）
+            Object selectedTemplateId = selected.get("templateId");
             boolean exists = false;
             for (Map<String, Object> existing : items) {
-                if (existing.get("name").equals(selected.get("name"))) {
+                if (Objects.equals(existing.get("templateId"), selectedTemplateId)) {
                     existing.put("quantity", (Integer) existing.get("quantity") + quantity);
                     exists = true;
                     break;
                 }
             }
             if (!exists) {
+                Long templateId = toLong(selectedTemplateId);
+                String name = itemTemplateRepository.findById(templateId)
+                        .map(ItemTemplate::getName)
+                        .orElse("未知物品");
                 Map<String, Object> item = new HashMap<>();
-                item.put("name", selected.get("name"));
-                item.put("templateId", selected.get("templateId"));
+                item.put("templateId", templateId);
+                item.put("name", name);
                 item.put("quantity", quantity);
                 items.add(item);
             }
