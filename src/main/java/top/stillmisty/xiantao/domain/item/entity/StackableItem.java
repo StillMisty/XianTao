@@ -57,24 +57,6 @@ public class StackableItem {
     private Set<String> tags;
 
     /**
-     * 生长时间（小时，仅种子/灵蛋）
-     * 示例: 24 表示24小时成熟
-     */
-    private Integer growTime;
-
-    /**
-     * 成熟后产出的物品模板ID（仅种子/灵蛋）
-     * 示例: "herb_fire_lotus"
-     */
-    private String yieldId;
-
-    /**
-     * 存活率百分比（仅种子/灵蛋）
-     * 示例: 80 表示80%的存活率，受福地灵气浓郁度和玩家智慧影响
-     */
-    private Integer surviveRate;
-
-    /**
      * 创建时间
      */
     @Column(onInsertValue = "now()")

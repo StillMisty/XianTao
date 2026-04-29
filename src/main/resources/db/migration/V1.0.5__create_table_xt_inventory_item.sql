@@ -8,9 +8,6 @@ CREATE TABLE xt_inventory_item
     name         VARCHAR(128) NOT NULL,
     quantity     INT          NOT NULL DEFAULT 1,
     tags         JSONB                 DEFAULT '[]'::jsonb,
-    grow_time    INT,
-    yield_id     VARCHAR(64),
-    survive_rate INT,
     create_time  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     update_time  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -31,9 +28,6 @@ COMMENT ON COLUMN xt_inventory_item.item_type IS '物品类型 (MATERIAL, SEED, 
 COMMENT ON COLUMN xt_inventory_item.name IS '物品名称 (从模板复制)';
 COMMENT ON COLUMN xt_inventory_item.quantity IS '数量';
 COMMENT ON COLUMN xt_inventory_item.tags IS '物品标签 JSONB，用于AI检索和NPC交互';
-COMMENT ON COLUMN xt_inventory_item.grow_time IS '生长时间（小时，仅种子/灵蛋）';
-COMMENT ON COLUMN xt_inventory_item.yield_id IS '成熟后产出的物品模板ID（仅种子/灵蛋）';
-COMMENT ON COLUMN xt_inventory_item.survive_rate IS '存活率百分比（仅种子/灵蛋）';
 COMMENT ON COLUMN xt_inventory_item.create_time IS '创建时间';
 COMMENT ON COLUMN xt_inventory_item.update_time IS '更新时间';
 
