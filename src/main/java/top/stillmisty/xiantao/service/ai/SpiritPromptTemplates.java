@@ -1,4 +1,4 @@
-package top.stillmisty.xiantao.config;
+package top.stillmisty.xiantao.service.ai;
 
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.land.enums.MBTIPersonality;
@@ -14,16 +14,16 @@ public class SpiritPromptTemplates {
      * 构建地灵 Function Calling 系统提示词
      * 所有阶段统一使用此 Prompt，LLM 自主判断是否调用工具
      *
-     * @param mbtiType         MBTI 人格类型
-     * @param auraCurrent      当前灵气
-     * @param auraMax          灵气上限
-     * @param fudiLevel        劫数
-     * @param spiritEnergy     精力值
-     * @param spiritAffection  好感度
-     * @param gridDetail       网格状态详情（空则显示占位描述）
-     * @param emotionState     情绪状态
-     * @param energyMax        精力上限
-     * @param spiritForm       地灵形态名
+     * @param mbtiType        MBTI 人格类型
+     * @param auraCurrent     当前灵气
+     * @param auraMax         灵气上限
+     * @param fudiLevel       劫数
+     * @param spiritEnergy    精力值
+     * @param spiritAffection 好感度
+     * @param gridDetail      网格状态详情（空则显示占位描述）
+     * @param emotionState    情绪状态
+     * @param energyMax       精力上限
+     * @param spiritForm      地灵形态名
      * @return 系统提示词
      */
     public String buildSpiritPrompt(

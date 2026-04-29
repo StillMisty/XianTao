@@ -1,4 +1,4 @@
-package top.stillmisty.xiantao.service;
+package top.stillmisty.xiantao.service.ai;
 
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +10,9 @@ import top.stillmisty.xiantao.domain.land.enums.CellType;
 import top.stillmisty.xiantao.domain.land.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.land.vo.BeastProduceVO;
 import top.stillmisty.xiantao.domain.land.vo.FarmCellVO;
+import top.stillmisty.xiantao.service.FudiService;
+import top.stillmisty.xiantao.service.ItemService;
+import top.stillmisty.xiantao.service.UserContext;
 
 import java.util.Map;
 

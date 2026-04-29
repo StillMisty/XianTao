@@ -6,7 +6,7 @@ package top.stillmisty.xiantao.service;
  */
 public class UserContext {
 
-    static final ScopedValue<Long> CURRENT_USER = ScopedValue.newInstance();
+    public static final ScopedValue<Long> CURRENT_USER = ScopedValue.newInstance();
 
     /**
      * 获取当前用户 ID，未绑定时返回 null

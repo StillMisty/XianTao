@@ -9,7 +9,7 @@ import top.stillmisty.xiantao.domain.land.vo.FudiStatusVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.service.FudiService;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.SpiritChatService;
+import top.stillmisty.xiantao.service.ai.SpiritChatService;
 
 /**
  * 福地命令处理器（纯 View 层）

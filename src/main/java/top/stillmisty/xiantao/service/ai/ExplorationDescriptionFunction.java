@@ -1,4 +1,4 @@
-package top.stillmisty.xiantao.service;
+package top.stillmisty.xiantao.service.ai;
 
 import com.fasterxml.jackson.annotation.JsonClassDescription;
 import com.fasterxml.jackson.annotation.JsonInclude;
