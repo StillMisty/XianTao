@@ -34,13 +34,7 @@ public enum BeastQuality {
         this.auraCostMultiplier = auraCostMultiplier;
         this.lifespanMultiplier = lifespanMultiplier;
         this.hatchWeight = hatchWeight;
-        this.order = switch (this) {
-            case MORTAL -> 0;
-            case SPIRIT -> 1;
-            case IMMORTAL -> 2;
-            case SAINT -> 3;
-            case DIVINE -> 4;
-        };
+        this.order = ordinal();
     }
 
     public static BeastQuality fromCode(String code) {
