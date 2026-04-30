@@ -38,6 +38,8 @@ public class Spirit extends Model<Spirit> {
 
     private LocalDateTime lastEnergyUpdate;
 
+    private LocalDateTime lastGiftTime;
+
     @Column(onInsertValue = "now()")
     private LocalDateTime createTime;
 

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
+import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.enums.Rarity;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
@@ -1456,30 +1457,33 @@ public class FudiService {
         Fudi fudi = getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
 
-        // 查找玩家背包中的装备
-        List<Equipment> unequipped = equipmentRepository.findByUserId(userId).stream()
-                .filter(e -> !e.getEquipped() && e.getName().contains(itemName))
+        // 查找玩家背包中的物品
+        List<StackableItem> items = stackableItemRepository.findByUserId(userId).stream()
+                .filter(e -> e.getName().contains(itemName))
                 .toList();
 
-        if (unequipped.isEmpty()) {
+        if (items.isEmpty()) {
             throw new IllegalStateException("背包中未找到 [" + itemName + "]");
         }
 
-        if (unequipped.size() > 1) {
+        if (items.size() > 1) {
             throw new IllegalStateException("找到多个 [" + itemName + "]，请使用更精确的名称");
         }
 
-        Equipment gift = unequipped.getFirst();
+        StackableItem gift = items.getFirst();
         ItemTemplate template = itemTemplateRepository.findById(gift.getTemplateId() != null ?
                                                                         gift.getTemplateId() : (long) 1)
                 .orElse(null);
 
-        // 获取物品质量倍率
-        double qualityMultiplier = gift.getQualityMultiplier() != null ? gift.getQualityMultiplier() : 1.0;
-
         // 从 SpiritForm 获取喜好
         Spirit spirit = spiritRepository.findByFudiId(fudi.getId())
                 .orElseThrow(() -> new IllegalStateException("地灵不存在"));
+
+        // 每日限送一次
+        if (spirit.getLastGiftTime() != null &&
+            spirit.getLastGiftTime().toLocalDate().equals(LocalDateTime.now().toLocalDate())) {
+            throw new IllegalStateException("今日已送过礼物，明天再来吧");
+        }
 
         Set<String> likedTags = Set.of();
         Set<String> dislikedTags = Set.of();
@@ -1489,8 +1493,10 @@ public class FudiService {
             dislikedTags = spiritForm.getDislikedTags() != null ? spiritForm.getDislikedTags() : Set.of();
         }
 
-        Set<String> itemTags = template != null && template.getTags() != null ?
-                template.getTags() : Set.of();
+        // 优先使用物品自身标签，其次使用模板标签
+        Set<String> itemTags = gift.getTags() != null && !gift.getTags().isEmpty() ?
+                gift.getTags() :
+                (template != null && template.getTags() != null ? template.getTags() : Set.of());
 
         // 匹配判定
         boolean isLiked = itemTags.stream().anyMatch(likedTags::contains);
@@ -1501,15 +1507,13 @@ public class FudiService {
         String reaction;
 
         if (isLiked) {
-            // 喜爱：+10~50，幅度取决于 qualityMultiplier
-            change = (int) (10 + qualityMultiplier * 40);
+            // 喜爱：+10~50
+            change = 10 + new Random().nextInt(41);
             reaction = "开心";
-            change = Math.min(50, change);
         } else if (isDisliked) {
             // 讨厌：-5~20
-            change = -(int) (5 + qualityMultiplier * 15);
+            change = -(5 + new Random().nextInt(16));
             reaction = "嫌弃";
-            change = Math.max(-20, change);
         } else {
             // 中性：+1~3
             change = 1 + new Random().nextInt(3);
@@ -1517,9 +1521,15 @@ public class FudiService {
         }
 
         spirit.addAffection(change);
+        spirit.setLastGiftTime(LocalDateTime.now());
 
-        // 删除物品
-        equipmentRepository.deleteById(gift.getId());
+        // 消耗物品：数量>1则减1，否则删除
+        if (gift.getQuantity() != null && gift.getQuantity() > 1) {
+            gift.setQuantity(gift.getQuantity() - 1);
+            stackableItemRepository.save(gift);
+        } else {
+            stackableItemRepository.deleteById(gift.getId());
+        }
 
         spiritRepository.save(spirit);
         fudiRepository.save(fudi);
