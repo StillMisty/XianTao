@@ -4,6 +4,8 @@ import com.mybatisflex.annotation.EnumValue;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * 物品稀有度/品质枚举
@@ -120,6 +122,44 @@ public enum Rarity {
             }
         }
         return COMMON;
+    }
+
+    /**
+     * 加权随机 roll 稀有度
+     */
+    public static Rarity roll(Map<String, Integer> dropWeight) {
+        if (dropWeight == null || dropWeight.isEmpty()) return COMMON;
+        int total = dropWeight.values().stream().mapToInt(Integer::intValue).sum();
+        if (total <= 0) return COMMON;
+        int roll = ThreadLocalRandom.current().nextInt(total);
+        int cumulative = 0;
+        for (Rarity rarity : values()) {
+            cumulative += dropWeight.getOrDefault(rarity.code, 0);
+            if (roll < cumulative) return rarity;
+        }
+        return COMMON;
+    }
+
+    /**
+     * 随机品质系数（在范围内均匀分布）
+     */
+    public double randomQualityMultiplier() {
+        return qualityMultiplierMin + ThreadLocalRandom.current().nextDouble()
+                * (qualityMultiplierMax - qualityMultiplierMin);
+    }
+
+    /**
+     * 随机词条数量（在范围内均匀分布）
+     */
+    public int randomAffixCount() {
+        return affixCountMin + ThreadLocalRandom.current().nextInt(affixCountMax - affixCountMin + 1);
+    }
+
+    /**
+     * 随机品质前缀
+     */
+    public String randomPrefix() {
+        return prefixes.get(ThreadLocalRandom.current().nextInt(prefixes.size()));
     }
 
     /**

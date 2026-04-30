@@ -6,6 +6,7 @@ CREATE TABLE xt_equipment
     template_id        BIGINT       NOT NULL,
     name               VARCHAR(128) NOT NULL,
     slot               VARCHAR(32)  NOT NULL,
+    weapon_type        VARCHAR(32),
     rarity             VARCHAR(32)  NOT NULL DEFAULT 'common',
     stat_bonus         JSONB                 DEFAULT '{}'::jsonb,
     attack_bonus       INT          NOT NULL DEFAULT 0,
@@ -29,6 +30,7 @@ COMMENT ON COLUMN xt_equipment.user_id IS '持有者用户ID';
 COMMENT ON COLUMN xt_equipment.template_id IS '物品模板ID';
 COMMENT ON COLUMN xt_equipment.name IS '装备名称';
 COMMENT ON COLUMN xt_equipment.slot IS '装备部位';
+COMMENT ON COLUMN xt_equipment.weapon_type IS '法器子类型 BLADE/SWORD/AXE/...（护甲/饰品为 null）';
 COMMENT ON COLUMN xt_equipment.rarity IS '稀有度';
 COMMENT ON COLUMN xt_equipment.stat_bonus IS '属性加成 JSONB: {"str":5,"con":3,"agi":2,"wis":0}';
 COMMENT ON COLUMN xt_equipment.attack_bonus IS '攻击力加成';

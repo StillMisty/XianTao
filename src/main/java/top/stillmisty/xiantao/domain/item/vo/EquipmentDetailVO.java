@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import top.stillmisty.xiantao.domain.item.enums.EquipmentSlot;
 import top.stillmisty.xiantao.domain.item.enums.Rarity;
+import top.stillmisty.xiantao.domain.item.enums.WeaponType;
 
 import java.util.List;
 import java.util.Map;
@@ -65,6 +66,18 @@ public class EquipmentDetailVO {
      */
     @JsonProperty("slot_name")
     private String slotName;
+
+    /**
+     * 法器子类型
+     */
+    @JsonProperty("weapon_type")
+    private WeaponType weaponType;
+
+    /**
+     * 法器子类型名称
+     */
+    @JsonProperty("weapon_type_name")
+    private String weaponTypeName;
 
     /**
      * 品质系数（实际波动值）

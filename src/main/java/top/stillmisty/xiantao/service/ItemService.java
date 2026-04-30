@@ -5,11 +5,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
+import top.stillmisty.xiantao.domain.item.entity.EquipmentTemplate;
 import top.stillmisty.xiantao.domain.item.entity.InventoryItem;
+import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
+import top.stillmisty.xiantao.domain.item.enums.AffixType;
 import top.stillmisty.xiantao.domain.item.enums.EquipmentSlot;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
+import top.stillmisty.xiantao.domain.item.enums.Rarity;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
+import top.stillmisty.xiantao.domain.item.repository.EquipmentTemplateRepository;
+import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.domain.item.vo.*;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
@@ -35,6 +41,8 @@ public class ItemService {
 
     private final UserRepository userRepository;
     private final EquipmentRepository equipmentRepository;
+    private final EquipmentTemplateRepository equipmentTemplateRepository;
+    private final ItemTemplateRepository itemTemplateRepository;
     private final StackableItemRepository stackableItemRepository;
     private final DaoProtectionRepository daoProtectionRepository;
     private final MapNodeRepository mapNodeRepository;
@@ -264,7 +272,7 @@ public class ItemService {
 
     /**
      * 装备穿戴（装备 [物品名/编号]）
-     * 将背包中的武器或防具穿戴到身上，直接影响四维属性与攻防数值
+     * 将背包中的法器或防具穿戴到身上，直接影响四维属性与攻防数值
      * 支持按名称或编号选取
      *
      * @param userId 用户 ID
@@ -344,12 +352,65 @@ public class ItemService {
     }
 
     /**
-     * 装备卸下（卸下 [部位]）
-     * 将身上的装备放回背包
+     * 创建装备实例（稀有度加权随机）
      *
-     * @param userId   用户 ID
-     * @param slotName 部位名称（中文，如"武器"、"护甲"等）
-     * @return 装备卸下结果
+     * @param userId     用户 ID
+     * @param templateId 物品模板 ID
+     * @return 创建的装备，失败返回 null
+     */
+    public Equipment createEquipment(Long userId, Long templateId) {
+        var equipTmpl = equipmentTemplateRepository.findByTemplateId(templateId).orElse(null);
+        if (equipTmpl == null) return null;
+        var itemTmpl = itemTemplateRepository.findById(templateId).orElse(null);
+        if (itemTmpl == null) return null;
+
+        // ① 加权随机 roll 稀有度
+        Rarity rarity = Rarity.roll(equipTmpl.getDropWeight());
+
+        // ② 随机品质系数
+        double qm = rarity.randomQualityMultiplier();
+
+        // ③ 随机词条
+        int affixCount = rarity.randomAffixCount();
+        Map<String, Integer> affixes = new java.util.LinkedHashMap<>();
+        java.util.List<AffixType> pool = new java.util.ArrayList<>(java.util.List.of(AffixType.getAttributeAffixes()));
+        if (rarity == Rarity.LEGENDARY) {
+            pool.addAll(java.util.List.of(AffixType.getSpecialAffixes()));
+        }
+        java.util.Collections.shuffle(pool, new java.util.Random());
+        for (int i = 0; i < affixCount && i < pool.size(); i++) {
+            AffixType at = pool.get(i);
+            int value = at.isSpecial() ? 5 : (1 + (int) (Math.random() * 4));
+            if (at.getStatField() != null) {
+                affixes.put(at.getStatField(), value);
+            } else {
+                affixes.put(at.name(), value);
+            }
+        }
+
+        // ④ 生成装备名
+        String name = rarity.randomPrefix() + itemTmpl.getName();
+
+        // ⑤ 构建 statBonus
+        Map<String, Integer> statBonus = Map.of(
+                "str", equipTmpl.getBaseStr(),
+                "con", equipTmpl.getBaseCon(),
+                "agi", equipTmpl.getBaseAgi(),
+                "wis", equipTmpl.getBaseWis()
+        );
+
+        Equipment equipment = Equipment.create(
+                userId, templateId, name,
+                equipTmpl.getSlot(), rarity, equipTmpl.getWeaponType(),
+                qm, affixes, statBonus,
+                equipTmpl.getBaseAttack(), equipTmpl.getBaseDefense()
+        );
+        equipmentRepository.save(equipment);
+        return equipment;
+    }
+
+    /**
+     * 装备卸下（卸下 [部位]）
      */
     public UnequipResult unequipItem(Long userId, String slotName) {
         // 查找对应的部位枚举
@@ -357,7 +418,7 @@ public class ItemService {
         if (slot == null) {
             return UnequipResult.builder()
                     .success(false)
-                    .message("无效的装备部位，可选：武器、护甲、饰品")
+                    .message("无效的装备部位，可选：法器、护甲、饰品")
                     .build();
         }
 
@@ -727,6 +788,8 @@ public class ItemService {
                 .rarityEmoji(equipment.getRarity().getColor().getEmoji())
                 .slot(equipment.getSlot())
                 .slotName(equipment.getSlot().getName())
+                .weaponType(equipment.getWeaponType())
+                .weaponTypeName(equipment.getWeaponType() != null ? equipment.getWeaponType().getName() : null)
                 .qualityMultiplier(equipment.getQualityMultiplier())
                 .forgeLevel(equipment.getForgeLevel() != null ? equipment.getForgeLevel() : 0)
                 .attack(equipment.getFinalAttack())

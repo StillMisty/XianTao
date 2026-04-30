@@ -7,6 +7,7 @@ import com.mybatisflex.annotation.Table;
 import lombok.Data;
 import top.stillmisty.xiantao.domain.item.enums.EquipmentSlot;
 import top.stillmisty.xiantao.domain.item.enums.Rarity;
+import top.stillmisty.xiantao.domain.item.enums.WeaponType;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
 
 import java.time.LocalDateTime;
@@ -46,6 +47,11 @@ public class Equipment {
      * 品质（稀有度）
      */
     private Rarity rarity;
+
+    /**
+     * 法器子类型（护甲/饰品为 null）
+     */
+    private WeaponType weaponType;
 
     /**
      * 品质系数（实际波动值，如1.35）
@@ -104,7 +110,7 @@ public class Equipment {
      */
     public static Equipment create(
             Long userId, Long templateId, String name,
-            EquipmentSlot slot, Rarity rarity,
+            EquipmentSlot slot, Rarity rarity, WeaponType weaponType,
             Double qualityMultiplier,
             Map<String, Integer> affixes,
             Map<String, Integer> statBonus,
@@ -116,6 +122,7 @@ public class Equipment {
         equipment.name = name;
         equipment.slot = slot;
         equipment.rarity = rarity;
+        equipment.weaponType = weaponType;
         equipment.qualityMultiplier = qualityMultiplier;
         equipment.affixes = affixes;
         equipment.statBonus = statBonus;

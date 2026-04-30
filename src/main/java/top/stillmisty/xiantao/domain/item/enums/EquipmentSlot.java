@@ -10,9 +10,9 @@ import lombok.Getter;
 public enum EquipmentSlot {
 
     /**
-     * 武器
+     * 法器
      */
-    WEAPON("weapon", "武器"),
+    WEAPON("weapon", "法器"),
 
     /**
      * 护甲

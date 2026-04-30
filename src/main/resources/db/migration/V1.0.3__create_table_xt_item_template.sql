@@ -4,7 +4,6 @@ CREATE TABLE xt_item_template
     id          BIGSERIAL PRIMARY KEY,
     name        VARCHAR(128) NOT NULL UNIQUE,
     type        VARCHAR(32)  NOT NULL,
-    rarity      VARCHAR(32)  NOT NULL DEFAULT 'common',
     properties  JSONB        DEFAULT '{}'::jsonb,
     tags        JSONB        DEFAULT '[]'::jsonb,
     max_stack   INT          NOT NULL DEFAULT 1,
@@ -17,9 +16,8 @@ COMMENT ON TABLE xt_item_template IS '物品模板配置表';
 COMMENT ON COLUMN xt_item_template.id IS '模板ID';
 COMMENT ON COLUMN xt_item_template.name IS '物品名称（全表唯一，用作跨环境稳定的语义标识）';
 COMMENT ON COLUMN xt_item_template.type IS '物品类型 (EQUIPMENT, MATERIAL, SEED, BEAST_EGG, POTION, EVOLUTION_STONE)';
-COMMENT ON COLUMN xt_item_template.rarity IS '稀有度';
 COMMENT ON COLUMN xt_item_template.properties IS '类型特有属性 JSONB：
-  装备: {"slot":"WEAPON","equip_level":1,"base_attack":2,"base_defense":0,"base_stat_bonus":{"str":1},"drop_weight":{"BROKEN":60,...}}
+  装备特有属性见 xt_equipment_template 表
   种子: {"grow_time":24,"yields":["铜矿石","铁矿石","灵石"],"survive_rate":90}
   灵兽卵: {"grow_time":72,"yields":["火灵兽"],"survive_rate":70}
   其他: {}';

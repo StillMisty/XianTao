@@ -39,10 +39,7 @@ public class ItemTemplate {
      */
     private ItemType type;
 
-    /**
-     * 基础稀有度（仅装备类，用于掉落权重计算）
-     */
-    private Rarity baseRarity;
+
 
     /**
      * 类型特有属性 JSONB
