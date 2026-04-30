@@ -1,4 +1,4 @@
--- 地灵实例表（从xt_fudi拆出）
+-- 地灵实例表
 CREATE TABLE xt_spirit
 (
     id                  SERIAL PRIMARY KEY,
