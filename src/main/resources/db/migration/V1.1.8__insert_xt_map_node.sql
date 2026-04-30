@@ -1,5 +1,5 @@
 INSERT INTO xt_map_node (name, description, map_type, level_requirement, neighbors, specialties, travel_events) VALUES
-('黑金主城', '仙道大陆最大的城市，繁华的商业中心，各路修仙者云集之地。', 'safe_town', 1, '{"幽暗沼泽":5}'::jsonb, '{}'::jsonb, '{}'::jsonb),
+('黑金主城', '仙道大陆最大的城市，繁华的商业中心，各路修仙者云集之地。城中心洞府每平三块灵石起——还是毛坯。', 'safe_town', 1, '{"幽暗沼泽":5}'::jsonb, '{}'::jsonb, '{}'::jsonb),
 ('幽暗沼泽', '常年弥漫着毒雾的沼泽地，盛产珍稀毒草，但也潜伏着危险的沼泽生物。', 'training_zone', 5,
     '{"黑金主城":5,"枯骨林":10}'::jsonb,
     jsonb_build_object(
@@ -54,7 +54,7 @@ INSERT INTO xt_map_node (name, description, map_type, level_requirement, neighbo
         (SELECT id FROM xt_item_template WHERE name = '精铁')::text, 55
     ),
     '{"ambush":50,"find_treasure":12,"weather":38}'::jsonb),
-('葬仙谷', '一片死寂的荒谷，地面上零星散落着不知年代的枯骨。谷口立着一块残碑，上书"不可说"三字。传说上古有大贤在此以身为道，镇压不可名状之物。', 'hidden_zone', 35,
+('葬仙谷', '一片死寂的荒谷，地面上零星散落着不知年代的枯骨。谷口立着一块残碑，上书"不可说"三字。传说上古有大贤在此以身为道，镇压不可名状之物。——后来很多人都在猜"不可说"到底是指不能说，还是单纯忘了。', 'hidden_zone', 35,
     '{"天火山":20,"归墟海":25}'::jsonb,
     jsonb_build_object(
         (SELECT id FROM xt_item_template WHERE name = '天心花')::text, 12,
@@ -82,7 +82,7 @@ INSERT INTO xt_map_node (name, description, map_type, level_requirement, neighbo
         (SELECT id FROM xt_item_template WHERE name = '玄冰莲')::text, 40
     ),
     '{"ambush":50,"find_treasure":20,"weather":30}'::jsonb),
-('太古遗迹', '洪荒时代的遗存，断壁残垣间残留着远古禁制的微光。一步一险，但也一步一机缘。据说遗迹核心处的石壁上刻着无人能解的太古文字。', 'hidden_zone', 50,
+('太古遗迹', '洪荒时代的遗存，断壁残垣间残留着远古禁制的微光。一步一险，但也一步一机缘。据说遗迹核心处的石壁上刻着无人能解的太古文字——有考古修士推测可能是上古菜单。', 'hidden_zone', 50,
     '{"万妖窟":30}'::jsonb,
     jsonb_build_object(
         (SELECT id FROM xt_item_template WHERE name = '河图洛书')::text, 3,
