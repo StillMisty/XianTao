@@ -36,7 +36,12 @@ public enum ItemType {
     /**
      * 进化石 - 标品，用于灵兽进化与品质突破
      */
-    EVOLUTION_STONE("evolution_stone", "进化石");
+    EVOLUTION_STONE("evolution_stone", "进化石"),
+
+    /**
+     * 法决玉简 - 标品，学习法决
+     */
+    SKILL_JADE("skill_jade", "法决玉简");
 
     private final String code;
     private final String name;

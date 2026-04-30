@@ -27,7 +27,12 @@ public enum UserStatus {
     /**
      * 悬赏
      */
-    BOUNTY("bounty", "悬赏");
+    BOUNTY("bounty", "悬赏"),
+
+    /**
+     * 濒死
+     */
+    DYING("dying", "濒死");
 
 
     @EnumValue

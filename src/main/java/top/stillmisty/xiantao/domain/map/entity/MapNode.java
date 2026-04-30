@@ -70,6 +70,20 @@ public class MapNode extends Model<MapNode> {
     private Map<String, Integer> travelEvents;
 
     /**
+     * 遇怪池 (JSONB)
+     * 格式: {"template_id": encounter_weight}
+     */
+    @Column(typeHandler = PgJsonbTypeHandler.class)
+    private Map<Long, Integer> monsterEncounters;
+
+    /**
+     * 遇怪数量范围 (JSONB)
+     * 格式: {"min": 1, "max": 3}
+     */
+    @Column(typeHandler = PgJsonbTypeHandler.class)
+    private Map<String, Object> encounterSize;
+
+    /**
      * 创建时间
      */
     @Column(onInsertValue = "now()")

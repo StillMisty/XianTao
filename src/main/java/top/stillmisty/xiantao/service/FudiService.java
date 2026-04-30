@@ -19,9 +19,13 @@ import top.stillmisty.xiantao.domain.land.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.land.repository.SpiritRepository;
 import top.stillmisty.xiantao.domain.land.vo.*;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 import top.stillmisty.xiantao.infrastructure.mapper.SpiritFormMapper;
 import top.stillmisty.xiantao.service.annotation.ConsumeSpiritEnergy;
+import top.stillmisty.xiantao.domain.beast.entity.Beast;
+import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
+import top.stillmisty.xiantao.domain.beast.vo.BeastStatusVO;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -47,6 +51,7 @@ public class FudiService {
     private final UserRepository userRepository;
     private final SpiritRepository spiritRepository;
     private final SpiritFormMapper spiritFormMapper;
+    private final BeastRepository beastRepository;
 
     // ===================== 公开 API（含认证） =====================
 
@@ -205,6 +210,36 @@ public class FudiService {
         if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
         try {
             return new ServiceResult.Success<>(evolveBeast(auth.userId(), position, mode));
+        } catch (IllegalStateException e) {
+            return new ServiceResult.Failure<>(e.getMessage());
+        }
+    }
+
+    public ServiceResult<Map<String, Object>> deployBeast(PlatformType platform, String openId, Long beastId) {
+        var auth = authService.authenticateAndValidateUser(platform, openId);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        try {
+            return new ServiceResult.Success<>(deployBeast(auth.userId(), beastId));
+        } catch (IllegalStateException e) {
+            return new ServiceResult.Failure<>(e.getMessage());
+        }
+    }
+
+    public ServiceResult<Map<String, Object>> undeployBeast(PlatformType platform, String openId, Long beastId) {
+        var auth = authService.authenticateAndValidateUser(platform, openId);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        try {
+            return new ServiceResult.Success<>(undeployBeast(auth.userId(), beastId));
+        } catch (IllegalStateException e) {
+            return new ServiceResult.Failure<>(e.getMessage());
+        }
+    }
+
+    public ServiceResult<List<BeastStatusVO>> getDeployedBeasts(PlatformType platform, String openId) {
+        var auth = authService.authenticateAndValidateUser(platform, openId);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        try {
+            return new ServiceResult.Success<>(getDeployedBeasts(auth.userId()));
         } catch (IllegalStateException e) {
             return new ServiceResult.Failure<>(e.getMessage());
         }
@@ -1252,6 +1287,32 @@ public class FudiService {
         cell.put("evolution_count", 0);
 
         fudiRepository.save(fudi);
+
+        // 同步创建 xt_beast 实体（战斗化）
+        Beast beast = new Beast();
+        beast.setUserId(userId);
+        beast.setFudiId(fudi.getId());
+        beast.setTemplateId(eggTemplate.getId());
+        beast.setBeastName(beastName);
+        beast.setTier(tier);
+        beast.setQuality(quality.getCode());
+        beast.setIsMutant(isMutant);
+        beast.setMutationTraits(mutationTraits);
+        beast.setLevel(1);
+        beast.setExp(0);
+        beast.setAttack(calculateBeastAttack(1, quality));
+        beast.setDefense(calculateBeastDefense(1, quality));
+        beast.setMaxHp(calculateBeastMaxHp(1, quality));
+        beast.setHpCurrent(beast.getMaxHp());
+        beast.setSkills(List.of());
+        beast.setIsDeployed(false);
+        beast.setRecoveryUntil(null);
+        beast.setLifespanDays(tier * 7.0 * quality.getLifespanMultiplier());
+        beast.setPennedCellId(cellId);
+        beast.setBirthTime(now);
+        beast.setEvolutionCount(0);
+        beastRepository.save(beast);
+
         log.info("用户 {} 在地块 {} 孵化 {} (T{}, {}{})", userId, cellId, beastName, tier, quality.getChineseName(), isMutant ? ", 变异" : "");
 
         return PenCellVO.builder()
@@ -1571,6 +1632,15 @@ public class FudiService {
         String beastName = (String) cell.get("beast_name");
 
         clearBeastCell(cell);
+
+        // 同步删除 xt_beast 实体
+        var beasts = beastRepository.findByFudiId(fudi.getId());
+        for (Beast b : beasts) {
+            if (b.getPennedCellId() != null && b.getPennedCellId().equals(cellId)) {
+                beastRepository.deleteById(b.getId());
+                break;
+            }
+        }
 
         fudiRepository.save(fudi);
 
@@ -2070,5 +2140,116 @@ public class FudiService {
                 cell.put("growth_progress", progress);
             }
         }
+    }
+
+    // ===================== 灵兽战斗化方法 =====================
+
+    public Map<String, Object> deployBeast(Long userId, Long beastId) {
+        Beast beast = beastRepository.findById(beastId)
+                .orElseThrow(() -> new IllegalStateException("灵兽不存在"));
+
+        if (!beast.getUserId().equals(userId)) {
+            throw new IllegalStateException("这不是你的灵兽");
+        }
+
+        if (beast.getIsDeployed()) {
+            return Map.of("success", true, "message", "灵兽 [%s] 已处于出战状态".formatted(beast.getBeastName()));
+        }
+
+        if (beast.getHpCurrent() == null || beast.getHpCurrent() <= 0) {
+            throw new IllegalStateException("灵兽已阵亡，正在休养中");
+        }
+
+        if (beast.isInRecovery()) {
+            throw new IllegalStateException("灵兽正在休养中，预计 %s 恢复".formatted(beast.getRecoveryUntil()));
+        }
+
+        // 检查出战上限
+        User user = userRepository.findById(userId).orElseThrow();
+        int beastLimit = Math.min(3, user.getLevel() / 5 + 1);
+        List<Beast> deployed = beastRepository.findDeployedByUserId(userId);
+        if (deployed.size() >= beastLimit) {
+            throw new IllegalStateException("出战灵兽已达上限 (%d)".formatted(beastLimit));
+        }
+
+        beast.setIsDeployed(true);
+        beastRepository.save(beast);
+
+        log.info("用户 {} 将灵兽 {} 设为出战", userId, beast.getBeastName());
+        return Map.of("success", true, "message", "灵兽 [%s] 已出战".formatted(beast.getBeastName()));
+    }
+
+    public Map<String, Object> undeployBeast(Long userId, Long beastId) {
+        Beast beast = beastRepository.findById(beastId)
+                .orElseThrow(() -> new IllegalStateException("灵兽不存在"));
+
+        if (!beast.getUserId().equals(userId)) {
+            throw new IllegalStateException("这不是你的灵兽");
+        }
+
+        if (!beast.getIsDeployed()) {
+            return Map.of("success", true, "message", "灵兽 [%s] 未在出战状态".formatted(beast.getBeastName()));
+        }
+
+        beast.setIsDeployed(false);
+        beastRepository.save(beast);
+
+        log.info("用户 {} 将灵兽 {} 解除出战", userId, beast.getBeastName());
+        return Map.of("success", true, "message", "灵兽 [%s] 已解除出战".formatted(beast.getBeastName()));
+    }
+
+    public List<BeastStatusVO> getDeployedBeasts(Long userId) {
+        List<Beast> deployed = beastRepository.findDeployedByUserId(userId);
+        return deployed.stream()
+                .map(this::convertToBeastStatusVO)
+                .toList();
+    }
+
+    private BeastStatusVO convertToBeastStatusVO(Beast beast) {
+        return BeastStatusVO.builder()
+                .id(beast.getId())
+                .beastName(beast.getBeastName())
+                .quality(beast.getQuality())
+                .isMutant(beast.getIsMutant())
+                .mutationTraits(beast.getMutationTraits())
+                .tier(beast.getTier())
+                .level(beast.getLevel())
+                .exp(beast.getExp())
+                .attack(beast.getAttack())
+                .defense(beast.getDefense())
+                .maxHp(beast.getMaxHp())
+                .hpCurrent(beast.getHpCurrent())
+                .skills(beast.getSkills())
+                .isDeployed(beast.getIsDeployed())
+                .inRecovery(beast.isInRecovery())
+                .recoveryEndTime(beast.getRecoveryUntil() != null ? beast.getRecoveryUntil().toString() : null)
+                .lifespanDays(beast.getLifespanDays())
+                .pennedCellId(beast.getPennedCellId())
+                .build();
+    }
+
+    static int calculateBeastAttack(int level, BeastQuality quality) {
+        double q = getCombatStatMultiplier(quality);
+        return (int) Math.round((10 + (level - 1) * 3 * q) * q);
+    }
+
+    static int calculateBeastDefense(int level, BeastQuality quality) {
+        double q = getCombatStatMultiplier(quality);
+        return (int) Math.round((8 + (level - 1) * 2 * q) * q);
+    }
+
+    static int calculateBeastMaxHp(int level, BeastQuality quality) {
+        double q = getCombatStatMultiplier(quality);
+        return (int) Math.round((100 + (level - 1) * 15 * q) * q);
+    }
+
+    private static double getCombatStatMultiplier(BeastQuality quality) {
+        return switch (quality) {
+            case MORTAL -> 0.8;
+            case SPIRIT -> 1.0;
+            case IMMORTAL -> 1.3;
+            case SAINT -> 1.6;
+            case DIVINE -> 2.0;
+        };
     }
 }

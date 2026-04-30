@@ -37,6 +37,7 @@ public class TrainingService {
     private final AuthenticationService authService;
     private final ItemService itemService;
     private final ItemTemplateRepository itemTemplateRepository;
+    private final CombatService combatService;
 
     // ===================== 公开 API（含认证） =====================
 
@@ -156,24 +157,67 @@ public class TrainingService {
                     .build();
         }
 
-        // 计算奖励
-        TrainingRewardVO rewards = calculateTrainingRewards(userId);
+        long minutesTraining = Duration.between(user.getTrainingStartTime(), LocalDateTime.now()).toMinutes();
+        if (minutesTraining <= 5) {
+            return TrainingRewardVO.builder()
+                    .userId(userId)
+                    .mapId(user.getLocationId())
+                    .summary("历练时间过短毫无收获")
+                    .build();
+        }
+
+        // 获取当前地图
+        Optional<MapNode> mapOpt = mapNodeRepository.findById(user.getLocationId());
+        if (mapOpt.isEmpty()) {
+            return TrainingRewardVO.builder()
+                    .userId(userId)
+                    .summary("当前地图不存在")
+                    .build();
+        }
+        MapNode mapNode = mapOpt.get();
+
+        // 计算效率倍率（基于敏捷）
+        double efficiencyMultiplier = calculateEfficiencyMultiplier(user.getStatAgi());
+
+        // 计算基础经验
+        long baseExp = (long) (BASE_EXP_PER_MINUTE * minutesTraining * efficiencyMultiplier);
+
+        // 计算物品奖励（基础材料）
+        List<Map<String, Object>> items = calculateItemsReward(minutesTraining, efficiencyMultiplier, mapNode);
+
+        // 战斗遇怪模拟
+        top.stillmisty.xiantao.domain.monster.vo.BattleResultVO battleResult =
+                combatService.simulateTraining(userId, (int) minutesTraining);
+
+        // 合并战斗掉落和经验
+        long combatExp = battleResult.expGained();
+        long totalExp = baseExp + combatExp;
+        if (battleResult.drops() != null) {
+            items.addAll(battleResult.drops());
+        }
 
         // 应用经验
-        if (rewards.getExp() != null && rewards.getExp() > 0) {
-            user.addExp(rewards.getExp());
+        if (totalExp > 0) {
+            user.addExp(totalExp);
         }
 
         // 添加物品到背包
-        if (rewards.getItems() != null && !rewards.getItems().isEmpty()) {
-            for (Map<String, Object> item : rewards.getItems()) {
+        if (items != null && !items.isEmpty()) {
+            for (Map<String, Object> item : items) {
                 String name = (String) item.get("name");
                 Long templateId = toLong(item.get("templateId"));
-                int quantity = ((Number) item.get("quantity")).intValue();
-                ItemType itemType = itemTemplateRepository.findById(templateId)
-                        .map(ItemTemplate::getType)
-                        .orElse(ItemType.MATERIAL);
-                itemService.addStackableItem(userId, templateId, itemType, name, quantity);
+                String type = (String) item.get("type");
+                int quantity = ((Number) item.getOrDefault("quantity", 1)).intValue();
+                if (templateId == null) continue;
+
+                if ("equipment".equals(type)) {
+                    itemService.createEquipment(userId, templateId);
+                } else {
+                    ItemType itemType = itemTemplateRepository.findById(templateId)
+                            .map(ItemTemplate::getType)
+                            .orElse(ItemType.MATERIAL);
+                    itemService.addStackableItem(userId, templateId, itemType, name, quantity);
+                }
             }
         }
 
@@ -182,8 +226,36 @@ public class TrainingService {
         user.setTrainingStartTime(null);
         userRepository.save(user);
 
+        // 生成摘要
+        StringBuilder summary = new StringBuilder();
+        summary.append(String.format("历练时长: %d 分钟\n", minutesTraining));
+        if (totalExp > 0) {
+            summary.append(String.format("经验: +%d\n", totalExp));
+        }
+        if (battleResult.summary() != null) {
+            summary.append(battleResult.summary()).append("\n");
+        }
+        if (!items.isEmpty()) {
+            summary.append("物品:\n");
+            for (int i = 0; i < items.size(); i++) {
+                Map<String, Object> item = items.get(i);
+                String name = (String) item.get("name");
+                Integer qty = ((Number) item.getOrDefault("quantity", 1)).intValue();
+                summary.append(String.format("  %s x%d\n", name, qty));
+            }
+        }
+
         log.info("用户 {} 结束历练并应用奖励", userId);
-        return rewards;
+        return TrainingRewardVO.builder()
+                .userId(userId)
+                .mapId(mapNode.getId())
+                .mapName(mapNode.getName())
+                .durationMinutes(minutesTraining)
+                .efficiencyMultiplier(efficiencyMultiplier)
+                .exp(totalExp)
+                .items(items)
+                .summary(summary.toString())
+                .build();
     }
 
     /**

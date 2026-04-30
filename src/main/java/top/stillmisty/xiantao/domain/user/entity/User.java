@@ -332,4 +332,24 @@ public class User extends Model<User> {
 
         return java.time.Duration.between(now, nextResetTime).toHours();
     }
+
+    /**
+     * HP 自然恢复
+     * 空闲状态每5分钟恢复1%最大HP
+     */
+    public void naturalHpRecovery() {
+        if (status != UserStatus.IDLE) return;
+        int maxHp = calculateMaxHp();
+        if (hpCurrent >= maxHp) return;
+        int recoveryPerTick = Math.max(1, maxHp / 100);
+        hpCurrent = Math.min(maxHp, hpCurrent + recoveryPerTick);
+    }
+
+    /**
+     * 设置为濒死状态
+     */
+    public void setDying() {
+        this.status = UserStatus.DYING;
+        this.hpCurrent = 1;
+    }
 }
