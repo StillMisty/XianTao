@@ -34,13 +34,6 @@ public class InventoryItem {
     private Integer quantity;
 
     /**
-     * 创建便捷方法 - 装备类物品
-     */
-    public static InventoryItem forEquipment(Long equipmentId, String name) {
-        return new InventoryItem(equipmentId, ItemType.EQUIPMENT, name, 1);
-    }
-
-    /**
      * 创建便捷方法 - 堆叠类物品
      */
     public static InventoryItem forStackable(

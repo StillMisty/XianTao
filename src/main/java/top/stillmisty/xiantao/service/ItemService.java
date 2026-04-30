@@ -232,7 +232,7 @@ public class ItemService {
         List<InventoryItem> equipments = allEquipments.stream()
                 .filter(e -> !e.getEquipped())
                 .sorted((a, b) -> b.getRarity().ordinal() - a.getRarity().ordinal())
-                .map(e -> InventoryItem.forEquipment(e.getId(), e.getName()))
+                .map(e -> new InventoryItem(e.getId(), null, e.getName(), 1))
                 .toList();
 
         // 按类型分组堆叠物品
