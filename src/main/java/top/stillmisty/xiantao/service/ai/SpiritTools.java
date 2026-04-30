@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.land.enums.CellType;
 import top.stillmisty.xiantao.domain.land.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.land.repository.SpiritRepository;
-import top.stillmisty.xiantao.domain.land.vo.BeastProduceVO;
 import top.stillmisty.xiantao.domain.land.vo.FarmCellVO;
 import top.stillmisty.xiantao.service.FudiService;
 import top.stillmisty.xiantao.service.ItemService;
@@ -143,53 +142,60 @@ public class SpiritTools {
     }
 
     /**
-     * 收获灵药工具
+     * 收取地块产出的统一工具（灵田收获 + 兽栏收取）
      */
-    @Tool(description = "收获福地中指定地块编号的成熟灵药。编号可以是具体数字或'all'表示全部收获。")
+    @Tool(description = "收取福地中指定地块编号的产出物（自动判断灵田收获或兽栏收取）。编号可以是具体数字或'all'表示全部收取。")
     public HarvestCropResponse harvestCrop(
-            @ToolParam(description = "收获地块编号，如'1'、'2'，或'all'表示全部收获") String position
+            @ToolParam(description = "收取地块编号，如'1'、'2'，或'all'表示全部收取") String position
     ) {
         try {
             Long userId = getCurrentUserId();
 
             if ("all".equalsIgnoreCase(position)) {
-                Map<String, Object> result = fudiService.harvestAllCrops(userId);
-                int harvested = (Integer) result.get("harvested");
-                int totalYield = (Integer) result.get("totalYield");
+                Map<String, Object> result = fudiService.collectAll(userId);
+                int harvested = (Integer) result.getOrDefault("harvested", 0);
+                int collected = (Integer) result.getOrDefault("collected", 0);
+                int totalItems = (Integer) result.getOrDefault("totalItems", 0);
 
+                if (totalItems == 0) {
+                    return new HarvestCropResponse(true, "没有可收取的内容。", position, 0);
+                }
+                var parts = new java.util.ArrayList<String>();
+                if (harvested > 0) parts.add("收获 %d 块灵田".formatted(harvested));
+                if (collected > 0) parts.add("收取 %d 个兽栏".formatted(collected));
+                String message = "已" + String.join("、", parts) + "，共获得 " + totalItems + " 份物资。";
+
+                return new HarvestCropResponse(true, message, position, totalItems);
+            } else {
+                Map<String, Object> result = fudiService.collect(userId, position);
+                String type = (String) result.get("type");
+                int yield = 0;
                 String message;
-                if (harvested == 0) {
-                    message = "没有可收获的灵田。";
+                if ("farm".equals(type)) {
+                    String cropName = (String) result.get("cropName");
+                    yield = (Integer) result.get("yield");
+                    message = String.format("已收获地块 %s 的%s，获得 %d 份。", position, cropName, yield);
                 } else {
-                    message = String.format("已收获 %d 块灵田，共获得 %d 份素材。", harvested, totalYield);
+                    String beastName = (String) result.get("beastName");
+                    yield = (Integer) result.get("totalItems");
+                    message = String.format("已从地块 %s 收取了 %d 件%s产出。", position, yield, beastName);
                 }
 
-                return new HarvestCropResponse(true, message, position, harvested);
-            } else {
-                Map<String, Object> result = fudiService.harvestCrop(userId, position);
-                String cropName = (String) result.get("cropName");
-                int yield = (Integer) result.get("yield");
-
-                return new HarvestCropResponse(
-                        true,
-                        String.format("已收获地块 %s 的%s，获得 %d 份。", position, cropName, yield),
-                        position,
-                        yield
-                );
+                return new HarvestCropResponse(true, message, position, yield);
             }
         } catch (Exception e) {
-            log.error("收获灵药失败: position={}", position, e);
-            return new HarvestCropResponse(false, "收获失败：" + e.getMessage(), position, 0);
+            log.error("收取产出失败: position={}", position, e);
+            return new HarvestCropResponse(false, "收取失败：" + e.getMessage(), position, 0);
         }
     }
 
     /**
      * 建造地块工具
      */
-    @Tool(description = "在福地的指定地块编号建造地块，可以建造灵田、兽栏或阵眼。")
+    @Tool(description = "在福地的指定地块编号建造地块，可以建造灵田或兽栏。")
     public BuildCellResponse buildCell(
             @ToolParam(description = "建造地块编号，如'1'、'2'等") String position,
-            @ToolParam(description = "地块类型：灵田、兽栏、阵眼") String cellType
+            @ToolParam(description = "地块类型：灵田、兽栏") String cellType
     ) {
         try {
             Long userId = getCurrentUserId();
@@ -233,61 +239,9 @@ public class SpiritTools {
     }
 
     /**
-     * 献祭物品工具
-     */
-    @Tool(description = "献祭背包中的装备换取灵气。先调用queryBag('装备')查看可用装备的编号。可以指定装备编号、名称、品质(白色/绿色/蓝色/紫色/金色)或'all'。")
-    public SacrificeItemResponse sacrificeItem(
-            @ToolParam(description = "装备编号或名称，例如'1'、'2'，或装备名称。'all'表示献祭全部装备，品质名称(如'绿色')表示献祭指定品质的所有装备") String itemName
-    ) {
-        try {
-            Long userId = getCurrentUserId();
-
-            if ("all".equalsIgnoreCase(itemName)) {
-                Map<String, Integer> result = fudiService.sacrificeAllItems(userId);
-                return new SacrificeItemResponse(
-                        true,
-                        String.format("批量献祭完成！共献祭 %d 件装备，获得 %d 灵气。", result.get("count"), result.get("totalAura")),
-                        "all",
-                        result.get("totalAura")
-                );
-            }
-
-            if (isQualityKeyword(itemName)) {
-                Map<String, Integer> result = fudiService.sacrificeItemsByQuality(userId, itemName);
-                return new SacrificeItemResponse(
-                        true,
-                        String.format("献祭完成！共献祭 %d 件%s品质装备，获得 %d 灵气。", result.get("count"), itemName, result.get("totalAura")),
-                        itemName,
-                        result.get("totalAura")
-                );
-            }
-
-            int auraGain = fudiService.sacrificeItemByInput(userId, itemName);
-
-            return new SacrificeItemResponse(
-                    true,
-                    String.format("献祭成功！%s 转化为 %d 灵气。", itemName, auraGain),
-                    itemName,
-                    auraGain
-            );
-        } catch (Exception e) {
-            log.error("献祭物品失败: itemName={}", itemName, e);
-            return new SacrificeItemResponse(false, "献祭失败：" + e.getMessage(), itemName, 0);
-        }
-    }
-
-    private boolean isQualityKeyword(String input) {
-        return switch (input) {
-            case "白色", "绿色", "蓝色", "紫色", "金色",
-                 "破旧", "普通", "稀有", "史诗", "传说" -> true;
-            default -> false;
-        };
-    }
-
-    /**
      * 收取灵兽产出工具
      */
-    @Tool(description = "收取福地中指定兽栏的灵兽产出物。编号可以是具体数字或'all'表示全部收取。")
+    @Tool(description = "收取福地中指定地块的产出物（统一收取灵田作物和兽栏产出）。编号可以是具体数字或'all'表示全部收取。")
     public CollectProduceResponse collectProduce(
             @ToolParam(description = "收取地块编号，如'1'、'2'，或'all'表示全部收取") String position
     ) {
@@ -295,30 +249,39 @@ public class SpiritTools {
             Long userId = getCurrentUserId();
 
             if ("all".equalsIgnoreCase(position)) {
-                Map<String, Object> result = fudiService.collectAllProduce(userId);
-                int positions = (Integer) result.get("totalPositions");
-                int items = (Integer) result.get("totalItems");
+                Map<String, Object> result = fudiService.collectAll(userId);
+                int harvested = (Integer) result.getOrDefault("harvested", 0);
+                int collected = (Integer) result.getOrDefault("collected", 0);
+                int totalItems = (Integer) result.getOrDefault("totalItems", 0);
 
+                if (totalItems == 0) {
+                    return new CollectProduceResponse(true, "现在没有可收取的内容。", position, 0);
+                }
+                return new CollectProduceResponse(
+                        true,
+                        String.format("已收获 %d 块灵田、收取 %d 个兽栏，共获得 %d 份物资。", harvested, collected, totalItems),
+                        position,
+                        totalItems
+                );
+            } else {
+                Map<String, Object> result = fudiService.collect(userId, position);
+                String type = (String) result.get("type");
+                int items;
                 String message;
-                if (items == 0) {
-                    message = "现在没有可收取的灵兽产出物。";
+                if ("farm".equals(type)) {
+                    String cropName = (String) result.get("cropName");
+                    items = (Integer) result.get("yield");
+                    message = String.format("已收获地块 %s 的%s，获得 %d 份。", position, cropName, items);
                 } else {
-                    message = String.format("已从 %d 个兽栏收取了 %d 件灵兽材料。", positions, items);
+                    String beastName = (String) result.get("beastName");
+                    items = (Integer) result.get("totalItems");
+                    message = String.format("已从地块 %s 收取了 %d 件%s产出。", position, items, beastName);
                 }
 
                 return new CollectProduceResponse(true, message, position, items);
-            } else {
-                BeastProduceVO result = fudiService.collectProduce(userId, position);
-
-                return new CollectProduceResponse(
-                        true,
-                        String.format("已从地块 %s 收取了 %d 件%s。", position, result.getTotalProduced(), result.getItemName()),
-                        position,
-                        result.getTotalProduced()
-                );
             }
         } catch (Exception e) {
-            log.error("收取灵兽产出失败: position={}", position, e);
+            log.error("收取产出失败: position={}", position, e);
             return new CollectProduceResponse(false, "收取失败：" + e.getMessage(), position, 0);
         }
     }
@@ -477,21 +440,6 @@ public class SpiritTools {
 
             @JsonPropertyDescription("拆除地块编号")
             String position
-    ) {
-    }
-
-    public record SacrificeItemResponse(
-            @JsonPropertyDescription("是否成功")
-            boolean success,
-
-            @JsonPropertyDescription("结果消息")
-            String message,
-
-            @JsonPropertyDescription("物品名称")
-            String itemName,
-
-            @JsonPropertyDescription("获得的灵气数量")
-            int auraGain
     ) {
     }
 

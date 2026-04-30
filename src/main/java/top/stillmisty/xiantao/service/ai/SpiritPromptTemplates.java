@@ -3,33 +3,11 @@ package top.stillmisty.xiantao.service.ai;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.land.enums.MBTIPersonality;
 
-/**
- * 地灵系统 Prompt 模板管理
- * 统一 Function Calling 模式，将 MBTI 人格的 toneStyle 直接注入系统提示词
- */
 @Component
 public class SpiritPromptTemplates {
 
-    /**
-     * 构建地灵 Function Calling 系统提示词
-     * 所有阶段统一使用此 Prompt，LLM 自主判断是否调用工具
-     *
-     * @param mbtiType        MBTI 人格类型
-     * @param auraCurrent     当前灵气
-     * @param auraMax         灵气上限
-     * @param fudiLevel       劫数
-     * @param spiritEnergy    精力值
-     * @param spiritAffection 好感度
-     * @param gridDetail      地块状态详情（空则显示占位描述）
-     * @param emotionState    情绪状态
-     * @param energyMax       精力上限
-     * @param spiritForm      地灵形态id
-     * @return 系统提示词
-     */
     public String buildSpiritPrompt(
             MBTIPersonality mbtiType,
-            int auraCurrent,
-            int auraMax,
             int fudiLevel,
             int spiritEnergy,
             int spiritAffection,
@@ -39,7 +17,7 @@ public class SpiritPromptTemplates {
             String spiritForm
     ) {
         String gridInfo = (gridDetail == null || gridDetail.isBlank())
-                ? "福地尚处于初生阶段，暂无灵田/兽栏/阵眼，所有坐标均可支配。"
+                ? "福地尚处于初生阶段，暂无灵田/兽栏，所有坐标均可支配。"
                 : gridDetail;
 
         String affectionTone = switch (spiritAffection / 200) {
@@ -60,7 +38,6 @@ public class SpiritPromptTemplates {
                         对你的好感度：%d → %s
                         
                         【福地状态】
-                        - 灵气：%d/%d
                         - 劫数：%d
                         - 精力：%d/%d
                         - 好感度：%d
@@ -83,8 +60,6 @@ public class SpiritPromptTemplates {
                 emotionState,
                 spiritAffection,
                 affectionTone,
-                auraCurrent,
-                auraMax,
                 fudiLevel,
                 spiritEnergy,
                 energyMax,

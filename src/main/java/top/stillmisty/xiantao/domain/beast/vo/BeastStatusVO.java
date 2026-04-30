@@ -20,8 +20,6 @@ public record BeastStatusVO(
         int hpCurrent,
         List<Long> skills,
         boolean isDeployed,
-        boolean inRecovery,
-        String recoveryEndTime,
-        double lifespanDays,
+        boolean needsRecovery,
         int pennedCellId
 ) {}

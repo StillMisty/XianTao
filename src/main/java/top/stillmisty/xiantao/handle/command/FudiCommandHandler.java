@@ -36,8 +36,6 @@ public class FudiCommandHandler {
         };
     }
 
-
-
     public String handleFudiSpirit(PlatformType platform, String openId) {
         return switch (fudiService.getFudiStatus(platform, openId)) {
             case ServiceResult.Failure(var msg) -> msg;
@@ -52,24 +50,37 @@ public class FudiCommandHandler {
         };
     }
 
-    public String handleHarvest(PlatformType platform, String openId, String position) {
+    public String handleCollect(PlatformType platform, String openId, String position) {
         if ("all".equalsIgnoreCase(position)) {
-            return switch (fudiService.harvestAllCrops(platform, openId)) {
+            return switch (fudiService.collectAll(platform, openId)) {
                 case ServiceResult.Failure(var msg) -> "❌ " + msg;
                 case ServiceResult.Success(var result) -> {
-                    int harvested = (Integer) result.get("harvested");
-                    int totalYield = (Integer) result.get("totalYield");
-                    yield harvested == 0 ? "🌾 没有可收获的灵田。" :
-                            String.format("✅ 已收获 %d 块灵田，共获得 %d 份素材。", harvested, totalYield);
+                    int harvested = (Integer) result.getOrDefault("harvested", 0);
+                    int collected = (Integer) result.getOrDefault("collected", 0);
+                    int totalItems = (Integer) result.getOrDefault("totalItems", 0);
+                    if (totalItems == 0) {
+                        yield "没有可收取的内容。";
+                    }
+                    var parts = new java.util.ArrayList<String>();
+                    if (harvested > 0) parts.add("收获 %d 块灵田".formatted(harvested));
+                    if (collected > 0) parts.add("收取 %d 个兽栏".formatted(collected));
+                    yield "✅ 已" + String.join("、", parts) + "，共获得 " + totalItems + " 份物资。";
                 }
             };
         }
-        return switch (fudiService.harvestCrop(platform, openId, position)) {
+        return switch (fudiService.collect(platform, openId, position)) {
             case ServiceResult.Failure(var msg) -> "❌ " + msg;
             case ServiceResult.Success(var result) -> {
-                String cropName = (String) result.get("cropName");
-                int yield = (Integer) result.get("yield");
-                yield String.format("✅ 已收获地块 %s 的%s，获得 %d 份。", position, cropName, yield);
+                String type = (String) result.get("type");
+                if ("farm".equals(type)) {
+                    String cropName = (String) result.get("cropName");
+                    int yield = (Integer) result.get("yield");
+                    yield "✅ 已收获地块 %s 的%s，获得 %d 份。".formatted(position, cropName, yield);
+                } else {
+                    String beastName = (String) result.get("beastName");
+                    int items = (Integer) result.get("totalItems");
+                    yield "✅ 从地块 %s 收取了 %d 件%s产出。".formatted(position, items, beastName);
+                }
             }
         };
     }
@@ -79,11 +90,11 @@ public class FudiCommandHandler {
         try {
             cellType = CellType.fromChineseName(cellTypeName);
         } catch (IllegalArgumentException e) {
-            return "❌ 不支持的地块类型：" + cellTypeName + "（可选：灵田、兽栏、阵眼）";
+            return "❌ 不支持的地块类型：" + cellTypeName + "（可选：灵田、兽栏）";
         }
         return switch (fudiService.buildCell(platform, openId, position, cellType)) {
             case ServiceResult.Failure(var msg) -> "❌ " + msg;
-            case ServiceResult.Success(_) -> String.format("✅ 已在地块 %s 建造%s。", position, cellTypeName);
+            case ServiceResult.Success(_) -> "✅ 已在地块 %s 建造%s。".formatted(position, cellTypeName);
         };
     }
 
@@ -92,43 +103,8 @@ public class FudiCommandHandler {
             case ServiceResult.Failure(var msg) -> "❌ " + msg;
             case ServiceResult.Success(var result) -> {
                 String typeName = (String) result.get("type");
-                yield String.format("✅ 已拆除地块 %s 的%s。", position, typeName);
+                yield "✅ 已拆除地块 %s 的%s。".formatted(position, typeName);
             }
-        };
-    }
-
-    public String handleSacrifice(PlatformType platform, String openId, String input) {
-        if ("all".equalsIgnoreCase(input)) {
-            return switch (fudiService.sacrificeAllItems(platform, openId)) {
-                case ServiceResult.Failure(var msg) -> "❌ " + msg;
-                case ServiceResult.Success(var result) -> {
-                    int count = result.get("count");
-                    int totalAura = result.get("totalAura");
-                    yield String.format("✅ 批量献祭完成！共献祭 %d 件装备，获得 %d 灵气。", count, totalAura);
-                }
-            };
-        }
-        if (isQualityKeyword(input)) {
-            return switch (fudiService.sacrificeItemsByQuality(platform, openId, input)) {
-                case ServiceResult.Failure(var msg) -> "❌ " + msg;
-                case ServiceResult.Success(var result) -> {
-                    int count = result.get("count");
-                    int totalAura = result.get("totalAura");
-                    yield String.format("✅ 献祭完成！共献祭 %d 件装备，获得 %d 灵气。", count, totalAura);
-                }
-            };
-        }
-        return switch (fudiService.sacrificeItemByInput(platform, openId, input)) {
-            case ServiceResult.Failure(var msg) -> "❌ " + msg;
-            case ServiceResult.Success(var auraGain) -> String.format("✅ 献祭成功！获得 %d 灵气。", auraGain);
-        };
-    }
-
-    private boolean isQualityKeyword(String input) {
-        return switch (input) {
-            case "白色", "绿色", "蓝色", "紫色", "金色",
-                 "破旧", "普通", "稀有", "史诗", "传说" -> true;
-            default -> false;
         };
     }
 
@@ -139,7 +115,7 @@ public class FudiCommandHandler {
                 String typeName = (String) result.get("type");
                 int oldLevel = (Integer) result.get("oldLevel");
                 int newLevel = (Integer) result.get("newLevel");
-                yield String.format("✅ 已将地块 %s 的%s从 Lv%d 升级至 Lv%d", position, typeName, oldLevel, newLevel);
+                yield "✅ 已将地块 %s 的%s从 Lv%d 升级至 Lv%d".formatted(position, typeName, oldLevel, newLevel);
             }
         };
     }
@@ -151,32 +127,12 @@ public class FudiCommandHandler {
         };
     }
 
-    public String handleCollect(PlatformType platform, String openId, String position) {
-        if ("all".equalsIgnoreCase(position)) {
-            return switch (fudiService.collectAllProduce(platform, openId)) {
-                case ServiceResult.Failure(var msg) -> "❌ " + msg;
-                case ServiceResult.Success(var result) -> {
-                    int positions = (Integer) result.get("totalPositions");
-                    int items = (Integer) result.get("totalItems");
-                    yield items == 0 ? "📦 没有可收取的灵兽产出。" :
-                            String.format("✅ 从 %d 个兽栏收取了 %d 件灵兽材料。", positions, items);
-                }
-            };
-        }
-        return switch (fudiService.collectProduce(platform, openId, position)) {
-            case ServiceResult.Failure(var msg) -> "❌ " + msg;
-            case ServiceResult.Success(var vo) ->
-                    String.format("✅ 从地块 %s 收取了 %d 件%s。", vo.getCellId(), vo.getTotalProduced(), vo.getItemName());
-        };
-    }
-
     public String handleRelease(PlatformType platform, String openId, String position) {
         return switch (fudiService.releaseBeast(platform, openId, position)) {
             case ServiceResult.Failure(var msg) -> "❌ " + msg;
             case ServiceResult.Success(var result) -> {
                 String beastName = (String) result.get("beastName");
-                int essenceValue = (Integer) result.get("essenceValue");
-                yield String.format("✅ 已放生%s，获得灵兽精华（价值 %d 灵气）。", beastName, essenceValue);
+                yield "✅ 已放生%s。".formatted(beastName);
             }
         };
     }
@@ -204,7 +160,41 @@ public class FudiCommandHandler {
                 String name = (String) result.get("itemName");
                 String reaction = (String) result.get("reaction");
                 String prefix = change > 0 ? "✅" : "😅";
-                yield String.format("%s 地灵收到了%s（%s），好感度 %+d", prefix, name, reaction, change);
+                yield "%s 地灵收到了%s（%s），好感度 %+d".formatted(prefix, name, reaction, change);
+            }
+        };
+    }
+
+    public String handleDeployBeast(PlatformType platform, String openId, String position) {
+        return switch (fudiService.deployBeast(platform, openId, position)) {
+            case ServiceResult.Failure(var msg) -> "❌ " + msg;
+            case ServiceResult.Success(var result) -> (String) result.getOrDefault("message", "出战完成");
+        };
+    }
+
+    public String handleUndeployBeast(PlatformType platform, String openId, String position) {
+        return switch (fudiService.undeployBeast(platform, openId, position)) {
+            case ServiceResult.Failure(var msg) -> "❌ " + msg;
+            case ServiceResult.Success(var result) -> {
+                if (result.containsKey("count")) {
+                    int count = (Integer) result.get("count");
+                    yield "✅ 已召回 %d 只灵兽。".formatted(count);
+                }
+                yield (String) result.getOrDefault("message", "召回完成");
+            }
+        };
+    }
+
+    public String handleRecoverBeast(PlatformType platform, String openId, String position) {
+        return switch (fudiService.recoverBeast(platform, openId, position)) {
+            case ServiceResult.Failure(var msg) -> "❌ " + msg;
+            case ServiceResult.Success(var result) -> {
+                if (result.containsKey("count")) {
+                    int count = (Integer) result.get("count");
+                    int cost = (Integer) result.get("cost");
+                    yield "✅ 已恢复 %d 只灵兽，消耗 %d 灵石。".formatted(count, cost);
+                }
+                yield (String) result.getOrDefault("message", "恢复完成");
             }
         };
     }
@@ -214,24 +204,18 @@ public class FudiCommandHandler {
     private String formatFudiStatus(FudiStatusVO status) {
         StringBuilder sb = new StringBuilder();
 
-        // 天劫刚结算时，前置显示结果
         if (status.getTribulationResult() != null) {
             sb.append(status.getTribulationResult()).append("\n\n");
         }
 
         sb.append("🏔️ 【福地状态】\n");
         sb.append("━━━━━━━━━━━━━━━\n");
-        sb.append("🔮 灵气：").append(status.getAuraCurrent()).append("/").append(status.getAuraMax()).append("\n");
-        sb.append("⚡ 每小时消耗：").append(status.getAuraHourlyCost()).append(" 灵气\n");
         sb.append("⛈️ 劫数：").append(status.getTribulationStage()).append("  连胜×").append(status.getTribulationWinStreak()).append("\n");
         sb.append("🧚 地灵形态：").append(status.getSpiritFormName() != null ? status.getSpiritFormName() : "未知形态").append("\n");
         sb.append("🎭 地灵人格：").append(status.getMbtiType().getCode()).append("\n");
         sb.append("😊 地灵情绪：").append(status.getEmotionState().getEmoji()).append(" ").append(status.getEmotionState().getDescription()).append("\n");
         sb.append("📐 地块总数：").append(status.getTotalCells()).append("\n");
         sb.append("🏗️ 已占地块：").append(status.getOccupiedCells()).append("/").append(status.getTotalCells()).append("\n");
-        if (Boolean.TRUE.equals(status.getIsAuraDepleted())) {
-            sb.append("⚠️ 灵气已耗尽！除献祭外其他功能不可用\n");
-        }
         sb.append("━━━━━━━━━━━━━━━\n");
         sb.append("💡 输入「福地地块」查看详细布局");
         return sb.toString();
@@ -254,22 +238,19 @@ public class FudiCommandHandler {
                 if (cell.getGrowthProgress() != null) {
                     int percent = (int) (cell.getGrowthProgress() * 100);
                     sb.append(" [").append(percent).append("%]");
-                    if (Boolean.TRUE.equals(cell.getIsMature())) sb.append(" ✅ 可收获");
+                    if (Boolean.TRUE.equals(cell.getIsMature())) sb.append(" ✅ 可收取");
                 }
                 if (cell.getQuality() != null) sb.append(" ").append(cell.getQuality());
                 if (cell.getProductionStored() != null && cell.getProductionStored() > 0)
                     sb.append(" 📦x").append(cell.getProductionStored());
                 if (Boolean.TRUE.equals(cell.getIsIncubating())) sb.append(" 🥚孵化中");
-                if (cell.getDurability() != null) sb.append(" 耐久:").append(cell.getDurability());
                 sb.append("\n");
             }
         }
         sb.append("━━━━━━━━━━━━━━━\n");
-        sb.append("💡 输入「福地种植」「福地建造」「福地收获」等指令进行操作");
+        sb.append("💡 输入「福地种植」「福地建造」「福地收取」等指令进行操作");
         return sb.toString();
     }
-
-
 
     private String formatSpiritInfo(FudiStatusVO status) {
         StringBuilder sb = new StringBuilder();
@@ -294,21 +275,19 @@ public class FudiCommandHandler {
     }
 
     private String formatPlantResult(FarmCellVO result) {
-        return String.format(
-                "✅ 已在地块 %s 种植%s，预计 %.1f 小时后成熟。",
+        return "✅ 已在地块 %s 种植%s，预计 %.1f 小时后成熟。".formatted(
                 result.getCellId(), result.getCropName(), result.getActualGrowthHours()
         );
     }
 
     private String formatHatchResult(top.stillmisty.xiantao.domain.land.vo.PenCellVO result) {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("✅ 已开始在地块 %s 孵化%s！\n", result.getCellId(), result.getBeastName()));
-        sb.append(String.format("品质：%s | 等阶：T%d\n", result.getQuality(), result.getTier()));
+        sb.append("✅ 已开始在地块 %s 孵化%s！\n".formatted(result.getCellId(), result.getBeastName()));
+        sb.append("品质：%s | 等阶：T%d\n".formatted(result.getQuality(), result.getTier()));
         if (result.isMutant()) {
             sb.append("✨ 变异灵兽！特性：").append(String.join(",", result.getMutationTraits())).append("\n");
         }
-        sb.append(String.format(
-                "预计 %.1f 小时后孵化完成。",
+        sb.append("预计 %.1f 小时后孵化完成。".formatted(
                 java.time.Duration.between(java.time.LocalDateTime.now(), result.getMatureTime()).toHours()
         ));
         return sb.toString();
@@ -316,8 +295,8 @@ public class FudiCommandHandler {
 
     private String formatEvolveResult(top.stillmisty.xiantao.domain.land.vo.PenCellVO result, String mode) {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("✅ %s成功！\n", mode));
-        sb.append(String.format("灵兽：%s | 等阶：T%d | 品质：%s\n", result.getBeastName(), result.getTier(), result.getQuality()));
+        sb.append("✅ %s成功！\n".formatted(mode));
+        sb.append("灵兽：%s | 等阶：T%d | 品质：%s\n".formatted(result.getBeastName(), result.getTier(), result.getQuality()));
         if (result.isMutant()) {
             sb.append("能力：").append(String.join(",", result.getMutationTraits())).append("\n");
         }

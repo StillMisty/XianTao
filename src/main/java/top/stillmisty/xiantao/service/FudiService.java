@@ -4,14 +4,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import top.stillmisty.xiantao.domain.item.entity.Equipment;
+import top.stillmisty.xiantao.domain.beast.entity.Beast;
+import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
+import top.stillmisty.xiantao.domain.beast.vo.BeastStatusVO;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
-import top.stillmisty.xiantao.domain.item.enums.Rarity;
-import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
+import top.stillmisty.xiantao.domain.item.vo.ItemEntry;
 import top.stillmisty.xiantao.domain.land.entity.Fudi;
 import top.stillmisty.xiantao.domain.land.entity.Spirit;
 import top.stillmisty.xiantao.domain.land.entity.SpiritForm;
@@ -19,22 +20,18 @@ import top.stillmisty.xiantao.domain.land.enums.*;
 import top.stillmisty.xiantao.domain.land.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.land.repository.SpiritRepository;
 import top.stillmisty.xiantao.domain.land.vo.*;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 import top.stillmisty.xiantao.infrastructure.mapper.SpiritFormMapper;
 import top.stillmisty.xiantao.service.annotation.ConsumeSpiritEnergy;
-import top.stillmisty.xiantao.domain.beast.entity.Beast;
-import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
-import top.stillmisty.xiantao.domain.beast.vo.BeastStatusVO;
 
 import java.time.LocalDateTime;
 import java.util.*;
 
 /**
  * 福地服务层
- * 提供福地管理的核心业务逻辑，包括灵气消耗、献祭、种植、收获等功能。
- * 灵气耗尽时除献祭外所有功能不可用。
+ * 移除灵气系统、献祭系统、阵眼，替换为灵石经济。
  */
 @Service
 @RequiredArgsConstructor
@@ -46,7 +43,6 @@ public class FudiService {
     private final ItemService itemService;
     private final AuthenticationService authService;
     private final ItemTemplateRepository itemTemplateRepository;
-    private final EquipmentRepository equipmentRepository;
     private final StackableItemRepository stackableItemRepository;
     private final ItemResolver itemResolver;
     private final UserRepository userRepository;
@@ -86,21 +82,21 @@ public class FudiService {
         }
     }
 
-    public ServiceResult<Map<String, Object>> harvestCrop(PlatformType platform, String openId, String position) {
+    public ServiceResult<Map<String, Object>> collect(PlatformType platform, String openId, String position) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
         if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
         try {
-            return new ServiceResult.Success<>(harvestCrop(auth.userId(), position));
+            return new ServiceResult.Success<>(collect(auth.userId(), position));
         } catch (IllegalStateException e) {
             return new ServiceResult.Failure<>(e.getMessage());
         }
     }
 
-    public ServiceResult<Map<String, Object>> harvestAllCrops(PlatformType platform, String openId) {
+    public ServiceResult<Map<String, Object>> collectAll(PlatformType platform, String openId) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
         if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
         try {
-            return new ServiceResult.Success<>(harvestAllCrops(auth.userId()));
+            return new ServiceResult.Success<>(collectAll(auth.userId()));
         } catch (IllegalStateException e) {
             return new ServiceResult.Failure<>(e.getMessage());
         }
@@ -121,26 +117,6 @@ public class FudiService {
         if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
         try {
             return new ServiceResult.Success<>(removeCell(auth.userId(), position));
-        } catch (IllegalStateException e) {
-            return new ServiceResult.Failure<>(e.getMessage());
-        }
-    }
-
-    public ServiceResult<Integer> sacrificeItemByName(PlatformType platform, String openId, String itemName) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
-        try {
-            return new ServiceResult.Success<>(sacrificeItemByName(auth.userId(), itemName));
-        } catch (IllegalStateException e) {
-            return new ServiceResult.Failure<>(e.getMessage());
-        }
-    }
-
-    public ServiceResult<Integer> sacrificeItemByInput(PlatformType platform, String openId, String input) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
-        try {
-            return new ServiceResult.Success<>(sacrificeItemByInput(auth.userId(), input));
         } catch (IllegalStateException e) {
             return new ServiceResult.Failure<>(e.getMessage());
         }
@@ -176,26 +152,6 @@ public class FudiService {
         }
     }
 
-    public ServiceResult<BeastProduceVO> collectProduce(PlatformType platform, String openId, String position) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
-        try {
-            return new ServiceResult.Success<>(collectProduce(auth.userId(), position));
-        } catch (IllegalStateException e) {
-            return new ServiceResult.Failure<>(e.getMessage());
-        }
-    }
-
-    public ServiceResult<Map<String, Object>> collectAllProduce(PlatformType platform, String openId) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
-        try {
-            return new ServiceResult.Success<>(collectAllProduce(auth.userId()));
-        } catch (IllegalStateException e) {
-            return new ServiceResult.Failure<>(e.getMessage());
-        }
-    }
-
     public ServiceResult<Map<String, Object>> releaseBeast(PlatformType platform, String openId, String position) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
         if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
@@ -216,21 +172,31 @@ public class FudiService {
         }
     }
 
-    public ServiceResult<Map<String, Object>> deployBeast(PlatformType platform, String openId, Long beastId) {
+    public ServiceResult<Map<String, Object>> deployBeast(PlatformType platform, String openId, String position) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
         if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
         try {
-            return new ServiceResult.Success<>(deployBeast(auth.userId(), beastId));
+            return new ServiceResult.Success<>(deployBeast(auth.userId(), position));
         } catch (IllegalStateException e) {
             return new ServiceResult.Failure<>(e.getMessage());
         }
     }
 
-    public ServiceResult<Map<String, Object>> undeployBeast(PlatformType platform, String openId, Long beastId) {
+    public ServiceResult<Map<String, Object>> undeployBeast(PlatformType platform, String openId, String position) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
         if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
         try {
-            return new ServiceResult.Success<>(undeployBeast(auth.userId(), beastId));
+            return new ServiceResult.Success<>(undeployBeast(auth.userId(), position));
+        } catch (IllegalStateException e) {
+            return new ServiceResult.Failure<>(e.getMessage());
+        }
+    }
+
+    public ServiceResult<Map<String, Object>> recoverBeast(PlatformType platform, String openId, String position) {
+        var auth = authService.authenticateAndValidateUser(platform, openId);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        try {
+            return new ServiceResult.Success<>(recoverBeast(auth.userId(), position));
         } catch (IllegalStateException e) {
             return new ServiceResult.Failure<>(e.getMessage());
         }
@@ -246,13 +212,20 @@ public class FudiService {
         }
     }
 
-    // ===================== 内部 API（需预先完成认证） =====================
+    public ServiceResult<Map<String, Object>> giveGift(PlatformType platform, String openId, String itemName) {
+        var auth = authService.authenticateAndValidateUser(platform, openId);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        try {
+            return new ServiceResult.Success<>(giveGift(auth.userId(), itemName));
+        } catch (IllegalStateException e) {
+            return new ServiceResult.Failure<>(e.getMessage());
+        }
+    }
+
+    // ===================== 内部 API =====================
 
     // ===================== 福地基础管理 =====================
 
-    /**
-     * 创建新福地（随机分配地灵形态）
-     */
     public void createFudi(Long userId, MBTIPersonality mbtiType) {
         if (fudiRepository.existsByUserId(userId)) {
             throw new IllegalStateException("用户已拥有福地");
@@ -260,21 +233,16 @@ public class FudiService {
 
         Fudi fudi = Fudi.create();
         fudi.setUserId(userId);
-        fudi.setAuraCurrent(500);
-        fudi.setAuraMax(1000);
         fudi.setTribulationStage(0);
         fudi.setTribulationWinStreak(0);
 
         Map<String, Object> gridLayout = new HashMap<>();
         gridLayout.put("cells", new ArrayList<>());
         fudi.setGridLayout(gridLayout);
-
-        fudi.setLastAuraUpdate(LocalDateTime.now());
         fudi.setLastOnlineTime(LocalDateTime.now());
 
         fudi = fudiRepository.save(fudi);
 
-        // 创建地灵实例（随机分配形态）
         Spirit spirit = createSpiritForFudi(fudi, mbtiType);
         spiritRepository.save(spirit);
 
@@ -282,9 +250,6 @@ public class FudiService {
         fudiRepository.save(fudi);
     }
 
-    /**
-     * 创建地灵实例（随机分配形态）
-     */
     private Spirit createSpiritForFudi(Fudi fudi, MBTIPersonality mbtiType) {
         List<SpiritForm> allForms = spiritFormMapper.selectAll();
 
@@ -305,16 +270,13 @@ public class FudiService {
         return spirit;
     }
 
-    /**
-     * 获取用户福地（懒加载计算 + 自动扩建 + 精力恢复）
-     */
     public Optional<Fudi> getFudiByUserId(Long userId) {
         Optional<Fudi> fudiOpt = fudiRepository.findByUserId(userId);
         fudiOpt.ifPresent(fudi -> {
-            fudi.updateAura();
+            fudi.touchOnlineTime();
             spiritRepository.findByFudiId(fudi.getId()).ifPresent(spirit -> {
                 spirit.restoreEnergy(fudi.getTribulationStage());
-                spirit.updateEmotionState(fudi.getAuraCurrent(), fudi.getAuraMax());
+                spirit.updateEmotionState();
                 spiritRepository.save(spirit);
             });
             autoExpandCells(fudi);
@@ -323,9 +285,6 @@ public class FudiService {
         return fudiOpt;
     }
 
-    /**
-     * 自动扩建地块：根据劫数自动解锁新地块
-     */
     private void autoExpandCells(Fudi fudi) {
         int maxCells = 3 + fudi.getTribulationStage() / 3;
         @SuppressWarnings("unchecked")
@@ -343,9 +302,6 @@ public class FudiService {
         }
     }
 
-    /**
-     * 获取地块总数（含空地）
-     */
     private int getTotalCellCount(Fudi fudi) {
         if (fudi.getGridLayout() == null || !fudi.getGridLayout().containsKey("cells")) return 0;
         @SuppressWarnings("unchecked")
@@ -354,33 +310,35 @@ public class FudiService {
     }
 
     /**
-     * 检查灵气是否耗尽（除献祭外所有功能不可用）
+     * 检查灵石是否足够
      */
-    private void checkAuraDepleted(Fudi fudi) {
-        fudi.updateAura();
-        if (fudi.getAuraCurrent() <= 0) {
-            throw new IllegalStateException("灵气已耗尽，请先通过献祭装备补充灵气。");
+    private void checkSpiritStones(Long userId, int cost) {
+        User user = userRepository.findById(userId).orElseThrow();
+        if (user.getSpiritStones() == null || user.getSpiritStones() < cost) {
+            throw new IllegalStateException("灵石不足（需要 %d，当前 %d）".formatted(cost, user.getSpiritStones() != null ? user.getSpiritStones() : 0));
         }
     }
 
     /**
-     * 获取福地状态VO（含懒求值天劫结算）
+     * 扣除灵石
      */
-    public FudiStatusVO getFudiStatus(Long userId) {
-        Fudi fudi = fudiRepository.findByUserId(userId)
-                .orElseThrow(() -> new IllegalStateException("未找到福地"));
+    private void deductSpiritStones(Long userId, int cost) {
+        User user = userRepository.findById(userId).orElseThrow();
+        user.setSpiritStones(user.getSpiritStones() - cost);
+        userRepository.save(user);
+    }
 
-        fudi.updateAura();
-        autoExpandCells(fudi);
+    public FudiStatusVO getFudiStatus(Long userId) {
+        Fudi fudi = getFudiByUserId(userId)
+                .orElseThrow(() -> new IllegalStateException("未找到福地"));
 
         var user = userRepository.findById(userId).orElseThrow();
         String tribulationResult = resolveTribulation(fudi, user.getLevel(), user.getStatStr());
 
-        // 精力恢复与情绪更新（天劫结算后可能已修改情绪）
         spiritRepository.findByFudiId(fudi.getId()).ifPresent(spirit -> {
             spirit.restoreEnergy(fudi.getTribulationStage());
             if (tribulationResult == null) {
-                spirit.updateEmotionState(fudi.getAuraCurrent(), fudi.getAuraMax());
+                spirit.updateEmotionState();
             }
             spiritRepository.save(spirit);
         });
@@ -396,7 +354,6 @@ public class FudiService {
 
         Spirit spirit = spiritRepository.findByFudiId(fudi.getId()).orElse(null);
 
-        // 从 SpiritForm 表读取形态名和喜好
         String formName = null;
         List<String> likedTags = null;
         List<String> dislikedTags = null;
@@ -412,12 +369,8 @@ public class FudiService {
         return FudiStatusVO.builder()
                 .fudiId(fudi.getId())
                 .userId(fudi.getUserId())
-                .auraCurrent(fudi.getAuraCurrent())
-                .auraMax(fudi.getAuraMax())
-                .auraHourlyCost(fudi.calculateHourlyAuraCost())
                 .tribulationStage(fudi.getTribulationStage())
                 .totalCells(getTotalCellCount(fudi))
-                .isAuraDepleted(fudi.getAuraCurrent() <= 0)
                 .mbtiType(spirit != null ? spirit.getMbtiType() : null)
                 .spiritEnergy(spirit != null ? spirit.getEnergy() : null)
                 .spiritAffection(spirit != null ? spirit.getAffection() : null)
@@ -454,7 +407,6 @@ public class FudiService {
 
         fudi.setLastTribulationTime(LocalDateTime.now());
 
-        // 渡劫怜悯检查
         boolean compassionTriggered = checkTribulationCompassion(fudi, attack, defense);
 
         if (defense > attack) {
@@ -466,10 +418,6 @@ public class FudiService {
         }
     }
 
-    /**
-     * 检查渡劫怜悯触发条件
-     * affection ≥ 800 AND defense ≥ attack × 80% AND defense < attack
-     */
     private boolean checkTribulationCompassion(Fudi fudi, int attack, int defense) {
         Spirit spirit = spiritRepository.findByFudiId(fudi.getId()).orElse(null);
         int affection = spirit != null && spirit.getAffection() != null ? spirit.getAffection() : 0;
@@ -477,18 +425,21 @@ public class FudiService {
     }
 
     /**
-     * 渡劫怜悯：视为胜利但精力归零、不加好感、触发FATIGUED
-     * 返回 null 表示结果由 LLM 叙事美化（此处返回结构化文本，由调用方判断）
+     * 天劫怜悯：视为胜利但精力归零，触发FATIGUED
      */
     private String applyTribulationCompassion(Fudi fudi, int attack, int defense) {
         int oldStage = fudi.getTribulationStage();
         int newWinStreak = fudi.getTribulationWinStreak() + 1;
-        int oldAuraMax = fudi.getAuraMax();
         int newStage = oldStage + 1;
 
         fudi.setTribulationWinStreak(newWinStreak);
         fudi.setTribulationStage(newStage);
-        fudi.setAuraMax(oldAuraMax + newWinStreak * 100);
+
+        // 奖励灵石：连胜×100
+        int stoneReward = newWinStreak * 100;
+        User user = userRepository.findById(fudi.getUserId()).orElseThrow();
+        user.setSpiritStones((user.getSpiritStones() != null ? user.getSpiritStones() : 0) + stoneReward);
+        userRepository.save(user);
 
         spiritRepository.findByFudiId(fudi.getId()).ifPresent(spirit -> {
             spirit.setEnergy(0);
@@ -500,7 +451,7 @@ public class FudiService {
         return "🛡️⚡ 天劫降临！地灵燃烧灵体为你挡下了天雷……\n" +
                 "   攻击力：" + attack + " ｜ 防御力：" + defense + " ｜ 怜悯庇护！\n" +
                 "   劫数：" + oldStage + " → " + newStage + " ｜ 连胜×" + newWinStreak + "\n" +
-                "   灵气上限：" + oldAuraMax + " → " + fudi.getAuraMax() + "\n" +
+                "   灵石奖励：+" + stoneReward + "\n" +
                 "   精力归零，地灵陷入疲惫…";
     }
 
@@ -508,12 +459,15 @@ public class FudiService {
     private String applyTribulationWin(Fudi fudi, int attack, int defense) {
         int oldStage = fudi.getTribulationStage();
         int newWinStreak = fudi.getTribulationWinStreak() + 1;
-        int oldAuraMax = fudi.getAuraMax();
         int newStage = oldStage + 1;
 
         fudi.setTribulationWinStreak(newWinStreak);
         fudi.setTribulationStage(newStage);
-        fudi.setAuraMax(oldAuraMax + newWinStreak * 100);
+
+        int stoneReward = newWinStreak * 100;
+        User user = userRepository.findById(fudi.getUserId()).orElseThrow();
+        user.setSpiritStones((user.getSpiritStones() != null ? user.getSpiritStones() : 0) + stoneReward);
+        userRepository.save(user);
 
         Spirit spirit = spiritRepository.findByFudiId(fudi.getId()).orElse(null);
         int oldAffection = spirit != null ? spirit.getAffection() : 0;
@@ -527,10 +481,10 @@ public class FudiService {
                 "⚡ 天劫降临！福地成功抵御！\n" +
                         "   攻击力：%d ｜ 防御力：%d ｜ 胜利！\n" +
                         "   劫数：%d → %d ｜ 连胜×%d\n" +
-                        "   灵气上限：%d → %d ｜ 好感度：%d → %d",
+                        "   灵石奖励：+%d ｜ 好感度：%d → %d",
                 attack, defense,
                 oldStage, newStage, newWinStreak,
-                oldAuraMax, fudi.getAuraMax(), oldAffection, spirit != null ? spirit.getAffection() : 0
+                stoneReward, oldAffection, spirit != null ? spirit.getAffection() : 0
         );
     }
 
@@ -605,7 +559,6 @@ public class FudiService {
             switch (type) {
                 case FARM -> buildFarmCellDetail(builder, cell);
                 case PEN -> buildPenCellDetail(builder, cell);
-                case NODE -> buildNodeCellDetail(builder, cell);
                 default -> {
                 }
             }
@@ -653,207 +606,181 @@ public class FudiService {
         }
     }
 
-    private void buildNodeCellDetail(CellDetailVO.CellDetailVOBuilder builder, Map<String, Object> cell) {
-        Integer level = (Integer) cell.getOrDefault("level", 1);
-        Integer durability = (Integer) cell.get("durability");
+    // ===================== 统一收取系统（种植收获 + 灵兽产出） =====================
 
-        builder.name("阵眼")
-                .level(level)
-                .cellLevel((Integer) cell.getOrDefault("cell_level", 1))
-                .durability(durability);
-    }
-
-    // ===================== 献祭系统（灵气耗尽时唯一可用功能） =====================
-
-    public int sacrificeItem(Long userId, Long equipmentId) {
+    @ConsumeSpiritEnergy(5)
+    public Map<String, Object> collect(Long userId, String position) {
+        Integer cellId = parseCellId(position);
         Fudi fudi = getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
 
-        Equipment equipment = equipmentRepository.findById(equipmentId)
-                .orElseThrow(() -> new IllegalStateException("未找到装备"));
-
-        if (!equipment.getUserId().equals(userId)) {
-            throw new IllegalStateException("该装备不属于你");
+        Map<String, Object> cell = getCellById(fudi, cellId);
+        if (cell == null || "empty".equals(cell.get("type"))) {
+            throw new IllegalStateException("地块 " + cellId + " 为空");
         }
 
-        if (equipment.getEquipped()) {
-            throw new IllegalStateException("不能献祭已穿戴的装备，请先卸下");
+        String type = (String) cell.get("type");
+
+        if (CellType.FARM.getCode().equals(type)) {
+            return harvestCrop(fudi, cell, cellId);
+        } else if (CellType.PEN.getCode().equals(type)) {
+            return collectBeastProduce(fudi, cell, cellId);
+        } else {
+            throw new IllegalStateException("地块 " + cellId + " 无可收取内容");
         }
-
-        int itemLevel = equipment.getForgeLevel() != null ? equipment.getForgeLevel() : 1;
-        double qualityMultiplier = equipment.getQualityMultiplier() != null ? equipment.getQualityMultiplier() : 1.0;
-        int baseValue = equipment.getFinalAttack() + equipment.getFinalDefense();
-
-        if (baseValue <= 0) {
-            baseValue = 10;
-        }
-
-        int auraGain = fudi.calculateSacrificeAura(baseValue, qualityMultiplier, itemLevel);
-
-        equipmentRepository.deleteById(equipmentId);
-
-        int newAura = Math.min(fudi.getAuraMax(), fudi.getAuraCurrent() + auraGain);
-        fudi.setAuraCurrent(newAura);
-        fudi.setLastAuraUpdate(LocalDateTime.now());
-
-        fudiRepository.save(fudi);
-
-        log.info("用户 {} 献祭装备 ID={} ({}), 获得灵气 {}", userId, equipmentId, equipment.getName(), auraGain);
-        return auraGain;
     }
 
-    public int sacrificeItemByName(Long userId, String itemName) {
-        List<Equipment> equipments = equipmentRepository.findByUserId(userId).stream()
-                .filter(e -> !e.getEquipped() && e.getName().contains(itemName))
-                .toList();
+    public Map<String, Object> collectAll(Long userId) {
+        Fudi fudi = getFudiByUserId(userId)
+                .orElseThrow(() -> new IllegalStateException("未找到福地"));
 
-        if (equipments.isEmpty()) {
-            throw new IllegalStateException("背包中未找到 [%s]".formatted(itemName));
+        if (fudi.getGridLayout() == null || !fudi.getGridLayout().containsKey("cells")) {
+            return Map.of("harvested", 0, "collected", 0, "totalItems", 0);
         }
 
-        if (equipments.size() > 1) {
-            throw new IllegalStateException("找到多个 [%s]，请使用更精确的名称".formatted(itemName));
-        }
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getGridLayout().get("cells");
 
-        return sacrificeItem(userId, equipments.getFirst().getId());
-    }
+        int harvestCount = 0;
+        int collectedCount = 0;
+        int totalItems = 0;
 
-    public int sacrificeItemByInput(Long userId, String input) {
-        var result = itemResolver.resolveEquipment(userId, input);
-        return switch (result) {
-            case ItemResolver.Found(var equipment, var index) -> sacrificeItem(userId, equipment.getId());
-            case ItemResolver.NotFound(var name) ->
-                    throw new IllegalStateException("背包中未找到 [" + name + "] 相关的装备");
-            case ItemResolver.Ambiguous(var name, var candidates) -> {
-                var sb = new StringBuilder("找到多个装备，请使用编号：\n");
-                for (var e : candidates) {
-                    sb.append(e.index()).append(". ").append(e.name()).append(" [").append(e.metadata()).append("]\n");
-                }
-                throw new IllegalStateException(sb.toString().strip());
+        // 收取灵田
+        List<Integer> toRemove = new ArrayList<>();
+        for (Map<String, Object> cell : cells) {
+            if (!CellType.FARM.getCode().equals(cell.get("type"))) continue;
+
+            updateGrowthProgress(cell);
+            Double progress = (Double) cell.get("growth_progress");
+            if (progress == null || progress < 1.0) continue;
+
+            boolean isPerennial = Boolean.TRUE.equals(cell.get("is_perennial"));
+            if (!isPerennial && progress > 1.0 && isWilted(cell)) {
+                toRemove.add((Integer) cell.get("cell_id"));
+                continue;
             }
-        };
-    }
 
-    public ServiceResult<Map<String, Integer>> sacrificeAllItems(PlatformType platform, String openId) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
-        try {
-            return new ServiceResult.Success<>(sacrificeAllItems(auth.userId()));
-        } catch (IllegalStateException e) {
-            return new ServiceResult.Failure<>(e.getMessage());
-        }
-    }
+            int yield = calculateYield((Integer) cell.get("crop_id"), fudi.getTribulationStage());
+            int hCount = (Integer) cell.getOrDefault("harvest_count", 0) + 1;
+            int maxHarvest = (Integer) cell.getOrDefault("max_harvest", 1);
 
-    public ServiceResult<Map<String, Integer>> sacrificeItemsByQuality(PlatformType platform, String openId, String quality) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
-        try {
-            return new ServiceResult.Success<>(sacrificeItemsByQuality(auth.userId(), quality));
-        } catch (IllegalStateException e) {
-            return new ServiceResult.Failure<>(e.getMessage());
-        }
-    }
+            if (isPerennial && hCount < maxHarvest) {
+                cell.put("harvest_count", hCount);
+                cell.put("growth_progress", 0.0);
+                cell.put("plant_time", LocalDateTime.now().toString());
+                double baseGrowthHours = (Double) cell.get("base_growth_hours");
+                double levelSpeed = (Double) cell.getOrDefault("level_speed_multiplier", 1.0);
+                cell.put("mature_time", LocalDateTime.now().plusHours((long) (baseGrowthHours / levelSpeed)).toString());
+            } else {
+                toRemove.add((Integer) cell.get("cell_id"));
+            }
 
-    public Map<String, Integer> sacrificeAllItems(Long userId) {
-        Fudi fudi = getFudiByUserId(userId)
-                .orElseThrow(() -> new IllegalStateException("未找到福地"));
-
-        List<Equipment> unequipped = equipmentRepository.findByUserId(userId).stream()
-                .filter(e -> !e.getEquipped())
-                .toList();
-
-        if (unequipped.isEmpty()) {
-            throw new IllegalStateException("背包中没有可献祭的装备");
+            totalItems += yield;
+            harvestCount++;
         }
 
-        int totalAura = 0;
-        int count = 0;
-        for (Equipment equipment : unequipped) {
-            totalAura += calculateItemAura(equipment, fudi);
-            equipmentRepository.deleteById(equipment.getId());
-            count++;
+        for (Integer id : toRemove) {
+            removeCellFromGrid(fudi, id);
         }
 
-        fudi.setAuraCurrent(Math.min(fudi.getAuraMax(), fudi.getAuraCurrent() + totalAura));
-        fudi.setLastAuraUpdate(LocalDateTime.now());
+        // 精力扣除：第一个收获已由 ConsumeSpiritEnergy(5) 扣除
+        final int extraCount = harvestCount;
+        if (extraCount > 1) {
+            spiritRepository.findByFudiId(fudi.getId()).ifPresent(spirit -> {
+                spirit.restoreEnergy(fudi.getTribulationStage());
+                int extraCost = spirit.calculateEnergyConsumption(5 * (extraCount - 1));
+                spirit.deductEnergy(extraCost);
+                spirit.setLastEnergyUpdate(LocalDateTime.now());
+                spiritRepository.save(spirit);
+            });
+        }
+
+        // 收取兽栏产出
+        for (Map<String, Object> cell : cells) {
+            if (!CellType.PEN.getCode().equals(cell.get("type"))) continue;
+            if (Boolean.TRUE.equals(cell.get("is_incubating"))) continue;
+
+            updateBeastProduction(cell, fudi);
+            int stored = (Integer) cell.getOrDefault("production_stored", 0);
+            if (stored > 0) {
+                totalItems += stored;
+                collectedCount++;
+                cell.put("production_stored", 0);
+            }
+        }
+
         fudiRepository.save(fudi);
 
-        log.info("用户 {} 批量献祭 {} 件装备, 获得总灵气 {}", userId, count, totalAura);
-        return Map.of("count", count, "totalAura", totalAura);
+        return Map.of("harvested", harvestCount, "collected", collectedCount, "totalItems", totalItems);
     }
 
-    public Map<String, Integer> sacrificeItemsByQuality(Long userId, String quality) {
-        Fudi fudi = getFudiByUserId(userId)
-                .orElseThrow(() -> new IllegalStateException("未找到福地"));
+    private Map<String, Object> harvestCrop(Fudi fudi, Map<String, Object> cell, Integer cellId) {
+        updateGrowthProgress(cell);
 
-        Rarity targetRarity = parseRarity(quality);
+        Double progress = (Double) cell.get("growth_progress");
+        boolean isPerennial = Boolean.TRUE.equals(cell.get("is_perennial"));
 
-        List<Equipment> filtered = equipmentRepository.findByUserId(userId).stream()
-                .filter(e -> !e.getEquipped() && e.getRarity() == targetRarity)
-                .toList();
-
-        if (filtered.isEmpty()) {
-            throw new IllegalStateException("背包中没有" + targetRarity.getName() + "品质的可献祭装备");
+        if (!isPerennial && progress != null && progress > 1.0 && isWilted(cell)) {
+            String cropName = (String) cell.get("crop_name");
+            removeCellFromGrid(fudi, cellId);
+            throw new IllegalStateException("%s 已枯萎（超过成熟时间两倍未收获）".formatted(cropName));
         }
 
-        int totalAura = 0;
-        int count = 0;
-        for (Equipment equipment : filtered) {
-            totalAura += calculateItemAura(equipment, fudi);
-            equipmentRepository.deleteById(equipment.getId());
-            count++;
+        if (progress == null || progress < 1.0) {
+            throw new IllegalStateException("灵药尚未成熟");
         }
 
-        fudi.setAuraCurrent(Math.min(fudi.getAuraMax(), fudi.getAuraCurrent() + totalAura));
-        fudi.setLastAuraUpdate(LocalDateTime.now());
+        String cropName = (String) cell.get("crop_name");
+        Integer cropId = (Integer) cell.get("crop_id");
+        int yield = calculateYield(cropId, fudi.getTribulationStage());
+
+        int harvestCount = (Integer) cell.getOrDefault("harvest_count", 0) + 1;
+        int maxHarvest = (Integer) cell.getOrDefault("max_harvest", 1);
+
+        if (isPerennial && harvestCount < maxHarvest) {
+            cell.put("harvest_count", harvestCount);
+            cell.put("growth_progress", 0.0);
+            cell.put("plant_time", LocalDateTime.now().toString());
+            double baseGrowthHours = (Double) cell.get("base_growth_hours");
+            double levelSpeed = (Double) cell.getOrDefault("level_speed_multiplier", 1.0);
+            cell.put("mature_time", LocalDateTime.now().plusHours((long) (baseGrowthHours / levelSpeed)).toString());
+        } else {
+            removeCellFromGrid(fudi, cellId);
+        }
+
         fudiRepository.save(fudi);
 
-        log.info("用户 {} 批量献祭 {} 件{}品质装备, 获得总灵气 {}", userId, count, targetRarity.getName(), totalAura);
-        return Map.of("count", count, "totalAura", totalAura);
+        log.info("用户 {} 收获地块 {} 的 {}，获得 {}份", fudi.getUserId(), cellId, cropName, yield);
+
+        return Map.of("cellId", cellId, "cropName", cropName, "yield", yield, "type", "farm");
     }
 
-    private int calculateItemAura(Equipment equipment, Fudi fudi) {
-        int itemLevel = equipment.getForgeLevel() != null ? equipment.getForgeLevel() : 1;
-        double qualityMultiplier = equipment.getQualityMultiplier() != null ? equipment.getQualityMultiplier() : 1.0;
-        int baseValue = equipment.getFinalAttack() + equipment.getFinalDefense();
-        if (baseValue <= 0) baseValue = 10;
-        return fudi.calculateSacrificeAura(baseValue, qualityMultiplier, itemLevel);
+    private Map<String, Object> collectBeastProduce(Fudi fudi, Map<String, Object> cell, Integer cellId) {
+        if (Boolean.TRUE.equals(cell.get("is_incubating"))) {
+            throw new IllegalStateException("灵兽尚在孵化中");
+        }
+
+        updateBeastProduction(cell, fudi);
+        int stored = (Integer) cell.getOrDefault("production_stored", 0);
+        if (stored <= 0) {
+            throw new IllegalStateException("暂无产出可收取");
+        }
+
+        String beastName = (String) cell.getOrDefault("beast_name", "灵兽");
+        cell.put("production_stored", 0);
+        fudiRepository.save(fudi);
+
+        log.info("用户 {} 收取地块 {} 的灵兽产出 {} 件", fudi.getUserId(), cellId, stored);
+
+        return Map.of("cellId", cellId, "beastName", beastName, "totalItems", stored, "type", "pen");
     }
 
-    private Rarity parseRarity(String input) {
-        return switch (input) {
-            case "白色", "破旧" -> Rarity.BROKEN;
-            case "绿色", "普通" -> Rarity.COMMON;
-            case "蓝色", "稀有" -> Rarity.RARE;
-            case "紫色", "史诗" -> Rarity.EPIC;
-            case "金色", "传说" -> Rarity.LEGENDARY;
-            default -> throw new IllegalStateException("未知品质: " + input + "，可选：白色/绿色/蓝色/紫色/金色");
-        };
-    }
+    // ===================== 种植系统 =====================
 
-    // ===================== 种植/收获系统 =====================
-
-    /**
-     * 统一扣除精力（懒恢复 + 好感减免 + 情绪更新 + 保存）
-     */
-    private void consumeSpiritEnergy(Fudi fudi, int baseCost) {
-        spiritRepository.findByFudiId(fudi.getId()).ifPresent(spirit -> {
-            spirit.restoreEnergy(fudi.getTribulationStage());
-            int actualCost = spirit.calculateEnergyConsumption(baseCost);
-            spirit.deductEnergy(actualCost);
-            spirit.setLastEnergyUpdate(LocalDateTime.now());
-            spiritRepository.save(spirit);
-        });
-    }
-
-    /**
-     * 在指定地块种植灵药
-     */
     public FarmCellVO plantCrop(Long userId, Integer cellId, Integer cropId, String cropName, int cropTier) {
         Fudi fudi = getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
         consumeSpiritEnergy(fudi, 3);
-        checkAuraDepleted(fudi);
 
         Map<String, Object> existingCell = getCellById(fudi, cellId);
         if (existingCell == null || !"empty".equals(existingCell.get("type"))) {
@@ -870,11 +797,10 @@ public class FudiService {
                     "作物等阶(T%d)需要至少Lv%d灵田，当前灵田Lv%d".formatted(cropTier, minLevel, cellLevel));
         }
 
-        int auraCost = cropTier * 5;
-        if (fudi.getAuraCurrent() < auraCost) {
-            throw new IllegalStateException("灵气不足（需要 %d，当前 %d）".formatted(auraCost, fudi.getAuraCurrent()));
-        }
-        fudi.setAuraCurrent(fudi.getAuraCurrent() - auraCost);
+        // 灵石消耗：tier × 5
+        int stoneCost = cropTier * 5;
+        checkSpiritStones(userId, stoneCost);
+        deductSpiritStones(userId, stoneCost);
 
         double levelSpeedMultiplier = getLevelSpeedMultiplier(cellLevel, minLevel);
         double baseGrowthHours = getBaseGrowthHours(cropId);
@@ -907,7 +833,7 @@ public class FudiService {
         }
         fudiRepository.save(fudi);
 
-        log.info("用户 {} 在地块 {} 种植 {} (T{}, {})", userId, cellId, cropName, cropTier, isPerennial ? "多季" : "单季");
+        log.info("用户 {} 在地块 {} 种植 {} (T{})", userId, cellId, cropName, cropTier);
 
         return FarmCellVO.builder()
                 .cellId(cellId)
@@ -983,141 +909,6 @@ public class FudiService {
         };
     }
 
-    @ConsumeSpiritEnergy(5)
-    public Map<String, Object> harvestCrop(Long userId, String position) {
-        Integer cellId = parseCellId(position);
-        Fudi fudi = getFudiByUserId(userId)
-                .orElseThrow(() -> new IllegalStateException("未找到福地"));
-        consumeSpiritEnergy(fudi, 5);
-        checkAuraDepleted(fudi);
-
-        Map<String, Object> cell = getCellById(fudi, cellId);
-        if (cell == null || "empty".equals(cell.get("type"))) {
-            throw new IllegalStateException("地块 " + cellId + " 为空");
-        }
-
-        if (!CellType.FARM.getCode().equals(cell.get("type"))) {
-            throw new IllegalStateException("地块 " + cellId + " 不是灵田");
-        }
-
-        updateGrowthProgress(cell);
-
-        Double progress = (Double) cell.get("growth_progress");
-        boolean isPerennial = Boolean.TRUE.equals(cell.get("is_perennial"));
-
-        if (!isPerennial && progress != null && progress > 1.0 && isWilted(cell)) {
-            String cropName = (String) cell.get("crop_name");
-            removeCellFromGrid(fudi, cellId);
-            fudiRepository.save(fudi);
-            throw new IllegalStateException("%s 已枯萎（超过成熟时间两倍未收获）".formatted(cropName));
-        }
-
-        if (progress == null || progress < 1.0) {
-            throw new IllegalStateException("灵药尚未成熟");
-        }
-
-        String cropName = (String) cell.get("crop_name");
-        Integer cropId = (Integer) cell.get("crop_id");
-        int yield = calculateYield(cropId, fudi.getTribulationStage());
-
-        int harvestCount = (Integer) cell.getOrDefault("harvest_count", 0) + 1;
-        int maxHarvest = (Integer) cell.getOrDefault("max_harvest", 1);
-
-        if (isPerennial && harvestCount < maxHarvest) {
-            cell.put("harvest_count", harvestCount);
-            cell.put("growth_progress", 0.0);
-            cell.put("plant_time", LocalDateTime.now().toString());
-            double baseGrowthHours = (Double) cell.get("base_growth_hours");
-            double levelSpeed = (Double) cell.getOrDefault("level_speed_multiplier", 1.0);
-            double actualHours = baseGrowthHours / levelSpeed;
-            cell.put("mature_time", LocalDateTime.now().plusHours((long) actualHours).toString());
-        } else {
-            removeCellFromGrid(fudi, cellId);
-        }
-
-        fudiRepository.save(fudi);
-
-        log.info("用户 {} 收获 {}，获得 {} x{}", userId, cellId, cropName, yield);
-
-        return Map.of("cropName", cropName, "cropId", cropId, "yield", yield);
-    }
-
-    public Map<String, Object> harvestAllCrops(Long userId) {
-        Fudi fudi = getFudiByUserId(userId)
-                .orElseThrow(() -> new IllegalStateException("未找到福地"));
-        consumeSpiritEnergy(fudi, 5);
-        checkAuraDepleted(fudi);
-
-        if (fudi.getGridLayout() == null || !fudi.getGridLayout().containsKey("cells")) {
-            return Map.of("harvested", 0, "totalYield", 0);
-        }
-
-        @SuppressWarnings("unchecked")
-        List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getGridLayout().get("cells");
-
-        List<Integer> toRemove = new ArrayList<>();
-        int totalYield = 0;
-        int harvestedCount = 0;
-
-        for (Map<String, Object> cell : cells) {
-            if (!CellType.FARM.getCode().equals(cell.get("type"))) continue;
-
-            updateGrowthProgress(cell);
-
-            Double progress = (Double) cell.get("growth_progress");
-            if (progress == null || progress < 1.0) continue;
-
-            boolean isPerennial = Boolean.TRUE.equals(cell.get("is_perennial"));
-
-            if (!isPerennial && progress > 1.0 && isWilted(cell)) {
-                toRemove.add((Integer) cell.get("cell_id"));
-                continue;
-            }
-
-            String cropName = (String) cell.get("crop_name");
-            Integer cropId = (Integer) cell.get("crop_id");
-            int yield = calculateYield(cropId, fudi.getTribulationStage());
-
-            int harvestCount = (Integer) cell.getOrDefault("harvest_count", 0) + 1;
-            int maxHarvest = (Integer) cell.getOrDefault("max_harvest", 1);
-
-            if (isPerennial && harvestCount < maxHarvest) {
-                cell.put("harvest_count", harvestCount);
-                cell.put("growth_progress", 0.0);
-                cell.put("plant_time", LocalDateTime.now().toString());
-                double baseGrowthHours = (Double) cell.get("base_growth_hours");
-                double levelSpeed = (Double) cell.getOrDefault("level_speed_multiplier", 1.0);
-                double actualHours = baseGrowthHours / levelSpeed;
-                cell.put("mature_time", LocalDateTime.now().plusHours((long) actualHours).toString());
-            } else {
-                toRemove.add((Integer) cell.get("cell_id"));
-            }
-
-            totalYield += yield;
-            harvestedCount++;
-            log.info("收获地块 {} 的 {}", cell.get("cell_id"), cropName);
-        }
-
-        for (Integer id : toRemove) {
-            removeCellFromGrid(fudi, id);
-        }
-
-        // 批量收获额外精力扣除（第一个已由 consumeSpiritEnergy(5) 扣除）
-        if (harvestedCount > 1) {
-            final int extraHarvestCount = harvestedCount;
-            spiritRepository.findByFudiId(fudi.getId()).ifPresent(spirit -> {
-                spirit.restoreEnergy(fudi.getTribulationStage());
-                int extraCost = spirit.calculateEnergyConsumption(5 * (extraHarvestCount - 1));
-                spirit.deductEnergy(extraCost);
-                spirit.setLastEnergyUpdate(LocalDateTime.now());
-                spiritRepository.save(spirit);
-            });
-        }
-        fudiRepository.save(fudi);
-
-        return Map.of("harvested", harvestedCount, "totalYield", totalYield);
-    }
-
     // ===================== 建造/拆除系统 =====================
 
     public Map<String, Object> buildCell(Long userId, String position, CellType type) {
@@ -1125,7 +916,6 @@ public class FudiService {
         Fudi fudi = getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
         consumeSpiritEnergy(fudi, 3);
-        checkAuraDepleted(fudi);
 
         if (!isCellEmpty(fudi, cellId)) {
             throw new IllegalStateException("地块 " + cellId + " 已被占用");
@@ -1135,15 +925,6 @@ public class FudiService {
         cell.put("cell_id", cellId);
         cell.put("type", type.getCode());
         cell.put("cell_level", 1);
-
-        switch (type) {
-            case NODE -> {
-                cell.put("level", 1);
-                cell.put("durability", 100);
-            }
-            default -> {
-            }
-        }
 
         addCellToGrid(fudi, cell);
         fudiRepository.save(fudi);
@@ -1158,7 +939,6 @@ public class FudiService {
         Fudi fudi = getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
         consumeSpiritEnergy(fudi, 3);
-        checkAuraDepleted(fudi);
 
         if (isCellEmpty(fudi, cellId)) {
             throw new IllegalStateException("地块 " + cellId + " 为空");
@@ -1170,6 +950,19 @@ public class FudiService {
         }
 
         CellType type = CellType.fromCode((String) cell.get("type"));
+
+        // 拆除兽栏：灵兽退回栏外休憩（penned_cell_id = null）
+        if (type == CellType.PEN && cell.containsKey("beast_id") && (Integer) cell.get("beast_id") > 0) {
+            var beasts = beastRepository.findByFudiId(fudi.getId());
+            for (Beast b : beasts) {
+                if (b.getPennedCellId() != null && b.getPennedCellId().equals(cellId)) {
+                    b.setPennedCellId(null);
+                    beastRepository.save(b);
+                    break;
+                }
+            }
+        }
+
         removeCellFromGrid(fudi, cellId);
         fudiRepository.save(fudi);
 
@@ -1184,7 +977,6 @@ public class FudiService {
         Integer cellId = parseCellId(position);
         Fudi fudi = getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
-        checkAuraDepleted(fudi);
 
         Map<String, Object> cell = getCellById(fudi, cellId);
         if (cell == null || "empty".equals(cell.get("type"))) {
@@ -1197,11 +989,8 @@ public class FudiService {
         }
 
         int cost = currentLevel == 1 ? 200 : currentLevel == 2 ? 400 : currentLevel == 3 ? 800 : 1600;
-        fudi.updateAura();
-        if (fudi.getAuraCurrent() < cost) {
-            throw new IllegalStateException("灵气不足（需要 %d，当前 %d）".formatted(cost, fudi.getAuraCurrent()));
-        }
-        fudi.setAuraCurrent(fudi.getAuraCurrent() - cost);
+        checkSpiritStones(userId, cost);
+        deductSpiritStones(userId, cost);
 
         int newLevel = currentLevel + 1;
         cell.put("cell_level", newLevel);
@@ -1220,7 +1009,6 @@ public class FudiService {
         Fudi fudi = getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
         consumeSpiritEnergy(fudi, 10);
-        checkAuraDepleted(fudi);
 
         Map<String, Object> cell = getCellById(fudi, cellId);
         if (cell == null || !CellType.PEN.getCode().equals(cell.get("type"))) {
@@ -1247,11 +1035,10 @@ public class FudiService {
             throw new IllegalStateException("灵兽等阶(T%d)需要至少Lv%d兽栏".formatted(tier, tier));
         }
 
-        int hatchAuraCost = tier * 200 + 200;
-        if (fudi.getAuraCurrent() < hatchAuraCost) {
-            throw new IllegalStateException("灵气不足（孵化需 %d，当前 %d）".formatted(hatchAuraCost, fudi.getAuraCurrent()));
-        }
-        fudi.setAuraCurrent(fudi.getAuraCurrent() - hatchAuraCost);
+        // 孵化灵石消耗：tier × 200 + 200
+        int stoneCost = tier * 200 + 200;
+        checkSpiritStones(userId, stoneCost);
+        deductSpiritStones(userId, stoneCost);
 
         BeastQuality quality = rollBeastQuality();
 
@@ -1282,14 +1069,15 @@ public class FudiService {
         cell.put("production_stored", 0);
         cell.put("last_production_time", now.toString());
         cell.put("production_interval_hours", productionInterval);
-        cell.put("lifespan_days", tier * 7.0 * quality.getLifespanMultiplier());
         cell.put("birth_time", now.toString());
         cell.put("power_score", tier * 10);
         cell.put("evolution_count", 0);
+        cell.put("hp_current", tier * 200);
+        cell.put("hp_max", tier * 200);
+        cell.put("is_deployed", false);
 
         fudiRepository.save(fudi);
 
-        // 同步创建 xt_beast 实体（战斗化）
         Beast beast = new Beast();
         beast.setUserId(userId);
         beast.setFudiId(fudi.getId());
@@ -1303,12 +1091,12 @@ public class FudiService {
         beast.setExp(0);
         beast.setAttack(calculateBeastAttack(1, quality));
         beast.setDefense(calculateBeastDefense(1, quality));
-        beast.setMaxHp(calculateBeastMaxHp(1, quality));
-        beast.setHpCurrent(beast.getMaxHp());
+        int maxHp = tier * 200;
+        beast.setMaxHp(maxHp);
+        beast.setHpCurrent(maxHp);
         beast.setSkills(List.of());
         beast.setIsDeployed(false);
         beast.setRecoveryUntil(null);
-        beast.setLifespanDays(tier * 7.0 * quality.getLifespanMultiplier());
         beast.setPennedCellId(cellId);
         beast.setBirthTime(now);
         beast.setEvolutionCount(0);
@@ -1332,7 +1120,6 @@ public class FudiService {
                 .productionIntervalHours(productionInterval)
                 .productionStored(0)
                 .powerScore(tier * 10)
-                .lifespanDays(tier * 7.0 * quality.getLifespanMultiplier())
                 .birthTime(now)
                 .build();
     }
@@ -1348,87 +1135,7 @@ public class FudiService {
 
                 itemService.reduceStackableItem(userId, template.getId(), 1);
 
-                var fudi = getFudiByUserId(userId)
-                        .orElseThrow(() -> new IllegalStateException("未找到福地"));
-                consumeSpiritEnergy(fudi, 10);
-                checkAuraDepleted(fudi);
-
-                var cell = getCellById(fudi, cellId);
-                if (cell == null || !CellType.PEN.getCode().equals(cell.get("type"))) {
-                    throw new IllegalStateException("地块 " + cellId + " 不是兽栏");
-                }
-                if (cell.containsKey("beast_id") && (Integer) cell.get("beast_id") > 0) {
-                    throw new IllegalStateException("该兽栏已有灵兽，请先放生");
-                }
-
-                int tier = getCropTier(template.getGrowTime() != null ? template.getGrowTime() : 72);
-
-                int cellLevel = (Integer) cell.getOrDefault("cell_level", 1);
-                if (cellLevel < tier) {
-                    throw new IllegalStateException("灵兽等阶(T%d)需要至少Lv%d兽栏".formatted(tier, tier));
-                }
-
-                int hatchAuraCost = tier * 200 + 200;
-                if (fudi.getAuraCurrent() < hatchAuraCost) {
-                    throw new IllegalStateException("灵气不足（孵化需 %d，当前 %d）".formatted(hatchAuraCost, fudi.getAuraCurrent()));
-                }
-                fudi.setAuraCurrent(fudi.getAuraCurrent() - hatchAuraCost);
-
-                BeastQuality quality = rollBeastQuality();
-
-                boolean isMutant = new java.util.Random().nextInt(100) < 5;
-                List<String> mutationTraits = new ArrayList<>();
-                if (isMutant) {
-                    mutationTraits.add(rollRandomTrait());
-                }
-
-                double levelSpeed = getLevelSpeedMultiplier(cellLevel, tier);
-                double productionInterval = 4.0 / levelSpeed;
-                double baseHatchHours = 24 + tier * 8;
-                double hatchHours = baseHatchHours / levelSpeed;
-
-                String beastName = template.getName().replace("兽卵", "").replace("蛋", "灵兽");
-                LocalDateTime now = LocalDateTime.now();
-
-                cell.put("beast_id", template.getId().intValue());
-                cell.put("beast_name", beastName);
-                cell.put("tier", tier);
-                cell.put("quality", quality.getCode());
-                cell.put("quality_ordinal", quality.getOrder());
-                cell.put("is_mutant", isMutant);
-                cell.put("mutation_traits", mutationTraits);
-                cell.put("is_incubating", true);
-                cell.put("hatch_time", now.toString());
-                cell.put("mature_time", now.plusHours((long) hatchHours).toString());
-                cell.put("production_stored", 0);
-                cell.put("last_production_time", now.toString());
-                cell.put("production_interval_hours", productionInterval);
-                cell.put("lifespan_days", tier * 7.0 * quality.getLifespanMultiplier());
-                cell.put("birth_time", now.toString());
-                cell.put("power_score", tier * 10);
-                cell.put("evolution_count", 0);
-
-                fudiRepository.save(fudi);
-
-                yield PenCellVO.builder()
-                        .cellId(cellId)
-                        .cellLevel(cellLevel)
-                        .beastId(template.getId().intValue())
-                        .beastName(beastName)
-                        .tier(tier)
-                        .quality(quality.getChineseName())
-                        .qualityOrdinal(quality.getOrder())
-                        .isMutant(isMutant)
-                        .mutationTraits(mutationTraits)
-                        .isIncubating(true)
-                        .hatchTime(now)
-                        .matureTime(now.plusHours((long) hatchHours))
-                        .productionIntervalHours(productionInterval)
-                        .productionStored(0)
-                        .powerScore(tier * 10)
-                        .lifespanDays(tier * 7.0 * quality.getLifespanMultiplier())
-                        .birthTime(now)
-                        .build();
+                yield hatchBeastWithTemplate(userId, cellId, template);
             }
             case ItemResolver.NotFound(var name) -> throw new IllegalStateException("背包中未找到兽卵 [" + name + "]");
             case ItemResolver.Ambiguous(var name, var candidates) -> {
@@ -1441,23 +1148,116 @@ public class FudiService {
         };
     }
 
-    // ===================== 送礼系统 =====================
+    private PenCellVO hatchBeastWithTemplate(Long userId, Integer cellId, ItemTemplate eggTemplate) {
+        Fudi fudi = getFudiByUserId(userId)
+                .orElseThrow(() -> new IllegalStateException("未找到福地"));
+        consumeSpiritEnergy(fudi, 10);
 
-    public ServiceResult<Map<String, Object>> giveGift(PlatformType platform, String openId, String itemName) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
-        try {
-            return new ServiceResult.Success<>(giveGift(auth.userId(), itemName));
-        } catch (IllegalStateException e) {
-            return new ServiceResult.Failure<>(e.getMessage());
+        Map<String, Object> cell = getCellById(fudi, cellId);
+        if (cell == null || !CellType.PEN.getCode().equals(cell.get("type"))) {
+            throw new IllegalStateException("地块 " + cellId + " 不是兽栏");
         }
+        if (cell.containsKey("beast_id") && (Integer) cell.get("beast_id") > 0) {
+            throw new IllegalStateException("该兽栏已有灵兽，请先放生");
+        }
+
+        int tier = getCropTier(eggTemplate.getGrowTime() != null ? eggTemplate.getGrowTime() : 72);
+        int cellLevel = (Integer) cell.getOrDefault("cell_level", 1);
+        if (cellLevel < tier) {
+            throw new IllegalStateException("灵兽等阶(T%d)需要至少Lv%d兽栏".formatted(tier, tier));
+        }
+
+        int stoneCost = tier * 200 + 200;
+        checkSpiritStones(userId, stoneCost);
+        deductSpiritStones(userId, stoneCost);
+
+        BeastQuality quality = rollBeastQuality();
+        boolean isMutant = new Random().nextInt(100) < 5;
+        List<String> mutationTraits = new ArrayList<>();
+        if (isMutant) mutationTraits.add(rollRandomTrait());
+
+        double levelSpeed = getLevelSpeedMultiplier(cellLevel, tier);
+        double productionInterval = 4.0 / levelSpeed;
+        double baseHatchHours = 24 + tier * 8;
+        double hatchHours = baseHatchHours / levelSpeed;
+
+        String beastName = eggTemplate.getName().replace("兽卵", "").replace("蛋", "灵兽");
+        LocalDateTime now = LocalDateTime.now();
+
+        cell.put("beast_id", eggTemplate.getId().intValue());
+        cell.put("beast_name", beastName);
+        cell.put("tier", tier);
+        cell.put("quality", quality.getCode());
+        cell.put("quality_ordinal", quality.getOrder());
+        cell.put("is_mutant", isMutant);
+        cell.put("mutation_traits", mutationTraits);
+        cell.put("is_incubating", true);
+        cell.put("hatch_time", now.toString());
+        cell.put("mature_time", now.plusHours((long) hatchHours).toString());
+        cell.put("production_stored", 0);
+        cell.put("last_production_time", now.toString());
+        cell.put("production_interval_hours", productionInterval);
+        cell.put("birth_time", now.toString());
+        cell.put("power_score", tier * 10);
+        cell.put("evolution_count", 0);
+        cell.put("hp_current", tier * 200);
+        cell.put("hp_max", tier * 200);
+        cell.put("is_deployed", false);
+
+        fudiRepository.save(fudi);
+
+        Beast beast = new Beast();
+        beast.setUserId(userId);
+        beast.setFudiId(fudi.getId());
+        beast.setTemplateId(eggTemplate.getId());
+        beast.setBeastName(beastName);
+        beast.setTier(tier);
+        beast.setQuality(quality.getCode());
+        beast.setIsMutant(isMutant);
+        beast.setMutationTraits(mutationTraits);
+        beast.setLevel(1);
+        beast.setExp(0);
+        beast.setAttack(calculateBeastAttack(1, quality));
+        beast.setDefense(calculateBeastDefense(1, quality));
+        int maxHp = tier * 200;
+        beast.setMaxHp(maxHp);
+        beast.setHpCurrent(maxHp);
+        beast.setSkills(List.of());
+        beast.setIsDeployed(false);
+        beast.setRecoveryUntil(null);
+        beast.setPennedCellId(cellId);
+        beast.setBirthTime(now);
+        beast.setEvolutionCount(0);
+        beastRepository.save(beast);
+
+        log.info("用户 {} 在地块 {} 孵化 {} (T{}, {}{})", userId, cellId, beastName, tier, quality.getChineseName(), isMutant ? ", 变异" : "");
+
+        return PenCellVO.builder()
+                .cellId(cellId)
+                .cellLevel(cellLevel)
+                .beastId(eggTemplate.getId().intValue())
+                .beastName(beastName)
+                .tier(tier)
+                .quality(quality.getChineseName())
+                .qualityOrdinal(quality.getOrder())
+                .isMutant(isMutant)
+                .mutationTraits(mutationTraits)
+                .isIncubating(true)
+                .hatchTime(now)
+                .matureTime(now.plusHours((long) hatchHours))
+                .productionIntervalHours(productionInterval)
+                .productionStored(0)
+                .powerScore(tier * 10)
+                .birthTime(now)
+                .build();
     }
+
+    // ===================== 送礼系统 =====================
 
     public Map<String, Object> giveGift(Long userId, String itemName) {
         Fudi fudi = getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
 
-        // 查找玩家背包中的物品
         List<StackableItem> items = stackableItemRepository.findByUserId(userId).stream()
                 .filter(e -> e.getName().contains(itemName))
                 .toList();
@@ -1472,16 +1272,14 @@ public class FudiService {
 
         StackableItem gift = items.getFirst();
         ItemTemplate template = itemTemplateRepository.findById(gift.getTemplateId() != null ?
-                                                                        gift.getTemplateId() : (long) 1)
+                        gift.getTemplateId() : (long) 1)
                 .orElse(null);
 
-        // 从 SpiritForm 获取喜好
         Spirit spirit = spiritRepository.findByFudiId(fudi.getId())
                 .orElseThrow(() -> new IllegalStateException("地灵不存在"));
 
-        // 每日限送一次
         if (spirit.getLastGiftTime() != null &&
-            spirit.getLastGiftTime().toLocalDate().equals(LocalDateTime.now().toLocalDate())) {
+                spirit.getLastGiftTime().toLocalDate().equals(LocalDateTime.now().toLocalDate())) {
             throw new IllegalStateException("今日已送过礼物，明天再来吧");
         }
 
@@ -1493,12 +1291,10 @@ public class FudiService {
             dislikedTags = spiritForm.getDislikedTags() != null ? spiritForm.getDislikedTags() : Set.of();
         }
 
-        // 优先使用物品自身标签，其次使用模板标签
         Set<String> itemTags = gift.getTags() != null && !gift.getTags().isEmpty() ?
                 gift.getTags() :
                 (template != null && template.getTags() != null ? template.getTags() : Set.of());
 
-        // 匹配判定
         boolean isLiked = itemTags.stream().anyMatch(likedTags::contains);
         boolean isDisliked = itemTags.stream().anyMatch(dislikedTags::contains);
 
@@ -1507,15 +1303,12 @@ public class FudiService {
         String reaction;
 
         if (isLiked) {
-            // 喜爱：+10~50
             change = 10 + new Random().nextInt(41);
             reaction = "开心";
         } else if (isDisliked) {
-            // 讨厌：-5~20
             change = -(5 + new Random().nextInt(16));
             reaction = "嫌弃";
         } else {
-            // 中性：+1~3
             change = 1 + new Random().nextInt(3);
             reaction = "平淡";
         }
@@ -1523,7 +1316,6 @@ public class FudiService {
         spirit.addAffection(change);
         spirit.setLastGiftTime(LocalDateTime.now());
 
-        // 消耗物品：数量>1则减1，否则删除
         if (gift.getQuantity() != null && gift.getQuantity() > 1) {
             gift.setQuantity(gift.getQuantity() - 1);
             stackableItemRepository.save(gift);
@@ -1546,104 +1338,24 @@ public class FudiService {
         return result;
     }
 
-    // ===================== 灵兽系统 — 产出 =====================
-
-    public BeastProduceVO collectProduce(Long userId, String position) {
-        Integer cellId = parseCellId(position);
-        Fudi fudi = getFudiByUserId(userId)
-                .orElseThrow(() -> new IllegalStateException("未找到福地"));
-        consumeSpiritEnergy(fudi, 3);
-        checkAuraDepleted(fudi);
-
-        Map<String, Object> cell = getCellById(fudi, cellId);
-        if (cell == null || !CellType.PEN.getCode().equals(cell.get("type"))) {
-            throw new IllegalStateException("地块 " + cellId + " 不是兽栏");
-        }
-
-        if (Boolean.TRUE.equals(cell.get("is_incubating"))) {
-            throw new IllegalStateException("灵兽尚在孵化中");
-        }
-
-        checkBeastAuraDepletion(fudi, cell);
-        updateBeastProduction(cell, getBeastQuality(cell), fudi);
-        int stored = (Integer) cell.getOrDefault("production_stored", 0);
-        if (stored <= 0) {
-            throw new IllegalStateException("暂无产出可收取");
-        }
-
-        String itemName = (String) cell.getOrDefault("beast_name", "灵兽") + "材料";
-
-        cell.put("production_stored", 0);
-        fudiRepository.save(fudi);
-
-        log.info("用户 {} 收取地块 {} 的灵兽产出 {} 件", userId, cellId, stored);
-
-        return BeastProduceVO.builder()
-                .cellId(cellId)
-                .beastName((String) cell.get("beast_name"))
-                .totalProduced(stored)
-                .itemName(itemName)
-                .build();
-    }
-
-    public Map<String, Object> collectAllProduce(Long userId) {
-        Fudi fudi = getFudiByUserId(userId)
-                .orElseThrow(() -> new IllegalStateException("未找到福地"));
-        consumeSpiritEnergy(fudi, 3);
-        checkAuraDepleted(fudi);
-
-        if (fudi.getGridLayout() == null || !fudi.getGridLayout().containsKey("cells")) {
-            return Map.of("totalPositions", 0, "totalItems", 0);
-        }
-
-        @SuppressWarnings("unchecked")
-        List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getGridLayout().get("cells");
-        int totalItems = 0;
-        int totalPositions = 0;
-
-        for (Map<String, Object> cell : cells) {
-            if (!CellType.PEN.getCode().equals(cell.get("type"))) continue;
-            if (Boolean.TRUE.equals(cell.get("is_incubating"))) continue;
-
-            checkBeastAuraDepletion(fudi, cell);
-            BeastQuality quality = getBeastQuality(cell);
-            updateBeastProduction(cell, quality, fudi);
-
-            int stored = (Integer) cell.getOrDefault("production_stored", 0);
-            if (stored > 0) {
-                totalItems += stored;
-                totalPositions++;
-                cell.put("production_stored", 0);
-            }
-        }
-
-        fudiRepository.save(fudi);
-        return Map.of("totalPositions", totalPositions, "totalItems", totalItems);
-    }
-
     // ===================== 灵兽系统 — 放生与进化 =====================
 
     public Map<String, Object> releaseBeast(Long userId, String position) {
         Integer cellId = parseCellId(position);
         Fudi fudi = getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
-        checkAuraDepleted(fudi);
 
         Map<String, Object> cell = getCellById(fudi, cellId);
         if (cell == null || !CellType.PEN.getCode().equals(cell.get("type"))) {
             throw new IllegalStateException("地块 " + cellId + " 不是兽栏");
         }
 
+        String beastName = (String) cell.get("beast_name");
         int tier = (Integer) cell.getOrDefault("tier", 1);
         BeastQuality quality = getBeastQuality(cell);
-        double qualityOutput = quality.getOutputMultiplier();
-        int essenceValue = (int) (tier * 200 * qualityOutput);
-
-        String beastName = (String) cell.get("beast_name");
 
         clearBeastCell(cell);
 
-        // 同步删除 xt_beast 实体
         var beasts = beastRepository.findByFudiId(fudi.getId());
         for (Beast b : beasts) {
             if (b.getPennedCellId() != null && b.getPennedCellId().equals(cellId)) {
@@ -1654,9 +1366,9 @@ public class FudiService {
 
         fudiRepository.save(fudi);
 
-        log.info("用户 {} 放生 {} (T{}/{})，获得灵兽精华(价值{}灵气)", userId, beastName, tier, quality.getChineseName(), essenceValue);
+        log.info("用户 {} 放生 {} (T{}/{})", userId, beastName, tier, quality.getChineseName());
 
-        return Map.of("beastName", beastName, "essenceValue", essenceValue);
+        return Map.of("beastName", beastName, "tier", tier, "quality", quality.getChineseName());
     }
 
     public PenCellVO evolveBeast(Long userId, String position, String mode) {
@@ -1664,7 +1376,6 @@ public class FudiService {
         Fudi fudi = getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
         consumeSpiritEnergy(fudi, 8);
-        checkAuraDepleted(fudi);
 
         Map<String, Object> cell = getCellById(fudi, cellId);
         if (cell == null || !CellType.PEN.getCode().equals(cell.get("type"))) {
@@ -1699,11 +1410,8 @@ public class FudiService {
         }
 
         int cost = (currentTier + 1) * 200;
-        fudi.updateAura();
-        if (fudi.getAuraCurrent() < cost) {
-            throw new IllegalStateException("灵气不足（进化需 %d，当前 %d）".formatted(cost, fudi.getAuraCurrent()));
-        }
-        fudi.setAuraCurrent(fudi.getAuraCurrent() - cost);
+        checkSpiritStones(userId, cost);
+        deductSpiritStones(userId, cost);
 
         Spirit spirit = spiritRepository.findByFudiId(fudi.getId()).orElse(null);
         int affectionBonus = spirit != null && spirit.getAffection() != null ? Math.min(15, spirit.getAffection() / 7) : 0;
@@ -1711,10 +1419,8 @@ public class FudiService {
         boolean success = new Random().nextInt(100) < successRate;
 
         if (!success) {
-            double currentLifespan = (Double) cell.getOrDefault("lifespan_days", 7.0);
-            cell.put("lifespan_days", currentLifespan * 0.5);
             fudiRepository.save(fudi);
-            throw new IllegalStateException("进化失败！进化石和灵气已消耗，灵兽寿命减半");
+            throw new IllegalStateException("进化失败！进化石和灵石已消耗");
         }
 
         int newTier = currentTier + 1;
@@ -1722,17 +1428,14 @@ public class FudiService {
         cell.put("power_score", newTier * 10);
         cell.put("birth_time", LocalDateTime.now().toString());
         cell.put("evolution_count", (Integer) cell.getOrDefault("evolution_count", 0) + 1);
-
-        BeastQuality currentQuality = getBeastQuality(cell);
-        double lifeMult = currentQuality.getLifespanMultiplier();
-        cell.put("lifespan_days", newTier * 7.0 * lifeMult);
+        cell.put("hp_max", newTier * 200);
+        cell.put("hp_current", newTier * 200);
 
         boolean qualityUpgraded = false;
-        if (new Random().nextInt(100) < 10 && currentQuality != BeastQuality.DIVINE) {
-            BeastQuality newQuality = currentQuality.next();
+        if (new Random().nextInt(100) < 10 && getBeastQuality(cell) != BeastQuality.DIVINE) {
+            BeastQuality newQuality = getBeastQuality(cell).next();
             cell.put("quality", newQuality.getCode());
             cell.put("quality_ordinal", newQuality.getOrder());
-            cell.put("lifespan_days", newTier * 7.0 * newQuality.getLifespanMultiplier());
             qualityUpgraded = true;
         }
 
@@ -1742,10 +1445,8 @@ public class FudiService {
         }
 
         fudiRepository.save(fudi);
-        log.info(
-                "用户 {} 进化地块 {} 的灵兽 T{}->T{}{}", userId, cellId, currentTier, newTier,
-                qualityUpgraded ? " (品质连带提升!)" : ""
-        );
+        log.info("用户 {} 进化地块 {} 的灵兽 T{}->T{}{}", userId, cellId, currentTier, newTier,
+                qualityUpgraded ? " (品质连带提升!)" : "");
 
         return buildPenCellVO(cell);
     }
@@ -1758,11 +1459,8 @@ public class FudiService {
 
         BeastQuality nextQuality = currentQuality.next();
         int cost = nextQuality.getOrder() * 300;
-        fudi.updateAura();
-        if (fudi.getAuraCurrent() < cost) {
-            throw new IllegalStateException("灵气不足（突破需 %d，当前 %d）".formatted(cost, fudi.getAuraCurrent()));
-        }
-        fudi.setAuraCurrent(fudi.getAuraCurrent() - cost);
+        checkSpiritStones(userId, cost);
+        deductSpiritStones(userId, cost);
 
         Spirit spirit = spiritRepository.findByFudiId(fudi.getId()).orElse(null);
         int affectionBonus = spirit != null && spirit.getAffection() != null ? Math.min(20, spirit.getAffection() / 5) : 0;
@@ -1770,16 +1468,12 @@ public class FudiService {
         boolean success = new Random().nextInt(100) < successRate;
 
         if (!success) {
-            double currentLifespan = (Double) cell.getOrDefault("lifespan_days", 7.0);
-            cell.put("lifespan_days", currentLifespan * 0.5);
             fudiRepository.save(fudi);
-            throw new IllegalStateException("品质突破失败！进化石和灵气已消耗，灵兽寿命减半");
+            throw new IllegalStateException("品质突破失败！进化石和灵石已消耗");
         }
 
         cell.put("quality", nextQuality.getCode());
         cell.put("quality_ordinal", nextQuality.getOrder());
-        int tier = (Integer) cell.getOrDefault("tier", 1);
-        cell.put("lifespan_days", tier * 7.0 * nextQuality.getLifespanMultiplier());
 
         boolean mutationTriggered = rollMutation(10);
         if (mutationTriggered) {
@@ -1792,53 +1486,259 @@ public class FudiService {
         return buildPenCellVO(cell);
     }
 
-    // ===================== 灵兽系统 — 灵气耗尽与寿命检查 =====================
+    // ===================== 灵兽系统 — 出战/召回/恢复 =====================
 
-    private void checkBeastAuraDepletion(Fudi fudi, Map<String, Object> cell) {
-        fudi.updateAura();
-        String beastName = (String) cell.getOrDefault("beast_name", "灵兽");
+    public Map<String, Object> deployBeast(Long userId, String position) {
+        Integer cellId = parseCellId(position);
+        Fudi fudi = getFudiByUserId(userId)
+                .orElseThrow(() -> new IllegalStateException("未找到福地"));
 
-        int aura = fudi.getAuraCurrent();
-        if (aura <= 0) {
-            String depletionStartTime = (String) cell.get("aura_depletion_start");
-            LocalDateTime now = LocalDateTime.now();
-            if (depletionStartTime == null) {
-                cell.put("aura_depletion_start", now.toString());
-            } else {
-                long depletedSeconds = java.time.Duration.between(LocalDateTime.parse(depletionStartTime), now).getSeconds();
-                if (depletedSeconds >= 86400) {
-                    log.info("灵气持续耗尽24h，灵兽 {} 逃逸", beastName);
-                    clearBeastCell(cell);
-                    throw new IllegalStateException("灵气耗尽超过24小时，%s 已逃逸！".formatted(beastName));
-                }
-            }
-        } else if (cell.containsKey("aura_depletion_start")) {
-            cell.remove("aura_depletion_start");
+        Map<String, Object> cell = getCellById(fudi, cellId);
+        if (cell == null || !CellType.PEN.getCode().equals(cell.get("type"))) {
+            throw new IllegalStateException("地块 " + cellId + " 不是兽栏");
         }
+        if (Boolean.TRUE.equals(cell.get("is_incubating"))) {
+            throw new IllegalStateException("灵兽尚在孵化中");
+        }
+
+        if (Boolean.TRUE.equals(cell.get("is_deployed"))) {
+            return Map.of("success", true, "message", "灵兽已处于出战状态");
+        }
+
+        int hpCurrent = (Integer) cell.getOrDefault("hp_current", 0);
+        if (hpCurrent <= 0) {
+            throw new IllegalStateException("灵兽HP为0，请先恢复");
+        }
+
+        // 出战上限 2
+        long deployedCount = getDeployedCellCount(fudi);
+        if (deployedCount >= 2) {
+            throw new IllegalStateException("出战灵兽已达上限 (2只)，请先召回其他灵兽");
+        }
+
+        cell.put("is_deployed", true);
+        fudiRepository.save(fudi);
+
+        // 同步 Beast 实体
+        var beasts = beastRepository.findByFudiId(fudi.getId());
+        for (Beast b : beasts) {
+            if (b.getPennedCellId() != null && b.getPennedCellId().equals(cellId)) {
+                b.setIsDeployed(true);
+                beastRepository.save(b);
+                break;
+            }
+        }
+
+        String beastName = (String) cell.get("beast_name");
+        log.info("用户 {} 将灵兽 {} 设为出战", userId, beastName);
+        return Map.of("success", true, "message", "灵兽 [%s] 已出战".formatted(beastName));
     }
 
-    private void clearBeastCell(Map<String, Object> cell) {
-        cell.remove("beast_id");
-        cell.remove("beast_name");
-        cell.remove("tier");
-        cell.remove("quality");
-        cell.remove("quality_ordinal");
-        cell.remove("is_mutant");
-        cell.remove("mutation_traits");
-        cell.remove("is_incubating");
-        cell.remove("hatch_time");
-        cell.remove("mature_time");
-        cell.remove("production_stored");
-        cell.remove("last_production_time");
-        cell.remove("production_interval_hours");
-        cell.remove("lifespan_days");
-        cell.remove("birth_time");
-        cell.remove("power_score");
-        cell.remove("evolution_count");
-        cell.remove("aura_depletion_start");
+    public Map<String, Object> undeployBeast(Long userId, String position) {
+        if ("all".equalsIgnoreCase(position)) {
+            return undeployAllBeasts(userId);
+        }
+
+        Integer cellId = parseCellId(position);
+        Fudi fudi = getFudiByUserId(userId)
+                .orElseThrow(() -> new IllegalStateException("未找到福地"));
+
+        Map<String, Object> cell = getCellById(fudi, cellId);
+        if (cell == null || !CellType.PEN.getCode().equals(cell.get("type"))) {
+            throw new IllegalStateException("地块 " + cellId + " 不是兽栏");
+        }
+
+        if (!Boolean.TRUE.equals(cell.get("is_deployed"))) {
+            return Map.of("success", true, "message", "灵兽未在出战状态");
+        }
+
+        cell.put("is_deployed", false);
+        fudiRepository.save(fudi);
+
+        var beasts = beastRepository.findByFudiId(fudi.getId());
+        for (Beast b : beasts) {
+            if (b.getPennedCellId() != null && b.getPennedCellId().equals(cellId)) {
+                b.setIsDeployed(false);
+                beastRepository.save(b);
+                break;
+            }
+        }
+
+        String beastName = (String) cell.get("beast_name");
+        log.info("用户 {} 将灵兽 {} 召回", userId, beastName);
+        return Map.of("success", true, "message", "灵兽 [%s] 已召回".formatted(beastName));
+    }
+
+    private Map<String, Object> undeployAllBeasts(Long userId) {
+        Fudi fudi = getFudiByUserId(userId)
+                .orElseThrow(() -> new IllegalStateException("未找到福地"));
+
+        int count = 0;
+        if (fudi.getGridLayout() != null && fudi.getGridLayout().containsKey("cells")) {
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getGridLayout().get("cells");
+            for (Map<String, Object> cell : cells) {
+                if (CellType.PEN.getCode().equals(cell.get("type")) && Boolean.TRUE.equals(cell.get("is_deployed"))) {
+                    cell.put("is_deployed", false);
+                    count++;
+                }
+            }
+        }
+
+        var beasts = beastRepository.findByFudiId(fudi.getId());
+        for (Beast b : beasts) {
+            if (Boolean.TRUE.equals(b.getIsDeployed())) {
+                b.setIsDeployed(false);
+                beastRepository.save(b);
+            }
+        }
+
+        fudiRepository.save(fudi);
+        return Map.of("count", count);
+    }
+
+    public Map<String, Object> recoverBeast(Long userId, String position) {
+        if ("all".equalsIgnoreCase(position)) {
+            return recoverAllBeasts(userId);
+        }
+
+        Integer cellId = parseCellId(position);
+        Fudi fudi = getFudiByUserId(userId)
+                .orElseThrow(() -> new IllegalStateException("未找到福地"));
+
+        Map<String, Object> cell = getCellById(fudi, cellId);
+        if (cell == null || !CellType.PEN.getCode().equals(cell.get("type"))) {
+            throw new IllegalStateException("地块 " + cellId + " 不是兽栏");
+        }
+
+        if (Boolean.TRUE.equals(cell.get("is_incubating"))) {
+            throw new IllegalStateException("灵兽尚在孵化中");
+        }
+
+        int hpCurrent = (Integer) cell.getOrDefault("hp_current", 0);
+        int hpMax = (Integer) cell.getOrDefault("hp_max", 1);
+        if (hpCurrent >= hpMax) {
+            return Map.of("success", true, "message", "灵兽HP已满");
+        }
+
+        int missingHp = hpMax - hpCurrent;
+        int stoneCost = (int) Math.ceil(missingHp * 0.1);
+        checkSpiritStones(userId, stoneCost);
+        deductSpiritStones(userId, stoneCost);
+
+        cell.put("hp_current", hpMax);
+        fudiRepository.save(fudi);
+
+        // 同步 Beast 实体
+        var beasts = beastRepository.findByFudiId(fudi.getId());
+        for (Beast b : beasts) {
+            if (b.getPennedCellId() != null && b.getPennedCellId().equals(cellId)) {
+                b.setHpCurrent(b.getMaxHp());
+                beastRepository.save(b);
+                break;
+            }
+        }
+
+        String beastName = (String) cell.get("beast_name");
+        log.info("用户 {} 恢复灵兽 {} HP (消耗{}灵石)", userId, beastName, stoneCost);
+        return Map.of("success", true, "message", "灵兽 [%s] HP已恢复（消耗%d灵石）".formatted(beastName, stoneCost), "cost", stoneCost);
+    }
+
+    private Map<String, Object> recoverAllBeasts(Long userId) {
+        Fudi fudi = getFudiByUserId(userId)
+                .orElseThrow(() -> new IllegalStateException("未找到福地"));
+
+        int totalCost = 0;
+        int recoverCount = 0;
+
+        if (fudi.getGridLayout() != null && fudi.getGridLayout().containsKey("cells")) {
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getGridLayout().get("cells");
+            for (Map<String, Object> cell : cells) {
+                if (!CellType.PEN.getCode().equals(cell.get("type"))) continue;
+                if (Boolean.TRUE.equals(cell.get("is_incubating"))) continue;
+
+                int hpCurrent = (Integer) cell.getOrDefault("hp_current", 0);
+                int hpMax = (Integer) cell.getOrDefault("hp_max", 1);
+                if (hpCurrent >= hpMax) continue;
+
+                int missingHp = hpMax - hpCurrent;
+                totalCost += (int) Math.ceil(missingHp * 0.1);
+                cell.put("hp_current", hpMax);
+                recoverCount++;
+            }
+        }
+
+        if (recoverCount == 0) {
+            return Map.of("success", true, "message", "没有需要恢复的灵兽");
+        }
+
+        checkSpiritStones(userId, totalCost);
+        deductSpiritStones(userId, totalCost);
+
+        var beasts = beastRepository.findByFudiId(fudi.getId());
+        for (Beast b : beasts) {
+            if (b.getHpCurrent() != null && b.getMaxHp() != null && b.getHpCurrent() < b.getMaxHp()) {
+                b.setHpCurrent(b.getMaxHp());
+                beastRepository.save(b);
+            }
+        }
+
+        fudiRepository.save(fudi);
+        return Map.of("count", recoverCount, "cost", totalCost);
+    }
+
+    public List<BeastStatusVO> getDeployedBeasts(Long userId) {
+        Fudi fudi = getFudiByUserId(userId)
+                .orElseThrow(() -> new IllegalStateException("未找到福地"));
+        List<Beast> allBeasts = beastRepository.findByFudiId(fudi.getId());
+        return allBeasts.stream()
+                .filter(b -> Boolean.TRUE.equals(b.getIsDeployed()))
+                .map(this::convertToBeastStatusVO)
+                .toList();
+    }
+
+    private long getDeployedCellCount(Fudi fudi) {
+        if (fudi.getGridLayout() == null || !fudi.getGridLayout().containsKey("cells")) return 0;
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getGridLayout().get("cells");
+        return cells.stream()
+                .filter(c -> CellType.PEN.getCode().equals(c.get("type")) && Boolean.TRUE.equals(c.get("is_deployed")))
+                .count();
+    }
+
+    private BeastStatusVO convertToBeastStatusVO(Beast beast) {
+        return BeastStatusVO.builder()
+                .id(beast.getId())
+                .beastName(beast.getBeastName())
+                .quality(beast.getQuality())
+                .isMutant(Boolean.TRUE.equals(beast.getIsMutant()))
+                .mutationTraits(beast.getMutationTraits())
+                .tier(beast.getTier() != null ? beast.getTier() : 1)
+                .level(beast.getLevel() != null ? beast.getLevel() : 1)
+                .exp(beast.getExp() != null ? beast.getExp() : 0)
+                .attack(beast.getAttack() != null ? beast.getAttack() : 10)
+                .defense(beast.getDefense() != null ? beast.getDefense() : 8)
+                .maxHp(beast.getMaxHp() != null ? beast.getMaxHp() : 100)
+                .hpCurrent(beast.getHpCurrent() != null ? beast.getHpCurrent() : 100)
+                .skills(beast.getSkills())
+                .isDeployed(Boolean.TRUE.equals(beast.getIsDeployed()))
+                .needsRecovery(beast.needsRecovery())
+                .pennedCellId(beast.getPennedCellId() != null ? beast.getPennedCellId() : 0)
+                .build();
     }
 
     // ===================== 辅助方法 =====================
+
+    private void consumeSpiritEnergy(Fudi fudi, int baseCost) {
+        spiritRepository.findByFudiId(fudi.getId()).ifPresent(spirit -> {
+            spirit.restoreEnergy(fudi.getTribulationStage());
+            int actualCost = spirit.calculateEnergyConsumption(baseCost);
+            spirit.deductEnergy(actualCost);
+            spirit.setLastEnergyUpdate(LocalDateTime.now());
+            spiritRepository.save(spirit);
+        });
+    }
 
     private int getCropTier(int growTime) {
         if (growTime <= 24) return 1;
@@ -1903,7 +1803,7 @@ public class FudiService {
     }
 
     @SuppressWarnings("unchecked")
-    private void updateBeastProduction(Map<String, Object> cell, BeastQuality quality, Fudi fudi) {
+    private void updateBeastProduction(Map<String, Object> cell, Fudi fudi) {
         if (!cell.containsKey("last_production_time") || !cell.containsKey("mature_time")) return;
 
         LocalDateTime matureTime = LocalDateTime.parse((String) cell.get("mature_time"));
@@ -1914,22 +1814,8 @@ public class FudiService {
         }
         cell.put("is_incubating", false);
 
-        if (cell.containsKey("birth_time") && cell.containsKey("lifespan_days")) {
-            LocalDateTime birthTime = LocalDateTime.parse((String) cell.get("birth_time"));
-            double lifespanDays = (Double) cell.get("lifespan_days");
-            long livedSeconds = java.time.Duration.between(birthTime, now).getSeconds();
-            if (livedSeconds >= lifespanDays * 86400) {
-                String beastName = (String) cell.get("beast_name");
-                int tier = (Integer) cell.getOrDefault("tier", 1);
-                int essenceValue = (int) (tier * 200 * quality.getOutputMultiplier());
-                clearBeastCell(cell);
-                log.info("灵兽 {} 寿终正寝，获得灵兽精华(价值{}灵气)", beastName, essenceValue);
-                return;
-            }
-        }
-
-        double auraRatio = fudi.getAuraCurrent().doubleValue() / fudi.getAuraMax().doubleValue();
-        double auraFactor = auraRatio <= 0 ? 0 : auraRatio <= 0.1 ? 0.5 : 1.0;
+        // 出战不产出
+        if (Boolean.TRUE.equals(cell.get("is_deployed"))) return;
 
         LocalDateTime lastProduction = LocalDateTime.parse((String) cell.get("last_production_time"));
         double intervalHours = (Double) cell.getOrDefault("production_interval_hours", 4.0);
@@ -1941,7 +1827,8 @@ public class FudiService {
         if (cycles <= 0) return;
 
         int tier = (Integer) cell.getOrDefault("tier", 1);
-        int perCycle = (int) Math.round(tier * quality.getOutputMultiplier() * auraFactor * (1 + new Random().nextInt(tier + 1)) / 2.0);
+        BeastQuality quality = getBeastQuality(cell);
+        int perCycle = (int) Math.round(tier * quality.getOutputMultiplier() * (1 + new Random().nextInt(tier + 1)) / 2.0);
         int produced = Math.max(1, perCycle * cycles);
 
         int currentStored = (Integer) cell.getOrDefault("production_stored", 0);
@@ -1973,14 +1860,10 @@ public class FudiService {
                 .productionIntervalHours((Double) cell.getOrDefault("production_interval_hours", 4.0))
                 .productionStored((Integer) cell.getOrDefault("production_stored", 0))
                 .powerScore((Integer) cell.getOrDefault("power_score", 10))
-                .lifespanDays((Double) cell.getOrDefault("lifespan_days", 7.0))
                 .birthTime(cell.containsKey("birth_time") ? LocalDateTime.parse((String) cell.get("birth_time")) : null)
                 .build();
     }
 
-    /**
-     * 获取福地地块状态（供LLM查询可用地块编号）
-     */
     public Map<String, Object> getGridStatus(Long userId) {
         Fudi fudi = getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
@@ -2023,10 +1906,6 @@ public class FudiService {
                         cellInfo.put("isIncubating", cell.get("is_incubating"));
                         cellInfo.put("cellLevel", cell.get("cell_level"));
                     }
-                    case "node" -> {
-                        cellInfo.put("level", cell.get("level"));
-                        cellInfo.put("cellLevel", cell.get("cell_level"));
-                    }
                 }
 
                 occupiedCells.add(cellInfo);
@@ -2066,7 +1945,7 @@ public class FudiService {
         List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getGridLayout().get("cells");
 
         return cells.stream()
-                .filter(cell -> cellId.equals(cell.get("cell_id")))
+                .filter(c -> cellId.equals(c.get("cell_id")))
                 .findFirst()
                 .orElse(null);
     }
@@ -2075,7 +1954,6 @@ public class FudiService {
         if (fudi.getGridLayout() == null) {
             fudi.setGridLayout(new HashMap<>());
         }
-
         if (!fudi.getGridLayout().containsKey("cells")) {
             fudi.getGridLayout().put("cells", new ArrayList<>());
         }
@@ -2083,7 +1961,6 @@ public class FudiService {
         @SuppressWarnings("unchecked")
         List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getGridLayout().get("cells");
 
-        // 如果该cell_id已存在（覆盖更新），否则追加
         for (int i = 0; i < cells.size(); i++) {
             if (cell.get("cell_id").equals(cells.get(i).get("cell_id"))) {
                 cells.set(i, cell);
@@ -2102,7 +1979,6 @@ public class FudiService {
         List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getGridLayout().get("cells");
         for (int i = 0; i < cells.size(); i++) {
             if (cellId.equals(cells.get(i).get("cell_id"))) {
-                // 替换为empty，保留cell_id槽位
                 Map<String, Object> emptyCell = new HashMap<>();
                 emptyCell.put("cell_id", cellId);
                 emptyCell.put("type", "empty");
@@ -2110,6 +1986,28 @@ public class FudiService {
                 return;
             }
         }
+    }
+
+    private void clearBeastCell(Map<String, Object> cell) {
+        cell.remove("beast_id");
+        cell.remove("beast_name");
+        cell.remove("tier");
+        cell.remove("quality");
+        cell.remove("quality_ordinal");
+        cell.remove("is_mutant");
+        cell.remove("mutation_traits");
+        cell.remove("is_incubating");
+        cell.remove("hatch_time");
+        cell.remove("mature_time");
+        cell.remove("production_stored");
+        cell.remove("last_production_time");
+        cell.remove("production_interval_hours");
+        cell.remove("birth_time");
+        cell.remove("power_score");
+        cell.remove("evolution_count");
+        cell.remove("hp_current");
+        cell.remove("hp_max");
+        cell.remove("is_deployed");
     }
 
     private ItemTemplate findSeedTemplateByName(String name) {
@@ -2131,9 +2029,6 @@ public class FudiService {
                 .orElse(5.0);
     }
 
-    /**
-     * 更新生长进度（懒加载）
-     */
     private void updateGrowthProgress(Map<String, Object> cell) {
         if (cell.containsKey("mature_time")) {
             LocalDateTime matureTime = LocalDateTime.parse((String) cell.get("mature_time"));
@@ -2145,97 +2040,10 @@ public class FudiService {
                 LocalDateTime plantTime = LocalDateTime.parse((String) cell.get("plant_time"));
                 long totalSeconds = java.time.Duration.between(plantTime, matureTime).getSeconds();
                 long elapsedSeconds = java.time.Duration.between(plantTime, now).getSeconds();
-
                 double progress = Math.min(1.0, (double) elapsedSeconds / totalSeconds);
                 cell.put("growth_progress", progress);
             }
         }
-    }
-
-    // ===================== 灵兽战斗化方法 =====================
-
-    public Map<String, Object> deployBeast(Long userId, Long beastId) {
-        Beast beast = beastRepository.findById(beastId)
-                .orElseThrow(() -> new IllegalStateException("灵兽不存在"));
-
-        if (!beast.getUserId().equals(userId)) {
-            throw new IllegalStateException("这不是你的灵兽");
-        }
-
-        if (beast.getIsDeployed()) {
-            return Map.of("success", true, "message", "灵兽 [%s] 已处于出战状态".formatted(beast.getBeastName()));
-        }
-
-        if (beast.getHpCurrent() == null || beast.getHpCurrent() <= 0) {
-            throw new IllegalStateException("灵兽已阵亡，正在休养中");
-        }
-
-        if (beast.isInRecovery()) {
-            throw new IllegalStateException("灵兽正在休养中，预计 %s 恢复".formatted(beast.getRecoveryUntil()));
-        }
-
-        // 检查出战上限
-        User user = userRepository.findById(userId).orElseThrow();
-        int beastLimit = Math.min(3, user.getLevel() / 5 + 1);
-        List<Beast> deployed = beastRepository.findDeployedByUserId(userId);
-        if (deployed.size() >= beastLimit) {
-            throw new IllegalStateException("出战灵兽已达上限 (%d)".formatted(beastLimit));
-        }
-
-        beast.setIsDeployed(true);
-        beastRepository.save(beast);
-
-        log.info("用户 {} 将灵兽 {} 设为出战", userId, beast.getBeastName());
-        return Map.of("success", true, "message", "灵兽 [%s] 已出战".formatted(beast.getBeastName()));
-    }
-
-    public Map<String, Object> undeployBeast(Long userId, Long beastId) {
-        Beast beast = beastRepository.findById(beastId)
-                .orElseThrow(() -> new IllegalStateException("灵兽不存在"));
-
-        if (!beast.getUserId().equals(userId)) {
-            throw new IllegalStateException("这不是你的灵兽");
-        }
-
-        if (!beast.getIsDeployed()) {
-            return Map.of("success", true, "message", "灵兽 [%s] 未在出战状态".formatted(beast.getBeastName()));
-        }
-
-        beast.setIsDeployed(false);
-        beastRepository.save(beast);
-
-        log.info("用户 {} 将灵兽 {} 解除出战", userId, beast.getBeastName());
-        return Map.of("success", true, "message", "灵兽 [%s] 已解除出战".formatted(beast.getBeastName()));
-    }
-
-    public List<BeastStatusVO> getDeployedBeasts(Long userId) {
-        List<Beast> deployed = beastRepository.findDeployedByUserId(userId);
-        return deployed.stream()
-                .map(this::convertToBeastStatusVO)
-                .toList();
-    }
-
-    private BeastStatusVO convertToBeastStatusVO(Beast beast) {
-        return BeastStatusVO.builder()
-                .id(beast.getId())
-                .beastName(beast.getBeastName())
-                .quality(beast.getQuality())
-                .isMutant(beast.getIsMutant())
-                .mutationTraits(beast.getMutationTraits())
-                .tier(beast.getTier())
-                .level(beast.getLevel())
-                .exp(beast.getExp())
-                .attack(beast.getAttack())
-                .defense(beast.getDefense())
-                .maxHp(beast.getMaxHp())
-                .hpCurrent(beast.getHpCurrent())
-                .skills(beast.getSkills())
-                .isDeployed(beast.getIsDeployed())
-                .inRecovery(beast.isInRecovery())
-                .recoveryEndTime(beast.getRecoveryUntil() != null ? beast.getRecoveryUntil().toString() : null)
-                .lifespanDays(beast.getLifespanDays())
-                .pennedCellId(beast.getPennedCellId())
-                .build();
     }
 
     static int calculateBeastAttack(int level, BeastQuality quality) {
@@ -2246,11 +2054,6 @@ public class FudiService {
     static int calculateBeastDefense(int level, BeastQuality quality) {
         double q = getCombatStatMultiplier(quality);
         return (int) Math.round((8 + (level - 1) * 2 * q) * q);
-    }
-
-    static int calculateBeastMaxHp(int level, BeastQuality quality) {
-        double q = getCombatStatMultiplier(quality);
-        return (int) Math.round((100 + (level - 1) * 15 * q) * q);
     }
 
     private static double getCombatStatMultiplier(BeastQuality quality) {

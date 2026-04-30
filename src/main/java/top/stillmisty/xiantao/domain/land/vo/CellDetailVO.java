@@ -24,6 +24,5 @@ public class CellDetailVO {
     private List<String> mutationTraits;
     private Integer productionStored;
     private Boolean isIncubating;
-    private Integer durability;
     private LocalDateTime createTime;
 }

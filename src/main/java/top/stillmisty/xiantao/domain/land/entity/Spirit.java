@@ -94,19 +94,19 @@ public class Spirit extends Model<Spirit> {
         );
     }
 
-    public void updateEmotionState(int auraCurrent, int auraMax) {
+    public void updateEmotionState() {
         if (energy != null && energy <= 0) {
             emotionState = EmotionState.FATIGUED;
             return;
         }
 
-        double auraRatio = (double) auraCurrent / auraMax;
-        if (auraRatio < 0.3) {
-            emotionState = EmotionState.ANXIOUS;
-        } else if (auraRatio > 0.8) {
+        int aff = affection != null ? affection : 0;
+        if (aff >= 800) {
             emotionState = EmotionState.HAPPY;
-        } else {
+        } else if (aff >= 400) {
             emotionState = EmotionState.CALM;
+        } else {
+            emotionState = EmotionState.ANXIOUS;
         }
     }
 }

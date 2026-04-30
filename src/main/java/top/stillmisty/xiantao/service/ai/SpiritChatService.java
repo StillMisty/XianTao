@@ -57,8 +57,8 @@ public class SpiritChatService {
                 Spirit spirit = spiritRepository.findByFudiId(fudi.getId())
                         .orElseThrow(() -> new IllegalStateException("地灵不存在"));
 
-                fudi.updateAura();
-                spirit.updateEmotionState(fudi.getAuraCurrent(), fudi.getAuraMax());
+                fudi.touchOnlineTime();
+                spirit.updateEmotionState();
                 spiritRepository.save(spirit);
 
                 String systemPrompt = buildPrompt(fudi, spirit);
@@ -92,8 +92,6 @@ public class SpiritChatService {
 
         return promptTemplates.buildSpiritPrompt(
                 spirit.getMbtiType(),
-                fudi.getAuraCurrent(),
-                fudi.getAuraMax(),
                 fudi.getTribulationStage(),
                 spirit.getEnergy(),
                 spirit.getAffection(),
@@ -134,20 +132,18 @@ public class SpiritChatService {
         StringBuilder sb = new StringBuilder();
         sb.append("福地状态（共").append(totalCells).append("个地块）：\n");
 
-        int farmCount = 0, penCount = 0, nodeCount = 0;
+        int farmCount = 0, penCount = 0;
         for (var cell : occupiedCells) {
             String type = (String) cell.get("type");
             switch (type) {
                 case "farm" -> farmCount++;
                 case "pen" -> penCount++;
-                case "node" -> nodeCount++;
             }
         }
 
         List<String> typeSummary = new ArrayList<>();
         if (farmCount > 0) typeSummary.add("灵田×" + farmCount);
         if (penCount > 0) typeSummary.add("兽栏×" + penCount);
-        if (nodeCount > 0) typeSummary.add("阵眼×" + nodeCount);
         if (!typeSummary.isEmpty()) {
             sb.append("地块组成：").append(String.join("、", typeSummary)).append("\n");
         }
@@ -188,10 +184,6 @@ public class SpiritChatService {
                     if (hunger != null) {
                         sb.append(" 饥饿值:").append(hunger);
                     }
-                }
-                case "node" -> {
-                    Integer level = (Integer) cell.get("level");
-                    sb.append(" Lv.").append(level);
                 }
             }
             sb.append("\n");

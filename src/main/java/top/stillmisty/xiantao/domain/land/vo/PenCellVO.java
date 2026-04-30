@@ -27,7 +27,5 @@ public class PenCellVO {
     private double productionIntervalHours;
     private Integer productionStored;
     private Integer powerScore;
-    private double lifespanDays;
     private LocalDateTime birthTime;
-    private boolean auraDepletedEscapeWarning;
 }

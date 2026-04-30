@@ -10,8 +10,7 @@ import lombok.Getter;
 public enum CellType {
     EMPTY("empty", "空地"),
     FARM("farm", "灵田"),
-    PEN("pen", "兽栏"),
-    NODE("node", "阵眼");
+    PEN("pen", "兽栏");
 
     @EnumValue
     private final String code;

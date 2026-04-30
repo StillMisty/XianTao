@@ -8,7 +8,6 @@ import com.mybatisflex.core.activerecord.Model;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import top.stillmisty.xiantao.domain.land.enums.BeastQuality;
 import top.stillmisty.xiantao.domain.land.enums.MutationTrait;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
 
@@ -25,36 +24,15 @@ import java.util.Map;
 @Data(staticConstructor = "create")
 public class Fudi extends Model<Fudi> {
 
-    /**
-     * 福地唯一ID
-     */
     @Id(keyType = KeyType.Auto)
     private Long id;
 
-    /**
-     * 所属玩家ID
-     */
     private Long userId;
-
-    /**
-     * 当前灵气值
-     */
-    private Integer auraCurrent;
-
-    /**
-     * 灵气上限（由劫数和天劫胜利积累）
-     */
-    private Integer auraMax;
 
     /**
      * 当前劫数（每渡过一次天劫+1，无上限）
      */
     private Integer tribulationStage;
-
-    /**
-     * 上次灵气计算时间
-     */
-    private LocalDateTime lastAuraUpdate;
 
     /**
      * 上次上线时间
@@ -77,62 +55,13 @@ public class Fudi extends Model<Fudi> {
      */
     private Integer tribulationWinStreak;
 
-    /**
-     * 创建时间
-     */
     @Column(onInsertValue = "now()")
     private LocalDateTime createTime;
 
-    /**
-     * 更新时间
-     */
     @Column(onUpdateValue = "now()", onInsertValue = "now()")
     private LocalDateTime updateTime;
 
     // ===================== 业务逻辑方法 =====================
-
-    /**
-     * 从JSONB字段解析灵兽品质灵气消耗倍率
-     */
-    private static double getPenQualityAuraMultiplier(String qualityCode) {
-        try {
-            return BeastQuality.fromCode(qualityCode).getAuraCostMultiplier();
-        } catch (IllegalArgumentException e) {
-            return 1.0;
-        }
-    }
-
-    /**
-     * 计算每小时灵气消耗
-     * 公式：已占地块数 × 2 + Σ(灵兽等阶 × 5 × 品质倍率) + Σ(阵眼等级 × 3)
-     * 灵气耗尽后所有功能（除献祭外）不可用
-     */
-    public int calculateHourlyAuraCost() {
-        int occupiedCells = getOccupiedCellCount();
-        int cellCost = occupiedCells * 2;
-
-        int beastCost = 0;
-        int nodeCost = 0;
-
-        if (gridLayout != null && gridLayout.containsKey("cells")) {
-            @SuppressWarnings("unchecked")
-            List<Map<String, Object>> cells = (List<Map<String, Object>>) gridLayout.get("cells");
-            for (Map<String, Object> cell : cells) {
-                String type = (String) cell.get("type");
-                if ("pen".equals(type) && cell.containsKey("beast_tier")) {
-                    int tier = (Integer) cell.get("beast_tier");
-                    double qualityMultiplier = cell.containsKey("quality") ?
-                            getPenQualityAuraMultiplier((String) cell.get("quality")) : 1.0;
-                    beastCost += (int) (tier * 5 * qualityMultiplier);
-                } else if ("node".equals(type) && cell.containsKey("level")) {
-                    int level = (Integer) cell.get("level");
-                    nodeCost += level * 3;
-                }
-            }
-        }
-
-        return cellCost + beastCost + nodeCost;
-    }
 
     /**
      * 获取已占地块数
@@ -149,47 +78,15 @@ public class Fudi extends Model<Fudi> {
     }
 
     /**
-     * 懒加载计算当前灵气值
-     * 根据 (当前时间 - 上次更新时间) × 每小时消耗 计算实际消耗
-     * 灵气可降至 0，耗尽后所有功能（除献祭外）不可用
+     * 更新在线时间
      */
-    public int calculateCurrentAura() {
-        if (lastAuraUpdate == null) {
-            return auraCurrent;
-        }
-
-        LocalDateTime now = LocalDateTime.now();
-        long hoursElapsed = java.time.Duration.between(lastAuraUpdate, now).toHours();
-
-        if (hoursElapsed <= 0) {
-            return auraCurrent;
-        }
-
-        int hourlyCost = calculateHourlyAuraCost();
-        int totalCost = (int) (hoursElapsed * hourlyCost);
-        return Math.max(0, auraCurrent - totalCost);
-    }
-
-    /**
-     * 更新灵气值（懒加载后保存）
-     */
-    public void updateAura() {
-        auraCurrent = calculateCurrentAura();
-        lastAuraUpdate = LocalDateTime.now();
+    public void touchOnlineTime() {
         lastOnlineTime = LocalDateTime.now();
     }
 
     /**
-     * 献祭装备获得灵气
-     */
-    public int calculateSacrificeAura(int itemBaseValue, double qualityMultiplier, int itemLevel) {
-        double result = itemBaseValue * qualityMultiplier * (1 + itemLevel * 0.05);
-        return (int) result;
-    }
-
-    /**
      * 计算福地防御力（用于天劫结算）
-     * 公式：Σ(阵眼耐久) + Σ(灵兽战力×护主加成) + 玩家STR × 10 + 劫数 × 50
+     * 公式：Σ(出战灵兽战力 × 护主乘数) + 玩家STR × 10 + 劫数 × 50
      *
      * @param playerStr 玩家力量值
      * @return 福地总防御力
@@ -205,11 +102,10 @@ public class Fudi extends Model<Fudi> {
         List<Map<String, Object>> cells = (List<Map<String, Object>>) gridLayout.get("cells");
         for (Map<String, Object> cell : cells) {
             String type = (String) cell.get("type");
-            if ("node".equals(type) && cell.containsKey("durability")) {
-                defense += ((Number) cell.get("durability")).intValue();
-            } else if ("pen".equals(type) && cell.containsKey("power_score")) {
+            if ("pen".equals(type) && cell.containsKey("power_score")
+                    && Boolean.TRUE.equals(cell.get("is_deployed"))) {
                 double power = ((Number) cell.get("power_score")).doubleValue();
-                // 护主特性：灵兽携带GUARDIAN变异时战力+50%
+                // 护主特性：灵兽携带GUARDIAN变异时战力×1.5
                 if (cell.containsKey("mutation_traits")) {
                     List<String> traits = (List<String>) cell.get("mutation_traits");
                     if (traits.contains(MutationTrait.GUARDIAN.getCode())) {

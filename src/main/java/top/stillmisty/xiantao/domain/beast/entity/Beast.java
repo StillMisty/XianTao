@@ -53,8 +53,6 @@ public class Beast {
 
     private LocalDateTime recoveryUntil;
 
-    private Double lifespanDays;
-
     private Integer pennedCellId;
 
     private LocalDateTime birthTime;
@@ -65,11 +63,11 @@ public class Beast {
 
     private LocalDateTime updateTime;
 
-    public boolean isInRecovery() {
-        return recoveryUntil != null && recoveryUntil.isAfter(LocalDateTime.now());
+    public boolean needsRecovery() {
+        return hpCurrent != null && maxHp != null && hpCurrent < maxHp;
     }
 
     public boolean canFight() {
-        return isDeployed && hpCurrent > 0 && !isInRecovery();
+        return Boolean.TRUE.equals(isDeployed) && hpCurrent != null && hpCurrent > 0;
     }
 }
