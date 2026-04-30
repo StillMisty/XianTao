@@ -39,8 +39,6 @@ public class ItemTemplate {
      */
     private ItemType type;
 
-
-
     /**
      * 类型特有属性 JSONB
      * 装备: {"slot":"WEAPON","equip_level":1,"base_attack":2,"base_defense":0,"base_stat_bonus":{"str":1},"drop_weight":{...}}
