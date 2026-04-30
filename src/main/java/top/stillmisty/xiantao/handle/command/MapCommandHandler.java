@@ -119,6 +119,10 @@ public class MapCommandHandler {
     }
 
     private String formatTrainingReward(TrainingRewardVO rewards) {
+        if (rewards.getSummary() != null && rewards.getMapName() == null) {
+            return rewards.getSummary();
+        }
+
         StringBuilder sb = new StringBuilder();
         sb.append("【历练结算】\n");
         sb.append(String.format("地图: %s\n", rewards.getMapName()));

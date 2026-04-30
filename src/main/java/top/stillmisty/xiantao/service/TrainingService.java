@@ -74,11 +74,11 @@ public class TrainingService {
 
         // 计算历练时长
         long minutesTraining = Duration.between(user.getTrainingStartTime(), LocalDateTime.now()).toMinutes();
-        if (minutesTraining <= 0) {
+        if (minutesTraining <= 5) {
             return TrainingRewardVO.builder()
                     .userId(userId)
                     .mapId(user.getLocationId())
-                    .summary("历练时间不足")
+                    .summary("历练时间过短毫无收获")
                     .build();
         }
 
@@ -235,7 +235,7 @@ public class TrainingService {
     }
 
     /**
-     * 计算物品奖励（仅基础材料：rarity=common）
+     * 计算物品奖励
      */
     private List<Map<String, Object>> calculateItemsReward(long minutesTraining, double efficiencyMultiplier, MapNode mapNode) {
         List<Map<String, Object>> items = new ArrayList<>();
@@ -247,7 +247,7 @@ public class TrainingService {
                 .stream()
                 .collect(Collectors.toMap(ItemTemplate::getId, t -> t));
 
-        int dropChances = (int) (minutesTraining / 10 * efficiencyMultiplier);
+        int dropChances = (int) (minutesTraining / 10.0 * efficiencyMultiplier);
 
         for (int i = 0; i < dropChances; i++) {
             int totalWeight = specialties.values().stream().mapToInt(Integer::intValue).sum();
