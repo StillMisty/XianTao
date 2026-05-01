@@ -23,58 +23,6 @@ public class CultivationHandle {
     private final CultivationCommandHandler cultivationCommandHandler;
 
     /**
-     * 处理属性加点命令
-     * 格式：加点 [属性名] [数值]
-     * 示例：加点 力量 5
-     */
-    @Listener
-    @ContentTrim
-    @Filter("加点 {{attr}} {{count}}")
-    public void allocatePoints(MessageEvent event, @FilterValue("attr") String attr, @FilterValue("count") String count) {
-        log.debug("收到加点请求 - AuthorId: {}, Attr: {}, Count: {}", event.getAuthorId(), attr, count);
-
-        if (attr == null || attr.isEmpty()) {
-            event.replyBlocking("用法：加点 [属性名] [数值]\n示例：加点 力量 5\n可用属性：力量、体质、敏捷、智慧");
-            return;
-        }
-
-        int points;
-        try {
-            points = Integer.parseInt(count);
-        } catch (NumberFormatException e) {
-            event.replyBlocking("点数必须为数字");
-            return;
-        }
-
-        String response = cultivationCommandHandler.handleAllocatePoints(
-                PlatformType.ONE_BOT_V11,
-                event.getAuthorId().toString(),
-                attr,
-                points
-        );
-
-        event.replyBlocking(response);
-    }
-
-    /**
-     * 处理洗点命令
-     * 格式：洗点
-     */
-    @Listener
-    @ContentTrim
-    @Filter("洗点")
-    public void resetPoints(MessageEvent event) {
-        log.debug("收到洗点请求 - AuthorId: {}", event.getAuthorId());
-
-        String response = cultivationCommandHandler.handleResetPoints(
-                PlatformType.ONE_BOT_V11,
-                event.getAuthorId().toString()
-        );
-
-        event.replyBlocking(response);
-    }
-
-    /**
      * 处理突破命令
      * 格式：突破
      */

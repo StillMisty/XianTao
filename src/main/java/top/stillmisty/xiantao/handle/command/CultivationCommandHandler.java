@@ -98,27 +98,6 @@ public class CultivationCommandHandler {
         };
     }
 
-    public String handleAllocatePoints(PlatformType platform, String openId, String attributeName, int points) {
-        log.debug("处理属性加点 - Platform: {}, OpenId: {}, Attribute: {}, Points: {}", platform, openId, attributeName, points);
-        AttributeType attributeType = parseAttributeType(attributeName);
-        if (attributeType == null) {
-            return "无效的属性名称，请使用：力量、体质、敏捷、智慧";
-        }
-        return switch (cultivationService.allocateAttributePoints(platform, openId, attributeType, points)) {
-            case ServiceResult.Failure(var msg) -> msg;
-            case ServiceResult.Success(var vo) ->
-                    vo.isSuccess() ? formatAttributeAllocationResult(vo) : vo.getMessage();
-        };
-    }
-
-    public String handleResetPoints(PlatformType platform, String openId) {
-        log.debug("处理洗点 - Platform: {}, OpenId: {}", platform, openId);
-        return switch (cultivationService.resetStatPoints(platform, openId)) {
-            case ServiceResult.Failure(var msg) -> msg;
-            case ServiceResult.Success(var vo) -> vo.isSuccess() ? formatStatResetResult(vo) : vo.getMessage();
-        };
-    }
-
     public String handleBreakthrough(PlatformType platform, String openId) {
         log.debug("处理突破 - Platform: {}, OpenId: {}", platform, openId);
         return switch (cultivationService.attemptBreakthrough(platform, openId)) {
@@ -163,10 +142,7 @@ public class CultivationCommandHandler {
         sb.append(String.format("HP：%d/%d (%.1f%%)\n", status.getHpCurrent(), status.getHpMax(), status.getHpPercentage()));
         sb.append("\n");
         sb.append("【基础属性】\n");
-        sb.append(String.format("  力量：%d\n", status.getBaseStr()));
-        sb.append(String.format("  体质：%d\n", status.getBaseCon()));
-        sb.append(String.format("  敏捷：%d\n", status.getBaseAgi()));
-        sb.append(String.format("  智慧：%d\n", status.getBaseWis()));
+        sb.append(String.format("  属性值：%d\n", status.getStatValue()));
         if (status.getEquipStr() != 0 || status.getEquipCon() != 0 || status.getEquipAgi() != 0 || status.getEquipWis() != 0) {
             sb.append("\n【装备加成】\n");
             if (status.getEquipStr() != 0) sb.append(String.format("  力量：+%d\n", status.getEquipStr()));
@@ -177,9 +153,6 @@ public class CultivationCommandHandler {
         sb.append("\n【战斗属性】\n");
         sb.append(String.format("  攻击：%d\n", status.getAttack()));
         sb.append(String.format("  防御：%d\n", status.getDefense()));
-        if (status.getFreeStatPoints() > 0) {
-            sb.append(String.format("\n可用属性点：%d\n", status.getFreeStatPoints()));
-        }
         if (status.getBreakthroughSuccessRate() != null) {
             sb.append("\n【突破信息】\n");
             sb.append(String.format("  突破成功率：%.1f%%\n", status.getBreakthroughSuccessRate()));
@@ -323,7 +296,6 @@ public class CultivationCommandHandler {
         sb.append(result.getMessage()).append("\n\n");
         if (result.getSuccessRate() != null) sb.append(String.format("突破成功率：%.1f%%\n", result.getSuccessRate()));
         if (result.getNewLevel() != null) sb.append(String.format("当前境界：第%d层\n", result.getNewLevel()));
-        if (result.getFreeStatPoints() != null) sb.append(String.format("可用属性点：%d\n", result.getFreeStatPoints()));
         if (result.getNextBreakthroughRate() != null)
             sb.append(String.format("下次突破成功率：%.1f%%", result.getNextBreakthroughRate()));
         return sb.toString();

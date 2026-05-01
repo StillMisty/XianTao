@@ -40,6 +40,8 @@ public class Spirit extends Model<Spirit> {
 
     private LocalDateTime lastGiftTime;
 
+    private LocalDateTime lastEventTime;
+
     @Column(onInsertValue = "now()")
     private LocalDateTime createTime;
 

@@ -16,11 +16,13 @@ import java.util.List;
 public class PlayerCombatant implements Combatant {
     private final User user;
     private final Equipment weapon;
+    private final EquipmentTemplateRepository equipmentTemplateRepository;
     private int hp;
 
     public PlayerCombatant(User user, EquipmentRepository equipmentRepository,
                            EquipmentTemplateRepository equipmentTemplateRepository) {
         this.user = user;
+        this.equipmentTemplateRepository = equipmentTemplateRepository;
         this.hp = user.getHpCurrent() != null ? user.getHpCurrent() : user.calculateMaxHp();
 
         Equipment equippedWeapon = equipmentRepository.findEquippedByUserId(user.getId()).stream()
@@ -41,23 +43,24 @@ public class PlayerCombatant implements Combatant {
 
     @Override
     public int getSpeed() {
-        return user.getStatAgi() != null ? user.getStatAgi() * 2 + 10 : 20;
+        int statValue = user.getStatValue();
+        return statValue * 2 + 10;
     }
 
     @Override
     public int getAttack() {
-        int totalStr = user.getStatStr() != null ? user.getStatStr() : 5;
+        int statValue = user.getStatValue();
         int equipAttack = 0;
         if (weapon != null) {
             equipAttack = weapon.getFinalAttack();
         }
-        return totalStr * 2 + equipAttack;
+        return statValue * 2 + equipAttack;
     }
 
     @Override
     public int getDefense() {
-        int totalCon = user.getStatCon() != null ? user.getStatCon() : 5;
-        return totalCon;
+        int statValue = user.getStatValue();
+        return statValue;
     }
 
     @Override
@@ -95,6 +98,17 @@ public class PlayerCombatant implements Combatant {
     }
 
     public int getWis() {
-        return user.getStatWis() != null ? user.getStatWis() : 5;
+        return user.getStatValue();
+    }
+
+    @Override
+    public double getAttackSpeed() {
+        if (weapon == null) {
+            return 1.0;
+        }
+        // 从装备模板获取攻速
+        return equipmentTemplateRepository.findById(weapon.getTemplateId())
+                .map(template -> template.getAttackSpeed() != null ? template.getAttackSpeed() : 1.0)
+                .orElse(1.0);
     }
 }

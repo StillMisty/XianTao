@@ -8,7 +8,6 @@ import top.stillmisty.xiantao.domain.map.entity.MapNode;
 import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
 import top.stillmisty.xiantao.domain.user.entity.DaoProtection;
 import top.stillmisty.xiantao.domain.user.entity.User;
-import top.stillmisty.xiantao.domain.user.enums.AttributeType;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.repository.DaoProtectionRepository;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
@@ -41,18 +40,6 @@ public class CultivationService {
 
     // ===================== 公开 API（含认证） =====================
 
-    public ServiceResult<AttributeAllocationResult> allocateAttributePoints(PlatformType platform, String openId, AttributeType attributeType, int points) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
-        return new ServiceResult.Success<>(allocateAttributePoints(auth.userId(), attributeType, points));
-    }
-
-    public ServiceResult<StatResetResult> resetStatPoints(PlatformType platform, String openId) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
-        return new ServiceResult.Success<>(resetStatPoints(auth.userId()));
-    }
-
     public ServiceResult<BreakthroughResult> attemptBreakthrough(PlatformType platform, String openId) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
         if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
@@ -80,100 +67,6 @@ public class CultivationService {
     // ===================== 内部 API（需预先完成认证） =====================
 
     /**
-     * 分配属性点
-     *
-     * @param userId        用户ID
-     * @param attributeType 属性类型
-     * @param points        点数
-     * @return 分配结果
-     */
-    public AttributeAllocationResult allocateAttributePoints(Long userId, AttributeType attributeType, int points) {
-        User user = userRepository.findById(userId).orElseThrow();
-
-        // 验证点数
-        if (points <= 0) {
-            return AttributeAllocationResult.builder()
-                    .success(false)
-                    .message("分配的点数必须大于0")
-                    .build();
-        }
-
-        if (user.getFreeStatPoints() < points) {
-            return AttributeAllocationResult.builder()
-                    .success(false)
-                    .message(String.format("可用属性点不足，当前仅有 %d 点", user.getFreeStatPoints()))
-                    .build();
-        }
-
-        // 执行分配
-        boolean success = user.allocateStatPoints(attributeType, points);
-        if (!success) {
-            return AttributeAllocationResult.builder()
-                    .success(false)
-                    .message("属性分配失败")
-                    .build();
-        }
-
-        userRepository.save(user);
-
-        String attributeName = getAttributeName(attributeType);
-        return AttributeAllocationResult.builder()
-                .success(true)
-                .message(String.format("成功将 %d 点分配到 %s", points, attributeName))
-                .attributeType(attributeType)
-                .attributeName(attributeName)
-                .allocatedPoints(points)
-                .remainingPoints(user.getFreeStatPoints())
-                .currentAttributeValue(getAttributeValue(user, attributeType))
-                .build();
-    }
-
-    /**
-     * 洗点（重置所有属性点）
-     *
-     * @param userId 用户ID
-     * @return 洗点结果
-     */
-    public StatResetResult resetStatPoints(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow();
-
-        // 检查冷却时间
-        if (!user.canResetPoints()) {
-            long hoursRemaining = user.getResetCooldownHoursRemaining();
-            LocalDateTime nextResetTime = user.getNextResetTime();
-
-            return StatResetResult.builder()
-                    .success(false)
-                    .message(String.format("道基尚未稳固，距离下次散功重修还需 %d 小时", hoursRemaining))
-                    .nextResetTime(nextResetTime)
-                    .cooldownHoursRemaining(hoursRemaining)
-                    .build();
-        }
-
-        // 记录重置前的属性值
-        int oldStr = user.getStatStr();
-        int oldCon = user.getStatCon();
-        int oldAgi = user.getStatAgi();
-        int oldWis = user.getStatWis();
-
-        // 执行洗点
-        user.resetAllStatPoints();
-        userRepository.save(user);
-
-        return StatResetResult.builder()
-                .success(true)
-                .message("散功重修完成！所有属性已重置为基础值，属性点已全部返还")
-                .resetStr(oldStr - 5)
-                .resetCon(oldCon - 5)
-                .resetAgi(oldAgi - 5)
-                .resetWis(oldWis - 5)
-                .totalFreePoints(user.getFreeStatPoints())
-                .nextResetTime(user.getNextResetTime())
-                .cooldownHoursRemaining(72L)
-                .build();
-    }
-
-    /**
      * 突破境界
      *
      * @param userId 用户ID
@@ -190,7 +83,6 @@ public class CultivationService {
                     .message(String.format("修为不足，突破需要 %d 修为，当前仅有 %d 修为", expNeeded, user.getExp()))
                     .successRate(user.calculateBreakthroughSuccessRate())
                     .newLevel(user.getLevel())
-                    .freeStatPoints(user.getFreeStatPoints())
                     .failCount(user.getBreakthroughFailCount())
                     .nextBreakthroughRate(user.calculateBreakthroughSuccessRate())
                     .build();
@@ -211,7 +103,6 @@ public class CultivationService {
             int oldLevel = user.getLevel();
             user.setLevel(oldLevel + 1);
             user.setExp(user.getExp() - expNeeded);
-            user.setFreeStatPoints(user.getFreeStatPoints() + 1);
             user.setBreakthroughFailCount(0);
             user.setHpCurrent(user.calculateMaxHp()); // 恢复满血
 
@@ -226,7 +117,6 @@ public class CultivationService {
                     .breakthroughSuccess(true)
                     .successRate(finalSuccessRate)
                     .newLevel(user.getLevel())
-                    .freeStatPoints(user.getFreeStatPoints())
                     .failCount(0)
                     .nextBreakthroughRate(user.calculateBreakthroughSuccessRate())
                     .build();
@@ -248,7 +138,6 @@ public class CultivationService {
                     .breakthroughSuccess(false)
                     .successRate(finalSuccessRate)
                     .newLevel(user.getLevel())
-                    .freeStatPoints(user.getFreeStatPoints())
                     .failCount(user.getBreakthroughFailCount())
                     .nextBreakthroughRate(user.calculateBreakthroughSuccessRate())
                     .build();
@@ -469,30 +358,6 @@ public class CultivationService {
      */
     private Optional<User> findUserByNickname(String nickname) {
         return userRepository.findByNickname(nickname);
-    }
-
-    /**
-     * 获取属性名称
-     */
-    private String getAttributeName(AttributeType type) {
-        return switch (type) {
-            case STR -> "力量";
-            case CON -> "体质";
-            case AGI -> "敏捷";
-            case WIS -> "智慧";
-        };
-    }
-
-    /**
-     * 获取属性值
-     */
-    private Integer getAttributeValue(User user, AttributeType type) {
-        return switch (type) {
-            case STR -> user.getStatStr();
-            case CON -> user.getStatCon();
-            case AGI -> user.getStatAgi();
-            case WIS -> user.getStatWis();
-        };
     }
 
     /**

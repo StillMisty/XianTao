@@ -23,11 +23,7 @@ public class UserStatusVO {
     private Integer hpCurrent;
     private Integer hpMax;
     private Double hpPercentage;
-    private Integer statStr;
-    private Integer statCon;
-    private Integer statAgi;
-    private Integer statWis;
-    private Integer freeStatPoints;
+    private Integer statValue;
     private Long spiritStones;
     private Integer breakthroughFailCount;
     private Double nextBreakthroughRate;

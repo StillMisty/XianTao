@@ -39,10 +39,7 @@ public class CharacterStatusResult {
     private Double hpPercentage;
 
     // ===================== 基础属性 =====================
-    private Integer baseStr;
-    private Integer baseCon;
-    private Integer baseAgi;
-    private Integer baseWis;
+    private Integer statValue;
 
     // ===================== 装备加成 =====================
     private Integer equipStr;
@@ -61,7 +58,6 @@ public class CharacterStatusResult {
     private Integer defense;
 
     // ===================== 其他 =====================
-    private Integer freeStatPoints;
     private Long spiritStones;
 
     // ===================== 突破相关 =====================

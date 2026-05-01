@@ -1,5 +1,6 @@
 package top.stillmisty.xiantao.domain.skill.entity;
 
+import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
@@ -7,6 +8,7 @@ import lombok.Data;
 import top.stillmisty.xiantao.domain.skill.enums.BindingType;
 import top.stillmisty.xiantao.domain.skill.enums.EffectType;
 import top.stillmisty.xiantao.domain.skill.enums.SkillType;
+import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
 
 import java.time.LocalDateTime;
 
@@ -33,7 +35,12 @@ public class Skill {
 
     private String damageFormula;
 
-    private Double powerMultiplier;
+    private Integer requireWis;
+
+    private Long requireSkillId;
+
+    @Column(typeHandler = PgJsonbTypeHandler.class)
+    private String tags;
 
     private Integer levelRequirement;
 

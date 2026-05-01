@@ -257,9 +257,10 @@ public class DefaultCombatEngine implements CombatEngine {
                 logEntry.put("isKill", isKill);
                 combatLog.add(logEntry);
 
-                // 更新冷却
+                // 更新冷却（攻速影响CD恢复）
+                double attackSpeed = attacker.getAttackSpeed();
                 for (var entry : new HashMap<>(skillCooldowns).entrySet()) {
-                    int cd = entry.getValue() - 1;
+                    int cd = entry.getValue() - (int) Math.round(attackSpeed);
                     if (cd <= 0) {
                         skillCooldowns.remove(entry.getKey());
                     } else {
@@ -367,7 +368,6 @@ public class DefaultCombatEngine implements CombatEngine {
         String formula = skill.getDamageFormula();
         if (formula == null) return calculateNormalDamage(attacker, defender, buffManager);
 
-        double multiplier = skill.getPowerMultiplier() != null ? skill.getPowerMultiplier() : 1.0;
         double advantageMultiplier = 1.0;
         if (attacker instanceof PlayerCombatant pc && defender instanceof Monster monster) {
             advantageMultiplier = getWeaponTypeAdvantage(pc.getWeaponType(), monster.getMonsterType());
@@ -383,7 +383,7 @@ public class DefaultCombatEngine implements CombatEngine {
             baseDmg = (int) Math.round(attacker.getAttack() * 1.5);
         }
 
-        int rawDamage = (int) Math.round(baseDmg * multiplier * advantageMultiplier * attackModifier);
+        int rawDamage = (int) Math.round(baseDmg * advantageMultiplier * attackModifier);
 
         // 应用防御修正（破甲效果）
         double defenseModifier = buffManager.getDefenseModifier(defender.getId());

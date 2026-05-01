@@ -15,7 +15,6 @@ public class BreakthroughResult {
     private Boolean breakthroughSuccess;
     private Double successRate;
     private Integer newLevel;
-    private Integer freeStatPoints;
     private Integer failCount;
     private Double nextBreakthroughRate;
     private UserStatusVO userStatus;

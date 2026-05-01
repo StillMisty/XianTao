@@ -20,6 +20,14 @@ public interface Combatant {
 
     int getMaxHp();
 
+    /**
+     * 获取攻击速度（影响CD恢复速度）
+     * 默认值1.0
+     */
+    default double getAttackSpeed() {
+        return 1.0;
+    }
+
     void takeDamage(int amount);
 
     /**

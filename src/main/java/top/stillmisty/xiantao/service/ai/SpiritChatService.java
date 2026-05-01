@@ -7,7 +7,10 @@ import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.land.entity.Fudi;
 import top.stillmisty.xiantao.domain.land.entity.Spirit;
 import top.stillmisty.xiantao.domain.land.entity.SpiritForm;
+import top.stillmisty.xiantao.domain.land.entity.SpiritHistory;
+import top.stillmisty.xiantao.domain.land.enums.FudiEvent;
 import top.stillmisty.xiantao.domain.land.repository.FudiRepository;
+import top.stillmisty.xiantao.domain.land.repository.SpiritHistoryRepository;
 import top.stillmisty.xiantao.domain.land.repository.SpiritRepository;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.infrastructure.mapper.SpiritFormMapper;
@@ -33,9 +36,12 @@ public class SpiritChatService {
     private final ChatClient spiritChatClient;
     private final FudiRepository fudiRepository;
     private final SpiritRepository spiritRepository;
+    private final SpiritHistoryRepository spiritHistoryRepository;
     private final SpiritFormMapper spiritFormMapper;
     private final SpiritPromptTemplates promptTemplates;
     private final SpiritTools spiritTools;
+    private final SpiritEmotionTools spiritEmotionTools;
+    private final FudiEventGenerator fudiEventGenerator;
     private final AuthenticationService authService;
 
     // ===================== 公开 API（含认证） =====================
@@ -61,14 +67,35 @@ public class SpiritChatService {
                 spirit.updateEmotionState();
                 spiritRepository.save(spirit);
 
-                String systemPrompt = buildPrompt(fudi, spirit);
+                // 生成福地事件
+                List<FudiEvent> events = fudiEventGenerator.generateEvents(
+                        spirit.getLastEventTime() != null ? spirit.getLastEventTime() : spirit.getLastEnergyUpdate()
+                );
+
+                // 获取历史记录
+                int maxHistory = calculateMaxHistory(fudi.getTribulationStage());
+                List<SpiritHistory> history = spiritHistoryRepository.findByFudiIdOrderByCreateTimeDesc(fudi.getId(), maxHistory);
+
+                String systemPrompt = buildPrompt(fudi, spirit, events, history);
+
+                // 保存用户输入到历史
+                saveHistory(fudi.getId(), "user", userInput, spirit.getEmotionState());
 
                 String response = spiritChatClient.prompt()
                         .system(systemPrompt)
                         .user(userInput)
-                        .tools(spiritTools)
+                        .tools(spiritTools, spiritEmotionTools)
                         .call()
                         .content();
+
+                // 保存地灵回复到历史
+                saveHistory(fudi.getId(), "assistant", response, spirit.getEmotionState());
+
+                // 更新最后事件时间
+                if (!events.isEmpty()) {
+                    spirit.setLastEventTime(LocalDateTime.now());
+                    spiritRepository.save(spirit);
+                }
 
                 log.info("地灵对话成功 - userId: {}, mbti: {}, input: {}", userId, spirit.getMbtiType(), userInput);
                 return response;
@@ -81,13 +108,34 @@ public class SpiritChatService {
 
     // ===================== 辅助方法 =====================
 
-    private String buildPrompt(Fudi fudi, Spirit spirit) {
+    private String buildPrompt(Fudi fudi, Spirit spirit, List<FudiEvent> events, List<SpiritHistory> history) {
         String gridDetail = buildGridDetailForLLM(fudi);
         String emotionState = spirit.getEmotionState().getDescription();
         String formName = null;
         if (spirit.getFormId() != null) {
             SpiritForm form = spiritFormMapper.selectOneById(spirit.getFormId().longValue());
             if (form != null) formName = form.getName();
+        }
+
+        // 构建事件描述
+        String eventContext = "";
+        if (!events.isEmpty()) {
+            StringBuilder eventSb = new StringBuilder("\n【最近发生的事件】\n");
+            for (FudiEvent event : events) {
+                eventSb.append("- ").append(event.getName()).append("：").append(event.getDescription()).append("\n");
+            }
+            eventContext = eventSb.toString();
+        }
+
+        // 构建历史记录
+        String historyContext = "";
+        if (!history.isEmpty()) {
+            StringBuilder historySb = new StringBuilder("\n【最近对话记录】\n");
+            for (SpiritHistory h : history.reversed()) {
+                String role = "user".equals(h.getRole()) ? "修士" : "地灵";
+                historySb.append(role).append("：").append(h.getContent()).append("\n");
+            }
+            historyContext = historySb.toString();
         }
 
         return promptTemplates.buildSpiritPrompt(
@@ -99,7 +147,28 @@ public class SpiritChatService {
                 emotionState,
                 spirit.getEnergyMax(fudi.getTribulationStage()),
                 formName
-        );
+        ) + eventContext + historyContext;
+    }
+
+    /**
+     * 计算记忆容量
+     * 公式：5 + floor(5 × log2(tribulationStage + 1))
+     */
+    private int calculateMaxHistory(int tribulationStage) {
+        return (int) (5 + Math.floor(5 * Math.log(tribulationStage + 1) / Math.log(2)));
+    }
+
+    /**
+     * 保存对话历史
+     */
+    private void saveHistory(Long fudiId, String role, String content, top.stillmisty.xiantao.domain.land.enums.EmotionState emotionState) {
+        SpiritHistory history = new SpiritHistory();
+        history.setFudiId(fudiId);
+        history.setRole(role);
+        history.setContent(content);
+        history.setEmotionState(emotionState);
+        history.setCreateTime(LocalDateTime.now());
+        spiritHistoryRepository.save(history);
     }
 
     /**

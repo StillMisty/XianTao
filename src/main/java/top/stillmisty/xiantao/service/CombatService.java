@@ -418,23 +418,24 @@ public class CombatService {
 
         @Override
         public int getSpeed() {
-            return user.getStatAgi() != null ? user.getStatAgi() * 2 + 10 : 20;
+            int statValue = user.getStatValue();
+            return statValue * 2 + 10;
         }
 
         @Override
         public int getAttack() {
-            int totalStr = user.getStatStr() != null ? user.getStatStr() : 5;
+            int statValue = user.getStatValue();
             int equipAttack = 0;
             if (weapon != null) {
                 equipAttack = weapon.getFinalAttack();
             }
-            return totalStr * 2 + equipAttack;
+            return statValue * 2 + equipAttack;
         }
 
         @Override
         public int getDefense() {
-            int totalCon = user.getStatCon() != null ? user.getStatCon() : 5;
-            return totalCon;
+            int statValue = user.getStatValue();
+            return statValue;
         }
 
         @Override
@@ -467,7 +468,7 @@ public class CombatService {
         }
 
         int getWis() {
-            return user.getStatWis() != null ? user.getStatWis() : 5;
+            return user.getStatValue();
         }
     }
 }

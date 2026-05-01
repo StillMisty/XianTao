@@ -222,6 +222,16 @@ public class FudiService {
         }
     }
 
+    public ServiceResult<Map<String, Object>> triggerTribulation(PlatformType platform, String openId) {
+        var auth = authService.authenticateAndValidateUser(platform, openId);
+        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        try {
+            return new ServiceResult.Success<>(triggerTribulation(auth.userId()));
+        } catch (IllegalStateException e) {
+            return new ServiceResult.Failure<>(e.getMessage());
+        }
+    }
+
     // ===================== 内部 API =====================
 
     // ===================== 福地基础管理 =====================
@@ -333,7 +343,7 @@ public class FudiService {
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
 
         var user = userRepository.findById(userId).orElseThrow();
-        String tribulationResult = resolveTribulation(fudi, user.getLevel(), user.getStatStr());
+        String tribulationResult = resolveTribulation(fudi, user.getLevel(), user.getStatValue(), false);
 
         spiritRepository.findByFudiId(fudi.getId()).ifPresent(spirit -> {
             spirit.restoreEnergy(fudi.getTribulationStage());
@@ -393,12 +403,37 @@ public class FudiService {
 
     // ===================== 天劫系统 =====================
 
+    /**
+     * 主动触发天劫
+     */
+    public Map<String, Object> triggerTribulation(Long userId) {
+        Fudi fudi = getFudiByUserId(userId)
+                .orElseThrow(() -> new IllegalStateException("未找到福地"));
+
+        User user = userRepository.findById(userId).orElseThrow();
+
+        // 主动渡劫不需要检查7天限制
+        String result = resolveTribulation(fudi, user.getLevel(), user.getStatValue(), true);
+        fudiRepository.save(fudi);
+
+        return Map.of(
+                "tribulationResult", result != null ? result : "天劫未触发",
+                "tribulationStage", fudi.getTribulationStage(),
+                "winStreak", fudi.getTribulationWinStreak()
+        );
+    }
+
     private String resolveTribulation(Fudi fudi, int playerLevel, int playerStr) {
+        return resolveTribulation(fudi, playerLevel, playerStr, false);
+    }
+
+    private String resolveTribulation(Fudi fudi, int playerLevel, int playerStr, boolean forceTrigger) {
         LocalDateTime referenceTime = fudi.getLastTribulationTime() != null
                 ? fudi.getLastTribulationTime()
                 : fudi.getCreateTime();
 
-        if (java.time.Duration.between(referenceTime, LocalDateTime.now()).toDays() < 7) {
+        // 如果不是主动触发，检查7天限制
+        if (!forceTrigger && java.time.Duration.between(referenceTime, LocalDateTime.now()).toDays() < 7) {
             return null;
         }
 
