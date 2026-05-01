@@ -34,10 +34,10 @@ public class SpiritTools {
      * 查询福地地块状态工具
      */
     @Tool(description = "查询福地的地块布局状态，包括哪些地块编号是空的、哪些已被占用。在种植或建造前应该先调用此工具了解可用地块编号。")
-    public GetGridStatusResponse getGridStatus() {
+    public GetCellStatusResponse getCellStatus() {
         try {
             Long userId = getCurrentUserId();
-            Map<String, Object> result = fudiService.getGridStatus(userId);
+            Map<String, Object> result = fudiService.getCellStatus(userId);
 
             int totalCells = (Integer) result.get("totalCells");
             int occupiedCount = (Integer) result.get("occupiedCount");
@@ -55,10 +55,10 @@ public class SpiritTools {
                 );
             }
 
-            return new GetGridStatusResponse(true, message, totalCells, occupiedCount, emptyCount, emptyCellIds);
+            return new GetCellStatusResponse(true, message, totalCells, occupiedCount, emptyCount, emptyCellIds);
         } catch (Exception e) {
             log.error("查询地块状态失败", e);
-            return new GetGridStatusResponse(false, "查询失败：" + e.getMessage(), 0, 0, 0, java.util.List.of());
+            return new GetCellStatusResponse(false, "查询失败：" + e.getMessage(), 0, 0, 0, java.util.List.of());
         }
     }
 
@@ -365,7 +365,7 @@ public class SpiritTools {
 
     // ===================== 响应 Record 定义 =====================
 
-    public record GetGridStatusResponse(
+    public record GetCellStatusResponse(
             @JsonPropertyDescription("是否成功")
             boolean success,
 

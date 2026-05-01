@@ -11,14 +11,14 @@ public class SpiritPromptTemplates {
             int fudiLevel,
             int spiritEnergy,
             int spiritAffection,
-            String gridDetail,
+            String cellDetail,
             String emotionState,
             int energyMax,
             String spiritForm
     ) {
-        String gridInfo = (gridDetail == null || gridDetail.isBlank())
-                ? "福地尚处于初生阶段，暂无灵田/兽栏，所有坐标均可支配。"
-                : gridDetail;
+        String cellInfo = (cellDetail == null || cellDetail.isBlank())
+                ? "福地尚处于初生阶段，暂无灵田/兽栏，所有地块均可支配。"
+                : cellDetail;
 
         String affectionTone = switch (spiritAffection / 200) {
             case 5 -> "亲密无间，视你为最重要的人";
@@ -64,7 +64,7 @@ public class SpiritPromptTemplates {
                 spiritEnergy,
                 energyMax,
                 spiritAffection,
-                gridInfo
+                cellInfo
         );
     }
 }

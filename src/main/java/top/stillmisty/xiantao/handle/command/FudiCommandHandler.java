@@ -32,7 +32,7 @@ public class FudiCommandHandler {
     public String handleFudiGrid(PlatformType platform, String openId) {
         return switch (fudiService.getFudiStatus(platform, openId)) {
             case ServiceResult.Failure(var msg) -> msg;
-            case ServiceResult.Success(var vo) -> formatGridLayout(vo);
+            case ServiceResult.Success(var vo) -> formatCellLayout(vo);
         };
     }
 
@@ -221,7 +221,7 @@ public class FudiCommandHandler {
         return sb.toString();
     }
 
-    private String formatGridLayout(FudiStatusVO status) {
+    private String formatCellLayout(FudiStatusVO status) {
         StringBuilder sb = new StringBuilder();
         sb.append("🗺️ 【福地地块布局】\n");
         sb.append("━━━━━━━━━━━━━━━\n");

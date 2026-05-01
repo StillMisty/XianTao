@@ -109,7 +109,7 @@ public class SpiritChatService {
     // ===================== 辅助方法 =====================
 
     private String buildPrompt(Fudi fudi, Spirit spirit, List<FudiEvent> events, List<SpiritHistory> history) {
-        String gridDetail = buildGridDetailForLLM(fudi);
+        String cellDetail = buildCellDetailForLLM(fudi);
         String emotionState = spirit.getEmotionState().getDescription();
         String formName = null;
         if (spirit.getFormId() != null) {
@@ -143,7 +143,7 @@ public class SpiritChatService {
                 fudi.getTribulationStage(),
                 spirit.getEnergy(),
                 spirit.getAffection(),
-                gridDetail,
+                cellDetail,
                 emotionState,
                 spirit.getEnergyMax(fudi.getTribulationStage()),
                 formName
@@ -174,13 +174,13 @@ public class SpiritChatService {
     /**
      * 为 LLM 构建详细的地块状态描述
      */
-    private String buildGridDetailForLLM(Fudi fudi) {
-        if (fudi.getGridLayout() == null) {
+    private String buildCellDetailForLLM(Fudi fudi) {
+        if (fudi.getCellLayout() == null) {
             return "福地尚未开辟任何地块。";
         }
 
         @SuppressWarnings("unchecked")
-        var cells = (java.util.List<Map<String, Object>>) fudi.getGridLayout().get("cells");
+        var cells = (java.util.List<Map<String, Object>>) fudi.getCellLayout().get("cells");
         if (cells == null || cells.isEmpty()) {
             return "福地尚未开辟任何地块。";
         }

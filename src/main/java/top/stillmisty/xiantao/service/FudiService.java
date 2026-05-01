@@ -246,9 +246,9 @@ public class FudiService {
         fudi.setTribulationStage(0);
         fudi.setTribulationWinStreak(0);
 
-        Map<String, Object> gridLayout = new HashMap<>();
-        gridLayout.put("cells", new ArrayList<>());
-        fudi.setGridLayout(gridLayout);
+        Map<String, Object> cellLayout = new HashMap<>();
+        cellLayout.put("cells", new ArrayList<>());
+        fudi.setCellLayout(cellLayout);
         fudi.setLastOnlineTime(LocalDateTime.now());
 
         fudi = fudiRepository.save(fudi);
@@ -298,7 +298,7 @@ public class FudiService {
     private void autoExpandCells(Fudi fudi) {
         int maxCells = 3 + fudi.getTribulationStage() / 3;
         @SuppressWarnings("unchecked")
-        List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getGridLayout().getOrDefault("cells", new ArrayList<>());
+        List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getCellLayout().getOrDefault("cells", new ArrayList<>());
         int currentCount = cells.size();
 
         if (currentCount >= maxCells) return;
@@ -313,9 +313,9 @@ public class FudiService {
     }
 
     private int getTotalCellCount(Fudi fudi) {
-        if (fudi.getGridLayout() == null || !fudi.getGridLayout().containsKey("cells")) return 0;
+        if (fudi.getCellLayout() == null || !fudi.getCellLayout().containsKey("cells")) return 0;
         @SuppressWarnings("unchecked")
-        List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getGridLayout().get("cells");
+        List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getCellLayout().get("cells");
         return cells.size();
     }
 
@@ -535,7 +535,7 @@ public class FudiService {
         double ratio = Math.min(1.0, (double) diff / attack);
         int clearCount = Math.min(occupiedCount, Math.max(1, (int) Math.ceil(ratio * occupiedCount)));
 
-        List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getGridLayout().get("cells");
+        List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getCellLayout().get("cells");
         List<Integer> occupiedIndices = new ArrayList<>();
         for (int i = 0; i < cells.size(); i++) {
             if (!"empty".equals(cells.get(i).get("type"))) {
@@ -573,12 +573,12 @@ public class FudiService {
     // ===================== 地块详情构建 =====================
 
     private List<CellDetailVO> buildCellDetails(Fudi fudi) {
-        if (fudi.getGridLayout() == null || !fudi.getGridLayout().containsKey("cells")) {
+        if (fudi.getCellLayout() == null || !fudi.getCellLayout().containsKey("cells")) {
             return Collections.emptyList();
         }
 
         @SuppressWarnings("unchecked")
-        List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getGridLayout().get("cells");
+        List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getCellLayout().get("cells");
         List<CellDetailVO> details = new ArrayList<>();
 
         for (Map<String, Object> cell : cells) {
@@ -669,12 +669,12 @@ public class FudiService {
         Fudi fudi = getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
 
-        if (fudi.getGridLayout() == null || !fudi.getGridLayout().containsKey("cells")) {
+        if (fudi.getCellLayout() == null || !fudi.getCellLayout().containsKey("cells")) {
             return Map.of("harvested", 0, "collected", 0, "totalItems", 0);
         }
 
         @SuppressWarnings("unchecked")
-        List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getGridLayout().get("cells");
+        List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getCellLayout().get("cells");
 
         int harvestCount = 0;
         int collectedCount = 0;
@@ -1609,9 +1609,9 @@ public class FudiService {
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
 
         int count = 0;
-        if (fudi.getGridLayout() != null && fudi.getGridLayout().containsKey("cells")) {
+        if (fudi.getCellLayout() != null && fudi.getCellLayout().containsKey("cells")) {
             @SuppressWarnings("unchecked")
-            List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getGridLayout().get("cells");
+            List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getCellLayout().get("cells");
             for (Map<String, Object> cell : cells) {
                 if (CellType.PEN.getCode().equals(cell.get("type")) && Boolean.TRUE.equals(cell.get("is_deployed"))) {
                     cell.put("is_deployed", false);
@@ -1686,9 +1686,9 @@ public class FudiService {
         int totalCost = 0;
         int recoverCount = 0;
 
-        if (fudi.getGridLayout() != null && fudi.getGridLayout().containsKey("cells")) {
+        if (fudi.getCellLayout() != null && fudi.getCellLayout().containsKey("cells")) {
             @SuppressWarnings("unchecked")
-            List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getGridLayout().get("cells");
+            List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getCellLayout().get("cells");
             for (Map<String, Object> cell : cells) {
                 if (!CellType.PEN.getCode().equals(cell.get("type"))) continue;
                 if (Boolean.TRUE.equals(cell.get("is_incubating"))) continue;
@@ -1734,9 +1734,9 @@ public class FudiService {
     }
 
     private long getDeployedCellCount(Fudi fudi) {
-        if (fudi.getGridLayout() == null || !fudi.getGridLayout().containsKey("cells")) return 0;
+        if (fudi.getCellLayout() == null || !fudi.getCellLayout().containsKey("cells")) return 0;
         @SuppressWarnings("unchecked")
-        List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getGridLayout().get("cells");
+        List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getCellLayout().get("cells");
         return cells.stream()
                 .filter(c -> CellType.PEN.getCode().equals(c.get("type")) && Boolean.TRUE.equals(c.get("is_deployed")))
                 .count();
@@ -1899,7 +1899,7 @@ public class FudiService {
                 .build();
     }
 
-    public Map<String, Object> getGridStatus(Long userId) {
+    public Map<String, Object> getCellStatus(Long userId) {
         Fudi fudi = getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
 
@@ -1907,9 +1907,9 @@ public class FudiService {
         List<Map<String, Object>> occupiedCells = new ArrayList<>();
         List<Integer> emptyCellIds = new ArrayList<>();
 
-        if (fudi.getGridLayout() != null && fudi.getGridLayout().containsKey("cells")) {
+        if (fudi.getCellLayout() != null && fudi.getCellLayout().containsKey("cells")) {
             @SuppressWarnings("unchecked")
-            List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getGridLayout().get("cells");
+            List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getCellLayout().get("cells");
 
             for (Map<String, Object> cell : cells) {
                 Integer cellId = (Integer) cell.get("cell_id");
@@ -1972,12 +1972,12 @@ public class FudiService {
     }
 
     private Map<String, Object> getCellById(Fudi fudi, Integer cellId) {
-        if (fudi.getGridLayout() == null || !fudi.getGridLayout().containsKey("cells")) {
+        if (fudi.getCellLayout() == null || !fudi.getCellLayout().containsKey("cells")) {
             return null;
         }
 
         @SuppressWarnings("unchecked")
-        List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getGridLayout().get("cells");
+        List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getCellLayout().get("cells");
 
         return cells.stream()
                 .filter(c -> cellId.equals(c.get("cell_id")))
@@ -1986,15 +1986,15 @@ public class FudiService {
     }
 
     private void addCellToGrid(Fudi fudi, Map<String, Object> cell) {
-        if (fudi.getGridLayout() == null) {
-            fudi.setGridLayout(new HashMap<>());
+        if (fudi.getCellLayout() == null) {
+            fudi.setCellLayout(new HashMap<>());
         }
-        if (!fudi.getGridLayout().containsKey("cells")) {
-            fudi.getGridLayout().put("cells", new ArrayList<>());
+        if (!fudi.getCellLayout().containsKey("cells")) {
+            fudi.getCellLayout().put("cells", new ArrayList<>());
         }
 
         @SuppressWarnings("unchecked")
-        List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getGridLayout().get("cells");
+        List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getCellLayout().get("cells");
 
         for (int i = 0; i < cells.size(); i++) {
             if (cell.get("cell_id").equals(cells.get(i).get("cell_id"))) {
@@ -2006,12 +2006,12 @@ public class FudiService {
     }
 
     private void removeCellFromGrid(Fudi fudi, Integer cellId) {
-        if (fudi.getGridLayout() == null || !fudi.getGridLayout().containsKey("cells")) {
+        if (fudi.getCellLayout() == null || !fudi.getCellLayout().containsKey("cells")) {
             return;
         }
 
         @SuppressWarnings("unchecked")
-        List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getGridLayout().get("cells");
+        List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getCellLayout().get("cells");
         for (int i = 0; i < cells.size(); i++) {
             if (cellId.equals(cells.get(i).get("cell_id"))) {
                 Map<String, Object> emptyCell = new HashMap<>();

@@ -43,7 +43,7 @@ public class Fudi extends Model<Fudi> {
      * 福地地块布局（JSONB存储）
      */
     @Column(typeHandler = PgJsonbTypeHandler.class)
-    private Map<String, Object> gridLayout;
+    private Map<String, Object> cellLayout;
 
     /**
      * 天劫最后发生时间
@@ -67,11 +67,11 @@ public class Fudi extends Model<Fudi> {
      * 获取已占地块数
      */
     public int getOccupiedCellCount() {
-        if (gridLayout == null || !gridLayout.containsKey("cells")) {
+        if (cellLayout == null || !cellLayout.containsKey("cells")) {
             return 0;
         }
         @SuppressWarnings("unchecked")
-        List<Map<String, Object>> cells = (List<Map<String, Object>>) gridLayout.get("cells");
+        List<Map<String, Object>> cells = (List<Map<String, Object>>) cellLayout.get("cells");
         return (int) cells.stream()
                 .filter(cell -> !"empty".equals(cell.get("type")))
                 .count();
@@ -95,11 +95,11 @@ public class Fudi extends Model<Fudi> {
     public int calculateTribulationDefense(int playerStr) {
         int defense = playerStr * 10 + (tribulationStage != null ? tribulationStage : 0) * 50;
 
-        if (gridLayout == null || !gridLayout.containsKey("cells")) {
+        if (cellLayout == null || !cellLayout.containsKey("cells")) {
             return defense;
         }
 
-        List<Map<String, Object>> cells = (List<Map<String, Object>>) gridLayout.get("cells");
+        List<Map<String, Object>> cells = (List<Map<String, Object>>) cellLayout.get("cells");
         for (Map<String, Object> cell : cells) {
             String type = (String) cell.get("type");
             if ("pen".equals(type) && cell.containsKey("power_score")
