@@ -18,7 +18,9 @@ public enum ItemType {
 
     EVOLUTION_STONE("evolution_stone", "进化石"),
 
-    SKILL_JADE("skill_jade", "法决玉简");
+    SKILL_JADE("skill_jade", "法决玉简"),
+    
+    HERB("herb", "药材");
 
     private final String code;
     private final String name;

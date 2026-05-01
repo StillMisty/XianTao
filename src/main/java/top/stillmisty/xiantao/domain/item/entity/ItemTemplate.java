@@ -201,4 +201,97 @@ public class ItemTemplate {
     public int getTotalDropWeight() {
         return getDropWeight().values().stream().mapToInt(Integer::intValue).sum();
     }
+
+    /**
+     * 获取五行属性值（仅药材类）
+     *
+     * @param elementCode 五行属性代码（metal, wood, water, fire, earth）
+     * @return 属性值，不存在返回0
+     */
+    @SuppressWarnings("unchecked")
+    public int getElementValue(String elementCode) {
+        if (properties == null || elementCode == null) return 0;
+        Object elementsObj = properties.get("elements");
+        if (elementsObj instanceof Map<?, ?> elements) {
+            Object val = elements.get(elementCode);
+            return val instanceof Number n ? n.intValue() : 0;
+        }
+        return 0;
+    }
+
+    /**
+     * 获取丹方数据（仅丹方卷轴类）
+     *
+     * @return 丹方数据Map，不存在返回null
+     */
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> getRecipe() {
+        if (properties == null) return null;
+        Object val = properties.get("recipe");
+        return val instanceof Map<?, ?> ? (Map<String, Object>) val : null;
+    }
+
+    /**
+     * 获取丹药品阶（仅丹方卷轴类）
+     *
+     * @return 品阶1~9，不存在返回0
+     */
+    public int getRecipeGrade() {
+        Map<String, Object> recipe = getRecipe();
+        if (recipe == null) return 0;
+        Object val = recipe.get("grade");
+        return val instanceof Number n ? n.intValue() : 0;
+    }
+
+    /**
+     * 获取丹方成品物品ID（仅丹方卷轴类）
+     *
+     * @return 成品物品模板ID，不存在返回null
+     */
+    public Long getRecipeResultItemId() {
+        Map<String, Object> recipe = getRecipe();
+        if (recipe == null) return null;
+        Object val = recipe.get("result_item_id");
+        return val instanceof Number n ? n.longValue() : null;
+    }
+
+    /**
+     * 获取丹方成丹数量（仅丹方卷轴类）
+     *
+     * @return 成丹数量，不存在返回1
+     */
+    public int getRecipeResultQuantity() {
+        Map<String, Object> recipe = getRecipe();
+        if (recipe == null) return 1;
+        Object val = recipe.get("result_quantity");
+        return val instanceof Number n ? n.intValue() : 1;
+    }
+
+    /**
+     * 获取丹方五行要求（仅丹方卷轴类）
+     *
+     * @return 五行要求Map，key为五行代码，value为min/max范围Map
+     */
+    @SuppressWarnings("unchecked")
+    public Map<String, Map<String, Integer>> getRecipeRequirements() {
+        Map<String, Object> recipe = getRecipe();
+        if (recipe == null) return Map.of();
+        Object val = recipe.get("requirements");
+        if (val instanceof Map<?, ?> requirements) {
+            Map<String, Map<String, Integer>> result = new java.util.HashMap<>();
+            requirements.forEach((key, value) -> {
+                if (key instanceof String elementCode && value instanceof Map<?, ?> range) {
+                    Map<String, Integer> rangeMap = new java.util.HashMap<>();
+                    range.forEach((rangeKey, rangeValue) -> {
+                        if (rangeKey instanceof String rk && rangeValue instanceof Number rv) {
+                            rangeMap.put(rk, rv.intValue());
+                        }
+                    });
+                    result.put(elementCode, rangeMap);
+                }
+            });
+            return result;
+        }
+        return Map.of();
+    }
 }

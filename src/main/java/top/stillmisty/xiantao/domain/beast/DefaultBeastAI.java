@@ -36,9 +36,33 @@ public class DefaultBeastAI implements BeastAI {
             return BeastAction.SKILL;
         }
 
+        // 检查是否有防御增益技能
+        Skill defenseBuffSkill = findSkillByType(beast, EffectType.DEFENSE_BUFF);
+        if (defenseBuffSkill != null && beast.getHp() < beast.getMaxHp() * 0.7) {
+            return BeastAction.SKILL;
+        }
+
         // 检查是否有控制技能且目标可控制
         Skill controlSkill = findSkillByType(beast, EffectType.STUN);
         if (controlSkill != null && hasControlTarget(enemies)) {
+            return BeastAction.SKILL;
+        }
+
+        // 检查是否有DOT技能（持续伤害）
+        Skill dotSkill = findSkillByType(beast, EffectType.DOT);
+        if (dotSkill != null && hasHighHpTarget(enemies)) {
+            return BeastAction.SKILL;
+        }
+
+        // 检查是否有AOE技能（群体伤害）
+        Skill aoeSkill = findSkillByType(beast, EffectType.AOE_DAMAGE);
+        if (aoeSkill != null && enemies.aliveMembers().size() >= 3) {
+            return BeastAction.SKILL;
+        }
+
+        // 检查是否有MULTI_HIT技能（多重攻击）
+        Skill multiHitSkill = findSkillByType(beast, EffectType.MULTI_HIT);
+        if (multiHitSkill != null) {
             return BeastAction.SKILL;
         }
 
@@ -146,6 +170,11 @@ public class DefaultBeastAI implements BeastAI {
      */
     private boolean hasControlTarget(Team enemies) {
         return enemies.aliveMembers().stream()
-                .anyMatch(c -> c.getHp() > c.getMaxHp() * 0.3); // 只控制血量较高的敌人
+                .anyMatch(c -> c.getHp() > c.getMaxHp() * 0.3);
+    }
+
+    private boolean hasHighHpTarget(Team enemies) {
+        return enemies.aliveMembers().stream()
+                .anyMatch(c -> c.getHp() > c.getMaxHp() * 0.5);
     }
 }

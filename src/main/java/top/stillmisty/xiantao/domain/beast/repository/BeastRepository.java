@@ -15,6 +15,8 @@ public interface BeastRepository {
 
     List<Beast> findDeployedByUserId(Long userId);
 
+    List<Beast> findByUserIdAndIsDeployed(Long userId, boolean isDeployed);
+
     Beast save(Beast beast);
 
     void deleteById(Long id);

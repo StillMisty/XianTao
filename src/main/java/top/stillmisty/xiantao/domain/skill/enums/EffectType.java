@@ -17,7 +17,8 @@ public enum EffectType {
     SPEED_BUFF("speed_buff", "速度增益"),
     STUN("stun", "眩晕"),
     FREEZE("freeze", "冰冻"),
-    SILENCE("silence", "沉默");
+    SILENCE("silence", "沉默"),
+    AOE_DAMAGE("aoe_damage", "群体伤害");
 
     private final String code;
     private final String name;

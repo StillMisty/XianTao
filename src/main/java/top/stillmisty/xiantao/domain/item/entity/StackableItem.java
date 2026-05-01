@@ -10,6 +10,7 @@ import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -54,6 +55,14 @@ public class StackableItem {
      */
     @Column(typeHandler = PgJsonbTypeHandler.class)
     private Set<String> tags;
+
+    /**
+     * 类型特有属性 JSONB
+     * 丹药: {"grade": 3, "quality": "superior"}
+     * 药材: {"elements": {"wood": 3, "fire": 1, "water": 2}}
+     */
+    @Column(typeHandler = PgJsonbTypeHandler.class)
+    private Map<String, Object> properties;
 
     /**
      * 创建时间
@@ -131,5 +140,44 @@ public class StackableItem {
     public boolean hasAllTags(List<String> requiredTags) {
         if (tags == null || tags.isEmpty()) return false;
         return tags.containsAll(requiredTags.stream().map(String::toLowerCase).toList());
+    }
+
+    /**
+     * 获取丹药品阶（仅丹药类）
+     *
+     * @return 品阶1~9，不存在返回0
+     */
+    public int getGrade() {
+        if (properties == null) return 0;
+        Object val = properties.get("grade");
+        return val instanceof Number n ? n.intValue() : 0;
+    }
+
+    /**
+     * 获取丹药成色（仅丹药类）
+     *
+     * @return 成色字符串（superior, normal, inferior），不存在返回null
+     */
+    public String getQuality() {
+        if (properties == null) return null;
+        Object val = properties.get("quality");
+        return val instanceof String s ? s : null;
+    }
+
+    /**
+     * 获取药材五行属性值（仅药材类）
+     *
+     * @param elementCode 五行属性代码（metal, wood, water, fire, earth）
+     * @return 属性值，不存在返回0
+     */
+    @SuppressWarnings("unchecked")
+    public int getElementValue(String elementCode) {
+        if (properties == null || elementCode == null) return 0;
+        Object elementsObj = properties.get("elements");
+        if (elementsObj instanceof Map<?, ?> elements) {
+            Object val = elements.get(elementCode);
+            return val instanceof Number n ? n.intValue() : 0;
+        }
+        return 0;
     }
 }

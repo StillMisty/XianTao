@@ -60,6 +60,17 @@ public class BeastRepositoryImpl implements BeastRepository {
     }
 
     @Override
+    public List<Beast> findByUserIdAndIsDeployed(Long userId, boolean isDeployed) {
+        return mapper.selectListByQuery(
+                QueryWrapper.create()
+                        .select()
+                        .from(BEAST)
+                        .where(BEAST.USER_ID.eq(userId))
+                        .and(BEAST.IS_DEPLOYED.eq(isDeployed))
+        );
+    }
+
+    @Override
     public Beast save(Beast beast) {
         if (beast.getId() == null) {
             mapper.insert(beast);

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
+import top.stillmisty.xiantao.domain.beast.vo.BeastSkillPoolVO;
 import top.stillmisty.xiantao.domain.beast.vo.BeastStatusVO;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
@@ -726,14 +727,86 @@ public class FudiService {
             if (Boolean.TRUE.equals(cell.getBoolConfig("is_incubating"))) continue;
 
             updateBeastProduction(cell, fudi);
-            Integer stored = cell.getIntConfig("production_stored");
-            if (stored == null) stored = 0;
-            if (stored > 0) {
-                totalItems += stored;
-                collectedCount++;
-                cell.setConfigValue("production_stored", 0);
-                fudiCellRepository.save(cell);
+            
+            // 检查是否有产出
+            List<Map<String, Object>> productionStored = cell.getProductionStored();
+            if (productionStored.isEmpty()) {
+                // 尝试获取旧的计数格式
+                Integer stored = cell.getIntConfig("production_stored");
+                if (stored == null || stored <= 0) continue;
+                // 如果是旧的计数格式，转换为物品列表格式
+                // 这里需要根据灵兽模板获取production_items
+                List<Map<String, Object>> productionItems = getProductionItems(cell);
+                if (productionItems.isEmpty()) {
+                    // 如果没有配置production_items，创建默认物品
+                    // 假设产出灵草（template_id = 1）
+                    productionStored = new java.util.ArrayList<>();
+                    Map<String, Object> defaultItem = new java.util.HashMap<>();
+                    defaultItem.put("template_id", 1L);
+                    defaultItem.put("name", "灵草");
+                    defaultItem.put("quantity", stored);
+                    productionStored.add(defaultItem);
+                } else {
+                    // 根据production_items分配产出
+                    productionStored = new java.util.ArrayList<>();
+                    int remaining = stored;
+                    while (remaining > 0) {
+                        Map<String, Object> selectedItem = selectRandomProductionItem(productionItems);
+                        if (selectedItem != null) {
+                            Long templateId = ((Number) selectedItem.get("template_id")).longValue();
+                            String name = (String) selectedItem.get("name");
+                            // 查找是否已有该物品
+                            boolean found = false;
+                            for (Map<String, Object> item : productionStored) {
+                                Object id = item.get("template_id");
+                                if (id instanceof Number n && n.longValue() == templateId) {
+                                    Object currentQty = item.get("quantity");
+                                    if (currentQty instanceof Number currentN) {
+                                        item.put("quantity", currentN.intValue() + 1);
+                                    }
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (!found) {
+                                Map<String, Object> newItem = new java.util.HashMap<>();
+                                newItem.put("template_id", templateId);
+                                newItem.put("name", name);
+                                newItem.put("quantity", 1);
+                                productionStored.add(newItem);
+                            }
+                        }
+                        remaining--;
+                    }
+                }
             }
+
+            if (productionStored.isEmpty()) continue;
+
+            String beastName = cell.getStringConfig("beast_name");
+            if (beastName == null) beastName = "灵兽";
+
+            // 发放物品到背包
+            int cellTotalItems = 0;
+            for (Map<String, Object> item : productionStored) {
+                Long templateId = ((Number) item.get("template_id")).longValue();
+                String name = (String) item.get("name");
+                Integer quantity = ((Number) item.get("quantity")).intValue();
+                if (quantity > 0) {
+                    // 添加到背包
+                    itemService.addStackableItem(fudi.getUserId(), templateId, ItemType.HERB, name, quantity);
+                    cellTotalItems += quantity;
+                }
+            }
+
+            // 清空累积产出
+            cell.clearProductionStored();
+            cell.setConfigValue("production_stored", 0); // 兼容旧格式
+            fudiCellRepository.save(cell);
+
+            totalItems += cellTotalItems;
+            collectedCount++;
+            log.info("用户 {} 收取地块 {} 的灵兽产出 {} 件", fudi.getUserId(), cell.getCellId(), cellTotalItems);
         }
 
         return Map.of("harvested", harvestCount, "collected", collectedCount, "totalItems", totalItems);
@@ -788,20 +861,91 @@ public class FudiService {
         }
 
         updateBeastProduction(cell, fudi);
-        Integer stored = cell.getIntConfig("production_stored");
-        if (stored == null) stored = 0;
-        if (stored <= 0) {
+        
+        // 检查是否有产出
+        List<Map<String, Object>> productionStored = cell.getProductionStored();
+        if (productionStored.isEmpty()) {
+            // 尝试获取旧的计数格式
+            Integer stored = cell.getIntConfig("production_stored");
+            if (stored == null || stored <= 0) {
+                throw new IllegalStateException("暂无产出可收取");
+            }
+            // 如果是旧的计数格式，转换为物品列表格式
+            // 这里需要根据灵兽模板获取production_items
+            List<Map<String, Object>> productionItems = getProductionItems(cell);
+            if (productionItems.isEmpty()) {
+                // 如果没有配置production_items，创建默认物品
+                // 假设产出灵草（template_id = 1）
+                productionStored = new java.util.ArrayList<>();
+                Map<String, Object> defaultItem = new java.util.HashMap<>();
+                defaultItem.put("template_id", 1L);
+                defaultItem.put("name", "灵草");
+                defaultItem.put("quantity", stored);
+                productionStored.add(defaultItem);
+            } else {
+                // 根据production_items分配产出
+                productionStored = new java.util.ArrayList<>();
+                int remaining = stored;
+                while (remaining > 0) {
+                    Map<String, Object> selectedItem = selectRandomProductionItem(productionItems);
+                    if (selectedItem != null) {
+                        Long templateId = ((Number) selectedItem.get("template_id")).longValue();
+                        String name = (String) selectedItem.get("name");
+                        // 查找是否已有该物品
+                        boolean found = false;
+                        for (Map<String, Object> item : productionStored) {
+                            Object id = item.get("template_id");
+                            if (id instanceof Number n && n.longValue() == templateId) {
+                                Object currentQty = item.get("quantity");
+                                if (currentQty instanceof Number currentN) {
+                                    item.put("quantity", currentN.intValue() + 1);
+                                }
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            Map<String, Object> newItem = new java.util.HashMap<>();
+                            newItem.put("template_id", templateId);
+                            newItem.put("name", name);
+                            newItem.put("quantity", 1);
+                            productionStored.add(newItem);
+                        }
+                    }
+                    remaining--;
+                }
+            }
+        }
+
+        if (productionStored.isEmpty()) {
             throw new IllegalStateException("暂无产出可收取");
         }
 
         String beastName = cell.getStringConfig("beast_name");
         if (beastName == null) beastName = "灵兽";
-        cell.setConfigValue("production_stored", 0);
+
+        // 发放物品到背包
+        int totalItems = 0;
+        for (Map<String, Object> item : productionStored) {
+            Long templateId = ((Number) item.get("template_id")).longValue();
+            String name = (String) item.get("name");
+            Integer quantity = ((Number) item.get("quantity")).intValue();
+            if (quantity > 0) {
+                // 添加到背包
+                itemService.addStackableItem(fudi.getUserId(), templateId, ItemType.HERB, name, quantity);
+                totalItems += quantity;
+                log.info("用户 {} 收取地块 {} 的灵兽产出: {} x{}", fudi.getUserId(), cellId, name, quantity);
+            }
+        }
+
+        // 清空累积产出
+        cell.clearProductionStored();
+        cell.setConfigValue("production_stored", 0); // 兼容旧格式
         fudiCellRepository.save(cell);
 
-        log.info("用户 {} 收取地块 {} 的灵兽产出 {} 件", fudi.getUserId(), cellId, stored);
+        log.info("用户 {} 收取地块 {} 的灵兽产出 {} 件", fudi.getUserId(), cellId, totalItems);
 
-        return Map.of("cellId", cellId, "beastName", beastName, "totalItems", stored, "type", "pen");
+        return Map.of("cellId", cellId, "beastName", beastName, "totalItems", totalItems, "type", "pen");
     }
 
     // ===================== 种植系统 =====================
@@ -1469,6 +1613,20 @@ public class FudiService {
             addMutationTrait(cell);
         }
 
+        // 解锁先天技（tier_2或tier_3）
+        Integer beastId = cell.getIntConfig("beast_id");
+        if (beastId != null) {
+            Beast beast = beastRepository.findById(beastId.longValue()).orElse(null);
+            if (beast != null) {
+                if (newTier == 2) {
+                    unlockInnateSkills(beast, "tier_2");
+                } else if (newTier == 3) {
+                    unlockInnateSkills(beast, "tier_3");
+                }
+                beastRepository.save(beast);
+            }
+        }
+
         fudiCellRepository.save(cell);
         log.info("用户 {} 进化地块 {} 的灵兽 T{}->T{}{}", userId, cellId, currentTier, newTier,
                 qualityUpgraded ? " (品质连带提升!)" : "");
@@ -1502,6 +1660,16 @@ public class FudiService {
         boolean mutationTriggered = rollMutation(10);
         if (mutationTriggered) {
             addMutationTrait(cell);
+        }
+
+        // 解锁先天技（quality_break）
+        Integer beastId = cell.getIntConfig("beast_id");
+        if (beastId != null) {
+            Beast beast = beastRepository.findById(beastId.longValue()).orElse(null);
+            if (beast != null) {
+                unlockInnateSkills(beast, "quality_break");
+                beastRepository.save(beast);
+            }
         }
 
         fudiCellRepository.save(cell);
@@ -1831,6 +1999,63 @@ public class FudiService {
         }
     }
 
+    /**
+     * 获取灵兽卵模板的production_items配置
+     */
+    @SuppressWarnings("unchecked")
+    private List<Map<String, Object>> getProductionItems(FudiCell cell) {
+        Integer templateId = cell.getIntConfig("template_id");
+        if (templateId == null) {
+            return List.of();
+        }
+        ItemTemplate template = itemTemplateRepository.findById(templateId.longValue()).orElse(null);
+        if (template == null) {
+            return List.of();
+        }
+        Map<String, Object> properties = template.getProperties();
+        if (properties == null) {
+            return List.of();
+        }
+        Object productionItems = properties.get("production_items");
+        if (productionItems instanceof List<?> list) {
+            return (List<Map<String, Object>>) (List<?>) list;
+        }
+        return List.of();
+    }
+
+    /**
+     * 从production_items中随机选择物品
+     */
+    private Map<String, Object> selectRandomProductionItem(List<Map<String, Object>> productionItems) {
+        if (productionItems.isEmpty()) {
+            return null;
+        }
+        // 计算总权重
+        int totalWeight = 0;
+        for (Map<String, Object> item : productionItems) {
+            Object weight = item.get("weight");
+            if (weight instanceof Number n) {
+                totalWeight += n.intValue();
+            }
+        }
+        if (totalWeight <= 0) {
+            return productionItems.get(0);
+        }
+        // 随机选择
+        int random = new Random().nextInt(totalWeight);
+        int current = 0;
+        for (Map<String, Object> item : productionItems) {
+            Object weight = item.get("weight");
+            if (weight instanceof Number n) {
+                current += n.intValue();
+                if (random < current) {
+                    return item;
+                }
+            }
+        }
+        return productionItems.get(0);
+    }
+
     private void updateBeastProduction(FudiCell cell, Fudi fudi) {
         String lastProductionTimeStr = cell.getStringConfig("last_production_time");
         String matureTimeStr = cell.getStringConfig("mature_time");
@@ -1863,14 +2088,213 @@ public class FudiService {
         int perCycle = (int) Math.round(tier * quality.getOutputMultiplier() * (1 + new Random().nextInt(tier + 1)) / 2.0);
         int produced = Math.max(1, perCycle * cycles);
 
-        Integer currentStored = cell.getIntConfig("production_stored");
-        if (currentStored == null) currentStored = 0;
-        int maxStorage = tier * 20;
-        int newStored = Math.min(maxStorage, currentStored + produced);
+        // 检查变异特性高产
+        boolean hasHighYield = false;
+        List<String> mutationTraits = (List<String>) cell.getConfigValue("mutation_traits", List.of());
+        if (mutationTraits.contains("high_yield")) {
+            hasHighYield = true;
+            produced = (int) (produced * 1.3);
+        }
 
-        cell.setConfigValue("production_stored", newStored);
+        // 获取production_items配置
+        List<Map<String, Object>> productionItems = getProductionItems(cell);
+        if (productionItems.isEmpty()) {
+            // 如果没有配置production_items，使用旧的逻辑（简单计数）
+            Integer currentStored = cell.getIntConfig("production_stored");
+            if (currentStored == null) currentStored = 0;
+            int maxStorage = tier * 20;
+            int newStored = Math.min(maxStorage, currentStored + produced);
+            cell.setConfigValue("production_stored", newStored);
+        } else {
+            // 使用新的物品列表格式
+            int maxStorage = tier * 20;
+            int currentTotal = cell.getTotalProductionQuantity();
+            int availableSpace = maxStorage - currentTotal;
+            if (availableSpace <= 0) {
+                // 已满，不再产出
+                cell.setConfigValue("last_production_time", now.toString());
+                fudiCellRepository.save(cell);
+                return;
+            }
+            int toProduce = Math.min(produced, availableSpace);
+            // 分配产出到不同物品
+            for (int i = 0; i < toProduce; i++) {
+                Map<String, Object> selectedItem = selectRandomProductionItem(productionItems);
+                if (selectedItem != null) {
+                    Long templateId = ((Number) selectedItem.get("template_id")).longValue();
+                    String name = (String) selectedItem.get("name");
+                    cell.addProductionItem(templateId, name, 1);
+                }
+            }
+            // 检查稀产变异特性
+            if (mutationTraits.contains("rare_produce")) {
+                if (new Random().nextInt(100) < 5) {
+                    // 5%概率额外产出高一品阶的药材
+                    // 这里简化处理，暂时不实现
+                }
+            }
+        }
+
         cell.setConfigValue("last_production_time", now.toString());
         fudiCellRepository.save(cell);
+    }
+
+    /**
+     * 获取灵兽模板的技能池配置
+     */
+    @SuppressWarnings("unchecked")
+    private BeastSkillPoolVO getBeastSkillPool(Integer templateId) {
+        if (templateId == null) {
+            return null;
+        }
+        ItemTemplate template = itemTemplateRepository.findById(templateId.longValue()).orElse(null);
+        if (template == null) {
+            return null;
+        }
+        Map<String, Object> properties = template.getProperties();
+        if (properties == null) {
+            return null;
+        }
+        Object skillPool = properties.get("skill_pool");
+        if (skillPool instanceof Map<?, ?> poolMap) {
+            List<BeastSkillPoolVO.InnateSkill> innateSkills = new java.util.ArrayList<>();
+            List<BeastSkillPoolVO.AwakeningSkill> awakeningSkills = new java.util.ArrayList<>();
+            
+            Object innateSkillsObj = poolMap.get("innate_skills");
+            if (innateSkillsObj instanceof List<?> innateList) {
+                for (Object innateObj : innateList) {
+                    if (innateObj instanceof Map<?, ?> innateMap) {
+                        Long skillId = ((Number) innateMap.get("skill_id")).longValue();
+                        String unlock = (String) innateMap.get("unlock");
+                        innateSkills.add(new BeastSkillPoolVO.InnateSkill(skillId, unlock));
+                    }
+                }
+            }
+            
+            Object awakeningSkillsObj = poolMap.get("awakening_skills");
+            if (awakeningSkillsObj instanceof List<?> awakeningList) {
+                for (Object awakeningObj : awakeningList) {
+                    if (awakeningObj instanceof Map<?, ?> awakeningMap) {
+                        Long skillId = ((Number) awakeningMap.get("skill_id")).longValue();
+                        int weight = ((Number) awakeningMap.get("weight")).intValue();
+                        awakeningSkills.add(new BeastSkillPoolVO.AwakeningSkill(skillId, weight));
+                    }
+                }
+            }
+            
+            return new BeastSkillPoolVO(innateSkills, awakeningSkills);
+        }
+        return null;
+    }
+
+    /**
+     * 解锁灵兽先天技
+     * @param beast 灵兽实体
+     * @param unlockCondition 解锁条件（birth, tier_2, tier_3, quality_break）
+     */
+    private void unlockInnateSkills(Beast beast, String unlockCondition) {
+        BeastSkillPoolVO skillPool = getBeastSkillPool(beast.getTemplateId().intValue());
+        if (skillPool == null) {
+            return;
+        }
+        List<Long> currentSkills = beast.getSkills();
+        if (currentSkills == null) {
+            currentSkills = new java.util.ArrayList<>();
+        }
+        for (BeastSkillPoolVO.InnateSkill innateSkill : skillPool.innateSkills()) {
+            if (innateSkill.unlock().equals(unlockCondition)) {
+                if (!currentSkills.contains(innateSkill.skillId())) {
+                    currentSkills.add(innateSkill.skillId());
+                    log.info("灵兽 {} 解锁先天技: {}", beast.getBeastName(), innateSkill.skillId());
+                }
+            }
+        }
+        beast.setSkills(currentSkills);
+    }
+
+    /**
+     * 尝试解锁后天悟（战斗觉醒）
+     * @param beast 灵兽实体
+     * @return 是否成功觉醒
+     */
+    private boolean tryAwakeningSkill(Beast beast) {
+        BeastSkillPoolVO skillPool = getBeastSkillPool(beast.getTemplateId().intValue());
+        if (skillPool == null || skillPool.awakeningSkills().isEmpty()) {
+            return false;
+        }
+        List<Long> currentSkills = beast.getSkills();
+        if (currentSkills == null) {
+            currentSkills = new java.util.ArrayList<>();
+        }
+        // 检查技能上限
+        if (currentSkills.size() >= 4) {
+            return false;
+        }
+        // 15%概率觉醒
+        if (new Random().nextInt(100) >= 15) {
+            return false;
+        }
+        // 从后天悟池中随机选择
+        int totalWeight = 0;
+        for (BeastSkillPoolVO.AwakeningSkill awakeningSkill : skillPool.awakeningSkills()) {
+            totalWeight += awakeningSkill.weight();
+        }
+        if (totalWeight <= 0) {
+            return false;
+        }
+        int random = new Random().nextInt(totalWeight);
+        int current = 0;
+        for (BeastSkillPoolVO.AwakeningSkill awakeningSkill : skillPool.awakeningSkills()) {
+            current += awakeningSkill.weight();
+            if (random < current) {
+                if (!currentSkills.contains(awakeningSkill.skillId())) {
+                    currentSkills.add(awakeningSkill.skillId());
+                    beast.setSkills(currentSkills);
+                    log.info("灵兽 {} 觉醒后天悟: {}", beast.getBeastName(), awakeningSkill.skillId());
+                    return true;
+                }
+                break;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 给灵兽添加经验
+     * @param beastId 灵兽ID
+     * @param expToAdd 要添加的经验值
+     * @return 实际添加的经验值
+     */
+    public long addBeastExp(Long beastId, long expToAdd) {
+        Beast beast = beastRepository.findById(beastId).orElse(null);
+        if (beast == null) {
+            return 0;
+        }
+        long actualAdd = beast.addExp(expToAdd);
+        beastRepository.save(beast);
+        return actualAdd;
+    }
+
+    /**
+     * 给出战灵兽添加经验（战斗后调用）
+     * @param userId 用户ID
+     * @param expToAdd 要添加的经验值
+     */
+    public void addExpToDeployedBeasts(Long userId, long expToAdd) {
+        List<Beast> deployedBeasts = beastRepository.findByUserIdAndIsDeployed(userId, true);
+        for (Beast beast : deployedBeasts) {
+            addBeastExp(beast.getId(), expToAdd);
+        }
+    }
+
+    /**
+     * 给灵兽添加经验（历练结算调用）
+     * @param userId 用户ID
+     * @param trainingMinutes 历练分钟数
+     */
+    public void addExpFromTraining(Long userId, long trainingMinutes) {
+        long expToAdd = trainingMinutes * 2; // 每分钟2点经验
+        addExpToDeployedBeasts(userId, expToAdd);
     }
 
     private PenCellVO buildPenCellVO(FudiCell cell) {
