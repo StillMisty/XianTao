@@ -19,7 +19,6 @@ CREATE TABLE xt_beast
     skills          JSONB        DEFAULT '[]'::jsonb,
     is_deployed     BOOLEAN      NOT NULL DEFAULT FALSE,
     recovery_until  TIMESTAMP,
-    lifespan_days   DOUBLE PRECISION,
     penned_cell_id  INT,
     birth_time      TIMESTAMP,
     evolution_count INT          NOT NULL DEFAULT 0,

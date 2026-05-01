@@ -12,6 +12,7 @@ CREATE TABLE xt_spirit
     mbti_type           VARCHAR(4)  NOT NULL,
 
     last_energy_update  TIMESTAMP   NOT NULL DEFAULT NOW(),
+    last_gift_time      TIMESTAMP,
     create_time         TIMESTAMP   NOT NULL DEFAULT NOW(),
     update_time         TIMESTAMP   NOT NULL DEFAULT NOW(),
 
@@ -30,3 +31,4 @@ COMMENT ON COLUMN xt_spirit.affection_max IS '好感度上限（默认1000）';
 COMMENT ON COLUMN xt_spirit.emotion_state IS '当前情绪状态';
 COMMENT ON COLUMN xt_spirit.mbti_type IS 'MBTI人格类型（锁定，不可更改）';
 COMMENT ON COLUMN xt_spirit.last_energy_update IS '精力最后更新时间（用于懒恢复计算）';
+COMMENT ON COLUMN xt_spirit.last_gift_time IS '上次送礼时间（每日限送一次）';
