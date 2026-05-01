@@ -13,6 +13,7 @@ CREATE TABLE xt_spirit
 
     last_energy_update  TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     last_gift_time      TIMESTAMP,
+    last_event_time     TIMESTAMP,
     create_time         TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     update_time         TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
 

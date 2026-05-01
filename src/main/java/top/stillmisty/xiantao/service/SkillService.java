@@ -310,13 +310,11 @@ public class SkillService {
                 skill.getId(),
                 skill.getName(),
                 skill.getDescription(),
-                skill.getEffectType() != null ? skill.getEffectType().getCode() : "",
-                skill.getEffectType() != null ? skill.getEffectType().getName() : "",
+                skill.getEffects(),
                 skill.getBindingType() != null ? skill.getBindingType().getCode() : "NONE",
                 skill.getBindingType() != null ? skill.getBindingType().getName() : "无",
                 skill.getBindingValue(),
                 skill.getCooldownSeconds(),
-                skill.getDamageFormula(),
                 skill.getLevelRequirement(),
                 Boolean.TRUE.equals(ps.getIsEquipped())
         );

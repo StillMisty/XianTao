@@ -6,11 +6,11 @@ import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import lombok.Data;
 import top.stillmisty.xiantao.domain.skill.enums.BindingType;
-import top.stillmisty.xiantao.domain.skill.enums.EffectType;
 import top.stillmisty.xiantao.domain.skill.enums.SkillType;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Table("xt_skill")
@@ -25,15 +25,18 @@ public class Skill {
 
     private SkillType skillType;
 
-    private EffectType effectType;
+    /**
+     * 效果列表（JSONB）
+     * 支持多效果组合，每个效果有独立参数
+     */
+    @Column(typeHandler = PgJsonbTypeHandler.class)
+    private List<SkillEffect> effects;
 
     private BindingType bindingType;
 
     private String bindingValue;
 
     private Integer cooldownSeconds;
-
-    private String damageFormula;
 
     private Integer requireWis;
 

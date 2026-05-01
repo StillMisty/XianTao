@@ -80,7 +80,9 @@ public class SkillCommandHandler {
         for (int i = 0; i < skills.size(); i++) {
             var skill = skills.get(i);
             sb.append(i + 1).append(". ").append(skill.name());
-            sb.append(" [").append(skill.effectTypeName()).append("]");
+            if (skill.effects() != null && !skill.effects().isEmpty()) {
+                sb.append(" [").append(skill.effects().get(0).type().getName()).append("]");
+            }
             if (skill.equipped()) sb.append(" ◆");
             sb.append("\n");
         }
@@ -111,11 +113,19 @@ public class SkillCommandHandler {
         if (skill.equipped()) sb.append(" ◆");
         sb.append("\n");
 
-        sb.append("  效果：").append(skill.effectTypeName());
-        if (skill.damageFormula() != null && !skill.damageFormula().isBlank()) {
-            sb.append("（").append(skill.damageFormula()).append("）");
+        // 显示所有效果
+        if (skill.effects() != null && !skill.effects().isEmpty()) {
+            sb.append("  效果：");
+            for (int i = 0; i < skill.effects().size(); i++) {
+                var effect = skill.effects().get(i);
+                if (i > 0) sb.append(" + ");
+                sb.append(effect.type().getName());
+                if (effect.formula() != null) sb.append("(").append(effect.formula()).append(")");
+                if (effect.value() != null) sb.append("(").append(String.format("%.0f%%", effect.value() * 100)).append(")");
+                if (effect.duration() != null) sb.append(" ").append(effect.duration()).append("回合");
+            }
+            sb.append("\n");
         }
-        sb.append("\n");
 
         sb.append("  绑定：").append(skill.bindingTypeName());
         if (skill.bindingValue() != null && !skill.bindingValue().isBlank()) {

@@ -126,7 +126,8 @@ public class DefaultBeastAI implements BeastAI {
             return null;
         }
         return skills.stream()
-                .filter(skill -> skill.getEffectType() == type)
+                .filter(skill -> skill.getEffects() != null && 
+                        skill.getEffects().stream().anyMatch(e -> e.type() == type))
                 .findFirst()
                 .orElse(null);
     }

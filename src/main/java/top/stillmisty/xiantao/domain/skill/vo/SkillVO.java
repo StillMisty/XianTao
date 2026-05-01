@@ -1,17 +1,19 @@
 package top.stillmisty.xiantao.domain.skill.vo;
 
+import top.stillmisty.xiantao.domain.skill.entity.SkillEffect;
+
+import java.util.List;
+
 public record SkillVO(
         long playerSkillId,
         long skillId,
         String name,
         String description,
-        String effectType,
-        String effectTypeName,
+        List<SkillEffect> effects,
         String bindingType,
         String bindingTypeName,
         String bindingValue,
         int cooldownSeconds,
-        String damageFormula,
         int levelRequirement,
         boolean equipped
 ) {

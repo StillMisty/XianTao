@@ -7,6 +7,7 @@ import top.stillmisty.xiantao.domain.monster.enums.BuffType;
 import top.stillmisty.xiantao.domain.monster.enums.MonsterType;
 import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
 import top.stillmisty.xiantao.domain.skill.entity.Skill;
+import top.stillmisty.xiantao.domain.skill.entity.SkillEffect;
 import top.stillmisty.xiantao.domain.skill.enums.EffectType;
 
 import java.util.*;
@@ -131,91 +132,134 @@ public class DefaultCombatEngine implements CombatEngine {
                 boolean isBuff = false;
 
                 if (skillTriggered && triggeredSkill != null) {
-                    // 根据技能效果类型处理
-                    switch (triggeredSkill.getEffectType()) {
-                        case DAMAGE, MULTI_HIT -> {
-                            damage = calculateSkillDamage(attacker, defender, triggeredSkill, buffManager);
-                            if (triggeredSkill.getEffectType() == EffectType.MULTI_HIT) {
-                                damage *= 3;
+                    // 遍历技能效果列表
+                    List<SkillEffect> effects = triggeredSkill.getEffects();
+                    if (effects != null && !effects.isEmpty()) {
+                        for (SkillEffect effect : effects) {
+                            // 检查触发概率
+                            double chance = effect.chance() != null ? effect.chance() : 1.0;
+                            if (Math.random() > chance) continue;
+                            
+                            switch (effect.type()) {
+                                case DAMAGE -> {
+                                    int effectDamage = calculateEffectDamage(attacker, defender, effect, buffManager);
+                                    damage += effectDamage;
+                                }
+                                case MULTI_HIT -> {
+                                    int effectDamage = calculateEffectDamage(attacker, defender, effect, buffManager);
+                                    damage += effectDamage * 3;
+                                }
+                                case ARMOR_BREAK -> {
+                                    double value = effect.value() != null ? effect.value() : 0.2;
+                                    int duration = effect.duration() != null ? effect.duration() : 3;
+                                    Buff armorBreak = Buff.builder()
+                                            .type(BuffType.ARMOR_BREAK)
+                                            .value(value)
+                                            .remainingTurns(duration)
+                                            .source(triggeredSkill.getName())
+                                            .build();
+                                    buffManager.addBuff(defender.getId(), armorBreak);
+                                    isControl = true;
+                                }
+                                case SLOW -> {
+                                    double value = effect.value() != null ? effect.value() : 0.3;
+                                    int duration = effect.duration() != null ? effect.duration() : 2;
+                                    Buff slow = Buff.builder()
+                                            .type(BuffType.SLOW)
+                                            .value(value)
+                                            .remainingTurns(duration)
+                                            .source(triggeredSkill.getName())
+                                            .build();
+                                    buffManager.addBuff(defender.getId(), slow);
+                                    isControl = true;
+                                }
+                                case DOT -> {
+                                    double value = effect.value() != null ? effect.value() : 0.3;
+                                    int duration = effect.duration() != null ? effect.duration() : 3;
+                                    int maxStacks = effect.maxStacks() != null ? effect.maxStacks() : 3;
+                                    Buff dot = Buff.builder()
+                                            .type(BuffType.DOT)
+                                            .value(attacker.getAttack() * value)
+                                            .remainingTurns(duration)
+                                            .source(triggeredSkill.getName())
+                                            .stackable(true)
+                                            .maxStacks(maxStacks)
+                                            .build();
+                                    buffManager.addBuff(defender.getId(), dot);
+                                }
+                                case EXECUTE -> {
+                                    double hpRatio = (double) defender.getHp() / defender.getMaxHp();
+                                    double threshold = effect.value() != null ? effect.value() : 0.3;
+                                    double executeMultiplier = hpRatio < threshold ? 2.0 : 1.0;
+                                    int effectDamage = calculateEffectDamage(attacker, defender, effect, buffManager);
+                                    damage += (int) (effectDamage * executeMultiplier);
+                                }
+                                case LIFESTEAL -> {
+                                    int effectDamage = calculateNormalDamage(attacker, defender, buffManager);
+                                    damage += effectDamage;
+                                    double ratio = effect.value() != null ? effect.value() : 0.33;
+                                    attacker.heal((int) (effectDamage * ratio));
+                                }
+                                case HEAL -> {
+                                    double ratio = effect.value() != null ? effect.value() : 0.5;
+                                    attacker.heal((int) (attacker.getAttack() * ratio));
+                                    isBuff = true;
+                                }
+                                case ATTACK_BUFF -> {
+                                    double value = effect.value() != null ? effect.value() : 0.2;
+                                    int duration = effect.duration() != null ? effect.duration() : 3;
+                                    Buff buff = Buff.builder()
+                                            .type(BuffType.ATTACK_BUFF)
+                                            .value(value)
+                                            .remainingTurns(duration)
+                                            .source(triggeredSkill.getName())
+                                            .build();
+                                    buffManager.addBuff(attacker.getId(), buff);
+                                    isBuff = true;
+                                }
+                                case DEFENSE_BUFF -> {
+                                    double value = effect.value() != null ? effect.value() : 0.2;
+                                    int duration = effect.duration() != null ? effect.duration() : 3;
+                                    Buff buff = Buff.builder()
+                                            .type(BuffType.DEFENSE_BUFF)
+                                            .value(value)
+                                            .remainingTurns(duration)
+                                            .source(triggeredSkill.getName())
+                                            .build();
+                                    buffManager.addBuff(attacker.getId(), buff);
+                                    isBuff = true;
+                                }
+                                case SPEED_BUFF -> {
+                                    double value = effect.value() != null ? effect.value() : 0.2;
+                                    int duration = effect.duration() != null ? effect.duration() : 3;
+                                    Buff buff = Buff.builder()
+                                            .type(BuffType.SPEED_BUFF)
+                                            .value(value)
+                                            .remainingTurns(duration)
+                                            .source(triggeredSkill.getName())
+                                            .build();
+                                    buffManager.addBuff(attacker.getId(), buff);
+                                    isBuff = true;
+                                }
+                                case STUN, FREEZE, SILENCE -> {
+                                    int duration = effect.duration() != null ? effect.duration() : 1;
+                                    BuffType buffType = effect.type() == EffectType.STUN ? BuffType.STUN :
+                                                       effect.type() == EffectType.FREEZE ? BuffType.FREEZE : BuffType.SILENCE;
+                                    Buff control = Buff.builder()
+                                            .type(buffType)
+                                            .value(1.0)
+                                            .remainingTurns(duration)
+                                            .source(triggeredSkill.getName())
+                                            .build();
+                                    buffManager.addBuff(defender.getId(), control);
+                                    isControl = true;
+                                }
                             }
                         }
-                        case ARMOR_BREAK -> {
-                            // 破甲效果：降低防御
-                            Buff armorBreak = Buff.builder()
-                                    .type(BuffType.ARMOR_BREAK)
-                                    .value(0.2) // 降低20%防御
-                                    .remainingTurns(3)
-                                    .source(triggeredSkill.getName())
-                                    .build();
-                            buffManager.addBuff(defender.getId(), armorBreak);
-                            isControl = true;
-                            damage = calculateNormalDamage(attacker, defender, buffManager);
-                        }
-                        case SLOW -> {
-                            // 减速效果
-                            Buff slow = Buff.builder()
-                                    .type(BuffType.SLOW)
-                                    .value(0.3) // 降低30%速度
-                                    .remainingTurns(2)
-                                    .source(triggeredSkill.getName())
-                                    .build();
-                            buffManager.addBuff(defender.getId(), slow);
-                            isControl = true;
-                            damage = calculateNormalDamage(attacker, defender, buffManager);
-                        }
-                        case DOT -> {
-                            // 持续伤害效果
-                            Buff dot = Buff.builder()
-                                    .type(BuffType.DOT)
-                                    .value(attacker.getAttack() * 0.3) // 每回合造成30%攻击力伤害
-                                    .remainingTurns(3)
-                                    .source(triggeredSkill.getName())
-                                    .stackable(true)
-                                    .maxStacks(3)
-                                    .build();
-                            buffManager.addBuff(defender.getId(), dot);
-                            damage = calculateNormalDamage(attacker, defender, buffManager);
-                        }
-                        case EXECUTE -> {
-                            // 斩杀效果：对低血量目标造成额外伤害
-                            double hpRatio = (double) defender.getHp() / defender.getMaxHp();
-                            double executeMultiplier = hpRatio < 0.3 ? 2.0 : 1.0;
-                            damage = (int) (calculateNormalDamage(attacker, defender, buffManager) * executeMultiplier);
-                        }
-                        case LIFESTEAL -> {
-                            // 吸血效果
-                            damage = calculateNormalDamage(attacker, defender, buffManager);
-                            int healAmount = damage / 3; // 吸收33%伤害
-                            attacker.heal(healAmount);
-                        }
-                        case HEAL -> {
-                            // 治疗效果
-                            int healAmount = (int) (attacker.getAttack() * 0.5);
-                            attacker.heal(healAmount);
-                            isBuff = true;
-                            damage = 0;
-                        }
-                        case ATTACK_BUFF, DEFENSE_BUFF, SPEED_BUFF -> {
-                            // 增益效果
-                            BuffType buffType = switch (triggeredSkill.getEffectType()) {
-                                case ATTACK_BUFF -> BuffType.ATTACK_BUFF;
-                                case DEFENSE_BUFF -> BuffType.DEFENSE_BUFF;
-                                case SPEED_BUFF -> BuffType.SPEED_BUFF;
-                                default -> BuffType.ATTACK_BUFF;
-                            };
-                            Buff buff = Buff.builder()
-                                    .type(buffType)
-                                    .value(0.2) // 提升20%
-                                    .remainingTurns(3)
-                                    .source(triggeredSkill.getName())
-                                    .build();
-                            buffManager.addBuff(attacker.getId(), buff);
-                            isBuff = true;
-                            damage = 0;
-                        }
-                        default -> {
-                            damage = calculateNormalDamage(attacker, defender, buffManager);
-                        }
+                    }
+                    // 如果没有效果，使用普通攻击
+                    if (damage == 0 && !isBuff && !isControl) {
+                        damage = calculateNormalDamage(attacker, defender, buffManager);
                     }
                 } else {
                     damage = calculateNormalDamage(attacker, defender, buffManager);
@@ -241,7 +285,12 @@ public class DefaultCombatEngine implements CombatEngine {
                 logEntry.put("attackType", skillTriggered ? "SKILL" : "NORMAL");
                 if (skillTriggered && triggeredSkill != null) {
                     logEntry.put("skillName", triggeredSkill.getName());
-                    logEntry.put("effectType", triggeredSkill.getEffectType().name());
+                    // 记录所有效果类型
+                    if (triggeredSkill.getEffects() != null) {
+                        logEntry.put("effects", triggeredSkill.getEffects().stream()
+                                .map(e -> e.type().name())
+                                .toList());
+                    }
                 }
                 if (isControl) {
                     logEntry.put("buffApplied", true);
@@ -362,12 +411,11 @@ public class DefaultCombatEngine implements CombatEngine {
     }
 
     /**
-     * 计算技能攻击伤害
+     * 计算效果伤害（支持公式和普通攻击）
      */
-    private int calculateSkillDamage(Combatant attacker, Combatant defender, Skill skill, BuffManager buffManager) {
-        String formula = skill.getDamageFormula();
-        if (formula == null) return calculateNormalDamage(attacker, defender, buffManager);
-
+    private int calculateEffectDamage(Combatant attacker, Combatant defender, SkillEffect effect, BuffManager buffManager) {
+        String formula = effect.formula();
+        
         double advantageMultiplier = 1.0;
         if (attacker instanceof PlayerCombatant pc && defender instanceof Monster monster) {
             advantageMultiplier = getWeaponTypeAdvantage(pc.getWeaponType(), monster.getMonsterType());
@@ -377,10 +425,16 @@ public class DefaultCombatEngine implements CombatEngine {
         double attackModifier = buffManager.getAttackModifier(attacker.getId());
 
         int baseDmg;
-        if (attacker instanceof PlayerCombatant pc) {
-            baseDmg = evaluateFormula(formula, pc.getWis());
+        if (formula != null && !formula.isBlank()) {
+            // 使用公式计算
+            if (attacker instanceof PlayerCombatant pc) {
+                baseDmg = evaluateFormula(formula, pc.getWis());
+            } else {
+                baseDmg = (int) Math.round(attacker.getAttack() * 1.5);
+            }
         } else {
-            baseDmg = (int) Math.round(attacker.getAttack() * 1.5);
+            // 使用普通攻击
+            baseDmg = attacker.getAttack();
         }
 
         int rawDamage = (int) Math.round(baseDmg * advantageMultiplier * attackModifier);
