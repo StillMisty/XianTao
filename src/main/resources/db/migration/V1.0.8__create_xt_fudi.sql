@@ -3,16 +3,10 @@ CREATE TABLE xt_fudi
 (
     id                     BIGSERIAL PRIMARY KEY,
     user_id                BIGINT      NOT NULL UNIQUE,
-
-    -- 劫数系统
     tribulation_stage      INTEGER     NOT NULL DEFAULT 0,
-
-    -- 时间戳
     last_online_time       TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     last_tribulation_time  TIMESTAMP,
     tribulation_win_streak INTEGER     NOT NULL DEFAULT 0,
-
-    -- 审计字段
     create_time            TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     update_time            TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
