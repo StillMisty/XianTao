@@ -22,6 +22,7 @@ CREATE TABLE xt_beast
     penned_cell_id  INT,
     birth_time      TIMESTAMP,
     evolution_count INT          NOT NULL DEFAULT 0,
+    level_cap       INT          NOT NULL DEFAULT 20,
     create_time     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     update_time     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT chk_beast_tier CHECK (tier > 0),
@@ -39,6 +40,7 @@ COMMENT ON COLUMN xt_beast.skills IS '技能ID列表 JSONB，引用 xt_skill';
 COMMENT ON COLUMN xt_beast.is_deployed IS '是否出战（福地选择）';
 COMMENT ON COLUMN xt_beast.recovery_until IS '休养截止时间（阵亡后设置）';
 COMMENT ON COLUMN xt_beast.penned_cell_id IS '所属栏位编号，null = 栏外休憩';
+COMMENT ON COLUMN xt_beast.level_cap IS '等级上限（tier × 10 + 10）';
 
 CREATE INDEX idx_beast_user_id ON xt_beast (user_id);
 CREATE INDEX idx_beast_fudi_id ON xt_beast (fudi_id);

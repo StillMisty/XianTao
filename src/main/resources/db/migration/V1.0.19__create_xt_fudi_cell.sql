@@ -21,4 +21,6 @@ COMMENT ON COLUMN xt_fudi_cell.fudi_id IS '关联福地ID';
 COMMENT ON COLUMN xt_fudi_cell.cell_id IS '地块编号（从1开始）';
 COMMENT ON COLUMN xt_fudi_cell.cell_type IS '地块类型：empty/farm/pen';
 COMMENT ON COLUMN xt_fudi_cell.cell_level IS '地块等级（1-5）';
-COMMENT ON COLUMN xt_fudi_cell.config IS '建筑专有属性（JSONB）';
+COMMENT ON COLUMN xt_fudi_cell.config IS '建筑专有属性（JSONB）：
+  farm: {"crop_name":"灵草","planted_at":"...","growth_hours":24,"production_stored":[{"template_id":1,"name":"灵草","quantity":5}]}
+  pen: {"beast_id":1,"production_stored":[{"template_id":1,"name":"灵草","quantity":5}]}';

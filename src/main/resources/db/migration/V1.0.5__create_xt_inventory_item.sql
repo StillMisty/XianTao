@@ -8,6 +8,7 @@ CREATE TABLE xt_inventory_item
     name         VARCHAR(128) NOT NULL,
     quantity     INT          NOT NULL DEFAULT 1,
     tags         JSONB                 DEFAULT '[]'::jsonb,
+    properties   JSONB                 DEFAULT '{}'::jsonb,
     create_time  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     update_time  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -28,6 +29,10 @@ COMMENT ON COLUMN xt_inventory_item.item_type IS '物品类型 (MATERIAL, SEED, 
 COMMENT ON COLUMN xt_inventory_item.name IS '物品名称 (从模板复制)';
 COMMENT ON COLUMN xt_inventory_item.quantity IS '数量';
 COMMENT ON COLUMN xt_inventory_item.tags IS '物品标签 JSONB，用于AI检索和NPC交互';
+COMMENT ON COLUMN xt_inventory_item.properties IS '类型特有属性 JSONB：
+  丹药: {"grade": 3, "quality": "superior"}
+  药材: {"elements": {"wood": 3, "fire": 1, "water": 2}}
+  其他: {}';
 COMMENT ON COLUMN xt_inventory_item.create_time IS '创建时间';
 COMMENT ON COLUMN xt_inventory_item.update_time IS '更新时间';
 
