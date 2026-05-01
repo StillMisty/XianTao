@@ -23,7 +23,10 @@ CREATE TABLE xt_beast
     birth_time      TIMESTAMP,
     evolution_count INT          NOT NULL DEFAULT 0,
     create_time     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    update_time     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+    update_time     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT chk_beast_tier CHECK (tier > 0),
+    CONSTRAINT chk_beast_level CHECK (level > 0),
+    CONSTRAINT chk_beast_hp CHECK (hp_current >= 0)
 );
 
 COMMENT ON TABLE xt_beast IS '灵兽实体表（战斗化）';

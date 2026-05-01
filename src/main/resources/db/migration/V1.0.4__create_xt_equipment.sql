@@ -46,5 +46,3 @@ COMMENT ON COLUMN xt_equipment.update_time IS '更新时间';
 CREATE INDEX idx_xt_equipment_user_id ON xt_equipment (user_id);
 CREATE INDEX idx_xt_equipment_user_equipped ON xt_equipment (user_id, equipped);
 CREATE INDEX idx_xt_equipment_user_slot ON xt_equipment (user_id, slot);
-CREATE INDEX idx_xt_equipment_stat_bonus ON xt_equipment USING GIN (stat_bonus);
-CREATE INDEX idx_equipment_affixes ON xt_equipment USING GIN (affixes);

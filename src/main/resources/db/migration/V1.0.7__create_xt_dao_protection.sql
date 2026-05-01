@@ -7,7 +7,8 @@ CREATE TABLE xt_dao_protection
     update_time  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_protector FOREIGN KEY (protector_id) REFERENCES xt_user (id) ON DELETE CASCADE,
     CONSTRAINT fk_protege FOREIGN KEY (protege_id) REFERENCES xt_user (id) ON DELETE CASCADE,
-    CONSTRAINT uq_protection UNIQUE (protector_id, protege_id)
+    CONSTRAINT uq_protection UNIQUE (protector_id, protege_id),
+    CONSTRAINT chk_dao_protection_self CHECK (protector_id != protege_id)
 );
 
 COMMENT ON TABLE xt_dao_protection IS '护道关系表';

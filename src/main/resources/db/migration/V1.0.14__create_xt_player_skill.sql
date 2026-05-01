@@ -11,5 +11,3 @@ CREATE TABLE xt_player_skill
 
 COMMENT ON TABLE xt_player_skill IS '玩家获得的法决列表';
 COMMENT ON COLUMN xt_player_skill.is_equipped IS '是否装载到技能槽位（最大3）';
-
-CREATE INDEX idx_player_skill_user_id ON xt_player_skill (user_id);

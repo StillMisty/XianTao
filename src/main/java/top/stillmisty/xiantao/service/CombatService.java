@@ -16,6 +16,7 @@ import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
+import top.stillmisty.xiantao.domain.map.entity.MonsterSpawn;
 import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
 import top.stillmisty.xiantao.domain.monster.BattleContext;
 import top.stillmisty.xiantao.domain.monster.BeastCombatant;
@@ -92,7 +93,7 @@ public class CombatService {
         int totalKills = 0;
         int defeatCount = 0;
 
-        Map<Long, Integer> monsterEncounters = mapNode.getMonsterEncounters();
+        Map<Long, MonsterSpawn> monsterEncounters = mapNode.getMonsterEncounters();
         if (monsterEncounters == null || monsterEncounters.isEmpty()) {
             return buildEmptyBattleResult(user, mapNode);
         }
@@ -113,13 +114,6 @@ public class CombatService {
         // 计算遇怪概率
         double encounterChance = encounterCalculator.calculateEncounterChance(encounterInterval);
 
-        Map<String, Object> encounterSize = mapNode.getEncounterSize();
-        int minCount = 1, maxCount = 3;
-        if (encounterSize != null) {
-            if (encounterSize.get("min") instanceof Number minN) minCount = minN.intValue();
-            if (encounterSize.get("max") instanceof Number maxN) maxCount = maxN.intValue();
-        }
-
         // 高光战斗检测
         List<BattleResultVO> battleResults = new ArrayList<>();
         List<HighlightBattleDetector.HighlightInfo> highlightInfos = new ArrayList<>();
@@ -130,11 +124,12 @@ public class CombatService {
             Long selectedTemplateId = weightedSelect(monsterEncounters);
             if (selectedTemplateId == null) continue;
 
+            MonsterSpawn spawn = monsterEncounters.get(selectedTemplateId);
             MonsterTemplate tmpl = monsterTemplateRepository.findById(selectedTemplateId).orElse(null);
             if (tmpl == null) continue;
 
             totalEncounters++;
-            int count = minCount + ThreadLocalRandom.current().nextInt(maxCount - minCount + 1);
+            int count = spawn.min() + ThreadLocalRandom.current().nextInt(spawn.max() - spawn.min() + 1);
 
             // 构建玩家队伍
             Team playerTeam = buildPlayerTeam(user);
@@ -341,13 +336,13 @@ public class CombatService {
         return drops;
     }
 
-    private <T> T weightedSelect(Map<T, Integer> weightMap) {
-        int total = weightMap.values().stream().mapToInt(Integer::intValue).sum();
+    private Long weightedSelect(Map<Long, MonsterSpawn> spawnMap) {
+        int total = spawnMap.values().stream().mapToInt(MonsterSpawn::weight).sum();
         if (total <= 0) return null;
         int roll = ThreadLocalRandom.current().nextInt(total);
         int cumulative = 0;
-        for (var entry : weightMap.entrySet()) {
-            cumulative += entry.getValue();
+        for (var entry : spawnMap.entrySet()) {
+            cumulative += entry.getValue().weight();
             if (roll < cumulative) return entry.getKey();
         }
         return null;

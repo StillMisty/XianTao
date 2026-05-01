@@ -34,4 +34,3 @@ COMMENT ON COLUMN xt_inventory_item.update_time IS '更新时间';
 -- 索引
 CREATE INDEX idx_inventory_item_user_id ON xt_inventory_item (user_id);
 CREATE INDEX idx_inventory_item_user_type ON xt_inventory_item (user_id, item_type);
-CREATE INDEX idx_inventory_item_tags ON xt_inventory_item USING GIN (tags);

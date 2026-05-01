@@ -27,5 +27,5 @@ COMMENT ON COLUMN xt_item_template.description IS '物品描述';
 
 -- tags 字段 GIN 索引
 CREATE INDEX idx_item_template_tags ON xt_item_template USING GIN (tags);
--- name 字段 B-tree 索引（UNIQUE 约束自带索引，显式创建仅作标注用途）
-CREATE INDEX idx_item_template_name ON xt_item_template (name);
+-- type 字段 B-tree 索引
+CREATE INDEX idx_item_template_type ON xt_item_template (type);

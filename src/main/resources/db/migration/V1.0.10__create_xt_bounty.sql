@@ -12,7 +12,9 @@ CREATE TABLE xt_bounty
     create_time      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     update_time      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT fk_bounty_map FOREIGN KEY (map_id) REFERENCES xt_map_node (id)
+    CONSTRAINT fk_bounty_map FOREIGN KEY (map_id) REFERENCES xt_map_node (id),
+    CONSTRAINT chk_bounty_duration CHECK (duration_minutes > 0),
+    CONSTRAINT chk_bounty_event_weight CHECK (event_weight >= 0)
 );
 
 COMMENT ON TABLE xt_bounty IS '悬赏任务配置表';

@@ -1,7 +1,7 @@
 -- 地灵形态定义表
 CREATE TABLE xt_spirit_form
 (
-    id            SERIAL PRIMARY KEY,
+    id            BIGSERIAL PRIMARY KEY,
     name          VARCHAR(50) NOT NULL UNIQUE,
     description   TEXT        NOT NULL,
     liked_tags    JSONB       NOT NULL DEFAULT '[]'::jsonb,

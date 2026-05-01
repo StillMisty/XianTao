@@ -8,7 +8,7 @@ CREATE TABLE xt_fudi
     tribulation_stage      INTEGER     NOT NULL DEFAULT 0,
 
     -- 时间戳
-    last_online_time       TIMESTAMP   NOT NULL DEFAULT NOW(),
+    last_online_time       TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     last_tribulation_time  TIMESTAMP,
     tribulation_win_streak INTEGER     NOT NULL DEFAULT 0,
 
@@ -18,15 +18,12 @@ CREATE TABLE xt_fudi
     }'::jsonb,
 
     -- 审计字段
-    create_time            TIMESTAMP   NOT NULL DEFAULT NOW(),
-    update_time            TIMESTAMP   NOT NULL DEFAULT NOW(),
+    create_time            TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_time            TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_fudi_user FOREIGN KEY (user_id) REFERENCES xt_user (id) ON DELETE CASCADE,
     CONSTRAINT chk_tribulation_stage CHECK (tribulation_stage >= 0)
 );
-
--- 索引
-CREATE INDEX idx_fudi_user_id ON xt_fudi (user_id);
 
 -- JSONB字段GIN索引（支持高效查询）
 CREATE INDEX idx_fudi_grid_layout ON xt_fudi USING GIN (grid_layout);

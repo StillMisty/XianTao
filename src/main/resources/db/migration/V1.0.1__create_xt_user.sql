@@ -1,7 +1,7 @@
 CREATE TABLE xt_user
 (
     id                       BIGSERIAL PRIMARY KEY,
-    nickname                 VARCHAR(64) NOT NULL UNIQUE,
+    nickname                 VARCHAR(64) NOT NULL,
     -- 游戏进度
     level                    INT         NOT NULL DEFAULT 1,
     exp                      BIGINT      NOT NULL DEFAULT 0,
@@ -30,7 +30,8 @@ CREATE TABLE xt_user
     update_time              TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     -- 唯一约束：道号必须唯一
-    CONSTRAINT uq_nickname UNIQUE (nickname)
+    CONSTRAINT uq_nickname UNIQUE (nickname),
+    CONSTRAINT chk_user_status CHECK (status IN ('idle', 'training', 'traveling', 'fighting', 'dead'))
 );
 
 -- 索引:排行榜常用

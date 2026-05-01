@@ -1,7 +1,7 @@
 -- 地灵实例表
 CREATE TABLE xt_spirit
 (
-    id                  SERIAL PRIMARY KEY,
+    id                  BIGSERIAL PRIMARY KEY,
     fudi_id             BIGINT      NOT NULL UNIQUE REFERENCES xt_fudi (id) ON DELETE CASCADE,
     form_id             INTEGER     NOT NULL REFERENCES xt_spirit_form (id),
 
@@ -11,13 +11,14 @@ CREATE TABLE xt_spirit
     emotion_state       VARCHAR(20) NOT NULL DEFAULT 'calm',
     mbti_type           VARCHAR(4)  NOT NULL,
 
-    last_energy_update  TIMESTAMP   NOT NULL DEFAULT NOW(),
+    last_energy_update  TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     last_gift_time      TIMESTAMP,
-    create_time         TIMESTAMP   NOT NULL DEFAULT NOW(),
-    update_time         TIMESTAMP   NOT NULL DEFAULT NOW(),
+    create_time         TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_time         TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT chk_spirit_energy CHECK (energy >= 0),
-    CONSTRAINT chk_spirit_affection_max CHECK (affection_max > 0)
+    CONSTRAINT chk_spirit_affection_max CHECK (affection_max > 0),
+    CONSTRAINT chk_spirit_mbti CHECK (mbti_type ~ '^[EI][SN][TF][JP]$')
 );
 
 CREATE INDEX idx_spirit_fudi_id ON xt_spirit (fudi_id);

@@ -13,7 +13,8 @@ CREATE TABLE xt_user_bounty
     update_time      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_user_bounty_user FOREIGN KEY (user_id) REFERENCES xt_user (id),
-    CONSTRAINT fk_user_bounty_bounty FOREIGN KEY (bounty_id) REFERENCES xt_bounty (id)
+    CONSTRAINT fk_user_bounty_bounty FOREIGN KEY (bounty_id) REFERENCES xt_bounty (id),
+    CONSTRAINT chk_user_bounty_status CHECK (status IN ('active', 'completed', 'abandoned'))
 );
 
 COMMENT ON TABLE xt_user_bounty IS '用户悬赏记录表';

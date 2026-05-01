@@ -42,7 +42,7 @@ public class UserAuth {
      * 绑定发生的时间
      */
     @Column(onInsertValue = "now()")
-    private LocalDateTime bindTime;
+    private LocalDateTime createTime;
 
     /**
      * 创建新绑定
