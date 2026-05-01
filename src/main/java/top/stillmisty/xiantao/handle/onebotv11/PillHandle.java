@@ -60,24 +60,6 @@ public class PillHandle {
     }
 
     /**
-     * 处理学习丹方命令
-     * 格式：学丹方 [名称]
-     * 示例：学丹方 天元丹
-     */
-    @Listener
-    @ContentTrim
-    @Filter("学丹方 {{recipeName}}")
-    public void learnRecipe(MessageEvent event, @FilterValue("recipeName") String recipeName) {
-        log.debug("收到学习丹方请求 - AuthorId: {}, RecipeName: {}", event.getAuthorId(), recipeName);
-        String response = pillCommandHandler.handleLearnRecipe(
-                PlatformType.ONE_BOT_V11,
-                event.getAuthorId().toString(),
-                recipeName
-        );
-        event.replyBlocking(response);
-    }
-
-    /**
      * 处理自动炼丹命令
      * 格式：炼 [丹方名]
      * 示例：炼 天元丹
@@ -111,24 +93,6 @@ public class PillHandle {
                 PlatformType.ONE_BOT_V11,
                 event.getAuthorId().toString(),
                 herbInputs
-        );
-        event.replyBlocking(response);
-    }
-
-    /**
-     * 处理服用丹药命令
-     * 格式：服用 [名称/编号]
-     * 示例：服用 天元丹
-     */
-    @Listener
-    @ContentTrim
-    @Filter("服用 {{pillName}}")
-    public void takePill(MessageEvent event, @FilterValue("pillName") String pillName) {
-        log.debug("收到服用丹药请求 - AuthorId: {}, PillName: {}", event.getAuthorId(), pillName);
-        String response = pillCommandHandler.handleTakePill(
-                PlatformType.ONE_BOT_V11,
-                event.getAuthorId().toString(),
-                pillName
         );
         event.replyBlocking(response);
     }

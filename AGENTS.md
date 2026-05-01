@@ -14,15 +14,32 @@ src/main/java/top/stillmisty/xiantao/
 │   └── web/         # REST controllers
 ├── domain/          # Entities, enums, repository interfaces, VOs
 │   ├── user/ bounty/ item/ land/ map/
+│   └── item/handler/ # ItemUseHandler strategy implementations
 ├── service/         # Auth + business logic
 │   ├── AuthenticationService.java
-│   └── ServiceResult.java    # sealed: Success<T> | Failure<T>
+│   ├── ServiceResult.java    # sealed: Success<T> | Failure<T>
+│   └── ItemUseService.java   # Item use dispatcher
 └── infrastructure/  # MyBatis-Flex mappers, repository impls
 ```
 
 ## Service API Pattern
 - **Public** method: `(PlatformType, String openId, ...)` → auth → returns `ServiceResult<T>`
 - **Internal** method: `(Long userId, ...)` → returns raw VO/DTO
+
+## Item Use System (Strategy Pattern)
+
+统一使用指令：`使用 [物品名] [参数]`
+
+```
+domain/item/handler/
+├── ItemUseHandler.java           # Interface: supports(), use()
+├── PillUseHandler.java           # POTION → 服用丹药
+├── SkillJadeUseHandler.java      # SKILL_JADE → 学习法决
+├── RecipeScrollUseHandler.java   # MATERIAL+recipe → 学习丹方
+└── EvolutionStoneUseHandler.java # EVOLUTION_STONE → 灵兽进化
+```
+
+扩展方式：创建新的 `XxxUseHandler implements ItemUseHandler` + `@Component` 即可自动注册。
 
 ## Development Flow
 1. domain/ — Entity, VO, Repository interface

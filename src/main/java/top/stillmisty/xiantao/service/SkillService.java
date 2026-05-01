@@ -69,7 +69,7 @@ public class SkillService {
 
     // ===================== 内部 API（需预先完成认证） =====================
 
-    SkillSlotResult learnFromJade(Long userId, String jadeInput) {
+    public SkillSlotResult learnFromJade(Long userId, String jadeInput) {
         // 1. 查找用户背包中的法决玉简
         var jadeItems = stackableItemRepository.findByUserId(userId).stream()
                 .filter(si -> si.getItemType() == ItemType.SKILL_JADE)

@@ -66,23 +66,6 @@ public class SkillHandle {
 
     @Listener
     @ContentTrim
-    @Filter("学习法决 {{jade}}")
-    public void learnFromJade(MessageEvent event, @FilterValue("jade") String jade) {
-        log.debug("收到学习法决请求 - AuthorId: {}, Jade: {}", event.getAuthorId(), jade);
-        if (jade == null || jade.isEmpty()) {
-            event.replyBlocking("用法：学习法决 [玉简名称或编号]\n示例：学习法决 御剑术玉简");
-            return;
-        }
-        String response = skillCommandHandler.handleLearnFromJade(
-                PlatformType.ONE_BOT_V11,
-                event.getAuthorId().toString(),
-                jade
-        );
-        event.replyBlocking(response);
-    }
-
-    @Listener
-    @ContentTrim
     @Filter("法决")
     public void equippedSkills(MessageEvent event) {
         log.debug("收到法决查询请求 - AuthorId: {}", event.getAuthorId());

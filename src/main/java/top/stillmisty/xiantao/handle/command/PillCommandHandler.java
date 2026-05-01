@@ -46,19 +46,6 @@ public class PillCommandHandler {
     }
 
     /**
-     * 处理学习丹方命令
-     */
-    public String handleLearnRecipe(PlatformType platform, String openId, String recipeName) {
-        log.debug("处理学习丹方 - Platform: {}, OpenId: {}, RecipeName: {}", platform, openId, recipeName);
-        return switch (pillService.learnRecipe(platform, openId, recipeName)) {
-            case ServiceResult.Failure(var msg) -> msg;
-            case ServiceResult.Success(var recipe) -> recipe != null ?
-                    "学习丹方成功：" + recipe.recipeName() + "\n" + formatRecipeDetail(recipe) :
-                    "学习丹方失败，请检查背包中是否有丹方卷轴";
-        };
-    }
-
-    /**
      * 处理自动炼丹命令
      */
     public String handleRefineAuto(PlatformType platform, String openId, String recipeName) {
@@ -77,17 +64,6 @@ public class PillCommandHandler {
         return switch (pillService.refinePillManual(platform, openId, herbInputs)) {
             case ServiceResult.Failure(var msg) -> msg;
             case ServiceResult.Success(var result) -> formatRefiningResult(result);
-        };
-    }
-
-    /**
-     * 处理服用丹药命令
-     */
-    public String handleTakePill(PlatformType platform, String openId, String pillName) {
-        log.debug("处理服用丹药 - Platform: {}, OpenId: {}, PillName: {}", platform, openId, pillName);
-        return switch (pillService.takePill(platform, openId, pillName)) {
-            case ServiceResult.Failure(var msg) -> msg;
-            case ServiceResult.Success(var result) -> result;
         };
     }
 

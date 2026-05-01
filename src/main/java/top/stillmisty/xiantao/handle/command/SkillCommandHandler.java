@@ -34,14 +34,6 @@ public class SkillCommandHandler {
         };
     }
 
-    public String handleLearnFromJade(PlatformType platform, String openId, String jadeInput) {
-        log.debug("学习法决 - Platform: {}, OpenId: {}, JadeInput: {}", platform, openId, jadeInput);
-        return switch (skillService.learnFromJade(platform, openId, jadeInput)) {
-            case ServiceResult.Failure(var msg) -> msg;
-            case ServiceResult.Success(var result) -> formatSkillSlotResult(result);
-        };
-    }
-
     public String handleEquipSkill(PlatformType platform, String openId, String skillInput) {
         log.debug("装载法决 - Platform: {}, OpenId: {}, SkillInput: {}", platform, openId, skillInput);
         return switch (skillService.equipSkill(platform, openId, skillInput)) {
@@ -74,7 +66,7 @@ public class SkillCommandHandler {
 
     private String formatLearnedSkills(List<SkillVO> skills) {
         if (skills.isEmpty()) {
-            return "你还没有学会任何法决\n使用「学习法决 [玉简名称]」从玉简中习得法决";
+            return "你还没有学会任何法决\n使用「使用 [玉简名称]」从玉简中习得法决";
         }
         var sb = new StringBuilder("【已学法决列表】\n");
         for (int i = 0; i < skills.size(); i++) {
