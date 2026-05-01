@@ -383,7 +383,7 @@ public class FudiService {
                 .likedTags(likedTags)
                 .dislikedTags(dislikedTags)
                 .emotionState(spirit != null ? spirit.getEmotionState() : null)
-                .occupiedCells(fudi.getOccupiedCellCount())
+                .occupiedCells(getOccupiedCellCount(fudi))
                 .tribulationWinStreak(fudi.getTribulationWinStreak())
                 .lastTribulationTime(fudi.getLastTribulationTime())
                 .nextTribulationTime(fudi.calculateNextTribulationTime())
@@ -394,6 +394,34 @@ public class FudiService {
     }
 
     // ===================== 天劫系统 =====================
+
+    private int getOccupiedCellCount(Fudi fudi) {
+        return (int) fudiCellRepository.findByFudiId(fudi.getId()).stream()
+                .filter(cell -> cell.getCellType() != CellType.EMPTY)
+                .count();
+    }
+
+    private int calculateTribulationDefense(Fudi fudi, int playerStr) {
+        int defense = playerStr * 10 + (fudi.getTribulationStage() != null ? fudi.getTribulationStage() : 0) * 50;
+
+        List<FudiCell> penCells = fudiCellRepository.findByFudiIdAndCellType(fudi.getId(), CellType.PEN);
+        for (FudiCell cell : penCells) {
+            Boolean isDeployed = cell.getBoolConfig("is_deployed");
+            if (!Boolean.TRUE.equals(isDeployed)) continue;
+
+            Double powerScore = cell.getDoubleConfig("power_score");
+            if (powerScore == null) continue;
+
+            double power = powerScore;
+            List<String> traits = (List<String>) cell.getConfigValue("mutation_traits");
+            if (traits != null && traits.contains(MutationTrait.GUARDIAN.getCode())) {
+                power *= 1.5;
+            }
+            defense += (int) power;
+        }
+
+        return defense;
+    }
 
     /**
      * 主动触发天劫
@@ -430,7 +458,7 @@ public class FudiService {
         }
 
         int attack = playerLevel * 80 + fudi.getTribulationStage() * 200;
-        int defense = fudi.calculateTribulationDefense(playerStr);
+        int defense = calculateTribulationDefense(fudi, playerStr);
 
         fudi.setLastTribulationTime(LocalDateTime.now());
 
@@ -515,7 +543,6 @@ public class FudiService {
         );
     }
 
-    @SuppressWarnings("unchecked")
     private String applyTribulationLoss(Fudi fudi, int attack, int defense) {
         int oldWinStreak = fudi.getTribulationWinStreak();
 
@@ -523,24 +550,21 @@ public class FudiService {
         int oldAffection = spirit != null ? spirit.getAffection() : 0;
 
         int diff = attack - defense;
-        int occupiedCount = fudi.getOccupiedCellCount();
+        int occupiedCount = getOccupiedCellCount(fudi);
         double ratio = Math.min(1.0, (double) diff / attack);
         int clearCount = Math.min(occupiedCount, Math.max(1, (int) Math.ceil(ratio * occupiedCount)));
 
-        List<Map<String, Object>> cells = (List<Map<String, Object>>) fudi.getCellLayout().get("cells");
-        List<Integer> occupiedIndices = new ArrayList<>();
-        for (int i = 0; i < cells.size(); i++) {
-            if (!"empty".equals(cells.get(i).get("type"))) {
-                occupiedIndices.add(i);
-            }
-        }
-        Collections.shuffle(occupiedIndices);
-        for (int i = 0; i < clearCount && i < occupiedIndices.size(); i++) {
-            int idx = occupiedIndices.get(i);
-            Map<String, Object> emptyCell = new HashMap<>();
-            emptyCell.put("cell_id", cells.get(idx).get("cell_id"));
-            emptyCell.put("type", "empty");
-            cells.set(idx, emptyCell);
+        List<FudiCell> occupiedCells = fudiCellRepository.findByFudiId(fudi.getId()).stream()
+                .filter(cell -> cell.getCellType() != CellType.EMPTY)
+                .toList();
+        List<FudiCell> cellsToDestroy = new ArrayList<>(occupiedCells);
+        Collections.shuffle(cellsToDestroy);
+        cellsToDestroy = cellsToDestroy.subList(0, Math.min(clearCount, cellsToDestroy.size()));
+
+        for (FudiCell cell : cellsToDestroy) {
+            cell.setCellType(CellType.EMPTY);
+            cell.setConfig(new HashMap<>());
+            fudiCellRepository.save(cell);
         }
 
         fudi.setTribulationWinStreak(0);

@@ -8,12 +8,8 @@ import com.mybatisflex.core.activerecord.Model;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import top.stillmisty.xiantao.domain.land.enums.MutationTrait;
-import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
 
 /**
  * 福地核心实体
@@ -40,12 +36,6 @@ public class Fudi extends Model<Fudi> {
     private LocalDateTime lastOnlineTime;
 
     /**
-     * 福地地块布局（JSONB存储）
-     */
-    @Column(typeHandler = PgJsonbTypeHandler.class)
-    private Map<String, Object> cellLayout;
-
-    /**
      * 天劫最后发生时间
      */
     private LocalDateTime lastTribulationTime;
@@ -64,59 +54,10 @@ public class Fudi extends Model<Fudi> {
     // ===================== 业务逻辑方法 =====================
 
     /**
-     * 获取已占地块数
-     */
-    public int getOccupiedCellCount() {
-        if (cellLayout == null || !cellLayout.containsKey("cells")) {
-            return 0;
-        }
-        @SuppressWarnings("unchecked")
-        List<Map<String, Object>> cells = (List<Map<String, Object>>) cellLayout.get("cells");
-        return (int) cells.stream()
-                .filter(cell -> !"empty".equals(cell.get("type")))
-                .count();
-    }
-
-    /**
      * 更新在线时间
      */
     public void touchOnlineTime() {
         lastOnlineTime = LocalDateTime.now();
-    }
-
-    /**
-     * 计算福地防御力（用于天劫结算）
-     * 公式：Σ(出战灵兽战力 × 护主乘数) + 玩家STR × 10 + 劫数 × 50
-     *
-     * @param playerStr 玩家力量值
-     * @return 福地总防御力
-     */
-    @SuppressWarnings("unchecked")
-    public int calculateTribulationDefense(int playerStr) {
-        int defense = playerStr * 10 + (tribulationStage != null ? tribulationStage : 0) * 50;
-
-        if (cellLayout == null || !cellLayout.containsKey("cells")) {
-            return defense;
-        }
-
-        List<Map<String, Object>> cells = (List<Map<String, Object>>) cellLayout.get("cells");
-        for (Map<String, Object> cell : cells) {
-            String type = (String) cell.get("type");
-            if ("pen".equals(type) && cell.containsKey("power_score")
-                    && Boolean.TRUE.equals(cell.get("is_deployed"))) {
-                double power = ((Number) cell.get("power_score")).doubleValue();
-                // 护主特性：灵兽携带GUARDIAN变异时战力×1.5
-                if (cell.containsKey("mutation_traits")) {
-                    List<String> traits = (List<String>) cell.get("mutation_traits");
-                    if (traits.contains(MutationTrait.GUARDIAN.getCode())) {
-                        power *= 1.5;
-                    }
-                }
-                defense += (int) power;
-            }
-        }
-
-        return defense;
     }
 
     /**

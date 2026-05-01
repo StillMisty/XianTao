@@ -5,10 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.land.entity.Fudi;
+import top.stillmisty.xiantao.domain.land.entity.FudiCell;
 import top.stillmisty.xiantao.domain.land.entity.Spirit;
 import top.stillmisty.xiantao.domain.land.entity.SpiritForm;
 import top.stillmisty.xiantao.domain.land.entity.SpiritHistory;
+import top.stillmisty.xiantao.domain.land.enums.CellType;
 import top.stillmisty.xiantao.domain.land.enums.FudiEvent;
+import top.stillmisty.xiantao.domain.land.repository.FudiCellRepository;
 import top.stillmisty.xiantao.domain.land.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.land.repository.SpiritHistoryRepository;
 import top.stillmisty.xiantao.domain.land.repository.SpiritRepository;
@@ -35,6 +38,7 @@ public class SpiritChatService {
 
     private final ChatClient spiritChatClient;
     private final FudiRepository fudiRepository;
+    private final FudiCellRepository fudiCellRepository;
     private final SpiritRepository spiritRepository;
     private final SpiritHistoryRepository spiritHistoryRepository;
     private final SpiritFormMapper spiritFormMapper;
@@ -175,95 +179,77 @@ public class SpiritChatService {
      * 为 LLM 构建详细的地块状态描述
      */
     private String buildCellDetailForLLM(Fudi fudi) {
-        if (fudi.getCellLayout() == null) {
-            return "福地尚未开辟任何地块。";
-        }
-
-        @SuppressWarnings("unchecked")
-        var cells = (java.util.List<Map<String, Object>>) fudi.getCellLayout().get("cells");
-        if (cells == null || cells.isEmpty()) {
+        List<FudiCell> cells = fudiCellRepository.findByFudiId(fudi.getId());
+        if (cells.isEmpty()) {
             return "福地尚未开辟任何地块。";
         }
 
         int totalCells = cells.size();
-        List<Map<String, Object>> occupiedCells = new ArrayList<>();
-        List<Integer> emptyCellIds = new ArrayList<>();
+        List<FudiCell> emptyCells = new ArrayList<>();
+        List<FudiCell> farmCells = new ArrayList<>();
+        List<FudiCell> penCells = new ArrayList<>();
 
-        for (var cell : cells) {
-            String type = (String) cell.get("type");
-            if ("empty".equals(type)) {
-                emptyCellIds.add((Integer) cell.get("cell_id"));
-            } else {
-                occupiedCells.add(cell);
+        for (FudiCell cell : cells) {
+            switch (cell.getCellType()) {
+                case EMPTY -> emptyCells.add(cell);
+                case FARM -> farmCells.add(cell);
+                case PEN -> penCells.add(cell);
             }
         }
 
         StringBuilder sb = new StringBuilder();
         sb.append("福地状态（共").append(totalCells).append("个地块）：\n");
 
-        int farmCount = 0, penCount = 0;
-        for (var cell : occupiedCells) {
-            String type = (String) cell.get("type");
-            switch (type) {
-                case "farm" -> farmCount++;
-                case "pen" -> penCount++;
-            }
-        }
-
         List<String> typeSummary = new ArrayList<>();
-        if (farmCount > 0) typeSummary.add("灵田×" + farmCount);
-        if (penCount > 0) typeSummary.add("兽栏×" + penCount);
+        if (!farmCells.isEmpty()) typeSummary.add("灵田×" + farmCells.size());
+        if (!penCells.isEmpty()) typeSummary.add("兽栏×" + penCells.size());
         if (!typeSummary.isEmpty()) {
             sb.append("地块组成：").append(String.join("、", typeSummary)).append("\n");
         }
 
-        if (emptyCellIds.isEmpty()) {
+        if (emptyCells.isEmpty()) {
             sb.append("所有地块已使用。如需调整布局可先拆除部分地块。\n");
         } else {
-            sb.append("可用空地块编号：").append(emptyCellIds.toString()).append("\n");
+            sb.append("可用空地块编号：");
+            sb.append(emptyCells.stream().map(c -> String.valueOf(c.getCellId())).toList());
+            sb.append("\n");
         }
 
         sb.append("【已占地块详情】\n");
-        for (var cell : occupiedCells) {
-            Integer cellId = (Integer) cell.get("cell_id");
-            String type = (String) cell.get("type");
-            sb.append("- [").append(cellId).append("] ").append(type);
-
-            switch (type) {
-                case "farm" -> {
-                    updateGrowthProgress(cell);
-                    String cropName = (String) cell.get("crop_name");
-                    Double progress = (Double) cell.get("growth_progress");
-                    Boolean isMature = progress != null && progress >= 1.0;
-                    if (cropName != null) {
-                        sb.append(" 种植:").append(cropName);
-                        if (isMature) {
-                            sb.append(" 可收获✅");
-                        } else if (progress != null) {
-                            sb.append(String.format(" (%.0f%%)", progress * 100));
-                        }
-                    }
-                }
-                case "pen" -> {
-                    String beastName = (String) cell.get("beast_name");
-                    if (beastName != null) {
-                        sb.append(" 饲养:").append(beastName);
-                    }
-                    Integer hunger = (Integer) cell.get("hunger");
-                    if (hunger != null) {
-                        sb.append(" 饥饿值:").append(hunger);
+        for (FudiCell cell : farmCells) {
+            sb.append("- [").append(cell.getCellId()).append("] farm");
+            String cropName = cell.getStringConfig("crop_name");
+            if (cropName != null) {
+                sb.append(" 种植:").append(cropName);
+                Double progress = calculateGrowthProgress(cell);
+                if (progress != null) {
+                    if (progress >= 1.0) {
+                        sb.append(" 可收获✅");
+                    } else {
+                        sb.append(String.format(" (%.0f%%)", progress * 100));
                     }
                 }
             }
             sb.append("\n");
         }
 
+        for (FudiCell cell : penCells) {
+            sb.append("- [").append(cell.getCellId()).append("] pen");
+            String beastName = cell.getStringConfig("beast_name");
+            if (beastName != null) {
+                sb.append(" 饲养:").append(beastName);
+            }
+            Integer hunger = cell.getIntConfig("hunger");
+            if (hunger != null) {
+                sb.append(" 饥饿值:").append(hunger);
+            }
+            sb.append("\n");
+        }
+
         // 检查是否有可收获的灵田
-        long matureFarmCount = occupiedCells.stream()
-                .filter(c -> "farm".equals(c.get("type")))
-                .peek(this::updateGrowthProgress)
+        long matureFarmCount = farmCells.stream()
                 .filter(c -> {
-                    Double progress = (Double) c.get("growth_progress");
+                    Double progress = calculateGrowthProgress(c);
                     return progress != null && progress >= 1.0;
                 })
                 .count();
@@ -272,10 +258,9 @@ public class SpiritChatService {
         }
 
         // 检查饥饿的灵兽
-        long hungryBeastCount = occupiedCells.stream()
-                .filter(c -> "pen".equals(c.get("type")))
+        long hungryBeastCount = penCells.stream()
                 .filter(c -> {
-                    Integer hunger = (Integer) c.get("hunger");
+                    Integer hunger = c.getIntConfig("hunger");
                     return hunger != null && hunger < 50;
                 })
                 .count();
@@ -286,16 +271,11 @@ public class SpiritChatService {
         return sb.toString();
     }
 
-    /**
-     * 更新地块的生长进度（懒加载）
-     */
-    private void updateGrowthProgress(Map<String, Object> cell) {
-        if (!"farm".equals(cell.get("type"))) return;
+    private Double calculateGrowthProgress(FudiCell cell) {
+        String plantTimeStr = cell.getStringConfig("plant_time");
+        String matureTimeStr = cell.getStringConfig("mature_time");
 
-        String plantTimeStr = (String) cell.get("plant_time");
-        String matureTimeStr = (String) cell.get("mature_time");
-
-        if (plantTimeStr == null || matureTimeStr == null) return;
+        if (plantTimeStr == null || matureTimeStr == null) return null;
 
         try {
             LocalDateTime plantTime = LocalDateTime.parse(plantTimeStr);
@@ -303,15 +283,14 @@ public class SpiritChatService {
             LocalDateTime now = LocalDateTime.now();
 
             if (now.isAfter(matureTime) || now.isEqual(matureTime)) {
-                cell.put("growth_progress", 1.0);
+                return 1.0;
             } else {
                 long totalSeconds = java.time.Duration.between(plantTime, matureTime).getSeconds();
                 long elapsedSeconds = java.time.Duration.between(plantTime, now).getSeconds();
-                double progress = Math.min(1.0, (double) elapsedSeconds / totalSeconds);
-                cell.put("growth_progress", progress);
+                return Math.min(1.0, (double) elapsedSeconds / totalSeconds);
             }
         } catch (Exception e) {
-            // 解析失败，保持原值
+            return null;
         }
     }
 }
