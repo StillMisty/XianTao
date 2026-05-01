@@ -39,12 +39,6 @@ public class InventorySummaryVO {
     private Map<ItemType, Integer> stackableItemCount;
 
     /**
-     * 铜币数量
-     */
-    @JsonProperty("coins")
-    private Long coins;
-
-    /**
      * 灵石数量
      */
     @JsonProperty("spirit_stones")

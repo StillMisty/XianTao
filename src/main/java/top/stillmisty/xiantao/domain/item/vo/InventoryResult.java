@@ -28,6 +28,5 @@ public class InventoryResult {
     private List<InventoryItem> beastEggs;
 
     // 货币
-    private Long coins;
     private Long spiritStones;
 }

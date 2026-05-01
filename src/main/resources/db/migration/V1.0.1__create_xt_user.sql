@@ -5,7 +5,6 @@ CREATE TABLE xt_user
     -- 游戏进度
     level                    INT         NOT NULL DEFAULT 1,
     exp                      BIGINT      NOT NULL DEFAULT 0,
-    coins                    BIGINT      NOT NULL DEFAULT 0,
     spirit_stones            BIGINT      NOT NULL DEFAULT 0,
     -- 四维属性
     stat_str                 INT         NOT NULL DEFAULT 5,
@@ -36,7 +35,6 @@ CREATE TABLE xt_user
 
 -- 索引:排行榜常用
 CREATE INDEX idx_xt_user_level ON xt_user (level DESC);
-CREATE INDEX idx_xt_user_coins ON xt_user (coins DESC);
 CREATE INDEX idx_xt_user_spirit_stones ON xt_user (spirit_stones DESC);
 
 -- 字段备注
@@ -45,8 +43,7 @@ COMMENT ON COLUMN xt_user.id IS '内部唯一角色ID';
 COMMENT ON COLUMN xt_user.nickname IS '玩家道号/昵称（唯一）';
 COMMENT ON COLUMN xt_user.level IS '角色等级';
 COMMENT ON COLUMN xt_user.exp IS '当前经验值';
-COMMENT ON COLUMN xt_user.coins IS '基础货币 (铜币)';
-COMMENT ON COLUMN xt_user.spirit_stones IS '高级货币 (灵石)';
+COMMENT ON COLUMN xt_user.spirit_stones IS '货币 (灵石)';
 COMMENT ON COLUMN xt_user.stat_str IS '力量属性 (影响破坏力/锻造)';
 COMMENT ON COLUMN xt_user.stat_con IS '体质属性 (影响生命值/物理防御)';
 COMMENT ON COLUMN xt_user.stat_agi IS '敏捷属性 (影响出手顺序/杀怪效率)';

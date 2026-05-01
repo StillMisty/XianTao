@@ -221,7 +221,7 @@ public class CultivationCommandHandler {
                 sb.append("  无道友为你护道\n");
             }
         }
-        sb.append(String.format("\n灵石：%d | 铜币：%d\n", status.getSpiritStones(), status.getCoins()));
+        sb.append(String.format("\n灵石：%d\n", status.getSpiritStones()));
         if (status.getEquipment() != null && !status.getEquipment().getItems().isEmpty()) {
             sb.append("\n【已穿戴装备】\n");
             status.getEquipment().getItems().forEach(item ->
@@ -255,7 +255,7 @@ public class CultivationCommandHandler {
             sb.append("\n【物品】\n");
             inventory.getStackableItemCount().forEach((type, count) -> sb.append(String.format("  %s x%d种\n", type.getName(), count)));
         }
-        sb.append(String.format("\n灵石：%d | 铜币：%d\n", inventory.getSpiritStones(), inventory.getCoins()));
+        sb.append(String.format("\n灵石：%d\n", inventory.getSpiritStones()));
         return sb.toString();
     }
 

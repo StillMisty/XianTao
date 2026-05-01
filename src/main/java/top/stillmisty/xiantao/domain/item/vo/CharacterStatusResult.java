@@ -62,7 +62,6 @@ public class CharacterStatusResult {
 
     // ===================== 其他 =====================
     private Integer freeStatPoints;
-    private Long coins;
     private Long spiritStones;
 
     // ===================== 突破相关 =====================

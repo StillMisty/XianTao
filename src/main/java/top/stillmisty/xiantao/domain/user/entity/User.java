@@ -48,12 +48,7 @@ public class User extends Model<User> {
     private Long exp;
 
     /**
-     * 基础货币 (铜币)
-     */
-    private Long coins;
-
-    /**
-     * 高级货币 (灵石/用于黑市)
+     * 货币 (灵石)
      */
     private Long spiritStones;
 

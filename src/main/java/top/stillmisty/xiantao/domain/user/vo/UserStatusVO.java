@@ -28,7 +28,6 @@ public class UserStatusVO {
     private Integer statAgi;
     private Integer statWis;
     private Integer freeStatPoints;
-    private Long coins;
     private Long spiritStones;
     private Integer breakthroughFailCount;
     private Double nextBreakthroughRate;

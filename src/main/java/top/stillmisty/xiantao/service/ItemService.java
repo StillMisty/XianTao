@@ -198,7 +198,6 @@ public class ItemService {
                 // 自由属性点
                 .freeStatPoints(user.getFreeStatPoints())
                 // 货币
-                .coins(user.getCoins())
                 .spiritStones(user.getSpiritStones())
                 // 突破相关
                 .breakthroughSuccessRate(breakthroughSuccessRate)
@@ -265,7 +264,6 @@ public class ItemService {
                 .materials(groupedItems.getOrDefault(ItemType.MATERIAL, List.of()))
                 .seeds(groupedItems.getOrDefault(ItemType.SEED, List.of()))
                 .beastEggs(groupedItems.getOrDefault(ItemType.BEAST_EGG, List.of()))
-                .coins(user.getCoins())
                 .spiritStones(user.getSpiritStones())
                 .build();
     }
@@ -634,7 +632,6 @@ public class ItemService {
                 .usedSlots(usedSlots)
                 .equipmentByQuality(equipmentByQuality)
                 .stackableItemCount(stackableItemCount)
-                .coins(user.getCoins())
                 .spiritStones(user.getSpiritStones())
                 .build();
     }

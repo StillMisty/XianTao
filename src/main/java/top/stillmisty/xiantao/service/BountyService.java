@@ -377,9 +377,9 @@ public class BountyService {
                 yield String.format("途中遭遇敌人袭击，受到 %d 点伤害（剩余 HP: %d）", damage, user.getHpCurrent());
             }
             case FIND_TREASURE -> {
-                long coins = 50 + (long) (Math.random() * 100);
-                user.setCoins(user.getCoins() + coins);
-                yield String.format("途中发现了一个隐藏宝箱，获得 %d 铜币", coins);
+                long reward = 5 + (long) (Math.random() * 15);
+                user.setSpiritStones(user.getSpiritStones() + reward);
+                yield String.format("途中发现了一个隐藏宝箱，获得 %d 灵石", reward);
             }
             case WEATHER -> "遭遇毒雾天气，艰难穿过才得以继续前行";
             case SAFE_PASSAGE -> null;

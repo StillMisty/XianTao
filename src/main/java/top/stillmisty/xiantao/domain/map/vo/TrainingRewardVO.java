@@ -43,11 +43,6 @@ public class TrainingRewardVO {
     private Double levelDecayMultiplier;
 
     /**
-     * 获得的铜币
-     */
-    private Long coins;
-
-    /**
      * 获得的灵石
      */
     private Long spiritStones;
