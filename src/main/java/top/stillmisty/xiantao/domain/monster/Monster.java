@@ -66,6 +66,11 @@ public class Monster implements Combatant {
     }
 
     @Override
+    public void heal(int amount) {
+        hp = Math.min(getMaxHp(), hp + amount);
+    }
+
+    @Override
     public boolean isAlive() {
         return hp > 0;
     }

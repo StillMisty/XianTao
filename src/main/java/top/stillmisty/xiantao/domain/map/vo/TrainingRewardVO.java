@@ -38,6 +38,11 @@ public class TrainingRewardVO {
     private Double efficiencyMultiplier;
 
     /**
+     * 等级衰减倍率
+     */
+    private Double levelDecayMultiplier;
+
+    /**
      * 获得的铜币
      */
     private Long coins;

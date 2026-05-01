@@ -124,19 +124,40 @@ public class MapCommandHandler {
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.append("【历练结算】\n");
-        sb.append(String.format("地图: %s\n", rewards.getMapName()));
-        sb.append(String.format("历练时长: %d 分钟\n", rewards.getDurationMinutes()));
-        sb.append(String.format("效率倍率: %.2fx\n\n", rewards.getEfficiencyMultiplier()));
+        sb.append("【历练结算】");
+        sb.append(rewards.getMapName());
+        sb.append(" | ");
+        sb.append(rewards.getDurationMinutes()).append("分钟");
+        sb.append(" | 效率").append(String.format("%.1f", rewards.getEfficiencyMultiplier())).append("x");
+
+        // 显示等级衰减（如果有）
+        if (rewards.getLevelDecayMultiplier() != null && rewards.getLevelDecayMultiplier() < 1.0) {
+            int decayPercent = (int) ((1.0 - rewards.getLevelDecayMultiplier()) * 100);
+            sb.append(" | 衰减").append(decayPercent).append("%");
+        }
+
+        sb.append("\n");
+
+        // 战斗统计（从summary中提取）
+        if (rewards.getSummary() != null) {
+            sb.append(rewards.getSummary()).append("\n");
+        }
+
+        // 经验和物品
         if (rewards.getExp() != null && rewards.getExp() > 0) {
-            sb.append(String.format("经验: +%d\n", rewards.getExp()));
+            sb.append("经验+").append(rewards.getExp());
         }
         if (rewards.getItems() != null && !rewards.getItems().isEmpty()) {
-            sb.append("物品:\n");
-            for (Map<String, Object> item : rewards.getItems()) {
-                sb.append(String.format("  %s x%d\n", item.get("name"), item.get("quantity")));
+            if (rewards.getExp() != null && rewards.getExp() > 0) {
+                sb.append(" | ");
+            }
+            for (int i = 0; i < rewards.getItems().size(); i++) {
+                Map<String, Object> item = rewards.getItems().get(i);
+                sb.append(item.get("name")).append("×").append(item.get("quantity"));
+                if (i < rewards.getItems().size() - 1) sb.append(" ");
             }
         }
+
         return sb.toString();
     }
 

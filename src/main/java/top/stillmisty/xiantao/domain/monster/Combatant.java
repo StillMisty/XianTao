@@ -22,6 +22,14 @@ public interface Combatant {
 
     void takeDamage(int amount);
 
+    /**
+     * 恢复生命值
+     * @param amount 恢复量
+     */
+    default void heal(int amount) {
+        // 默认实现：不超过最大生命值
+    }
+
     boolean isAlive();
 
     List<Skill> getSkills();

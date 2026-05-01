@@ -10,7 +10,14 @@ public enum EffectType {
     EXECUTE("execute", "斩杀"),
     LIFESTEAL("lifesteal", "吸血"),
     MULTI_HIT("multi_hit", "连击"),
-    DOT("dot", "持续伤害");
+    DOT("dot", "持续伤害"),
+    HEAL("heal", "治疗"),
+    ATTACK_BUFF("attack_buff", "攻击增益"),
+    DEFENSE_BUFF("defense_buff", "防御增益"),
+    SPEED_BUFF("speed_buff", "速度增益"),
+    STUN("stun", "眩晕"),
+    FREEZE("freeze", "冰冻"),
+    SILENCE("silence", "沉默");
 
     private final String code;
     private final String name;

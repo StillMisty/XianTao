@@ -17,7 +17,12 @@ import top.stillmisty.xiantao.domain.item.repository.EquipmentTemplateRepository
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
 import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
+import top.stillmisty.xiantao.domain.monster.BattleContext;
+import top.stillmisty.xiantao.domain.monster.BeastCombatant;
 import top.stillmisty.xiantao.domain.monster.Combatant;
+import top.stillmisty.xiantao.domain.monster.CombatEngine;
+import top.stillmisty.xiantao.domain.monster.EncounterCalculator;
+import top.stillmisty.xiantao.domain.monster.HighlightBattleDetector;
 import top.stillmisty.xiantao.domain.monster.Monster;
 import top.stillmisty.xiantao.domain.monster.Team;
 import top.stillmisty.xiantao.domain.monster.entity.MonsterTemplate;
@@ -43,7 +48,6 @@ import java.util.concurrent.ThreadLocalRandom;
 public class CombatService {
 
     private static final int DEFAULT_MAX_ROUNDS = 20;
-    private static final double BASE_ENCOUNTER_CHANCE_PER_10MIN = 0.4;
 
     private final UserRepository userRepository;
     private final EquipmentRepository equipmentRepository;
@@ -55,181 +59,18 @@ public class CombatService {
     private final BeastRepository beastRepository;
     private final ItemService itemService;
     private final AuthenticationService authService;
+    private final CombatEngine combatEngine;
+    private final EncounterCalculator encounterCalculator;
+    private final HighlightBattleDetector highlightBattleDetector;
 
     public BattleResultVO simulate(Team teamA, Team teamB, int maxRounds) {
-        int round = 0;
-        List<Map<String, Object>> combatLog = new ArrayList<>();
-        Map<String, Integer> damageDealt = new LinkedHashMap<>();
-        Map<String, Integer> skillProcs = new LinkedHashMap<>();
-        Map<String, Integer> skillCooldowns = new LinkedHashMap<>();
-
-        Map<String, Integer> initialHpA = new LinkedHashMap<>();
-        for (Combatant c : teamA.members()) {
-            initialHpA.put("member_" + c.getId(), c.getHp());
-        }
-        Map<String, Integer> initialHpB = new LinkedHashMap<>();
-        for (Combatant c : teamB.members()) {
-            initialHpB.put("member_" + c.getId(), c.getHp());
-        }
-
-        String winner = "DRAW";
-        while (round < maxRounds) {
-            round++;
-
-            // 按speed降序排列
-            List<Combatant> allAlive = new ArrayList<>();
-            allAlive.addAll(teamA.aliveMembers());
-            allAlive.addAll(teamB.aliveMembers());
-            allAlive.sort(Comparator.comparingInt(Combatant::getSpeed).reversed());
-
-            int sequence = 0;
-            for (Combatant attacker : allAlive) {
-                if (!attacker.isAlive()) continue;
-
-                Team attackerTeam = teamA.members().contains(attacker) ? teamA : teamB;
-                Team defenderTeam = attackerTeam == teamA ? teamB : teamA;
-
-                sequence++;
-
-                // 尝试法决触发
-                int cooldownRemaining = skillCooldowns.getOrDefault("skill_" + attacker.getId(), 0);
-                boolean skillTriggered = false;
-                Skill triggeredSkill = null;
-
-                if (cooldownRemaining <= 0) {
-                    List<Skill> skills = attacker.getSkills();
-                    if (skills != null && !skills.isEmpty()) {
-                        for (Skill skill : skills) {
-                            if (skill.getEffectType() != EffectType.DAMAGE && skill.getEffectType() != EffectType.MULTI_HIT)
-                                continue;
-                            triggeredSkill = skill;
-                            skillTriggered = true;
-                            skillCooldowns.put("skill_" + attacker.getId(), skill.getCooldownSeconds());
-                            String key = attacker.getName() + ":" + skill.getName();
-                            skillProcs.merge(key, 1, Integer::sum);
-                            break;
-                        }
-                    }
-                }
-
-                // 普通攻击（无技能时）或技能攻击
-                Combatant defender = defenderTeam.selectTargetForPVE();
-                if (defender == null) break;
-
-                int hpBefore = defender.getHp();
-                int damage;
-
-                if (skillTriggered && triggeredSkill != null) {
-                    damage = calculateSkillDamage(attacker, defender, triggeredSkill);
-                } else {
-                    damage = calculateNormalDamage(attacker, defender);
-                }
-
-                // 连击
-                int multiplier = 1;
-                if (triggeredSkill != null && triggeredSkill.getEffectType() == EffectType.MULTI_HIT) {
-                    multiplier = 3;
-                    damage *= multiplier;
-                }
-
-                defender.takeDamage(damage);
-                int hpAfter = defender.getHp();
-                boolean isKill = hpAfter <= 0;
-
-                damageDealt.merge(attacker.getName(), damage, Integer::sum);
-
-                Map<String, Object> logEntry = new LinkedHashMap<>();
-                logEntry.put("round", round);
-                logEntry.put("sequence", sequence);
-                logEntry.put("attackerName", attacker.getName());
-                logEntry.put("defenderName", defender.getName());
-                logEntry.put("attackType", skillTriggered ? "SKILL" : "NORMAL");
-                if (skillTriggered && triggeredSkill != null) {
-                    logEntry.put("skillName", triggeredSkill.getName());
-                }
-                logEntry.put("damageDealt", damage);
-                logEntry.put("isCrit", false);
-                logEntry.put("defenderHpBefore", hpBefore);
-                logEntry.put("defenderHpAfter", hpAfter);
-                logEntry.put("isKill", isKill);
-                logEntry.put("multiplier", multiplier);
-                combatLog.add(logEntry);
-
-                // 更新冷却
-                for (var entry : new HashMap<>(skillCooldowns).entrySet()) {
-                    int cd = entry.getValue() - 1;
-                    if (cd <= 0) {
-                        skillCooldowns.remove(entry.getKey());
-                    } else {
-                        skillCooldowns.put(entry.getKey(), cd);
-                    }
-                }
-
-                if (defenderTeam.isAllDead()) break;
-            }
-
-            if (teamB.isAllDead()) {
-                winner = teamA.name();
-                break;
-            }
-            if (teamA.isAllDead()) {
-                winner = teamB.name();
-                break;
-            }
-        }
-
-        Map<String, Object> playerHpChange = new LinkedHashMap<>();
-        for (Combatant c : teamA.members()) {
-            Integer initial = initialHpA.get("member_" + c.getId());
-            if (initial != null) {
-                playerHpChange.put(c.getName(), Map.of("before", initial, "after", c.getHp()));
-            }
-        }
-
-        List<Map<String, Object>> beastHpChanges = new ArrayList<>();
-        for (Combatant c : teamA.members()) {
-            if (c instanceof BeastCombatant) {
-                Map<String, Object> change = new LinkedHashMap<>();
-                change.put("name", c.getName());
-                change.put("after", c.getHp());
-                beastHpChanges.add(change);
-            }
-        }
-
-        List<Map<String, Object>> monsterHpChanges = new ArrayList<>();
-        for (Combatant c : teamB.members()) {
-            Map<String, Object> change = new LinkedHashMap<>();
-            change.put("name", c.getName());
-            change.put("after", c.getHp());
-            monsterHpChanges.add(change);
-        }
-
-        List<Map<String, Object>> damageList = new ArrayList<>();
-        for (var entry : damageDealt.entrySet()) {
-            Map<String, Object> dmg = new LinkedHashMap<>();
-            dmg.put("name", entry.getKey());
-            dmg.put("total", entry.getValue());
-            damageList.add(dmg);
-        }
-
-        List<Map<String, Object>> skillProcList = new ArrayList<>();
-        for (var entry : skillProcs.entrySet()) {
-            Map<String, Object> proc = new LinkedHashMap<>();
-            proc.put("key", entry.getKey());
-            proc.put("count", entry.getValue());
-            skillProcList.add(proc);
-        }
-
-        return BattleResultVO.builder()
-                .winner(winner)
-                .rounds(round)
-                .playerHpChange(playerHpChange)
-                .beastHpChanges(beastHpChanges)
-                .monsterHpChanges(monsterHpChanges)
-                .damageDealt(damageList)
-                .skillProcs(skillProcList)
-                .combatLog(combatLog)
+        BattleContext context = BattleContext.builder()
+                .teamA(teamA)
+                .teamB(teamB)
+                .maxRounds(maxRounds)
+                .scene(BattleContext.BattleScene.TRAINING)
                 .build();
+        return combatEngine.simulate(context);
     }
 
     public ServiceResult<BattleResultVO> simulateTraining(PlatformType platform, String openId, int durationMinutes) {
@@ -248,13 +89,30 @@ public class CombatService {
         List<Map<String, Object>> allSkillProcs = new ArrayList<>();
         int totalRounds = 0;
         int totalEncounters = 0;
+        int totalKills = 0;
+        int defeatCount = 0;
 
         Map<Long, Integer> monsterEncounters = mapNode.getMonsterEncounters();
         if (monsterEncounters == null || monsterEncounters.isEmpty()) {
             return buildEmptyBattleResult(user, mapNode);
         }
 
-        int encounterChances = durationMinutes / 10;
+        // 计算装备评分
+        int gearScore = calculateGearScore(userId);
+
+        // 动态计算遇怪间隔
+        double encounterInterval = encounterCalculator.calculateInterval(
+                mapNode.getLevelRequirement(),
+                user.getLevel(),
+                gearScore
+        );
+
+        // 计算遇怪次数
+        int encounterChances = encounterCalculator.calculateEncounterChances(durationMinutes, encounterInterval);
+
+        // 计算遇怪概率
+        double encounterChance = encounterCalculator.calculateEncounterChance(encounterInterval);
+
         Map<String, Object> encounterSize = mapNode.getEncounterSize();
         int minCount = 1, maxCount = 3;
         if (encounterSize != null) {
@@ -262,8 +120,12 @@ public class CombatService {
             if (encounterSize.get("max") instanceof Number maxN) maxCount = maxN.intValue();
         }
 
+        // 高光战斗检测
+        List<BattleResultVO> battleResults = new ArrayList<>();
+        List<HighlightBattleDetector.HighlightInfo> highlightInfos = new ArrayList<>();
+
         for (int i = 0; i < encounterChances; i++) {
-            if (ThreadLocalRandom.current().nextDouble() >= BASE_ENCOUNTER_CHANCE_PER_10MIN) continue;
+            if (ThreadLocalRandom.current().nextDouble() >= encounterChance) continue;
 
             Long selectedTemplateId = weightedSelect(monsterEncounters);
             if (selectedTemplateId == null) continue;
@@ -290,7 +152,21 @@ public class CombatService {
             }
 
             BattleResultVO result = simulate(playerTeam, monsterTeam, DEFAULT_MAX_ROUNDS);
+            battleResults.add(result);
             totalRounds += result.rounds();
+
+            // 统计击杀数
+            if ("Player".equals(result.winner())) {
+                totalKills += count;
+            } else {
+                defeatCount++;
+            }
+
+            // 检测高光战斗
+            HighlightBattleDetector.HighlightInfo highlightInfo = highlightBattleDetector.detectHighlight(result, totalEncounters);
+            if (highlightInfo != null) {
+                highlightInfos.add(highlightInfo);
+            }
 
             // 合并日志
             if (result.combatLog() != null) allLogs.addAll(result.combatLog());
@@ -339,15 +215,20 @@ public class CombatService {
 
         userRepository.save(user);
 
+        // 构建简洁的统计摘要
         StringBuilder summary = new StringBuilder();
-        summary.append(String.format("历练%d分钟，遭遇%d波怪物\n", durationMinutes, totalEncounters));
-        if (expGained > 0) summary.append(String.format("经验: +%d\n", expGained));
+        summary.append(String.format("遇敌%d场 | 击杀%d只", totalEncounters, totalKills));
+        if (defeatCount > 0) {
+            summary.append(String.format(" | 战败%d场", defeatCount));
+        }
+        summary.append("\n");
+        if (expGained > 0) summary.append(String.format("经验+%d", expGained));
         if (!allDrops.isEmpty()) {
-            summary.append("战利品: ");
+            summary.append(" | ");
             for (int i = 0; i < allDrops.size(); i++) {
                 Map<String, Object> drop = allDrops.get(i);
-                summary.append(String.format("%s x%d", drop.get("name"), drop.getOrDefault("quantity", 1)));
-                if (i < allDrops.size() - 1) summary.append(", ");
+                summary.append(String.format("%s×%d", drop.get("name"), drop.getOrDefault("quantity", 1)));
+                if (i < allDrops.size() - 1) summary.append(" ");
             }
         }
 
@@ -370,7 +251,12 @@ public class CombatService {
         for (int i = 0; i < Math.min(deployed.size(), beastLimit); i++) {
             Beast beast = deployed.get(i);
             if (beast.canFight()) {
-                team.addMember(new BeastCombatant(beast));
+                // 加载灵兽技能
+                List<Skill> beastSkills = List.of();
+                if (beast.getSkills() != null && !beast.getSkills().isEmpty()) {
+                    beastSkills = skillRepository.findByIds(beast.getSkills());
+                }
+                team.addMember(new BeastCombatant(beast, beastSkills));
             }
         }
         return team;
@@ -455,81 +341,6 @@ public class CombatService {
         return drops;
     }
 
-    int calculateNormalDamage(Combatant attacker, Combatant defender) {
-        double advantageMultiplier = 1.0;
-        if (attacker instanceof PlayerCombatant pc && defender instanceof Monster monster) {
-            advantageMultiplier = getWeaponTypeAdvantage(pc.getWeaponType(), monster.getMonsterType());
-        }
-        int rawDamage = (int) Math.round(attacker.getAttack() * advantageMultiplier);
-        int reduction = (int) Math.round(defender.getDefense() * 0.3);
-        return Math.max(1, rawDamage - reduction);
-    }
-
-    int calculateSkillDamage(Combatant attacker, Combatant defender, Skill skill) {
-        String formula = skill.getDamageFormula();
-        if (formula == null) return calculateNormalDamage(attacker, defender);
-
-        double multiplier = skill.getPowerMultiplier() != null ? skill.getPowerMultiplier() : 1.0;
-        double advantageMultiplier = 1.0;
-        if (attacker instanceof PlayerCombatant pc && defender instanceof Monster monster) {
-            advantageMultiplier = getWeaponTypeAdvantage(pc.getWeaponType(), monster.getMonsterType());
-        }
-
-        int baseDmg;
-        if (attacker instanceof PlayerCombatant pc) {
-            baseDmg = evaluateFormula(formula, pc.getWis());
-        } else {
-            baseDmg = (int) Math.round(attacker.getAttack() * 1.5);
-        }
-
-        int rawDamage = (int) Math.round(baseDmg * multiplier * advantageMultiplier);
-        int reduction = (int) Math.round(defender.getDefense() * 0.3);
-        return Math.max(1, rawDamage - reduction);
-    }
-
-    private int evaluateFormula(String formula, int wis) {
-        try {
-            String expr = formula.replace("wis", String.valueOf(wis)).replaceAll("\\s+", "");
-            return evaluateExpression(expr);
-        } catch (Exception e) {
-            return 10;
-        }
-    }
-
-    private int evaluateExpression(String expr) {
-        String[] parts = expr.split("\\+");
-        int result = 0;
-        for (String part : parts) {
-            part = part.trim();
-            if (part.contains("*")) {
-                String[] mulParts = part.split("\\*");
-                int product = 1;
-                for (String mp : mulParts) {
-                    product *= Integer.parseInt(mp.trim());
-                }
-                result += product;
-            } else {
-                result += Integer.parseInt(part);
-            }
-        }
-        return result;
-    }
-
-    static double getWeaponTypeAdvantage(WeaponType weaponType, MonsterType monsterType) {
-        if (weaponType == null || monsterType == null) return 1.0;
-        Map<WeaponType, MonsterType> advantageMap = Map.of(
-                WeaponType.BLADE, MonsterType.BEAST,
-                WeaponType.SWORD, MonsterType.SPIRIT,
-                WeaponType.AXE, MonsterType.ARMORED,
-                WeaponType.SPEAR, MonsterType.WILD_BEAST,
-                WeaponType.STAFF, MonsterType.EVIL,
-                WeaponType.BOW, MonsterType.FLYING
-        );
-        MonsterType advantaged = advantageMap.get(weaponType);
-        if (advantaged == monsterType) return 1.5;
-        return 1.0;
-    }
-
     private <T> T weightedSelect(Map<T, Integer> weightMap) {
         int total = weightMap.values().stream().mapToInt(Integer::intValue).sum();
         if (total <= 0) return null;
@@ -540,6 +351,30 @@ public class CombatService {
             if (roll < cumulative) return entry.getKey();
         }
         return null;
+    }
+
+    /**
+     * 计算玩家装备评分
+     */
+    private int calculateGearScore(Long userId) {
+        List<Equipment> equipped = equipmentRepository.findEquippedByUserId(userId);
+        int score = 0;
+        for (Equipment equip : equipped) {
+            // 基础评分：攻击力 + 防御力 * 2
+            score += equip.getFinalAttack() + equip.getFinalDefense() * 2;
+            // 稀有度加成
+            if (equip.getRarity() != null) {
+                score += switch (equip.getRarity().getCode()) {
+                    case "common" -> 10;
+                    case "uncommon" -> 20;
+                    case "rare" -> 40;
+                    case "epic" -> 80;
+                    case "legendary" -> 160;
+                    default -> 0;
+                };
+            }
+        }
+        return score;
     }
 
     private BattleResultVO buildEmptyBattleResult(User user, MapNode mapNode) {
@@ -638,66 +473,6 @@ public class CombatService {
 
         int getWis() {
             return user.getStatWis() != null ? user.getStatWis() : 5;
-        }
-    }
-
-    static class BeastCombatant implements Combatant {
-        private final Beast beast;
-        private int hp;
-
-        BeastCombatant(Beast beast) {
-            this.beast = beast;
-            this.hp = beast.getHpCurrent() != null ? beast.getHpCurrent() : beast.getMaxHp();
-        }
-
-        @Override
-        public Long getId() {
-            return beast.getId();
-        }
-
-        @Override
-        public String getName() {
-            return beast.getBeastName() != null ? beast.getBeastName() : "灵兽#" + beast.getId();
-        }
-
-        @Override
-        public int getSpeed() {
-            return beast.getLevel() != null ? beast.getLevel() * 2 + 8 : 10;
-        }
-
-        @Override
-        public int getAttack() {
-            return beast.getAttack() != null ? beast.getAttack() : 10;
-        }
-
-        @Override
-        public int getDefense() {
-            return beast.getDefense() != null ? beast.getDefense() : 8;
-        }
-
-        @Override
-        public int getHp() {
-            return hp;
-        }
-
-        @Override
-        public int getMaxHp() {
-            return beast.getMaxHp() != null ? beast.getMaxHp() : 100;
-        }
-
-        @Override
-        public void takeDamage(int amount) {
-            hp = Math.max(0, hp - amount);
-        }
-
-        @Override
-        public boolean isAlive() {
-            return hp > 0;
-        }
-
-        @Override
-        public List<Skill> getSkills() {
-            return List.of();
         }
     }
 }

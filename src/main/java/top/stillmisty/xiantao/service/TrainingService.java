@@ -97,8 +97,11 @@ public class TrainingService {
         // 计算效率倍率（基于敏捷）
         double efficiencyMultiplier = calculateEfficiencyMultiplier(user.getStatAgi());
 
-        // 计算经验
-        long expGained = (long) (BASE_EXP_PER_MINUTE * minutesTraining * efficiencyMultiplier);
+        // 计算等级衰减
+        double levelDecayMultiplier = calculateLevelDecayMultiplier(user.getLevel(), mapNode.getLevelRequirement());
+
+        // 计算经验（考虑等级衰减）
+        long expGained = (long) (BASE_EXP_PER_MINUTE * minutesTraining * efficiencyMultiplier * levelDecayMultiplier);
 
         // 计算物品奖励（仅基础材料）
         List<Map<String, Object>> items = calculateItemsReward(minutesTraining, efficiencyMultiplier, mapNode);
@@ -133,6 +136,7 @@ public class TrainingService {
                 .mapName(mapNode.getName())
                 .durationMinutes(minutesTraining)
                 .efficiencyMultiplier(efficiencyMultiplier)
+                .levelDecayMultiplier(levelDecayMultiplier)
                 .exp(expGained)
                 .items(items)
                 .summary(summary.toString())
@@ -179,8 +183,11 @@ public class TrainingService {
         // 计算效率倍率（基于敏捷）
         double efficiencyMultiplier = calculateEfficiencyMultiplier(user.getStatAgi());
 
-        // 计算基础经验
-        long baseExp = (long) (BASE_EXP_PER_MINUTE * minutesTraining * efficiencyMultiplier);
+        // 计算等级衰减
+        double levelDecayMultiplier = calculateLevelDecayMultiplier(user.getLevel(), mapNode.getLevelRequirement());
+
+        // 计算基础经验（考虑等级衰减）
+        long baseExp = (long) (BASE_EXP_PER_MINUTE * minutesTraining * efficiencyMultiplier * levelDecayMultiplier);
 
         // 计算物品奖励（基础材料）
         List<Map<String, Object>> items = calculateItemsReward(minutesTraining, efficiencyMultiplier, mapNode);
@@ -252,6 +259,7 @@ public class TrainingService {
                 .mapName(mapNode.getName())
                 .durationMinutes(minutesTraining)
                 .efficiencyMultiplier(efficiencyMultiplier)
+                .levelDecayMultiplier(levelDecayMultiplier)
                 .exp(totalExp)
                 .items(items)
                 .summary(summary.toString())
@@ -304,6 +312,24 @@ public class TrainingService {
     private double calculateEfficiencyMultiplier(int agility) {
         // 基础倍率 1.0，每 10 点敏捷增加 0.1 倍率
         return 1.0 + (agility * 0.01);
+    }
+
+    /**
+     * 计算等级衰减倍率
+     * 玩家等级高于地图等级10级以上时，经验衰减
+     *
+     * @param playerLevel 玩家等级
+     * @param mapLevel    地图等级
+     * @return 衰减倍率（0.1 - 1.0）
+     */
+    private double calculateLevelDecayMultiplier(int playerLevel, int mapLevel) {
+        int levelDiff = playerLevel - mapLevel - 10;
+        if (levelDiff <= 0) {
+            return 1.0; // 无衰减
+        }
+        // 每高1级衰减5%，最低10%
+        double decay = levelDiff * 0.05;
+        return Math.max(0.1, 1.0 - decay);
     }
 
     /**
