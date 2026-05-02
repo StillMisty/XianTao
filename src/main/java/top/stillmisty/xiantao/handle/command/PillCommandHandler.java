@@ -31,7 +31,7 @@ public class PillCommandHandler {
     public String handleRecipeList(PlatformType platform, String openId) {
         log.debug("处理丹方列表查询 - Platform: {}, OpenId: {}", platform, openId);
         return switch (pillRecipeService.getLearnedRecipes(platform, openId)) {
-            case ServiceResult.Failure(var msg) -> msg;
+            case ServiceResult.Failure(var code, var msg) -> msg;
             case ServiceResult.Success(var recipes) -> formatRecipeList(recipes);
         };
     }
@@ -42,7 +42,7 @@ public class PillCommandHandler {
     public String handleRecipeDetail(PlatformType platform, String openId, String recipeName) {
         log.debug("处理丹方详情查询 - Platform: {}, OpenId: {}, RecipeName: {}", platform, openId, recipeName);
         return switch (pillRecipeService.getRecipeDetail(platform, openId, recipeName)) {
-            case ServiceResult.Failure(var msg) -> msg;
+            case ServiceResult.Failure(var code, var msg) -> msg;
             case ServiceResult.Success(var recipe) -> recipe != null ? formatRecipeDetail(recipe) : "未找到丹方：" + recipeName;
         };
     }
@@ -53,7 +53,7 @@ public class PillCommandHandler {
     public String handleRefineAuto(PlatformType platform, String openId, String recipeName) {
         log.debug("处理自动炼丹 - Platform: {}, OpenId: {}, RecipeName: {}", platform, openId, recipeName);
         return switch (pillRefiningService.refinePillAuto(platform, openId, recipeName)) {
-            case ServiceResult.Failure(var msg) -> msg;
+            case ServiceResult.Failure(var code, var msg) -> msg;
             case ServiceResult.Success(var result) -> formatRefiningResult(result);
         };
     }
@@ -64,7 +64,7 @@ public class PillCommandHandler {
     public String handleRefineManual(PlatformType platform, String openId, List<String> herbInputs) {
         log.debug("处理手动炼丹 - Platform: {}, OpenId: {}, HerbInputs: {}", platform, openId, herbInputs);
         return switch (pillRefiningService.refinePillManual(platform, openId, herbInputs)) {
-            case ServiceResult.Failure(var msg) -> msg;
+            case ServiceResult.Failure(var code, var msg) -> msg;
             case ServiceResult.Success(var result) -> formatRefiningResult(result);
         };
     }

@@ -37,30 +37,19 @@ public class FarmService {
     private final StackableItemRepository stackableItemRepository;
     private final SpiritRepository spiritRepository;
     private final StackableItemService stackableItemService;
-    private final AuthenticationService authService;
     private final ItemResolver itemResolver;
     private final UserRepository userRepository;
 
     // ===================== 公开 API（含认证） =====================
 
     public ServiceResult<FarmCellVO> plantCropByName(PlatformType platform, String openId, String position, String cropName) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        try {
-            return new ServiceResult.Success<>(plantCropByName(auth.userId(), position, cropName));
-        } catch (IllegalStateException e) {
-            return ServiceResult.businessFailure(e.getMessage());
-        }
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(plantCropByName(userId, position, cropName));
     }
 
     public ServiceResult<FarmCellVO> plantCropByInput(PlatformType platform, String openId, String position, String input) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        try {
-            return new ServiceResult.Success<>(plantCropByInput(auth.userId(), position, input));
-        } catch (IllegalStateException e) {
-            return ServiceResult.businessFailure(e.getMessage());
-        }
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(plantCropByInput(userId, position, input));
     }
 
     // ===================== 内部 API =====================

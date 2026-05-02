@@ -29,28 +29,28 @@ public class FudiCommandHandler {
 
     public String handleFudiStatus(PlatformType platform, String openId) {
         return switch (fudiService.getFudiStatus(platform, openId)) {
-            case ServiceResult.Failure(var msg) -> msg;
+            case ServiceResult.Failure(var code, var msg) -> msg;
             case ServiceResult.Success(var vo) -> formatFudiStatus(vo);
         };
     }
 
     public String handleFudiGrid(PlatformType platform, String openId) {
         return switch (fudiService.getFudiStatus(platform, openId)) {
-            case ServiceResult.Failure(var msg) -> msg;
+            case ServiceResult.Failure(var code, var msg) -> msg;
             case ServiceResult.Success(var vo) -> formatCellLayout(vo);
         };
     }
 
     public String handleFudiSpirit(PlatformType platform, String openId) {
         return switch (fudiService.getFudiStatus(platform, openId)) {
-            case ServiceResult.Failure(var msg) -> msg;
+            case ServiceResult.Failure(var code, var msg) -> msg;
             case ServiceResult.Success(var vo) -> formatSpiritInfo(vo);
         };
     }
 
     public String handlePlant(PlatformType platform, String openId, String position, String cropName) {
         return switch (farmService.plantCropByInput(platform, openId, position, cropName)) {
-            case ServiceResult.Failure(var msg) -> "❌ " + msg;
+            case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
             case ServiceResult.Success(var vo) -> formatPlantResult(vo);
         };
     }
@@ -58,7 +58,7 @@ public class FudiCommandHandler {
     public String handleCollect(PlatformType platform, String openId, String position) {
         if ("all".equalsIgnoreCase(position)) {
             return switch (fudiService.collectAll(platform, openId)) {
-                case ServiceResult.Failure(var msg) -> "❌ " + msg;
+                case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
                 case ServiceResult.Success(var result) -> {
                     int harvested = (Integer) result.getOrDefault("harvested", 0);
                     int collected = (Integer) result.getOrDefault("collected", 0);
@@ -74,7 +74,7 @@ public class FudiCommandHandler {
             };
         }
         return switch (fudiService.collect(platform, openId, position)) {
-            case ServiceResult.Failure(var msg) -> "❌ " + msg;
+            case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
             case ServiceResult.Success(var result) -> {
                 String type = (String) result.get("type");
                 if ("farm".equals(type)) {
@@ -98,14 +98,14 @@ public class FudiCommandHandler {
             return "❌ 不支持的地块类型：" + cellTypeName + "（可选：灵田、兽栏）";
         }
         return switch (fudiService.buildCell(platform, openId, position, cellType)) {
-            case ServiceResult.Failure(var msg) -> "❌ " + msg;
+            case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
             case ServiceResult.Success(_) -> "✅ 已在地块 %s 建造%s。".formatted(position, cellTypeName);
         };
     }
 
     public String handleRemove(PlatformType platform, String openId, String position) {
         return switch (fudiService.removeCell(platform, openId, position)) {
-            case ServiceResult.Failure(var msg) -> "❌ " + msg;
+            case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
             case ServiceResult.Success(var result) -> {
                 String typeName = (String) result.get("type");
                 yield "✅ 已拆除地块 %s 的%s。".formatted(position, typeName);
@@ -115,7 +115,7 @@ public class FudiCommandHandler {
 
     public String handleUpgradeCell(PlatformType platform, String openId, String position) {
         return switch (fudiService.upgradeCell(platform, openId, position)) {
-            case ServiceResult.Failure(var msg) -> "❌ " + msg;
+            case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
             case ServiceResult.Success(var result) -> {
                 String typeName = (String) result.get("type");
                 int oldLevel = (Integer) result.get("oldLevel");
@@ -127,14 +127,14 @@ public class FudiCommandHandler {
 
     public String handleHatch(PlatformType platform, String openId, String position, String eggName) {
         return switch (beastService.hatchBeastByInput(platform, openId, position, eggName)) {
-            case ServiceResult.Failure(var msg) -> "❌ " + msg;
+            case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
             case ServiceResult.Success(var vo) -> formatHatchResult(vo);
         };
     }
 
     public String handleRelease(PlatformType platform, String openId, String position) {
         return switch (beastService.releaseBeast(platform, openId, position)) {
-            case ServiceResult.Failure(var msg) -> "❌ " + msg;
+            case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
             case ServiceResult.Success(var result) -> {
                 String beastName = (String) result.get("beastName");
                 yield "✅ 已放生%s。".formatted(beastName);
@@ -144,7 +144,7 @@ public class FudiCommandHandler {
 
     public String handleEvolve(PlatformType platform, String openId, String position, String mode) {
         return switch (beastService.evolveBeast(platform, openId, position, mode)) {
-            case ServiceResult.Failure(var msg) -> "❌ " + msg;
+            case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
             case ServiceResult.Success(var vo) -> formatEvolveResult(vo, mode);
         };
     }
@@ -152,14 +152,14 @@ public class FudiCommandHandler {
     public String handleSpiritChat(PlatformType platform, String openId, String userInput) {
         log.info("处理地灵自然语言交互 - platform: {}, input: {}", platform, userInput);
         return switch (spiritChatService.chatWithSpirit(platform, openId, userInput)) {
-            case ServiceResult.Failure(var msg) -> msg;
+            case ServiceResult.Failure(var code, var msg) -> msg;
             case ServiceResult.Success(var response) -> response;
         };
     }
 
     public String handleGiveGift(PlatformType platform, String openId, String itemName) {
         return switch (fudiService.giveGift(platform, openId, itemName)) {
-            case ServiceResult.Failure(var msg) -> "❌ " + msg;
+            case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
             case ServiceResult.Success(var result) -> {
                 int change = (Integer) result.get("change");
                 String name = (String) result.get("itemName");
@@ -172,14 +172,14 @@ public class FudiCommandHandler {
 
     public String handleDeployBeast(PlatformType platform, String openId, String position) {
         return switch (beastService.deployBeast(platform, openId, position)) {
-            case ServiceResult.Failure(var msg) -> "❌ " + msg;
+            case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
             case ServiceResult.Success(var result) -> (String) result.getOrDefault("message", "出战完成");
         };
     }
 
     public String handleUndeployBeast(PlatformType platform, String openId, String position) {
         return switch (beastService.undeployBeast(platform, openId, position)) {
-            case ServiceResult.Failure(var msg) -> "❌ " + msg;
+            case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
             case ServiceResult.Success(var result) -> {
                 if (result.containsKey("count")) {
                     int count = (Integer) result.get("count");
@@ -192,7 +192,7 @@ public class FudiCommandHandler {
 
     public String handleRecoverBeast(PlatformType platform, String openId, String position) {
         return switch (beastService.recoverBeast(platform, openId, position)) {
-            case ServiceResult.Failure(var msg) -> "❌ " + msg;
+            case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
             case ServiceResult.Success(var result) -> {
                 if (result.containsKey("count")) {
                     int count = (Integer) result.get("count");

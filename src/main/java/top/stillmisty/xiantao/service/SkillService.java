@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SkillService {
 
-    private final AuthenticationService authService;
     private final UserRepository userRepository;
     private final SkillRepository skillRepository;
     private final PlayerSkillRepository playerSkillRepository;
@@ -39,35 +38,30 @@ public class SkillService {
 
     @Transactional
     public ServiceResult<SkillSlotResult> learnFromJade(PlatformType platform, String openId, String jadeInput) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        return new ServiceResult.Success<>(learnFromJade(auth.userId(), jadeInput));
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(learnFromJade(userId, jadeInput));
     }
 
     public ServiceResult<List<SkillVO>> getLearnedSkills(PlatformType platform, String openId) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        return new ServiceResult.Success<>(getLearnedSkills(auth.userId()));
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(getLearnedSkills(userId));
     }
 
     public ServiceResult<List<SkillVO>> getEquippedSkills(PlatformType platform, String openId) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        return new ServiceResult.Success<>(getEquippedSkills(auth.userId()));
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(getEquippedSkills(userId));
     }
 
     @Transactional
     public ServiceResult<SkillSlotResult> equipSkill(PlatformType platform, String openId, String skillInput) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        return new ServiceResult.Success<>(equipSkill(auth.userId(), skillInput));
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(equipSkill(userId, skillInput));
     }
 
     @Transactional
     public ServiceResult<SkillSlotResult> unequipSkill(PlatformType platform, String openId, String skillInput) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        return new ServiceResult.Success<>(unequipSkill(auth.userId(), skillInput));
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(unequipSkill(userId, skillInput));
     }
 
     // ===================== 内部 API（需预先完成认证） =====================

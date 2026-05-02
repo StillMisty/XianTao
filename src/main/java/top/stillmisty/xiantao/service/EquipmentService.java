@@ -32,20 +32,16 @@ public class EquipmentService {
     private final EquipmentTemplateRepository equipmentTemplateRepository;
     private final ItemTemplateRepository itemTemplateRepository;
     private final ItemResolver itemResolver;
-    private final AuthenticationService authService;
-
     // ===================== 公开 API（含认证） =====================
 
     public ServiceResult<EquipResult> equipItem(PlatformType platform, String openId, String itemName) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        return new ServiceResult.Success<>(equipItem(auth.userId(), itemName));
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(equipItem(userId, itemName));
     }
 
     public ServiceResult<UnequipResult> unequipItem(PlatformType platform, String openId, String slotName) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        return new ServiceResult.Success<>(unequipItem(auth.userId(), slotName));
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(unequipItem(userId, slotName));
     }
 
     // ===================== 内部 API（需预先完成认证） =====================

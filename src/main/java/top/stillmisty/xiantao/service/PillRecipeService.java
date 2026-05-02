@@ -30,27 +30,23 @@ public class PillRecipeService {
     private final ItemTemplateRepository itemTemplateRepository;
     private final StackableItemRepository stackableItemRepository;
     private final PlayerPillRecipeRepository playerPillRecipeRepository;
-    private final AuthenticationService authService;
 
     // ===================== 公开 API（含认证） =====================
 
     public ServiceResult<List<PillRecipeVO>> getLearnedRecipes(PlatformType platform, String openId) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        return new ServiceResult.Success<>(getLearnedRecipes(auth.userId()));
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(getLearnedRecipes(userId));
     }
 
     public ServiceResult<PillRecipeVO> getRecipeDetail(PlatformType platform, String openId, String recipeName) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        return new ServiceResult.Success<>(getRecipeDetail(auth.userId(), recipeName));
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(getRecipeDetail(userId, recipeName));
     }
 
     @Transactional
     public ServiceResult<PillRecipeVO> learnRecipe(PlatformType platform, String openId, String recipeName) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        return new ServiceResult.Success<>(learnRecipe(auth.userId(), recipeName));
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(learnRecipe(userId, recipeName));
     }
 
     // ===================== 内部 API =====================

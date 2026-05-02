@@ -37,15 +37,12 @@ public class PillConsumptionService {
     private final StackableItemRepository stackableItemRepository;
     private final PillResistanceRepository pillResistanceRepository;
     private final PlayerBuffRepository playerBuffRepository;
-    private final AuthenticationService authService;
-
     // ===================== 公开 API（含认证） =====================
 
     @Transactional
     public ServiceResult<String> takePill(PlatformType platform, String openId, String pillName) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        return new ServiceResult.Success<>(takePill(auth.userId(), pillName));
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(takePill(userId, pillName));
     }
 
     // ===================== 内部 API =====================

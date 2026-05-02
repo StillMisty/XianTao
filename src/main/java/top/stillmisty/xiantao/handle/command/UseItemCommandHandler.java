@@ -27,7 +27,7 @@ public class UseItemCommandHandler {
     public String handleUseItem(PlatformType platform, String openId, String itemName, String args) {
         log.debug("处理使用物品 - Platform: {}, OpenId: {}, ItemName: {}, Args: {}", platform, openId, itemName, args);
         return switch (itemUseService.useItem(platform, openId, itemName, args)) {
-            case ServiceResult.Failure(var msg) -> msg;
+            case ServiceResult.Failure(var code, var msg) -> msg;
             case ServiceResult.Success(var result) -> result;
         };
     }

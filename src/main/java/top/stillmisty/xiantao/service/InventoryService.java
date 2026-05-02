@@ -33,32 +33,26 @@ public class InventoryService {
     private final EquipmentRepository equipmentRepository;
     private final StackableItemRepository stackableItemRepository;
     private final ItemResolver itemResolver;
-    private final AuthenticationService authService;
-
     // ===================== 公开 API（含认证） =====================
 
     public ServiceResult<InventorySummaryVO> getInventorySummary(PlatformType platform, String openId) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        return new ServiceResult.Success<>(getInventorySummary(auth.userId()));
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(getInventorySummary(userId));
     }
 
     public ServiceResult<List<ItemEntry>> getSeedInventory(PlatformType platform, String openId) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        return new ServiceResult.Success<>(getSeedInventory(auth.userId()));
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(getSeedInventory(userId));
     }
 
     public ServiceResult<List<ItemEntry>> getEquipmentInventory(PlatformType platform, String openId) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        return new ServiceResult.Success<>(getEquipmentInventory(auth.userId()));
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(getEquipmentInventory(userId));
     }
 
     public ServiceResult<List<ItemEntry>> getEggInventory(PlatformType platform, String openId) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        return new ServiceResult.Success<>(getEggInventory(auth.userId()));
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(getEggInventory(userId));
     }
 
     // ===================== 内部 API（需预先完成认证） =====================

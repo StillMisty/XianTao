@@ -38,32 +38,26 @@ public class CultivationService {
     private final DaoProtectionRepository daoProtectionRepository;
     private final MapNodeRepository mapNodeRepository;
     private final PlayerBuffRepository playerBuffRepository;
-    private final AuthenticationService authService;
-
     // ===================== 公开 API（含认证） =====================
 
     public ServiceResult<BreakthroughResult> attemptBreakthrough(PlatformType platform, String openId) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        return new ServiceResult.Success<>(attemptBreakthrough(auth.userId()));
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(attemptBreakthrough(userId));
     }
 
     public ServiceResult<DaoProtectionResult> establishProtection(PlatformType platform, String openId, String protegeNickname) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        return new ServiceResult.Success<>(establishProtection(auth.userId(), protegeNickname));
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(establishProtection(userId, protegeNickname));
     }
 
     public ServiceResult<DaoProtectionResult> removeProtection(PlatformType platform, String openId, String protegeNickname) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        return new ServiceResult.Success<>(removeProtection(auth.userId(), protegeNickname));
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(removeProtection(userId, protegeNickname));
     }
 
     public ServiceResult<DaoProtectionQueryResult> queryProtectionInfo(PlatformType platform, String openId) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        return new ServiceResult.Success<>(queryProtectionInfo(auth.userId()));
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(queryProtectionInfo(userId));
     }
 
     // ===================== 内部 API（需预先完成认证） =====================

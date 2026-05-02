@@ -43,38 +43,36 @@ public class BountyService {
     private final ItemTemplateRepository itemTemplateRepository;
     private final ExplorationDescriptionFunction explorationDescriptionFunction;
     private final StackableItemService stackableItemService;
-    private final AuthenticationService authService;
 
     // ===================== 公开 API（含认证） =====================
 
     public ServiceResult<List<BountyVO>> listBounties(PlatformType platform, String openId) {
-        var auth = authService.authenticateAndValidateStatus(platform, openId, UserStatus.IDLE);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        return new ServiceResult.Success<>(listBounties(auth.userId()));
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(listBounties(userId));
     }
 
     public ServiceResult<String> startBounty(PlatformType platform, String openId, Long bountyId) {
-        var auth = authService.authenticateAndValidateStatus(platform, openId, UserStatus.IDLE);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        return new ServiceResult.Success<>(startBounty(auth.userId(), bountyId));
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(startBounty(userId, bountyId));
     }
 
     public ServiceResult<BountyRewardVO> completeBounty(PlatformType platform, String openId) {
-        var auth = authService.authenticateAndValidateStatus(platform, openId, UserStatus.BOUNTY);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        return new ServiceResult.Success<>(completeBounty(auth.userId()));
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(completeBounty(userId));
     }
 
     public ServiceResult<String> abandonBounty(PlatformType platform, String openId) {
-        var auth = authService.authenticateAndValidateStatus(platform, openId, UserStatus.BOUNTY);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        return new ServiceResult.Success<>(abandonBounty(auth.userId()));
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(abandonBounty(userId));
     }
 
     // ===================== 内部 API =====================
 
     public List<BountyVO> listBounties(Long userId) {
         User user = userRepository.findById(userId).orElseThrow();
+        if (user.getStatus() != UserStatus.IDLE) {
+            throw new IllegalStateException("您当前处于 " + (user.getStatus() != null ? user.getStatus().getName() : "未知") + " 状态，无法查看悬赏（需要 空闲 状态）");
+        }
         MapNode mapNode = mapNodeRepository.findById(user.getLocationId()).orElseThrow();
 
         return bountyRepository.findByMapId(mapNode.getId()).stream()
@@ -89,6 +87,9 @@ public class BountyService {
 
     public String startBounty(Long userId, Long bountyId) {
         User user = userRepository.findById(userId).orElseThrow();
+        if (user.getStatus() != UserStatus.IDLE) {
+            throw new IllegalStateException("您当前处于 " + (user.getStatus() != null ? user.getStatus().getName() : "未知") + " 状态，无法接取悬赏（需要 空闲 状态）");
+        }
 
         Bounty bounty = bountyRepository.findById(bountyId)
                 .orElseThrow(() -> new IllegalArgumentException("悬赏不存在"));
@@ -130,6 +131,9 @@ public class BountyService {
     @Transactional
     public BountyRewardVO completeBounty(Long userId) {
         User user = userRepository.findById(userId).orElseThrow();
+        if (user.getStatus() != UserStatus.BOUNTY) {
+            throw new IllegalStateException("您当前处于 " + (user.getStatus() != null ? user.getStatus().getName() : "未知") + " 状态，无法完成悬赏（需要 悬赏 状态）");
+        }
         UserBounty record = userBountyRepository.findActiveByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("当前没有进行中的悬赏"));
 
@@ -203,6 +207,9 @@ public class BountyService {
 
     public String abandonBounty(Long userId) {
         User user = userRepository.findById(userId).orElseThrow();
+        if (user.getStatus() != UserStatus.BOUNTY) {
+            throw new IllegalStateException("您当前处于 " + (user.getStatus() != null ? user.getStatus().getName() : "未知") + " 状态，无法放弃悬赏（需要 悬赏 状态）");
+        }
         UserBounty record = userBountyRepository.findActiveByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("当前没有进行中的悬赏"));
 

@@ -21,7 +21,7 @@ public class SkillCommandHandler {
     public String handleEquippedSkills(PlatformType platform, String openId) {
         log.debug("查询已装载法决 - Platform: {}, OpenId: {}", platform, openId);
         return switch (skillService.getEquippedSkills(platform, openId)) {
-            case ServiceResult.Failure(var msg) -> msg;
+            case ServiceResult.Failure(var code, var msg) -> msg;
             case ServiceResult.Success(var skills) -> formatEquippedSkills(skills);
         };
     }
@@ -29,7 +29,7 @@ public class SkillCommandHandler {
     public String handleLearnedSkills(PlatformType platform, String openId) {
         log.debug("查询已学法决 - Platform: {}, OpenId: {}", platform, openId);
         return switch (skillService.getLearnedSkills(platform, openId)) {
-            case ServiceResult.Failure(var msg) -> msg;
+            case ServiceResult.Failure(var code, var msg) -> msg;
             case ServiceResult.Success(var skills) -> formatLearnedSkills(skills);
         };
     }
@@ -37,7 +37,7 @@ public class SkillCommandHandler {
     public String handleEquipSkill(PlatformType platform, String openId, String skillInput) {
         log.debug("装载法决 - Platform: {}, OpenId: {}, SkillInput: {}", platform, openId, skillInput);
         return switch (skillService.equipSkill(platform, openId, skillInput)) {
-            case ServiceResult.Failure(var msg) -> msg;
+            case ServiceResult.Failure(var code, var msg) -> msg;
             case ServiceResult.Success(var result) -> formatSkillSlotResult(result);
         };
     }
@@ -45,7 +45,7 @@ public class SkillCommandHandler {
     public String handleUnequipSkill(PlatformType platform, String openId, String skillInput) {
         log.debug("卸下法决 - Platform: {}, OpenId: {}, SkillInput: {}", platform, openId, skillInput);
         return switch (skillService.unequipSkill(platform, openId, skillInput)) {
-            case ServiceResult.Failure(var msg) -> msg;
+            case ServiceResult.Failure(var code, var msg) -> msg;
             case ServiceResult.Success(var result) -> formatSkillSlotResult(result);
         };
     }

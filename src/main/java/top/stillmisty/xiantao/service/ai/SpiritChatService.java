@@ -15,7 +15,6 @@ import top.stillmisty.xiantao.domain.fudi.repository.SpiritHistoryRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.infrastructure.mapper.SpiritFormMapper;
-import top.stillmisty.xiantao.service.AuthenticationService;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.annotation.ConsumeSpiritEnergy;
@@ -43,15 +42,13 @@ public class SpiritChatService {
     private final SpiritTools spiritTools;
     private final SpiritEmotionTools spiritEmotionTools;
     private final FudiEventGenerator fudiEventGenerator;
-    private final AuthenticationService authService;
     private final BeastRepository beastRepository;
 
     // ===================== 公开 API（含认证） =====================
 
     public ServiceResult<String> chatWithSpirit(PlatformType platform, String openId, String userInput) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        return new ServiceResult.Success<>(chatWithSpirit(auth.userId(), userInput));
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(chatWithSpirit(userId, userInput));
     }
 
     // ===================== 内部 API（需预先完成认证） =====================

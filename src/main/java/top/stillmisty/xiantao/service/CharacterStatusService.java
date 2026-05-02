@@ -31,14 +31,11 @@ public class CharacterStatusService {
     private final EquipmentRepository equipmentRepository;
     private final DaoProtectionRepository daoProtectionRepository;
     private final MapNodeRepository mapNodeRepository;
-    private final AuthenticationService authService;
-
     // ===================== 公开 API（含认证） =====================
 
     public ServiceResult<CharacterStatusResult> getCharacterStatus(PlatformType platform, String openId) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        return new ServiceResult.Success<>(getCharacterStatus(auth.userId()));
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(getCharacterStatus(userId));
     }
 
     // ===================== 内部 API（需预先完成认证） =====================

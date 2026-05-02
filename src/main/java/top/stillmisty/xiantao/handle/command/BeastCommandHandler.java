@@ -29,7 +29,7 @@ public class BeastCommandHandler {
     public String handleDeployBeast(PlatformType platform, String openId, String position) {
         log.debug("处理灵兽出战 - Platform: {}, OpenId: {}, Position: {}", platform, openId, position);
         return switch (beastService.deployBeast(platform, openId, position)) {
-            case ServiceResult.Failure(var msg) -> msg;
+            case ServiceResult.Failure(var code, var msg) -> msg;
             case ServiceResult.Success(var result) -> formatDeployResult(result);
         };
     }
@@ -40,7 +40,7 @@ public class BeastCommandHandler {
     public String handleUndeployBeast(PlatformType platform, String openId, String position) {
         log.debug("处理灵兽召回 - Platform: {}, OpenId: {}, Position: {}", platform, openId, position);
         return switch (beastService.undeployBeast(platform, openId, position)) {
-            case ServiceResult.Failure(var msg) -> msg;
+            case ServiceResult.Failure(var code, var msg) -> msg;
             case ServiceResult.Success(var result) -> formatUndeployResult(result);
         };
     }
@@ -51,7 +51,7 @@ public class BeastCommandHandler {
     public String handleRecoverBeast(PlatformType platform, String openId, String position) {
         log.debug("处理灵兽恢复 - Platform: {}, OpenId: {}, Position: {}", platform, openId, position);
         return switch (beastService.recoverBeast(platform, openId, position)) {
-            case ServiceResult.Failure(var msg) -> msg;
+            case ServiceResult.Failure(var code, var msg) -> msg;
             case ServiceResult.Success(var result) -> formatRecoverResult(result);
         };
     }
@@ -62,7 +62,7 @@ public class BeastCommandHandler {
     public String handleEvolveBeast(PlatformType platform, String openId, String position, String mode) {
         log.debug("处理灵兽进化 - Platform: {}, OpenId: {}, Position: {}, Mode: {}", platform, openId, position, mode);
         return switch (beastService.evolveBeast(platform, openId, position, mode)) {
-            case ServiceResult.Failure(var msg) -> msg;
+            case ServiceResult.Failure(var code, var msg) -> msg;
             case ServiceResult.Success(var result) -> formatEvolveResult(result);
         };
     }
@@ -73,7 +73,7 @@ public class BeastCommandHandler {
     public String handleReleaseBeast(PlatformType platform, String openId, String position) {
         log.debug("处理灵兽放生 - Platform: {}, OpenId: {}, Position: {}", platform, openId, position);
         return switch (beastService.releaseBeast(platform, openId, position)) {
-            case ServiceResult.Failure(var msg) -> msg;
+            case ServiceResult.Failure(var code, var msg) -> msg;
             case ServiceResult.Success(var result) -> formatReleaseResult(result);
         };
     }
@@ -84,7 +84,7 @@ public class BeastCommandHandler {
     public String handleGetDeployedBeasts(PlatformType platform, String openId) {
         log.debug("处理查看出战灵兽 - Platform: {}, OpenId: {}", platform, openId);
         return switch (beastService.getDeployedBeasts(platform, openId)) {
-            case ServiceResult.Failure(var msg) -> msg;
+            case ServiceResult.Failure(var code, var msg) -> msg;
             case ServiceResult.Success(var beasts) -> formatDeployedBeasts(beasts);
         };
     }

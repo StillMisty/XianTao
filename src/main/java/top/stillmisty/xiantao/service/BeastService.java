@@ -44,7 +44,6 @@ public class BeastService {
     private final StackableItemRepository stackableItemRepository;
     private final SpiritRepository spiritRepository;
     private final StackableItemService stackableItemService;
-    private final AuthenticationService authService;
     private final UserRepository userRepository;
     private final ItemResolver itemResolver;
 
@@ -73,83 +72,43 @@ public class BeastService {
     // ===================== 公开 API（含认证） =====================
 
     public ServiceResult<PenCellVO> hatchBeast(PlatformType platform, String openId, String position, String eggName) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        try {
-            return new ServiceResult.Success<>(hatchBeast(auth.userId(), position, eggName));
-        } catch (IllegalStateException e) {
-            return ServiceResult.businessFailure(e.getMessage());
-        }
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(hatchBeast(userId, position, eggName));
     }
 
     public ServiceResult<PenCellVO> hatchBeastByInput(PlatformType platform, String openId, String position, String input) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        try {
-            return new ServiceResult.Success<>(hatchBeastByInput(auth.userId(), position, input));
-        } catch (IllegalStateException e) {
-            return ServiceResult.businessFailure(e.getMessage());
-        }
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(hatchBeastByInput(userId, position, input));
     }
 
     public ServiceResult<Map<String, Object>> releaseBeast(PlatformType platform, String openId, String position) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        try {
-            return new ServiceResult.Success<>(releaseBeast(auth.userId(), position));
-        } catch (IllegalStateException e) {
-            return ServiceResult.businessFailure(e.getMessage());
-        }
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(releaseBeast(userId, position));
     }
 
     public ServiceResult<PenCellVO> evolveBeast(PlatformType platform, String openId, String position, String mode) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        try {
-            return new ServiceResult.Success<>(evolveBeast(auth.userId(), position, mode));
-        } catch (IllegalStateException e) {
-            return ServiceResult.businessFailure(e.getMessage());
-        }
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(evolveBeast(userId, position, mode));
     }
 
     public ServiceResult<Map<String, Object>> deployBeast(PlatformType platform, String openId, String position) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        try {
-            return new ServiceResult.Success<>(deployBeast(auth.userId(), position));
-        } catch (IllegalStateException e) {
-            return ServiceResult.businessFailure(e.getMessage());
-        }
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(deployBeast(userId, position));
     }
 
     public ServiceResult<Map<String, Object>> undeployBeast(PlatformType platform, String openId, String position) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        try {
-            return new ServiceResult.Success<>(undeployBeast(auth.userId(), position));
-        } catch (IllegalStateException e) {
-            return ServiceResult.businessFailure(e.getMessage());
-        }
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(undeployBeast(userId, position));
     }
 
     public ServiceResult<Map<String, Object>> recoverBeast(PlatformType platform, String openId, String position) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        try {
-            return new ServiceResult.Success<>(recoverBeast(auth.userId(), position));
-        } catch (IllegalStateException e) {
-            return ServiceResult.businessFailure(e.getMessage());
-        }
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(recoverBeast(userId, position));
     }
 
     public ServiceResult<List<BeastStatusVO>> getDeployedBeasts(PlatformType platform, String openId) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        try {
-            return new ServiceResult.Success<>(getDeployedBeasts(auth.userId()));
-        } catch (IllegalStateException e) {
-            return ServiceResult.businessFailure(e.getMessage());
-        }
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(getDeployedBeasts(userId));
     }
 
     // ===================== 内部 API =====================

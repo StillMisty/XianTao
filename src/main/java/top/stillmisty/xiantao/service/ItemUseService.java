@@ -25,19 +25,13 @@ public class ItemUseService {
     private final StackableItemRepository stackableItemRepository;
     private final ItemTemplateRepository itemTemplateRepository;
     private final StackableItemService stackableItemService;
-    private final AuthenticationService authService;
 
     /**
      * 使用物品（公开API，含认证）
      */
     public ServiceResult<String> useItem(PlatformType platform, String openId, String itemName, String args) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        try {
-            return new ServiceResult.Success<>(useItem(auth.userId(), itemName, args));
-        } catch (IllegalStateException e) {
-            return ServiceResult.businessFailure(e.getMessage());
-        }
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(useItem(userId, itemName, args));
     }
 
     /**

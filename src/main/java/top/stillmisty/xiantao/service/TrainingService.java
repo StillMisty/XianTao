@@ -54,7 +54,6 @@ public class TrainingService {
     private final ItemTemplateRepository itemTemplateRepository;
     private final EquipmentRepository equipmentRepository;
     private final BeastRepository beastRepository;
-    private final AuthenticationService authService;
     private final StackableItemService stackableItemService;
     private final CombatService combatService;
     private final EncounterCalculator encounterCalculator;
@@ -66,15 +65,13 @@ public class TrainingService {
     // ===================== 公开 API（含认证） =====================
 
     public ServiceResult<TrainingStartResult> startTraining(PlatformType platform, String openId) {
-        var auth = authService.authenticateAndValidateStatus(platform, openId, UserStatus.IDLE);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        return new ServiceResult.Success<>(startTraining(auth.userId()));
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(startTraining(userId));
     }
 
     public ServiceResult<TrainingRewardVO> endTraining(PlatformType platform, String openId) {
-        var auth = authService.authenticateAndValidateStatus(platform, openId, UserStatus.EXERCISING);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        return new ServiceResult.Success<>(endTraining(auth.userId()));
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(endTraining(userId));
     }
 
     // ===================== 内部 API =====================
@@ -154,6 +151,10 @@ public class TrainingService {
     public TrainingStartResult startTraining(Long userId) {
         User user = userRepository.findById(userId).orElseThrow();
 
+        if (user.getStatus() != UserStatus.IDLE) {
+            throw new IllegalStateException("您当前处于 " + (user.getStatus() != null ? user.getStatus().getName() : "未知") + " 状态，无法开始历练（需要 空闲 状态）");
+        }
+
         if (user.getLocationId() == null) {
             return TrainingStartResult.builder()
                     .success(false)
@@ -190,6 +191,10 @@ public class TrainingService {
     @Transactional
     public TrainingRewardVO endTraining(Long userId) {
         User user = userRepository.findById(userId).orElseThrow();
+
+        if (user.getStatus() != UserStatus.EXERCISING) {
+            throw new IllegalStateException("您当前处于 " + (user.getStatus() != null ? user.getStatus().getName() : "未知") + " 状态，无法结束历练（需要 历练 状态）");
+        }
 
         if (user.getTrainingStartTime() == null) {
             return TrainingRewardVO.builder()

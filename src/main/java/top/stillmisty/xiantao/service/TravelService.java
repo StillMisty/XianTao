@@ -22,15 +22,13 @@ public class TravelService {
 
     private final UserRepository userRepository;
     private final MapNodeRepository mapNodeRepository;
-    private final AuthenticationService authService;
 
     // ===================== 公开 API =====================
 
     @Transactional
     public ServiceResult<TravelResultVO> startTravel(PlatformType platform, String openId, String mapName) {
-        var auth = authService.authenticateAndValidateStatus(platform, openId, UserStatus.IDLE);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
-        return new ServiceResult.Success<>(startTravel(auth.userId(), mapName));
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(startTravel(userId, mapName));
     }
 
     // ===================== 内部 API =====================
@@ -38,6 +36,10 @@ public class TravelService {
     @Transactional
     public TravelResultVO startTravel(Long userId, String mapName) {
         User user = userRepository.findById(userId).orElseThrow();
+
+        if (user.getStatus() != UserStatus.IDLE) {
+            throw new IllegalStateException("您当前处于 " + (user.getStatus() != null ? user.getStatus().getName() : "未知") + " 状态，无法旅行（需要 空闲 状态）");
+        }
 
         Optional<MapNode> currentMapOpt = mapNodeRepository.findById(user.getLocationId());
         if (currentMapOpt.isEmpty()) {

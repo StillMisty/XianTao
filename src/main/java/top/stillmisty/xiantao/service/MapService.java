@@ -22,13 +22,10 @@ import java.util.Optional;
 public class MapService {
 
     private final MapNodeRepository mapNodeRepository;
-    private final AuthenticationService authService;
-
     // ===================== 公开 API（含认证） =====================
 
     public ServiceResult<List<MapInfoVO>> getAllMaps(PlatformType platform, String openId) {
-        var auth = authService.authenticate(platform, openId);
-        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
+        Long userId = UserContext.getCurrentUserId();
         return new ServiceResult.Success<>(getAllMaps());
     }
 
