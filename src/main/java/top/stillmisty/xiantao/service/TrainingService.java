@@ -72,12 +72,6 @@ public class TrainingService {
         return new ServiceResult.Success<>(endTraining(auth.userId()));
     }
 
-    public ServiceResult<BattleResultVO> simulateTraining(PlatformType platform, String openId, int durationMinutes) {
-        var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
-        return new ServiceResult.Success<>(simulateTraining(auth.userId(), durationMinutes));
-    }
-
     // ===================== 内部 API =====================
 
     public TrainingRewardVO calculateTrainingRewards(Long userId) {
@@ -269,7 +263,7 @@ public class TrainingService {
 
     // ===================== 遭遇编排（核心） =====================
 
-    public BattleResultVO simulateTraining(Long userId, int durationMinutes) {
+    private BattleResultVO simulateTraining(Long userId, int durationMinutes) {
         User user = userRepository.findById(userId).orElseThrow();
         MapNode mapNode = mapNodeRepository.findById(user.getLocationId()).orElseThrow();
 
