@@ -142,54 +142,6 @@ public class SpiritTools {
     }
 
     /**
-     * 收取地块产出的统一工具（灵田收获 + 兽栏收取）
-     */
-    @Tool(description = "收取福地中指定地块编号的产出物（自动判断灵田收获或兽栏收取）。编号可以是具体数字或'all'表示全部收取。")
-    public HarvestCropResponse harvestCrop(
-            @ToolParam(description = "收取地块编号，如'1'、'2'，或'all'表示全部收取") String position
-    ) {
-        try {
-            Long userId = getCurrentUserId();
-
-            if ("all".equalsIgnoreCase(position)) {
-                Map<String, Object> result = fudiService.collectAll(userId);
-                int harvested = (Integer) result.getOrDefault("harvested", 0);
-                int collected = (Integer) result.getOrDefault("collected", 0);
-                int totalItems = (Integer) result.getOrDefault("totalItems", 0);
-
-                if (totalItems == 0) {
-                    return new HarvestCropResponse(true, "没有可收取的内容。", position, 0);
-                }
-                var parts = new java.util.ArrayList<String>();
-                if (harvested > 0) parts.add("收获 %d 块灵田".formatted(harvested));
-                if (collected > 0) parts.add("收取 %d 个兽栏".formatted(collected));
-                String message = "已" + String.join("、", parts) + "，共获得 " + totalItems + " 份物资。";
-
-                return new HarvestCropResponse(true, message, position, totalItems);
-            } else {
-                Map<String, Object> result = fudiService.collect(userId, position);
-                String type = (String) result.get("type");
-                int yield = 0;
-                String message;
-                if ("farm".equals(type)) {
-                    String cropName = (String) result.get("cropName");
-                    yield = (Integer) result.get("yield");
-                    message = String.format("已收获地块 %s 的%s，获得 %d 份。", position, cropName, yield);
-                } else {
-                    String beastName = (String) result.get("beastName");
-                    yield = (Integer) result.get("totalItems");
-                    message = String.format("已从地块 %s 收取了 %d 件%s产出。", position, yield, beastName);
-                }
-
-                return new HarvestCropResponse(true, message, position, yield);
-            }
-        } catch (Exception e) {
-            log.error("收取产出失败: position={}", position, e);
-            return new HarvestCropResponse(false, "收取失败：" + e.getMessage(), position, 0);
-        }
-    }
-
-    /**
      * 建造地块工具
      */
     @Tool(description = "在福地的指定地块编号建造地块，可以建造灵田或兽栏。")
@@ -239,7 +191,7 @@ public class SpiritTools {
     }
 
     /**
-     * 收取灵兽产出工具
+     * 收取地块产出的统一工具（灵田收获 + 兽栏收取）
      */
     @Tool(description = "收取福地中指定地块的产出物（统一收取灵田作物和兽栏产出）。编号可以是具体数字或'all'表示全部收取。")
     public CollectProduceResponse collectProduce(
@@ -398,21 +350,6 @@ public class SpiritTools {
 
             @JsonPropertyDescription("作物名称")
             String cropName
-    ) {
-    }
-
-    public record HarvestCropResponse(
-            @JsonPropertyDescription("是否成功")
-            boolean success,
-
-            @JsonPropertyDescription("结果消息")
-            String message,
-
-            @JsonPropertyDescription("收获地块编号")
-            String position,
-
-            @JsonPropertyDescription("收获数量")
-            int yield
     ) {
     }
 

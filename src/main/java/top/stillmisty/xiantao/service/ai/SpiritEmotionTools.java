@@ -7,6 +7,7 @@ import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.fudi.entity.Spirit;
 import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
+import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
 import top.stillmisty.xiantao.service.UserContext;
 
@@ -20,6 +21,7 @@ import top.stillmisty.xiantao.service.UserContext;
 public class SpiritEmotionTools {
 
     private final SpiritRepository spiritRepository;
+    private final FudiRepository fudiRepository;
 
     /**
      * 更新地灵情绪状态
@@ -78,9 +80,8 @@ public class SpiritEmotionTools {
     }
 
     private Long getFudiId(Long userId) {
-        // 这里需要通过FudiRepository获取fudiId
-        // 为了简化，我们假设Spirit中已经有fudiId
-        // 实际实现中需要注入FudiRepository
-        return null; // 需要实际实现
+        return fudiRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalStateException("未找到福地"))
+                .getId();
     }
 }
