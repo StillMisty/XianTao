@@ -5,16 +5,21 @@ import top.stillmisty.xiantao.domain.monster.enums.MonsterType;
 import top.stillmisty.xiantao.domain.skill.entity.Skill;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class Monster implements Combatant {
 
+    private static final AtomicLong ID_GENERATOR = new AtomicLong(1_000_000_000L);
+
     private final MonsterTemplate template;
+    private final long instanceId;
     private int hp;
     private int level;
-    private List<Skill> skills;
+    private final List<Skill> skills;
 
     public Monster(MonsterTemplate template, int level, List<Skill> skills) {
         this.template = template;
+        this.instanceId = ID_GENERATOR.getAndIncrement();
         this.level = level;
         this.skills = skills != null ? skills : List.of();
         double levelScale = 1.0 + (level - template.getBaseLevel()) * 0.15;
@@ -23,7 +28,7 @@ public class Monster implements Combatant {
 
     @Override
     public Long getId() {
-        return template.getId();
+        return instanceId;
     }
 
     @Override

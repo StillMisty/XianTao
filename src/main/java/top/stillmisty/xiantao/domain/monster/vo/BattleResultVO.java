@@ -14,7 +14,7 @@ public record BattleResultVO(
         List<Map<String, Object>> monsterHpChanges,
         List<Map<String, Object>> damageDealt,
         List<Map<String, Object>> skillProcs,
-        List<Map<String, Object>> combatLog,
+        List<CombatLogEntry> combatLog,
         List<DropItem> drops,
         long expGained,
         String summary

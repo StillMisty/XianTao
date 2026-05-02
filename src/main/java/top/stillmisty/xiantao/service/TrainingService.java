@@ -29,6 +29,8 @@ import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 import top.stillmisty.xiantao.infrastructure.util.TypeUtils;
 
+import top.stillmisty.xiantao.domain.monster.vo.CombatLogEntry;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -275,7 +277,7 @@ public class TrainingService {
 
         long expGained = 0L;
         List<DropItem> allDrops = new ArrayList<>();
-        List<Map<String, Object>> allLogs = new ArrayList<>();
+        List<CombatLogEntry> allLogs = new ArrayList<>();
         List<Map<String, Object>> allSkillProcs = new ArrayList<>();
         int totalRounds = 0;
         int totalEncounters = 0;
@@ -410,7 +412,7 @@ public class TrainingService {
                                          int totalEncounters, int totalKills, int defeatCount,
                                          long expGained, int totalRounds,
                                          List<DropItem> allDrops,
-                                         List<Map<String, Object>> allLogs,
+                                         List<CombatLogEntry> allLogs,
                                          List<Map<String, Object>> allSkillProcs) {
         StringBuilder summary = new StringBuilder();
         summary.append(String.format("遇敌%d场 | 击杀%d只", totalEncounters, totalKills));
