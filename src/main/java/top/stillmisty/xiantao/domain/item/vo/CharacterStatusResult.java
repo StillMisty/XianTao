@@ -43,7 +43,6 @@ public class CharacterStatusResult {
     private Integer statCon;
     private Integer statAgi;
     private Integer statWis;
-    private Integer statValue;
 
     // ===================== 装备加成 =====================
     private Integer equipStr;

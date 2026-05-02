@@ -5,9 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
-import top.stillmisty.xiantao.domain.item.entity.EquipmentTemplate;
 import top.stillmisty.xiantao.domain.item.entity.InventoryItem;
-import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.AffixType;
 import top.stillmisty.xiantao.domain.item.enums.EquipmentSlot;
@@ -182,7 +180,6 @@ public class ItemService {
                 .statCon(user.getStatCon())
                 .statAgi(user.getStatAgi())
                 .statWis(user.getStatWis())
-                .statValue(user.getStatValue())
                 // 装备加成
                 .equipStr(equipStr)
                 .equipCon(equipCon)
