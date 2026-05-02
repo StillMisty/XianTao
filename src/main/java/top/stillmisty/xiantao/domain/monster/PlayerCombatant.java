@@ -16,7 +16,7 @@ import java.util.List;
 public class PlayerCombatant implements Combatant {
     private final User user;
     private final Equipment weapon;
-    private final EquipmentTemplateRepository equipmentTemplateRepository;
+    private final double attackSpeed;
     private int hp;
     private int attackBuff;
     private int defenseBuff;
@@ -25,12 +25,17 @@ public class PlayerCombatant implements Combatant {
     public PlayerCombatant(User user, EquipmentRepository equipmentRepository,
                            EquipmentTemplateRepository equipmentTemplateRepository) {
         this.user = user;
-        this.equipmentTemplateRepository = equipmentTemplateRepository;
         this.hp = user.getHpCurrent() != null ? user.getHpCurrent() : user.calculateMaxHp();
 
         this.weapon = equipmentRepository.findEquippedByUserId(user.getId()).stream()
                 .filter(e -> e.getSlot() == EquipmentSlot.WEAPON)
                 .findFirst().orElse(null);
+
+        this.attackSpeed = weapon != null
+                ? equipmentTemplateRepository.findById(weapon.getTemplateId())
+                .map(template -> template.getAttackSpeed() != null ? template.getAttackSpeed() : 1.0)
+                .orElse(1.0)
+                : 1.0;
     }
 
     public PlayerCombatant withBuffs(int attackBuff, int defenseBuff, int speedBuff) {
@@ -110,12 +115,6 @@ public class PlayerCombatant implements Combatant {
 
     @Override
     public double getAttackSpeed() {
-        if (weapon == null) {
-            return 1.0;
-        }
-        // 从装备模板获取攻速
-        return equipmentTemplateRepository.findById(weapon.getTemplateId())
-                .map(template -> template.getAttackSpeed() != null ? template.getAttackSpeed() : 1.0)
-                .orElse(1.0);
+        return attackSpeed;
     }
 }

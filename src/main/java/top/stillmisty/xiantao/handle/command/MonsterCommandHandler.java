@@ -4,9 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
+import top.stillmisty.xiantao.domain.monster.vo.DropItem;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
-import top.stillmisty.xiantao.service.CombatService;
 import top.stillmisty.xiantao.service.ServiceResult;
+import top.stillmisty.xiantao.service.TrainingService;
 
 import java.util.List;
 import java.util.Map;
@@ -16,11 +17,11 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class MonsterCommandHandler {
 
-    private final CombatService combatService;
+    private final TrainingService trainingService;
 
     public String handleSimulateDuel(PlatformType platform, String openId, int durationMinutes) {
         log.debug("处理战斗模拟请求 - Platform: {}, OpenId: {}, Duration: {}", platform, openId, durationMinutes);
-        return switch (combatService.simulateTraining(platform, openId, durationMinutes)) {
+        return switch (trainingService.simulateTraining(platform, openId, durationMinutes)) {
             case ServiceResult.Failure(var msg) -> msg;
             case ServiceResult.Success(var vo) -> formatBattleResult(vo);
         };
@@ -67,12 +68,11 @@ public class MonsterCommandHandler {
         }
 
         // 掉落物
-        if (result.drops() != null && !result.drops().isEmpty()) {
+        List<DropItem> drops = result.drops();
+        if (drops != null && !drops.isEmpty()) {
             sb.append("\n【战利品】\n");
-            for (Map<String, Object> drop : result.drops()) {
-                String name = drop.get("name") != null ? drop.get("name").toString() : "?";
-                int qty = ((Number) drop.getOrDefault("quantity", 1)).intValue();
-                sb.append(String.format("  %s x%d\n", name, qty));
+            for (DropItem drop : drops) {
+                sb.append(String.format("  %s x%d\n", drop.name(), drop.quantity()));
             }
         }
 

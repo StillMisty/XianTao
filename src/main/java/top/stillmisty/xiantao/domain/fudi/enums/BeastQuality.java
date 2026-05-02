@@ -8,11 +8,11 @@ import lombok.Getter;
  */
 @Getter
 public enum BeastQuality {
-    MORTAL("mortal", "凡品", 1.0, 1.0, 1.0, 900),
-    SPIRIT("spirit", "灵品", 1.2, 0.85, 1.1, 80),
-    IMMORTAL("immortal", "仙品", 1.5, 0.70, 1.2, 18),
-    SAINT("saint", "圣品", 2.0, 0.55, 1.3, 2),
-    DIVINE("divine", "神品", 3.0, 0.40, 1.5, 0);
+    MORTAL("mortal", "凡品", 1.0, 1.0, 1.0, 900, 30),
+    SPIRIT("spirit", "灵品", 1.2, 0.85, 1.1, 80, 60),
+    IMMORTAL("immortal", "仙品", 1.5, 0.70, 1.2, 18, 120),
+    SAINT("saint", "圣品", 2.0, 0.55, 1.3, 2, 240),
+    DIVINE("divine", "神品", 3.0, 0.40, 1.5, 0, 480);
 
     @EnumValue
     private final String code;
@@ -21,12 +21,13 @@ public enum BeastQuality {
     private final double auraCostMultiplier;
     private final double lifespanMultiplier;
     private final int hatchWeight;
+    private final int recoveryMinutes;
 
     private final int order;
 
     BeastQuality(
             String code, String chineseName, double outputMultiplier, double auraCostMultiplier,
-            double lifespanMultiplier, int hatchWeight
+            double lifespanMultiplier, int hatchWeight, int recoveryMinutes
     ) {
         this.code = code;
         this.chineseName = chineseName;
@@ -34,6 +35,7 @@ public enum BeastQuality {
         this.auraCostMultiplier = auraCostMultiplier;
         this.lifespanMultiplier = lifespanMultiplier;
         this.hatchWeight = hatchWeight;
+        this.recoveryMinutes = recoveryMinutes;
         this.order = ordinal();
     }
 

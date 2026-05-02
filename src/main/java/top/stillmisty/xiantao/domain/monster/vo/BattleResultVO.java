@@ -15,7 +15,7 @@ public record BattleResultVO(
         List<Map<String, Object>> damageDealt,
         List<Map<String, Object>> skillProcs,
         List<Map<String, Object>> combatLog,
-        List<Map<String, Object>> drops,
+        List<DropItem> drops,
         long expGained,
         String summary
 ) {}
