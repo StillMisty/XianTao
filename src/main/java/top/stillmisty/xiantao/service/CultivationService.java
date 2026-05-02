@@ -27,7 +27,6 @@ import java.util.Optional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class CultivationService {
 
     // 护道系统常量
@@ -75,6 +74,7 @@ public class CultivationService {
      * @param userId 用户ID
      * @return 突破结果
      */
+    @Transactional
     public BreakthroughResult attemptBreakthrough(Long userId) {
         User user = userRepository.findById(userId).orElseThrow();
 
@@ -164,6 +164,7 @@ public class CultivationService {
      * @param protegeNickname 被护道者的道号
      * @return 护道结果
      */
+    @Transactional
     public DaoProtectionResult establishProtection(Long protectorId, String protegeNickname) {
         User protector = userRepository.findById(protectorId).orElseThrow();
 
@@ -240,6 +241,7 @@ public class CultivationService {
      * @param protegeNickname 被护道者的道号
      * @return 解除结果
      */
+    @Transactional
     public DaoProtectionResult removeProtection(Long protectorId, String protegeNickname) {
         // 查找被护道者
         Optional<User> protegeOpt = findUserByNickname(protegeNickname);
@@ -286,22 +288,27 @@ public class CultivationService {
         List<DaoProtection> protectingList = daoProtectionRepository.findByProtectorId(userId);
         List<ProtectionInfo> protectingInfoList = new ArrayList<>();
 
-        for (DaoProtection protection : protectingList) {
-            Optional<User> protegeOpt = userRepository.findById(protection.getProtegeId());
-            if (protegeOpt.isPresent()) {
-                User protege = protegeOpt.get();
-                boolean inSameLocation = isInSameLocation(user, protege);
-                double bonus = calculateSingleProtectorBonus(user, protege);
+        if (!protectingList.isEmpty()) {
+            var protegeIds = protectingList.stream().map(DaoProtection::getProtegeId).distinct().toList();
+            var protegeMap = userRepository.findByIds(protegeIds).stream()
+                    .collect(java.util.stream.Collectors.toMap(top.stillmisty.xiantao.domain.user.entity.User::getId, u -> u));
 
-                protectingInfoList.add(ProtectionInfo.builder()
-                                               .userId(protege.getId())
-                                               .userName(protege.getNickname())
-                                               .userLevel(protege.getLevel())
-                                               .locationId(protege.getLocationId())
-                                               .locationName(getMapName(protege.getLocationId()))
-                                               .isInSameLocation(inSameLocation)
-                                               .bonusPercentage(bonus)
-                                               .build());
+            for (DaoProtection protection : protectingList) {
+                User protege = protegeMap.get(protection.getProtegeId());
+                if (protege != null) {
+                    boolean inSameLocation = isInSameLocation(user, protege);
+                    double bonus = calculateSingleProtectorBonus(user, protege);
+
+                    protectingInfoList.add(ProtectionInfo.builder()
+                                                   .userId(protege.getId())
+                                                   .userName(protege.getNickname())
+                                                   .userLevel(protege.getLevel())
+                                                   .locationId(protege.getLocationId())
+                                                   .locationName(getMapName(protege.getLocationId()))
+                                                   .isInSameLocation(inSameLocation)
+                                                   .bonusPercentage(bonus)
+                                                   .build());
+                }
             }
         }
 
@@ -311,29 +318,34 @@ public class CultivationService {
         double totalBonus = 0.0;
         int sameLocationCount = 0;
 
-        for (DaoProtection protection : protectedByList) {
-            Optional<User> protectorOpt = userRepository.findById(protection.getProtectorId());
-            if (protectorOpt.isPresent()) {
-                User protector = protectorOpt.get();
-                boolean inSameLocation = isInSameLocation(user, protector);
+        if (!protectedByList.isEmpty()) {
+            var protectorIds = protectedByList.stream().map(DaoProtection::getProtectorId).distinct().toList();
+            var protectorMap = userRepository.findByIds(protectorIds).stream()
+                    .collect(java.util.stream.Collectors.toMap(top.stillmisty.xiantao.domain.user.entity.User::getId, u -> u));
 
-                // 只有同地点才提供加成
-                double bonus = 0.0;
-                if (inSameLocation) {
-                    bonus = calculateSingleProtectorBonus(protector, user);
-                    totalBonus += bonus;
-                    sameLocationCount++;
+            for (DaoProtection protection : protectedByList) {
+                User protector = protectorMap.get(protection.getProtectorId());
+                if (protector != null) {
+                    boolean inSameLocation = isInSameLocation(user, protector);
+
+                    // 只有同地点才提供加成
+                    double bonus = 0.0;
+                    if (inSameLocation) {
+                        bonus = calculateSingleProtectorBonus(protector, user);
+                        totalBonus += bonus;
+                        sameLocationCount++;
+                    }
+
+                    protectedByInfoList.add(ProtectionInfo.builder()
+                                                    .userId(protector.getId())
+                                                    .userName(protector.getNickname())
+                                                    .userLevel(protector.getLevel())
+                                                    .locationId(protector.getLocationId())
+                                                    .locationName(getMapName(protector.getLocationId()))
+                                                    .isInSameLocation(inSameLocation)
+                                                    .bonusPercentage(bonus)
+                                                    .build());
                 }
-
-                protectedByInfoList.add(ProtectionInfo.builder()
-                                                .userId(protector.getId())
-                                                .userName(protector.getNickname())
-                                                .userLevel(protector.getLevel())
-                                                .locationId(protector.getLocationId())
-                                                .locationName(getMapName(protector.getLocationId()))
-                                                .isInSameLocation(inSameLocation)
-                                                .bonusPercentage(bonus)
-                                                .build());
             }
         }
 

@@ -19,7 +19,6 @@ import java.util.Optional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class MapService {
 
     private final MapNodeRepository mapNodeRepository;

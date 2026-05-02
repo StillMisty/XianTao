@@ -29,11 +29,11 @@ import top.stillmisty.xiantao.service.annotation.ConsumeSpiritEnergy;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional
 public class FudiService {
 
     private final FudiRepository fudiRepository;
@@ -135,6 +135,7 @@ public class FudiService {
 
     // ===================== 福地基础管理 =====================
 
+    @Transactional
     public void createFudi(Long userId, MBTIPersonality mbtiType) {
         if (fudiRepository.existsByUserId(userId)) {
             throw new IllegalStateException("用户已拥有福地");
@@ -167,7 +168,7 @@ public class FudiService {
         spirit.setLastEnergyUpdate(LocalDateTime.now());
 
         if (!allForms.isEmpty()) {
-            SpiritForm randomForm = allForms.get(new Random().nextInt(allForms.size()));
+            SpiritForm randomForm = allForms.get(ThreadLocalRandom.current().nextInt(allForms.size()));
             spirit.setFormId(randomForm.getId().intValue());
         }
 
@@ -319,6 +320,7 @@ public class FudiService {
         return defense;
     }
 
+    @Transactional
     public Map<String, Object> triggerTribulation(Long userId) {
         Fudi fudi = getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
@@ -501,6 +503,7 @@ public class FudiService {
     // ===================== 统一收取系统（种植收获 + 灵兽产出） =====================
 
     @ConsumeSpiritEnergy(5)
+    @Transactional
     public Map<String, Object> collect(Long userId, String position) {
         Integer cellId = parseCellId(position);
         Fudi fudi = getFudiByUserId(userId)
@@ -524,6 +527,7 @@ public class FudiService {
 
     // ===================== 种植系统 =====================
 
+    @Transactional
     public Map<String, Object> collectAll(Long userId) {
         Fudi fudi = getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
@@ -677,6 +681,7 @@ public class FudiService {
 
     // ===================== 建造/拆除/升级系统 =====================
 
+    @Transactional
     public Map<String, Object> buildCell(Long userId, String position, CellType type) {
         Integer cellId = parseCellId(position);
         Fudi fudi = getFudiByUserId(userId)
@@ -702,6 +707,7 @@ public class FudiService {
         return Map.of("cellId", cellId, "type", type.getChineseName());
     }
 
+    @Transactional
     public Map<String, Object> removeCell(Long userId, String position) {
         Integer cellId = parseCellId(position);
         Fudi fudi = getFudiByUserId(userId)
@@ -730,6 +736,7 @@ public class FudiService {
         return Map.of("cellId", cellId, "type", cell.getCellType().getChineseName());
     }
 
+    @Transactional
     public Map<String, Object> upgradeCell(Long userId, String position) {
         Integer cellId = parseCellId(position);
         Fudi fudi = getFudiByUserId(userId)
@@ -762,6 +769,7 @@ public class FudiService {
 
     // ===================== 送礼系统 =====================
 
+    @Transactional
     public Map<String, Object> giveGift(Long userId, String itemName) {
         Fudi fudi = getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
@@ -811,13 +819,13 @@ public class FudiService {
         String reaction;
 
         if (isLiked) {
-            change = 10 + new Random().nextInt(41);
+            change = 10 + ThreadLocalRandom.current().nextInt(41);
             reaction = "开心";
         } else if (isDisliked) {
-            change = -(5 + new Random().nextInt(16));
+            change = -(5 + ThreadLocalRandom.current().nextInt(16));
             reaction = "嫌弃";
         } else {
-            change = 1 + new Random().nextInt(3);
+            change = 1 + ThreadLocalRandom.current().nextInt(3);
             reaction = "平淡";
         }
 

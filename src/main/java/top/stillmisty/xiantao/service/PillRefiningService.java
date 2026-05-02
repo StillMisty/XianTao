@@ -24,7 +24,6 @@ import java.util.*;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class PillRefiningService {
 
     private final ItemTemplateRepository itemTemplateRepository;
@@ -35,12 +34,14 @@ public class PillRefiningService {
 
     // ===================== 公开 API（含认证） =====================
 
+    @Transactional
     public ServiceResult<PillRefiningResultVO> refinePillAuto(PlatformType platform, String openId, String recipeName) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
         if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
         return new ServiceResult.Success<>(refinePillAuto(auth.userId(), recipeName));
     }
 
+    @Transactional
     public ServiceResult<PillRefiningResultVO> refinePillManual(PlatformType platform, String openId, List<String> herbInputs) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
         if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
@@ -49,6 +50,7 @@ public class PillRefiningService {
 
     // ===================== 内部 API =====================
 
+    @Transactional
     public PillRefiningResultVO refinePillAuto(Long userId, String recipeName) {
         List<PlayerPillRecipe> recipes = playerPillRecipeRepository.findByUserId(userId);
         PlayerPillRecipe targetRecipe = null;
@@ -83,6 +85,7 @@ public class PillRefiningService {
         return findBestCombination(userId, herbs, requirements, recipeTemplate);
     }
 
+    @Transactional
     public PillRefiningResultVO refinePillManual(Long userId, List<String> herbInputs) {
         List<HerbInput> parsedInputs = parseHerbInputs(userId, herbInputs);
         if (parsedInputs.isEmpty()) {

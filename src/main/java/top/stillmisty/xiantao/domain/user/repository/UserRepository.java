@@ -2,6 +2,7 @@ package top.stillmisty.xiantao.domain.user.repository;
 
 import top.stillmisty.xiantao.domain.user.entity.User;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository {
@@ -15,6 +16,11 @@ public interface UserRepository {
      * 根据ID查找用户
      */
     Optional<User> findById(Long id);
+
+    /**
+     * 根据ID列表批量查找用户
+     */
+    List<User> findByIds(List<Long> ids);
 
     /**
      * 检查昵称是否已存在

@@ -29,7 +29,6 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class PillConsumptionService {
 
     private static final double GRADE_DECAY_COEFFICIENT = 0.2;
@@ -42,6 +41,7 @@ public class PillConsumptionService {
 
     // ===================== 公开 API（含认证） =====================
 
+    @Transactional
     public ServiceResult<String> takePill(PlatformType platform, String openId, String pillName) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
         if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
@@ -53,6 +53,7 @@ public class PillConsumptionService {
     /**
      * 服用丹药（内部调用，物品扣减由 ItemUseService 统一处理）
      */
+    @Transactional
     public String takePill(Long userId, String pillName) {
         StackableItem pill = findPill(userId, pillName);
         if (pill == null) return "背包中未找到丹药：" + pillName;

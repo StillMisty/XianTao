@@ -18,11 +18,15 @@ import top.stillmisty.xiantao.domain.map.vo.TrainingRewardVO;
 import top.stillmisty.xiantao.domain.map.vo.TrainingStartResult;
 import top.stillmisty.xiantao.domain.monster.EncounterCalculator;
 import top.stillmisty.xiantao.domain.monster.HighlightBattleDetector;
+import top.stillmisty.xiantao.domain.monster.Monster;
 import top.stillmisty.xiantao.domain.monster.Team;
 import top.stillmisty.xiantao.domain.monster.entity.MonsterTemplate;
 import top.stillmisty.xiantao.domain.monster.repository.MonsterTemplateRepository;
 import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
+import top.stillmisty.xiantao.domain.monster.vo.CombatLogEntry;
 import top.stillmisty.xiantao.domain.monster.vo.DropItem;
+import top.stillmisty.xiantao.domain.skill.entity.Skill;
+import top.stillmisty.xiantao.domain.skill.repository.SkillRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
@@ -40,7 +44,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class TrainingService {
 
     private static final long BASE_EXP_PER_MINUTE = 2;
@@ -58,6 +61,7 @@ public class TrainingService {
     private final HighlightBattleDetector highlightBattleDetector;
     private final PostCombatProcessor postCombatProcessor;
     private final DropProcessor dropProcessor;
+    private final SkillRepository skillRepository;
 
     // ===================== 公开 API（含认证） =====================
 
@@ -146,6 +150,7 @@ public class TrainingService {
                 .build();
     }
 
+    @Transactional
     public TrainingStartResult startTraining(Long userId) {
         User user = userRepository.findById(userId).orElseThrow();
 
@@ -182,6 +187,7 @@ public class TrainingService {
 
     private static final int DEFAULT_MAX_ROUNDS = 20;
 
+    @Transactional
     public TrainingRewardVO endTraining(Long userId) {
         User user = userRepository.findById(userId).orElseThrow();
 
@@ -286,6 +292,24 @@ public class TrainingService {
 
         Map<Long, Beast> beastCache = new LinkedHashMap<>();
 
+        // 预加载怪物模板，避免 N+1 查询
+        var templateIds = new ArrayList<>(monsterEncounters.keySet());
+        Map<Long, MonsterTemplate> templateMap = monsterTemplateRepository.findByIds(templateIds).stream()
+                .collect(Collectors.toMap(MonsterTemplate::getId, t -> t));
+
+        // 预加载所有相关技能，避免 N+1 查询
+        var skillIds = templateMap.values().stream()
+                .flatMap(t -> t.getSkills() != null ? t.getSkills().stream() : java.util.stream.Stream.of())
+                .distinct()
+                .toList();
+        Map<Long, top.stillmisty.xiantao.domain.skill.entity.Skill> skillMap;
+        if (!skillIds.isEmpty()) {
+            skillMap = skillRepository.findByIds(skillIds).stream()
+                    .collect(Collectors.toMap(Skill::getId, s -> s));
+        } else {
+            skillMap = Map.of();
+        }
+
         for (int i = 0; i < encounterParams.encounterChances(); i++) {
             if (ThreadLocalRandom.current().nextDouble() >= encounterParams.encounterChance()) continue;
 
@@ -293,14 +317,14 @@ public class TrainingService {
             if (selectedTemplateId == null) continue;
 
             MonsterSpawn spawn = monsterEncounters.get(selectedTemplateId);
-            MonsterTemplate tmpl = monsterTemplateRepository.findById(selectedTemplateId).orElse(null);
+            MonsterTemplate tmpl = templateMap.get(selectedTemplateId);
             if (tmpl == null) continue;
 
             totalEncounters++;
             int count = spawn.min() + ThreadLocalRandom.current().nextInt(spawn.max() - spawn.min() + 1);
 
             Team playerTeam = combatService.buildPlayerTeam(user);
-            Team monsterTeam = combatService.buildMonsterTeam(tmpl, count);
+            Team monsterTeam = buildMonsterTeamWithSkills(tmpl, count, skillMap);
 
             BattleResultVO result = combatService.simulate(playerTeam, monsterTeam, DEFAULT_MAX_ROUNDS);
             totalRounds += result.rounds();
@@ -361,6 +385,19 @@ public class TrainingService {
     }
 
     // ===================== 辅助方法 =====================
+
+    private Team buildMonsterTeamWithSkills(MonsterTemplate tmpl, int count, Map<Long, Skill> skillMap) {
+        Team team = new Team(0L, "Monsters");
+        for (int j = 0; j < count; j++) {
+            List<Skill> monsterSkills = tmpl.getSkills() != null && !tmpl.getSkills().isEmpty()
+                    ? tmpl.getSkills().stream().map(skillMap::get).filter(Objects::nonNull).toList()
+                    : List.of();
+            int monsterLevel = tmpl.getBaseLevel() + ThreadLocalRandom.current().nextInt(-2, 3);
+            monsterLevel = Math.max(1, monsterLevel);
+            team.addMember(new Monster(tmpl, monsterLevel, monsterSkills));
+        }
+        return team;
+    }
 
     private void saveBeastCache(Map<Long, Beast> beastCache) {
         for (Beast beast : beastCache.values()) {

@@ -30,11 +30,11 @@ import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional
 public class BeastService {
 
     private final FudiRepository fudiRepository;
@@ -156,6 +156,7 @@ public class BeastService {
 
     // ===================== 灵兽系统 — 孵化 =====================
 
+    @Transactional
     public PenCellVO hatchBeast(Long userId, String position, String eggName) {
         Integer cellId = parseCellId(position);
         Fudi fudi = getFudiByUserId(userId)
@@ -195,7 +196,7 @@ public class BeastService {
 
         BeastQuality quality = rollBeastQuality();
 
-        boolean isMutant = new Random().nextInt(100) < 5;
+        boolean isMutant = ThreadLocalRandom.current().nextInt(100) < 5;
         List<String> mutationTraits = new ArrayList<>();
         if (isMutant) {
             mutationTraits.add(rollRandomTrait());
@@ -252,6 +253,7 @@ public class BeastService {
         return buildPenCellVO(cell);
     }
 
+    @Transactional
     public PenCellVO hatchBeastByInput(Long userId, String position, String input) {
         Integer cellId = parseCellId(position);
         var result = itemResolver.resolveEgg(userId, input);
@@ -274,6 +276,7 @@ public class BeastService {
         };
     }
 
+    @Transactional
     PenCellVO hatchBeastWithTemplate(Long userId, Integer cellId, ItemTemplate eggTemplate) {
         Fudi fudi = getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
@@ -300,7 +303,7 @@ public class BeastService {
         deductSpiritStones(userId, stoneCost);
 
         BeastQuality quality = rollBeastQuality();
-        boolean isMutant = new Random().nextInt(100) < 5;
+        boolean isMutant = ThreadLocalRandom.current().nextInt(100) < 5;
         List<String> mutationTraits = new ArrayList<>();
         if (isMutant) mutationTraits.add(rollRandomTrait());
 
@@ -357,6 +360,7 @@ public class BeastService {
 
     // ===================== 灵兽系统 — 放生与进化 =====================
 
+    @Transactional
     public Map<String, Object> releaseBeast(Long userId, String position) {
         Integer cellId = parseCellId(position);
         Fudi fudi = getFudiByUserId(userId)
@@ -384,6 +388,7 @@ public class BeastService {
         return Map.of("beastName", beastName, "tier", tier, "quality", qualityStr);
     }
 
+    @Transactional
     public PenCellVO evolveBeast(Long userId, String position, String mode) {
         Integer cellId = parseCellId(position);
         Fudi fudi = getFudiByUserId(userId)
@@ -420,6 +425,7 @@ public class BeastService {
 
     // ===================== 灵兽系统 — 等阶进化 =====================
 
+    @Transactional
     PenCellVO evolveBeastTier(Fudi fudi, FudiCell cell, Long userId, Integer cellId) {
         Beast beast = findBeastByCell(cell);
         if (beast == null) {
@@ -442,7 +448,7 @@ public class BeastService {
         Spirit spirit = spiritRepository.findByFudiId(fudi.getId()).orElse(null);
         int affectionBonus = spirit != null && spirit.getAffection() != null ? Math.min(15, spirit.getAffection() / 7) : 0;
         int successRate = 85 + affectionBonus;
-        boolean success = new Random().nextInt(100) < successRate;
+        boolean success = ThreadLocalRandom.current().nextInt(100) < successRate;
 
         if (!success) {
             throw new IllegalStateException("进化失败！进化石和灵石已消耗");
@@ -452,7 +458,7 @@ public class BeastService {
         beast.setHpCurrent(beast.getMaxHp());
 
         boolean qualityUpgraded = false;
-        if (new Random().nextInt(100) < 10 && !"divine".equals(beast.getQuality())) {
+        if (ThreadLocalRandom.current().nextInt(100) < 10 && !"divine".equals(beast.getQuality())) {
             beast.qualityBreak();
             qualityUpgraded = true;
         }
@@ -482,6 +488,7 @@ public class BeastService {
 
     // ===================== 灵兽系统 — 品质突破 =====================
 
+    @Transactional
     PenCellVO breakthroughBeastQuality(Fudi fudi, FudiCell cell, Long userId, Integer cellId) {
         Beast beast = findBeastByCell(cell);
         if (beast == null) {
@@ -518,7 +525,7 @@ public class BeastService {
             successRate += 10;
         }
 
-        boolean success = new Random().nextInt(100) < successRate;
+        boolean success = ThreadLocalRandom.current().nextInt(100) < successRate;
 
         if (!success) {
             throw new IllegalStateException("品质突破失败！进化石和灵石已消耗");
@@ -543,6 +550,7 @@ public class BeastService {
 
     // ===================== 灵兽系统 — 出战/召回 =====================
 
+    @Transactional
     public Map<String, Object> deployBeast(Long userId, String position) {
         Integer cellId = parseCellId(position);
         Fudi fudi = getFudiByUserId(userId)
@@ -586,6 +594,7 @@ public class BeastService {
         return Map.of("success", true, "message", "灵兽 [%s] 已出战".formatted(beastName));
     }
 
+    @Transactional
     public Map<String, Object> undeployBeast(Long userId, String position) {
         if ("all".equalsIgnoreCase(position)) {
             return undeployAllBeasts(userId);
@@ -638,6 +647,7 @@ public class BeastService {
 
     // ===================== 灵兽系统 — 恢复 =====================
 
+    @Transactional
     public Map<String, Object> recoverBeast(Long userId, String position) {
         if ("all".equalsIgnoreCase(position)) {
             return recoverAllBeasts(userId);
@@ -843,7 +853,7 @@ public class BeastService {
 
         int tier = beast.getTier() != null ? beast.getTier() : 1;
         double outputMultiplier = beast.getQualityMultiplier();
-        int perCycle = (int) Math.round(tier * outputMultiplier * (1 + new Random().nextInt(tier + 1)) / 2.0);
+        int perCycle = (int) Math.round(tier * outputMultiplier * (1 + ThreadLocalRandom.current().nextInt(tier + 1)) / 2.0);
         int produced = Math.max(1, perCycle * cycles);
 
         List<String> mutationTraits = beast.getMutationTraits();
@@ -875,7 +885,7 @@ public class BeastService {
                 }
             }
             if (mutationTraits != null && mutationTraits.contains("rare_produce")) {
-                if (new Random().nextInt(100) < 5) {
+                if (ThreadLocalRandom.current().nextInt(100) < 5) {
                     var higherItem = selectHigherTierItem(productionItems);
                     if (higherItem != null) {
                         cell.addProductionItem(higherItem.templateId(), higherItem.name(), 1);
@@ -915,7 +925,7 @@ public class BeastService {
         if (totalWeight <= 0) {
             return productionItems.get(0);
         }
-        int random = new Random().nextInt(totalWeight);
+        int random = ThreadLocalRandom.current().nextInt(totalWeight);
         int current = 0;
         for (var item : productionItems) {
             current += item.weight();
@@ -1077,7 +1087,7 @@ public class BeastService {
         if (currentSkills.size() >= 4) {
             return false;
         }
-        if (new Random().nextInt(100) >= 15) {
+        if (ThreadLocalRandom.current().nextInt(100) >= 15) {
             return false;
         }
         int totalWeight = 0;
@@ -1087,7 +1097,7 @@ public class BeastService {
         if (totalWeight <= 0) {
             return false;
         }
-        int random = new Random().nextInt(totalWeight);
+        int random = ThreadLocalRandom.current().nextInt(totalWeight);
         int current = 0;
         for (BeastSkillPoolVO.AwakeningSkill awakeningSkill : skillPool.awakeningSkills()) {
             current += awakeningSkill.weight();
@@ -1106,6 +1116,7 @@ public class BeastService {
 
     // ===================== 灵兽经验系统 =====================
 
+    @Transactional
     public long addBeastExp(Long beastId, long expToAdd) {
         Beast beast = beastRepository.findById(beastId).orElse(null);
         if (beast == null) {
@@ -1116,6 +1127,7 @@ public class BeastService {
         return actualAdd;
     }
 
+    @Transactional
     public void addExpToDeployedBeasts(Long userId, long expToAdd) {
         List<Beast> deployedBeasts = beastRepository.findByUserIdAndIsDeployed(userId, true);
         for (Beast beast : deployedBeasts) {
@@ -1131,7 +1143,7 @@ public class BeastService {
     // ===================== 灵兽变异/品质辅助方法 =====================
 
     BeastQuality rollBeastQuality() {
-        int roll = new Random().nextInt(1000);
+        int roll = ThreadLocalRandom.current().nextInt(1000);
         int cumulative = 0;
         for (BeastQuality q : BeastQuality.values()) {
             cumulative += q.getHatchWeight();
@@ -1141,11 +1153,11 @@ public class BeastService {
     }
 
     String rollRandomTrait() {
-        return MutationTrait.values()[new Random().nextInt(MutationTrait.values().length)].getCode();
+        return MutationTrait.values()[ThreadLocalRandom.current().nextInt(MutationTrait.values().length)].getCode();
     }
 
     boolean rollMutation(int chancePercent) {
-        return new Random().nextInt(100) < chancePercent;
+        return ThreadLocalRandom.current().nextInt(100) < chancePercent;
     }
 
     void addMutationTrait(Beast beast) {

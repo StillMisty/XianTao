@@ -24,12 +24,11 @@ import top.stillmisty.xiantao.service.annotation.ConsumeSpiritEnergy;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional
 public class FarmService {
 
     private final FudiRepository fudiRepository;
@@ -136,6 +135,7 @@ public class FarmService {
                 .build();
     }
 
+    @Transactional
     public FarmCellVO plantCropByName(Long userId, String position, String cropName) {
         Integer cellId = parseCellId(position);
         ItemTemplate seedTemplate = findSeedTemplateByName(cropName);
@@ -152,6 +152,7 @@ public class FarmService {
         return plantCrop(userId, cellId, cropId, cropName, cropTier);
     }
 
+    @Transactional
     public FarmCellVO plantCropByInput(Long userId, String position, String input) {
         Integer cellId = parseCellId(position);
         var result = itemResolver.resolveSeed(userId, input);
@@ -255,7 +256,7 @@ public class FarmService {
     // ===================== 辅助方法 =====================
 
     int calculateYield(Integer cropId, int tribulationStage) {
-        int baseYield = 1 + new Random().nextInt(3);
+        int baseYield = 1 + ThreadLocalRandom.current().nextInt(3);
         int bonus = tribulationStage / 5;
         return baseYield + bonus;
     }

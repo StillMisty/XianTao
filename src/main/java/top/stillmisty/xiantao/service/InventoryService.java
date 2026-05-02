@@ -27,7 +27,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class InventoryService {
 
     private final UserRepository userRepository;

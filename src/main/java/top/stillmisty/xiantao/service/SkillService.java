@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class SkillService {
 
     private final AuthenticationService authService;
@@ -38,6 +37,7 @@ public class SkillService {
 
     // ===================== 公开 API（含认证） =====================
 
+    @Transactional
     public ServiceResult<SkillSlotResult> learnFromJade(PlatformType platform, String openId, String jadeInput) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
         if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
@@ -56,12 +56,14 @@ public class SkillService {
         return new ServiceResult.Success<>(getEquippedSkills(auth.userId()));
     }
 
+    @Transactional
     public ServiceResult<SkillSlotResult> equipSkill(PlatformType platform, String openId, String skillInput) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
         if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
         return new ServiceResult.Success<>(equipSkill(auth.userId(), skillInput));
     }
 
+    @Transactional
     public ServiceResult<SkillSlotResult> unequipSkill(PlatformType platform, String openId, String skillInput) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
         if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
@@ -70,6 +72,7 @@ public class SkillService {
 
     // ===================== 内部 API（需预先完成认证） =====================
 
+    @Transactional
     public SkillSlotResult learnFromJade(Long userId, String jadeInput) {
         // 1. 查找用户背包中的法决玉简
         var jadeItems = stackableItemRepository.findByUserId(userId).stream()
@@ -198,6 +201,7 @@ public class SkillService {
                 .toList();
     }
 
+    @Transactional
     SkillSlotResult equipSkill(Long userId, String skillInput) {
         // 1. 获取已学法决
         var playerSkills = playerSkillRepository.findByUserId(userId);
@@ -262,6 +266,7 @@ public class SkillService {
                 .build();
     }
 
+    @Transactional
     SkillSlotResult unequipSkill(Long userId, String skillInput) {
         // 1. 获取已装载法决
         var equippedSkills = playerSkillRepository.findEquippedByUserId(userId);

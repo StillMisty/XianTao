@@ -18,7 +18,6 @@ import java.util.Optional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class TravelService {
 
     private final UserRepository userRepository;
@@ -27,6 +26,7 @@ public class TravelService {
 
     // ===================== 公开 API =====================
 
+    @Transactional
     public ServiceResult<TravelResultVO> startTravel(PlatformType platform, String openId, String mapName) {
         var auth = authService.authenticateAndValidateStatus(platform, openId, UserStatus.IDLE);
         if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
@@ -35,6 +35,7 @@ public class TravelService {
 
     // ===================== 内部 API =====================
 
+    @Transactional
     public TravelResultVO startTravel(Long userId, String mapName) {
         User user = userRepository.findById(userId).orElseThrow();
 

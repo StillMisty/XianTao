@@ -19,7 +19,6 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class StackableItemService {
 
     private final UserRepository userRepository;

@@ -25,7 +25,6 @@ import java.util.Objects;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class PillRecipeService {
 
     private final ItemTemplateRepository itemTemplateRepository;
@@ -47,6 +46,7 @@ public class PillRecipeService {
         return new ServiceResult.Success<>(getRecipeDetail(auth.userId(), recipeName));
     }
 
+    @Transactional
     public ServiceResult<PillRecipeVO> learnRecipe(PlatformType platform, String openId, String recipeName) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
         if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
@@ -82,6 +82,7 @@ public class PillRecipeService {
         return null;
     }
 
+    @Transactional
     public PillRecipeVO learnRecipe(Long userId, String recipeName) {
         List<StackableItem> items = stackableItemRepository.findByUserId(userId);
         StackableItem recipeItem = null;

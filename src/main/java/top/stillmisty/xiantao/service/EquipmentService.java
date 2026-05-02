@@ -16,6 +16,7 @@ import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * 装备服务
@@ -24,7 +25,6 @@ import java.util.*;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class EquipmentService {
 
     private final UserRepository userRepository;
@@ -53,6 +53,7 @@ public class EquipmentService {
     /**
      * 装备穿戴（装备 [物品名/编号]）
      */
+    @Transactional
     public EquipResult equipItem(Long userId, String input) {
         userRepository.findById(userId).orElseThrow();
 
@@ -124,6 +125,7 @@ public class EquipmentService {
     /**
      * 装备卸下（卸下 [部位]）
      */
+    @Transactional
     public UnequipResult unequipItem(Long userId, String slotName) {
         EquipmentSlot slot = EquipmentSlot.fromChineseName(slotName);
         if (slot == null) {
@@ -167,6 +169,7 @@ public class EquipmentService {
     /**
      * 创建装备实例（稀有度加权随机）
      */
+    @Transactional
     public Equipment createEquipment(Long userId, Long templateId) {
         var equipTmpl = equipmentTemplateRepository.findByTemplateId(templateId).orElse(null);
         if (equipTmpl == null) return null;
@@ -182,7 +185,7 @@ public class EquipmentService {
         if (rarity == Rarity.LEGENDARY) {
             pool.addAll(List.of(AffixType.getSpecialAffixes()));
         }
-        Collections.shuffle(pool, new Random());
+        Collections.shuffle(pool, ThreadLocalRandom.current());
         for (int i = 0; i < affixCount && i < pool.size(); i++) {
             AffixType at = pool.get(i);
             int value = at.isSpecial() ? 5 : (1 + (int) (Math.random() * 4));

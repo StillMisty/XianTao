@@ -22,7 +22,6 @@ import java.util.Random;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class UserService {
 
     private static final Random RANDOM = new Random();
@@ -38,6 +37,7 @@ public class UserService {
      * @param nickname 玩家道号
      * @return 注册结果
      */
+    @Transactional
     public RegisterResult createUser(PlatformType platform, String openId, String nickname) {
         // 检查是否已注册
         var existingAuth = userAuthRepository.findByPlatformAndOpenId(platform, openId);

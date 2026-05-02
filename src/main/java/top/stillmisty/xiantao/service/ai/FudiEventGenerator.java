@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * 福地事件生成器
@@ -22,8 +22,6 @@ public class FudiEventGenerator {
     private static final int MAX_EVENTS = 6;
     private static final int MIN_HOURS_BETWEEN_EVENTS = 4;
     private static final int MAX_HOURS_BETWEEN_EVENTS = 8;
-
-    private final Random random = new Random();
 
     /**
      * 生成福地事件列表
@@ -49,7 +47,7 @@ public class FudiEventGenerator {
         List<FudiEvent> selectedEvents = new ArrayList<>();
         
         for (int i = 0; i < eventCount && i < MAX_EVENTS; i++) {
-            FudiEvent event = allEvents.get(random.nextInt(allEvents.size()));
+            FudiEvent event = allEvents.get(ThreadLocalRandom.current().nextInt(allEvents.size()));
             // 避免重复事件
             if (!selectedEvents.contains(event)) {
                 selectedEvents.add(event);
@@ -67,13 +65,13 @@ public class FudiEventGenerator {
     private int calculateEventCount(LocalDateTime lastEventTime, LocalDateTime now) {
         if (lastEventTime == null) {
             // 首次对话，生成1-2个事件
-            return MIN_EVENTS + random.nextInt(2);
+            return MIN_EVENTS + ThreadLocalRandom.current().nextInt(2);
         }
 
         long hoursSinceLastEvent = ChronoUnit.HOURS.between(lastEventTime, now);
         
         // 每4-8小时生成一个事件
-        int baseCount = (int) (hoursSinceLastEvent / (MIN_HOURS_BETWEEN_EVENTS + random.nextInt(5)));
+        int baseCount = (int) (hoursSinceLastEvent / (MIN_HOURS_BETWEEN_EVENTS + ThreadLocalRandom.current().nextInt(5)));
         
         // 限制在1-6之间
         return Math.max(MIN_EVENTS, Math.min(MAX_EVENTS, baseCount));

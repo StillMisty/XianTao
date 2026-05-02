@@ -3,7 +3,6 @@ package top.stillmisty.xiantao.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
 import top.stillmisty.xiantao.domain.item.vo.CharacterStatusResult;
@@ -26,7 +25,6 @@ import java.util.Optional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class CharacterStatusService {
 
     private final UserRepository userRepository;
