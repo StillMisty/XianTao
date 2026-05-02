@@ -9,7 +9,7 @@ import top.stillmisty.xiantao.infrastructure.mapper.SpiritMapper;
 
 import java.util.Optional;
 
-import static top.stillmisty.xiantao.domain.land.entity.table.SpiritTableDef.SPIRIT;
+import static top.stillmisty.xiantao.domain.fudi.entity.table.SpiritTableDef.SPIRIT;
 
 @Repository
 @RequiredArgsConstructor

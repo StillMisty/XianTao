@@ -9,7 +9,7 @@ import top.stillmisty.xiantao.infrastructure.mapper.SpiritHistoryMapper;
 
 import java.util.List;
 
-import static top.stillmisty.xiantao.domain.land.entity.table.SpiritHistoryTableDef.SPIRIT_HISTORY;
+import static top.stillmisty.xiantao.domain.fudi.entity.table.SpiritHistoryTableDef.SPIRIT_HISTORY;
 
 @Repository
 @RequiredArgsConstructor

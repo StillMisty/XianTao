@@ -11,7 +11,8 @@ import top.stillmisty.xiantao.infrastructure.mapper.FudiCellMapper;
 import java.util.List;
 import java.util.Optional;
 
-import static top.stillmisty.xiantao.domain.land.entity.table.FudiCellTableDef.FUDI_CELL;
+import static top.stillmisty.xiantao.domain.fudi.entity.table.FudiCellTableDef.FUDI_CELL;
+
 
 @Repository
 @RequiredArgsConstructor

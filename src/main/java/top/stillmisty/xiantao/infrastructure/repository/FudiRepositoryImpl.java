@@ -9,7 +9,7 @@ import top.stillmisty.xiantao.infrastructure.mapper.FudiMapper;
 
 import java.util.Optional;
 
-import static top.stillmisty.xiantao.domain.land.entity.table.FudiTableDef.FUDI;
+import static top.stillmisty.xiantao.domain.fudi.entity.table.FudiTableDef.FUDI;
 
 /**
  * 福地 Repository 实现
