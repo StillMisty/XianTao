@@ -32,14 +32,13 @@ import java.util.List;
 @Transactional
 public class PillConsumptionService {
 
+    private static final double GRADE_DECAY_COEFFICIENT = 0.2;
     private final UserRepository userRepository;
     private final ItemTemplateRepository itemTemplateRepository;
     private final StackableItemRepository stackableItemRepository;
     private final PillResistanceRepository pillResistanceRepository;
     private final PlayerBuffRepository playerBuffRepository;
     private final AuthenticationService authService;
-
-    private static final double GRADE_DECAY_COEFFICIENT = 0.2;
 
     // ===================== 公开 API（含认证） =====================
 
@@ -129,10 +128,22 @@ public class PillConsumptionService {
         if (actualStat <= 0) return null;
 
         var statName = switch (e.statAttr()) {
-            case "str" -> { user.addStatStr(actualStat); yield "力道"; }
-            case "con" -> { user.addStatCon(actualStat); yield "根骨"; }
-            case "agi" -> { user.addStatAgi(actualStat); yield "身法"; }
-            case "wis" -> { user.addStatWis(actualStat); yield "悟性"; }
+            case "str" -> {
+                user.addStatStr(actualStat);
+                yield "力道";
+            }
+            case "con" -> {
+                user.addStatCon(actualStat);
+                yield "根骨";
+            }
+            case "agi" -> {
+                user.addStatAgi(actualStat);
+                yield "身法";
+            }
+            case "wis" -> {
+                user.addStatWis(actualStat);
+                yield "悟性";
+            }
             default -> null;
         };
         if (statName == null) return null;
@@ -184,6 +195,7 @@ public class PillConsumptionService {
 
     /**
      * 计算等级衰减
+     *
      * @param withFloor 是否有保底（exp/breakthrough 有0.1保底，stat无保底）
      */
     private double calcGradeDecay(int playerLevel, int pillGrade, boolean withFloor) {

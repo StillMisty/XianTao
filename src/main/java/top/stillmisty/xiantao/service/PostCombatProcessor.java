@@ -31,12 +31,16 @@ public class PostCombatProcessor {
         }
     }
 
-    public void applyHpToBeasts(Team team, User user, boolean playerWon, boolean isHighlightBattle,
-                                 Map<Long, Beast> beastCache) {
+    public void applyHpToBeasts(
+            Team team, User user, boolean playerWon, boolean isHighlightBattle,
+            Map<Long, Beast> beastCache
+    ) {
         for (Combatant c : team.members()) {
             if (c instanceof BeastCombatant) {
-                Beast beast = beastCache.computeIfAbsent(c.getId(),
-                        id -> beastRepository.findById(id).orElse(null));
+                Beast beast = beastCache.computeIfAbsent(
+                        c.getId(),
+                        id -> beastRepository.findById(id).orElse(null)
+                );
                 if (beast == null) continue;
 
                 beast.setHpCurrent(c.getHp());

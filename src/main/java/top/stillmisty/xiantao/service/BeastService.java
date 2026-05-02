@@ -13,7 +13,6 @@ import top.stillmisty.xiantao.domain.fudi.entity.FudiCell;
 import top.stillmisty.xiantao.domain.fudi.entity.Spirit;
 import top.stillmisty.xiantao.domain.fudi.enums.BeastQuality;
 import top.stillmisty.xiantao.domain.fudi.enums.CellType;
-import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
 import top.stillmisty.xiantao.domain.fudi.enums.MutationTrait;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiCellRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
@@ -28,7 +27,6 @@ import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
-import top.stillmisty.xiantao.service.annotation.ConsumeSpiritEnergy;
 
 import java.time.LocalDateTime;
 import java.util.*;

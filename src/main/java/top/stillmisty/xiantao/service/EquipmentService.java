@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
 import top.stillmisty.xiantao.domain.item.enums.AffixType;
 import top.stillmisty.xiantao.domain.item.enums.EquipmentSlot;
-import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.enums.Rarity;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentTemplateRepository;

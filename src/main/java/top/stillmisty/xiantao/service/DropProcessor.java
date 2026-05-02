@@ -10,7 +10,6 @@ import top.stillmisty.xiantao.domain.monster.vo.DropItem;
 import top.stillmisty.xiantao.domain.monster.vo.DropItem.DropType;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
@@ -37,7 +36,7 @@ public class DropProcessor {
                 int weight = ((Number) entry.getValue()).intValue();
                 if (ThreadLocalRandom.current().nextInt(100) < weight) {
                     itemTemplateRepository.findById(templateId).ifPresent(tmplItem ->
-                            drops.add(new DropItem(DropItem.DropType.EQUIPMENT, templateId, tmplItem.getName(), 1)));
+                                                                                  drops.add(new DropItem(DropItem.DropType.EQUIPMENT, templateId, tmplItem.getName(), 1)));
                 }
             }
         }

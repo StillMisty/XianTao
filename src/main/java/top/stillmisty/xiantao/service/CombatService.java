@@ -5,10 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
-import top.stillmisty.xiantao.domain.item.entity.Equipment;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentTemplateRepository;
-import top.stillmisty.xiantao.domain.map.entity.MonsterSpawn;
 import top.stillmisty.xiantao.domain.monster.*;
 import top.stillmisty.xiantao.domain.monster.entity.MonsterTemplate;
 import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
@@ -19,7 +17,6 @@ import top.stillmisty.xiantao.domain.skill.repository.SkillRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Slf4j
@@ -53,7 +50,7 @@ public class CombatService {
         }
 
         team.addMember(new PlayerCombatant(user, equipmentRepository, equipmentTemplateRepository)
-                .withBuffs(attackBuff, defenseBuff, speedBuff));
+                               .withBuffs(attackBuff, defenseBuff, speedBuff));
 
         List<Beast> deployed = beastRepository.findDeployedByUserId(user.getId());
         int beastLimit = Math.min(3, user.getLevel() / 5 + 1);
