@@ -62,9 +62,7 @@ public class PillConsumptionService {
         if (template == null) return "丹药数据错误";
 
         var props = template.typedProperties();
-        if (!(props instanceof ItemProperties.Potion potion)) return "丹药没有效果";
-        var effects = potion.effects();
-        if (effects == null || effects.isEmpty()) return "丹药没有效果";
+        if (!(props instanceof ItemProperties.Potion(List<ItemProperties.Effect> effects))) return "丹药没有效果";
 
         User user = userRepository.findById(userId).orElseThrow();
         double qualityMultiplier = getQualityMultiplier(pill.getQuality());

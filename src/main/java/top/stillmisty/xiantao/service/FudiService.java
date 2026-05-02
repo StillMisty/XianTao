@@ -38,7 +38,7 @@ public class FudiService {
 
     private final FudiRepository fudiRepository;
     private final FudiCellRepository fudiCellRepository;
-    private final ItemService itemService;
+    private final StackableItemService stackableItemService;
     private final AuthenticationService authService;
     private final ItemTemplateRepository itemTemplateRepository;
     private final StackableItemRepository stackableItemRepository;
@@ -658,7 +658,7 @@ public class FudiService {
                 String name = (String) item.get("name");
                 Integer quantity = ((Number) item.get("quantity")).intValue();
                 if (quantity > 0) {
-                    itemService.addStackableItem(fudi.getUserId(), templateId, ItemType.HERB, name, quantity);
+                    stackableItemService.addStackableItem(fudi.getUserId(), templateId, ItemType.HERB, name, quantity);
                     cellTotalItems += quantity;
                 }
             }

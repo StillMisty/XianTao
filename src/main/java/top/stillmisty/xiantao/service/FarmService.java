@@ -37,7 +37,7 @@ public class FarmService {
     private final ItemTemplateRepository itemTemplateRepository;
     private final StackableItemRepository stackableItemRepository;
     private final SpiritRepository spiritRepository;
-    private final ItemService itemService;
+    private final StackableItemService stackableItemService;
     private final AuthenticationService authService;
     private final ItemResolver itemResolver;
     private final UserRepository userRepository;
@@ -143,7 +143,7 @@ public class FarmService {
         var stackableItem = stackableItemRepository.findByUserIdAndTemplateId(userId, seedTemplate.getId())
                 .orElseThrow(() -> new IllegalStateException("背包中没有 [%s]".formatted(cropName)));
 
-        itemService.reduceStackableItem(userId, seedTemplate.getId(), 1);
+        stackableItemService.reduceStackableItem(userId, seedTemplate.getId(), 1);
 
         int growTime = seedTemplate.getGrowTime() != null ? seedTemplate.getGrowTime() : 24;
         int cropTier = getCropTier(growTime);
@@ -161,7 +161,7 @@ public class FarmService {
                         .findByUserIdAndTemplateId(userId, template.getId())
                         .orElseThrow(() -> new IllegalStateException("背包中没有 [" + template.getName() + "]"));
 
-                itemService.reduceStackableItem(userId, template.getId(), 1);
+                stackableItemService.reduceStackableItem(userId, template.getId(), 1);
 
                 int growTime = template.getGrowTime() != null ? template.getGrowTime() : 24;
                 int cropTier = getCropTier(growTime);

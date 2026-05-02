@@ -45,7 +45,7 @@ public class BeastService {
     private final ItemTemplateRepository itemTemplateRepository;
     private final StackableItemRepository stackableItemRepository;
     private final SpiritRepository spiritRepository;
-    private final ItemService itemService;
+    private final StackableItemService stackableItemService;
     private final AuthenticationService authService;
     private final UserRepository userRepository;
     private final ItemResolver itemResolver;
@@ -182,7 +182,7 @@ public class BeastService {
 
         var stackableItem = stackableItemRepository.findByUserIdAndTemplateId(userId, eggTemplate.getId())
                 .orElseThrow(() -> new IllegalStateException("背包中没有 [%s]".formatted(eggName)));
-        itemService.reduceStackableItem(userId, eggTemplate.getId(), 1);
+        stackableItemService.reduceStackableItem(userId, eggTemplate.getId(), 1);
 
         int tier = getCropTier(eggTemplate.getGrowTime() != null ? eggTemplate.getGrowTime() : 72);
 
@@ -262,7 +262,7 @@ public class BeastService {
                 var stackableItem = stackableItemRepository
                         .findByUserIdAndTemplateId(userId, template.getId())
                         .orElseThrow(() -> new IllegalStateException("背包中没有 [" + template.getName() + "]"));
-                itemService.reduceStackableItem(userId, template.getId(), 1);
+                stackableItemService.reduceStackableItem(userId, template.getId(), 1);
                 yield hatchBeastWithTemplate(userId, cellId, template);
             }
             case ItemResolver.NotFound(var name) -> throw new IllegalStateException("背包中未找到兽卵 [" + name + "]");
@@ -411,7 +411,7 @@ public class BeastService {
         if (stoneItem.getQuantity() < stoneCount) {
             throw new IllegalStateException("需要 %d 个进化石（当前%d）".formatted(stoneCount, stoneItem.getQuantity()));
         }
-        itemService.reduceStackableItem(userId, stoneTemplate.getId(), stoneCount);
+        stackableItemService.reduceStackableItem(userId, stoneTemplate.getId(), stoneCount);
 
         if ("升品".equals(mode)) {
             return breakthroughBeastQuality(fudi, cell, userId, cellId);
@@ -800,7 +800,7 @@ public class BeastService {
             String name = (String) item.get("name");
             Integer quantity = ((Number) item.get("quantity")).intValue();
             if (quantity > 0) {
-                itemService.addStackableItem(fudi.getUserId(), templateId, ItemType.HERB, name, quantity);
+                stackableItemService.addStackableItem(fudi.getUserId(), templateId, ItemType.HERB, name, quantity);
                 totalItems += quantity;
                 log.info("用户 {} 收取地块 {} 的灵兽产出: {} x{}", fudi.getUserId(), cellId, name, quantity);
             }

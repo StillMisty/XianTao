@@ -10,8 +10,10 @@ import top.stillmisty.xiantao.domain.item.vo.ItemEntry;
 import top.stillmisty.xiantao.domain.user.enums.AttributeType;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.vo.*;
+import top.stillmisty.xiantao.service.CharacterStatusService;
 import top.stillmisty.xiantao.service.CultivationService;
-import top.stillmisty.xiantao.service.ItemService;
+import top.stillmisty.xiantao.service.EquipmentService;
+import top.stillmisty.xiantao.service.InventoryService;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserService;
 
@@ -27,7 +29,9 @@ import java.util.List;
 public class CultivationCommandHandler {
 
     private final UserService userService;
-    private final ItemService itemService;
+    private final CharacterStatusService characterStatusService;
+    private final InventoryService inventoryService;
+    private final EquipmentService equipmentService;
     private final CultivationService cultivationService;
 
     /**
@@ -46,7 +50,7 @@ public class CultivationCommandHandler {
 
     public String handleStatus(PlatformType platform, String openId) {
         log.debug("处理状态查询 - Platform: {}, OpenId: {}", platform, openId);
-        var status = itemService.getCharacterStatus(platform, openId);
+        var status = characterStatusService.getCharacterStatus(platform, openId);
         return switch (status) {
             case ServiceResult.Failure(var msg) -> msg;
             case ServiceResult.Success(var vo) -> formatCharacterStatus(vo);
@@ -55,28 +59,28 @@ public class CultivationCommandHandler {
 
     public String handleInventory(PlatformType platform, String openId) {
         log.debug("处理背包查询 - Platform: {}, OpenId: {}", platform, openId);
-        return switch (itemService.getInventorySummary(platform, openId)) {
+        return switch (inventoryService.getInventorySummary(platform, openId)) {
             case ServiceResult.Failure(var msg) -> msg;
             case ServiceResult.Success(var vo) -> formatInventorySummary(vo);
         };
     }
 
     public String handleSeedInventory(PlatformType platform, String openId) {
-        return switch (itemService.getSeedInventory(platform, openId)) {
+        return switch (inventoryService.getSeedInventory(platform, openId)) {
             case ServiceResult.Failure(var msg) -> msg;
             case ServiceResult.Success(var entries) -> formatItemList("种子", entries);
         };
     }
 
     public String handleEquipmentInventory(PlatformType platform, String openId) {
-        return switch (itemService.getEquipmentInventory(platform, openId)) {
+        return switch (inventoryService.getEquipmentInventory(platform, openId)) {
             case ServiceResult.Failure(var msg) -> msg;
             case ServiceResult.Success(var entries) -> formatItemList("装备", entries);
         };
     }
 
     public String handleEggInventory(PlatformType platform, String openId) {
-        return switch (itemService.getEggInventory(platform, openId)) {
+        return switch (inventoryService.getEggInventory(platform, openId)) {
             case ServiceResult.Failure(var msg) -> msg;
             case ServiceResult.Success(var entries) -> formatItemList("兽卵", entries);
         };
@@ -84,7 +88,7 @@ public class CultivationCommandHandler {
 
     public String handleEquip(PlatformType platform, String openId, String itemName) {
         log.debug("处理装备穿戴 - Platform: {}, OpenId: {}, ItemName: {}", platform, openId, itemName);
-        return switch (itemService.equipItem(platform, openId, itemName)) {
+        return switch (equipmentService.equipItem(platform, openId, itemName)) {
             case ServiceResult.Failure(var msg) -> msg;
             case ServiceResult.Success(var vo) -> vo.isSuccess() ? formatEquipResult(vo) : vo.getMessage();
         };
@@ -92,7 +96,7 @@ public class CultivationCommandHandler {
 
     public String handleUnequip(PlatformType platform, String openId, String slotName) {
         log.debug("处理装备卸下 - Platform: {}, OpenId: {}, SlotName: {}", platform, openId, slotName);
-        return switch (itemService.unequipItem(platform, openId, slotName)) {
+        return switch (equipmentService.unequipItem(platform, openId, slotName)) {
             case ServiceResult.Failure(var msg) -> msg;
             case ServiceResult.Success(var vo) -> vo.isSuccess() ? formatUnequipResult(vo) : vo.getMessage();
         };

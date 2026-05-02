@@ -26,7 +26,7 @@ public class SpiritTools {
     private final FudiService fudiService;
     private final BeastService beastService;
     private final FarmService farmService;
-    private final ItemService itemService;
+    private final InventoryService inventoryService;
     private final FudiRepository fudiRepository;
     private final SpiritRepository spiritRepository;
 
@@ -73,7 +73,7 @@ public class SpiritTools {
             Long userId = getCurrentUserId();
             var response = switch (category) {
                 case "种子" -> {
-                    var list = itemService.getSeedInventory(userId);
+                    var list = inventoryService.getSeedInventory(userId);
                     if (list.isEmpty()) yield "背包中没有种子。";
                     var sb = new StringBuilder("【种子列表】\n");
                     for (var e : list) {
@@ -84,7 +84,7 @@ public class SpiritTools {
                     yield sb.toString().strip();
                 }
                 case "装备" -> {
-                    var list = itemService.getEquipmentInventory(userId);
+                    var list = inventoryService.getEquipmentInventory(userId);
                     if (list.isEmpty()) yield "背包中没有可装备的物品。";
                     var sb = new StringBuilder("【装备列表】\n");
                     for (var e : list) {
@@ -94,7 +94,7 @@ public class SpiritTools {
                     yield sb.toString().strip();
                 }
                 case "兽卵" -> {
-                    var list = itemService.getEggInventory(userId);
+                    var list = inventoryService.getEggInventory(userId);
                     if (list.isEmpty()) yield "背包中没有兽卵。";
                     var sb = new StringBuilder("【兽卵列表】\n");
                     for (var e : list) {

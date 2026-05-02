@@ -31,7 +31,7 @@ public class PillRefiningService {
     private final StackableItemRepository stackableItemRepository;
     private final PlayerPillRecipeRepository playerPillRecipeRepository;
     private final AuthenticationService authService;
-    private final ItemService itemService;
+    private final StackableItemService stackableItemService;
 
     // ===================== 公开 API（含认证） =====================
 
@@ -117,7 +117,7 @@ public class PillRefiningService {
                 String quality = determineQuality(qualityScore);
 
                 for (HerbInput input : parsedInputs) {
-                    itemService.reduceStackableItem(userId, input.herb().getTemplateId(), input.quantity());
+                    stackableItemService.reduceStackableItem(userId, input.herb().getTemplateId(), input.quantity());
                 }
 
                 long resultItemId = recipeScroll.product().itemId();
@@ -198,7 +198,7 @@ public class PillRefiningService {
         for (Map.Entry<String, Integer> entry : usedHerbs.entrySet()) {
             for (StackableItem herb : herbs) {
                 if (herb.getName().equals(entry.getKey())) {
-                    itemService.reduceStackableItem(userId, herb.getTemplateId(), entry.getValue());
+                    stackableItemService.reduceStackableItem(userId, herb.getTemplateId(), entry.getValue());
                     break;
                 }
             }

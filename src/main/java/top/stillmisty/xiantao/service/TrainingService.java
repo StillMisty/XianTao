@@ -35,7 +35,8 @@ public class TrainingService {
     private final UserRepository userRepository;
     private final MapNodeRepository mapNodeRepository;
     private final AuthenticationService authService;
-    private final ItemService itemService;
+    private final EquipmentService equipmentService;
+    private final StackableItemService stackableItemService;
     private final ItemTemplateRepository itemTemplateRepository;
     private final CombatService combatService;
 
@@ -218,12 +219,12 @@ public class TrainingService {
                 if (templateId == null) continue;
 
                 if ("equipment".equals(type)) {
-                    itemService.createEquipment(userId, templateId);
+                    equipmentService.createEquipment(userId, templateId);
                 } else {
                     ItemType itemType = itemTemplateRepository.findById(templateId)
                             .map(ItemTemplate::getType)
                             .orElse(ItemType.MATERIAL);
-                    itemService.addStackableItem(userId, templateId, itemType, name, quantity);
+                    stackableItemService.addStackableItem(userId, templateId, itemType, name, quantity);
                 }
             }
         }

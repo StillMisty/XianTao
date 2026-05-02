@@ -42,7 +42,7 @@ public class BountyService {
     private final UserBountyRepository userBountyRepository;
     private final ItemTemplateRepository itemTemplateRepository;
     private final ExplorationDescriptionFunction explorationDescriptionFunction;
-    private final ItemService itemService;
+    private final StackableItemService stackableItemService;
     private final AuthenticationService authService;
 
     // ===================== 公开 API（含认证） =====================
@@ -326,7 +326,7 @@ public class BountyService {
             Long templateId = toLong(templateIdObj);
             int quantity = ((Number) item.get("quantity")).intValue();
             ItemType itemType = typeMap.getOrDefault(templateId, ItemType.MATERIAL);
-            itemService.addStackableItem(userId, templateId, itemType, name, quantity);
+            stackableItemService.addStackableItem(userId, templateId, itemType, name, quantity);
         }
     }
 

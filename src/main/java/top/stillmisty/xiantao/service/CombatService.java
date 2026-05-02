@@ -51,7 +51,8 @@ public class CombatService {
     private final MonsterTemplateRepository monsterTemplateRepository;
     private final SkillRepository skillRepository;
     private final BeastRepository beastRepository;
-    private final ItemService itemService;
+    private final EquipmentService equipmentService;
+    private final StackableItemService stackableItemService;
     private final AuthenticationService authService;
     private final CombatEngine combatEngine;
     private final EncounterCalculator encounterCalculator;
@@ -193,13 +194,13 @@ public class CombatService {
             String type = (String) drop.get("type");
             if ("equipment".equals(type)) {
                 Long templateId = toLong(drop.get("templateId"));
-                if (templateId != null) itemService.createEquipment(userId, templateId);
+                if (templateId != null) equipmentService.createEquipment(userId, templateId);
             } else if ("item".equals(type)) {
                 Long templateId = toLong(drop.get("templateId"));
                 String name = (String) drop.get("name");
                 Integer quantity = (Integer) drop.getOrDefault("quantity", 1);
                 if (templateId != null && name != null && quantity != null) {
-                    itemService.addStackableItem(userId, templateId, ItemType.MATERIAL, name, quantity);
+                    stackableItemService.addStackableItem(userId, templateId, ItemType.MATERIAL, name, quantity);
                 }
             }
         }

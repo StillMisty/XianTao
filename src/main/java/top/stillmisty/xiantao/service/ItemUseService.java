@@ -24,7 +24,7 @@ public class ItemUseService {
     private final List<ItemUseHandler> handlers;
     private final StackableItemRepository stackableItemRepository;
     private final ItemTemplateRepository itemTemplateRepository;
-    private final ItemService itemService;
+    private final StackableItemService stackableItemService;
     private final AuthenticationService authService;
 
     /**
@@ -79,7 +79,7 @@ public class ItemUseService {
 
         // 3. 统一扣减物品（除非 handler 自行管理消耗）
         if (!handler.consumesInternally()) {
-            itemService.reduceStackableItem(userId, finalItem.getTemplateId(), 1);
+            stackableItemService.reduceStackableItem(userId, finalItem.getTemplateId(), 1);
         }
 
         // 4. 执行使用
