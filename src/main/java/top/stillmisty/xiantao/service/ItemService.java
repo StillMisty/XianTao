@@ -245,17 +245,9 @@ public class ItemService {
                         )
                 ));
 
-        // 计算总物品数量
-        int totalSize = equipments.size()
-                + groupedItems.getOrDefault(ItemType.MATERIAL, List.of()).size()
-                + groupedItems.getOrDefault(ItemType.SEED, List.of()).size()
-                + groupedItems.getOrDefault(ItemType.BEAST_EGG, List.of()).size();
-
         return InventoryResult.builder()
                 .success(true)
                 .userId(userId)
-                .capacity(50)
-                .currentSize(totalSize)
                 .equipments(equipments)
                 .materials(groupedItems.getOrDefault(ItemType.MATERIAL, List.of()))
                 .seeds(groupedItems.getOrDefault(ItemType.SEED, List.of()))
@@ -619,13 +611,7 @@ public class ItemService {
             stackableItemCount.merge(item.getItemType(), 1, Integer::sum);
         }
 
-        // 计算总容量使用
-        int usedSlots = (int) allEquipments.stream().filter(e -> !e.getEquipped()).count()
-                + stackableItemCount.values().stream().mapToInt(Integer::intValue).sum();
-
         return InventorySummaryVO.builder()
-                .capacity(50)
-                .usedSlots(usedSlots)
                 .equipmentByQuality(equipmentByQuality)
                 .stackableItemCount(stackableItemCount)
                 .spiritStones(user.getSpiritStones())

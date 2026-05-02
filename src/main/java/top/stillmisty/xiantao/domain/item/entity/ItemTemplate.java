@@ -56,11 +56,6 @@ public class ItemTemplate {
     private Set<String> tags;
 
     /**
-     * 最大堆叠数量
-     */
-    private Integer maxStack;
-
-    /**
      * 物品描述
      */
     private String description;

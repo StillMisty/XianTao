@@ -16,16 +16,6 @@ import java.util.Map;
 public class InventorySummaryVO {
 
     /**
-     * 背包最大容量
-     */
-    private Integer capacity;
-
-    /**
-     * 已使用格子数
-     */
-    private Integer usedSlots;
-
-    /**
      * 装备按品质分组统计
      * 格式: {"破旧": 5, "普通": 10, "稀有": 3, "史诗": 1, "传说": 0}
      */

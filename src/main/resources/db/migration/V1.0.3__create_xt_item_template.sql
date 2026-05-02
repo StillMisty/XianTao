@@ -6,7 +6,6 @@ CREATE TABLE xt_item_template
     type        VARCHAR(32)  NOT NULL,
     properties  JSONB        DEFAULT '{}'::jsonb,
     tags        JSONB        DEFAULT '[]'::jsonb,
-    max_stack   INT          NOT NULL DEFAULT 1,
     description TEXT,
     create_time TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     update_time TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -22,7 +21,6 @@ COMMENT ON COLUMN xt_item_template.properties IS '类型特有属性 JSONB：
   灵兽卵: {"grow_time":72,"yields":["火灵兽"],"survive_rate":70}
   其他: {}';
 COMMENT ON COLUMN xt_item_template.tags IS '物品标签 JSONB，用于AI检索和NPC交互，示例: ["ore", "metal", "forge_base"]';
-COMMENT ON COLUMN xt_item_template.max_stack IS '最大堆叠数量';
 COMMENT ON COLUMN xt_item_template.description IS '物品描述';
 
 -- tags 字段 GIN 索引

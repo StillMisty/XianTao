@@ -219,7 +219,7 @@ public class CultivationCommandHandler {
 
     private String formatInventorySummary(InventorySummaryVO inventory) {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("【背包】%d/%d\n", inventory.getUsedSlots(), inventory.getCapacity()));
+        sb.append("【背包】\n");
         if (inventory.getEquipmentByQuality() != null && !inventory.getEquipmentByQuality().isEmpty()) {
             sb.append("\n【装备】\n");
             inventory.getEquipmentByQuality().forEach((quality, count) -> sb.append(String.format("  %s x%d\n", quality, count)));

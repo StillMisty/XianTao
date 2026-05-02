@@ -14,8 +14,6 @@ import java.util.List;
 public class InventoryVO {
 
     private Long userId;
-    private Integer capacity;
-    private Integer currentSize;
 
     // 按类型分组的物品
     private List<InventoryItem> equipments;

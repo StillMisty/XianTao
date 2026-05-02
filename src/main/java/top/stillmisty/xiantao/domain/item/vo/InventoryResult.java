@@ -18,8 +18,6 @@ public class InventoryResult {
     private String message;
 
     private Long userId;
-    private Integer capacity;
-    private Integer currentSize;
 
     // 按类型分组的物品
     private List<InventoryItem> equipments;
