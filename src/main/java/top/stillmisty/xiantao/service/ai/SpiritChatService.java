@@ -6,12 +6,13 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
-import top.stillmisty.xiantao.domain.land.entity.*;
-import top.stillmisty.xiantao.domain.land.enums.FudiEvent;
-import top.stillmisty.xiantao.domain.land.repository.FudiCellRepository;
-import top.stillmisty.xiantao.domain.land.repository.FudiRepository;
-import top.stillmisty.xiantao.domain.land.repository.SpiritHistoryRepository;
-import top.stillmisty.xiantao.domain.land.repository.SpiritRepository;
+import top.stillmisty.xiantao.domain.fudi.entity.*;
+import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
+import top.stillmisty.xiantao.domain.fudi.enums.FudiEvent;
+import top.stillmisty.xiantao.domain.fudi.repository.FudiCellRepository;
+import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
+import top.stillmisty.xiantao.domain.fudi.repository.SpiritHistoryRepository;
+import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.infrastructure.mapper.SpiritFormMapper;
 import top.stillmisty.xiantao.service.AuthenticationService;
@@ -162,7 +163,7 @@ public class SpiritChatService {
     /**
      * 保存对话历史
      */
-    private void saveHistory(Long fudiId, String role, String content, top.stillmisty.xiantao.domain.land.enums.EmotionState emotionState) {
+    private void saveHistory(Long fudiId, String role, String content, EmotionState emotionState) {
         SpiritHistory history = new SpiritHistory();
         history.setFudiId(fudiId);
         history.setRole(role);

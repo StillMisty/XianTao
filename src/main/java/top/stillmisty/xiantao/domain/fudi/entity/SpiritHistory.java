@@ -1,10 +1,10 @@
-package top.stillmisty.xiantao.domain.land.entity;
+package top.stillmisty.xiantao.domain.fudi.entity;
 
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import lombok.Data;
-import top.stillmisty.xiantao.domain.land.enums.EmotionState;
+import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
 
 import java.time.LocalDateTime;
 

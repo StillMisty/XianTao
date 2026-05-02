@@ -3,9 +3,10 @@ package top.stillmisty.xiantao.handle.command;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import top.stillmisty.xiantao.domain.land.enums.CellType;
-import top.stillmisty.xiantao.domain.land.vo.FarmCellVO;
-import top.stillmisty.xiantao.domain.land.vo.FudiStatusVO;
+import top.stillmisty.xiantao.domain.fudi.enums.CellType;
+import top.stillmisty.xiantao.domain.fudi.vo.FarmCellVO;
+import top.stillmisty.xiantao.domain.fudi.vo.FudiStatusVO;
+import top.stillmisty.xiantao.domain.fudi.vo.PenCellVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.service.FudiService;
 import top.stillmisty.xiantao.service.ServiceResult;
@@ -280,7 +281,7 @@ public class FudiCommandHandler {
         );
     }
 
-    private String formatHatchResult(top.stillmisty.xiantao.domain.land.vo.PenCellVO result) {
+    private String formatHatchResult(PenCellVO result) {
         StringBuilder sb = new StringBuilder();
         sb.append("✅ 已开始在地块 %s 孵化%s！\n".formatted(result.getCellId(), result.getBeastName()));
         sb.append("品质：%s | 等阶：T%d\n".formatted(result.getQuality(), result.getTier()));
@@ -293,7 +294,7 @@ public class FudiCommandHandler {
         return sb.toString();
     }
 
-    private String formatEvolveResult(top.stillmisty.xiantao.domain.land.vo.PenCellVO result, String mode) {
+    private String formatEvolveResult(PenCellVO result, String mode) {
         StringBuilder sb = new StringBuilder();
         sb.append("✅ %s成功！\n".formatted(mode));
         sb.append("灵兽：%s | 等阶：T%d | 品质：%s\n".formatted(result.getBeastName(), result.getTier(), result.getQuality()));

@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import top.stillmisty.xiantao.domain.land.enums.MBTIPersonality;
+import top.stillmisty.xiantao.domain.fudi.enums.MBTIPersonality;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.entity.UserAuth;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;

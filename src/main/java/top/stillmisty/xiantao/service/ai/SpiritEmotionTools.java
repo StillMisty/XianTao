@@ -5,9 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Component;
-import top.stillmisty.xiantao.domain.land.entity.Spirit;
-import top.stillmisty.xiantao.domain.land.enums.EmotionState;
-import top.stillmisty.xiantao.domain.land.repository.SpiritRepository;
+import top.stillmisty.xiantao.domain.fudi.entity.Spirit;
+import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
+import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
 import top.stillmisty.xiantao.service.UserContext;
 
 /**

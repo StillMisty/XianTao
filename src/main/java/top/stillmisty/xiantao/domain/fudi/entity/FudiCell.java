@@ -1,11 +1,11 @@
-package top.stillmisty.xiantao.domain.land.entity;
+package top.stillmisty.xiantao.domain.fudi.entity;
 
 import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import lombok.Data;
-import top.stillmisty.xiantao.domain.land.enums.CellType;
+import top.stillmisty.xiantao.domain.fudi.enums.CellType;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
 
 import java.time.LocalDateTime;

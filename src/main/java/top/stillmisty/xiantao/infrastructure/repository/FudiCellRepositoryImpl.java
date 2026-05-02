@@ -3,9 +3,9 @@ package top.stillmisty.xiantao.infrastructure.repository;
 import com.mybatisflex.core.query.QueryWrapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import top.stillmisty.xiantao.domain.land.entity.FudiCell;
-import top.stillmisty.xiantao.domain.land.enums.CellType;
-import top.stillmisty.xiantao.domain.land.repository.FudiCellRepository;
+import top.stillmisty.xiantao.domain.fudi.entity.FudiCell;
+import top.stillmisty.xiantao.domain.fudi.enums.CellType;
+import top.stillmisty.xiantao.domain.fudi.repository.FudiCellRepository;
 import top.stillmisty.xiantao.infrastructure.mapper.FudiCellMapper;
 
 import java.util.List;

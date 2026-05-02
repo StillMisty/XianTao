@@ -3,8 +3,8 @@ package top.stillmisty.xiantao.infrastructure.repository;
 import com.mybatisflex.core.query.QueryWrapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import top.stillmisty.xiantao.domain.land.entity.Spirit;
-import top.stillmisty.xiantao.domain.land.repository.SpiritRepository;
+import top.stillmisty.xiantao.domain.fudi.entity.Spirit;
+import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
 import top.stillmisty.xiantao.infrastructure.mapper.SpiritMapper;
 
 import java.util.Optional;

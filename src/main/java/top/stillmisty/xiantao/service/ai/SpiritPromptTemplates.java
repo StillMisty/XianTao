@@ -1,7 +1,7 @@
 package top.stillmisty.xiantao.service.ai;
 
 import org.springframework.stereotype.Component;
-import top.stillmisty.xiantao.domain.land.enums.MBTIPersonality;
+import top.stillmisty.xiantao.domain.fudi.enums.MBTIPersonality;
 
 @Component
 public class SpiritPromptTemplates {

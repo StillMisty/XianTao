@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
-import top.stillmisty.xiantao.domain.land.vo.PenCellVO;
+import top.stillmisty.xiantao.domain.fudi.vo.PenCellVO;
 import top.stillmisty.xiantao.service.FudiService;
 
 /**

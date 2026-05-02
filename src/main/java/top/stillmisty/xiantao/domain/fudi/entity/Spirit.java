@@ -1,4 +1,4 @@
-package top.stillmisty.xiantao.domain.land.entity;
+package top.stillmisty.xiantao.domain.fudi.entity;
 
 import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
@@ -8,8 +8,8 @@ import com.mybatisflex.core.activerecord.Model;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import top.stillmisty.xiantao.domain.land.enums.EmotionState;
-import top.stillmisty.xiantao.domain.land.enums.MBTIPersonality;
+import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
+import top.stillmisty.xiantao.domain.fudi.enums.MBTIPersonality;
 
 import java.time.LocalDateTime;
 

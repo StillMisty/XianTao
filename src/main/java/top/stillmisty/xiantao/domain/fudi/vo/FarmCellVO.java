@@ -1,4 +1,4 @@
-package top.stillmisty.xiantao.domain.land.vo;
+package top.stillmisty.xiantao.domain.fudi.vo;
 
 import lombok.Builder;
 import lombok.Data;

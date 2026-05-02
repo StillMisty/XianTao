@@ -1,4 +1,4 @@
-package top.stillmisty.xiantao.domain.land.enums;
+package top.stillmisty.xiantao.domain.fudi.enums;
 
 import com.mybatisflex.annotation.EnumValue;
 import lombok.Getter;

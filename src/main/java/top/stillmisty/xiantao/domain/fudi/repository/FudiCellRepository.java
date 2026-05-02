@@ -1,7 +1,7 @@
-package top.stillmisty.xiantao.domain.land.repository;
+package top.stillmisty.xiantao.domain.fudi.repository;
 
-import top.stillmisty.xiantao.domain.land.entity.FudiCell;
-import top.stillmisty.xiantao.domain.land.enums.CellType;
+import top.stillmisty.xiantao.domain.fudi.entity.FudiCell;
+import top.stillmisty.xiantao.domain.fudi.enums.CellType;
 
 import java.util.List;
 import java.util.Optional;

@@ -1,8 +1,8 @@
-package top.stillmisty.xiantao.domain.land.vo;
+package top.stillmisty.xiantao.domain.fudi.vo;
 
 import lombok.Builder;
 import lombok.Data;
-import top.stillmisty.xiantao.domain.land.enums.CellType;
+import top.stillmisty.xiantao.domain.fudi.enums.CellType;
 
 import java.time.LocalDateTime;
 import java.util.List;

@@ -6,10 +6,10 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
-import top.stillmisty.xiantao.domain.land.entity.Fudi;
-import top.stillmisty.xiantao.domain.land.entity.Spirit;
-import top.stillmisty.xiantao.domain.land.repository.FudiRepository;
-import top.stillmisty.xiantao.domain.land.repository.SpiritRepository;
+import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
+import top.stillmisty.xiantao.domain.fudi.entity.Spirit;
+import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
+import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
 import top.stillmisty.xiantao.service.annotation.ConsumeSpiritEnergy;
 
 import java.time.LocalDateTime;

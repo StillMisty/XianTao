@@ -1,4 +1,4 @@
-package top.stillmisty.xiantao.domain.land.entity;
+package top.stillmisty.xiantao.domain.fudi.entity;
 
 import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;

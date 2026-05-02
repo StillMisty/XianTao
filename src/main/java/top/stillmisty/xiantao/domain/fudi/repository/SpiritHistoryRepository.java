@@ -1,6 +1,6 @@
-package top.stillmisty.xiantao.domain.land.repository;
+package top.stillmisty.xiantao.domain.fudi.repository;
 
-import top.stillmisty.xiantao.domain.land.entity.SpiritHistory;
+import top.stillmisty.xiantao.domain.fudi.entity.SpiritHistory;
 
 import java.util.List;
 

@@ -1,9 +1,9 @@
-package top.stillmisty.xiantao.domain.land.vo;
+package top.stillmisty.xiantao.domain.fudi.vo;
 
 import lombok.Builder;
 import lombok.Data;
-import top.stillmisty.xiantao.domain.land.enums.EmotionState;
-import top.stillmisty.xiantao.domain.land.enums.MBTIPersonality;
+import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
+import top.stillmisty.xiantao.domain.fudi.enums.MBTIPersonality;
 
 import java.time.LocalDateTime;
 import java.util.List;
