@@ -14,7 +14,7 @@ import top.stillmisty.xiantao.domain.item.enums.ItemType;
 public class InventoryItem {
 
     /**
-     * 物品实例ID (对于装备) 或 模板ID (对于堆叠物品)
+     * 模板ID
      */
     private Long itemId;
 
@@ -29,12 +29,12 @@ public class InventoryItem {
     private String name;
 
     /**
-     * 数量 (堆叠物品使用)
+     * 数量
      */
     private Integer quantity;
 
     /**
-     * 创建便捷方法 - 堆叠类物品
+     * 创建便捷方法
      */
     public static InventoryItem forStackable(
             Long templateId, ItemType itemType,

@@ -9,7 +9,6 @@ import top.stillmisty.xiantao.domain.land.enums.CellType;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -146,7 +145,7 @@ public class FudiCell {
     public List<Map<String, Object>> getProductionStored() {
         Object value = getConfigValue("production_stored");
         if (value instanceof List<?> list) {
-            return (List<Map<String, Object>>) (List<?>) list;
+            return (List<Map<String, Object>>) list;
         }
         return new java.util.ArrayList<>();
     }
@@ -160,9 +159,10 @@ public class FudiCell {
 
     /**
      * 添加物品到累积产出
+     *
      * @param templateId 物品模板ID
-     * @param name 物品名称
-     * @param quantity 数量
+     * @param name       物品名称
+     * @param quantity   数量
      */
     public void addProductionItem(Long templateId, String name, int quantity) {
         List<Map<String, Object>> productionStored = getProductionStored();

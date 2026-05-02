@@ -31,18 +31,4 @@ public class SpiritHistoryRepositoryImpl implements SpiritHistoryRepository {
                 .limit(limit);
         return spiritHistoryMapper.selectListByQuery(queryWrapper);
     }
-
-    @Override
-    public void deleteByFudiId(Long fudiId) {
-        QueryWrapper queryWrapper = QueryWrapper.create()
-                .where(SPIRIT_HISTORY.FUDI_ID.eq(fudiId));
-        spiritHistoryMapper.deleteByQuery(queryWrapper);
-    }
-
-    @Override
-    public int countByFudiId(Long fudiId) {
-        QueryWrapper queryWrapper = QueryWrapper.create()
-                .where(SPIRIT_HISTORY.FUDI_ID.eq(fudiId));
-        return (int) spiritHistoryMapper.selectCountByQuery(queryWrapper);
-    }
 }

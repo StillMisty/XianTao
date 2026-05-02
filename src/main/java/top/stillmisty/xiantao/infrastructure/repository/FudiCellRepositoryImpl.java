@@ -62,24 +62,9 @@ public class FudiCellRepositoryImpl implements FudiCellRepository {
     }
 
     @Override
-    public void deleteByFudiId(Long fudiId) {
-        QueryWrapper queryWrapper = QueryWrapper.create()
-                .where(FUDI_CELL.FUDI_ID.eq(fudiId));
-        fudiCellMapper.deleteByQuery(queryWrapper);
-    }
-
-    @Override
     public int countByFudiId(Long fudiId) {
         QueryWrapper queryWrapper = QueryWrapper.create()
                 .where(FUDI_CELL.FUDI_ID.eq(fudiId));
-        return (int) fudiCellMapper.selectCountByQuery(queryWrapper);
-    }
-
-    @Override
-    public int countByFudiIdAndCellType(Long fudiId, CellType cellType) {
-        QueryWrapper queryWrapper = QueryWrapper.create()
-                .where(FUDI_CELL.FUDI_ID.eq(fudiId))
-                .and(FUDI_CELL.CELL_TYPE.eq(cellType.getCode()));
         return (int) fudiCellMapper.selectCountByQuery(queryWrapper);
     }
 }

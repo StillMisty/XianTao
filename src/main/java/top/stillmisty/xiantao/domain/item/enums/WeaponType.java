@@ -2,8 +2,6 @@ package top.stillmisty.xiantao.domain.item.enums;
 
 import lombok.Getter;
 
-import java.util.Map;
-
 /**
  * 法器子类型枚举
  */
@@ -40,13 +38,6 @@ public enum WeaponType {
     public static WeaponType fromCode(String code) {
         for (WeaponType type : values()) {
             if (type.code.equalsIgnoreCase(code)) return type;
-        }
-        return null;
-    }
-
-    public static WeaponType fromName(String name) {
-        for (WeaponType type : values()) {
-            if (type.name.equals(name)) return type;
         }
         return null;
     }

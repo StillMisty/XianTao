@@ -211,7 +211,7 @@ public class ItemService {
 
     /**
      * 查看背包（背包）
-     * 包含：装备、材料、种子、灵蛋、消耗品、灵石/铜币数量
+     * 包含：装备、材料、种子、灵蛋、消耗品、灵石数量
      *
      * @param userId 用户 ID
      * @return 背包内容 VO

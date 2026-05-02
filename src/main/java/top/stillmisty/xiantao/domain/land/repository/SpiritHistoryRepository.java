@@ -9,8 +9,4 @@ public interface SpiritHistoryRepository {
     SpiritHistory save(SpiritHistory history);
 
     List<SpiritHistory> findByFudiIdOrderByCreateTimeDesc(Long fudiId, int limit);
-
-    void deleteByFudiId(Long fudiId);
-
-    int countByFudiId(Long fudiId);
 }

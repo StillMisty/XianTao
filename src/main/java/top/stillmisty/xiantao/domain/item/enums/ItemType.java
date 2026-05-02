@@ -40,12 +40,4 @@ public enum ItemType {
         }
         return null;
     }
-
-    /**
-     * 检查是否为福地专供类（种子/灵兽卵/进化石）
-     */
-    public boolean isFudiItem() {
-        return this == SEED || this == BEAST_EGG || this == EVOLUTION_STONE;
-    }
-
 }

@@ -15,7 +15,7 @@ import java.util.Set;
 
 /**
  * 堆叠类物品实例实体
- * 用于存储：材料、种子、灵蛋、消耗品、草药、丹药、珍礼
+ * 用于存储：材料、种子、灵蛋、消耗品、草药、丹药
  */
 @Data
 @Table("xt_inventory_item")
@@ -51,7 +51,7 @@ public class StackableItem {
 
     /**
      * 物品标签 JSONB，用于AI检索和NPC交互
-     * 示例: ["ore", "metal", "forge_base"] 或 ["seed", "fire", "rare"]
+     * 示例: ["ore", "metal", "forge_base"]
      */
     @Column(typeHandler = PgJsonbTypeHandler.class)
     private Set<String> tags;
@@ -170,7 +170,6 @@ public class StackableItem {
      * @param elementCode 五行属性代码（metal, wood, water, fire, earth）
      * @return 属性值，不存在返回0
      */
-    @SuppressWarnings("unchecked")
     public int getElementValue(String elementCode) {
         if (properties == null || elementCode == null) return 0;
         Object elementsObj = properties.get("elements");

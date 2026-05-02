@@ -20,9 +20,5 @@ public interface FudiCellRepository {
 
     void deleteById(Long id);
 
-    void deleteByFudiId(Long fudiId);
-
     int countByFudiId(Long fudiId);
-
-    int countByFudiIdAndCellType(Long fudiId, CellType cellType);
 }
