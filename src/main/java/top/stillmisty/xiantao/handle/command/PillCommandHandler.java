@@ -6,7 +6,8 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.pill.vo.PillRecipeVO;
 import top.stillmisty.xiantao.domain.pill.vo.PillRefiningResultVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
-import top.stillmisty.xiantao.service.PillService;
+import top.stillmisty.xiantao.service.PillRecipeService;
+import top.stillmisty.xiantao.service.PillRefiningService;
 import top.stillmisty.xiantao.service.ServiceResult;
 
 import java.util.List;
@@ -21,14 +22,15 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class PillCommandHandler {
 
-    private final PillService pillService;
+    private final PillRecipeService pillRecipeService;
+    private final PillRefiningService pillRefiningService;
 
     /**
      * 处理丹方列表命令
      */
     public String handleRecipeList(PlatformType platform, String openId) {
         log.debug("处理丹方列表查询 - Platform: {}, OpenId: {}", platform, openId);
-        return switch (pillService.getLearnedRecipes(platform, openId)) {
+        return switch (pillRecipeService.getLearnedRecipes(platform, openId)) {
             case ServiceResult.Failure(var msg) -> msg;
             case ServiceResult.Success(var recipes) -> formatRecipeList(recipes);
         };
@@ -39,7 +41,7 @@ public class PillCommandHandler {
      */
     public String handleRecipeDetail(PlatformType platform, String openId, String recipeName) {
         log.debug("处理丹方详情查询 - Platform: {}, OpenId: {}, RecipeName: {}", platform, openId, recipeName);
-        return switch (pillService.getRecipeDetail(platform, openId, recipeName)) {
+        return switch (pillRecipeService.getRecipeDetail(platform, openId, recipeName)) {
             case ServiceResult.Failure(var msg) -> msg;
             case ServiceResult.Success(var recipe) -> recipe != null ? formatRecipeDetail(recipe) : "未找到丹方：" + recipeName;
         };
@@ -50,7 +52,7 @@ public class PillCommandHandler {
      */
     public String handleRefineAuto(PlatformType platform, String openId, String recipeName) {
         log.debug("处理自动炼丹 - Platform: {}, OpenId: {}, RecipeName: {}", platform, openId, recipeName);
-        return switch (pillService.refinePillAuto(platform, openId, recipeName)) {
+        return switch (pillRefiningService.refinePillAuto(platform, openId, recipeName)) {
             case ServiceResult.Failure(var msg) -> msg;
             case ServiceResult.Success(var result) -> formatRefiningResult(result);
         };
@@ -61,7 +63,7 @@ public class PillCommandHandler {
      */
     public String handleRefineManual(PlatformType platform, String openId, List<String> herbInputs) {
         log.debug("处理手动炼丹 - Platform: {}, OpenId: {}, HerbInputs: {}", platform, openId, herbInputs);
-        return switch (pillService.refinePillManual(platform, openId, herbInputs)) {
+        return switch (pillRefiningService.refinePillManual(platform, openId, herbInputs)) {
             case ServiceResult.Failure(var msg) -> msg;
             case ServiceResult.Success(var result) -> formatRefiningResult(result);
         };

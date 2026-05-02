@@ -39,6 +39,10 @@ public class CharacterStatusResult {
     private Double hpPercentage;
 
     // ===================== 基础属性 =====================
+    private Integer statStr;
+    private Integer statCon;
+    private Integer statAgi;
+    private Integer statWis;
     private Integer statValue;
 
     // ===================== 装备加成 =====================

@@ -49,4 +49,9 @@ public class EvolutionStoneUseHandler implements ItemUseHandler {
         }
         return sb.toString();
     }
+
+    @Override
+    public boolean consumesInternally() {
+        return true;
+    }
 }

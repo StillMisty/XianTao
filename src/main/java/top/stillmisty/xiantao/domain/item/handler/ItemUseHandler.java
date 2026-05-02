@@ -25,4 +25,11 @@ public interface ItemUseHandler {
      * @return 使用结果消息
      */
     String use(Long userId, StackableItem item, ItemTemplate template, String args);
+
+    /**
+     * 是否自行管理物品消耗（默认 false，由 ItemUseService 统一扣减）
+     */
+    default boolean consumesInternally() {
+        return false;
+    }
 }

@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
-import top.stillmisty.xiantao.service.PillService;
+import top.stillmisty.xiantao.service.PillConsumptionService;
 
 /**
  * 丹药使用处理器
@@ -14,7 +14,7 @@ import top.stillmisty.xiantao.service.PillService;
 @RequiredArgsConstructor
 public class PillUseHandler implements ItemUseHandler {
 
-    private final PillService pillService;
+    private final PillConsumptionService pillConsumptionService;
 
     @Override
     public boolean supports(ItemType type, ItemTemplate template) {
@@ -23,6 +23,6 @@ public class PillUseHandler implements ItemUseHandler {
 
     @Override
     public String use(Long userId, StackableItem item, ItemTemplate template, String args) {
-        return pillService.takePill(userId, item.getName());
+        return pillConsumptionService.takePill(userId, item.getName());
     }
 }

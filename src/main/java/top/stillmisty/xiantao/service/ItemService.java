@@ -122,11 +122,10 @@ public class ItemService {
         }
 
         // 计算最终属性
-        int statValue = user.getStatValue();
-        int totalStr = statValue + equipStr;
-        int totalCon = statValue + equipCon;
-        int totalAgi = statValue + equipAgi;
-        int totalWis = statValue + equipWis;
+        int totalStr = user.getStatStr() + equipStr;
+        int totalCon = user.getStatCon() + equipCon;
+        int totalAgi = user.getStatAgi() + equipAgi;
+        int totalWis = user.getStatWis() + equipWis;
 
         // 计算战斗属性
         int attack = totalStr * 2 + equipAttack;
@@ -179,6 +178,10 @@ public class ItemService {
                 .hpMax(hpMax)
                 .hpPercentage(user.getHpCurrent() * 100.0 / hpMax)
                 // 基础属性
+                .statStr(user.getStatStr())
+                .statCon(user.getStatCon())
+                .statAgi(user.getStatAgi())
+                .statWis(user.getStatWis())
                 .statValue(user.getStatValue())
                 // 装备加成
                 .equipStr(equipStr)

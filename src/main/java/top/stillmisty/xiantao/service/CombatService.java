@@ -30,6 +30,8 @@ import top.stillmisty.xiantao.domain.monster.entity.MonsterTemplate;
 import top.stillmisty.xiantao.domain.monster.enums.MonsterType;
 import top.stillmisty.xiantao.domain.monster.repository.MonsterTemplateRepository;
 import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
+import top.stillmisty.xiantao.domain.pill.entity.PlayerBuff;
+import top.stillmisty.xiantao.domain.pill.repository.PlayerBuffRepository;
 import top.stillmisty.xiantao.domain.skill.entity.Skill;
 import top.stillmisty.xiantao.domain.skill.enums.EffectType;
 import top.stillmisty.xiantao.domain.skill.repository.SkillRepository;
@@ -65,6 +67,7 @@ public class CombatService {
     private final EncounterCalculator encounterCalculator;
     private final HighlightBattleDetector highlightBattleDetector;
     private final FudiService fudiService;
+    private final PlayerBuffRepository playerBuffRepository;
 
     public BattleResultVO simulate(Team teamA, Team teamB, int maxRounds) {
         BattleContext context = BattleContext.builder()
@@ -243,7 +246,20 @@ public class CombatService {
 
     private Team buildPlayerTeam(User user) {
         Team team = new Team(user.getId(), "Player");
-        team.addMember(new PlayerCombatant(user, equipmentRepository, equipmentTemplateRepository));
+
+        // 读取玩家活跃增益Buff
+        List<PlayerBuff> activeBuffs = playerBuffRepository.findActiveByUserId(user.getId());
+        int attackBuff = 0, defenseBuff = 0, speedBuff = 0;
+        for (PlayerBuff buff : activeBuffs) {
+            switch (buff.getBuffType()) {
+                case "attack" -> attackBuff += buff.getValue();
+                case "defense" -> defenseBuff += buff.getValue();
+                case "speed" -> speedBuff += buff.getValue();
+            }
+        }
+
+        team.addMember(new PlayerCombatant(user, equipmentRepository, equipmentTemplateRepository)
+                .withBuffs(attackBuff, defenseBuff, speedBuff));
         List<Beast> deployed = beastRepository.findDeployedByUserId(user.getId());
         int beastLimit = Math.min(3, user.getLevel() / 5 + 1);
         for (int i = 0; i < Math.min(deployed.size(), beastLimit); i++) {
@@ -424,6 +440,9 @@ public class CombatService {
         private final User user;
         private final Equipment weapon;
         private int hp;
+        private int attackBuff;
+        private int defenseBuff;
+        private int speedBuff;
 
         PlayerCombatant(User user, EquipmentRepository equipmentRepository,
                         EquipmentTemplateRepository equipmentTemplateRepository) {
@@ -434,6 +453,13 @@ public class CombatService {
                     .filter(e -> e.getSlot() == EquipmentSlot.WEAPON)
                     .findFirst().orElse(null);
             this.weapon = equippedWeapon;
+        }
+
+        PlayerCombatant withBuffs(int attackBuff, int defenseBuff, int speedBuff) {
+            this.attackBuff = attackBuff;
+            this.defenseBuff = defenseBuff;
+            this.speedBuff = speedBuff;
+            return this;
         }
 
         @Override
@@ -448,24 +474,22 @@ public class CombatService {
 
         @Override
         public int getSpeed() {
-            int statValue = user.getStatValue();
-            return statValue * 2 + 10;
+            return user.getStatAgi() * 2 + 10 + speedBuff;
         }
 
         @Override
         public int getAttack() {
-            int statValue = user.getStatValue();
+            int statValue = user.getStatStr();
             int equipAttack = 0;
             if (weapon != null) {
                 equipAttack = weapon.getFinalAttack();
             }
-            return statValue * 2 + equipAttack;
+            return statValue * 2 + equipAttack + attackBuff;
         }
 
         @Override
         public int getDefense() {
-            int statValue = user.getStatValue();
-            return statValue;
+            return user.getStatCon() + defenseBuff;
         }
 
         @Override
@@ -498,7 +522,7 @@ public class CombatService {
         }
 
         int getWis() {
-            return user.getStatValue();
+            return user.getStatWis();
         }
     }
 }

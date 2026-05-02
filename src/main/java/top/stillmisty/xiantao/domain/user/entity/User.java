@@ -51,9 +51,25 @@ public class User extends Model<User> {
      */
     private Long spiritStones;
 
+    /**
+     * 力道
+     */
+    private Integer statStr;
 
+    /**
+     * 根骨
+     */
+    private Integer statCon;
 
+    /**
+     * 身法
+     */
+    private Integer statAgi;
 
+    /**
+     * 悟性
+     */
+    private Integer statWis;
 
     /**
      * 当前生命值
@@ -116,20 +132,52 @@ public class User extends Model<User> {
 
     /**
      * 计算最大生命值（基于体质）
-     * 体质属性值 = 4 + level
      */
     public int calculateMaxHp() {
-        // 基础100 + 体质 * 20
-        int statCon = 4 + level;
+        int statCon = getStatCon();
         return 100 + statCon * 20;
     }
 
     /**
-     * 获取当前属性值（所有属性相同）
-     * 属性值 = 4 + level
+     * 获取当前属性值（四维平均）
      */
     public int getStatValue() {
-        return 4 + level;
+        return (getStatStr() + getStatCon() + getStatAgi() + getStatWis()) / 4;
+    }
+
+    public int getStatStr() {
+        return (statStr != null ? statStr : 0) + (4 + level);
+    }
+
+    public int getStatCon() {
+        return (statCon != null ? statCon : 0) + (4 + level);
+    }
+
+    public int getStatAgi() {
+        return (statAgi != null ? statAgi : 0) + (4 + level);
+    }
+
+    public int getStatWis() {
+        return (statWis != null ? statWis : 0) + (4 + level);
+    }
+
+    /**
+     * 直接加属性值（丹药等来源，不加基础值）
+     */
+    public void addStatStr(int amount) {
+        this.statStr = (this.statStr != null ? this.statStr : 0) + amount;
+    }
+
+    public void addStatCon(int amount) {
+        this.statCon = (this.statCon != null ? this.statCon : 0) + amount;
+    }
+
+    public void addStatAgi(int amount) {
+        this.statAgi = (this.statAgi != null ? this.statAgi : 0) + amount;
+    }
+
+    public void addStatWis(int amount) {
+        this.statWis = (this.statWis != null ? this.statWis : 0) + amount;
     }
 
     /**

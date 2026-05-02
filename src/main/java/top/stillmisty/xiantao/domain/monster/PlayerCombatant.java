@@ -18,6 +18,9 @@ public class PlayerCombatant implements Combatant {
     private final Equipment weapon;
     private final EquipmentTemplateRepository equipmentTemplateRepository;
     private int hp;
+    private int attackBuff;
+    private int defenseBuff;
+    private int speedBuff;
 
     public PlayerCombatant(User user, EquipmentRepository equipmentRepository,
                            EquipmentTemplateRepository equipmentTemplateRepository) {
@@ -25,10 +28,16 @@ public class PlayerCombatant implements Combatant {
         this.equipmentTemplateRepository = equipmentTemplateRepository;
         this.hp = user.getHpCurrent() != null ? user.getHpCurrent() : user.calculateMaxHp();
 
-        Equipment equippedWeapon = equipmentRepository.findEquippedByUserId(user.getId()).stream()
+        this.weapon = equipmentRepository.findEquippedByUserId(user.getId()).stream()
                 .filter(e -> e.getSlot() == EquipmentSlot.WEAPON)
                 .findFirst().orElse(null);
-        this.weapon = equippedWeapon;
+    }
+
+    public PlayerCombatant withBuffs(int attackBuff, int defenseBuff, int speedBuff) {
+        this.attackBuff = attackBuff;
+        this.defenseBuff = defenseBuff;
+        this.speedBuff = speedBuff;
+        return this;
     }
 
     @Override
@@ -43,24 +52,22 @@ public class PlayerCombatant implements Combatant {
 
     @Override
     public int getSpeed() {
-        int statValue = user.getStatValue();
-        return statValue * 2 + 10;
+        return user.getStatAgi() * 2 + 10 + speedBuff;
     }
 
     @Override
     public int getAttack() {
-        int statValue = user.getStatValue();
+        int statValue = user.getStatStr();
         int equipAttack = 0;
         if (weapon != null) {
             equipAttack = weapon.getFinalAttack();
         }
-        return statValue * 2 + equipAttack;
+        return statValue * 2 + equipAttack + attackBuff;
     }
 
     @Override
     public int getDefense() {
-        int statValue = user.getStatValue();
-        return statValue;
+        return user.getStatCon() + defenseBuff;
     }
 
     @Override
@@ -98,7 +105,7 @@ public class PlayerCombatant implements Combatant {
     }
 
     public int getWis() {
-        return user.getStatValue();
+        return user.getStatWis();
     }
 
     @Override

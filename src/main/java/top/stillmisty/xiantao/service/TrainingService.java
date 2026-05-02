@@ -95,7 +95,7 @@ public class TrainingService {
         MapNode mapNode = mapOpt.get();
 
         // 计算效率倍率（基于敏捷）
-        double efficiencyMultiplier = calculateEfficiencyMultiplier(user.getStatValue());
+        double efficiencyMultiplier = calculateEfficiencyMultiplier(user.getStatAgi());
 
         // 计算等级衰减
         double levelDecayMultiplier = calculateLevelDecayMultiplier(user.getLevel(), mapNode.getLevelRequirement());
@@ -181,7 +181,7 @@ public class TrainingService {
         MapNode mapNode = mapOpt.get();
 
         // 计算效率倍率（基于敏捷）
-        double efficiencyMultiplier = calculateEfficiencyMultiplier(user.getStatValue());
+        double efficiencyMultiplier = calculateEfficiencyMultiplier(user.getStatAgi());
 
         // 计算等级衰减
         double levelDecayMultiplier = calculateLevelDecayMultiplier(user.getLevel(), mapNode.getLevelRequirement());

@@ -32,4 +32,9 @@ public class SkillJadeUseHandler implements ItemUseHandler {
         }
         return sb.toString();
     }
+
+    @Override
+    public boolean consumesInternally() {
+        return true;
+    }
 }

@@ -142,7 +142,10 @@ public class CultivationCommandHandler {
         sb.append(String.format("HP：%d/%d (%.1f%%)\n", status.getHpCurrent(), status.getHpMax(), status.getHpPercentage()));
         sb.append("\n");
         sb.append("【基础属性】\n");
-        sb.append(String.format("  属性值：%d\n", status.getStatValue()));
+        sb.append(String.format("  力道：%d\n", status.getStatStr()));
+        sb.append(String.format("  根骨：%d\n", status.getStatCon()));
+        sb.append(String.format("  身法：%d\n", status.getStatAgi()));
+        sb.append(String.format("  悟性：%d\n", status.getStatWis()));
         if (status.getEquipStr() != 0 || status.getEquipCon() != 0 || status.getEquipAgi() != 0 || status.getEquipWis() != 0) {
             sb.append("\n【装备加成】\n");
             if (status.getEquipStr() != 0) sb.append(String.format("  力量：+%d\n", status.getEquipStr()));

@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
 import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
+import top.stillmisty.xiantao.domain.pill.entity.PlayerBuff;
+import top.stillmisty.xiantao.domain.pill.repository.PlayerBuffRepository;
 import top.stillmisty.xiantao.domain.user.entity.DaoProtection;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
@@ -36,6 +38,7 @@ public class CultivationService {
     private final UserRepository userRepository;
     private final DaoProtectionRepository daoProtectionRepository;
     private final MapNodeRepository mapNodeRepository;
+    private final PlayerBuffRepository playerBuffRepository;
     private final AuthenticationService authService;
 
     // ===================== 公开 API（含认证） =====================
@@ -91,9 +94,13 @@ public class CultivationService {
         // 计算护道加成
         double protectionBonus = calculateProtectionBonus(user);
 
+        // 计算突破丹药加成
+        List<PlayerBuff> breakthroughBuffs = playerBuffRepository.findActiveByUserIdAndType(user.getId(), "breakthrough");
+        double pillBonus = breakthroughBuffs.stream().mapToInt(PlayerBuff::getValue).sum();
+
         // 计算最终成功率
         double baseSuccessRate = user.calculateBreakthroughSuccessRate();
-        double finalSuccessRate = Math.min(100.0, baseSuccessRate + protectionBonus);
+        double finalSuccessRate = Math.min(100.0, baseSuccessRate + protectionBonus + pillBonus);
 
         // 执行突破判定
         boolean breakthroughSuccess = Math.random() * 100 < finalSuccessRate;
@@ -108,6 +115,9 @@ public class CultivationService {
 
             // 清除该用户的所有护道关系
             clearProtegeRelations(userId);
+
+            // 清除突破丹药加成
+            playerBuffRepository.deleteByUserIdAndType(userId, "breakthrough");
 
             userRepository.save(user);
 
@@ -129,6 +139,9 @@ public class CultivationService {
 
             // 清除该用户的所有护道关系
             clearProtegeRelations(userId);
+
+            // 清除突破丹药加成
+            playerBuffRepository.deleteByUserIdAndType(userId, "breakthrough");
 
             userRepository.save(user);
 
