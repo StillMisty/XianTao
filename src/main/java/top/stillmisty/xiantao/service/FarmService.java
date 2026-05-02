@@ -11,6 +11,7 @@ import top.stillmisty.xiantao.domain.fudi.repository.FudiCellRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
 import top.stillmisty.xiantao.domain.fudi.vo.CellDetailVO;
+import top.stillmisty.xiantao.domain.fudi.vo.CollectVO;
 import top.stillmisty.xiantao.domain.fudi.vo.FarmCellVO;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
@@ -43,13 +44,21 @@ public class FarmService {
     // ===================== 公开 API（含认证） =====================
 
     public ServiceResult<FarmCellVO> plantCropByName(PlatformType platform, String openId, String position, String cropName) {
-        Long userId = UserContext.getCurrentUserId();
-        return new ServiceResult.Success<>(plantCropByName(userId, position, cropName));
+        try {
+            Long userId = UserContext.getCurrentUserId();
+            return new ServiceResult.Success<>(plantCropByName(userId, position, cropName));
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return ServiceResult.businessFailure(e.getMessage());
+        }
     }
 
     public ServiceResult<FarmCellVO> plantCropByInput(PlatformType platform, String openId, String position, String input) {
-        Long userId = UserContext.getCurrentUserId();
-        return new ServiceResult.Success<>(plantCropByInput(userId, position, input));
+        try {
+            Long userId = UserContext.getCurrentUserId();
+            return new ServiceResult.Success<>(plantCropByInput(userId, position, input));
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return ServiceResult.businessFailure(e.getMessage());
+        }
     }
 
     // ===================== 内部 API =====================
@@ -174,7 +183,7 @@ public class FarmService {
     // ===================== 收获系统 =====================
 
     @ConsumeSpiritEnergy(5)
-    public Map<String, Object> harvestCrop(Fudi fudi, FudiCell cell, Integer cellId) {
+    public CollectVO harvestCrop(Fudi fudi, FudiCell cell, Integer cellId) {
         updateGrowthProgress(cell);
 
         Double progress = cell.getDoubleConfig("growth_progress");
@@ -214,7 +223,7 @@ public class FarmService {
 
         log.info("用户 {} 收获地块 {} 的 {}，获得 {}份", fudi.getUserId(), cellId, cropName, yield);
 
-        return Map.of("cellId", cellId, "cropName", cropName, "yield", yield, "type", "farm");
+        return new CollectVO(cellId, "farm", cropName, null, yield, yield);
     }
 
     // ===================== 灵田详情构建 =====================

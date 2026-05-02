@@ -65,13 +65,21 @@ public class TrainingService {
     // ===================== 公开 API（含认证） =====================
 
     public ServiceResult<TrainingStartResult> startTraining(PlatformType platform, String openId) {
-        Long userId = UserContext.getCurrentUserId();
-        return new ServiceResult.Success<>(startTraining(userId));
+        try {
+            Long userId = UserContext.getCurrentUserId();
+            return new ServiceResult.Success<>(startTraining(userId));
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return ServiceResult.businessFailure(e.getMessage());
+        }
     }
 
     public ServiceResult<TrainingRewardVO> endTraining(PlatformType platform, String openId) {
-        Long userId = UserContext.getCurrentUserId();
-        return new ServiceResult.Success<>(endTraining(userId));
+        try {
+            Long userId = UserContext.getCurrentUserId();
+            return new ServiceResult.Success<>(endTraining(userId));
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return ServiceResult.businessFailure(e.getMessage());
+        }
     }
 
     // ===================== 内部 API =====================

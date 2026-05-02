@@ -3,14 +3,18 @@ package top.stillmisty.xiantao.handle.command;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import top.stillmisty.xiantao.domain.beast.vo.ActionResultVO;
+import top.stillmisty.xiantao.domain.beast.vo.BatchCountVO;
+import top.stillmisty.xiantao.domain.beast.vo.BatchRecoverVO;
 import top.stillmisty.xiantao.domain.beast.vo.BeastStatusVO;
+import top.stillmisty.xiantao.domain.beast.vo.RecoverResultVO;
+import top.stillmisty.xiantao.domain.beast.vo.ReleaseBeastVO;
 import top.stillmisty.xiantao.domain.fudi.vo.PenCellVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.service.BeastService;
 import top.stillmisty.xiantao.service.ServiceResult;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 灵兽命令处理器（纯 View 层）
@@ -91,34 +95,47 @@ public class BeastCommandHandler {
 
     // ===================== 文本格式化方法 =====================
 
-    private String formatDeployResult(Map<String, Object> result) {
-        Boolean success = (Boolean) result.get("success");
-        String message = (String) result.get("message");
-        if (Boolean.TRUE.equals(success)) {
-            return "【灵兽出战】\n" + message;
+    private String formatDeployResult(ActionResultVO result) {
+        if (result.success()) {
+            return "【灵兽出战】\n" + result.message();
         } else {
-            return "【出战失败】\n" + message;
+            return "【出战失败】\n" + result.message();
         }
     }
 
-    private String formatUndeployResult(Map<String, Object> result) {
-        Boolean success = (Boolean) result.get("success");
-        String message = (String) result.get("message");
-        if (Boolean.TRUE.equals(success)) {
-            return "【灵兽召回】\n" + message;
-        } else {
-            return "【召回失败】\n" + message;
-        }
+    private String formatUndeployResult(Object result) {
+        return switch (result) {
+            case ActionResultVO vo -> {
+                if (vo.success()) {
+                    yield "【灵兽召回】\n" + vo.message();
+                } else {
+                    yield "【召回失败】\n" + vo.message();
+                }
+            }
+            case BatchCountVO vo -> "【灵兽召回】\n已召回 %d 只灵兽。".formatted(vo.count());
+            default -> "召回完成";
+        };
     }
 
-    private String formatRecoverResult(Map<String, Object> result) {
-        Boolean success = (Boolean) result.get("success");
-        String message = (String) result.get("message");
-        if (Boolean.TRUE.equals(success)) {
-            return "【灵兽恢复】\n" + message;
-        } else {
-            return "【恢复失败】\n" + message;
-        }
+    private String formatRecoverResult(Object result) {
+        return switch (result) {
+            case ActionResultVO vo -> {
+                if (vo.success()) {
+                    yield "【灵兽恢复】\n" + vo.message();
+                } else {
+                    yield "【恢复失败】\n" + vo.message();
+                }
+            }
+            case RecoverResultVO vo -> {
+                if (vo.success()) {
+                    yield "【灵兽恢复】\n" + vo.message();
+                } else {
+                    yield "【恢复失败】\n" + vo.message();
+                }
+            }
+            case BatchRecoverVO vo -> "【灵兽恢复】\n已恢复 %d 只灵兽，消耗 %d 灵石。".formatted(vo.count(), vo.cost());
+            default -> "恢复完成";
+        };
     }
 
     private String formatEvolveResult(PenCellVO beast) {
@@ -131,11 +148,8 @@ public class BeastCommandHandler {
         return sb.toString();
     }
 
-    private String formatReleaseResult(Map<String, Object> result) {
-        String beastName = (String) result.get("beastName");
-        Integer tier = (Integer) result.get("tier");
-        String quality = (String) result.get("quality");
-        return String.format("【灵兽放生成功】\n放生了 %s（T%d %s）\n获得灵兽精华", beastName, tier, quality);
+    private String formatReleaseResult(ReleaseBeastVO result) {
+        return String.format("【灵兽放生成功】\n放生了 %s（T%d %s）\n获得灵兽精华", result.beastName(), result.tier(), result.quality());
     }
 
     private String formatDeployedBeasts(List<BeastStatusVO> beasts) {

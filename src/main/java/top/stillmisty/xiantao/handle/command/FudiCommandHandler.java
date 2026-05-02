@@ -4,9 +4,19 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.fudi.enums.CellType;
+import top.stillmisty.xiantao.domain.fudi.vo.CellOperationVO;
+import top.stillmisty.xiantao.domain.fudi.vo.CollectAllVO;
+import top.stillmisty.xiantao.domain.fudi.vo.CollectVO;
 import top.stillmisty.xiantao.domain.fudi.vo.FarmCellVO;
 import top.stillmisty.xiantao.domain.fudi.vo.FudiStatusVO;
+import top.stillmisty.xiantao.domain.fudi.vo.GiveGiftVO;
 import top.stillmisty.xiantao.domain.fudi.vo.PenCellVO;
+import top.stillmisty.xiantao.domain.fudi.vo.UpgradeCellVO;
+import top.stillmisty.xiantao.domain.beast.vo.ActionResultVO;
+import top.stillmisty.xiantao.domain.beast.vo.BatchCountVO;
+import top.stillmisty.xiantao.domain.beast.vo.BatchRecoverVO;
+import top.stillmisty.xiantao.domain.beast.vo.RecoverResultVO;
+import top.stillmisty.xiantao.domain.beast.vo.ReleaseBeastVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.service.BeastService;
 import top.stillmisty.xiantao.service.FarmService;
@@ -60,31 +70,23 @@ public class FudiCommandHandler {
             return switch (fudiService.collectAll(platform, openId)) {
                 case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
                 case ServiceResult.Success(var result) -> {
-                    int harvested = (Integer) result.getOrDefault("harvested", 0);
-                    int collected = (Integer) result.getOrDefault("collected", 0);
-                    int totalItems = (Integer) result.getOrDefault("totalItems", 0);
-                    if (totalItems == 0) {
+                    if (result.totalItems() == 0) {
                         yield "没有可收取的内容。";
                     }
                     var parts = new java.util.ArrayList<String>();
-                    if (harvested > 0) parts.add("收获 %d 块灵田".formatted(harvested));
-                    if (collected > 0) parts.add("收取 %d 个兽栏".formatted(collected));
-                    yield "✅ 已" + String.join("、", parts) + "，共获得 " + totalItems + " 份物资。";
+                    if (result.harvested() > 0) parts.add("收获 %d 块灵田".formatted(result.harvested()));
+                    if (result.collected() > 0) parts.add("收取 %d 个兽栏".formatted(result.collected()));
+                    yield "✅ 已" + String.join("、", parts) + "，共获得 " + result.totalItems() + " 份物资。";
                 }
             };
         }
         return switch (fudiService.collect(platform, openId, position)) {
             case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
             case ServiceResult.Success(var result) -> {
-                String type = (String) result.get("type");
-                if ("farm".equals(type)) {
-                    String cropName = (String) result.get("cropName");
-                    int yield = (Integer) result.get("yield");
-                    yield "✅ 已收获地块 %s 的%s，获得 %d 份。".formatted(position, cropName, yield);
+                if ("farm".equals(result.type())) {
+                    yield "✅ 已收获地块 %s 的%s，获得 %d 份。".formatted(position, result.cropName(), result.yield());
                 } else {
-                    String beastName = (String) result.get("beastName");
-                    int items = (Integer) result.get("totalItems");
-                    yield "✅ 从地块 %s 收取了 %d 件%s产出。".formatted(position, items, beastName);
+                    yield "✅ 从地块 %s 收取了 %d 件%s产出。".formatted(position, result.totalItems(), result.beastName());
                 }
             }
         };
@@ -107,8 +109,7 @@ public class FudiCommandHandler {
         return switch (fudiService.removeCell(platform, openId, position)) {
             case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
             case ServiceResult.Success(var result) -> {
-                String typeName = (String) result.get("type");
-                yield "✅ 已拆除地块 %s 的%s。".formatted(position, typeName);
+                yield "✅ 已拆除地块 %s 的%s。".formatted(position, result.type());
             }
         };
     }
@@ -117,10 +118,7 @@ public class FudiCommandHandler {
         return switch (fudiService.upgradeCell(platform, openId, position)) {
             case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
             case ServiceResult.Success(var result) -> {
-                String typeName = (String) result.get("type");
-                int oldLevel = (Integer) result.get("oldLevel");
-                int newLevel = (Integer) result.get("newLevel");
-                yield "✅ 已将地块 %s 的%s从 Lv%d 升级至 Lv%d".formatted(position, typeName, oldLevel, newLevel);
+                yield "✅ 已将地块 %s 的%s从 Lv%d 升级至 Lv%d".formatted(position, result.type(), result.oldLevel(), result.newLevel());
             }
         };
     }
@@ -136,8 +134,7 @@ public class FudiCommandHandler {
         return switch (beastService.releaseBeast(platform, openId, position)) {
             case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
             case ServiceResult.Success(var result) -> {
-                String beastName = (String) result.get("beastName");
-                yield "✅ 已放生%s。".formatted(beastName);
+                yield "✅ 已放生%s。".formatted(result.beastName());
             }
         };
     }
@@ -161,11 +158,8 @@ public class FudiCommandHandler {
         return switch (fudiService.giveGift(platform, openId, itemName)) {
             case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
             case ServiceResult.Success(var result) -> {
-                int change = (Integer) result.get("change");
-                String name = (String) result.get("itemName");
-                String reaction = (String) result.get("reaction");
-                String prefix = change > 0 ? "✅" : "😅";
-                yield "%s 地灵收到了%s（%s），好感度 %+d".formatted(prefix, name, reaction, change);
+                String prefix = result.change() > 0 ? "✅" : "😅";
+                yield "%s 地灵收到了%s（%s），好感度 %+d".formatted(prefix, result.itemName(), result.reaction(), result.change());
             }
         };
     }
@@ -173,34 +167,30 @@ public class FudiCommandHandler {
     public String handleDeployBeast(PlatformType platform, String openId, String position) {
         return switch (beastService.deployBeast(platform, openId, position)) {
             case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
-            case ServiceResult.Success(var result) -> (String) result.getOrDefault("message", "出战完成");
+            case ServiceResult.Success(var result) -> result.message();
         };
     }
 
     public String handleUndeployBeast(PlatformType platform, String openId, String position) {
         return switch (beastService.undeployBeast(platform, openId, position)) {
             case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
-            case ServiceResult.Success(var result) -> {
-                if (result.containsKey("count")) {
-                    int count = (Integer) result.get("count");
-                    yield "✅ 已召回 %d 只灵兽。".formatted(count);
-                }
-                yield (String) result.getOrDefault("message", "召回完成");
-            }
+            case ServiceResult.Success(var result) -> switch (result) {
+                case ActionResultVO vo -> vo.message();
+                case BatchCountVO vo -> "✅ 已召回 %d 只灵兽。".formatted(vo.count());
+                default -> "召回完成";
+            };
         };
     }
 
     public String handleRecoverBeast(PlatformType platform, String openId, String position) {
         return switch (beastService.recoverBeast(platform, openId, position)) {
             case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
-            case ServiceResult.Success(var result) -> {
-                if (result.containsKey("count")) {
-                    int count = (Integer) result.get("count");
-                    int cost = (Integer) result.get("cost");
-                    yield "✅ 已恢复 %d 只灵兽，消耗 %d 灵石。".formatted(count, cost);
-                }
-                yield (String) result.getOrDefault("message", "恢复完成");
-            }
+            case ServiceResult.Success(var result) -> switch (result) {
+                case ActionResultVO vo -> vo.message();
+                case RecoverResultVO vo -> vo.message();
+                case BatchRecoverVO vo -> "✅ 已恢复 %d 只灵兽，消耗 %d 灵石。".formatted(vo.count(), vo.cost());
+                default -> "恢复完成";
+            };
         };
     }
 

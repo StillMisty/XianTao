@@ -15,7 +15,14 @@ import top.stillmisty.xiantao.domain.fudi.repository.FudiCellRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
 import top.stillmisty.xiantao.domain.fudi.vo.CellDetailVO;
+import top.stillmisty.xiantao.domain.fudi.vo.CellOperationVO;
+import top.stillmisty.xiantao.domain.fudi.vo.CellStatusVO;
+import top.stillmisty.xiantao.domain.fudi.vo.CollectAllVO;
+import top.stillmisty.xiantao.domain.fudi.vo.CollectVO;
 import top.stillmisty.xiantao.domain.fudi.vo.FudiStatusVO;
+import top.stillmisty.xiantao.domain.fudi.vo.GiveGiftVO;
+import top.stillmisty.xiantao.domain.fudi.vo.TriggerTribulationVO;
+import top.stillmisty.xiantao.domain.fudi.vo.UpgradeCellVO;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
@@ -51,43 +58,75 @@ public class FudiService {
     // ===================== 公开 API（含认证） =====================
 
     public ServiceResult<FudiStatusVO> getFudiStatus(PlatformType platform, String openId) {
-        Long userId = UserContext.getCurrentUserId();
-        return new ServiceResult.Success<>(getFudiStatus(userId));
+        try {
+            Long userId = UserContext.getCurrentUserId();
+            return new ServiceResult.Success<>(getFudiStatus(userId));
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return ServiceResult.businessFailure(e.getMessage());
+        }
     }
 
-    public ServiceResult<Map<String, Object>> collect(PlatformType platform, String openId, String position) {
-        Long userId = UserContext.getCurrentUserId();
-        return new ServiceResult.Success<>(collect(userId, position));
+    public ServiceResult<CollectVO> collect(PlatformType platform, String openId, String position) {
+        try {
+            Long userId = UserContext.getCurrentUserId();
+            return new ServiceResult.Success<>(collect(userId, position));
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return ServiceResult.businessFailure(e.getMessage());
+        }
     }
 
-    public ServiceResult<Map<String, Object>> collectAll(PlatformType platform, String openId) {
-        Long userId = UserContext.getCurrentUserId();
-        return new ServiceResult.Success<>(collectAll(userId));
+    public ServiceResult<CollectAllVO> collectAll(PlatformType platform, String openId) {
+        try {
+            Long userId = UserContext.getCurrentUserId();
+            return new ServiceResult.Success<>(collectAll(userId));
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return ServiceResult.businessFailure(e.getMessage());
+        }
     }
 
-    public ServiceResult<Map<String, Object>> buildCell(PlatformType platform, String openId, String position, CellType type) {
-        Long userId = UserContext.getCurrentUserId();
-        return new ServiceResult.Success<>(buildCell(userId, position, type));
+    public ServiceResult<CellOperationVO> buildCell(PlatformType platform, String openId, String position, CellType type) {
+        try {
+            Long userId = UserContext.getCurrentUserId();
+            return new ServiceResult.Success<>(buildCell(userId, position, type));
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return ServiceResult.businessFailure(e.getMessage());
+        }
     }
 
-    public ServiceResult<Map<String, Object>> removeCell(PlatformType platform, String openId, String position) {
-        Long userId = UserContext.getCurrentUserId();
-        return new ServiceResult.Success<>(removeCell(userId, position));
+    public ServiceResult<CellOperationVO> removeCell(PlatformType platform, String openId, String position) {
+        try {
+            Long userId = UserContext.getCurrentUserId();
+            return new ServiceResult.Success<>(removeCell(userId, position));
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return ServiceResult.businessFailure(e.getMessage());
+        }
     }
 
-    public ServiceResult<Map<String, Object>> upgradeCell(PlatformType platform, String openId, String position) {
-        Long userId = UserContext.getCurrentUserId();
-        return new ServiceResult.Success<>(upgradeCell(userId, position));
+    public ServiceResult<UpgradeCellVO> upgradeCell(PlatformType platform, String openId, String position) {
+        try {
+            Long userId = UserContext.getCurrentUserId();
+            return new ServiceResult.Success<>(upgradeCell(userId, position));
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return ServiceResult.businessFailure(e.getMessage());
+        }
     }
 
-    public ServiceResult<Map<String, Object>> giveGift(PlatformType platform, String openId, String itemName) {
-        Long userId = UserContext.getCurrentUserId();
-        return new ServiceResult.Success<>(giveGift(userId, itemName));
+    public ServiceResult<GiveGiftVO> giveGift(PlatformType platform, String openId, String itemName) {
+        try {
+            Long userId = UserContext.getCurrentUserId();
+            return new ServiceResult.Success<>(giveGift(userId, itemName));
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return ServiceResult.businessFailure(e.getMessage());
+        }
     }
 
-    public ServiceResult<Map<String, Object>> triggerTribulation(PlatformType platform, String openId) {
-        Long userId = UserContext.getCurrentUserId();
-        return new ServiceResult.Success<>(triggerTribulation(userId));
+    public ServiceResult<TriggerTribulationVO> triggerTribulation(PlatformType platform, String openId) {
+        try {
+            Long userId = UserContext.getCurrentUserId();
+            return new ServiceResult.Success<>(triggerTribulation(userId));
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return ServiceResult.businessFailure(e.getMessage());
+        }
     }
 
     // ===================== 内部 API =====================
@@ -280,7 +319,7 @@ public class FudiService {
     }
 
     @Transactional
-    public Map<String, Object> triggerTribulation(Long userId) {
+    public TriggerTribulationVO triggerTribulation(Long userId) {
         Fudi fudi = getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
 
@@ -289,10 +328,10 @@ public class FudiService {
         String result = resolveTribulation(fudi, user.getLevel(), user.getStatValue(), true);
         fudiRepository.save(fudi);
 
-        return Map.of(
-                "tribulationResult", result != null ? result : "天劫未触发",
-                "tribulationStage", fudi.getTribulationStage(),
-                "winStreak", fudi.getTribulationWinStreak()
+        return new TriggerTribulationVO(
+                result != null ? result : "天劫未触发",
+                fudi.getTribulationStage(),
+                fudi.getTribulationWinStreak()
         );
     }
 
@@ -463,7 +502,7 @@ public class FudiService {
 
     @ConsumeSpiritEnergy(5)
     @Transactional
-    public Map<String, Object> collect(Long userId, String position) {
+    public CollectVO collect(Long userId, String position) {
         Integer cellId = parseCellId(position);
         Fudi fudi = getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
@@ -487,13 +526,13 @@ public class FudiService {
     // ===================== 种植系统 =====================
 
     @Transactional
-    public Map<String, Object> collectAll(Long userId) {
+    public CollectAllVO collectAll(Long userId) {
         Fudi fudi = getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
 
         List<FudiCell> cells = fudiCellRepository.findByFudiId(fudi.getId());
         if (cells.isEmpty()) {
-            return Map.of("harvested", 0, "collected", 0, "totalItems", 0);
+            return new CollectAllVO(0, 0, 0);
         }
 
         int harvestCount = 0;
@@ -635,13 +674,13 @@ public class FudiService {
             log.info("用户 {} 收取地块 {} 的灵兽产出 {} 件", fudi.getUserId(), cell.getCellId(), cellTotalItems);
         }
 
-        return Map.of("harvested", harvestCount, "collected", collectedCount, "totalItems", totalItems);
+        return new CollectAllVO(harvestCount, collectedCount, totalItems);
     }
 
     // ===================== 建造/拆除/升级系统 =====================
 
     @Transactional
-    public Map<String, Object> buildCell(Long userId, String position, CellType type) {
+    public CellOperationVO buildCell(Long userId, String position, CellType type) {
         Integer cellId = parseCellId(position);
         Fudi fudi = getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
@@ -663,11 +702,11 @@ public class FudiService {
 
         log.info("用户 {} 在地块 {} 建造 {}", userId, cellId, type.getChineseName());
 
-        return Map.of("cellId", cellId, "type", type.getChineseName());
+        return new CellOperationVO(cellId, type.getChineseName());
     }
 
     @Transactional
-    public Map<String, Object> removeCell(Long userId, String position) {
+    public CellOperationVO removeCell(Long userId, String position) {
         Integer cellId = parseCellId(position);
         Fudi fudi = getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
@@ -692,11 +731,11 @@ public class FudiService {
 
         log.info("用户 {} 拆除地块 {} 的 {}", userId, cellId, cell.getCellType().getChineseName());
 
-        return Map.of("cellId", cellId, "type", cell.getCellType().getChineseName());
+        return new CellOperationVO(cellId, cell.getCellType().getChineseName());
     }
 
     @Transactional
-    public Map<String, Object> upgradeCell(Long userId, String position) {
+    public UpgradeCellVO upgradeCell(Long userId, String position) {
         Integer cellId = parseCellId(position);
         Fudi fudi = getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
@@ -723,13 +762,13 @@ public class FudiService {
 
         log.info("用户 {} 升级地块 {} 的 {} Lv{} -> Lv{}", userId, cellId, cell.getCellType().getChineseName(), currentLevel, newLevel);
 
-        return Map.of("cellId", cellId, "type", cell.getCellType().getChineseName(), "oldLevel", currentLevel, "newLevel", newLevel);
+        return new UpgradeCellVO(cellId, cell.getCellType().getChineseName(), currentLevel, newLevel);
     }
 
     // ===================== 送礼系统 =====================
 
     @Transactional
-    public Map<String, Object> giveGift(Long userId, String itemName) {
+    public GiveGiftVO giveGift(Long userId, String itemName) {
         Fudi fudi = getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
 
@@ -801,26 +840,18 @@ public class FudiService {
         spiritRepository.save(spirit);
         fudiRepository.save(fudi);
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("itemName", gift.getName());
-        result.put("oldAffection", oldAffection);
-        result.put("newAffection", spirit.getAffection());
-        result.put("change", change);
-        result.put("reaction", reaction);
-        result.put("isLiked", isLiked);
-        result.put("isDisliked", isDisliked);
-
-        return result;
+        return new GiveGiftVO(gift.getName(), oldAffection, spirit.getAffection(),
+                change, reaction, isLiked, isDisliked);
     }
 
     // ===================== 地块状态查询 =====================
 
-    public Map<String, Object> getCellStatus(Long userId) {
+    public CellStatusVO getCellStatus(Long userId) {
         Fudi fudi = getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
 
         int totalCells = getTotalCellCount(fudi);
-        List<Map<String, Object>> occupiedCells = new ArrayList<>();
+        List<CellDetailVO> occupiedCells = new ArrayList<>();
         List<Integer> emptyCellIds = new ArrayList<>();
 
         List<FudiCell> cells = fudiCellRepository.findByFudiId(fudi.getId());
@@ -830,40 +861,35 @@ public class FudiService {
                 continue;
             }
 
-            Map<String, Object> cellInfo = new HashMap<>();
-            cellInfo.put("cellId", cell.getCellId());
-            cellInfo.put("type", cell.getCellType().getCode());
-            cellInfo.put("cellLevel", cell.getCellLevel());
+            var builder = CellDetailVO.builder()
+                    .cellId(cell.getCellId())
+                    .type(cell.getCellType())
+                    .cellLevel(cell.getCellLevel());
 
             switch (cell.getCellType()) {
                 case FARM -> {
-                    cellInfo.put("cropName", cell.getStringConfig("crop_name"));
+                    builder.name(cell.getStringConfig("crop_name"));
                     farmService.updateGrowthProgress(cell);
                     Double progress = cell.getDoubleConfig("growth_progress");
-                    cellInfo.put("growthProgress", progress);
-                    cellInfo.put("isMature", progress != null && progress >= 1.0);
+                    builder.growthProgress(progress);
+                    builder.isMature(progress != null && progress >= 1.0);
                 }
                 case PEN -> {
                     Beast beast = beastService.findBeastByCell(cell);
-                    cellInfo.put("beastName", beast != null ? beast.getBeastName() : "空兽栏");
-                    cellInfo.put("tier", beast != null && beast.getTier() != null ? beast.getTier() : 0);
-                    cellInfo.put("quality", beast != null ? beast.getQuality() : null);
+                    builder.name(beast != null ? beast.getBeastName() : "空兽栏");
+                    builder.level(beast != null && beast.getTier() != null ? beast.getTier() : 0);
+                    builder.quality(beast != null ? beast.getQuality() : null);
                     Integer stored = cell.getIntConfig("production_stored");
-                    cellInfo.put("productionStored", stored != null ? stored : 0);
-                    cellInfo.put("isIncubating", cell.getBoolConfig("is_incubating"));
+                    builder.productionStored(stored != null ? stored : 0);
+                    builder.isIncubating(cell.getBoolConfig("is_incubating"));
                 }
             }
 
-            occupiedCells.add(cellInfo);
+            occupiedCells.add(builder.build());
         }
 
-        return Map.of(
-                "totalCells", totalCells,
-                "occupiedCount", occupiedCells.size(),
-                "emptyCount", emptyCellIds.size(),
-                "emptyCellIds", emptyCellIds,
-                "occupiedCells", occupiedCells
-        );
+        return new CellStatusVO(totalCells, occupiedCells.size(), emptyCellIds.size(),
+                emptyCellIds, occupiedCells);
     }
 
     private Integer parseCellId(String position) {

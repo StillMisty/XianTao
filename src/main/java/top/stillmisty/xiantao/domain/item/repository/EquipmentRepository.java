@@ -27,6 +27,11 @@ public interface EquipmentRepository {
     List<Equipment> findByUserId(Long userId);
 
     /**
+     * 根据用户ID查找未穿戴的装备
+     */
+    List<Equipment> findUnequippedByUserId(Long userId);
+
+    /**
      * 根据用户ID查找已穿戴的装备
      */
     List<Equipment> findEquippedByUserId(Long userId);

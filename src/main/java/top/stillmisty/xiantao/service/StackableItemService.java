@@ -123,8 +123,6 @@ public class StackableItemService {
      * 按物品类型搜索堆叠物品
      */
     public List<StackableItem> searchStackableItemsByType(Long userId, ItemType type) {
-        return stackableItemRepository.findByUserId(userId).stream()
-                .filter(item -> item.getItemType() == type)
-                .toList();
+        return stackableItemRepository.findByUserIdAndType(userId, type);
     }
 }

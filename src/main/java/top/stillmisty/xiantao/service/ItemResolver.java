@@ -101,9 +101,7 @@ public class ItemResolver {
     }
 
     private List<SeedEntry> sortedStackableEntries(Long userId, ItemType type) {
-        var items = stackableItemRepository.findByUserId(userId).stream()
-                .filter(si -> si.getItemType() == type)
-                .toList();
+        var items = stackableItemRepository.findByUserIdAndType(userId, type);
         if (items.isEmpty()) return List.of();
 
         var templates = itemTemplateRepository.findByType(type).stream()
@@ -158,8 +156,7 @@ public class ItemResolver {
     }
 
     private List<EquipmentEntry> sortedEquipmentEntries(Long userId) {
-        var sorted = equipmentRepository.findByUserId(userId).stream()
-                .filter(e -> !e.getEquipped())
+        var sorted = equipmentRepository.findUnequippedByUserId(userId).stream()
                 .sorted((a, b) -> {
                     int cmp = Integer.compare(b.getRarity().ordinal(), a.getRarity().ordinal());
                     if (cmp != 0) return cmp;

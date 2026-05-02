@@ -6,8 +6,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
+import top.stillmisty.xiantao.domain.beast.vo.ActionResultVO;
+import top.stillmisty.xiantao.domain.beast.vo.BatchCountVO;
+import top.stillmisty.xiantao.domain.beast.vo.BatchRecoverVO;
 import top.stillmisty.xiantao.domain.beast.vo.BeastSkillPoolVO;
 import top.stillmisty.xiantao.domain.beast.vo.BeastStatusVO;
+import top.stillmisty.xiantao.domain.beast.vo.RecoverResultVO;
+import top.stillmisty.xiantao.domain.beast.vo.ReleaseBeastVO;
 import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
 import top.stillmisty.xiantao.domain.fudi.entity.FudiCell;
 import top.stillmisty.xiantao.domain.fudi.entity.Spirit;
@@ -18,6 +23,7 @@ import top.stillmisty.xiantao.domain.fudi.repository.FudiCellRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
 import top.stillmisty.xiantao.domain.fudi.vo.CellDetailVO;
+import top.stillmisty.xiantao.domain.fudi.vo.CollectVO;
 import top.stillmisty.xiantao.domain.fudi.vo.PenCellVO;
 import top.stillmisty.xiantao.domain.item.entity.ItemProperties;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
@@ -72,43 +78,75 @@ public class BeastService {
     // ===================== 公开 API（含认证） =====================
 
     public ServiceResult<PenCellVO> hatchBeast(PlatformType platform, String openId, String position, String eggName) {
-        Long userId = UserContext.getCurrentUserId();
-        return new ServiceResult.Success<>(hatchBeast(userId, position, eggName));
+        try {
+            Long userId = UserContext.getCurrentUserId();
+            return new ServiceResult.Success<>(hatchBeast(userId, position, eggName));
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return ServiceResult.businessFailure(e.getMessage());
+        }
     }
 
     public ServiceResult<PenCellVO> hatchBeastByInput(PlatformType platform, String openId, String position, String input) {
-        Long userId = UserContext.getCurrentUserId();
-        return new ServiceResult.Success<>(hatchBeastByInput(userId, position, input));
+        try {
+            Long userId = UserContext.getCurrentUserId();
+            return new ServiceResult.Success<>(hatchBeastByInput(userId, position, input));
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return ServiceResult.businessFailure(e.getMessage());
+        }
     }
 
-    public ServiceResult<Map<String, Object>> releaseBeast(PlatformType platform, String openId, String position) {
-        Long userId = UserContext.getCurrentUserId();
-        return new ServiceResult.Success<>(releaseBeast(userId, position));
+    public ServiceResult<ReleaseBeastVO> releaseBeast(PlatformType platform, String openId, String position) {
+        try {
+            Long userId = UserContext.getCurrentUserId();
+            return new ServiceResult.Success<>(releaseBeast(userId, position));
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return ServiceResult.businessFailure(e.getMessage());
+        }
     }
 
     public ServiceResult<PenCellVO> evolveBeast(PlatformType platform, String openId, String position, String mode) {
-        Long userId = UserContext.getCurrentUserId();
-        return new ServiceResult.Success<>(evolveBeast(userId, position, mode));
+        try {
+            Long userId = UserContext.getCurrentUserId();
+            return new ServiceResult.Success<>(evolveBeast(userId, position, mode));
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return ServiceResult.businessFailure(e.getMessage());
+        }
     }
 
-    public ServiceResult<Map<String, Object>> deployBeast(PlatformType platform, String openId, String position) {
-        Long userId = UserContext.getCurrentUserId();
-        return new ServiceResult.Success<>(deployBeast(userId, position));
+    public ServiceResult<ActionResultVO> deployBeast(PlatformType platform, String openId, String position) {
+        try {
+            Long userId = UserContext.getCurrentUserId();
+            return new ServiceResult.Success<>(deployBeast(userId, position));
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return ServiceResult.businessFailure(e.getMessage());
+        }
     }
 
-    public ServiceResult<Map<String, Object>> undeployBeast(PlatformType platform, String openId, String position) {
-        Long userId = UserContext.getCurrentUserId();
-        return new ServiceResult.Success<>(undeployBeast(userId, position));
+    public ServiceResult<Object> undeployBeast(PlatformType platform, String openId, String position) {
+        try {
+            Long userId = UserContext.getCurrentUserId();
+            return new ServiceResult.Success<>(undeployBeast(userId, position));
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return ServiceResult.businessFailure(e.getMessage());
+        }
     }
 
-    public ServiceResult<Map<String, Object>> recoverBeast(PlatformType platform, String openId, String position) {
-        Long userId = UserContext.getCurrentUserId();
-        return new ServiceResult.Success<>(recoverBeast(userId, position));
+    public ServiceResult<Object> recoverBeast(PlatformType platform, String openId, String position) {
+        try {
+            Long userId = UserContext.getCurrentUserId();
+            return new ServiceResult.Success<>(recoverBeast(userId, position));
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return ServiceResult.businessFailure(e.getMessage());
+        }
     }
 
     public ServiceResult<List<BeastStatusVO>> getDeployedBeasts(PlatformType platform, String openId) {
-        Long userId = UserContext.getCurrentUserId();
-        return new ServiceResult.Success<>(getDeployedBeasts(userId));
+        try {
+            Long userId = UserContext.getCurrentUserId();
+            return new ServiceResult.Success<>(getDeployedBeasts(userId));
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return ServiceResult.businessFailure(e.getMessage());
+        }
     }
 
     // ===================== 内部 API =====================
@@ -320,7 +358,7 @@ public class BeastService {
     // ===================== 灵兽系统 — 放生与进化 =====================
 
     @Transactional
-    public Map<String, Object> releaseBeast(Long userId, String position) {
+    public ReleaseBeastVO releaseBeast(Long userId, String position) {
         Integer cellId = parseCellId(position);
         Fudi fudi = getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
@@ -344,7 +382,7 @@ public class BeastService {
 
         log.info("用户 {} 放生 {} (T{}/{})", userId, beastName, tier, qualityStr);
 
-        return Map.of("beastName", beastName, "tier", tier, "quality", qualityStr);
+        return new ReleaseBeastVO(beastName, tier, qualityStr);
     }
 
     @Transactional
@@ -510,7 +548,7 @@ public class BeastService {
     // ===================== 灵兽系统 — 出战/召回 =====================
 
     @Transactional
-    public Map<String, Object> deployBeast(Long userId, String position) {
+    public ActionResultVO deployBeast(Long userId, String position) {
         Integer cellId = parseCellId(position);
         Fudi fudi = getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
@@ -531,7 +569,7 @@ public class BeastService {
         }
 
         if (Boolean.TRUE.equals(beast.getIsDeployed())) {
-            return Map.of("success", true, "message", "灵兽已处于出战状态");
+            return new ActionResultVO(true, "灵兽已处于出战状态");
         }
 
         if (beast.getHpCurrent() != null && beast.getHpCurrent() <= 0) {
@@ -550,11 +588,11 @@ public class BeastService {
 
         String beastName = beast.getBeastName();
         log.info("用户 {} 将灵兽 {} 设为出战", userId, beastName);
-        return Map.of("success", true, "message", "灵兽 [%s] 已出战".formatted(beastName));
+        return new ActionResultVO(true, "灵兽 [%s] 已出战".formatted(beastName));
     }
 
     @Transactional
-    public Map<String, Object> undeployBeast(Long userId, String position) {
+    public Object undeployBeast(Long userId, String position) {
         if ("all".equalsIgnoreCase(position)) {
             return undeployAllBeasts(userId);
         }
@@ -576,7 +614,7 @@ public class BeastService {
         }
 
         if (!Boolean.TRUE.equals(beast.getIsDeployed())) {
-            return Map.of("success", true, "message", "灵兽未在出战状态");
+            return new ActionResultVO(true, "灵兽未在出战状态");
         }
 
         beast.setIsDeployed(false);
@@ -584,10 +622,10 @@ public class BeastService {
 
         String beastName = beast.getBeastName();
         log.info("用户 {} 将灵兽 {} 召回", userId, beastName);
-        return Map.of("success", true, "message", "灵兽 [%s] 已召回".formatted(beastName));
+        return new ActionResultVO(true, "灵兽 [%s] 已召回".formatted(beastName));
     }
 
-    Map<String, Object> undeployAllBeasts(Long userId) {
+    BatchCountVO undeployAllBeasts(Long userId) {
         Fudi fudi = getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
 
@@ -601,13 +639,13 @@ public class BeastService {
             }
         }
 
-        return Map.of("count", count);
+        return new BatchCountVO(count);
     }
 
     // ===================== 灵兽系统 — 恢复 =====================
 
     @Transactional
-    public Map<String, Object> recoverBeast(Long userId, String position) {
+    public Object recoverBeast(Long userId, String position) {
         if ("all".equalsIgnoreCase(position)) {
             return recoverAllBeasts(userId);
         }
@@ -635,7 +673,7 @@ public class BeastService {
         int hpCurrent = beast.getHpCurrent() != null ? beast.getHpCurrent() : 0;
         int hpMax = beast.getMaxHp() != null ? beast.getMaxHp() : 1;
         if (hpCurrent >= hpMax) {
-            return Map.of("success", true, "message", "灵兽HP已满");
+            return new ActionResultVO(true, "灵兽HP已满");
         }
 
         int missingHp = hpMax - hpCurrent;
@@ -649,10 +687,10 @@ public class BeastService {
 
         String beastName = beast.getBeastName();
         log.info("用户 {} 恢复灵兽 {} HP (消耗{}灵石)", userId, beastName, stoneCost);
-        return Map.of("success", true, "message", "灵兽 [%s] HP已恢复（消耗%d灵石）".formatted(beastName, stoneCost), "cost", stoneCost);
+        return new RecoverResultVO(true, "灵兽 [%s] HP已恢复（消耗%d灵石）".formatted(beastName, stoneCost), stoneCost);
     }
 
-    Map<String, Object> recoverAllBeasts(Long userId) {
+    Object recoverAllBeasts(Long userId) {
         Fudi fudi = getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
 
@@ -674,13 +712,13 @@ public class BeastService {
         }
 
         if (recoverCount == 0) {
-            return Map.of("success", true, "message", "没有需要恢复的灵兽");
+            return new ActionResultVO(true, "没有需要恢复的灵兽");
         }
 
         checkSpiritStones(userId, totalCost);
         deductSpiritStones(userId, totalCost);
 
-        return Map.of("count", recoverCount, "cost", totalCost);
+        return new BatchRecoverVO(recoverCount, totalCost);
     }
 
     // ===================== 灵兽系统 — 查询 =====================
@@ -697,7 +735,7 @@ public class BeastService {
 
     // ===================== 灵兽产出系统 =====================
 
-    Map<String, Object> collectBeastProduce(Fudi fudi, FudiCell cell, Integer cellId) {
+    CollectVO collectBeastProduce(Fudi fudi, FudiCell cell, Integer cellId) {
         if (Boolean.TRUE.equals(cell.getBoolConfig("is_incubating"))) {
             throw new IllegalStateException("灵兽尚在孵化中");
         }
@@ -779,7 +817,7 @@ public class BeastService {
 
         log.info("用户 {} 收取地块 {} 的灵兽产出 {} 件", fudi.getUserId(), cellId, totalItems);
 
-        return Map.of("cellId", cellId, "beastName", beastName, "totalItems", totalItems, "type", "pen");
+        return new CollectVO(cellId, "pen", null, beastName, totalItems, totalItems);
     }
 
     void updateBeastProduction(FudiCell cell, Fudi fudi) {

@@ -1,6 +1,7 @@
 package top.stillmisty.xiantao.domain.item.repository;
 
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
+import top.stillmisty.xiantao.domain.item.enums.ItemType;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,9 +27,19 @@ public interface StackableItemRepository {
     List<StackableItem> findByUserId(Long userId);
 
     /**
+     * 根据用户ID和物品类型查找物品
+     */
+    List<StackableItem> findByUserIdAndType(Long userId, ItemType type);
+
+    /**
      * 根据用户ID和模板ID查找物品
      */
     Optional<StackableItem> findByUserIdAndTemplateId(Long userId, Long templateId);
+
+    /**
+     * 根据用户ID和名称模糊匹配查找物品
+     */
+    List<StackableItem> findByUserIdAndNameContaining(Long userId, String name);
 
     /**
      * 删除物品

@@ -36,23 +36,39 @@ public class InventoryService {
     // ===================== 公开 API（含认证） =====================
 
     public ServiceResult<InventorySummaryVO> getInventorySummary(PlatformType platform, String openId) {
-        Long userId = UserContext.getCurrentUserId();
-        return new ServiceResult.Success<>(getInventorySummary(userId));
+        try {
+            Long userId = UserContext.getCurrentUserId();
+            return new ServiceResult.Success<>(getInventorySummary(userId));
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return ServiceResult.businessFailure(e.getMessage());
+        }
     }
 
     public ServiceResult<List<ItemEntry>> getSeedInventory(PlatformType platform, String openId) {
-        Long userId = UserContext.getCurrentUserId();
-        return new ServiceResult.Success<>(getSeedInventory(userId));
+        try {
+            Long userId = UserContext.getCurrentUserId();
+            return new ServiceResult.Success<>(getSeedInventory(userId));
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return ServiceResult.businessFailure(e.getMessage());
+        }
     }
 
     public ServiceResult<List<ItemEntry>> getEquipmentInventory(PlatformType platform, String openId) {
-        Long userId = UserContext.getCurrentUserId();
-        return new ServiceResult.Success<>(getEquipmentInventory(userId));
+        try {
+            Long userId = UserContext.getCurrentUserId();
+            return new ServiceResult.Success<>(getEquipmentInventory(userId));
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return ServiceResult.businessFailure(e.getMessage());
+        }
     }
 
     public ServiceResult<List<ItemEntry>> getEggInventory(PlatformType platform, String openId) {
-        Long userId = UserContext.getCurrentUserId();
-        return new ServiceResult.Success<>(getEggInventory(userId));
+        try {
+            Long userId = UserContext.getCurrentUserId();
+            return new ServiceResult.Success<>(getEggInventory(userId));
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return ServiceResult.businessFailure(e.getMessage());
+        }
     }
 
     // ===================== 内部 API（需预先完成认证） =====================
@@ -63,11 +79,10 @@ public class InventoryService {
     public InventoryResult getInventory(Long userId) {
         User user = userRepository.findById(userId).orElseThrow();
 
-        List<Equipment> allEquipments = equipmentRepository.findByUserId(userId);
+        List<Equipment> allEquipments = equipmentRepository.findUnequippedByUserId(userId);
         List<StackableItem> stackableItems = stackableItemRepository.findByUserId(userId);
 
         List<InventoryItem> equipments = allEquipments.stream()
-                .filter(e -> !e.getEquipped())
                 .sorted((a, b) -> b.getRarity().ordinal() - a.getRarity().ordinal())
                 .map(e -> new InventoryItem(e.getId(), null, e.getName(), 1))
                 .toList();
@@ -103,11 +118,10 @@ public class InventoryService {
     public InventorySummaryVO getInventorySummary(Long userId) {
         User user = userRepository.findById(userId).orElseThrow();
 
-        List<Equipment> allEquipments = equipmentRepository.findByUserId(userId);
+        List<Equipment> allEquipments = equipmentRepository.findUnequippedByUserId(userId);
         List<StackableItem> stackableItems = stackableItemRepository.findByUserId(userId);
 
         Map<String, Integer> equipmentByQuality = allEquipments.stream()
-                .filter(e -> !e.getEquipped())
                 .collect(Collectors.groupingBy(
                         e -> e.getRarity().getName(),
                         Collectors.collectingAndThen(Collectors.counting(), Long::intValue)

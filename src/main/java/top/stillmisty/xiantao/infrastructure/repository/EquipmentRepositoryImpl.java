@@ -37,6 +37,14 @@ public class EquipmentRepositoryImpl implements EquipmentRepository {
     }
 
     @Override
+    public List<Equipment> findUnequippedByUserId(Long userId) {
+        QueryWrapper query = new QueryWrapper()
+                .eq(Equipment::getUserId, userId)
+                .eq(Equipment::getEquipped, false);
+        return equipmentMapper.selectListByQuery(query);
+    }
+
+    @Override
     public List<Equipment> findEquippedByUserId(Long userId) {
         QueryWrapper query = new QueryWrapper()
                 .eq(Equipment::getUserId, userId)

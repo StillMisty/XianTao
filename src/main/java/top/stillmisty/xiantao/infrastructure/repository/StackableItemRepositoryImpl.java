@@ -4,6 +4,7 @@ import com.mybatisflex.core.query.QueryWrapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
+import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.infrastructure.mapper.StackableItemMapper;
 
@@ -42,6 +43,22 @@ public class StackableItemRepositoryImpl implements StackableItemRepository {
                 .eq(StackableItem::getUserId, userId)
                 .eq(StackableItem::getTemplateId, templateId);
         return Optional.ofNullable(stackableItemMapper.selectOneByQuery(query));
+    }
+
+    @Override
+    public List<StackableItem> findByUserIdAndType(Long userId, ItemType type) {
+        QueryWrapper query = new QueryWrapper()
+                .eq(StackableItem::getUserId, userId)
+                .eq(StackableItem::getItemType, type);
+        return stackableItemMapper.selectListByQuery(query);
+    }
+
+    @Override
+    public List<StackableItem> findByUserIdAndNameContaining(Long userId, String name) {
+        QueryWrapper query = new QueryWrapper()
+                .eq(StackableItem::getUserId, userId)
+                .like(StackableItem::getName, name);
+        return stackableItemMapper.selectListByQuery(query);
     }
 
     @Override

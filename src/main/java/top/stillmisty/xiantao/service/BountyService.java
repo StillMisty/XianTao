@@ -47,23 +47,39 @@ public class BountyService {
     // ===================== 公开 API（含认证） =====================
 
     public ServiceResult<List<BountyVO>> listBounties(PlatformType platform, String openId) {
-        Long userId = UserContext.getCurrentUserId();
-        return new ServiceResult.Success<>(listBounties(userId));
+        try {
+            Long userId = UserContext.getCurrentUserId();
+            return new ServiceResult.Success<>(listBounties(userId));
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return ServiceResult.businessFailure(e.getMessage());
+        }
     }
 
     public ServiceResult<String> startBounty(PlatformType platform, String openId, Long bountyId) {
-        Long userId = UserContext.getCurrentUserId();
-        return new ServiceResult.Success<>(startBounty(userId, bountyId));
+        try {
+            Long userId = UserContext.getCurrentUserId();
+            return new ServiceResult.Success<>(startBounty(userId, bountyId));
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return ServiceResult.businessFailure(e.getMessage());
+        }
     }
 
     public ServiceResult<BountyRewardVO> completeBounty(PlatformType platform, String openId) {
-        Long userId = UserContext.getCurrentUserId();
-        return new ServiceResult.Success<>(completeBounty(userId));
+        try {
+            Long userId = UserContext.getCurrentUserId();
+            return new ServiceResult.Success<>(completeBounty(userId));
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return ServiceResult.businessFailure(e.getMessage());
+        }
     }
 
     public ServiceResult<String> abandonBounty(PlatformType platform, String openId) {
-        Long userId = UserContext.getCurrentUserId();
-        return new ServiceResult.Success<>(abandonBounty(userId));
+        try {
+            Long userId = UserContext.getCurrentUserId();
+            return new ServiceResult.Success<>(abandonBounty(userId));
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return ServiceResult.businessFailure(e.getMessage());
+        }
     }
 
     // ===================== 内部 API =====================

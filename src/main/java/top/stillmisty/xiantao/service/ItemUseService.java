@@ -30,27 +30,29 @@ public class ItemUseService {
      * 使用物品（公开API，含认证）
      */
     public ServiceResult<String> useItem(PlatformType platform, String openId, String itemName, String args) {
-        Long userId = UserContext.getCurrentUserId();
-        return new ServiceResult.Success<>(useItem(userId, itemName, args));
+        try {
+            Long userId = UserContext.getCurrentUserId();
+            return new ServiceResult.Success<>(useItem(userId, itemName, args));
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return ServiceResult.businessFailure(e.getMessage());
+        }
     }
 
     /**
      * 使用物品（内部API）
      */
     public String useItem(Long userId, String itemName, String args) {
-        // 1. 查找物品
-        List<StackableItem> items = stackableItemRepository.findByUserId(userId);
+        // 1. 查找物品 - 使用数据库模糊匹配
+        List<StackableItem> items = stackableItemRepository.findByUserIdAndNameContaining(userId, itemName);
         StackableItem matchedItem = null;
         ItemTemplate matchedTemplate = null;
 
         for (StackableItem item : items) {
-            if (item.getName().contains(itemName)) {
-                ItemTemplate template = itemTemplateRepository.findById(item.getTemplateId()).orElse(null);
-                if (template != null) {
-                    matchedItem = item;
-                    matchedTemplate = template;
-                    break;
-                }
+            ItemTemplate template = itemTemplateRepository.findById(item.getTemplateId()).orElse(null);
+            if (template != null) {
+                matchedItem = item;
+                matchedTemplate = template;
+                break;
             }
         }
 
