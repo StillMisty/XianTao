@@ -29,7 +29,7 @@ public class TravelService {
     @Transactional
     public ServiceResult<TravelResultVO> startTravel(PlatformType platform, String openId, String mapName) {
         var auth = authService.authenticateAndValidateStatus(platform, openId, UserStatus.IDLE);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         return new ServiceResult.Success<>(startTravel(auth.userId(), mapName));
     }
 

@@ -38,13 +38,13 @@ public class EquipmentService {
 
     public ServiceResult<EquipResult> equipItem(PlatformType platform, String openId, String itemName) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         return new ServiceResult.Success<>(equipItem(auth.userId(), itemName));
     }
 
     public ServiceResult<UnequipResult> unequipItem(PlatformType platform, String openId, String slotName) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         return new ServiceResult.Success<>(unequipItem(auth.userId(), slotName));
     }
 

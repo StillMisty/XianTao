@@ -40,33 +40,33 @@ public class SkillService {
     @Transactional
     public ServiceResult<SkillSlotResult> learnFromJade(PlatformType platform, String openId, String jadeInput) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         return new ServiceResult.Success<>(learnFromJade(auth.userId(), jadeInput));
     }
 
     public ServiceResult<List<SkillVO>> getLearnedSkills(PlatformType platform, String openId) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         return new ServiceResult.Success<>(getLearnedSkills(auth.userId()));
     }
 
     public ServiceResult<List<SkillVO>> getEquippedSkills(PlatformType platform, String openId) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         return new ServiceResult.Success<>(getEquippedSkills(auth.userId()));
     }
 
     @Transactional
     public ServiceResult<SkillSlotResult> equipSkill(PlatformType platform, String openId, String skillInput) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         return new ServiceResult.Success<>(equipSkill(auth.userId(), skillInput));
     }
 
     @Transactional
     public ServiceResult<SkillSlotResult> unequipSkill(PlatformType platform, String openId, String skillInput) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         return new ServiceResult.Success<>(unequipSkill(auth.userId(), skillInput));
     }
 

@@ -53,81 +53,81 @@ public class FudiService {
 
     public ServiceResult<FudiStatusVO> getFudiStatus(PlatformType platform, String openId) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         try {
             return new ServiceResult.Success<>(getFudiStatus(auth.userId()));
         } catch (IllegalStateException e) {
-            return new ServiceResult.Failure<>(e.getMessage());
+            return ServiceResult.businessFailure(e.getMessage());
         }
     }
 
     public ServiceResult<Map<String, Object>> collect(PlatformType platform, String openId, String position) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         try {
             return new ServiceResult.Success<>(collect(auth.userId(), position));
         } catch (IllegalStateException e) {
-            return new ServiceResult.Failure<>(e.getMessage());
+            return ServiceResult.businessFailure(e.getMessage());
         }
     }
 
     public ServiceResult<Map<String, Object>> collectAll(PlatformType platform, String openId) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         try {
             return new ServiceResult.Success<>(collectAll(auth.userId()));
         } catch (IllegalStateException e) {
-            return new ServiceResult.Failure<>(e.getMessage());
+            return ServiceResult.businessFailure(e.getMessage());
         }
     }
 
     public ServiceResult<Map<String, Object>> buildCell(PlatformType platform, String openId, String position, CellType type) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         try {
             return new ServiceResult.Success<>(buildCell(auth.userId(), position, type));
         } catch (IllegalStateException e) {
-            return new ServiceResult.Failure<>(e.getMessage());
+            return ServiceResult.businessFailure(e.getMessage());
         }
     }
 
     public ServiceResult<Map<String, Object>> removeCell(PlatformType platform, String openId, String position) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         try {
             return new ServiceResult.Success<>(removeCell(auth.userId(), position));
         } catch (IllegalStateException e) {
-            return new ServiceResult.Failure<>(e.getMessage());
+            return ServiceResult.businessFailure(e.getMessage());
         }
     }
 
     public ServiceResult<Map<String, Object>> upgradeCell(PlatformType platform, String openId, String position) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         try {
             return new ServiceResult.Success<>(upgradeCell(auth.userId(), position));
         } catch (IllegalStateException e) {
-            return new ServiceResult.Failure<>(e.getMessage());
+            return ServiceResult.businessFailure(e.getMessage());
         }
     }
 
     public ServiceResult<Map<String, Object>> giveGift(PlatformType platform, String openId, String itemName) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         try {
             return new ServiceResult.Success<>(giveGift(auth.userId(), itemName));
         } catch (IllegalStateException e) {
-            return new ServiceResult.Failure<>(e.getMessage());
+            return ServiceResult.businessFailure(e.getMessage());
         }
     }
 
     public ServiceResult<Map<String, Object>> triggerTribulation(PlatformType platform, String openId) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         try {
             return new ServiceResult.Success<>(triggerTribulation(auth.userId()));
         } catch (IllegalStateException e) {
-            return new ServiceResult.Failure<>(e.getMessage());
+            return ServiceResult.businessFailure(e.getMessage());
         }
     }
 

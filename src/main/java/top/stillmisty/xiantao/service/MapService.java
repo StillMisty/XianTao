@@ -28,7 +28,7 @@ public class MapService {
 
     public ServiceResult<List<MapInfoVO>> getAllMaps(PlatformType platform, String openId) {
         var auth = authService.authenticate(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         return new ServiceResult.Success<>(getAllMaps());
     }
 

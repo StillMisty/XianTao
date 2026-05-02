@@ -37,7 +37,7 @@ public class CharacterStatusService {
 
     public ServiceResult<CharacterStatusResult> getCharacterStatus(PlatformType platform, String openId) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         return new ServiceResult.Success<>(getCharacterStatus(auth.userId()));
     }
 

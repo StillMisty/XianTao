@@ -50,7 +50,7 @@ public class SpiritChatService {
 
     public ServiceResult<String> chatWithSpirit(PlatformType platform, String openId, String userInput) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         return new ServiceResult.Success<>(chatWithSpirit(auth.userId(), userInput));
     }
 

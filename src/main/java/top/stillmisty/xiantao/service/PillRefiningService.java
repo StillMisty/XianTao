@@ -37,14 +37,14 @@ public class PillRefiningService {
     @Transactional
     public ServiceResult<PillRefiningResultVO> refinePillAuto(PlatformType platform, String openId, String recipeName) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         return new ServiceResult.Success<>(refinePillAuto(auth.userId(), recipeName));
     }
 
     @Transactional
     public ServiceResult<PillRefiningResultVO> refinePillManual(PlatformType platform, String openId, List<String> herbInputs) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         return new ServiceResult.Success<>(refinePillManual(auth.userId(), herbInputs));
     }
 

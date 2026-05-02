@@ -39,25 +39,25 @@ public class InventoryService {
 
     public ServiceResult<InventorySummaryVO> getInventorySummary(PlatformType platform, String openId) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         return new ServiceResult.Success<>(getInventorySummary(auth.userId()));
     }
 
     public ServiceResult<List<ItemEntry>> getSeedInventory(PlatformType platform, String openId) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         return new ServiceResult.Success<>(getSeedInventory(auth.userId()));
     }
 
     public ServiceResult<List<ItemEntry>> getEquipmentInventory(PlatformType platform, String openId) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         return new ServiceResult.Success<>(getEquipmentInventory(auth.userId()));
     }
 
     public ServiceResult<List<ItemEntry>> getEggInventory(PlatformType platform, String openId) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         return new ServiceResult.Success<>(getEggInventory(auth.userId()));
     }
 

@@ -32,11 +32,11 @@ public class ItemUseService {
      */
     public ServiceResult<String> useItem(PlatformType platform, String openId, String itemName, String args) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         try {
             return new ServiceResult.Success<>(useItem(auth.userId(), itemName, args));
         } catch (IllegalStateException e) {
-            return new ServiceResult.Failure<>(e.getMessage());
+            return ServiceResult.businessFailure(e.getMessage());
         }
     }
 

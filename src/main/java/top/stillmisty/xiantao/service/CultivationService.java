@@ -44,25 +44,25 @@ public class CultivationService {
 
     public ServiceResult<BreakthroughResult> attemptBreakthrough(PlatformType platform, String openId) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         return new ServiceResult.Success<>(attemptBreakthrough(auth.userId()));
     }
 
     public ServiceResult<DaoProtectionResult> establishProtection(PlatformType platform, String openId, String protegeNickname) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         return new ServiceResult.Success<>(establishProtection(auth.userId(), protegeNickname));
     }
 
     public ServiceResult<DaoProtectionResult> removeProtection(PlatformType platform, String openId, String protegeNickname) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         return new ServiceResult.Success<>(removeProtection(auth.userId(), protegeNickname));
     }
 
     public ServiceResult<DaoProtectionQueryResult> queryProtectionInfo(PlatformType platform, String openId) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         return new ServiceResult.Success<>(queryProtectionInfo(auth.userId()));
     }
 

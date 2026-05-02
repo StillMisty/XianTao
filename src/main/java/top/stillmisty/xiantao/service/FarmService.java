@@ -45,21 +45,21 @@ public class FarmService {
 
     public ServiceResult<FarmCellVO> plantCropByName(PlatformType platform, String openId, String position, String cropName) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         try {
             return new ServiceResult.Success<>(plantCropByName(auth.userId(), position, cropName));
         } catch (IllegalStateException e) {
-            return new ServiceResult.Failure<>(e.getMessage());
+            return ServiceResult.businessFailure(e.getMessage());
         }
     }
 
     public ServiceResult<FarmCellVO> plantCropByInput(PlatformType platform, String openId, String position, String input) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         try {
             return new ServiceResult.Success<>(plantCropByInput(auth.userId(), position, input));
         } catch (IllegalStateException e) {
-            return new ServiceResult.Failure<>(e.getMessage());
+            return ServiceResult.businessFailure(e.getMessage());
         }
     }
 

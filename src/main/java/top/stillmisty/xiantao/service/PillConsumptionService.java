@@ -44,7 +44,7 @@ public class PillConsumptionService {
     @Transactional
     public ServiceResult<String> takePill(PlatformType platform, String openId, String pillName) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         return new ServiceResult.Success<>(takePill(auth.userId(), pillName));
     }
 

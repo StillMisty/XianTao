@@ -49,25 +49,25 @@ public class BountyService {
 
     public ServiceResult<List<BountyVO>> listBounties(PlatformType platform, String openId) {
         var auth = authService.authenticateAndValidateStatus(platform, openId, UserStatus.IDLE);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         return new ServiceResult.Success<>(listBounties(auth.userId()));
     }
 
     public ServiceResult<String> startBounty(PlatformType platform, String openId, Long bountyId) {
         var auth = authService.authenticateAndValidateStatus(platform, openId, UserStatus.IDLE);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         return new ServiceResult.Success<>(startBounty(auth.userId(), bountyId));
     }
 
     public ServiceResult<BountyRewardVO> completeBounty(PlatformType platform, String openId) {
         var auth = authService.authenticateAndValidateStatus(platform, openId, UserStatus.BOUNTY);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         return new ServiceResult.Success<>(completeBounty(auth.userId()));
     }
 
     public ServiceResult<String> abandonBounty(PlatformType platform, String openId) {
         var auth = authService.authenticateAndValidateStatus(platform, openId, UserStatus.BOUNTY);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         return new ServiceResult.Success<>(abandonBounty(auth.userId()));
     }
 

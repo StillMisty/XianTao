@@ -67,13 +67,13 @@ public class TrainingService {
 
     public ServiceResult<TrainingStartResult> startTraining(PlatformType platform, String openId) {
         var auth = authService.authenticateAndValidateStatus(platform, openId, UserStatus.IDLE);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         return new ServiceResult.Success<>(startTraining(auth.userId()));
     }
 
     public ServiceResult<TrainingRewardVO> endTraining(PlatformType platform, String openId) {
         var auth = authService.authenticateAndValidateStatus(platform, openId, UserStatus.EXERCISING);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         return new ServiceResult.Success<>(endTraining(auth.userId()));
     }
 

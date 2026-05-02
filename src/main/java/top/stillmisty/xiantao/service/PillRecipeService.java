@@ -36,20 +36,20 @@ public class PillRecipeService {
 
     public ServiceResult<List<PillRecipeVO>> getLearnedRecipes(PlatformType platform, String openId) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         return new ServiceResult.Success<>(getLearnedRecipes(auth.userId()));
     }
 
     public ServiceResult<PillRecipeVO> getRecipeDetail(PlatformType platform, String openId, String recipeName) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         return new ServiceResult.Success<>(getRecipeDetail(auth.userId(), recipeName));
     }
 
     @Transactional
     public ServiceResult<PillRecipeVO> learnRecipe(PlatformType platform, String openId, String recipeName) {
         var auth = authService.authenticateAndValidateUser(platform, openId);
-        if (!auth.authenticated()) return new ServiceResult.Failure<>(auth.errorMessage());
+        if (!auth.authenticated()) return ServiceResult.authFailure(auth.errorMessage());
         return new ServiceResult.Success<>(learnRecipe(auth.userId(), recipeName));
     }
 
