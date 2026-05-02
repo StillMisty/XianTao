@@ -1,6 +1,8 @@
 package top.stillmisty.xiantao.domain.pill.vo;
 
-import java.util.Map;
+import top.stillmisty.xiantao.domain.item.entity.ItemProperties;
+
+import java.util.List;
 
 /**
  * 丹方详情VO
@@ -12,6 +14,6 @@ public record PillRecipeVO(
         Long resultItemId,
         String resultItemName,
         int resultQuantity,
-        Map<String, Map<String, Integer>> requirements
+        List<ItemProperties.ElementRequirement> requirements
 ) {
 }

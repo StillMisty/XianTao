@@ -89,13 +89,10 @@ public class PillCommandHandler {
         sb.append(String.format("成品：%s x%d\n", recipe.resultItemName(), recipe.resultQuantity()));
         sb.append("\n五行要求：\n");
 
-        Map<String, Map<String, Integer>> requirements = recipe.requirements();
-        for (Map.Entry<String, Map<String, Integer>> entry : requirements.entrySet()) {
-            String element = entry.getKey();
-            int min = entry.getValue().getOrDefault("min", 0);
-            int max = entry.getValue().getOrDefault("max", 0);
-            String elementName = getElementName(element);
-            sb.append(String.format("  %s：%d~%d\n", elementName, min, max));
+        var requirements = recipe.requirements();
+        for (var req : requirements) {
+            String elementName = getElementName(req.element());
+            sb.append(String.format("  %s：%d~%d\n", elementName, req.min(), req.max()));
         }
 
         sb.append("\n输入「炼 [丹方名]」自动炼丹");

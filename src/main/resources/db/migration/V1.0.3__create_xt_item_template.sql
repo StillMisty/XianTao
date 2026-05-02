@@ -14,12 +14,13 @@ CREATE TABLE xt_item_template
 COMMENT ON TABLE xt_item_template IS '物品模板配置表';
 COMMENT ON COLUMN xt_item_template.id IS '模板ID';
 COMMENT ON COLUMN xt_item_template.name IS '物品名称（全表唯一，用作跨环境稳定的语义标识）';
-COMMENT ON COLUMN xt_item_template.type IS '物品类型 (EQUIPMENT, MATERIAL, SEED, BEAST_EGG, POTION, EVOLUTION_STONE)';
+COMMENT ON COLUMN xt_item_template.type IS '物品类型 (MATERIAL, SEED, BEAST_EGG, POTION, EVOLUTION_STONE, SKILL_JADE, RECIPE_SCROLL, HERB)';
 COMMENT ON COLUMN xt_item_template.properties IS '类型特有属性 JSONB：
-  装备特有属性见 xt_equipment_template 表
-  种子: {"grow_time":24,"yields":["铜矿石","铁矿石","灵石"],"survive_rate":90}
-  灵兽卵: {"grow_time":72,"yields":["火灵兽"],"survive_rate":70}
-  其他: {}';
+  种子/灵兽卵: {"grow_time":24}
+  法决玉简: {"skill_id":1}
+  丹方卷轴: {"grade":3,"product":{"item_id":1,"quantity":1},"requirements":[{"element":"metal","min":1,"max":5}]}
+  丹药: {"effects":[{"type":"exp","amount":100}]}
+  灵兽: {"production_items":[...],"skill_pool":{"innate_skills":[...],"awakening_skills":[...]}}';
 COMMENT ON COLUMN xt_item_template.tags IS '物品标签 JSONB，用于AI检索和NPC交互，示例: ["ore", "metal", "forge_base"]';
 COMMENT ON COLUMN xt_item_template.description IS '物品描述';
 

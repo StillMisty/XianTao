@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import top.stillmisty.xiantao.domain.item.entity.ItemProperties;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
@@ -137,12 +138,9 @@ public class PillService {
         List<StackableItem> items = stackableItemRepository.findByUserId(userId);
         StackableItem recipeItem = null;
         for (StackableItem item : items) {
-            if (item.getItemType() == ItemType.MATERIAL && item.getName().contains(recipeName)) {
-                ItemTemplate template = itemTemplateRepository.findById(item.getTemplateId()).orElse(null);
-                if (template != null && template.getRecipe() != null) {
-                    recipeItem = item;
-                    break;
-                }
+            if (item.getItemType() == ItemType.RECIPE_SCROLL && item.getName().contains(recipeName)) {
+                recipeItem = item;
+                break;
             }
         }
 
@@ -159,8 +157,9 @@ public class PillService {
         }
 
         // 获取成品丹药模板ID
-        Long resultItemId = recipeTemplate.getRecipeResultItemId();
-        if (resultItemId == null) return null;
+        var recipeScroll = getRecipeScroll(recipeTemplate);
+        if (recipeScroll == null) return null;
+        long resultItemId = recipeScroll.product().itemId();
 
         // 创建玩家已学丹方
         PlayerPillRecipe recipe = PlayerPillRecipe.create(userId, recipeTemplate.getId(), resultItemId);
@@ -197,10 +196,11 @@ public class PillService {
         }
 
         // 获取丹方五行要求
-        Map<String, Map<String, Integer>> requirements = recipeTemplate.getRecipeRequirements();
-        if (requirements.isEmpty()) {
+        var recipeScroll = getRecipeScroll(recipeTemplate);
+        if (recipeScroll == null || recipeScroll.requirements().isEmpty()) {
             return new PillRefiningResultVO(false, "丹方数据错误", null, null, 0, null, null, null);
         }
+        var requirements = recipeScroll.requirements();
 
         // 获取玩家背包中的药材
         List<StackableItem> herbs = stackableItemRepository.findByUserId(userId).stream()
@@ -248,7 +248,9 @@ public class PillService {
             ItemTemplate recipeTemplate = itemTemplateRepository.findById(recipe.getRecipeTemplateId()).orElse(null);
             if (recipeTemplate == null) continue;
 
-            Map<String, Map<String, Integer>> requirements = recipeTemplate.getRecipeRequirements();
+            var recipeScroll = getRecipeScroll(recipeTemplate);
+            if (recipeScroll == null) continue;
+            var requirements = recipeScroll.requirements();
             if (matchesRequirements(elementTotals, requirements)) {
                 // 成丹判定
                 double qualityScore = calculateQualityScore(elementTotals, requirements);
@@ -260,13 +262,13 @@ public class PillService {
                 }
 
                 // 生成丹药
-                Long resultItemId = recipeTemplate.getRecipeResultItemId();
-                int resultQuantity = recipeTemplate.getRecipeResultQuantity();
+                long resultItemId = recipeScroll.product().itemId();
+                int resultQuantity = recipeScroll.product().quantity();
                 ItemTemplate resultTemplate = itemTemplateRepository.findById(resultItemId).orElse(null);
                 if (resultTemplate == null) continue;
 
                 // 创建丹药实例（带properties）
-                createPillItem(userId, resultTemplate, recipeTemplate.getRecipeGrade(), quality, resultQuantity);
+                createPillItem(userId, resultTemplate, recipeScroll.grade(), quality, resultQuantity);
 
                 return new PillRefiningResultVO(true, "炼丹成功！", resultItemId, resultTemplate.getName(),
                         resultQuantity, quality, usedHerbs, null);
@@ -296,8 +298,8 @@ public class PillService {
         }
 
         // 获取丹药效果
-        Map<String, Object> properties = template.getProperties();
-        if (properties == null) {
+        var props = template.typedProperties();
+        if (!(props instanceof ItemProperties.Potion potion)) {
             return "丹药无效果";
         }
 
@@ -305,7 +307,7 @@ public class PillService {
         double qualityMultiplier = getQualityMultiplier(pill.getQuality());
 
         // 应用效果
-        String effectResult = applyPillEffect(userId, properties, qualityMultiplier);
+        String effectResult = applyPillEffect(userId, potion, qualityMultiplier);
         if (effectResult == null) {
             return "丹药效果未知";
         }
@@ -318,21 +320,27 @@ public class PillService {
 
     // ===================== 辅助方法 =====================
 
+    private static ItemProperties.Scroll getRecipeScroll(ItemTemplate template) {
+        var props = template.typedProperties();
+        if (props instanceof ItemProperties.Scroll s) return s;
+        return null;
+    }
+
     /**
      * 查找最优药材组合（自动炼丹）
      */
     private PillRefiningResultVO findBestCombination(Long userId, List<StackableItem> herbs,
-            Map<String, Map<String, Integer>> requirements, ItemTemplate recipeTemplate) {
+            List<ItemProperties.ElementRequirement> requirements, ItemTemplate recipeTemplate) {
         // 简化实现：贪心算法
         Map<String, Integer> elementTotals = new HashMap<>();
         Map<String, Integer> usedHerbs = new HashMap<>();
         List<String> missingElements = new ArrayList<>();
 
         // 检查每个五行要求
-        for (Map.Entry<String, Map<String, Integer>> entry : requirements.entrySet()) {
-            String element = entry.getKey();
-            int min = entry.getValue().getOrDefault("min", 0);
-            int max = entry.getValue().getOrDefault("max", Integer.MAX_VALUE);
+        for (var req : requirements) {
+            String element = req.element();
+            int min = req.min();
+            int max = req.max();
 
             // 查找包含该五行的药材
             int currentTotal = elementTotals.getOrDefault(element, 0);
@@ -369,9 +377,9 @@ public class PillService {
         }
 
         // 检查是否超过最大值
-        for (Map.Entry<String, Map<String, Integer>> entry : requirements.entrySet()) {
-            String element = entry.getKey();
-            int max = entry.getValue().getOrDefault("max", Integer.MAX_VALUE);
+        for (var req : requirements) {
+            String element = req.element();
+            int max = req.max() == 0 ? Integer.MAX_VALUE : req.max();
             int currentTotal = elementTotals.getOrDefault(element, 0);
             if (currentTotal > max) {
                 return new PillRefiningResultVO(false, "药材属性超过上限：" + element,
@@ -396,15 +404,19 @@ public class PillService {
         }
 
         // 生成丹药
-        Long resultItemId = recipeTemplate.getRecipeResultItemId();
-        int resultQuantity = recipeTemplate.getRecipeResultQuantity();
+        var recipeScroll = getRecipeScroll(recipeTemplate);
+        if (recipeScroll == null) {
+            return new PillRefiningResultVO(false, "丹方数据错误", null, null, 0, null, null, null);
+        }
+        long resultItemId = recipeScroll.product().itemId();
+        int resultQuantity = recipeScroll.product().quantity();
         ItemTemplate resultTemplate = itemTemplateRepository.findById(resultItemId).orElse(null);
         if (resultTemplate == null) {
             return new PillRefiningResultVO(false, "丹药模板不存在", null, null, 0, null, null, null);
         }
 
         // 创建丹药实例
-        createPillItem(userId, resultTemplate, recipeTemplate.getRecipeGrade(), quality, resultQuantity);
+        createPillItem(userId, resultTemplate, recipeScroll.grade(), quality, resultQuantity);
 
         return new PillRefiningResultVO(true, "炼丹成功！", resultItemId, resultTemplate.getName(),
                 resultQuantity, quality, usedHerbs, null);
@@ -414,11 +426,11 @@ public class PillService {
      * 检查五行是否匹配丹方要求
      */
     private boolean matchesRequirements(Map<String, Integer> elementTotals,
-            Map<String, Map<String, Integer>> requirements) {
-        for (Map.Entry<String, Map<String, Integer>> entry : requirements.entrySet()) {
-            String element = entry.getKey();
-            int min = entry.getValue().getOrDefault("min", 0);
-            int max = entry.getValue().getOrDefault("max", Integer.MAX_VALUE);
+            List<ItemProperties.ElementRequirement> requirements) {
+        for (var req : requirements) {
+            String element = req.element();
+            int min = req.min();
+            int max = req.max() == 0 ? Integer.MAX_VALUE : req.max();
             int current = elementTotals.getOrDefault(element, 0);
             if (current < min || current > max) {
                 return false;
@@ -431,13 +443,13 @@ public class PillService {
      * 计算品质分数
      */
     private double calculateQualityScore(Map<String, Integer> elementTotals,
-            Map<String, Map<String, Integer>> requirements) {
+            List<ItemProperties.ElementRequirement> requirements) {
         double totalScore = 0;
         int count = 0;
-        for (Map.Entry<String, Map<String, Integer>> entry : requirements.entrySet()) {
-            String element = entry.getKey();
-            int min = entry.getValue().getOrDefault("min", 0);
-            int max = entry.getValue().getOrDefault("max", 0);
+        for (var req : requirements) {
+            String element = req.element();
+            int min = req.min();
+            int max = req.max();
             int current = elementTotals.getOrDefault(element, 0);
 
             double center = (max + min) / 2.0;
@@ -479,50 +491,55 @@ public class PillService {
     /**
      * 应用丹药效果
      */
-    private String applyPillEffect(Long userId, Map<String, Object> properties, double qualityMultiplier) {
-        String pillType = (String) properties.get("pill_type");
-        if (pillType == null) return null;
+    private String applyPillEffect(Long userId, ItemProperties.Potion potion, double qualityMultiplier) {
+        var effects = potion.effects();
+        if (effects == null || effects.isEmpty()) return null;
 
         User user = userRepository.findById(userId).orElseThrow();
+        var messages = new ArrayList<String>();
 
-        return switch (pillType) {
-            case "exp" -> {
-                Object expObj = properties.get("exp_amount");
-                if (expObj instanceof Number expAmount) {
-                    long actualExp = (long) (expAmount.longValue() * qualityMultiplier);
+        for (var effect : effects) {
+            messages.add(switch (effect) {
+                case ItemProperties.Effect.Exp e -> {
+                    long actualExp = (long) (e.amount() * qualityMultiplier);
                     user.addExp(actualExp);
-                    userRepository.save(user);
-                    yield String.format("服用丹药成功，获得 %d 经验值", actualExp);
+                    yield "获得 " + actualExp + " 经验值";
                 }
-                yield null;
-            }
-            case "hp" -> {
-                Object hpObj = properties.get("hp_percentage");
-                if (hpObj instanceof Number hpPercentage) {
+                case ItemProperties.Effect.Hp e -> {
                     int maxHp = user.calculateMaxHp();
-                    int healAmount = (int) (maxHp * hpPercentage.doubleValue() / 100 * qualityMultiplier);
+                    int healAmount;
+                    String desc;
+                    if (e.percentage() > 0) {
+                        healAmount = (int) (maxHp * e.percentage() / 100 * qualityMultiplier);
+                        desc = healAmount + " 生命值";
+                    } else {
+                        healAmount = (int) (e.amount() * qualityMultiplier);
+                        desc = healAmount + " 生命值";
+                    }
                     int oldHp = user.getHpCurrent();
                     user.setHpCurrent(Math.min(maxHp, oldHp + healAmount));
-                    userRepository.save(user);
-                    yield String.format("服用丹药成功，恢复 %d 生命值", healAmount);
+                    yield "恢复 " + desc;
                 }
-                yield null;
-            }
-            case "breakthrough" -> {
-                // 突破成功率加成（临时效果，需要额外实现）
-                yield "服用丹药成功，下次突破成功率提升";
-            }
-            case "stat" -> {
-                Object statObj = properties.get("stat_amount");
-                if (statObj instanceof Number statAmount) {
-                    int actualStat = (int) (statAmount.intValue() * qualityMultiplier);
-                    // 永久属性点（需要额外实现）
-                    yield String.format("服用丹药成功，获得 %d 属性点", actualStat);
+                case ItemProperties.Effect.Stat e -> {
+                    int actualStat = (int) (e.amount() * qualityMultiplier);
+                    // 永久属性点暂存，后续实现
+                    yield "获得 " + actualStat + " 属性点（" + e.statAttr() + "）";
                 }
-                yield null;
-            }
-            default -> null;
-        };
+                case ItemProperties.Effect.Breakthrough e -> {
+                    yield "下次突破成功率提升";
+                }
+                case ItemProperties.Effect.Buff e -> {
+                    yield "获得 " + e.attribute() + " buff，持续 " + e.durationSeconds() + " 秒";
+                }
+                case ItemProperties.Effect.Cure e -> {
+                    String target = e.status().isEmpty() ? "所有异常状态" : e.status();
+                    yield "驱散了 " + target;
+                }
+            });
+        }
+
+        userRepository.save(user);
+        return "服用丹药成功：" + String.join("，", messages);
     }
 
     /**
@@ -587,14 +604,19 @@ public class PillService {
      */
     private PillRecipeVO convertToPillRecipeVO(PlayerPillRecipe recipe, ItemTemplate recipeTemplate,
             ItemTemplate resultTemplate) {
+        var recipeScroll = getRecipeScroll(recipeTemplate);
+        if (recipeScroll == null) {
+            return new PillRecipeVO(recipe.getRecipeTemplateId(), recipeTemplate.getName(), 0,
+                    recipe.getResultItemId(), resultTemplate.getName(), 0, List.of());
+        }
         return new PillRecipeVO(
                 recipe.getRecipeTemplateId(),
                 recipeTemplate.getName(),
-                recipeTemplate.getRecipeGrade(),
+                recipeScroll.grade(),
                 recipe.getResultItemId(),
                 resultTemplate.getName(),
-                recipeTemplate.getRecipeResultQuantity(),
-                recipeTemplate.getRecipeRequirements()
+                recipeScroll.product().quantity(),
+                recipeScroll.requirements()
         );
     }
 

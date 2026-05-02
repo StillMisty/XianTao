@@ -19,8 +19,7 @@ public class RecipeScrollUseHandler implements ItemUseHandler {
 
     @Override
     public boolean supports(ItemType type, ItemTemplate template) {
-        // 丹方卷轴是 MATERIAL 类型，但带有 recipe 属性
-        return type == ItemType.MATERIAL && template != null && template.getRecipe() != null;
+        return type == ItemType.RECIPE_SCROLL;
     }
 
     @Override

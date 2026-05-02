@@ -8,6 +8,7 @@ import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
 import top.stillmisty.xiantao.domain.beast.vo.BeastSkillPoolVO;
 import top.stillmisty.xiantao.domain.beast.vo.BeastStatusVO;
+import top.stillmisty.xiantao.domain.item.entity.ItemProperties;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
@@ -760,7 +761,7 @@ public class FudiService {
                 if (stored == null || stored <= 0) continue;
                 // 如果是旧的计数格式，转换为物品列表格式
                 // 这里需要根据灵兽模板获取production_items
-                List<Map<String, Object>> productionItems = getProductionItems(cell);
+                var productionItems = getProductionItems(cell);
                 if (productionItems.isEmpty()) {
                     // 如果没有配置production_items，创建默认物品
                     // 假设产出灵草（template_id = 1）
@@ -775,10 +776,10 @@ public class FudiService {
                     productionStored = new java.util.ArrayList<>();
                     int remaining = stored;
                     while (remaining > 0) {
-                        Map<String, Object> selectedItem = selectRandomProductionItem(productionItems);
+                        var selectedItem = selectRandomProductionItem(productionItems);
                         if (selectedItem != null) {
-                            Long templateId = ((Number) selectedItem.get("template_id")).longValue();
-                            String name = (String) selectedItem.get("name");
+                            long templateId = selectedItem.templateId();
+                            String name = selectedItem.name();
                             // 查找是否已有该物品
                             boolean found = false;
                             for (Map<String, Object> item : productionStored) {
@@ -896,7 +897,7 @@ public class FudiService {
             }
             // 如果是旧的计数格式，转换为物品列表格式
             // 这里需要根据灵兽模板获取production_items
-            List<Map<String, Object>> productionItems = getProductionItems(cell);
+            var productionItems = getProductionItems(cell);
             if (productionItems.isEmpty()) {
                 // 如果没有配置production_items，创建默认物品
                 // 假设产出灵草（template_id = 1）
@@ -911,10 +912,10 @@ public class FudiService {
                 productionStored = new java.util.ArrayList<>();
                 int remaining = stored;
                 while (remaining > 0) {
-                    Map<String, Object> selectedItem = selectRandomProductionItem(productionItems);
+                    var selectedItem = selectRandomProductionItem(productionItems);
                     if (selectedItem != null) {
-                        Long templateId = ((Number) selectedItem.get("template_id")).longValue();
-                        String name = (String) selectedItem.get("name");
+                        long templateId = selectedItem.templateId();
+                        String name = selectedItem.name();
                         // 查找是否已有该物品
                         boolean found = false;
                         for (Map<String, Object> item : productionStored) {
@@ -2026,8 +2027,7 @@ public class FudiService {
     /**
      * 获取灵兽卵模板的production_items配置
      */
-    @SuppressWarnings("unchecked")
-    private List<Map<String, Object>> getProductionItems(FudiCell cell) {
+    private List<ItemProperties.ProductionItem> getProductionItems(FudiCell cell) {
         Integer templateId = cell.getIntConfig("template_id");
         if (templateId == null) {
             return List.of();
@@ -2036,45 +2036,33 @@ public class FudiService {
         if (template == null) {
             return List.of();
         }
-        Map<String, Object> properties = template.getProperties();
-        if (properties == null) {
-            return List.of();
-        }
-        Object productionItems = properties.get("production_items");
-        if (productionItems instanceof List<?> list) {
-            return (List<Map<String, Object>>) (List<?>) list;
+        var props = template.typedProperties();
+        if (props instanceof ItemProperties.BeastEgg egg) {
+            return egg.productionItems();
         }
         return List.of();
     }
 
     /**
-     * 从production_items中随机选择物品
+     * 从production_items中按权重随机选择物品
      */
-    private Map<String, Object> selectRandomProductionItem(List<Map<String, Object>> productionItems) {
+    private ItemProperties.ProductionItem selectRandomProductionItem(List<ItemProperties.ProductionItem> productionItems) {
         if (productionItems.isEmpty()) {
             return null;
         }
-        // 计算总权重
         int totalWeight = 0;
-        for (Map<String, Object> item : productionItems) {
-            Object weight = item.get("weight");
-            if (weight instanceof Number n) {
-                totalWeight += n.intValue();
-            }
+        for (var item : productionItems) {
+            totalWeight += item.weight();
         }
         if (totalWeight <= 0) {
             return productionItems.get(0);
         }
-        // 随机选择
         int random = new Random().nextInt(totalWeight);
         int current = 0;
-        for (Map<String, Object> item : productionItems) {
-            Object weight = item.get("weight");
-            if (weight instanceof Number n) {
-                current += n.intValue();
-                if (random < current) {
-                    return item;
-                }
+        for (var item : productionItems) {
+            current += item.weight();
+            if (random < current) {
+                return item;
             }
         }
         return productionItems.get(0);
@@ -2121,7 +2109,7 @@ public class FudiService {
         }
 
         // 获取production_items配置
-        List<Map<String, Object>> productionItems = getProductionItems(cell);
+        List<ItemProperties.ProductionItem> productionItems = getProductionItems(cell);
         if (productionItems.isEmpty()) {
             // 如果没有配置production_items，使用旧的逻辑（简单计数）
             Integer currentStored = cell.getIntConfig("production_stored");
@@ -2143,11 +2131,9 @@ public class FudiService {
             int toProduce = Math.min(produced, availableSpace);
             // 分配产出到不同物品
             for (int i = 0; i < toProduce; i++) {
-                Map<String, Object> selectedItem = selectRandomProductionItem(productionItems);
+                var selectedItem = selectRandomProductionItem(productionItems);
                 if (selectedItem != null) {
-                    Long templateId = ((Number) selectedItem.get("template_id")).longValue();
-                    String name = (String) selectedItem.get("name");
-                    cell.addProductionItem(templateId, name, 1);
+                    cell.addProductionItem(selectedItem.templateId(), selectedItem.name(), 1);
                 }
             }
             // 检查稀产变异特性
@@ -2166,7 +2152,6 @@ public class FudiService {
     /**
      * 获取灵兽模板的技能池配置
      */
-    @SuppressWarnings("unchecked")
     private BeastSkillPoolVO getBeastSkillPool(Integer templateId) {
         if (templateId == null) {
             return null;
@@ -2175,40 +2160,21 @@ public class FudiService {
         if (template == null) {
             return null;
         }
-        Map<String, Object> properties = template.getProperties();
-        if (properties == null) {
+        var props = template.typedProperties();
+        if (!(props instanceof ItemProperties.BeastEgg egg)) {
             return null;
         }
-        Object skillPool = properties.get("skill_pool");
-        if (skillPool instanceof Map<?, ?> poolMap) {
-            List<BeastSkillPoolVO.InnateSkill> innateSkills = new java.util.ArrayList<>();
-            List<BeastSkillPoolVO.AwakeningSkill> awakeningSkills = new java.util.ArrayList<>();
-            
-            Object innateSkillsObj = poolMap.get("innate_skills");
-            if (innateSkillsObj instanceof List<?> innateList) {
-                for (Object innateObj : innateList) {
-                    if (innateObj instanceof Map<?, ?> innateMap) {
-                        Long skillId = ((Number) innateMap.get("skill_id")).longValue();
-                        String unlock = (String) innateMap.get("unlock");
-                        innateSkills.add(new BeastSkillPoolVO.InnateSkill(skillId, unlock));
-                    }
-                }
-            }
-            
-            Object awakeningSkillsObj = poolMap.get("awakening_skills");
-            if (awakeningSkillsObj instanceof List<?> awakeningList) {
-                for (Object awakeningObj : awakeningList) {
-                    if (awakeningObj instanceof Map<?, ?> awakeningMap) {
-                        Long skillId = ((Number) awakeningMap.get("skill_id")).longValue();
-                        int weight = ((Number) awakeningMap.get("weight")).intValue();
-                        awakeningSkills.add(new BeastSkillPoolVO.AwakeningSkill(skillId, weight));
-                    }
-                }
-            }
-            
-            return new BeastSkillPoolVO(innateSkills, awakeningSkills);
+        var pool = egg.skillPool();
+        if (pool == null) {
+            return null;
         }
-        return null;
+        var innateSkills = pool.innateSkills().stream()
+                .map(is -> new BeastSkillPoolVO.InnateSkill(is.skillId(), is.unlock()))
+                .toList();
+        var awakeningSkills = pool.awakeningSkills().stream()
+                .map(as -> new BeastSkillPoolVO.AwakeningSkill(as.skillId(), as.weight()))
+                .toList();
+        return new BeastSkillPoolVO(innateSkills, awakeningSkills);
     }
 
     /**

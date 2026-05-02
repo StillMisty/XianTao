@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import top.stillmisty.xiantao.domain.item.entity.ItemProperties;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
@@ -97,21 +98,21 @@ public class SkillService {
 
         // 3. 获取玉简对应的法决
         var template = itemTemplateRepository.findById(matchedJade.getTemplateId()).orElse(null);
-        if (template == null || template.getProperties() == null) {
+        if (template == null) {
             return SkillSlotResult.builder()
                     .success(false)
                     .message("玉简数据异常")
                     .build();
         }
 
-        Object skillIdObj = template.getProperties().get("skill_id");
-        if (!(skillIdObj instanceof Number)) {
+        var props = template.typedProperties();
+        if (!(props instanceof ItemProperties.SkillJade jade)) {
             return SkillSlotResult.builder()
                     .success(false)
                     .message("玉简未包含法决信息")
                     .build();
         }
-        long skillId = ((Number) skillIdObj).longValue();
+        long skillId = jade.skillId();
 
         var skill = skillRepository.findById(skillId).orElse(null);
         if (skill == null) {
