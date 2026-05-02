@@ -8,6 +8,8 @@ import top.stillmisty.xiantao.domain.fudi.vo.FarmCellVO;
 import top.stillmisty.xiantao.domain.fudi.vo.FudiStatusVO;
 import top.stillmisty.xiantao.domain.fudi.vo.PenCellVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.service.BeastService;
+import top.stillmisty.xiantao.service.FarmService;
 import top.stillmisty.xiantao.service.FudiService;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.ai.SpiritChatService;
@@ -21,6 +23,8 @@ import top.stillmisty.xiantao.service.ai.SpiritChatService;
 public class FudiCommandHandler {
 
     private final FudiService fudiService;
+    private final BeastService beastService;
+    private final FarmService farmService;
     private final SpiritChatService spiritChatService;
 
     public String handleFudiStatus(PlatformType platform, String openId) {
@@ -45,7 +49,7 @@ public class FudiCommandHandler {
     }
 
     public String handlePlant(PlatformType platform, String openId, String position, String cropName) {
-        return switch (fudiService.plantCropByInput(platform, openId, position, cropName)) {
+        return switch (farmService.plantCropByInput(platform, openId, position, cropName)) {
             case ServiceResult.Failure(var msg) -> "❌ " + msg;
             case ServiceResult.Success(var vo) -> formatPlantResult(vo);
         };
@@ -122,14 +126,14 @@ public class FudiCommandHandler {
     }
 
     public String handleHatch(PlatformType platform, String openId, String position, String eggName) {
-        return switch (fudiService.hatchBeastByInput(platform, openId, position, eggName)) {
+        return switch (beastService.hatchBeastByInput(platform, openId, position, eggName)) {
             case ServiceResult.Failure(var msg) -> "❌ " + msg;
             case ServiceResult.Success(var vo) -> formatHatchResult(vo);
         };
     }
 
     public String handleRelease(PlatformType platform, String openId, String position) {
-        return switch (fudiService.releaseBeast(platform, openId, position)) {
+        return switch (beastService.releaseBeast(platform, openId, position)) {
             case ServiceResult.Failure(var msg) -> "❌ " + msg;
             case ServiceResult.Success(var result) -> {
                 String beastName = (String) result.get("beastName");
@@ -139,7 +143,7 @@ public class FudiCommandHandler {
     }
 
     public String handleEvolve(PlatformType platform, String openId, String position, String mode) {
-        return switch (fudiService.evolveBeast(platform, openId, position, mode)) {
+        return switch (beastService.evolveBeast(platform, openId, position, mode)) {
             case ServiceResult.Failure(var msg) -> "❌ " + msg;
             case ServiceResult.Success(var vo) -> formatEvolveResult(vo, mode);
         };
@@ -167,14 +171,14 @@ public class FudiCommandHandler {
     }
 
     public String handleDeployBeast(PlatformType platform, String openId, String position) {
-        return switch (fudiService.deployBeast(platform, openId, position)) {
+        return switch (beastService.deployBeast(platform, openId, position)) {
             case ServiceResult.Failure(var msg) -> "❌ " + msg;
             case ServiceResult.Success(var result) -> (String) result.getOrDefault("message", "出战完成");
         };
     }
 
     public String handleUndeployBeast(PlatformType platform, String openId, String position) {
-        return switch (fudiService.undeployBeast(platform, openId, position)) {
+        return switch (beastService.undeployBeast(platform, openId, position)) {
             case ServiceResult.Failure(var msg) -> "❌ " + msg;
             case ServiceResult.Success(var result) -> {
                 if (result.containsKey("count")) {
@@ -187,7 +191,7 @@ public class FudiCommandHandler {
     }
 
     public String handleRecoverBeast(PlatformType platform, String openId, String position) {
-        return switch (fudiService.recoverBeast(platform, openId, position)) {
+        return switch (beastService.recoverBeast(platform, openId, position)) {
             case ServiceResult.Failure(var msg) -> "❌ " + msg;
             case ServiceResult.Success(var result) -> {
                 if (result.containsKey("count")) {

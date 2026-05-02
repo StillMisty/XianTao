@@ -56,7 +56,7 @@ public class CombatService {
     private final CombatEngine combatEngine;
     private final EncounterCalculator encounterCalculator;
     private final HighlightBattleDetector highlightBattleDetector;
-    private final FudiService fudiService;
+    private final BeastService beastService;
     private final PlayerBuffRepository playerBuffRepository;
 
     public BattleResultVO simulate(Team teamA, Team teamB, int maxRounds) {
@@ -312,7 +312,7 @@ public class CombatService {
      * 尝试解锁后天悟（战斗觉醒）
      */
     private void tryAwakeningSkill(Beast beast) {
-        fudiService.tryAwakeningSkill(beast);
+        beastService.tryAwakeningSkill(beast);
     }
 
     private List<Map<String, Object>> processDrops(MonsterTemplate tmpl, User user) {

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.beast.vo.BeastStatusVO;
 import top.stillmisty.xiantao.domain.fudi.vo.PenCellVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
-import top.stillmisty.xiantao.service.FudiService;
+import top.stillmisty.xiantao.service.BeastService;
 import top.stillmisty.xiantao.service.ServiceResult;
 
 import java.util.List;
@@ -21,14 +21,14 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class BeastCommandHandler {
 
-    private final FudiService fudiService;
+    private final BeastService beastService;
 
     /**
      * 处理灵兽出战命令
      */
     public String handleDeployBeast(PlatformType platform, String openId, String position) {
         log.debug("处理灵兽出战 - Platform: {}, OpenId: {}, Position: {}", platform, openId, position);
-        return switch (fudiService.deployBeast(platform, openId, position)) {
+        return switch (beastService.deployBeast(platform, openId, position)) {
             case ServiceResult.Failure(var msg) -> msg;
             case ServiceResult.Success(var result) -> formatDeployResult(result);
         };
@@ -39,7 +39,7 @@ public class BeastCommandHandler {
      */
     public String handleUndeployBeast(PlatformType platform, String openId, String position) {
         log.debug("处理灵兽召回 - Platform: {}, OpenId: {}, Position: {}", platform, openId, position);
-        return switch (fudiService.undeployBeast(platform, openId, position)) {
+        return switch (beastService.undeployBeast(platform, openId, position)) {
             case ServiceResult.Failure(var msg) -> msg;
             case ServiceResult.Success(var result) -> formatUndeployResult(result);
         };
@@ -50,7 +50,7 @@ public class BeastCommandHandler {
      */
     public String handleRecoverBeast(PlatformType platform, String openId, String position) {
         log.debug("处理灵兽恢复 - Platform: {}, OpenId: {}, Position: {}", platform, openId, position);
-        return switch (fudiService.recoverBeast(platform, openId, position)) {
+        return switch (beastService.recoverBeast(platform, openId, position)) {
             case ServiceResult.Failure(var msg) -> msg;
             case ServiceResult.Success(var result) -> formatRecoverResult(result);
         };
@@ -61,7 +61,7 @@ public class BeastCommandHandler {
      */
     public String handleEvolveBeast(PlatformType platform, String openId, String position, String mode) {
         log.debug("处理灵兽进化 - Platform: {}, OpenId: {}, Position: {}, Mode: {}", platform, openId, position, mode);
-        return switch (fudiService.evolveBeast(platform, openId, position, mode)) {
+        return switch (beastService.evolveBeast(platform, openId, position, mode)) {
             case ServiceResult.Failure(var msg) -> msg;
             case ServiceResult.Success(var result) -> formatEvolveResult(result);
         };
@@ -72,7 +72,7 @@ public class BeastCommandHandler {
      */
     public String handleReleaseBeast(PlatformType platform, String openId, String position) {
         log.debug("处理灵兽放生 - Platform: {}, OpenId: {}, Position: {}", platform, openId, position);
-        return switch (fudiService.releaseBeast(platform, openId, position)) {
+        return switch (beastService.releaseBeast(platform, openId, position)) {
             case ServiceResult.Failure(var msg) -> msg;
             case ServiceResult.Success(var result) -> formatReleaseResult(result);
         };
@@ -83,7 +83,7 @@ public class BeastCommandHandler {
      */
     public String handleGetDeployedBeasts(PlatformType platform, String openId) {
         log.debug("处理查看出战灵兽 - Platform: {}, OpenId: {}", platform, openId);
-        return switch (fudiService.getDeployedBeasts(platform, openId)) {
+        return switch (beastService.getDeployedBeasts(platform, openId)) {
             case ServiceResult.Failure(var msg) -> msg;
             case ServiceResult.Success(var beasts) -> formatDeployedBeasts(beasts);
         };

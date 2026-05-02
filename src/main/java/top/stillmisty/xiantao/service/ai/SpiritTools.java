@@ -10,9 +10,7 @@ import top.stillmisty.xiantao.domain.fudi.enums.CellType;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
 import top.stillmisty.xiantao.domain.fudi.vo.FarmCellVO;
-import top.stillmisty.xiantao.service.FudiService;
-import top.stillmisty.xiantao.service.ItemService;
-import top.stillmisty.xiantao.service.UserContext;
+import top.stillmisty.xiantao.service.*;
 
 import java.util.Map;
 
@@ -26,6 +24,8 @@ import java.util.Map;
 public class SpiritTools {
 
     private final FudiService fudiService;
+    private final BeastService beastService;
+    private final FarmService farmService;
     private final ItemService itemService;
     private final FudiRepository fudiRepository;
     private final SpiritRepository spiritRepository;
@@ -124,7 +124,7 @@ public class SpiritTools {
         try {
             Long userId = getCurrentUserId();
 
-            FarmCellVO result = fudiService.plantCropByInput(userId, position, cropName);
+            FarmCellVO result = farmService.plantCropByInput(userId, position, cropName);
 
             return new PlantCropResponse(
                     true,

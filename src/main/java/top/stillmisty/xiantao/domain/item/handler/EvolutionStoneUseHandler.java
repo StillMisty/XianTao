@@ -6,7 +6,7 @@ import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.fudi.vo.PenCellVO;
-import top.stillmisty.xiantao.service.FudiService;
+import top.stillmisty.xiantao.service.BeastService;
 
 /**
  * 进化石使用处理器
@@ -15,7 +15,7 @@ import top.stillmisty.xiantao.service.FudiService;
 @RequiredArgsConstructor
 public class EvolutionStoneUseHandler implements ItemUseHandler {
 
-    private final FudiService fudiService;
+    private final BeastService beastService;
 
     @Override
     public boolean supports(ItemType type, ItemTemplate template) {
@@ -32,7 +32,7 @@ public class EvolutionStoneUseHandler implements ItemUseHandler {
         String position = args.trim();
 
         try {
-            PenCellVO vo = fudiService.evolveBeast(userId, position, "进化");
+            PenCellVO vo = beastService.evolveBeast(userId, position, "进化");
             return formatEvolveResult(vo);
         } catch (IllegalStateException e) {
             return e.getMessage();
