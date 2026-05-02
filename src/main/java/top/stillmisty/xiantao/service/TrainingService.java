@@ -50,7 +50,6 @@ public class TrainingService {
     private final EquipmentRepository equipmentRepository;
     private final BeastRepository beastRepository;
     private final AuthenticationService authService;
-    private final EquipmentService equipmentService;
     private final StackableItemService stackableItemService;
     private final CombatService combatService;
     private final EncounterCalculator encounterCalculator;
