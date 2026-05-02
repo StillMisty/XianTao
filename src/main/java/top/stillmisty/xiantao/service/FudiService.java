@@ -35,10 +35,6 @@ import top.stillmisty.xiantao.service.annotation.ConsumeSpiritEnergy;
 import java.time.LocalDateTime;
 import java.util.*;
 
-/**
- * 福地服务层
- * 移除灵气系统、献祭系统、阵眼，替换为灵石经济。
- */
 @Service
 @RequiredArgsConstructor
 @Slf4j
