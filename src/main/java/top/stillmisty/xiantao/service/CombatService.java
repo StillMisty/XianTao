@@ -7,8 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
-import top.stillmisty.xiantao.domain.item.entity.EquipmentTemplate;
-import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.enums.EquipmentSlot;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.enums.WeaponType;
@@ -18,31 +16,23 @@ import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
 import top.stillmisty.xiantao.domain.map.entity.MonsterSpawn;
 import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
-import top.stillmisty.xiantao.domain.monster.BattleContext;
-import top.stillmisty.xiantao.domain.monster.BeastCombatant;
-import top.stillmisty.xiantao.domain.monster.Combatant;
-import top.stillmisty.xiantao.domain.monster.CombatEngine;
-import top.stillmisty.xiantao.domain.monster.EncounterCalculator;
-import top.stillmisty.xiantao.domain.monster.HighlightBattleDetector;
-import top.stillmisty.xiantao.domain.monster.Monster;
-import top.stillmisty.xiantao.domain.monster.Team;
+import top.stillmisty.xiantao.domain.monster.*;
 import top.stillmisty.xiantao.domain.monster.entity.MonsterTemplate;
-import top.stillmisty.xiantao.domain.monster.enums.MonsterType;
 import top.stillmisty.xiantao.domain.monster.repository.MonsterTemplateRepository;
 import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
 import top.stillmisty.xiantao.domain.pill.entity.PlayerBuff;
 import top.stillmisty.xiantao.domain.pill.repository.PlayerBuffRepository;
 import top.stillmisty.xiantao.domain.skill.entity.Skill;
-import top.stillmisty.xiantao.domain.skill.enums.EffectType;
 import top.stillmisty.xiantao.domain.skill.repository.SkillRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
-import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
-import top.stillmisty.xiantao.service.FudiService;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Slf4j
@@ -259,7 +249,7 @@ public class CombatService {
         }
 
         team.addMember(new PlayerCombatant(user, equipmentRepository, equipmentTemplateRepository)
-                .withBuffs(attackBuff, defenseBuff, speedBuff));
+                               .withBuffs(attackBuff, defenseBuff, speedBuff));
         List<Beast> deployed = beastRepository.findDeployedByUserId(user.getId());
         int beastLimit = Math.min(3, user.getLevel() / 5 + 1);
         for (int i = 0; i < Math.min(deployed.size(), beastLimit); i++) {
@@ -301,7 +291,7 @@ public class CombatService {
                             default -> 30;
                         };
                         beast.setRecoveryUntil(LocalDateTime.now().plusMinutes(recoveryMinutes));
-                        
+
                         // 战斗觉醒判定：灵兽HP降至0但战斗最终胜利
                         if (playerWon) {
                             tryAwakeningSkill(beast);
@@ -320,19 +310,9 @@ public class CombatService {
 
     /**
      * 尝试解锁后天悟（战斗觉醒）
-     * @param beast 灵兽实体
-     * @return 是否成功觉醒
      */
-    private boolean tryAwakeningSkill(Beast beast) {
-        // 这里需要调用FudiService的方法，但为了避免循环依赖，我们直接实现
-        // 15%概率觉醒
-        if (new Random().nextInt(100) >= 15) {
-            return false;
-        }
-        // 获取灵兽模板的技能池配置
-        // 这里简化处理，暂时不实现具体逻辑
-        log.info("灵兽 {} 尝试战斗觉醒", beast.getBeastName());
-        return true;
+    private void tryAwakeningSkill(Beast beast) {
+        fudiService.tryAwakeningSkill(beast);
     }
 
     private List<Map<String, Object>> processDrops(MonsterTemplate tmpl, User user) {
@@ -444,8 +424,10 @@ public class CombatService {
         private int defenseBuff;
         private int speedBuff;
 
-        PlayerCombatant(User user, EquipmentRepository equipmentRepository,
-                        EquipmentTemplateRepository equipmentTemplateRepository) {
+        PlayerCombatant(
+                User user, EquipmentRepository equipmentRepository,
+                EquipmentTemplateRepository equipmentTemplateRepository
+        ) {
             this.user = user;
             this.hp = user.getHpCurrent() != null ? user.getHpCurrent() : user.calculateMaxHp();
 

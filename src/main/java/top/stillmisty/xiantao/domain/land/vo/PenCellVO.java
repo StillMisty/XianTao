@@ -14,7 +14,7 @@ import java.util.List;
 public class PenCellVO {
     private Integer cellId;
     private Integer cellLevel;
-    private Integer beastId;
+    private Long beastId;
     private String beastName;
     private Integer tier;
     private String quality;

@@ -70,7 +70,14 @@ public class Beast {
     }
 
     public boolean canFight() {
-        return Boolean.TRUE.equals(isDeployed) && hpCurrent != null && hpCurrent > 0;
+        if (!Boolean.TRUE.equals(isDeployed)) return false;
+        if (hpCurrent == null || hpCurrent <= 0) return false;
+        if (recoveryUntil != null && recoveryUntil.isAfter(LocalDateTime.now())) return false;
+        // recoveryUntil已过期，清除恢复状态
+        if (recoveryUntil != null && !recoveryUntil.isAfter(LocalDateTime.now())) {
+            recoveryUntil = null;
+        }
+        return true;
     }
 
     /**
@@ -85,11 +92,12 @@ public class Beast {
      * 检查是否可以升级
      */
     public boolean canLevelUp() {
-        return level < levelCap && exp >= (int) calculateExpToNextLevel();
+        return levelCap != null && level < levelCap && exp >= (int) calculateExpToNextLevel();
     }
 
     /**
      * 升级
+     *
      * @return 是否升级成功
      */
     public boolean levelUp() {
@@ -104,6 +112,7 @@ public class Beast {
 
     /**
      * 添加经验值
+     *
      * @param expToAdd 要添加的经验值
      * @return 实际添加的经验值
      */
@@ -122,7 +131,7 @@ public class Beast {
             }
         }
         // 如果不能继续升级，经验存到上限
-        if (level >= levelCap) {
+        if (levelCap != null && level >= levelCap) {
             long maxExp = calculateExpToNextLevel();
             exp = (int) Math.min(exp + actualAdd, maxExp);
             actualAdd = 0;
@@ -132,29 +141,33 @@ public class Beast {
 
     /**
      * 重新计算属性（升级、进化后调用）
+     * 使用与 FudiService.calculateBeastAttack/Defense 一致的公式
      */
     public void recalculateAttributes() {
-        // 攻击 = base_attack × (1 + 0.05 × (level - 1))
-        // 防御 = base_defense × (1 + 0.05 × (level - 1))
-        // HP最大值 = tier × 200 + (level - 1) × tier × 20
-        // 这里需要从模板获取base_attack和base_defense，暂时使用当前值作为基础
-        // 实际应该从模板获取，这里简化处理
-        if (attack != null && level != null) {
-            // 假设base_attack是level=1时的攻击
-            int baseAttack = attack / (1 + (int) (0.05 * (level - 1)));
-            attack = (int) (baseAttack * (1 + 0.05 * (level - 1)));
-        }
-        if (defense != null && level != null) {
-            int baseDefense = defense / (1 + (int) (0.05 * (level - 1)));
-            defense = (int) (baseDefense * (1 + 0.05 * (level - 1)));
+        if (level != null) {
+            double q = getQualityMultiplier();
+            attack = (int) Math.round((10 + (level - 1) * 3 * q) * q);
+            defense = (int) Math.round((8 + (level - 1) * 2 * q) * q);
         }
         if (tier != null && level != null) {
             maxHp = tier * 200 + (level - 1) * tier * 20;
-            // 确保当前HP不超过最大HP
             if (hpCurrent != null && hpCurrent > maxHp) {
                 hpCurrent = maxHp;
             }
         }
+    }
+
+    /**
+     * 获取品质属性倍率
+     */
+    public double getQualityMultiplier() {
+        return switch (quality != null ? quality : "mortal") {
+            case "spirit" -> 1.0;
+            case "immortal" -> 1.3;
+            case "saint" -> 1.6;
+            case "divine" -> 2.0;
+            default -> 0.8;
+        };
     }
 
     /**
@@ -167,16 +180,11 @@ public class Beast {
 
     /**
      * 检查是否可以进化
+     *
      * @param isQualityBreak 是否是品质突破
      */
     public boolean canEvolve(boolean isQualityBreak) {
-        if (isQualityBreak) {
-            // 品质突破需要达到等级上限
-            return level >= levelCap;
-        } else {
-            // 升阶需要达到等级上限
-            return level >= levelCap;
-        }
+        return levelCap != null && level >= levelCap;
     }
 
     /**

@@ -4,12 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
-import top.stillmisty.xiantao.domain.land.entity.Fudi;
-import top.stillmisty.xiantao.domain.land.entity.FudiCell;
-import top.stillmisty.xiantao.domain.land.entity.Spirit;
-import top.stillmisty.xiantao.domain.land.entity.SpiritForm;
-import top.stillmisty.xiantao.domain.land.entity.SpiritHistory;
-import top.stillmisty.xiantao.domain.land.enums.CellType;
+import top.stillmisty.xiantao.domain.beast.entity.Beast;
+import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
+import top.stillmisty.xiantao.domain.land.entity.*;
 import top.stillmisty.xiantao.domain.land.enums.FudiEvent;
 import top.stillmisty.xiantao.domain.land.repository.FudiCellRepository;
 import top.stillmisty.xiantao.domain.land.repository.FudiRepository;
@@ -25,7 +22,6 @@ import top.stillmisty.xiantao.service.annotation.ConsumeSpiritEnergy;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 地灵对话核心服务
@@ -47,6 +43,7 @@ public class SpiritChatService {
     private final SpiritEmotionTools spiritEmotionTools;
     private final FudiEventGenerator fudiEventGenerator;
     private final AuthenticationService authService;
+    private final BeastRepository beastRepository;
 
     // ===================== 公开 API（含认证） =====================
 
@@ -235,9 +232,13 @@ public class SpiritChatService {
 
         for (FudiCell cell : penCells) {
             sb.append("- [").append(cell.getCellId()).append("] pen");
-            String beastName = cell.getStringConfig("beast_name");
-            if (beastName != null) {
-                sb.append(" 饲养:").append(beastName);
+            Object beastIdObj = cell.getConfigValue("beast_id");
+            if (beastIdObj != null) {
+                Long beastId = beastIdObj instanceof Long l ? l : ((Number) beastIdObj).longValue();
+                Beast beast = beastRepository.findById(beastId).orElse(null);
+                if (beast != null) {
+                    sb.append(" 饲养:").append(beast.getBeastName());
+                }
             }
             Integer hunger = cell.getIntConfig("hunger");
             if (hunger != null) {
