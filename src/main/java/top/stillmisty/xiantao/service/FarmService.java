@@ -23,7 +23,6 @@ import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 import top.stillmisty.xiantao.service.annotation.ConsumeSpiritEnergy;
 
 import java.time.LocalDateTime;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -235,10 +234,6 @@ public class FarmService {
         updateGrowthProgress(cell);
         Double growthProgress = cell.getDoubleConfig("growth_progress");
         if (growthProgress == null) growthProgress = 0.0;
-        Integer harvestCount = cell.getIntConfig("harvest_count");
-        if (harvestCount == null) harvestCount = 0;
-        Integer maxHarvest = cell.getIntConfig("max_harvest");
-        if (maxHarvest == null) maxHarvest = 1;
         Boolean isPerennial = cell.getBoolConfig("is_perennial");
         boolean isWilted = !Boolean.TRUE.equals(isPerennial) && growthProgress > 1.0 && isWilted(cell);
 

@@ -3,20 +3,14 @@ package top.stillmisty.xiantao.handle.command;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import top.stillmisty.xiantao.domain.fudi.enums.CellType;
-import top.stillmisty.xiantao.domain.fudi.vo.CellOperationVO;
-import top.stillmisty.xiantao.domain.fudi.vo.CollectAllVO;
-import top.stillmisty.xiantao.domain.fudi.vo.CollectVO;
-import top.stillmisty.xiantao.domain.fudi.vo.FarmCellVO;
-import top.stillmisty.xiantao.domain.fudi.vo.FudiStatusVO;
-import top.stillmisty.xiantao.domain.fudi.vo.GiveGiftVO;
-import top.stillmisty.xiantao.domain.fudi.vo.PenCellVO;
-import top.stillmisty.xiantao.domain.fudi.vo.UpgradeCellVO;
 import top.stillmisty.xiantao.domain.beast.vo.ActionResultVO;
 import top.stillmisty.xiantao.domain.beast.vo.BatchCountVO;
 import top.stillmisty.xiantao.domain.beast.vo.BatchRecoverVO;
 import top.stillmisty.xiantao.domain.beast.vo.RecoverResultVO;
-import top.stillmisty.xiantao.domain.beast.vo.ReleaseBeastVO;
+import top.stillmisty.xiantao.domain.fudi.enums.CellType;
+import top.stillmisty.xiantao.domain.fudi.vo.FarmCellVO;
+import top.stillmisty.xiantao.domain.fudi.vo.FudiStatusVO;
+import top.stillmisty.xiantao.domain.fudi.vo.PenCellVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.service.BeastService;
 import top.stillmisty.xiantao.service.FarmService;
@@ -108,18 +102,15 @@ public class FudiCommandHandler {
     public String handleRemove(PlatformType platform, String openId, String position) {
         return switch (fudiService.removeCell(platform, openId, position)) {
             case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
-            case ServiceResult.Success(var result) -> {
-                yield "✅ 已拆除地块 %s 的%s。".formatted(position, result.type());
-            }
+            case ServiceResult.Success(var result) -> "✅ 已拆除地块 %s 的%s。".formatted(position, result.type());
         };
     }
 
     public String handleUpgradeCell(PlatformType platform, String openId, String position) {
         return switch (fudiService.upgradeCell(platform, openId, position)) {
             case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
-            case ServiceResult.Success(var result) -> {
-                yield "✅ 已将地块 %s 的%s从 Lv%d 升级至 Lv%d".formatted(position, result.type(), result.oldLevel(), result.newLevel());
-            }
+            case ServiceResult.Success(var result) ->
+                    "✅ 已将地块 %s 的%s从 Lv%d 升级至 Lv%d".formatted(position, result.type(), result.oldLevel(), result.newLevel());
         };
     }
 
@@ -133,9 +124,7 @@ public class FudiCommandHandler {
     public String handleRelease(PlatformType platform, String openId, String position) {
         return switch (beastService.releaseBeast(platform, openId, position)) {
             case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
-            case ServiceResult.Success(var result) -> {
-                yield "✅ 已放生%s。".formatted(result.beastName());
-            }
+            case ServiceResult.Success(var result) -> "✅ 已放生%s。".formatted(result.beastName());
         };
     }
 

@@ -20,17 +20,19 @@ public class AuthenticationService {
 
     /**
      * 仅验证平台绑定（不检查 User 实体是否存在）
+     *
      * @return 成功时 ServiceResult.Success 携带 userId
      */
     public ServiceResult<Long> authenticate(PlatformType platform, String openId) {
         var userAuth = userAuthService.findUserIdByOpenId(platform, openId);
-        return userAuth.map(auth -> new ServiceResult.Success<Long>(auth.getUserId()))
+        return userAuth.map(auth -> new ServiceResult.Success<>(auth.getUserId()))
                 .map(ServiceResult.class::cast)
                 .orElseGet(() -> ServiceResult.authFailure("输入「我要修仙 [道号]」进入仙途吧！"));
     }
 
     /**
      * 验证平台绑定 + User 实体存在 + 状态校验
+     *
      * @param requiredStatus 要求的状态，null 表示不校验状态
      * @return 成功时 ServiceResult.Success 携带 userId
      */

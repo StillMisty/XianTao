@@ -219,7 +219,7 @@ public class PillConsumptionService {
                 .filter(item -> item.getItemType() == top.stillmisty.xiantao.domain.item.enums.ItemType.POTION
                         && item.getName().contains(pillName))
                 .toList();
-        return pills.isEmpty() ? null : pills.get(0);
+        return pills.isEmpty() ? null : pills.getFirst();
     }
 
     private int getPillGrade(StackableItem pill) {
@@ -235,7 +235,6 @@ public class PillConsumptionService {
         if (quality == null) return 1.0;
         return switch (quality) {
             case "superior" -> 1.5;
-            case "normal" -> 1.0;
             case "inferior" -> 0.7;
             default -> 1.0;
         };

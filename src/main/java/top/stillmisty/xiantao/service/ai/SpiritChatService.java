@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
-import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
 import top.stillmisty.xiantao.domain.fudi.entity.*;
 import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
@@ -233,10 +232,7 @@ public class SpiritChatService {
             Object beastIdObj = cell.getConfigValue("beast_id");
             if (beastIdObj != null) {
                 Long beastId = beastIdObj instanceof Long l ? l : ((Number) beastIdObj).longValue();
-                Beast beast = beastRepository.findById(beastId).orElse(null);
-                if (beast != null) {
-                    sb.append(" 饲养:").append(beast.getBeastName());
-                }
+                beastRepository.findById(beastId).ifPresent(beast -> sb.append(" 饲养:").append(beast.getBeastName()));
             }
             Integer hunger = cell.getIntConfig("hunger");
             if (hunger != null) {

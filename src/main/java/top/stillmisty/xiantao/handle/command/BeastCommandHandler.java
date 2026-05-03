@@ -3,12 +3,7 @@ package top.stillmisty.xiantao.handle.command;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import top.stillmisty.xiantao.domain.beast.vo.ActionResultVO;
-import top.stillmisty.xiantao.domain.beast.vo.BatchCountVO;
-import top.stillmisty.xiantao.domain.beast.vo.BatchRecoverVO;
-import top.stillmisty.xiantao.domain.beast.vo.BeastStatusVO;
-import top.stillmisty.xiantao.domain.beast.vo.RecoverResultVO;
-import top.stillmisty.xiantao.domain.beast.vo.ReleaseBeastVO;
+import top.stillmisty.xiantao.domain.beast.vo.*;
 import top.stillmisty.xiantao.domain.fudi.vo.PenCellVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.service.BeastService;
@@ -139,13 +134,11 @@ public class BeastCommandHandler {
     }
 
     private String formatEvolveResult(PenCellVO beast) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("【灵兽进化成功】\n");
-        sb.append(String.format("名称：%s\n", beast.getBeastName()));
-        sb.append(String.format("等阶：T%d\n", beast.getTier()));
-        sb.append(String.format("品质：%s\n", beast.getQuality()));
-        sb.append(String.format("战力：%d\n", beast.getPowerScore()));
-        return sb.toString();
+        return "【灵兽进化成功】\n" +
+                String.format("名称：%s\n", beast.getBeastName()) +
+                String.format("等阶：T%d\n", beast.getTier()) +
+                String.format("品质：%s\n", beast.getQuality()) +
+                String.format("战力：%d\n", beast.getPowerScore());
     }
 
     private String formatReleaseResult(ReleaseBeastVO result) {

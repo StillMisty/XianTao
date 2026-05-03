@@ -67,7 +67,7 @@ public class SpiritTools {
     ) {
         try {
             Long userId = getCurrentUserId();
-            var response = switch (category) {
+            return switch (category) {
                 case "种子" -> {
                     var list = inventoryService.getSeedInventory(userId);
                     if (list.isEmpty()) yield "背包中没有种子。";
@@ -102,7 +102,6 @@ public class SpiritTools {
                 }
                 default -> "支持的类别：种子、装备、兽卵";
             };
-            return response;
         } catch (Exception e) {
             log.error("查询背包失败: category={}", category, e);
             return "查询背包失败：" + e.getMessage();
@@ -270,7 +269,7 @@ public class SpiritTools {
             var spirit = spiritRepository.findByFudiId(fudi.getId())
                     .orElseThrow(() -> new IllegalStateException("地灵不存在"));
 
-            int clampedSeverity = Math.max(1, Math.min(5, severity));
+            int clampedSeverity = Math.clamp(severity, 1, 5);
             int oldAffection = spirit.getAffection();
             spirit.addAffection(-clampedSeverity);
             spiritRepository.save(spirit);

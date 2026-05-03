@@ -73,7 +73,7 @@ public class SkillCommandHandler {
             var skill = skills.get(i);
             sb.append(i + 1).append(". ").append(skill.name());
             if (skill.effects() != null && !skill.effects().isEmpty()) {
-                sb.append(" [").append(skill.effects().get(0).type().getName()).append("]");
+                sb.append(" [").append(skill.effects().getFirst().type().getName()).append("]");
             }
             if (skill.equipped()) sb.append(" ◆");
             sb.append("\n");
@@ -113,7 +113,8 @@ public class SkillCommandHandler {
                 if (i > 0) sb.append(" + ");
                 sb.append(effect.type().getName());
                 if (effect.formula() != null) sb.append("(").append(effect.formula()).append(")");
-                if (effect.value() != null) sb.append("(").append(String.format("%.0f%%", effect.value() * 100)).append(")");
+                if (effect.value() != null)
+                    sb.append("(").append(String.format("%.0f%%", effect.value() * 100)).append(")");
                 if (effect.duration() != null) sb.append(" ").append(effect.duration()).append("回合");
             }
             sb.append("\n");

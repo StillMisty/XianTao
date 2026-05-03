@@ -10,7 +10,10 @@ import top.stillmisty.xiantao.domain.skill.entity.Skill;
 import top.stillmisty.xiantao.domain.skill.entity.SkillEffect;
 import top.stillmisty.xiantao.domain.skill.enums.EffectType;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Slf4j
@@ -19,6 +22,10 @@ import java.util.concurrent.ThreadLocalRandom;
 public class DefaultCombatEngine implements CombatEngine {
 
     private final DamageCalculator damageCalculator;
+
+    private static String skillKey(Combatant attacker, Skill skill) {
+        return attacker.getId() + ":" + skill.getId();
+    }
 
     @Override
     public BattleResultVO simulate(BattleContext context) {
@@ -50,11 +57,13 @@ public class DefaultCombatEngine implements CombatEngine {
                 if (!attacker.isAlive()) continue;
 
                 if (buffManager.hasControl(attacker.getId())) {
-                    combatLog.add(new CombatLogEntry(round, ++sequence,
+                    combatLog.add(new CombatLogEntry(
+                            round, ++sequence,
                             attacker.getName(), attacker.getName(),
                             CombatLogEntry.AttackType.CONTROLLED,
                             null, null, false, null,
-                            0, attacker.getHp(), attacker.getHp(), false));
+                            0, attacker.getHp(), attacker.getHp(), false
+                    ));
                     continue;
                 }
 
@@ -68,7 +77,8 @@ public class DefaultCombatEngine implements CombatEngine {
 
                 CombatLogEntry logEntry = resolveAction(
                         attacker, defender, selectedSkill, skillCooldowns, skillProcs,
-                        damageDealt, buffManager, round, sequence);
+                        damageDealt, buffManager, round, sequence
+                );
                 combatLog.add(logEntry);
 
                 if (defenderTeam.isAllDead()) break;
@@ -86,13 +96,10 @@ public class DefaultCombatEngine implements CombatEngine {
             }
         }
 
-        return buildResult(winner, round, teamA, teamB,
-                initialHpA, initialHpB, damageDealt, skillProcs, combatLog);
-    }
-
-    @Override
-    public String getEngineName() {
-        return "DefaultCombatEngine";
+        return buildResult(
+                winner, round, teamA, teamB,
+                initialHpA, initialHpB, damageDealt, skillProcs, combatLog
+        );
     }
 
     // ===================== 回合处理 =====================
@@ -108,6 +115,8 @@ public class DefaultCombatEngine implements CombatEngine {
         }
     }
 
+    // ===================== 技能选择 =====================
+
     private List<Combatant> buildTurnOrder(Team teamA, Team teamB, BuffManager buffManager) {
         List<Combatant> all = new ArrayList<>();
         all.addAll(teamA.aliveMembers());
@@ -120,7 +129,7 @@ public class DefaultCombatEngine implements CombatEngine {
         return all;
     }
 
-    // ===================== 技能选择 =====================
+    // ===================== 行动处理 =====================
 
     private Skill selectSkill(Combatant attacker, Map<String, Integer> cooldowns, BuffManager buffManager) {
         boolean silenced = buffManager.hasSilence(attacker.getId());
@@ -138,15 +147,17 @@ public class DefaultCombatEngine implements CombatEngine {
         return available.get(ThreadLocalRandom.current().nextInt(available.size()));
     }
 
-    // ===================== 行动处理 =====================
+    // ===================== Buff 应用 =====================
 
-    private CombatLogEntry resolveAction(Combatant attacker, Combatant defender,
-                                          Skill selectedSkill,
-                                          Map<String, Integer> skillCooldowns,
-                                          Map<String, Integer> skillProcs,
-                                          Map<String, Integer> damageDealt,
-                                          BuffManager buffManager,
-                                          int round, int sequence) {
+    private CombatLogEntry resolveAction(
+            Combatant attacker, Combatant defender,
+            Skill selectedSkill,
+            Map<String, Integer> skillCooldowns,
+            Map<String, Integer> skillProcs,
+            Map<String, Integer> damageDealt,
+            BuffManager buffManager,
+            int round, int sequence
+    ) {
         int hpBefore = defender.getHp();
         int damage = 0;
         boolean isControl = false;
@@ -165,8 +176,10 @@ public class DefaultCombatEngine implements CombatEngine {
                     if (Math.random() > chance) continue;
 
                     switch (effect.type()) {
-                        case DAMAGE -> damage += damageCalculator.calculateEffectDamage(attacker, defender, effect, buffManager);
-                        case MULTI_HIT -> damage += damageCalculator.calculateEffectDamage(attacker, defender, effect, buffManager) * 3;
+                        case DAMAGE ->
+                                damage += damageCalculator.calculateEffectDamage(attacker, defender, effect, buffManager);
+                        case MULTI_HIT ->
+                                damage += damageCalculator.calculateEffectDamage(attacker, defender, effect, buffManager) * 3;
                         case ARMOR_BREAK -> {
                             applyArmorBreak(defender, effect, selectedSkill, buffManager);
                             isControl = true;
@@ -228,7 +241,8 @@ public class DefaultCombatEngine implements CombatEngine {
                 ? selectedSkill.getEffects().stream().map(e -> e.type().name()).toList()
                 : null;
 
-        return new CombatLogEntry(round, sequence,
+        return new CombatLogEntry(
+                round, sequence,
                 attacker.getName(),
                 isBuff ? attacker.getName() : defender.getName(),
                 selectedSkill != null ? CombatLogEntry.AttackType.SKILL : CombatLogEntry.AttackType.NORMAL,
@@ -239,62 +253,66 @@ public class DefaultCombatEngine implements CombatEngine {
                 damage,
                 hpBefore,
                 defender.getHp(),
-                defender.getHp() <= 0);
+                defender.getHp() <= 0
+        );
     }
-
-    // ===================== Buff 应用 =====================
 
     private void applyArmorBreak(Combatant defender, SkillEffect effect, Skill skill, BuffManager buffManager) {
         double value = effect.value() != null ? effect.value() : 0.2;
         int duration = effect.duration() != null ? effect.duration() : 3;
-        buffManager.addBuff(defender.getId(), Buff.builder()
-                .type(BuffType.ARMOR_BREAK).value(value).remainingTurns(duration).source(skill.getName()).build());
+        buffManager.addBuff(
+                defender.getId(), Buff.builder()
+                        .type(BuffType.ARMOR_BREAK).value(value).remainingTurns(duration).source(skill.getName()).build()
+        );
     }
 
     private void applySlow(Combatant defender, SkillEffect effect, Skill skill, BuffManager buffManager) {
         double value = effect.value() != null ? effect.value() : 0.3;
         int duration = effect.duration() != null ? effect.duration() : 2;
-        buffManager.addBuff(defender.getId(), Buff.builder()
-                .type(BuffType.SLOW).value(value).remainingTurns(duration).source(skill.getName()).build());
+        buffManager.addBuff(
+                defender.getId(), Buff.builder()
+                        .type(BuffType.SLOW).value(value).remainingTurns(duration).source(skill.getName()).build()
+        );
     }
 
     private void applyDot(Combatant attacker, Combatant defender, SkillEffect effect, Skill skill, BuffManager buffManager) {
         double value = effect.value() != null ? effect.value() : 0.3;
         int duration = effect.duration() != null ? effect.duration() : 3;
         int maxStacks = effect.maxStacks() != null ? effect.maxStacks() : 3;
-        buffManager.addBuff(defender.getId(), Buff.builder()
-                .type(BuffType.DOT).value(attacker.getAttack() * value)
-                .remainingTurns(duration).source(skill.getName())
-                .stackable(true).maxStacks(maxStacks).build());
+        buffManager.addBuff(
+                defender.getId(), Buff.builder()
+                        .type(BuffType.DOT).value(attacker.getAttack() * value)
+                        .remainingTurns(duration).source(skill.getName())
+                        .stackable(true).maxStacks(maxStacks).build()
+        );
     }
 
     private void applyBuff(Combatant target, BuffType type, SkillEffect effect, Skill skill, BuffManager buffManager) {
         double value = effect.value() != null ? effect.value() : 0.2;
         int duration = effect.duration() != null ? effect.duration() : 3;
-        buffManager.addBuff(target.getId(), Buff.builder()
-                .type(type).value(value).remainingTurns(duration).source(skill.getName()).build());
-    }
-
-    private void applyControlBuff(Combatant defender, EffectType effectType, SkillEffect effect, Skill skill, BuffManager buffManager) {
-        int duration = effect.duration() != null ? effect.duration() : 1;
-        BuffType buffType = switch (effectType) {
-            case STUN -> BuffType.STUN;
-            case FREEZE -> BuffType.FREEZE;
-            case SILENCE -> BuffType.SILENCE;
-            default -> BuffType.STUN;
-        };
-        buffManager.addBuff(defender.getId(), Buff.builder()
-                .type(buffType).value(1.0).remainingTurns(duration).source(skill.getName()).build());
+        buffManager.addBuff(
+                target.getId(), Buff.builder()
+                        .type(type).value(value).remainingTurns(duration).source(skill.getName()).build()
+        );
     }
 
     // ===================== 辅助方法 =====================
 
-    private Combatant selectTarget(Team defenderTeam) {
-        return defenderTeam.selectTargetForPVE();
+    private void applyControlBuff(Combatant defender, EffectType effectType, SkillEffect effect, Skill skill, BuffManager buffManager) {
+        int duration = effect.duration() != null ? effect.duration() : 1;
+        BuffType buffType = switch (effectType) {
+            case FREEZE -> BuffType.FREEZE;
+            case SILENCE -> BuffType.SILENCE;
+            default -> BuffType.STUN;
+        };
+        buffManager.addBuff(
+                defender.getId(), Buff.builder()
+                        .type(buffType).value(1.0).remainingTurns(duration).source(skill.getName()).build()
+        );
     }
 
-    private static String skillKey(Combatant attacker, Skill skill) {
-        return attacker.getId() + ":" + skill.getId();
+    private Combatant selectTarget(Team defenderTeam) {
+        return defenderTeam.selectTargetForPVE();
     }
 
     private void tickCooldowns(Map<String, Integer> skillCooldowns) {
@@ -318,13 +336,15 @@ public class DefaultCombatEngine implements CombatEngine {
         return hpMap;
     }
 
-    private BattleResultVO buildResult(String winner, int round,
-                                        Team teamA, Team teamB,
-                                        Map<String, Integer> initialHpA,
-                                        Map<String, Integer> initialHpB,
-                                        Map<String, Integer> damageDealt,
-                                        Map<String, Integer> skillProcs,
-                                        List<CombatLogEntry> combatLog) {
+    private BattleResultVO buildResult(
+            String winner, int round,
+            Team teamA, Team teamB,
+            Map<String, Integer> initialHpA,
+            Map<String, Integer> initialHpB,
+            Map<String, Integer> damageDealt,
+            Map<String, Integer> skillProcs,
+            List<CombatLogEntry> combatLog
+    ) {
         Map<String, Object> playerHpChange = new LinkedHashMap<>();
         for (Combatant c : teamA.members()) {
             Integer initial = initialHpA.get("member_" + c.getId());
@@ -353,12 +373,12 @@ public class DefaultCombatEngine implements CombatEngine {
 
         List<Map<String, Object>> damageList = new ArrayList<>();
         for (var entry : damageDealt.entrySet()) {
-            damageList.add(Map.of("name", entry.getKey(), "total", (Object) entry.getValue()));
+            damageList.add(Map.of("name", entry.getKey(), "total", entry.getValue()));
         }
 
         List<Map<String, Object>> skillProcList = new ArrayList<>();
         for (var entry : skillProcs.entrySet()) {
-            skillProcList.add(Map.of("key", entry.getKey(), "count", (Object) entry.getValue()));
+            skillProcList.add(Map.of("key", entry.getKey(), "count", entry.getValue()));
         }
 
         return BattleResultVO.builder()

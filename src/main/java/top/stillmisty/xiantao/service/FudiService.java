@@ -10,19 +10,14 @@ import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
 import top.stillmisty.xiantao.domain.fudi.entity.FudiCell;
 import top.stillmisty.xiantao.domain.fudi.entity.Spirit;
 import top.stillmisty.xiantao.domain.fudi.entity.SpiritForm;
-import top.stillmisty.xiantao.domain.fudi.enums.*;
+import top.stillmisty.xiantao.domain.fudi.enums.CellType;
+import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
+import top.stillmisty.xiantao.domain.fudi.enums.MBTIPersonality;
+import top.stillmisty.xiantao.domain.fudi.enums.MutationTrait;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiCellRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
-import top.stillmisty.xiantao.domain.fudi.vo.CellDetailVO;
-import top.stillmisty.xiantao.domain.fudi.vo.CellOperationVO;
-import top.stillmisty.xiantao.domain.fudi.vo.CellStatusVO;
-import top.stillmisty.xiantao.domain.fudi.vo.CollectAllVO;
-import top.stillmisty.xiantao.domain.fudi.vo.CollectVO;
-import top.stillmisty.xiantao.domain.fudi.vo.FudiStatusVO;
-import top.stillmisty.xiantao.domain.fudi.vo.GiveGiftVO;
-import top.stillmisty.xiantao.domain.fudi.vo.TriggerTribulationVO;
-import top.stillmisty.xiantao.domain.fudi.vo.UpgradeCellVO;
+import top.stillmisty.xiantao.domain.fudi.vo.*;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
@@ -165,7 +160,7 @@ public class FudiService {
         spirit.setMbtiType(mbtiType);
         spirit.setLastEnergyUpdate(LocalDateTime.now());
 
-        if (!allForms.isEmpty()) {
+        if (allForms != null && !allForms.isEmpty()) {
             SpiritForm randomForm = allForms.get(ThreadLocalRandom.current().nextInt(allForms.size()));
             spirit.setFormId(randomForm.getId().intValue());
         }
@@ -416,10 +411,11 @@ public class FudiService {
         }
 
         return String.format(
-                "⚡ 天劫降临！福地成功抵御！\n" +
-                        "   攻击力：%d ｜ 防御力：%d ｜ 胜利！\n" +
-                        "   劫数：%d → %d ｜ 连胜×%d\n" +
-                        "   灵石奖励：+%d ｜ 好感度：%d → %d",
+                """
+                        ⚡ 天劫降临！福地成功抵御！
+                           攻击力：%d ｜ 防御力：%d ｜ 胜利！
+                           劫数：%d → %d ｜ 连胜×%d
+                           灵石奖励：+%d ｜ 好感度：%d → %d""",
                 attack, defense,
                 oldStage, newStage, newWinStreak,
                 stoneReward, oldAffection, spirit != null ? spirit.getAffection() : 0
@@ -435,7 +431,7 @@ public class FudiService {
         int diff = attack - defense;
         int occupiedCount = getOccupiedCellCount(fudi);
         double ratio = Math.min(1.0, (double) diff / attack);
-        int clearCount = Math.min(occupiedCount, Math.max(1, (int) Math.ceil(ratio * occupiedCount)));
+        int clearCount = Math.clamp((int) Math.ceil(ratio * occupiedCount), 1, occupiedCount);
 
         List<FudiCell> occupiedCells = fudiCellRepository.findByFudiId(fudi.getId()).stream()
                 .filter(cell -> cell.getCellType() != CellType.EMPTY)
@@ -459,10 +455,11 @@ public class FudiService {
         }
 
         return String.format(
-                "⚡ 天劫降临！福地未能抵御…\n" +
-                        "   攻击力：%d ｜ 防御力：%d ｜ 差额：%d\n" +
-                        "   连胜×%d → 中断，被毁地块：%d 个\n" +
-                        "   好感度：%d → %d",
+                """
+                        ⚡ 天劫降临！福地未能抵御…
+                           攻击力：%d ｜ 防御力：%d ｜ 差额：%d
+                           连胜×%d → 中断，被毁地块：%d 个
+                           好感度：%d → %d""",
                 attack, defense, diff,
                 oldWinStreak, clearCount,
                 oldAffection, spirit != null ? spirit.getAffection() : 0
@@ -654,7 +651,7 @@ public class FudiService {
             for (Map<String, Object> item : productionStored) {
                 Long templateId = ((Number) item.get("template_id")).longValue();
                 String name = (String) item.get("name");
-                Integer quantity = ((Number) item.get("quantity")).intValue();
+                int quantity = ((Number) item.get("quantity")).intValue();
                 if (quantity > 0) {
                     stackableItemService.addStackableItem(fudi.getUserId(), templateId, ItemType.HERB, name, quantity);
                     cellTotalItems += quantity;
@@ -836,8 +833,10 @@ public class FudiService {
         spiritRepository.save(spirit);
         fudiRepository.save(fudi);
 
-        return new GiveGiftVO(gift.getName(), oldAffection, spirit.getAffection(),
-                change, reaction, isLiked, isDisliked);
+        return new GiveGiftVO(
+                gift.getName(), oldAffection, spirit.getAffection(),
+                change, reaction, isLiked, isDisliked
+        );
     }
 
     // ===================== 地块状态查询 =====================
@@ -884,8 +883,10 @@ public class FudiService {
             occupiedCells.add(builder.build());
         }
 
-        return new CellStatusVO(totalCells, occupiedCells.size(), emptyCellIds.size(),
-                emptyCellIds, occupiedCells);
+        return new CellStatusVO(
+                totalCells, occupiedCells.size(), emptyCellIds.size(),
+                emptyCellIds, occupiedCells
+        );
     }
 
     private Integer parseCellId(String position) {

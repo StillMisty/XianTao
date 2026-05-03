@@ -156,7 +156,6 @@ public class PillCommandHandler {
         if (quality == null) return 1.0;
         return switch (quality) {
             case "superior" -> 1.5;
-            case "normal" -> 1.0;
             case "inferior" -> 0.7;
             default -> 1.0;
         };

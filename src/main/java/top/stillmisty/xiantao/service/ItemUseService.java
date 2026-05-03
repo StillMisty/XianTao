@@ -56,7 +56,7 @@ public class ItemUseService {
             }
         }
 
-        if (matchedItem == null || matchedTemplate == null) {
+        if (matchedItem == null) {
             throw new IllegalStateException("背包中未找到物品：" + itemName);
         }
 

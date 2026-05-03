@@ -8,7 +8,6 @@ import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
-import top.stillmisty.xiantao.domain.item.enums.Rarity;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
@@ -46,7 +45,7 @@ import java.util.stream.Collectors;
 public class TrainingService {
 
     private static final long BASE_EXP_PER_MINUTE = 2;
-
+    private static final int DEFAULT_MAX_ROUNDS = 20;
     private final UserRepository userRepository;
     private final MapNodeRepository mapNodeRepository;
     private final MonsterTemplateRepository monsterTemplateRepository;
@@ -59,9 +58,9 @@ public class TrainingService {
     private final HighlightBattleDetector highlightBattleDetector;
     private final PostCombatProcessor postCombatProcessor;
     private final DropProcessor dropProcessor;
-    private final SkillRepository skillRepository;
 
     // ===================== 公开 API（含认证） =====================
+    private final SkillRepository skillRepository;
 
     public ServiceResult<TrainingStartResult> startTraining(PlatformType platform, String openId) {
         try {
@@ -72,6 +71,8 @@ public class TrainingService {
         }
     }
 
+    // ===================== 内部 API =====================
+
     public ServiceResult<TrainingRewardVO> endTraining(PlatformType platform, String openId) {
         try {
             Long userId = UserContext.getCurrentUserId();
@@ -81,7 +82,7 @@ public class TrainingService {
         }
     }
 
-    // ===================== 内部 API =====================
+    // ===================== 遭遇战斗 =====================
 
     @Transactional
     public TrainingStartResult startTraining(Long userId) {
@@ -119,10 +120,6 @@ public class TrainingService {
                 .mapName(mapName)
                 .build();
     }
-
-    // ===================== 遭遇战斗 =====================
-
-    private static final int DEFAULT_MAX_ROUNDS = 20;
 
     @Transactional
     public TrainingRewardVO endTraining(Long userId) {
@@ -292,8 +289,10 @@ public class TrainingService {
                 user.setDying();
                 userRepository.save(user);
                 saveBeastCache(beastCache);
-                return buildSummary(user, mapNode, totalEncounters, totalKills, defeatCount,
-                        0, totalRounds, List.of(), allLogs, allSkillProcs);
+                return buildSummary(
+                        user, mapNode, totalEncounters, totalKills, defeatCount,
+                        0, totalRounds, List.of(), allLogs, allSkillProcs
+                );
             }
         }
 
@@ -307,8 +306,10 @@ public class TrainingService {
             dropProcessor.distributeDrops(userId, allDrops);
         }
 
-        return buildSummary(user, mapNode, totalEncounters, totalKills, defeatCount,
-                expGained, totalRounds, allDrops, allLogs, allSkillProcs);
+        return buildSummary(
+                user, mapNode, totalEncounters, totalKills, defeatCount,
+                expGained, totalRounds, allDrops, allLogs, allSkillProcs
+        );
     }
 
     // ===================== 遭遇计算 =====================
@@ -322,11 +323,6 @@ public class TrainingService {
         return new EncounterParams(chances, chance);
     }
 
-    private record EncounterParams(int encounterChances, double encounterChance) {
-    }
-
-    // ===================== 辅助方法 =====================
-
     private Team buildMonsterTeamWithSkills(MonsterTemplate tmpl, int count, Map<Long, Skill> skillMap) {
         Team team = new Team(0L, "Monsters");
         for (int j = 0; j < count; j++) {
@@ -339,6 +335,8 @@ public class TrainingService {
         }
         return team;
     }
+
+    // ===================== 辅助方法 =====================
 
     private void saveBeastCache(Map<Long, Beast> beastCache) {
         for (Beast beast : beastCache.values()) {
@@ -383,12 +381,14 @@ public class TrainingService {
                 .build();
     }
 
-    private BattleResultVO buildSummary(User user, MapNode mapNode,
-                                         int totalEncounters, int totalKills, int defeatCount,
-                                         long expGained, int totalRounds,
-                                         List<DropItem> allDrops,
-                                         List<CombatLogEntry> allLogs,
-                                         List<Map<String, Object>> allSkillProcs) {
+    private BattleResultVO buildSummary(
+            User user, MapNode mapNode,
+            int totalEncounters, int totalKills, int defeatCount,
+            long expGained, int totalRounds,
+            List<DropItem> allDrops,
+            List<CombatLogEntry> allLogs,
+            List<Map<String, Object>> allSkillProcs
+    ) {
         StringBuilder summary = new StringBuilder();
         summary.append(String.format("遇敌%d场 | 击杀%d只", totalEncounters, totalKills));
         if (defeatCount > 0) {
@@ -416,11 +416,11 @@ public class TrainingService {
                 .build();
     }
 
-    // ===================== 基础历练收益 =====================
-
     private double calculateEfficiencyMultiplier(int agility) {
         return 1.0 + (agility * 0.01);
     }
+
+    // ===================== 基础历练收益 =====================
 
     private double calculateLevelDecayMultiplier(int playerLevel, int mapLevel) {
         int levelDiff = playerLevel - mapLevel - 10;
@@ -493,5 +493,8 @@ public class TrainingService {
                     .orElse(ItemType.MATERIAL);
             stackableItemService.addStackableItem(userId, templateId, itemType, name, quantity);
         }
+    }
+
+    private record EncounterParams(int encounterChances, double encounterChance) {
     }
 }

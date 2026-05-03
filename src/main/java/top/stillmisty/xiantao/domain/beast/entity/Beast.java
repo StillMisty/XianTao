@@ -182,9 +182,8 @@ public class Beast {
     /**
      * 检查是否可以进化
      *
-     * @param isQualityBreak 是否是品质突破
      */
-    public boolean canEvolve(boolean isQualityBreak) {
+    public boolean canEvolve() {
         return levelCap != null && level >= levelCap;
     }
 

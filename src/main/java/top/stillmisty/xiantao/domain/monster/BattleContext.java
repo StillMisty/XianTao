@@ -2,10 +2,6 @@ package top.stillmisty.xiantao.domain.monster;
 
 import lombok.Builder;
 import lombok.Getter;
-import top.stillmisty.xiantao.domain.skill.entity.Skill;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * 战斗上下文
@@ -56,6 +52,7 @@ public class BattleContext {
     /**
      * 战斗场景枚举
      */
+    @Getter
     public enum BattleScene {
         TRAINING("历练"),
         DUNGEON("秘境"),
@@ -68,8 +65,5 @@ public class BattleContext {
             this.name = name;
         }
 
-        public String getName() {
-            return name;
-        }
     }
 }

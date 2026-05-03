@@ -15,9 +15,4 @@ public interface CombatEngine {
      * @return 战斗结果
      */
     BattleResultVO simulate(BattleContext context);
-
-    /**
-     * 获取引擎名称
-     */
-    String getEngineName();
 }

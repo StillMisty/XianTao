@@ -14,7 +14,7 @@ public class Monster implements Combatant {
     private final MonsterTemplate template;
     private final long instanceId;
     private int hp;
-    private int level;
+    private final int level;
     private final List<Skill> skills;
 
     public Monster(MonsterTemplate template, int level, List<Skill> skills) {

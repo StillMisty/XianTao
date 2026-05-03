@@ -33,12 +33,9 @@ public class AuthenticatedAspect {
     @Around("execution(public top.stillmisty.xiantao.service.ServiceResult top.stillmisty.xiantao.service..*.*(..))")
     public Object authenticate(ProceedingJoinPoint pjp) throws Throwable {
         Object[] args = pjp.getArgs();
-        if (args.length < 2 || !(args[0] instanceof PlatformType) || !(args[1] instanceof String)) {
+        if (args.length < 2 || !(args[0] instanceof PlatformType platform) || !(args[1] instanceof String openId)) {
             return pjp.proceed();
         }
-
-        PlatformType platform = (PlatformType) args[0];
-        String openId = (String) args[1];
 
         // 提取可选的 UserStatus（第3个参数）
         UserStatus requiredStatus = null;

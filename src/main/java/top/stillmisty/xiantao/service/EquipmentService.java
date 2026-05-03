@@ -54,10 +54,10 @@ public class EquipmentService {
         userRepository.findById(userId).orElseThrow();
 
         var result = itemResolver.resolveEquipment(userId, input);
-        if (result instanceof ItemResolver.NotFound<?> n) {
+        if (result instanceof ItemResolver.NotFound<?>(String input1)) {
             return EquipResult.builder()
                     .success(false)
-                    .message("背包中未找到 [" + n.input() + "] 相关的装备")
+                    .message("背包中未找到 [" + input1 + "] 相关的装备")
                     .build();
         }
         if (result instanceof ItemResolver.Ambiguous<?> a) {

@@ -20,7 +20,7 @@ import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -103,13 +103,12 @@ public class SkillService {
         }
 
         var props = template.typedProperties();
-        if (!(props instanceof ItemProperties.SkillJade jade)) {
+        if (!(props instanceof ItemProperties.SkillJade(long skillId))) {
             return SkillSlotResult.builder()
                     .success(false)
                     .message("玉简未包含法决信息")
                     .build();
         }
-        long skillId = jade.skillId();
 
         var skill = skillRepository.findById(skillId).orElse(null);
         if (skill == null) {
@@ -175,7 +174,7 @@ public class SkillService {
 
         return playerSkills.stream()
                 .map(ps -> toSkillVO(ps, skillMap.get(ps.getSkillId())))
-                .filter(vo -> vo != null)
+                .filter(Objects::nonNull)
                 .toList();
     }
 
@@ -191,7 +190,7 @@ public class SkillService {
 
         return playerSkills.stream()
                 .map(ps -> toSkillVO(ps, skillMap.get(ps.getSkillId())))
-                .filter(vo -> vo != null)
+                .filter(Objects::nonNull)
                 .toList();
     }
 
@@ -296,7 +295,7 @@ public class SkillService {
                 .success(true)
                 .message("已卸下「" + skillName + "」")
                 .skill(skill != null ? toSkillVO(matched, skill) : null)
-                .equippedCount((int) equippedSkills.size() - 1)
+                .equippedCount(equippedSkills.size() - 1)
                 .maxSlots(maxSlots)
                 .build();
     }

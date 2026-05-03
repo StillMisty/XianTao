@@ -33,19 +33,25 @@ public class PillRefiningService {
 
     // ===================== 公开 API（含认证） =====================
 
+    private static ItemProperties.Scroll getRecipeScroll(ItemTemplate template) {
+        var props = template.typedProperties();
+        if (props instanceof ItemProperties.Scroll s) return s;
+        return null;
+    }
+
     @Transactional
     public ServiceResult<PillRefiningResultVO> refinePillAuto(PlatformType platform, String openId, String recipeName) {
         Long userId = UserContext.getCurrentUserId();
         return new ServiceResult.Success<>(refinePillAuto(userId, recipeName));
     }
 
+    // ===================== 内部 API =====================
+
     @Transactional
     public ServiceResult<PillRefiningResultVO> refinePillManual(PlatformType platform, String openId, List<String> herbInputs) {
         Long userId = UserContext.getCurrentUserId();
         return new ServiceResult.Success<>(refinePillManual(userId, herbInputs));
     }
-
-    // ===================== 内部 API =====================
 
     @Transactional
     public PillRefiningResultVO refinePillAuto(Long userId, String recipeName) {
@@ -61,7 +67,7 @@ public class PillRefiningService {
             }
         }
 
-        if (targetRecipe == null || recipeTemplate == null) {
+        if (targetRecipe == null) {
             return new PillRefiningResultVO(false, "未找到丹方：" + recipeName, null, null, 0, null, null, null);
         }
 
@@ -81,6 +87,8 @@ public class PillRefiningService {
 
         return findBestCombination(userId, herbs, requirements, recipeTemplate);
     }
+
+    // ===================== 辅助方法 =====================
 
     @Transactional
     public PillRefiningResultVO refinePillManual(Long userId, List<String> herbInputs) {
@@ -127,24 +135,20 @@ public class PillRefiningService {
 
                 createPillItem(userId, resultTemplate, recipeScroll.grade(), quality, resultQuantity);
 
-                return new PillRefiningResultVO(true, "炼丹成功！", resultItemId, resultTemplate.getName(),
-                        resultQuantity, quality, usedHerbs, null);
+                return new PillRefiningResultVO(
+                        true, "炼丹成功！", resultItemId, resultTemplate.getName(),
+                        resultQuantity, quality, usedHerbs, null
+                );
             }
         }
 
         return new PillRefiningResultVO(false, "药材五行不匹配任何丹方", null, null, 0, null, usedHerbs, null);
     }
 
-    // ===================== 辅助方法 =====================
-
-    private static ItemProperties.Scroll getRecipeScroll(ItemTemplate template) {
-        var props = template.typedProperties();
-        if (props instanceof ItemProperties.Scroll s) return s;
-        return null;
-    }
-
-    private PillRefiningResultVO findBestCombination(Long userId, List<StackableItem> herbs,
-            List<ItemProperties.ElementRequirement> requirements, ItemTemplate recipeTemplate) {
+    private PillRefiningResultVO findBestCombination(
+            Long userId, List<StackableItem> herbs,
+            List<ItemProperties.ElementRequirement> requirements, ItemTemplate recipeTemplate
+    ) {
         Map<String, Integer> elementTotals = new HashMap<>();
         Map<String, Integer> usedHerbs = new HashMap<>();
         List<String> missingElements = new ArrayList<>();
@@ -179,16 +183,20 @@ public class PillRefiningService {
         }
 
         if (!missingElements.isEmpty()) {
-            return new PillRefiningResultVO(false, "缺少药材属性：" + String.join(", ", missingElements),
-                    null, null, 0, null, null, missingElements);
+            return new PillRefiningResultVO(
+                    false, "缺少药材属性：" + String.join(", ", missingElements),
+                    null, null, 0, null, null, missingElements
+            );
         }
 
         for (var req : requirements) {
             String element = req.element();
             int max = req.max() == 0 ? Integer.MAX_VALUE : req.max();
             if (elementTotals.getOrDefault(element, 0) > max) {
-                return new PillRefiningResultVO(false, "药材属性超过上限：" + element,
-                        null, null, 0, null, usedHerbs, null);
+                return new PillRefiningResultVO(
+                        false, "药材属性超过上限：" + element,
+                        null, null, 0, null, usedHerbs, null
+                );
             }
         }
 
@@ -217,12 +225,16 @@ public class PillRefiningService {
 
         createPillItem(userId, resultTemplate, recipeScroll.grade(), quality, resultQuantity);
 
-        return new PillRefiningResultVO(true, "炼丹成功！", resultItemId, resultTemplate.getName(),
-                resultQuantity, quality, usedHerbs, null);
+        return new PillRefiningResultVO(
+                true, "炼丹成功！", resultItemId, resultTemplate.getName(),
+                resultQuantity, quality, usedHerbs, null
+        );
     }
 
-    private boolean matchesRequirements(Map<String, Integer> elementTotals,
-            List<ItemProperties.ElementRequirement> requirements) {
+    private boolean matchesRequirements(
+            Map<String, Integer> elementTotals,
+            List<ItemProperties.ElementRequirement> requirements
+    ) {
         for (var req : requirements) {
             String element = req.element();
             int min = req.min();
@@ -233,8 +245,10 @@ public class PillRefiningService {
         return true;
     }
 
-    private double calculateQualityScore(Map<String, Integer> elementTotals,
-            List<ItemProperties.ElementRequirement> requirements) {
+    private double calculateQualityScore(
+            Map<String, Integer> elementTotals,
+            List<ItemProperties.ElementRequirement> requirements
+    ) {
         double totalScore = 0;
         int count = 0;
         for (var req : requirements) {
@@ -274,8 +288,10 @@ public class PillRefiningService {
             item.setProperties(properties);
             stackableItemRepository.save(item);
         } else {
-            StackableItem newItem = StackableItem.create(userId, resultTemplate.getId(),
-                    resultTemplate.getType(), resultTemplate.getName(), quantity);
+            StackableItem newItem = StackableItem.create(
+                    userId, resultTemplate.getId(),
+                    resultTemplate.getType(), resultTemplate.getName(), quantity
+            );
             newItem.setProperties(properties);
             stackableItemRepository.save(newItem);
         }
@@ -302,7 +318,7 @@ public class PillRefiningService {
                     .toList();
 
             if (!herbs.isEmpty()) {
-                result.add(new HerbInput(herbs.get(0), quantity));
+                result.add(new HerbInput(herbs.getFirst(), quantity));
             }
         }
         return result;

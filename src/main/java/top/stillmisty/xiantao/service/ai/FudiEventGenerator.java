@@ -74,7 +74,7 @@ public class FudiEventGenerator {
         int baseCount = (int) (hoursSinceLastEvent / (MIN_HOURS_BETWEEN_EVENTS + ThreadLocalRandom.current().nextInt(5)));
         
         // 限制在1-6之间
-        return Math.max(MIN_EVENTS, Math.min(MAX_EVENTS, baseCount));
+        return Math.clamp(baseCount, MIN_EVENTS, MAX_EVENTS);
     }
 
     /**

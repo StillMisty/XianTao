@@ -12,7 +12,6 @@ import top.stillmisty.xiantao.domain.user.repository.UserAuthRepository;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 import top.stillmisty.xiantao.domain.user.vo.RegisterResult;
 
-import java.util.Optional;
 import java.util.Random;
 
 /**

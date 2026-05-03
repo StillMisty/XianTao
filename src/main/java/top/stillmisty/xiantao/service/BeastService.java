@@ -6,13 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
-import top.stillmisty.xiantao.domain.beast.vo.ActionResultVO;
-import top.stillmisty.xiantao.domain.beast.vo.BatchCountVO;
-import top.stillmisty.xiantao.domain.beast.vo.BatchRecoverVO;
-import top.stillmisty.xiantao.domain.beast.vo.BeastSkillPoolVO;
-import top.stillmisty.xiantao.domain.beast.vo.BeastStatusVO;
-import top.stillmisty.xiantao.domain.beast.vo.RecoverResultVO;
-import top.stillmisty.xiantao.domain.beast.vo.ReleaseBeastVO;
+import top.stillmisty.xiantao.domain.beast.vo.*;
 import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
 import top.stillmisty.xiantao.domain.fudi.entity.FudiCell;
 import top.stillmisty.xiantao.domain.fudi.entity.Spirit;
@@ -433,7 +427,7 @@ public class BeastService {
             throw new IllegalStateException("已是最高等阶 T5");
         }
 
-        if (!beast.canEvolve(false)) {
+        if (!beast.canEvolve()) {
             throw new IllegalStateException("灵兽需要先达到等级上限才能进化");
         }
 
@@ -494,7 +488,7 @@ public class BeastService {
             throw new IllegalStateException("已是最高品质神品");
         }
 
-        if (!beast.canEvolve(true)) {
+        if (!beast.canEvolve()) {
             throw new IllegalStateException("灵兽需要先达到等级上限才能突破");
         }
 
@@ -795,7 +789,7 @@ public class BeastService {
         for (Map<String, Object> item : productionStored) {
             Long templateId = ((Number) item.get("template_id")).longValue();
             String name = (String) item.get("name");
-            Integer quantity = ((Number) item.get("quantity")).intValue();
+            int quantity = ((Number) item.get("quantity")).intValue();
             if (quantity > 0) {
                 stackableItemService.addStackableItem(fudi.getUserId(), templateId, ItemType.HERB, name, quantity);
                 totalItems += quantity;
@@ -912,7 +906,7 @@ public class BeastService {
             totalWeight += item.weight();
         }
         if (totalWeight <= 0) {
-            return productionItems.get(0);
+            return productionItems.getFirst();
         }
         int random = ThreadLocalRandom.current().nextInt(totalWeight);
         int current = 0;
@@ -922,12 +916,12 @@ public class BeastService {
                 return item;
             }
         }
-        return productionItems.get(0);
+        return productionItems.getFirst();
     }
 
     ItemProperties.ProductionItem selectHigherTierItem(List<ItemProperties.ProductionItem> productionItems) {
         if (productionItems.isEmpty()) return null;
-        return productionItems.stream().min((a, b) -> Integer.compare(a.weight(), b.weight())).orElse(null);
+        return productionItems.stream().min(Comparator.comparingInt(ItemProperties.ProductionItem::weight)).orElse(null);
     }
 
     // ===================== 灵兽辅助方法 =====================
@@ -935,7 +929,7 @@ public class BeastService {
     Beast findBeastByCell(FudiCell cell) {
         Object beastIdObj = cell.getConfigValue("beast_id");
         if (beastIdObj == null) return null;
-        Long beastId;
+        long beastId;
         if (beastIdObj instanceof Long l) {
             beastId = l;
         } else if (beastIdObj instanceof Number n) {

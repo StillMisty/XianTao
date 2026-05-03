@@ -221,7 +221,7 @@ public class CharacterStatusService {
                             .bonusPercentage(bonus)
                             .build();
                 })
-                .filter(vo -> vo != null)
+                .filter(Objects::nonNull)
                 .toList();
     }
 
