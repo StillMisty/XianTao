@@ -269,23 +269,6 @@ public class CultivationCommandHandler {
         return String.format("  %s：%s%d", attrName, sign, change);
     }
 
-    private String formatAttributeAllocationResult(AttributeAllocationResult result) {
-        return result.getMessage() + "\n" +
-                String.format("当前%s：%d\n", result.getAttributeName(), result.getCurrentAttributeValue()) +
-                String.format("剩余可用属性点：%d", result.getRemainingPoints());
-    }
-
-    private String formatStatResetResult(StatResetResult result) {
-        return result.getMessage() + "\n\n" +
-                "【重置详情】\n" +
-                String.format("  力道：-%d\n", result.getResetStr()) +
-                String.format("  根骨：-%d\n", result.getResetCon()) +
-                String.format("  身法：-%d\n", result.getResetAgi()) +
-                String.format("  悟性：-%d\n", result.getResetWis()) +
-                String.format("\n返还总属性点：%d\n", result.getTotalFreePoints()) +
-                String.format("下次可洗点时间：%d小时后", result.getCooldownHoursRemaining());
-    }
-
     private String formatBreakthroughResult(BreakthroughResult result) {
         StringBuilder sb = new StringBuilder();
         sb.append(result.getMessage()).append("\n\n");

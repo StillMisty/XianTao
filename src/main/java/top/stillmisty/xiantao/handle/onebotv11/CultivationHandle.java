@@ -13,7 +13,7 @@ import top.stillmisty.xiantao.handle.command.CultivationCommandHandler;
 
 /**
  * 修仙系统监听器
- * 处理加点、洗点、突破、护道等修仙相关命令
+ * 处理突破、护道等修仙相关命令
  */
 @Slf4j
 @Component

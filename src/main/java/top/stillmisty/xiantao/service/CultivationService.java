@@ -19,7 +19,7 @@ import java.util.Optional;
 
 /**
  * 修仙核心服务
- * 处理加点、洗点、突破、护道等核心修仙机制
+ * 处理突破、护道等核心修仙机制
  */
 @Slf4j
 @Service
