@@ -1,6 +1,9 @@
 # AGENTS.md — XianTao (仙道)
 
+A text-based idle Cultivation MUD with minimal interaction
+
 ## Tech Stack
+
 Java 25 · Spring Boot 4.x · Spring AI 2.x · MyBatis-Flex · PostgreSQL 18 (JSONB) · SimBot · Gradle + KTS
 
 ## Architecture
@@ -23,10 +26,12 @@ src/main/java/top/stillmisty/xiantao/
 ```
 
 ## Service API Pattern
+
 - **Public** method: `(PlatformType, String openId, ...)` → auth → returns `ServiceResult<T>`
 - **Internal** method: `(Long userId, ...)` → returns raw VO/DTO
 
 ## Development Flow
+
 1. domain/ — Entity, VO, Repository interface
 2. db/migration/ — Flyway migration
 3. infrastructure/ — Mapper + RepositoryImpl
