@@ -151,10 +151,10 @@ public class CultivationCommandHandler {
         sb.append(String.format("  悟性：%d\n", status.getStatWis()));
         if (status.getEquipStr() != 0 || status.getEquipCon() != 0 || status.getEquipAgi() != 0 || status.getEquipWis() != 0) {
             sb.append("\n【装备加成】\n");
-            if (status.getEquipStr() != 0) sb.append(String.format("  力量：+%d\n", status.getEquipStr()));
-            if (status.getEquipCon() != 0) sb.append(String.format("  体质：+%d\n", status.getEquipCon()));
-            if (status.getEquipAgi() != 0) sb.append(String.format("  敏捷：+%d\n", status.getEquipAgi()));
-            if (status.getEquipWis() != 0) sb.append(String.format("  智慧：+%d\n", status.getEquipWis()));
+            if (status.getEquipStr() != 0) sb.append(String.format("  力道：+%d\n", status.getEquipStr()));
+            if (status.getEquipCon() != 0) sb.append(String.format("  根骨：+%d\n", status.getEquipCon()));
+            if (status.getEquipAgi() != 0) sb.append(String.format("  身法：+%d\n", status.getEquipAgi()));
+            if (status.getEquipWis() != 0) sb.append(String.format("  悟性：+%d\n", status.getEquipWis()));
         }
         sb.append("\n【战斗属性】\n");
         sb.append(String.format("  攻击：%d\n", status.getAttack()));
@@ -251,10 +251,10 @@ public class CultivationCommandHandler {
         sb.append(message).append("\n");
         if (change != null) {
             sb.append("\n【属性变化】\n");
-            if (change.getStrChange() != 0) sb.append(formatAttrChange("力量", change.getStrChange())).append("\n");
-            if (change.getConChange() != 0) sb.append(formatAttrChange("体质", change.getConChange())).append("\n");
-            if (change.getAgiChange() != 0) sb.append(formatAttrChange("敏捷", change.getAgiChange())).append("\n");
-            if (change.getWisChange() != 0) sb.append(formatAttrChange("智慧", change.getWisChange())).append("\n");
+            if (change.getStrChange() != 0) sb.append(formatAttrChange("力道", change.getStrChange())).append("\n");
+            if (change.getConChange() != 0) sb.append(formatAttrChange("根骨", change.getConChange())).append("\n");
+            if (change.getAgiChange() != 0) sb.append(formatAttrChange("身法", change.getAgiChange())).append("\n");
+            if (change.getWisChange() != 0) sb.append(formatAttrChange("悟性", change.getWisChange())).append("\n");
             if (change.getAttackChange() != 0)
                 sb.append(formatAttrChange("攻击", change.getAttackChange())).append("\n");
             if (change.getDefenseChange() != 0)
@@ -278,10 +278,10 @@ public class CultivationCommandHandler {
     private String formatStatResetResult(StatResetResult result) {
         return result.getMessage() + "\n\n" +
                 "【重置详情】\n" +
-                String.format("  力量：-%d\n", result.getResetStr()) +
-                String.format("  体质：-%d\n", result.getResetCon()) +
-                String.format("  敏捷：-%d\n", result.getResetAgi()) +
-                String.format("  智慧：-%d\n", result.getResetWis()) +
+                String.format("  力道：-%d\n", result.getResetStr()) +
+                String.format("  根骨：-%d\n", result.getResetCon()) +
+                String.format("  身法：-%d\n", result.getResetAgi()) +
+                String.format("  悟性：-%d\n", result.getResetWis()) +
                 String.format("\n返还总属性点：%d\n", result.getTotalFreePoints()) +
                 String.format("下次可洗点时间：%d小时后", result.getCooldownHoursRemaining());
     }

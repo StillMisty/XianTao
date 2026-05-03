@@ -9,24 +9,12 @@ import lombok.Getter;
 public enum AffixType {
 
     /**
-     * 蛮力 - 力量 (STR) + X
+     * 启迪 - 悟性 (WIS) + X
      */
-    STRENGTH("strength", "蛮力", "STR", "力量"),
-
-    /**
-     * 坚韧 - 体质 (CON) + X
-     */
-    CONSTITUTION("constitution", "坚韧", "CON", "体质"),
-
-    /**
-     * 轻灵 - 敏捷 (AGI) + X
-     */
-    AGILITY("agility", "轻灵", "AGI", "敏捷"),
-
-    /**
-     * 启迪 - 智慧 (WIS) + X
-     */
-    WISDOM("wisdom", "启迪", "WIS", "智慧"),
+    STRENGTH("strength", "蛮力", "STR", "力道"),
+    CONSTITUTION("constitution", "坚韧", "CON", "根骨"),
+    AGILITY("agility", "轻灵", "AGI", "身法"),
+    WISDOM("wisdom", "启迪", "WIS", "悟性"),
 
     /**
      * 吸血 - 伤害的5%转化为HP（仅金装）

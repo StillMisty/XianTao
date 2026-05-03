@@ -7,10 +7,10 @@ import lombok.Getter;
  */
 @Getter
 public enum AttributeType {
-    STR("str", "力量"),
-    CON("con", "体质"),
-    AGI("agi", "敏捷"),
-    WIS("wis", "智慧");
+    STR("str", "力道"),
+    CON("con", "根骨"),
+    AGI("agi", "身法"),
+    WIS("wis", "悟性");
 
     private final String code;
     private final String name;
