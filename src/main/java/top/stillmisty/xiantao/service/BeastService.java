@@ -261,7 +261,7 @@ public class BeastService {
         cell.setConfigValue("is_incubating", true);
         cell.setConfigValue("hatch_time", now.toString());
         cell.setConfigValue("mature_time", now.plusHours((long) hatchHours).toString());
-        cell.setConfigValue("production_stored", 0);
+        cell.clearProductionStored();
         cell.setConfigValue("last_production_time", now.toString());
         cell.setConfigValue("production_interval_hours", productionInterval);
         fudiCellRepository.save(cell);
@@ -653,7 +653,6 @@ public class BeastService {
         }
 
         cell.clearProductionStored();
-        cell.setConfigValue("production_stored", 0);
         fudiCellRepository.save(cell);
 
         log.info("用户 {} 收取地块 {} 的灵兽产出 {} 件", fudi.getUserId(), cellId, totalItems);
@@ -701,11 +700,13 @@ public class BeastService {
 
         List<ItemProperties.ProductionItem> productionItems = getProductionItems(cell);
         if (productionItems.isEmpty()) {
-            Integer currentStored = cell.getIntConfig("production_stored");
-            if (currentStored == null) currentStored = 0;
+            int currentStored = cell.getTotalProductionQuantity();
             int maxStorage = tier * 20;
             int newStored = Math.min(maxStorage, currentStored + produced);
-            cell.setConfigValue("production_stored", newStored);
+            int added = newStored - currentStored;
+            if (added > 0) {
+                cell.addProductionItem(1L, "灵草", added);
+            }
         } else {
             int maxStorage = tier * 20;
             int currentTotal = cell.getTotalProductionQuantity();
@@ -783,57 +784,7 @@ public class BeastService {
      * 将灵兽的生产计数分发为具体产出物品列表
      */
     List<Map<String, Object>> distributeBeastProduction(FudiCell cell) {
-        List<Map<String, Object>> productionStored = cell.getProductionStored();
-        if (!productionStored.isEmpty()) {
-            return productionStored;
-        }
-
-        Integer stored = cell.getIntConfig("production_stored");
-        if (stored == null || stored <= 0) {
-            return List.of();
-        }
-
-        var productionItems = getProductionItems(cell);
-        if (productionItems.isEmpty()) {
-            productionStored = new ArrayList<>();
-            Map<String, Object> defaultItem = new HashMap<>();
-            defaultItem.put("template_id", 1L);
-            defaultItem.put("name", "灵草");
-            defaultItem.put("quantity", stored);
-            productionStored.add(defaultItem);
-        } else {
-            productionStored = new ArrayList<>();
-            int remaining = stored;
-            while (remaining > 0) {
-                var selectedItem = selectRandomProductionItem(productionItems);
-                if (selectedItem != null) {
-                    long templateId = selectedItem.templateId();
-                    String name = selectedItem.name();
-                    boolean found = false;
-                    for (Map<String, Object> item : productionStored) {
-                        Object id = item.get("template_id");
-                        if (id instanceof Number n && n.longValue() == templateId) {
-                            Object currentQty = item.get("quantity");
-                            if (currentQty instanceof Number currentN) {
-                                item.put("quantity", currentN.intValue() + 1);
-                            }
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        Map<String, Object> newItem = new HashMap<>();
-                        newItem.put("template_id", templateId);
-                        newItem.put("name", name);
-                        newItem.put("quantity", 1);
-                        productionStored.add(newItem);
-                    }
-                }
-                remaining--;
-            }
-        }
-
-        return productionStored;
+        return cell.getProductionStored();
     }
 
     // ===================== 灵兽辅助方法 =====================
@@ -900,7 +851,7 @@ public class BeastService {
                 .hatchTime(hatchTimeStr != null ? LocalDateTime.parse(hatchTimeStr) : null)
                 .matureTime(matureTimeStr != null ? LocalDateTime.parse(matureTimeStr) : null)
                 .productionIntervalHours(cell.getDoubleConfig("production_interval_hours") != null ? cell.getDoubleConfig("production_interval_hours") : 4.0)
-                .productionStored(cell.getIntConfig("production_stored") != null ? cell.getIntConfig("production_stored") : 0)
+                .productionStored(cell.getTotalProductionQuantity())
                 .powerScore(powerScore)
                 .birthTime(beast != null ? beast.getBirthTime() : null)
                 .build();
@@ -918,7 +869,7 @@ public class BeastService {
                     .level(beast.getTier())
                     .quality(qualityChinese)
                     .mutationTraits(traits)
-                    .productionStored(cell.getIntConfig("production_stored") != null ? cell.getIntConfig("production_stored") : 0)
+                    .productionStored(cell.getTotalProductionQuantity())
                     .isIncubating(Boolean.TRUE.equals(cell.getBoolConfig("is_incubating")));
         }
     }
@@ -1070,7 +1021,7 @@ public class BeastService {
         cell.setConfigValue("is_incubating", null);
         cell.setConfigValue("hatch_time", null);
         cell.setConfigValue("mature_time", null);
-        cell.setConfigValue("production_stored", null);
+        cell.clearProductionStored();
         cell.setConfigValue("last_production_time", null);
         cell.setConfigValue("production_interval_hours", null);
         fudiCellRepository.save(cell);

@@ -234,10 +234,6 @@ public class SpiritChatService {
                 Long beastId = beastIdObj instanceof Long l ? l : ((Number) beastIdObj).longValue();
                 beastRepository.findById(beastId).ifPresent(beast -> sb.append(" 饲养:").append(beast.getBeastName()));
             }
-            Integer hunger = cell.getIntConfig("hunger");
-            if (hunger != null) {
-                sb.append(" 饥饿值:").append(hunger);
-            }
             sb.append("\n");
         }
 
@@ -250,17 +246,6 @@ public class SpiritChatService {
                 .count();
         if (matureFarmCount > 0) {
             sb.append("有 ").append(matureFarmCount).append(" 块灵田可收获。\n");
-        }
-
-        // 检查饥饿的灵兽
-        long hungryBeastCount = penCells.stream()
-                .filter(c -> {
-                    Integer hunger = c.getIntConfig("hunger");
-                    return hunger != null && hunger < 50;
-                })
-                .count();
-        if (hungryBeastCount > 0) {
-            sb.append("有 ").append(hungryBeastCount).append(" 只灵兽需要喂养。\n");
         }
 
         return sb.toString();

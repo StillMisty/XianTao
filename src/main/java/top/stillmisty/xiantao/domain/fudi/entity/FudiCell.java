@@ -9,6 +9,7 @@ import top.stillmisty.xiantao.domain.fudi.enums.CellType;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -147,7 +148,7 @@ public class FudiCell {
         if (value instanceof List<?> list) {
             return (List<Map<String, Object>>) list;
         }
-        return new java.util.ArrayList<>();
+        return new ArrayList<>();
     }
 
     /**
@@ -195,7 +196,14 @@ public class FudiCell {
      * 清空累积产出
      */
     public void clearProductionStored() {
-        setProductionStored(new java.util.ArrayList<>());
+        setProductionStored(new ArrayList<>());
+    }
+
+    /**
+     * 清空所有配置
+     */
+    public void clearConfig() {
+        this.config = new HashMap<>();
     }
 
     /**

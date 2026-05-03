@@ -440,7 +440,6 @@ public class FudiService {
             }
 
             cell.clearProductionStored();
-            cell.setConfigValue("production_stored", 0);
             fudiCellRepository.save(cell);
 
             totalItems += cellTotalItems;
@@ -650,8 +649,7 @@ public class FudiService {
                     builder.name(beast != null ? beast.getBeastName() : "空兽栏");
                     builder.level(beast != null ? beast.getTier() : 0);
                     builder.quality(beast != null ? beast.getQuality().getCode() : null);
-                    Integer stored = cell.getIntConfig("production_stored");
-                    builder.productionStored(stored != null ? stored : 0);
+                    builder.productionStored(cell.getTotalProductionQuantity());
                     builder.isIncubating(cell.getBoolConfig("is_incubating"));
                 }
             }

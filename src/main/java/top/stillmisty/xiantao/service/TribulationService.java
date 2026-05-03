@@ -169,7 +169,7 @@ public class TribulationService {
 
         for (FudiCell cell : cellsToDestroy) {
             cell.setCellType(CellType.EMPTY);
-            cell.setConfig(new HashMap<>());
+            cell.clearConfig();
             fudiCellRepository.save(cell);
         }
 
