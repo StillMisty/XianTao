@@ -224,7 +224,7 @@ public class FudiService {
         autoExpandCells(fudi);
 
         var user = fudiHelper.getUserOrThrow(userId);
-        String tribulationResult = tribulationService.resolveTribulation(fudi, user.getLevel(), user.getStatValue(), false);
+        String tribulationResult = tribulationService.resolveTribulation(fudi, user, false);
 
         spiritRepository.findByFudiId(fudi.getId()).ifPresent(spirit -> {
             spirit.restoreEnergy(fudi.getTribulationStage());
@@ -296,7 +296,7 @@ public class FudiService {
 
         User user = fudiHelper.getUserOrThrow(userId);
 
-        String result = tribulationService.resolveTribulation(fudi, user.getLevel(), user.getStatValue(), true);
+        String result = tribulationService.resolveTribulation(fudi, user, true);
         fudiRepository.save(fudi);
 
         return new TriggerTribulationVO(

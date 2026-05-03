@@ -9,10 +9,15 @@ import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
 import top.stillmisty.xiantao.domain.fudi.entity.FudiCell;
 import top.stillmisty.xiantao.domain.fudi.enums.CellType;
 import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
-import top.stillmisty.xiantao.domain.fudi.enums.MutationTrait;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiCellRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
+import top.stillmisty.xiantao.domain.monster.Combatant;
+import top.stillmisty.xiantao.domain.monster.Team;
+import top.stillmisty.xiantao.domain.monster.TribulationBoss;
+import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
+import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -22,75 +27,135 @@ import java.util.*;
 @Slf4j
 public class TribulationService {
 
+    private static final int TRIBULATION_COOLDOWN_DAYS = 7;
+    private static final int TRIBULATION_MAX_ROUNDS = 40;
+
     private final FudiRepository fudiRepository;
     private final FudiCellRepository fudiCellRepository;
     private final SpiritRepository spiritRepository;
     private final BeastRepository beastRepository;
+    private final UserRepository userRepository;
     private final FudiHelper fudiHelper;
+    private final CombatService combatService;
 
     /**
-     * 尝试触发天劫判定，返回结果文本；如果未触发返回 null
+     * 触发天劫 — 使用战斗引擎进行回合制战斗
      *
      * @param fudi         福地
-     * @param playerLevel  玩家境界
-     * @param playerStr    玩家战力值
+     * @param user         玩家
      * @param forceTrigger 是否强制触发（忽略冷却）
      * @return 天劫结果文本，未触发返回 null
      */
-    public String resolveTribulation(Fudi fudi, int playerLevel, int playerStr, boolean forceTrigger) {
+    public String resolveTribulation(Fudi fudi, User user, boolean forceTrigger) {
         LocalDateTime referenceTime = fudi.getLastTribulationTime() != null
                 ? fudi.getLastTribulationTime()
                 : fudi.getCreateTime();
 
-        if (!forceTrigger && java.time.Duration.between(referenceTime, LocalDateTime.now()).toDays() < 7) {
+        if (!forceTrigger && java.time.Duration.between(referenceTime, LocalDateTime.now()).toDays() < TRIBULATION_COOLDOWN_DAYS) {
             return null;
         }
 
-        int attack = playerLevel * 80 + fudi.getTribulationStage() * 200;
-        int defense = calculateTribulationDefense(fudi, playerStr);
-
         fudi.setLastTribulationTime(LocalDateTime.now());
 
-        boolean compassionTriggered = checkTribulationCompassion(fudi, attack, defense);
+        // 构建防守方队伍（玩家 + 出战灵兽）
+        Team defendingTeam = combatService.buildPlayerTeam(user);
 
-        if (defense > attack) {
-            return compassionTriggered ? null : applyTribulationWin(fudi, attack, defense);
-        } else if (compassionTriggered) {
-            return applyTribulationCompassion(fudi, attack, defense);
-        } else {
-            return applyTribulationLoss(fudi, attack, defense);
-        }
-    }
-
-    public int calculateTribulationDefense(Fudi fudi, int playerStr) {
-        int defense = playerStr * 10 + fudi.getTribulationStage() * 50;
-
-        List<Beast> beasts = beastRepository.findByFudiId(fudi.getId());
-        for (Beast beast : beasts) {
-            if (!Boolean.TRUE.equals(beast.getIsDeployed())) continue;
-            if (beast.getHpCurrent() <= 0) continue;
-
-            int tier = beast.getTier();
-            double power = tier * 10.0;
-            List<String> traits = beast.getMutationTraits();
-            if (traits != null && traits.contains(MutationTrait.GUARDIAN.getCode())) {
-                power *= 1.5;
-            }
-            defense += (int) power;
+        // 检查是否有存活成员
+        if (defendingTeam.aliveMembers().isEmpty()) {
+            return "⚠️ 没有可出战的单位，天劫无法降临";
         }
 
-        return defense;
-    }
+        // 计算防守方队伍总属性（用于 Boss 缩放，天然支持未来多人组队）
+        TeamStats teamStats = calculateTeamStats(defendingTeam);
 
-    private boolean checkTribulationCompassion(Fudi fudi, int attack, int defense) {
+        // 检查是否触发怜悯
         var spirit = spiritRepository.findByFudiId(fudi.getId()).orElse(null);
-        int affection = spirit != null ? spirit.getAffection() : 0;
-        return affection >= 800 && defense >= attack * 0.8 && defense < attack;
+        boolean compassionTriggered = spirit != null
+                && spirit.getAffection() >= 800
+                && defendingTeam.aliveMembers().size() >= 1;
+
+        // 生成天劫化身
+        TribulationBoss boss = new TribulationBoss(
+                teamStats.totalMaxHp(), teamStats.avgAttack(), teamStats.avgDef(), teamStats.avgSpeed(),
+                fudi.getTribulationStage(), compassionTriggered
+        );
+
+        // Boss 队伍
+        Team bossTeam = new Team(0L, "天劫");
+        bossTeam.addMember(boss);
+
+        // 执行战斗
+        BattleResultVO result = combatService.simulate(defendingTeam, bossTeam, TRIBULATION_MAX_ROUNDS);
+
+        boolean playerWon = "Player".equals(result.winner());
+        boolean compassionUsed = compassionTriggered && !playerWon;
+
+        // 应用 HP 变化到玩家和灵兽
+        applyHpToUser(user, defendingTeam);
+        applyHpToBeasts(defendingTeam, user, playerWon);
+
+        if (playerWon) {
+            return applyTribulationWin(fudi, spirit, boss);
+        } else if (compassionUsed) {
+            return applyTribulationCompassion(fudi, spirit, boss);
+        } else {
+            return applyTribulationLoss(fudi, spirit, boss);
+        }
     }
 
-    /**
-     * 更新劫数进度和连胜，返回 {oldStage, newWinStreak, newStage, stoneReward}
-     */
+    // ===================== 防守方队伍属性统计 =====================
+
+    private record TeamStats(int totalMaxHp, int avgAttack, int avgDef, int avgSpeed) {}
+
+    private TeamStats calculateTeamStats(Team team) {
+        List<Combatant> members = team.members();
+        int totalMaxHp = 0, totalAtk = 0, totalDef = 0, totalSpd = 0;
+        int count = 0;
+        for (Combatant c : members) {
+            if (c.isAlive()) {
+                totalMaxHp += c.getMaxHp();
+                totalAtk += c.getAttack();
+                totalDef += c.getDefense();
+                totalSpd += c.getSpeed();
+                count++;
+            }
+        }
+        count = Math.max(1, count);
+        return new TeamStats(totalMaxHp, totalAtk / count, totalDef / count, totalSpd / count);
+    }
+
+    // ===================== 战斗后 HP 应用 =====================
+
+    private void applyHpToUser(User user, Team team) {
+        team.members().stream()
+                .filter(c -> c instanceof top.stillmisty.xiantao.domain.monster.PlayerCombatant)
+                .findFirst()
+                .ifPresent(c -> {
+                    user.setHpCurrent(Math.max(0, c.getHp()));
+                    if (c.getHp() <= 0) {
+                        user.setDying();
+                    }
+                });
+        userRepository.save(user);
+    }
+
+    private void applyHpToBeasts(Team team, User user, boolean playerWon) {
+        for (Combatant c : team.members()) {
+            if (c instanceof top.stillmisty.xiantao.domain.monster.BeastCombatant bc) {
+                Beast beast = beastRepository.findById(c.getId()).orElse(null);
+                if (beast != null) {
+                    beast.setHpCurrent(Math.max(0, c.getHp()));
+                    if (c.getHp() <= 0 && !playerWon) {
+                        beast.setIsDeployed(false);
+                    }
+                    beastRepository.save(beast);
+                }
+            }
+        }
+    }
+
+    // ===================== 天劫结果处理 =====================
+
     private record TribulationProgress(int oldStage, int newWinStreak, int newStage, int stoneReward) {}
 
     private TribulationProgress advanceTribulation(Fudi fudi) {
@@ -107,27 +172,12 @@ public class TribulationService {
         return new TribulationProgress(oldStage, newWinStreak, newStage, stoneReward);
     }
 
-    private String applyTribulationCompassion(Fudi fudi, int attack, int defense) {
+    /**
+     * 胜利：正常进阶，好感+5
+     */
+    private String applyTribulationWin(Fudi fudi, top.stillmisty.xiantao.domain.fudi.entity.Spirit spirit, TribulationBoss boss) {
         TribulationProgress p = advanceTribulation(fudi);
 
-        spiritRepository.findByFudiId(fudi.getId()).ifPresent(spirit -> {
-            spirit.setEnergy(0);
-            spirit.setEmotionState(EmotionState.FATIGUED);
-            spirit.setLastEnergyUpdate(LocalDateTime.now());
-            spiritRepository.save(spirit);
-        });
-
-        return "🛡️⚡ 天劫降临！地灵燃烧灵体为你挡下了天雷……\n" +
-                "   攻击力：" + attack + " ｜ 防御力：" + defense + " ｜ 怜悯庇护！\n" +
-                "   劫数：" + p.oldStage() + " → " + p.newStage() + " ｜ 连胜×" + p.newWinStreak() + "\n" +
-                "   灵石奖励：+" + p.stoneReward() + "\n" +
-                "   精力归零，地灵陷入疲惫…";
-    }
-
-    private String applyTribulationWin(Fudi fudi, int attack, int defense) {
-        TribulationProgress p = advanceTribulation(fudi);
-
-        var spirit = spiritRepository.findByFudiId(fudi.getId()).orElse(null);
         int oldAffection = spirit != null ? spirit.getAffection() : 0;
         if (spirit != null) {
             spirit.addAffection(5);
@@ -137,28 +187,56 @@ public class TribulationService {
 
         return String.format(
                 """
-                        ⚡ 天劫降临！福地成功抵御！
-                           攻击力：%d ｜ 防御力：%d ｜ 胜利！
+                        ⚡ 天劫降临！成功击退天劫化身！
                            劫数：%d → %d ｜ 连胜×%d
                            灵石奖励：+%d ｜ 好感度：%d → %d""",
-                attack, defense,
                 p.oldStage(), p.newStage(), p.newWinStreak(),
                 p.stoneReward(), oldAffection, spirit != null ? spirit.getAffection() : 0
         );
     }
 
-    private String applyTribulationLoss(Fudi fudi, int attack, int defense) {
+    /**
+     * 怜悯：地灵挡劫，进阶但精力归零
+     */
+    private String applyTribulationCompassion(Fudi fudi, top.stillmisty.xiantao.domain.fudi.entity.Spirit spirit, TribulationBoss boss) {
+        TribulationProgress p = advanceTribulation(fudi);
+
+        spirit.setEnergy(0);
+        spirit.setEmotionState(EmotionState.FATIGUED);
+        spirit.setLastEnergyUpdate(LocalDateTime.now());
+        spiritRepository.save(spirit);
+
+        return """
+                🪽⚡ 天劫降临！地灵燃烧灵体为你扛过天雷……
+                   劫数：%d → %d ｜ 连胜×%d
+                   灵石奖励：+%d
+                   精力归零，地灵陷入疲惫…""".formatted(
+                p.oldStage(), p.newStage(), p.newWinStreak(), p.stoneReward()
+        );
+    }
+
+    /**
+     * 失败：地块摧毁，好感下降，连胜中断
+     * 摧毁数量根据 Boss 剩余HP比例决定（剩得越少输得越体面）
+     */
+    private String applyTribulationLoss(Fudi fudi, top.stillmisty.xiantao.domain.fudi.entity.Spirit spirit, TribulationBoss boss) {
         int oldWinStreak = fudi.getTribulationWinStreak();
+        fudi.setTribulationWinStreak(0);
 
-        var spirit = spiritRepository.findByFudiId(fudi.getId()).orElse(null);
-        int oldAffection = spirit != null ? spirit.getAffection() : 0;
-
-        int diff = attack - defense;
+        // 根据 Boss 剩余血量比例决定摧毁力度
+        double bossHpRatio = (double) boss.getHp() / boss.getMaxHp();
         int occupiedCount = (int) fudiCellRepository.findByFudiId(fudi.getId()).stream()
                 .filter(cell -> cell.getCellType() != CellType.EMPTY)
                 .count();
-        double ratio = Math.min(1.0, (double) diff / attack);
-        int clearCount = Math.clamp((int) Math.ceil(ratio * occupiedCount), 1, occupiedCount);
+
+        int clearCount;
+        if (bossHpRatio >= 0.5) {
+            clearCount = Math.clamp((int) Math.ceil(0.6 * occupiedCount), 1, occupiedCount);
+        } else if (bossHpRatio >= 0.2) {
+            clearCount = Math.clamp((int) Math.ceil(0.3 * occupiedCount), 1, occupiedCount);
+        } else {
+            clearCount = 1;
+        }
 
         List<FudiCell> occupiedCells = fudiCellRepository.findByFudiId(fudi.getId()).stream()
                 .filter(cell -> cell.getCellType() != CellType.EMPTY)
@@ -173,8 +251,7 @@ public class TribulationService {
             fudiCellRepository.save(cell);
         }
 
-        fudi.setTribulationWinStreak(0);
-
+        int oldAffection = spirit != null ? spirit.getAffection() : 0;
         if (spirit != null) {
             spirit.addAffection(-clearCount);
             spirit.setEmotionState(EmotionState.ANGRY);
@@ -183,12 +260,12 @@ public class TribulationService {
 
         return String.format(
                 """
-                        ⚡ 天劫降临！福地未能抵御…
-                           攻击力：%d ｜ 防御力：%d ｜ 差额：%d
-                           连胜×%d → 中断，被毁地块：%d 个
+                        ⚡ 天劫降临！未能抵挡天劫化身……
+                           连胜×%d → 中断 ｜ 被毁地块：%d 个
+                           Boss剩余HP：%.0f%%
                            好感度：%d → %d""",
-                attack, defense, diff,
                 oldWinStreak, clearCount,
+                bossHpRatio * 100,
                 oldAffection, spirit != null ? spirit.getAffection() : 0
         );
     }
