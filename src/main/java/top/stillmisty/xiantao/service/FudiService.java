@@ -13,9 +13,9 @@ import top.stillmisty.xiantao.domain.fudi.entity.SpiritForm;
 import top.stillmisty.xiantao.domain.fudi.enums.CellType;
 import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
 import top.stillmisty.xiantao.domain.fudi.enums.MBTIPersonality;
-import top.stillmisty.xiantao.domain.fudi.enums.MutationTrait;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiCellRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
+import top.stillmisty.xiantao.domain.fudi.repository.SpiritFormRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
 import top.stillmisty.xiantao.domain.fudi.vo.*;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
@@ -25,8 +25,6 @@ import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
-import top.stillmisty.xiantao.domain.user.repository.UserRepository;
-import top.stillmisty.xiantao.infrastructure.mapper.SpiritFormMapper;
 import top.stillmisty.xiantao.service.annotation.ConsumeSpiritEnergy;
 
 import java.time.LocalDateTime;
@@ -43,12 +41,13 @@ public class FudiService {
     private final StackableItemService stackableItemService;
     private final ItemTemplateRepository itemTemplateRepository;
     private final StackableItemRepository stackableItemRepository;
-    private final UserRepository userRepository;
     private final SpiritRepository spiritRepository;
-    private final SpiritFormMapper spiritFormMapper;
+    private final SpiritFormRepository spiritFormRepository;
     private final BeastRepository beastRepository;
     private final BeastService beastService;
     private final FarmService farmService;
+    private final FudiHelper fudiHelper;
+    private final TribulationService tribulationService;
 
     // ===================== 公开 API（含认证） =====================
 
@@ -149,7 +148,7 @@ public class FudiService {
     }
 
     private Spirit createSpiritForFudi(Fudi fudi, MBTIPersonality mbtiType) {
-        List<SpiritForm> allForms = spiritFormMapper.selectAll();
+        List<SpiritForm> allForms = spiritFormRepository.findAll();
 
         Spirit spirit = Spirit.create();
         spirit.setFudiId(fudi.getId());
@@ -168,19 +167,14 @@ public class FudiService {
         return spirit;
     }
 
+    // 保留此内部方法供 SpiritTools 使用
     public Optional<Fudi> getFudiByUserId(Long userId) {
-        Optional<Fudi> fudiOpt = fudiRepository.findByUserId(userId);
-        fudiOpt.ifPresent(fudi -> {
-            fudi.touchOnlineTime();
-            spiritRepository.findByFudiId(fudi.getId()).ifPresent(spirit -> {
-                spirit.restoreEnergy(fudi.getTribulationStage());
-                spirit.updateEmotionState();
-                spiritRepository.save(spirit);
-            });
-            autoExpandCells(fudi);
-            fudiRepository.save(fudi);
-        });
-        return fudiOpt;
+        return fudiHelper.getFudiByUserId(userId);
+    }
+
+    private Fudi getFudiOrThrow(Long userId) {
+        return getFudiByUserId(userId)
+                .orElseThrow(() -> new IllegalStateException("未找到福地"));
     }
 
     private void autoExpandCells(Fudi fudi) {
@@ -199,37 +193,14 @@ public class FudiService {
         return fudiCellRepository.countByFudiId(fudi.getId());
     }
 
-    void checkSpiritStones(Long userId, int cost) {
-        User user = userRepository.findById(userId).orElseThrow();
-        if (user.getSpiritStones() < cost) {
-            throw new IllegalStateException("灵石不足（需要 %d，当前 %d）".formatted(cost, user.getSpiritStones()));
-        }
-    }
-
-    void deductSpiritStones(Long userId, int cost) {
-        User user = userRepository.findById(userId).orElseThrow();
-        user.setSpiritStones(user.getSpiritStones() - cost);
-        userRepository.save(user);
-    }
-
-    void consumeSpiritEnergy(Fudi fudi, int baseCost) {
-        spiritRepository.findByFudiId(fudi.getId()).ifPresent(spirit -> {
-            spirit.restoreEnergy(fudi.getTribulationStage());
-            int actualCost = spirit.calculateEnergyConsumption(baseCost);
-            spirit.deductEnergy(actualCost);
-            spirit.setLastEnergyUpdate(LocalDateTime.now());
-            spiritRepository.save(spirit);
-        });
-    }
-
-    // ===================== 天劫系统 =====================
+    // ===================== 福地状态查询 =====================
 
     public FudiStatusVO getFudiStatus(Long userId) {
-        Fudi fudi = getFudiByUserId(userId)
-                .orElseThrow(() -> new IllegalStateException("未找到福地"));
+        Fudi fudi = getFudiOrThrow(userId);
+        autoExpandCells(fudi);
 
-        var user = userRepository.findById(userId).orElseThrow();
-        String tribulationResult = resolveTribulation(fudi, user.getLevel(), user.getStatValue(), false);
+        var user = fudiHelper.getUserOrThrow(userId);
+        String tribulationResult = tribulationService.resolveTribulation(fudi, user.getLevel(), user.getStatValue(), false);
 
         spiritRepository.findByFudiId(fudi.getId()).ifPresent(spirit -> {
             spirit.restoreEnergy(fudi.getTribulationStage());
@@ -253,8 +224,8 @@ public class FudiService {
         String formName = null;
         List<String> likedTags = null;
         List<String> dislikedTags = null;
-        if (spirit != null) {
-            SpiritForm form = spiritFormMapper.selectOneById(spirit.getFormId().longValue());
+        if (spirit != null && spirit.getFormId() != null) {
+            SpiritForm form = spiritFormRepository.findById(spirit.getFormId().longValue()).orElse(null);
             if (form != null) {
                 formName = form.getName();
                 likedTags = new ArrayList<>(form.getLikedTags());
@@ -293,176 +264,21 @@ public class FudiService {
                 .count();
     }
 
-    private int calculateTribulationDefense(Fudi fudi, int playerStr) {
-        int defense = playerStr * 10 + fudi.getTribulationStage() * 50;
-
-        List<Beast> beasts = beastRepository.findByFudiId(fudi.getId());
-        for (Beast beast : beasts) {
-            if (!Boolean.TRUE.equals(beast.getIsDeployed())) continue;
-            if (beast.getHpCurrent() <= 0) continue;
-
-            int tier = beast.getTier();
-            double power = tier * 10.0;
-            List<String> traits = beast.getMutationTraits();
-            if (traits != null && traits.contains(MutationTrait.GUARDIAN.getCode())) {
-                power *= 1.5;
-            }
-            defense += (int) power;
-        }
-
-        return defense;
-    }
+    // ===================== 天劫触发 =====================
 
     @Transactional
     public TriggerTribulationVO triggerTribulation(Long userId) {
-        Fudi fudi = getFudiByUserId(userId)
-                .orElseThrow(() -> new IllegalStateException("未找到福地"));
+        Fudi fudi = getFudiOrThrow(userId);
 
-        User user = userRepository.findById(userId).orElseThrow();
+        User user = fudiHelper.getUserOrThrow(userId);
 
-        String result = resolveTribulation(fudi, user.getLevel(), user.getStatValue(), true);
+        String result = tribulationService.resolveTribulation(fudi, user.getLevel(), user.getStatValue(), true);
         fudiRepository.save(fudi);
 
         return new TriggerTribulationVO(
                 result != null ? result : "天劫未触发",
                 fudi.getTribulationStage(),
                 fudi.getTribulationWinStreak()
-        );
-    }
-
-    private String resolveTribulation(Fudi fudi, int playerLevel, int playerStr, boolean forceTrigger) {
-        LocalDateTime referenceTime = fudi.getLastTribulationTime() != null
-                ? fudi.getLastTribulationTime()
-                : fudi.getCreateTime();
-
-        if (!forceTrigger && java.time.Duration.between(referenceTime, LocalDateTime.now()).toDays() < 7) {
-            return null;
-        }
-
-        int attack = playerLevel * 80 + fudi.getTribulationStage() * 200;
-        int defense = calculateTribulationDefense(fudi, playerStr);
-
-        fudi.setLastTribulationTime(LocalDateTime.now());
-
-        boolean compassionTriggered = checkTribulationCompassion(fudi, attack, defense);
-
-        if (defense > attack) {
-            return compassionTriggered ? null : applyTribulationWin(fudi, attack, defense);
-        } else if (compassionTriggered) {
-            return applyTribulationCompassion(fudi, attack, defense);
-        } else {
-            return applyTribulationLoss(fudi, attack, defense);
-        }
-    }
-
-    private boolean checkTribulationCompassion(Fudi fudi, int attack, int defense) {
-        Spirit spirit = spiritRepository.findByFudiId(fudi.getId()).orElse(null);
-        int affection = spirit != null ? spirit.getAffection() : 0;
-        return affection >= 800 && defense >= attack * 0.8 && defense < attack;
-    }
-
-    private String applyTribulationCompassion(Fudi fudi, int attack, int defense) {
-        int oldStage = fudi.getTribulationStage();
-        int newWinStreak = fudi.getTribulationWinStreak() + 1;
-        int newStage = oldStage + 1;
-
-        fudi.setTribulationWinStreak(newWinStreak);
-        fudi.setTribulationStage(newStage);
-
-        int stoneReward = newWinStreak * 100;
-        User user = userRepository.findById(fudi.getUserId()).orElseThrow();
-        user.setSpiritStones(user.getSpiritStones() + stoneReward);
-        userRepository.save(user);
-
-        spiritRepository.findByFudiId(fudi.getId()).ifPresent(spirit -> {
-            spirit.setEnergy(0);
-            spirit.setEmotionState(EmotionState.FATIGUED);
-            spirit.setLastEnergyUpdate(LocalDateTime.now());
-            spiritRepository.save(spirit);
-        });
-
-        return "🛡️⚡ 天劫降临！地灵燃烧灵体为你挡下了天雷……\n" +
-                "   攻击力：" + attack + " ｜ 防御力：" + defense + " ｜ 怜悯庇护！\n" +
-                "   劫数：" + oldStage + " → " + newStage + " ｜ 连胜×" + newWinStreak + "\n" +
-                "   灵石奖励：+" + stoneReward + "\n" +
-                "   精力归零，地灵陷入疲惫…";
-    }
-
-    @SuppressWarnings("unchecked")
-    private String applyTribulationWin(Fudi fudi, int attack, int defense) {
-        int oldStage = fudi.getTribulationStage();
-        int newWinStreak = fudi.getTribulationWinStreak() + 1;
-        int newStage = oldStage + 1;
-
-        fudi.setTribulationWinStreak(newWinStreak);
-        fudi.setTribulationStage(newStage);
-
-        int stoneReward = newWinStreak * 100;
-        User user = userRepository.findById(fudi.getUserId()).orElseThrow();
-        user.setSpiritStones(user.getSpiritStones() + stoneReward);
-        userRepository.save(user);
-
-        Spirit spirit = spiritRepository.findByFudiId(fudi.getId()).orElse(null);
-        int oldAffection = spirit != null ? spirit.getAffection() : 0;
-        if (spirit != null) {
-            spirit.addAffection(5);
-            spirit.setEmotionState(EmotionState.EXCITED);
-            spiritRepository.save(spirit);
-        }
-
-        return String.format(
-                """
-                        ⚡ 天劫降临！福地成功抵御！
-                           攻击力：%d ｜ 防御力：%d ｜ 胜利！
-                           劫数：%d → %d ｜ 连胜×%d
-                           灵石奖励：+%d ｜ 好感度：%d → %d""",
-                attack, defense,
-                oldStage, newStage, newWinStreak,
-                stoneReward, oldAffection, spirit != null ? spirit.getAffection() : 0
-        );
-    }
-
-    private String applyTribulationLoss(Fudi fudi, int attack, int defense) {
-        int oldWinStreak = fudi.getTribulationWinStreak();
-
-        Spirit spirit = spiritRepository.findByFudiId(fudi.getId()).orElse(null);
-        int oldAffection = spirit != null ? spirit.getAffection() : 0;
-
-        int diff = attack - defense;
-        int occupiedCount = getOccupiedCellCount(fudi);
-        double ratio = Math.min(1.0, (double) diff / attack);
-        int clearCount = Math.clamp((int) Math.ceil(ratio * occupiedCount), 1, occupiedCount);
-
-        List<FudiCell> occupiedCells = fudiCellRepository.findByFudiId(fudi.getId()).stream()
-                .filter(cell -> cell.getCellType() != CellType.EMPTY)
-                .toList();
-        List<FudiCell> cellsToDestroy = new ArrayList<>(occupiedCells);
-        Collections.shuffle(cellsToDestroy);
-        cellsToDestroy = cellsToDestroy.subList(0, Math.min(clearCount, cellsToDestroy.size()));
-
-        for (FudiCell cell : cellsToDestroy) {
-            cell.setCellType(CellType.EMPTY);
-            cell.setConfig(new HashMap<>());
-            fudiCellRepository.save(cell);
-        }
-
-        fudi.setTribulationWinStreak(0);
-
-        if (spirit != null) {
-            spirit.addAffection(-clearCount);
-            spirit.setEmotionState(EmotionState.ANGRY);
-            spiritRepository.save(spirit);
-        }
-
-        return String.format(
-                """
-                        ⚡ 天劫降临！福地未能抵御…
-                           攻击力：%d ｜ 防御力：%d ｜ 差额：%d
-                           连胜×%d → 中断，被毁地块：%d 个
-                           好感度：%d → %d""",
-                attack, defense, diff,
-                oldWinStreak, clearCount,
-                oldAffection, spirit != null ? spirit.getAffection() : 0
         );
     }
 
@@ -481,8 +297,7 @@ public class FudiService {
             switch (cell.getCellType()) {
                 case FARM -> farmService.buildFarmCellDetail(builder, cell);
                 case PEN -> beastService.buildPenCellDetail(builder, cell);
-                default -> {
-                }
+                default -> {}
             }
 
             details.add(builder.build());
@@ -496,9 +311,8 @@ public class FudiService {
     @ConsumeSpiritEnergy(5)
     @Transactional
     public CollectVO collect(Long userId, String position) {
-        Integer cellId = parseCellId(position);
-        Fudi fudi = getFudiByUserId(userId)
-                .orElseThrow(() -> new IllegalStateException("未找到福地"));
+        Integer cellId = fudiHelper.parseCellId(position);
+        Fudi fudi = getFudiOrThrow(userId);
 
         FudiCell cell = fudiCellRepository.findByFudiIdAndCellId(fudi.getId(), cellId)
                 .orElseThrow(() -> new IllegalStateException("地块 " + cellId + " 不存在"));
@@ -520,8 +334,7 @@ public class FudiService {
 
     @Transactional
     public CollectAllVO collectAll(Long userId) {
-        Fudi fudi = getFudiByUserId(userId)
-                .orElseThrow(() -> new IllegalStateException("未找到福地"));
+        Fudi fudi = getFudiOrThrow(userId);
 
         List<FudiCell> cells = fudiCellRepository.findByFudiId(fudi.getId());
         if (cells.isEmpty()) {
@@ -674,10 +487,9 @@ public class FudiService {
 
     @Transactional
     public CellOperationVO buildCell(Long userId, String position, CellType type) {
-        Integer cellId = parseCellId(position);
-        Fudi fudi = getFudiByUserId(userId)
-                .orElseThrow(() -> new IllegalStateException("未找到福地"));
-        consumeSpiritEnergy(fudi, 3);
+        Integer cellId = fudiHelper.parseCellId(position);
+        Fudi fudi = getFudiOrThrow(userId);
+        fudiHelper.consumeSpiritEnergy(fudi, 3);
 
         FudiCell existingCell = fudiCellRepository.findByFudiIdAndCellId(fudi.getId(), cellId).orElse(null);
         if (existingCell != null && existingCell.getCellType() != CellType.EMPTY) {
@@ -700,10 +512,9 @@ public class FudiService {
 
     @Transactional
     public CellOperationVO removeCell(Long userId, String position) {
-        Integer cellId = parseCellId(position);
-        Fudi fudi = getFudiByUserId(userId)
-                .orElseThrow(() -> new IllegalStateException("未找到福地"));
-        consumeSpiritEnergy(fudi, 3);
+        Integer cellId = fudiHelper.parseCellId(position);
+        Fudi fudi = getFudiOrThrow(userId);
+        fudiHelper.consumeSpiritEnergy(fudi, 3);
 
         FudiCell cell = fudiCellRepository.findByFudiIdAndCellId(fudi.getId(), cellId)
                 .orElseThrow(() -> new IllegalStateException("地块 " + cellId + " 不存在"));
@@ -729,9 +540,8 @@ public class FudiService {
 
     @Transactional
     public UpgradeCellVO upgradeCell(Long userId, String position) {
-        Integer cellId = parseCellId(position);
-        Fudi fudi = getFudiByUserId(userId)
-                .orElseThrow(() -> new IllegalStateException("未找到福地"));
+        Integer cellId = fudiHelper.parseCellId(position);
+        Fudi fudi = getFudiOrThrow(userId);
 
         FudiCell cell = fudiCellRepository.findByFudiIdAndCellId(fudi.getId(), cellId)
                 .orElseThrow(() -> new IllegalStateException("地块 " + cellId + " 不存在"));
@@ -746,8 +556,8 @@ public class FudiService {
         }
 
         int cost = currentLevel == 1 ? 200 : currentLevel == 2 ? 400 : currentLevel == 3 ? 800 : 1600;
-        checkSpiritStones(userId, cost);
-        deductSpiritStones(userId, cost);
+        fudiHelper.checkSpiritStones(userId, cost);
+        fudiHelper.deductSpiritStones(userId, cost);
 
         int newLevel = currentLevel + 1;
         cell.setCellLevel(newLevel);
@@ -762,8 +572,7 @@ public class FudiService {
 
     @Transactional
     public GiveGiftVO giveGift(Long userId, String itemName) {
-        Fudi fudi = getFudiByUserId(userId)
-                .orElseThrow(() -> new IllegalStateException("未找到福地"));
+        Fudi fudi = getFudiOrThrow(userId);
 
         List<StackableItem> items = stackableItemRepository.findByUserId(userId).stream()
                 .filter(e -> e.getName().contains(itemName))
@@ -792,10 +601,12 @@ public class FudiService {
 
         Set<String> likedTags = Set.of();
         Set<String> dislikedTags = Set.of();
-        SpiritForm spiritForm = spiritFormMapper.selectOneById(spirit.getFormId().longValue());
-        if (spiritForm != null) {
-            likedTags = spiritForm.getLikedTags() != null ? spiritForm.getLikedTags() : Set.of();
-            dislikedTags = spiritForm.getDislikedTags() != null ? spiritForm.getDislikedTags() : Set.of();
+        if (spirit.getFormId() != null) {
+            SpiritForm spiritForm = spiritFormRepository.findById(spirit.getFormId().longValue()).orElse(null);
+            if (spiritForm != null) {
+                likedTags = spiritForm.getLikedTags() != null ? spiritForm.getLikedTags() : Set.of();
+                dislikedTags = spiritForm.getDislikedTags() != null ? spiritForm.getDislikedTags() : Set.of();
+            }
         }
 
         Set<String> itemTags = gift.getTags() != null && !gift.getTags().isEmpty() ?
@@ -842,8 +653,7 @@ public class FudiService {
     // ===================== 地块状态查询 =====================
 
     public CellStatusVO getCellStatus(Long userId) {
-        Fudi fudi = getFudiByUserId(userId)
-                .orElseThrow(() -> new IllegalStateException("未找到福地"));
+        Fudi fudi = getFudiOrThrow(userId);
 
         int totalCells = getTotalCellCount(fudi);
         List<CellDetailVO> occupiedCells = new ArrayList<>();
@@ -872,8 +682,8 @@ public class FudiService {
                 case PEN -> {
                     Beast beast = beastService.findBeastByCell(cell);
                     builder.name(beast != null ? beast.getBeastName() : "空兽栏");
-                    builder.level(beast != null && beast.getTier() != null ? beast.getTier() : 0);
-                    builder.quality(beast != null && beast.getQuality() != null ? beast.getQuality().getCode() : null);
+                    builder.level(beast != null ? beast.getTier() : 0);
+                    builder.quality(beast != null ? beast.getQuality().getCode() : null);
                     Integer stored = cell.getIntConfig("production_stored");
                     builder.productionStored(stored != null ? stored : 0);
                     builder.isIncubating(cell.getBoolConfig("is_incubating"));
@@ -887,13 +697,5 @@ public class FudiService {
                 totalCells, occupiedCells.size(), emptyCellIds.size(),
                 emptyCellIds, occupiedCells
         );
-    }
-
-    private Integer parseCellId(String position) {
-        try {
-            return Integer.valueOf(position);
-        } catch (NumberFormatException e) {
-            throw new IllegalStateException("地块编号格式错误，请输入数字编号");
-        }
     }
 }

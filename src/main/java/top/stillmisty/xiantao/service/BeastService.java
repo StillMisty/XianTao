@@ -14,7 +14,6 @@ import top.stillmisty.xiantao.domain.fudi.enums.BeastQuality;
 import top.stillmisty.xiantao.domain.fudi.enums.CellType;
 import top.stillmisty.xiantao.domain.fudi.enums.MutationTrait;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiCellRepository;
-import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
 import top.stillmisty.xiantao.domain.fudi.vo.CellDetailVO;
 import top.stillmisty.xiantao.domain.fudi.vo.CollectVO;
@@ -24,9 +23,7 @@ import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
-import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
-import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -37,15 +34,14 @@ import java.util.concurrent.ThreadLocalRandom;
 @Slf4j
 public class BeastService {
 
-    private final FudiRepository fudiRepository;
     private final FudiCellRepository fudiCellRepository;
     private final BeastRepository beastRepository;
     private final ItemTemplateRepository itemTemplateRepository;
     private final StackableItemRepository stackableItemRepository;
     private final SpiritRepository spiritRepository;
     private final StackableItemService stackableItemService;
-    private final UserRepository userRepository;
     private final ItemResolver itemResolver;
+    private final FudiHelper fudiHelper;
 
     // ===================== 灵兽战斗属性公式 =====================
 
@@ -149,10 +145,10 @@ public class BeastService {
 
     @Transactional
     public PenCellVO hatchBeast(Long userId, String position, String eggName) {
-        Integer cellId = parseCellId(position);
-        Fudi fudi = getFudiByUserId(userId)
+        Integer cellId = fudiHelper.parseCellId(position);
+        Fudi fudi = fudiHelper.getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
-        consumeSpiritEnergy(fudi, 10);
+        fudiHelper.consumeSpiritEnergy(fudi, 10);
 
         FudiCell cell = fudiCellRepository.findByFudiIdAndCellId(fudi.getId(), cellId)
                 .orElseThrow(() -> new IllegalStateException("地块 " + cellId + " 不存在"));
@@ -174,7 +170,7 @@ public class BeastService {
                 .orElseThrow(() -> new IllegalStateException("背包中没有 [%s]".formatted(eggName)));
         stackableItemService.reduceStackableItem(userId, eggTemplate.getId(), 1);
 
-        int tier = getCropTier(eggTemplate.getGrowTime() != null ? eggTemplate.getGrowTime() : 72);
+        int tier = fudiHelper.getCropTier(eggTemplate.getGrowTime() != null ? eggTemplate.getGrowTime() : 72);
 
         int cellLevel = cell.getCellLevel();
         if (cellLevel < tier) {
@@ -182,8 +178,8 @@ public class BeastService {
         }
 
         int stoneCost = tier * 200 + 200;
-        checkSpiritStones(userId, stoneCost);
-        deductSpiritStones(userId, stoneCost);
+        fudiHelper.checkSpiritStones(userId, stoneCost);
+        fudiHelper.deductSpiritStones(userId, stoneCost);
 
         BeastQuality quality = rollBeastQuality();
 
@@ -193,7 +189,7 @@ public class BeastService {
             mutationTraits.add(rollRandomTrait());
         }
 
-        double levelSpeed = getLevelSpeedMultiplier(cellLevel, tier);
+        double levelSpeed = fudiHelper.getLevelSpeedMultiplier(cellLevel, tier);
         double productionInterval = 4.0 / levelSpeed;
         double baseHatchHours = 24 + tier * 8;
         double hatchHours = baseHatchHours / levelSpeed;
@@ -246,7 +242,7 @@ public class BeastService {
 
     @Transactional
     public PenCellVO hatchBeastByInput(Long userId, String position, String input) {
-        Integer cellId = parseCellId(position);
+        Integer cellId = fudiHelper.parseCellId(position);
         var result = itemResolver.resolveEgg(userId, input);
         return switch (result) {
             case ItemResolver.Found(var template, var index) -> {
@@ -269,9 +265,9 @@ public class BeastService {
 
     @Transactional
     PenCellVO hatchBeastWithTemplate(Long userId, Integer cellId, ItemTemplate eggTemplate) {
-        Fudi fudi = getFudiByUserId(userId)
+        Fudi fudi = fudiHelper.getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
-        consumeSpiritEnergy(fudi, 10);
+        fudiHelper.consumeSpiritEnergy(fudi, 10);
 
         FudiCell cell = fudiCellRepository.findByFudiIdAndCellId(fudi.getId(), cellId)
                 .orElseThrow(() -> new IllegalStateException("地块 " + cellId + " 不存在"));
@@ -283,22 +279,22 @@ public class BeastService {
             throw new IllegalStateException("该兽栏已有灵兽，请先放生");
         }
 
-        int tier = getCropTier(eggTemplate.getGrowTime() != null ? eggTemplate.getGrowTime() : 72);
+        int tier = fudiHelper.getCropTier(eggTemplate.getGrowTime() != null ? eggTemplate.getGrowTime() : 72);
         int cellLevel = cell.getCellLevel();
         if (cellLevel < tier) {
             throw new IllegalStateException("灵兽等阶(T%d)需要至少Lv%d兽栏".formatted(tier, tier));
         }
 
         int stoneCost = tier * 200 + 200;
-        checkSpiritStones(userId, stoneCost);
-        deductSpiritStones(userId, stoneCost);
+        fudiHelper.checkSpiritStones(userId, stoneCost);
+        fudiHelper.deductSpiritStones(userId, stoneCost);
 
         BeastQuality quality = rollBeastQuality();
         boolean isMutant = ThreadLocalRandom.current().nextInt(100) < 5;
         List<String> mutationTraits = new ArrayList<>();
         if (isMutant) mutationTraits.add(rollRandomTrait());
 
-        double levelSpeed = getLevelSpeedMultiplier(cellLevel, tier);
+        double levelSpeed = fudiHelper.getLevelSpeedMultiplier(cellLevel, tier);
         double productionInterval = 4.0 / levelSpeed;
         double baseHatchHours = 24 + tier * 8;
         double hatchHours = baseHatchHours / levelSpeed;
@@ -353,8 +349,8 @@ public class BeastService {
 
     @Transactional
     public ReleaseBeastVO releaseBeast(Long userId, String position) {
-        Integer cellId = parseCellId(position);
-        Fudi fudi = getFudiByUserId(userId)
+        Integer cellId = fudiHelper.parseCellId(position);
+        Fudi fudi = fudiHelper.getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
 
         FudiCell cell = fudiCellRepository.findByFudiIdAndCellId(fudi.getId(), cellId)
@@ -381,10 +377,10 @@ public class BeastService {
 
     @Transactional
     public PenCellVO evolveBeast(Long userId, String position, String mode) {
-        Integer cellId = parseCellId(position);
-        Fudi fudi = getFudiByUserId(userId)
+        Integer cellId = fudiHelper.parseCellId(position);
+        Fudi fudi = fudiHelper.getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
-        consumeSpiritEnergy(fudi, 8);
+        fudiHelper.consumeSpiritEnergy(fudi, 8);
 
         FudiCell cell = fudiCellRepository.findByFudiIdAndCellId(fudi.getId(), cellId)
                 .orElseThrow(() -> new IllegalStateException("地块 " + cellId + " 不存在"));
@@ -433,8 +429,8 @@ public class BeastService {
 
         int currentTier = beast.getTier();
         int cost = (currentTier + 1) * 200;
-        checkSpiritStones(userId, cost);
-        deductSpiritStones(userId, cost);
+        fudiHelper.checkSpiritStones(userId, cost);
+        fudiHelper.deductSpiritStones(userId, cost);
 
         Spirit spirit = spiritRepository.findByFudiId(fudi.getId()).orElse(null);
         int affectionBonus = spirit != null && spirit.getAffection() != null ? Math.min(15, spirit.getAffection() / 7) : 0;
@@ -496,8 +492,8 @@ public class BeastService {
         BeastQuality nextQuality = currentQuality.next();
 
         int cost = nextQuality.getOrder() * 300;
-        checkSpiritStones(userId, cost);
-        deductSpiritStones(userId, cost);
+        fudiHelper.checkSpiritStones(userId, cost);
+        fudiHelper.deductSpiritStones(userId, cost);
 
         Spirit spirit = spiritRepository.findByFudiId(fudi.getId()).orElse(null);
         int affectionBonus = spirit != null && spirit.getAffection() != null ? Math.min(20, spirit.getAffection() / 5) : 0;
@@ -535,8 +531,8 @@ public class BeastService {
 
     @Transactional
     public ActionResultVO deployBeast(Long userId, String position) {
-        Integer cellId = parseCellId(position);
-        Fudi fudi = getFudiByUserId(userId)
+        Integer cellId = fudiHelper.parseCellId(position);
+        Fudi fudi = fudiHelper.getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
 
         FudiCell cell = fudiCellRepository.findByFudiIdAndCellId(fudi.getId(), cellId)
@@ -583,8 +579,8 @@ public class BeastService {
             return undeployAllBeasts(userId);
         }
 
-        Integer cellId = parseCellId(position);
-        Fudi fudi = getFudiByUserId(userId)
+        Integer cellId = fudiHelper.parseCellId(position);
+        Fudi fudi = fudiHelper.getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
 
         FudiCell cell = fudiCellRepository.findByFudiIdAndCellId(fudi.getId(), cellId)
@@ -612,7 +608,7 @@ public class BeastService {
     }
 
     BatchCountVO undeployAllBeasts(Long userId) {
-        Fudi fudi = getFudiByUserId(userId)
+        Fudi fudi = fudiHelper.getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
 
         List<Beast> beasts = beastRepository.findByFudiId(fudi.getId());
@@ -636,8 +632,8 @@ public class BeastService {
             return recoverAllBeasts(userId);
         }
 
-        Integer cellId = parseCellId(position);
-        Fudi fudi = getFudiByUserId(userId)
+        Integer cellId = fudiHelper.parseCellId(position);
+        Fudi fudi = fudiHelper.getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
 
         FudiCell cell = fudiCellRepository.findByFudiIdAndCellId(fudi.getId(), cellId)
@@ -664,8 +660,8 @@ public class BeastService {
 
         int missingHp = hpMax - hpCurrent;
         int stoneCost = (int) Math.ceil(missingHp * 0.1);
-        checkSpiritStones(userId, stoneCost);
-        deductSpiritStones(userId, stoneCost);
+        fudiHelper.checkSpiritStones(userId, stoneCost);
+        fudiHelper.deductSpiritStones(userId, stoneCost);
 
         beast.setHpCurrent(hpMax);
         beast.setRecoveryUntil(null);
@@ -677,7 +673,7 @@ public class BeastService {
     }
 
     Object recoverAllBeasts(Long userId) {
-        Fudi fudi = getFudiByUserId(userId)
+        Fudi fudi = fudiHelper.getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
 
         int totalCost = 0;
@@ -701,8 +697,8 @@ public class BeastService {
             return new ActionResultVO(true, "没有需要恢复的灵兽");
         }
 
-        checkSpiritStones(userId, totalCost);
-        deductSpiritStones(userId, totalCost);
+        fudiHelper.checkSpiritStones(userId, totalCost);
+        fudiHelper.deductSpiritStones(userId, totalCost);
 
         return new BatchRecoverVO(recoverCount, totalCost);
     }
@@ -710,7 +706,7 @@ public class BeastService {
     // ===================== 灵兽系统 — 查询 =====================
 
     List<BeastStatusVO> getDeployedBeasts(Long userId) {
-        Fudi fudi = getFudiByUserId(userId)
+        Fudi fudi = fudiHelper.getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
         List<Beast> allBeasts = beastRepository.findByFudiId(fudi.getId());
         return allBeasts.stream()
@@ -1166,64 +1162,4 @@ public class BeastService {
         fudiCellRepository.save(cell);
     }
 
-    // ===================== 通用辅助方法 =====================
-
-    void consumeSpiritEnergy(Fudi fudi, int baseCost) {
-        spiritRepository.findByFudiId(fudi.getId()).ifPresent(spirit -> {
-            spirit.restoreEnergy(fudi.getTribulationStage());
-            int actualCost = spirit.calculateEnergyConsumption(baseCost);
-            spirit.deductEnergy(actualCost);
-            spirit.setLastEnergyUpdate(LocalDateTime.now());
-            spiritRepository.save(spirit);
-        });
-    }
-
-    Optional<Fudi> getFudiByUserId(Long userId) {
-        Optional<Fudi> fudiOpt = fudiRepository.findByUserId(userId);
-        fudiOpt.ifPresent(fudi -> {
-            fudi.touchOnlineTime();
-            spiritRepository.findByFudiId(fudi.getId()).ifPresent(spirit -> {
-                spirit.restoreEnergy(fudi.getTribulationStage());
-                spirit.updateEmotionState();
-                spiritRepository.save(spirit);
-            });
-            fudiRepository.save(fudi);
-        });
-        return fudiOpt;
-    }
-
-    void checkSpiritStones(Long userId, int cost) {
-        User user = userRepository.findById(userId).orElseThrow();
-        if (user.getSpiritStones() < cost) {
-            throw new IllegalStateException("灵石不足（需要 %d，当前 %d）".formatted(cost, user.getSpiritStones()));
-        }
-    }
-
-    void deductSpiritStones(Long userId, int cost) {
-        User user = userRepository.findById(userId).orElseThrow();
-        user.setSpiritStones(user.getSpiritStones() - cost);
-        userRepository.save(user);
-    }
-
-    Integer parseCellId(String position) {
-        try {
-            return Integer.valueOf(position);
-        } catch (NumberFormatException e) {
-            throw new IllegalStateException("地块编号格式错误，请输入数字编号");
-        }
-    }
-
-    int getCropTier(int growTime) {
-        if (growTime <= 24) return 1;
-        if (growTime <= 48) return 2;
-        if (growTime <= 72) return 3;
-        if (growTime <= 120) return 4;
-        return 5;
-    }
-
-    double getLevelSpeedMultiplier(int cellLevel, int minRequired) {
-        if (cellLevel < minRequired) return 0.5;
-        int levelDiff = cellLevel - minRequired;
-        return 1.0 + levelDiff * 0.15;
-    }
 }

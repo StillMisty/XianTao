@@ -8,8 +8,6 @@ import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
 import top.stillmisty.xiantao.domain.fudi.entity.FudiCell;
 import top.stillmisty.xiantao.domain.fudi.enums.CellType;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiCellRepository;
-import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
-import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
 import top.stillmisty.xiantao.domain.fudi.vo.CellDetailVO;
 import top.stillmisty.xiantao.domain.fudi.vo.CollectVO;
 import top.stillmisty.xiantao.domain.fudi.vo.FarmCellVO;
@@ -17,13 +15,10 @@ import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
-import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
-import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 import top.stillmisty.xiantao.service.annotation.ConsumeSpiritEnergy;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
@@ -31,14 +26,12 @@ import java.util.concurrent.ThreadLocalRandom;
 @Slf4j
 public class FarmService {
 
-    private final FudiRepository fudiRepository;
     private final FudiCellRepository fudiCellRepository;
     private final ItemTemplateRepository itemTemplateRepository;
     private final StackableItemRepository stackableItemRepository;
-    private final SpiritRepository spiritRepository;
     private final StackableItemService stackableItemService;
     private final ItemResolver itemResolver;
-    private final UserRepository userRepository;
+    private final FudiHelper fudiHelper;
 
     // ===================== 公开 API（含认证） =====================
 
@@ -63,9 +56,9 @@ public class FarmService {
     // ===================== 内部 API =====================
 
     FarmCellVO plantCrop(Long userId, Integer cellId, Integer cropId, String cropName, int cropTier) {
-        Fudi fudi = getFudiByUserId(userId)
+        Fudi fudi = fudiHelper.getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
-        consumeSpiritEnergy(fudi, 3);
+        fudiHelper.consumeSpiritEnergy(fudi, 3);
 
         FudiCell existingCell = fudiCellRepository.findByFudiIdAndCellId(fudi.getId(), cellId).orElse(null);
         if (existingCell != null && existingCell.getCellType() != CellType.EMPTY && existingCell.getCellType() != CellType.FARM) {
@@ -80,10 +73,10 @@ public class FarmService {
         }
 
         int stoneCost = cropTier * 5;
-        checkSpiritStones(userId, stoneCost);
-        deductSpiritStones(userId, stoneCost);
+        fudiHelper.checkSpiritStones(userId, stoneCost);
+        fudiHelper.deductSpiritStones(userId, stoneCost);
 
-        double levelSpeedMultiplier = getLevelSpeedMultiplier(cellLevel, minLevel);
+        double levelSpeedMultiplier = fudiHelper.getLevelSpeedMultiplier(cellLevel, minLevel);
         double baseGrowthHours = getBaseGrowthHours(cropId);
         double actualGrowthHours = baseGrowthHours / levelSpeedMultiplier;
 
@@ -134,7 +127,7 @@ public class FarmService {
 
     @Transactional
     public FarmCellVO plantCropByName(Long userId, String position, String cropName) {
-        Integer cellId = parseCellId(position);
+        Integer cellId = fudiHelper.parseCellId(position);
         ItemTemplate seedTemplate = findSeedTemplateByName(cropName);
 
         var stackableItem = stackableItemRepository.findByUserIdAndTemplateId(userId, seedTemplate.getId())
@@ -143,7 +136,7 @@ public class FarmService {
         stackableItemService.reduceStackableItem(userId, seedTemplate.getId(), 1);
 
         int growTime = seedTemplate.getGrowTime() != null ? seedTemplate.getGrowTime() : 24;
-        int cropTier = getCropTier(growTime);
+        int cropTier = fudiHelper.getCropTier(growTime);
         Integer cropId = seedTemplate.getId().intValue();
 
         return plantCrop(userId, cellId, cropId, cropName, cropTier);
@@ -151,7 +144,7 @@ public class FarmService {
 
     @Transactional
     public FarmCellVO plantCropByInput(Long userId, String position, String input) {
-        Integer cellId = parseCellId(position);
+        Integer cellId = fudiHelper.parseCellId(position);
         var result = itemResolver.resolveSeed(userId, input);
         return switch (result) {
             case ItemResolver.Found(var template, var index) -> {
@@ -162,7 +155,7 @@ public class FarmService {
                 stackableItemService.reduceStackableItem(userId, template.getId(), 1);
 
                 int growTime = template.getGrowTime() != null ? template.getGrowTime() : 24;
-                int cropTier = getCropTier(growTime);
+                int cropTier = fudiHelper.getCropTier(growTime);
                 Integer cropId = template.getId().intValue();
                 String cropName = template.getName();
 
@@ -296,66 +289,5 @@ public class FarmService {
                 .filter(t -> t.getName().equals(name) || t.getName().contains(name))
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("未找到种子: %s".formatted(name)));
-    }
-
-    // ===================== 通用辅助方法 =====================
-
-    void consumeSpiritEnergy(Fudi fudi, int baseCost) {
-        spiritRepository.findByFudiId(fudi.getId()).ifPresent(spirit -> {
-            spirit.restoreEnergy(fudi.getTribulationStage());
-            int actualCost = spirit.calculateEnergyConsumption(baseCost);
-            spirit.deductEnergy(actualCost);
-            spirit.setLastEnergyUpdate(LocalDateTime.now());
-            spiritRepository.save(spirit);
-        });
-    }
-
-    Optional<Fudi> getFudiByUserId(Long userId) {
-        Optional<Fudi> fudiOpt = fudiRepository.findByUserId(userId);
-        fudiOpt.ifPresent(fudi -> {
-            fudi.touchOnlineTime();
-            spiritRepository.findByFudiId(fudi.getId()).ifPresent(spirit -> {
-                spirit.restoreEnergy(fudi.getTribulationStage());
-                spirit.updateEmotionState();
-                spiritRepository.save(spirit);
-            });
-            fudiRepository.save(fudi);
-        });
-        return fudiOpt;
-    }
-
-    void checkSpiritStones(Long userId, int cost) {
-        User user = userRepository.findById(userId).orElseThrow();
-        if (user.getSpiritStones() < cost) {
-            throw new IllegalStateException("灵石不足（需要 %d，当前 %d）".formatted(cost, user.getSpiritStones()));
-        }
-    }
-
-    void deductSpiritStones(Long userId, int cost) {
-        User user = userRepository.findById(userId).orElseThrow();
-        user.setSpiritStones(user.getSpiritStones() - cost);
-        userRepository.save(user);
-    }
-
-    Integer parseCellId(String position) {
-        try {
-            return Integer.valueOf(position);
-        } catch (NumberFormatException e) {
-            throw new IllegalStateException("地块编号格式错误，请输入数字编号");
-        }
-    }
-
-    int getCropTier(int growTime) {
-        if (growTime <= 24) return 1;
-        if (growTime <= 48) return 2;
-        if (growTime <= 72) return 3;
-        if (growTime <= 120) return 4;
-        return 5;
-    }
-
-    double getLevelSpeedMultiplier(int cellLevel, int minRequired) {
-        if (cellLevel < minRequired) return 0.5;
-        int levelDiff = cellLevel - minRequired;
-        return 1.0 + levelDiff * 0.15;
     }
 }
