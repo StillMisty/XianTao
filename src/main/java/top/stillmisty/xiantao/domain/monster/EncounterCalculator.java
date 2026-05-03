@@ -51,11 +51,11 @@ public class EncounterCalculator {
         // 玩家等级因子：玩家等级越高，遇怪越频繁
         double levelFactor = Math.min(0.3, playerLevel * LEVEL_FACTOR_COEFFICIENT);
 
-        // 装备评分因子：装备越好，遇怪越频繁
-        double gearFactor = Math.min(0.2, gearScore * GEAR_FACTOR_COEFFICIENT);
+        // 装备评分因子：装备越好，遇怪越少（灵压威慑）
+        double gearFactor = Math.min(0.15, gearScore * GEAR_FACTOR_COEFFICIENT);
 
         // 计算动态间隔
-        double interval = BASE_INTERVAL * (1 - difficultyFactor) * (1 - levelFactor) * (1 - gearFactor);
+        double interval = BASE_INTERVAL * (1 - difficultyFactor) * (1 - levelFactor) * (1 + gearFactor);
 
         // 确保最小间隔
         interval = Math.max(MIN_INTERVAL, interval);

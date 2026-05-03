@@ -425,11 +425,11 @@ public class TrainingService {
     // ===================== 基础历练收益 =====================
 
     private double calculateLevelDecayMultiplier(int playerLevel, int mapLevel) {
-        int levelDiff = playerLevel - mapLevel - 10;
+        int levelDiff = playerLevel - mapLevel - 15;
         if (levelDiff <= 0) {
             return 1.0;
         }
-        double decay = levelDiff * 0.05;
+        double decay = levelDiff * 0.04;
         return Math.max(0.1, 1.0 - decay);
     }
 

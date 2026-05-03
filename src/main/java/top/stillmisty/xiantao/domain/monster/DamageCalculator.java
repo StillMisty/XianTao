@@ -55,7 +55,7 @@ public class DamageCalculator {
     public int calculateReduction(Combatant defender, BuffManager buffManager) {
         double defenseModifier = buffManager.getDefenseModifier(defender.getId());
         double defenseBonus = buffManager.getDefenseBonusModifier(defender.getId());
-        return (int) Math.round(defender.getDefense() * 0.3 * defenseModifier * defenseBonus);
+        return (int) Math.round(defender.getDefense() * 0.4 * defenseModifier * defenseBonus);
     }
 
     public double getAdvantageMultiplier(Combatant attacker, Combatant defender) {
