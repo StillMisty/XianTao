@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
 import top.stillmisty.xiantao.domain.beast.vo.*;
+import top.stillmisty.xiantao.domain.fudi.entity.CellConfig;
 import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
 import top.stillmisty.xiantao.domain.fudi.entity.FudiCell;
 import top.stillmisty.xiantao.domain.fudi.entity.Spirit;
@@ -201,7 +202,7 @@ public class BeastService {
         if (cell.getCellType() != CellType.PEN) {
             throw new IllegalStateException("地块 " + cellId + " 不是兽栏");
         }
-        if (cell.getIntConfig("beast_id") != null) {
+        if (cell.getConfig() instanceof CellConfig.PenConfig pen && pen.beastId() != null) {
             throw new IllegalStateException("该兽栏已有灵兽，请先放生");
         }
 
@@ -256,14 +257,10 @@ public class BeastService {
         unlockInnateSkills(beast, "birth");
         beastRepository.save(beast);
 
-        cell.setConfigValue("beast_id", beast.getId());
-        cell.setConfigValue("template_id", eggTemplate.getId());
-        cell.setConfigValue("is_incubating", true);
-        cell.setConfigValue("hatch_time", now.toString());
-        cell.setConfigValue("mature_time", now.plusHours((long) hatchHours).toString());
-        cell.clearProductionStored();
-        cell.setConfigValue("last_production_time", now.toString());
-        cell.setConfigValue("production_interval_hours", productionInterval);
+        cell.setConfig(new CellConfig.PenConfig(
+                beast.getId(), eggTemplate.getId().intValue(), now, now.plusHours((long) hatchHours),
+                new ArrayList<>(), now
+        ));
         fudiCellRepository.save(cell);
 
         log.info("用户 {} 在地块 {} 孵化 {} (T{}, {}{})", userId, cellId, beastName, tier, quality.getChineseName(), isMutant ? ", 变异" : "");
@@ -314,7 +311,7 @@ public class BeastService {
         if (cell.getCellType() != CellType.PEN) {
             throw new IllegalStateException("地块 " + cellId + " 不是兽栏");
         }
-        if (Boolean.TRUE.equals(cell.getBoolConfig("is_incubating"))) {
+        if (isIncubating(cell)) {
             throw new IllegalStateException("灵兽尚在孵化中");
         }
 
@@ -468,7 +465,7 @@ public class BeastService {
         if (cell.getCellType() != CellType.PEN) {
             throw new IllegalStateException("地块 " + cellId + " 不是兽栏");
         }
-        if (checkIncubating && Boolean.TRUE.equals(cell.getBoolConfig("is_incubating"))) {
+        if (checkIncubating && isIncubating(cell)) {
             throw new IllegalStateException("灵兽尚在孵化中");
         }
 
@@ -622,13 +619,13 @@ public class BeastService {
     // ===================== 灵兽产出系统 =====================
 
     CollectVO collectBeastProduce(Fudi fudi, FudiCell cell, Integer cellId) {
-        if (Boolean.TRUE.equals(cell.getBoolConfig("is_incubating"))) {
+        if (isIncubating(cell)) {
             throw new IllegalStateException("灵兽尚在孵化中");
         }
 
         updateBeastProduction(cell, fudi);
 
-        List<Map<String, Object>> productionStored = distributeBeastProduction(cell);
+        List<CellConfig.ProductionItem> productionStored = getProductionStoredList(cell);
 
         if (productionStored.isEmpty()) {
             throw new IllegalStateException("暂无产出可收取");
@@ -641,14 +638,11 @@ public class BeastService {
         }
 
         int totalItems = 0;
-        for (Map<String, Object> item : productionStored) {
-            Long templateId = ((Number) item.get("template_id")).longValue();
-            String name = (String) item.get("name");
-            int quantity = ((Number) item.get("quantity")).intValue();
-            if (quantity > 0) {
-                stackableItemService.addStackableItem(fudi.getUserId(), templateId, ItemType.HERB, name, quantity);
-                totalItems += quantity;
-                log.info("用户 {} 收取地块 {} 的灵兽产出: {} x{}", fudi.getUserId(), cellId, name, quantity);
+        for (CellConfig.ProductionItem item : productionStored) {
+            if (item.quantity() > 0) {
+                stackableItemService.addStackableItem(fudi.getUserId(), item.templateId(), ItemType.HERB, item.name(), item.quantity());
+                totalItems += item.quantity();
+                log.info("用户 {} 收取地块 {} 的灵兽产出: {} x{}", fudi.getUserId(), cellId, item.name(), item.quantity());
             }
         }
 
@@ -661,26 +655,23 @@ public class BeastService {
     }
 
     void updateBeastProduction(FudiCell cell, Fudi fudi) {
-        String lastProductionTimeStr = cell.getStringConfig("last_production_time");
-        String matureTimeStr = cell.getStringConfig("mature_time");
-        if (lastProductionTimeStr == null || matureTimeStr == null) return;
+        if (!(cell.getConfig() instanceof CellConfig.PenConfig pen)) return;
 
-        LocalDateTime matureTime = LocalDateTime.parse(matureTimeStr);
+        LocalDateTime matureTime = pen.matureTime();
+        if (matureTime == null) return;
+
         LocalDateTime now = LocalDateTime.now();
-        if (now.isBefore(matureTime)) {
-            cell.setConfigValue("is_incubating", true);
-            return;
-        }
-        cell.setConfigValue("is_incubating", false);
+        if (now.isBefore(matureTime)) return;
 
         Beast beast = findBeastByCell(cell);
         if (beast == null) return;
 
         if (Boolean.TRUE.equals(beast.getIsDeployed())) return;
 
-        LocalDateTime lastProduction = LocalDateTime.parse(lastProductionTimeStr);
-        Double intervalHours = cell.getDoubleConfig("production_interval_hours");
-        if (intervalHours == null) intervalHours = 4.0;
+        LocalDateTime lastProduction = pen.lastProductionTime();
+        if (lastProduction == null) lastProduction = matureTime;
+
+        double intervalHours = getProductionIntervalHours(pen.templateId());
         long intervalSeconds = (long) (intervalHours * 3600);
         if (intervalSeconds <= 0) intervalSeconds = 14400;
 
@@ -700,19 +691,19 @@ public class BeastService {
 
         List<ItemProperties.ProductionItem> productionItems = getProductionItems(cell);
         if (productionItems.isEmpty()) {
-            int currentStored = cell.getTotalProductionQuantity();
+            int currentStored = pen.totalProductionQuantity();
             int maxStorage = tier * 20;
             int newStored = Math.min(maxStorage, currentStored + produced);
             int added = newStored - currentStored;
             if (added > 0) {
-                cell.addProductionItem(1L, "灵草", added);
+                pen.addProductionItem(1L, "灵草", added);
             }
         } else {
             int maxStorage = tier * 20;
-            int currentTotal = cell.getTotalProductionQuantity();
+            int currentTotal = pen.totalProductionQuantity();
             int availableSpace = maxStorage - currentTotal;
             if (availableSpace <= 0) {
-                cell.setConfigValue("last_production_time", now.toString());
+                cell.setConfig(pen.withLastProductionTime(now));
                 fudiCellRepository.save(cell);
                 return;
             }
@@ -720,29 +711,28 @@ public class BeastService {
             for (int i = 0; i < toProduce; i++) {
                 var selectedItem = selectRandomProductionItem(productionItems);
                 if (selectedItem != null) {
-                    cell.addProductionItem(selectedItem.templateId(), selectedItem.name(), 1);
+                    pen.addProductionItem(selectedItem.templateId(), selectedItem.name(), 1);
                 }
             }
             if (mutationTraits != null && mutationTraits.contains("rare_produce")) {
                 if (ThreadLocalRandom.current().nextInt(100) < 5) {
                     var higherItem = selectHigherTierItem(productionItems);
                     if (higherItem != null) {
-                        cell.addProductionItem(higherItem.templateId(), higherItem.name(), 1);
+                        pen.addProductionItem(higherItem.templateId(), higherItem.name(), 1);
                     }
                 }
             }
         }
 
-        cell.setConfigValue("last_production_time", now.toString());
+        cell.setConfig(pen.withLastProductionTime(now));
         fudiCellRepository.save(cell);
     }
 
     List<ItemProperties.ProductionItem> getProductionItems(FudiCell cell) {
-        Integer templateId = cell.getIntConfig("template_id");
-        if (templateId == null) {
+        if (!(cell.getConfig() instanceof CellConfig.PenConfig pen) || pen.templateId() == null) {
             return List.of();
         }
-        ItemTemplate template = itemTemplateRepository.findById(templateId.longValue()).orElse(null);
+        ItemTemplate template = itemTemplateRepository.findById(pen.templateId().longValue()).orElse(null);
         if (template == null) {
             return List.of();
         }
@@ -780,27 +770,18 @@ public class BeastService {
         return productionItems.stream().min(Comparator.comparingInt(ItemProperties.ProductionItem::weight)).orElse(null);
     }
 
-    /**
-     * 将灵兽的生产计数分发为具体产出物品列表
-     */
-    List<Map<String, Object>> distributeBeastProduction(FudiCell cell) {
-        return cell.getProductionStored();
+    List<CellConfig.ProductionItem> getProductionStoredList(FudiCell cell) {
+        if (cell.getConfig() instanceof CellConfig.PenConfig pen) {
+            return pen.productionStored();
+        }
+        return List.of();
     }
 
     // ===================== 灵兽辅助方法 =====================
 
     Beast findBeastByCell(FudiCell cell) {
-        Object beastIdObj = cell.getConfigValue("beast_id");
-        if (beastIdObj == null) return null;
-        long beastId;
-        if (beastIdObj instanceof Long l) {
-            beastId = l;
-        } else if (beastIdObj instanceof Number n) {
-            beastId = n.longValue();
-        } else {
-            return null;
-        }
-        return beastRepository.findById(beastId).orElse(null);
+        if (!(cell.getConfig() instanceof CellConfig.PenConfig pen) || pen.beastId() == null) return null;
+        return beastRepository.findById(pen.beastId()).orElse(null);
     }
 
     BeastStatusVO convertToBeastStatusVO(Beast beast) {
@@ -826,8 +807,7 @@ public class BeastService {
 
     PenCellVO buildPenCellVO(FudiCell cell) {
         Beast beast = findBeastByCell(cell);
-        String hatchTimeStr = cell.getStringConfig("hatch_time");
-        String matureTimeStr = cell.getStringConfig("mature_time");
+        CellConfig.PenConfig pen = cell.getConfig() instanceof CellConfig.PenConfig p ? p : null;
 
         String beastName = beast != null ? beast.getBeastName() : "未知灵兽";
         int tier = beast != null ? beast.getTier() : 1;
@@ -847,10 +827,10 @@ public class BeastService {
                 .qualityOrdinal(qualityOrdinal)
                 .isMutant(isMutant)
                 .mutationTraits(mutationTraits)
-                .isIncubating(Boolean.TRUE.equals(cell.getBoolConfig("is_incubating")))
-                .hatchTime(hatchTimeStr != null ? LocalDateTime.parse(hatchTimeStr) : null)
-                .matureTime(matureTimeStr != null ? LocalDateTime.parse(matureTimeStr) : null)
-                .productionIntervalHours(cell.getDoubleConfig("production_interval_hours") != null ? cell.getDoubleConfig("production_interval_hours") : 4.0)
+                .isIncubating(isIncubating(cell))
+                .hatchTime(pen != null ? pen.hatchTime() : null)
+                .matureTime(pen != null ? pen.matureTime() : null)
+                .productionIntervalHours(pen != null ? getProductionIntervalHours(pen.templateId()) : 4.0)
                 .productionStored(cell.getTotalProductionQuantity())
                 .powerScore(powerScore)
                 .birthTime(beast != null ? beast.getBirthTime() : null)
@@ -870,7 +850,7 @@ public class BeastService {
                     .quality(qualityChinese)
                     .mutationTraits(traits)
                     .productionStored(cell.getTotalProductionQuantity())
-                    .isIncubating(Boolean.TRUE.equals(cell.getBoolConfig("is_incubating")));
+                    .isIncubating(isIncubating(cell));
         }
     }
 
@@ -1016,15 +996,24 @@ public class BeastService {
     // ===================== 地块操作辅助方法 =====================
 
     void clearBeastCell(FudiCell cell) {
-        cell.setConfigValue("beast_id", null);
-        cell.setConfigValue("template_id", null);
-        cell.setConfigValue("is_incubating", null);
-        cell.setConfigValue("hatch_time", null);
-        cell.setConfigValue("mature_time", null);
-        cell.clearProductionStored();
-        cell.setConfigValue("last_production_time", null);
-        cell.setConfigValue("production_interval_hours", null);
+        cell.setConfig(new CellConfig.EmptyConfig());
         fudiCellRepository.save(cell);
     }
 
+    boolean isIncubating(FudiCell cell) {
+        if (!(cell.getConfig() instanceof CellConfig.PenConfig pen)) return false;
+        LocalDateTime matureTime = pen.matureTime();
+        if (matureTime == null) return false;
+        return LocalDateTime.now().isBefore(matureTime);
+    }
+
+    double getProductionIntervalHours(Integer templateId) {
+        if (templateId == null) return 4.0;
+        ItemTemplate template = itemTemplateRepository.findById(templateId.longValue()).orElse(null);
+        if (template == null) return 4.0;
+        double baseGrowthHours = template.getGrowTime() != null ? template.getGrowTime() : 72;
+        int tier = fudiHelper.getCropTier((int) baseGrowthHours);
+        double levelSpeed = fudiHelper.getLevelSpeedMultiplier(1, tier);
+        return 4.0 / levelSpeed;
+    }
 }

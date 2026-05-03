@@ -12,6 +12,8 @@ import top.stillmisty.xiantao.domain.fudi.repository.FudiCellRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritHistoryRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
+import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
+import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.infrastructure.mapper.SpiritFormMapper;
 import top.stillmisty.xiantao.service.ServiceResult;
@@ -42,6 +44,7 @@ public class SpiritChatService {
     private final SpiritEmotionTools spiritEmotionTools;
     private final FudiEventGenerator fudiEventGenerator;
     private final BeastRepository beastRepository;
+    private final ItemTemplateRepository itemTemplateRepository;
 
     // ===================== 公开 API（含认证） =====================
 
@@ -212,10 +215,9 @@ public class SpiritChatService {
         sb.append("【已占地块详情】\n");
         for (FudiCell cell : farmCells) {
             sb.append("- [").append(cell.getCellId()).append("] farm");
-            String cropName = cell.getStringConfig("crop_name");
-            if (cropName != null) {
-                sb.append(" 种植:").append(cropName);
-                Double progress = calculateGrowthProgress(cell);
+            if (cell.getConfig() instanceof CellConfig.FarmConfig farm) {
+                sb.append(" 种植:").append(getCropName(farm.cropId()));
+                Double progress = calculateGrowthProgress(farm);
                 if (progress != null) {
                     if (progress >= 1.0) {
                         sb.append(" 可收获✅");
@@ -229,20 +231,17 @@ public class SpiritChatService {
 
         for (FudiCell cell : penCells) {
             sb.append("- [").append(cell.getCellId()).append("] pen");
-            Object beastIdObj = cell.getConfigValue("beast_id");
-            if (beastIdObj != null) {
-                Long beastId = beastIdObj instanceof Long l ? l : ((Number) beastIdObj).longValue();
-                beastRepository.findById(beastId).ifPresent(beast -> sb.append(" 饲养:").append(beast.getBeastName()));
+            if (cell.getConfig() instanceof CellConfig.PenConfig pen) {
+                beastRepository.findById(pen.beastId()).ifPresent(beast -> sb.append(" 饲养:").append(beast.getBeastName()));
             }
             sb.append("\n");
         }
 
         // 检查是否有可收获的灵田
         long matureFarmCount = farmCells.stream()
-                .filter(c -> {
-                    Double progress = calculateGrowthProgress(c);
-                    return progress != null && progress >= 1.0;
-                })
+                .filter(c -> c.getConfig() instanceof CellConfig.FarmConfig farm
+                        && calculateGrowthProgress(farm) != null
+                        && calculateGrowthProgress(farm) >= 1.0)
                 .count();
         if (matureFarmCount > 0) {
             sb.append("有 ").append(matureFarmCount).append(" 块灵田可收获。\n");
@@ -251,26 +250,28 @@ public class SpiritChatService {
         return sb.toString();
     }
 
-    private Double calculateGrowthProgress(FudiCell cell) {
-        String plantTimeStr = cell.getStringConfig("plant_time");
-        String matureTimeStr = cell.getStringConfig("mature_time");
-
-        if (plantTimeStr == null || matureTimeStr == null) return null;
+    private Double calculateGrowthProgress(CellConfig.FarmConfig farm) {
+        LocalDateTime plantTime = farm.plantTime();
+        LocalDateTime matureTime = farm.matureTime();
+        if (plantTime == null || matureTime == null) return null;
 
         try {
-            LocalDateTime plantTime = LocalDateTime.parse(plantTimeStr);
-            LocalDateTime matureTime = LocalDateTime.parse(matureTimeStr);
             LocalDateTime now = LocalDateTime.now();
+            if (now.isAfter(matureTime) || now.isEqual(matureTime)) return 1.0;
 
-            if (now.isAfter(matureTime) || now.isEqual(matureTime)) {
-                return 1.0;
-            } else {
-                long totalSeconds = java.time.Duration.between(plantTime, matureTime).getSeconds();
-                long elapsedSeconds = java.time.Duration.between(plantTime, now).getSeconds();
-                return Math.min(1.0, (double) elapsedSeconds / totalSeconds);
-            }
+            long totalSeconds = java.time.Duration.between(plantTime, matureTime).getSeconds();
+            if (totalSeconds <= 0) return 1.0;
+            long elapsedSeconds = java.time.Duration.between(plantTime, now).getSeconds();
+            return Math.min(1.0, (double) elapsedSeconds / totalSeconds);
         } catch (Exception e) {
             return null;
         }
+    }
+
+    private String getCropName(Integer cropId) {
+        if (cropId == null) return "未知灵草";
+        return itemTemplateRepository.findById(cropId.longValue())
+                .map(ItemTemplate::getName)
+                .orElse("未知灵草");
     }
 }

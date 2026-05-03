@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import top.stillmisty.xiantao.domain.fudi.entity.CellConfig;
 import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
 import top.stillmisty.xiantao.domain.fudi.entity.FudiCell;
 import top.stillmisty.xiantao.domain.fudi.enums.CellType;
@@ -11,6 +12,7 @@ import top.stillmisty.xiantao.domain.fudi.repository.FudiCellRepository;
 import top.stillmisty.xiantao.domain.fudi.vo.CellDetailVO;
 import top.stillmisty.xiantao.domain.fudi.vo.CollectVO;
 import top.stillmisty.xiantao.domain.fudi.vo.FarmCellVO;
+import top.stillmisty.xiantao.domain.item.entity.ItemProperties;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
@@ -85,9 +87,6 @@ public class FarmService {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime matureTime = now.plusHours((long) actualGrowthHours);
 
-        int maxHarvest = 1 + cropTier / 3;
-        boolean isPerennial = maxHarvest > 1;
-
         FudiCell farmCell = existingCell != null ? existingCell : new FudiCell();
         if (existingCell == null) {
             farmCell.setFudiId(fudi.getId());
@@ -95,17 +94,7 @@ public class FarmService {
         }
         farmCell.setCellType(CellType.FARM);
         farmCell.setCellLevel(cellLevel);
-        farmCell.setConfigValue("crop_id", cropId);
-        farmCell.setConfigValue("crop_name", cropName);
-        farmCell.setConfigValue("crop_tier", cropTier);
-        farmCell.setConfigValue("growth_progress", 0.0);
-        farmCell.setConfigValue("plant_time", now.toString());
-        farmCell.setConfigValue("mature_time", matureTime.toString());
-        farmCell.setConfigValue("base_growth_hours", baseGrowthHours);
-        farmCell.setConfigValue("level_speed_multiplier", levelSpeedMultiplier);
-        farmCell.setConfigValue("harvest_count", 0);
-        farmCell.setConfigValue("max_harvest", maxHarvest);
-        farmCell.setConfigValue("is_perennial", isPerennial);
+        farmCell.setConfig(new CellConfig.FarmConfig(cropId, now, matureTime, 0));
         fudiCellRepository.save(farmCell);
 
         log.info("用户 {} 在地块 {} 种植 {} (T{})", userId, cellId, cropName, cropTier);
@@ -122,8 +111,8 @@ public class FarmService {
                 .baseGrowthHours(baseGrowthHours)
                 .actualGrowthHours(actualGrowthHours)
                 .harvestCount(0)
-                .maxHarvest(maxHarvest)
-                .isPerennial(isPerennial)
+                .maxHarvest(getMaxHarvest(cropId))
+                .isPerennial(getMaxHarvest(cropId) > 1)
                 .build();
     }
 
@@ -180,30 +169,30 @@ public class FarmService {
     public CollectVO harvestCrop(Fudi fudi, FudiCell cell, Integer cellId) {
         updateGrowthProgress(cell);
 
-        Double progress = cell.getDoubleConfig("growth_progress");
-        Boolean isPerennial = cell.getBoolConfig("is_perennial");
+        if (!(cell.getConfig() instanceof CellConfig.FarmConfig farm)) {
+            throw new IllegalStateException("地块不是灵田");
+        }
 
-        if (!Boolean.TRUE.equals(isPerennial) && progress != null && progress > 1.0 && isWilted(cell)) {
-            String cropName = cell.getStringConfig("crop_name");
+        Double progress = calculateGrowthProgress(cell);
+        boolean isPerennial = farm.harvestCount() < getMaxHarvest(farm.cropId());
+
+        if (!isPerennial && progress != null && progress > 1.0 && isWilted(cell)) {
             fudiCellRepository.deleteById(cell.getId());
-            throw new IllegalStateException("%s 已枯萎（超过成熟时间两倍未收获）".formatted(cropName));
+            throw new IllegalStateException("%s 已枯萎（超过成熟时间两倍未收获）".formatted(getCropName(farm.cropId())));
         }
 
         if (progress == null || progress < 1.0) {
             throw new IllegalStateException("灵药尚未成熟");
         }
 
-        String cropName = cell.getStringConfig("crop_name");
-        Integer cropId = cell.getIntConfig("crop_id");
-        int yield = calculateYield(cropId, fudi.getTribulationStage());
+        String cropName = getCropName(farm.cropId());
+        int yield = calculateYield(farm.cropId(), fudi.getTribulationStage());
 
-        Integer harvestCountVal = cell.getIntConfig("harvest_count");
-        int harvestCount = (harvestCountVal != null ? harvestCountVal : 0) + 1;
-        Integer maxHarvest = cell.getIntConfig("max_harvest");
-        if (maxHarvest == null) maxHarvest = 1;
+        int harvestCount = farm.harvestCount() + 1;
+        int maxHarvest = getMaxHarvest(farm.cropId());
 
-        if (Boolean.TRUE.equals(isPerennial) && harvestCount < maxHarvest) {
-            cell.setConfigValue("harvest_count", harvestCount);
+        if (isPerennial && harvestCount < maxHarvest) {
+            cell.setConfig(farm.withHarvestCount(harvestCount));
             replantAfterHarvest(cell);
         } else {
             fudiCellRepository.deleteById(cell.getId());
@@ -218,34 +207,40 @@ public class FarmService {
      * 多年生作物收获后重置生长状态
      */
     void replantAfterHarvest(FudiCell cell) {
-        cell.setConfigValue("growth_progress", 0.0);
-        cell.setConfigValue("plant_time", LocalDateTime.now().toString());
-        Double baseGrowthHours = cell.getDoubleConfig("base_growth_hours");
-        Double levelSpeed = cell.getDoubleConfig("level_speed_multiplier");
-        if (levelSpeed == null) levelSpeed = 1.0;
-        cell.setConfigValue("mature_time", LocalDateTime.now().plusHours((long) (baseGrowthHours / levelSpeed)).toString());
+        if (!(cell.getConfig() instanceof CellConfig.FarmConfig farm)) return;
+
+        LocalDateTime now = LocalDateTime.now();
+        double baseGrowthHours = getBaseGrowthHours(farm.cropId());
+        int cellLevel = cell.getCellLevel();
+        int cropTier = fudiHelper.getCropTier((int) baseGrowthHours);
+        double levelSpeed = fudiHelper.getLevelSpeedMultiplier(cellLevel, Math.max(1, cropTier));
+        LocalDateTime matureTime = now.plusHours((long) (baseGrowthHours / levelSpeed));
+
+        cell.setConfig(new CellConfig.FarmConfig(farm.cropId(), now, matureTime, farm.harvestCount()));
         fudiCellRepository.save(cell);
     }
 
     // ===================== 灵田详情构建 =====================
 
     void buildFarmCellDetail(CellDetailVO.CellDetailVOBuilder builder, FudiCell cell) {
-        String cropName = cell.getStringConfig("crop_name");
+        if (!(cell.getConfig() instanceof CellConfig.FarmConfig farm)) {
+            builder.name("未知灵草").growthProgress(0.0).isMature(false);
+            return;
+        }
+
+        String cropName = getCropName(farm.cropId());
         if (cropName == null) cropName = "未知灵草";
 
         updateGrowthProgress(cell);
-        Double growthProgress = cell.getDoubleConfig("growth_progress");
+        Double growthProgress = calculateGrowthProgress(cell);
         if (growthProgress == null) growthProgress = 0.0;
-        Boolean isPerennial = cell.getBoolConfig("is_perennial");
-        boolean isWilted = !Boolean.TRUE.equals(isPerennial) && growthProgress > 1.0 && isWilted(cell);
+        boolean isPerennial = farm.harvestCount() < getMaxHarvest(farm.cropId());
+        boolean isWilted = !isPerennial && growthProgress > 1.0 && isWilted(cell);
 
         builder.name(cropName)
                 .growthProgress(growthProgress)
-                .isMature(growthProgress >= 1.0 && !isWilted);
-
-        if (cell.getConfigValue("plant_time") != null) {
-            builder.createTime(LocalDateTime.parse(cell.getStringConfig("plant_time")));
-        }
+                .isMature(growthProgress >= 1.0 && !isWilted)
+                .createTime(farm.plantTime());
     }
 
     // ===================== 辅助方法 =====================
@@ -263,34 +258,50 @@ public class FarmService {
     }
 
     void updateGrowthProgress(FudiCell cell) {
-        String matureTimeStr = cell.getStringConfig("mature_time");
-        if (matureTimeStr != null) {
-            LocalDateTime matureTime = LocalDateTime.parse(matureTimeStr);
-            LocalDateTime now = LocalDateTime.now();
-
-            if (now.isAfter(matureTime) || now.isEqual(matureTime)) {
-                cell.setConfigValue("growth_progress", 1.0);
-            } else {
-                String plantTimeStr = cell.getStringConfig("plant_time");
-                LocalDateTime plantTime = LocalDateTime.parse(plantTimeStr);
-                long totalSeconds = java.time.Duration.between(plantTime, matureTime).getSeconds();
-                long elapsedSeconds = java.time.Duration.between(plantTime, now).getSeconds();
-                double progress = Math.min(1.0, (double) elapsedSeconds / totalSeconds);
-                cell.setConfigValue("growth_progress", progress);
-            }
-            fudiCellRepository.save(cell);
-        }
+        // growthProgress is now computed on-the-fly, nothing to persist
     }
 
     boolean isWilted(FudiCell cell) {
-        if (Boolean.TRUE.equals(cell.getBoolConfig("is_perennial"))) return false;
-        String matureTimeStr = cell.getStringConfig("mature_time");
-        Double baseGrowthHours = cell.getDoubleConfig("base_growth_hours");
-        if (matureTimeStr == null || baseGrowthHours == null) return false;
-        LocalDateTime matureTime = LocalDateTime.parse(matureTimeStr);
+        if (!(cell.getConfig() instanceof CellConfig.FarmConfig farm)) return false;
+        if (farm.harvestCount() < getMaxHarvest(farm.cropId())) return false;
+
+        double baseGrowthHours = getBaseGrowthHours(farm.cropId());
+        LocalDateTime matureTime = farm.matureTime();
         long maxSeconds = (long) (baseGrowthHours * 3600 * 2);
         long secondsSinceMature = java.time.Duration.between(matureTime, LocalDateTime.now()).getSeconds();
         return secondsSinceMature > maxSeconds;
+    }
+
+    Double calculateGrowthProgress(FudiCell cell) {
+        if (!(cell.getConfig() instanceof CellConfig.FarmConfig farm)) return null;
+
+        LocalDateTime plantTime = farm.plantTime();
+        LocalDateTime matureTime = farm.matureTime();
+        if (plantTime == null || matureTime == null) return null;
+
+        LocalDateTime now = LocalDateTime.now();
+        if (now.isAfter(matureTime) || now.isEqual(matureTime)) return 1.0;
+
+        long totalSeconds = java.time.Duration.between(plantTime, matureTime).getSeconds();
+        if (totalSeconds <= 0) return 1.0;
+        long elapsedSeconds = java.time.Duration.between(plantTime, now).getSeconds();
+        return Math.min(1.0, (double) elapsedSeconds / totalSeconds);
+    }
+
+    String getCropName(Integer cropId) {
+        return itemTemplateRepository.findById((long) cropId)
+                .map(ItemTemplate::getName)
+                .orElse("未知灵草");
+    }
+
+    int getMaxHarvest(Integer cropId) {
+        if (cropId == null) return 1;
+        var props = itemTemplateRepository.findById(cropId.longValue())
+                .map(ItemTemplate::typedProperties).orElse(null);
+        if (props instanceof ItemProperties.Growth g) {
+            return 1 + g.reharvest();
+        }
+        return 1;
     }
 
     ItemTemplate findSeedTemplateByName(String name) {

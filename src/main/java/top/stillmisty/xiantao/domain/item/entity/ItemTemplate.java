@@ -106,7 +106,7 @@ public class ItemTemplate {
 
     public Integer getGrowTime() {
         var props = typedProperties();
-        if (props instanceof ItemProperties.Growth(int growTime)) return growTime;
+        if (props instanceof ItemProperties.Growth g) return g.growTime();
         if (props instanceof ItemProperties.BeastEgg e) return e.growTime();
         return null;
     }

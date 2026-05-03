@@ -41,7 +41,13 @@ public sealed interface ItemProperties {
         }
     }
 
-    record Growth(@JsonProperty("grow_time") int growTime) implements ItemProperties {
+    record Growth(
+            @JsonProperty("grow_time") int growTime,
+            @JsonProperty("reharvest") int reharvest
+    ) implements ItemProperties {
+        public Growth {
+            if (reharvest < 0) reharvest = 0;
+        }
     }
 
     record BeastEgg(

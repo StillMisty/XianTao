@@ -17,11 +17,11 @@ COMMENT ON COLUMN xt_item_template.id IS '模板ID';
 COMMENT ON COLUMN xt_item_template.name IS '物品名称（全表唯一，用作跨环境稳定的语义标识）';
 COMMENT ON COLUMN xt_item_template.type IS '物品类型 (MATERIAL, SEED, BEAST_EGG, POTION, EVOLUTION_STONE, SKILL_JADE, RECIPE_SCROLL, HERB)';
 COMMENT ON COLUMN xt_item_template.properties IS '类型特有属性 JSONB：
-  种子/灵兽卵: {"grow_time":24}
-  法决玉简: {"skill_id":1}
-  丹方卷轴: {"grade":3,"product":{"item_id":1,"quantity":1},"requirements":[{"element":"metal","min":1,"max":5}]}
-  丹药: {"effects":[{"type":"exp","amount":100}]}
-  灵兽: {"production_items":[...],"skill_pool":{"innate_skills":[...],"awakening_skills":[...]}}';
+   种子: {"grow_time":24,"reharvest":0}
+   灵兽卵: {"grow_time":72,"production_items":[...],"skill_pool":{...}}
+   法决玉简: {"skill_id":1}
+   丹方卷轴: {"grade":3,"product":{"item_id":1,"quantity":1},"requirements":[{"element":"metal","min":1,"max":5}]}
+   丹药: {"effects":[{"type":"exp","amount":100}]}';
 COMMENT ON COLUMN xt_item_template.tags IS '物品标签 JSONB，用于AI检索和NPC交互，示例: ["ore", "metal", "forge_base"]';
 COMMENT ON COLUMN xt_item_template.description IS '物品描述';
 

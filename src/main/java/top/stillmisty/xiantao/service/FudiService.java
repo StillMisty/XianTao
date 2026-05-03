@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
+import top.stillmisty.xiantao.domain.fudi.entity.CellConfig;
 import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
 import top.stillmisty.xiantao.domain.fudi.entity.FudiCell;
 import top.stillmisty.xiantao.domain.fudi.entity.Spirit;
@@ -371,26 +372,24 @@ public class FudiService {
         List<Long> toRemove = new ArrayList<>();
         for (FudiCell cell : cells) {
             if (cell.getCellType() != CellType.FARM) continue;
+            if (!(cell.getConfig() instanceof CellConfig.FarmConfig farm)) continue;
 
             farmService.updateGrowthProgress(cell);
-            Double progress = cell.getDoubleConfig("growth_progress");
+            Double progress = farmService.calculateGrowthProgress(cell);
             if (progress == null || progress < 1.0) continue;
 
-            boolean isPerennial = Boolean.TRUE.equals(cell.getBoolConfig("is_perennial"));
+            boolean isPerennial = farm.harvestCount() < farmService.getMaxHarvest(farm.cropId());
             if (!isPerennial && progress > 1.0 && farmService.isWilted(cell)) {
                 toRemove.add(cell.getId());
                 continue;
             }
 
-            Integer cropId = cell.getIntConfig("crop_id");
-            int yield = farmService.calculateYield(cropId, fudi.getTribulationStage());
-            Integer harvestCountVal = cell.getIntConfig("harvest_count");
-            int hCount = (harvestCountVal != null ? harvestCountVal : 0) + 1;
-            Integer maxHarvest = cell.getIntConfig("max_harvest");
-            if (maxHarvest == null) maxHarvest = 1;
+            int yield = farmService.calculateYield(farm.cropId(), fudi.getTribulationStage());
+            int hCount = farm.harvestCount() + 1;
+            int maxHarvest = farmService.getMaxHarvest(farm.cropId());
 
             if (isPerennial && hCount < maxHarvest) {
-                cell.setConfigValue("harvest_count", hCount);
+                cell.setConfig(farm.withHarvestCount(hCount));
                 farmService.replantAfterHarvest(cell);
             } else {
                 toRemove.add(cell.getId());
@@ -419,23 +418,18 @@ public class FudiService {
         // 收取兽栏产出
         for (FudiCell cell : cells) {
             if (cell.getCellType() != CellType.PEN) continue;
-            if (Boolean.TRUE.equals(cell.getBoolConfig("is_incubating"))) continue;
+            if (beastService.isIncubating(cell)) continue;
 
             beastService.updateBeastProduction(cell, fudi);
 
-            List<Map<String, Object>> productionStored = beastService.distributeBeastProduction(cell);
+            List<CellConfig.ProductionItem> productionStored = beastService.getProductionStoredList(cell);
             if (productionStored.isEmpty()) continue;
 
-            Beast collectBeast = beastService.findBeastByCell(cell);
-
             int cellTotalItems = 0;
-            for (Map<String, Object> item : productionStored) {
-                Long templateId = ((Number) item.get("template_id")).longValue();
-                String name = (String) item.get("name");
-                int quantity = ((Number) item.get("quantity")).intValue();
-                if (quantity > 0) {
-                    stackableItemService.addStackableItem(fudi.getUserId(), templateId, ItemType.HERB, name, quantity);
-                    cellTotalItems += quantity;
+            for (CellConfig.ProductionItem item : productionStored) {
+                if (item.quantity() > 0) {
+                    stackableItemService.addStackableItem(fudi.getUserId(), item.templateId(), ItemType.HERB, item.name(), item.quantity());
+                    cellTotalItems += item.quantity();
                 }
             }
 
@@ -638,9 +632,13 @@ public class FudiService {
 
             switch (cell.getCellType()) {
                 case FARM -> {
-                    builder.name(cell.getStringConfig("crop_name"));
+                    if (cell.getConfig() instanceof CellConfig.FarmConfig farm) {
+                        builder.name(farmService.getCropName(farm.cropId()));
+                    } else {
+                        builder.name("未知灵草");
+                    }
                     farmService.updateGrowthProgress(cell);
-                    Double progress = cell.getDoubleConfig("growth_progress");
+                    Double progress = farmService.calculateGrowthProgress(cell);
                     builder.growthProgress(progress);
                     builder.isMature(progress != null && progress >= 1.0);
                 }
@@ -650,7 +648,7 @@ public class FudiService {
                     builder.level(beast != null ? beast.getTier() : 0);
                     builder.quality(beast != null ? beast.getQuality().getCode() : null);
                     builder.productionStored(cell.getTotalProductionQuantity());
-                    builder.isIncubating(cell.getBoolConfig("is_incubating"));
+                    builder.isIncubating(beastService.isIncubating(cell));
                 }
             }
 
