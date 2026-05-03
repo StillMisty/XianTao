@@ -239,9 +239,13 @@ public class SpiritChatService {
 
         // 检查是否有可收获的灵田
         long matureFarmCount = farmCells.stream()
-                .filter(c -> c.getConfig() instanceof CellConfig.FarmConfig farm
-                        && calculateGrowthProgress(farm) != null
-                        && calculateGrowthProgress(farm) >= 1.0)
+                .filter(c -> {
+                    if (c.getConfig() instanceof CellConfig.FarmConfig farm) {
+                        Double progress = calculateGrowthProgress(farm);
+                        return progress != null && progress >= 1.0;
+                    }
+                    return false;
+                })
                 .count();
         if (matureFarmCount > 0) {
             sb.append("有 ").append(matureFarmCount).append(" 块灵田可收获。\n");
