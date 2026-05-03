@@ -7,7 +7,6 @@ import top.stillmisty.xiantao.domain.item.vo.AttributeChange;
 import top.stillmisty.xiantao.domain.item.vo.CharacterStatusResult;
 import top.stillmisty.xiantao.domain.item.vo.InventorySummaryVO;
 import top.stillmisty.xiantao.domain.item.vo.ItemEntry;
-import top.stillmisty.xiantao.domain.user.enums.AttributeType;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.vo.*;
 import top.stillmisty.xiantao.service.CharacterStatusService;
@@ -268,17 +267,6 @@ public class CultivationCommandHandler {
     private String formatAttrChange(String attrName, int change) {
         String sign = change > 0 ? "+" : "";
         return String.format("  %s：%s%d", attrName, sign, change);
-    }
-
-    private AttributeType parseAttributeType(String attributeName) {
-        if (attributeName == null || attributeName.isEmpty()) return null;
-        return switch (attributeName.trim()) {
-            case "力量", "str", "STR" -> AttributeType.STR;
-            case "体质", "con", "CON" -> AttributeType.CON;
-            case "敏捷", "agi", "AGI" -> AttributeType.AGI;
-            case "智慧", "wis", "WIS" -> AttributeType.WIS;
-            default -> null;
-        };
     }
 
     private String formatAttributeAllocationResult(AttributeAllocationResult result) {

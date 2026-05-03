@@ -8,7 +8,6 @@ import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentTemplateRepository;
 import top.stillmisty.xiantao.domain.monster.*;
-import top.stillmisty.xiantao.domain.monster.entity.MonsterTemplate;
 import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
 import top.stillmisty.xiantao.domain.pill.entity.PlayerBuff;
 import top.stillmisty.xiantao.domain.pill.repository.PlayerBuffRepository;
@@ -17,7 +16,6 @@ import top.stillmisty.xiantao.domain.skill.repository.SkillRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
 @Slf4j
 @Service
@@ -67,16 +65,4 @@ public class CombatService {
         return team;
     }
 
-    public Team buildMonsterTeam(MonsterTemplate tmpl, int count) {
-        Team team = new Team(0L, "Monsters");
-        for (int j = 0; j < count; j++) {
-            List<Skill> monsterSkills = tmpl.getSkills() != null && !tmpl.getSkills().isEmpty()
-                    ? skillRepository.findByIds(tmpl.getSkills())
-                    : List.of();
-            int monsterLevel = tmpl.getBaseLevel() + ThreadLocalRandom.current().nextInt(-2, 3);
-            monsterLevel = Math.max(1, monsterLevel);
-            team.addMember(new Monster(tmpl, monsterLevel, monsterSkills));
-        }
-        return team;
-    }
 }

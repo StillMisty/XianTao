@@ -24,8 +24,4 @@ public sealed interface ServiceResult<T> permits ServiceResult.Success, ServiceR
     static <T> ServiceResult<T> businessFailure(String message) {
         return new Failure<>("BUSINESS_ERROR", message);
     }
-
-    static <T> ServiceResult<T> notFound(String message) {
-        return new Failure<>("NOT_FOUND", message);
-    }
 }

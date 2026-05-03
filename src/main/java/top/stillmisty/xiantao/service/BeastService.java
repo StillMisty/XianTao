@@ -372,7 +372,7 @@ public class BeastService {
 
         Beast beast = findBeastByCell(cell);
         String beastName = beast != null ? beast.getBeastName() : "未知灵兽";
-        int tier = beast != null && beast.getTier() != null ? beast.getTier() : 1;
+        int tier = beast != null ? beast.getTier() : 1;
         String qualityStr = beast != null ? beast.getQuality() : "mortal";
 
         clearBeastCell(cell);
@@ -429,7 +429,7 @@ public class BeastService {
             throw new IllegalStateException("未找到灵兽");
         }
 
-        if (beast.getTier() != null && beast.getTier() >= 5) {
+        if (beast.getTier() >= 5) {
             throw new IllegalStateException("已是最高等阶 T5");
         }
 
@@ -437,7 +437,7 @@ public class BeastService {
             throw new IllegalStateException("灵兽需要先达到等级上限才能进化");
         }
 
-        int currentTier = beast.getTier() != null ? beast.getTier() : 1;
+        int currentTier = beast.getTier();
         int cost = (currentTier + 1) * 200;
         checkSpiritStones(userId, cost);
         deductSpiritStones(userId, cost);
@@ -465,12 +465,10 @@ public class BeastService {
             addMutationTrait(beast);
         }
 
-        if (beast.getTier() != null) {
-            if (beast.getTier() == 2) {
-                unlockInnateSkills(beast, "tier_2");
-            } else if (beast.getTier() == 3) {
-                unlockInnateSkills(beast, "tier_3");
-            }
+        if (beast.getTier() == 2) {
+            unlockInnateSkills(beast, "tier_2");
+        } else if (beast.getTier() == 3) {
+            unlockInnateSkills(beast, "tier_3");
         }
 
         beastRepository.save(beast);
@@ -572,7 +570,7 @@ public class BeastService {
             return new ActionResultVO(true, "灵兽已处于出战状态");
         }
 
-        if (beast.getHpCurrent() != null && beast.getHpCurrent() <= 0) {
+        if (beast.getHpCurrent() <= 0) {
             throw new IllegalStateException("灵兽HP为0，请先恢复");
         }
 
@@ -670,8 +668,8 @@ public class BeastService {
             throw new IllegalStateException("未找到灵兽");
         }
 
-        int hpCurrent = beast.getHpCurrent() != null ? beast.getHpCurrent() : 0;
-        int hpMax = beast.getMaxHp() != null ? beast.getMaxHp() : 1;
+        int hpCurrent = beast.getHpCurrent();
+        int hpMax = beast.getMaxHp();
         if (hpCurrent >= hpMax) {
             return new ActionResultVO(true, "灵兽HP已满");
         }
@@ -699,8 +697,8 @@ public class BeastService {
 
         List<Beast> beasts = beastRepository.findByFudiId(fudi.getId());
         for (Beast beast : beasts) {
-            int hpCurrent = beast.getHpCurrent() != null ? beast.getHpCurrent() : 0;
-            int hpMax = beast.getMaxHp() != null ? beast.getMaxHp() : 1;
+            int hpCurrent = beast.getHpCurrent();
+            int hpMax = beast.getMaxHp();
             if (hpCurrent >= hpMax) continue;
 
             int missingHp = hpMax - hpCurrent;
@@ -848,7 +846,7 @@ public class BeastService {
         int cycles = (int) (elapsed / intervalSeconds);
         if (cycles <= 0) return;
 
-        int tier = beast.getTier() != null ? beast.getTier() : 1;
+        int tier = beast.getTier();
         double outputMultiplier = beast.getQualityMultiplier();
         int perCycle = (int) Math.round(tier * outputMultiplier * (1 + ThreadLocalRandom.current().nextInt(tier + 1)) / 2.0);
         int produced = Math.max(1, perCycle * cycles);
@@ -961,13 +959,13 @@ public class BeastService {
                 .quality(beast.getQuality())
                 .isMutant(Boolean.TRUE.equals(beast.getIsMutant()))
                 .mutationTraits(beast.getMutationTraits())
-                .tier(beast.getTier() != null ? beast.getTier() : 1)
-                .level(beast.getLevel() != null ? beast.getLevel() : 1)
-                .exp(beast.getExp() != null ? beast.getExp() : 0)
-                .attack(beast.getAttack() != null ? beast.getAttack() : 10)
-                .defense(beast.getDefense() != null ? beast.getDefense() : 8)
-                .maxHp(beast.getMaxHp() != null ? beast.getMaxHp() : 100)
-                .hpCurrent(beast.getHpCurrent() != null ? beast.getHpCurrent() : 100)
+                .tier(beast.getTier())
+                .level(beast.getLevel())
+                .exp(beast.getExp())
+                .attack(beast.getAttack())
+                .defense(beast.getDefense())
+                .maxHp(beast.getMaxHp())
+                .hpCurrent(beast.getHpCurrent())
                 .skills(beast.getSkills())
                 .isDeployed(Boolean.TRUE.equals(beast.getIsDeployed()))
                 .needsRecovery(beast.needsRecovery())
@@ -981,7 +979,7 @@ public class BeastService {
         String matureTimeStr = cell.getStringConfig("mature_time");
 
         String beastName = beast != null ? beast.getBeastName() : "未知灵兽";
-        int tier = beast != null && beast.getTier() != null ? beast.getTier() : 1;
+        int tier = beast != null ? beast.getTier() : 1;
         String qualityChinese = beast != null && beast.getQuality() != null ? BeastQuality.fromCode(beast.getQuality()).getChineseName() : "凡品";
         int qualityOrdinal = beast != null && beast.getQuality() != null ? BeastQuality.fromCode(beast.getQuality()).getOrder() : 1;
         boolean isMutant = beast != null && Boolean.TRUE.equals(beast.getIsMutant());
@@ -1130,11 +1128,6 @@ public class BeastService {
         for (Beast beast : deployedBeasts) {
             addBeastExp(beast.getId(), expToAdd);
         }
-    }
-
-    public void addExpFromTraining(Long userId, long trainingMinutes) {
-        long expToAdd = trainingMinutes * 2;
-        addExpToDeployedBeasts(userId, expToAdd);
     }
 
     // ===================== 灵兽变异/品质辅助方法 =====================

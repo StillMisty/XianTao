@@ -206,8 +206,8 @@ public class FudiService {
 
     void checkSpiritStones(Long userId, int cost) {
         User user = userRepository.findById(userId).orElseThrow();
-        if (user.getSpiritStones() == null || user.getSpiritStones() < cost) {
-            throw new IllegalStateException("灵石不足（需要 %d，当前 %d）".formatted(cost, user.getSpiritStones() != null ? user.getSpiritStones() : 0));
+        if (user.getSpiritStones() < cost) {
+            throw new IllegalStateException("灵石不足（需要 %d，当前 %d）".formatted(cost, user.getSpiritStones()));
         }
     }
 
@@ -258,7 +258,7 @@ public class FudiService {
         String formName = null;
         List<String> likedTags = null;
         List<String> dislikedTags = null;
-        if (spirit != null && spirit.getFormId() != null) {
+        if (spirit != null) {
             SpiritForm form = spiritFormMapper.selectOneById(spirit.getFormId().longValue());
             if (form != null) {
                 formName = form.getName();
@@ -299,14 +299,14 @@ public class FudiService {
     }
 
     private int calculateTribulationDefense(Fudi fudi, int playerStr) {
-        int defense = playerStr * 10 + (fudi.getTribulationStage() != null ? fudi.getTribulationStage() : 0) * 50;
+        int defense = playerStr * 10 + fudi.getTribulationStage() * 50;
 
         List<Beast> beasts = beastRepository.findByFudiId(fudi.getId());
         for (Beast beast : beasts) {
             if (!Boolean.TRUE.equals(beast.getIsDeployed())) continue;
-            if (beast.getHpCurrent() == null || beast.getHpCurrent() <= 0) continue;
+            if (beast.getHpCurrent() <= 0) continue;
 
-            int tier = beast.getTier() != null ? beast.getTier() : 1;
+            int tier = beast.getTier();
             double power = tier * 10.0;
             List<String> traits = beast.getMutationTraits();
             if (traits != null && traits.contains(MutationTrait.GUARDIAN.getCode())) {
@@ -333,10 +333,6 @@ public class FudiService {
                 fudi.getTribulationStage(),
                 fudi.getTribulationWinStreak()
         );
-    }
-
-    private String resolveTribulation(Fudi fudi, int playerLevel, int playerStr) {
-        return resolveTribulation(fudi, playerLevel, playerStr, false);
     }
 
     private String resolveTribulation(Fudi fudi, int playerLevel, int playerStr, boolean forceTrigger) {
@@ -366,7 +362,7 @@ public class FudiService {
 
     private boolean checkTribulationCompassion(Fudi fudi, int attack, int defense) {
         Spirit spirit = spiritRepository.findByFudiId(fudi.getId()).orElse(null);
-        int affection = spirit != null && spirit.getAffection() != null ? spirit.getAffection() : 0;
+        int affection = spirit != null ? spirit.getAffection() : 0;
         return affection >= 800 && defense >= attack * 0.8 && defense < attack;
     }
 
@@ -380,7 +376,7 @@ public class FudiService {
 
         int stoneReward = newWinStreak * 100;
         User user = userRepository.findById(fudi.getUserId()).orElseThrow();
-        user.setSpiritStones((user.getSpiritStones() != null ? user.getSpiritStones() : 0) + stoneReward);
+        user.setSpiritStones(user.getSpiritStones() + stoneReward);
         userRepository.save(user);
 
         spiritRepository.findByFudiId(fudi.getId()).ifPresent(spirit -> {
@@ -408,7 +404,7 @@ public class FudiService {
 
         int stoneReward = newWinStreak * 100;
         User user = userRepository.findById(fudi.getUserId()).orElseThrow();
-        user.setSpiritStones((user.getSpiritStones() != null ? user.getSpiritStones() : 0) + stoneReward);
+        user.setSpiritStones(user.getSpiritStones() + stoneReward);
         userRepository.save(user);
 
         Spirit spirit = spiritRepository.findByFudiId(fudi.getId()).orElse(null);

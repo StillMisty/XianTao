@@ -33,8 +33,6 @@ import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 import top.stillmisty.xiantao.infrastructure.util.TypeUtils;
 
-import top.stillmisty.xiantao.domain.monster.vo.CombatLogEntry;
-
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -83,77 +81,6 @@ public class TrainingService {
     }
 
     // ===================== 内部 API =====================
-
-    public TrainingRewardVO calculateTrainingRewards(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow();
-
-        if (user.getTrainingStartTime() == null) {
-            return TrainingRewardVO.builder()
-                    .userId(userId)
-                    .mapId(user.getLocationId())
-                    .summary("您还没有开始历练")
-                    .build();
-        }
-
-        long minutesTraining = Duration.between(user.getTrainingStartTime(), LocalDateTime.now()).toMinutes();
-        if (minutesTraining <= 5) {
-            return TrainingRewardVO.builder()
-                    .userId(userId)
-                    .mapId(user.getLocationId())
-                    .summary("历练时间过短毫无收获")
-                    .build();
-        }
-
-        Optional<MapNode> mapOpt = mapNodeRepository.findById(user.getLocationId());
-        if (mapOpt.isEmpty()) {
-            return TrainingRewardVO.builder()
-                    .userId(userId)
-                    .summary("当前地图不存在")
-                    .build();
-        }
-
-        MapNode mapNode = mapOpt.get();
-
-        double efficiencyMultiplier = calculateEfficiencyMultiplier(user.getStatAgi());
-        double levelDecayMultiplier = calculateLevelDecayMultiplier(user.getLevel(), mapNode.getLevelRequirement());
-        long expGained = (long) (BASE_EXP_PER_MINUTE * minutesTraining * efficiencyMultiplier * levelDecayMultiplier);
-        List<Map<String, Object>> items = calculateItemsReward(minutesTraining, efficiencyMultiplier, mapNode);
-
-        StringBuilder summary = new StringBuilder();
-        summary.append(String.format("历练时长: %d 分钟\n", minutesTraining));
-        if (expGained > 0) {
-            summary.append(String.format("经验: +%d\n", expGained));
-        }
-        if (!items.isEmpty()) {
-            summary.append("物品: ");
-            for (int i = 0; i < items.size(); i++) {
-                Map<String, Object> item = items.get(i);
-                String name = (String) item.get("name");
-                Integer quantity = (Integer) item.get("quantity");
-                summary.append(String.format("%s x%d", name, quantity));
-                if (i < items.size() - 1) {
-                    summary.append(", ");
-                }
-            }
-        }
-
-        log.info(
-                "用户 {} 历练奖励计算 - 时长: {} 分钟, 经验: {}, 物品数: {}",
-                userId, minutesTraining, expGained, items.size()
-        );
-
-        return TrainingRewardVO.builder()
-                .userId(userId)
-                .mapId(mapNode.getId())
-                .mapName(mapNode.getName())
-                .durationMinutes(minutesTraining)
-                .efficiencyMultiplier(efficiencyMultiplier)
-                .levelDecayMultiplier(levelDecayMultiplier)
-                .exp(expGained)
-                .items(items)
-                .summary(summary.toString())
-                .build();
-    }
 
     @Transactional
     public TrainingStartResult startTraining(Long userId) {
@@ -435,16 +362,14 @@ public class TrainingService {
         int score = 0;
         for (Equipment equip : equipped) {
             score += equip.getFinalAttack() + equip.getFinalDefense() * 2;
-            if (equip.getRarity() != null) {
-                score += switch (equip.getRarity().getCode()) {
-                    case "common" -> 10;
-                    case "uncommon" -> 20;
-                    case "rare" -> 40;
-                    case "epic" -> 80;
-                    case "legendary" -> 160;
-                    default -> 0;
-                };
-            }
+            score += switch (equip.getRarity().getCode()) {
+                case "common" -> 10;
+                case "uncommon" -> 20;
+                case "rare" -> 40;
+                case "epic" -> 80;
+                case "legendary" -> 160;
+                default -> 0;
+            };
         }
         return score;
     }

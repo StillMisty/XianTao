@@ -6,8 +6,6 @@ import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
 import top.stillmisty.xiantao.domain.item.vo.CharacterStatusResult;
-import top.stillmisty.xiantao.domain.map.entity.MapNode;
-import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
 import top.stillmisty.xiantao.domain.user.entity.DaoProtection;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
@@ -30,7 +28,7 @@ public class CharacterStatusService {
     private final UserRepository userRepository;
     private final EquipmentRepository equipmentRepository;
     private final DaoProtectionRepository daoProtectionRepository;
-    private final MapNodeRepository mapNodeRepository;
+    private final MapService mapService;
     // ===================== 公开 API（含认证） =====================
 
     public ServiceResult<CharacterStatusResult> getCharacterStatus(PlatformType platform, String openId) {
@@ -59,8 +57,8 @@ public class CharacterStatusService {
             equipCon += equipment.getConBonus();
             equipAgi += equipment.getAgiBonus();
             equipWis += equipment.getWisBonus();
-            equipAttack += equipment.getAttackBonus() != null ? equipment.getAttackBonus() : 0;
-            equipDefense += equipment.getDefenseBonus() != null ? equipment.getDefenseBonus() : 0;
+            equipAttack += equipment.getAttackBonus();
+            equipDefense += equipment.getDefenseBonus();
         }
 
         // 计算最终属性
@@ -84,7 +82,7 @@ public class CharacterStatusService {
 
         // 获取突破相关信息
         double breakthroughSuccessRate = user.calculateBreakthroughSuccessRate();
-        Integer breakthroughFailCount = user.getBreakthroughFailCount() != null ? user.getBreakthroughFailCount() : 0;
+        Integer breakthroughFailCount = user.getBreakthroughFailCount();
 
         // 获取护道相关信息
         List<DaoProtection> protectingList = daoProtectionRepository.findByProtectorId(userId);
@@ -111,7 +109,7 @@ public class CharacterStatusService {
                 .expToNextLevel(user.calculateExpToNextLevel())
                 .expPercentage(user.getExp() * 100.0 / user.calculateExpToNextLevel())
                 .status(user.getStatus())
-                .statusName(user.getStatus() != null ? user.getStatus().getName() : "未知")
+                .statusName(user.getStatus().getName())
                 .locationId(user.getLocationId())
                 .hpCurrent(user.getHpCurrent())
                 .hpMax(hpMax)
@@ -183,7 +181,7 @@ public class CharacterStatusService {
                             .userName(targetUser.getNickname())
                             .userLevel(targetUser.getLevel())
                             .locationId(targetUser.getLocationId())
-                            .locationName(getMapName(targetUser.getLocationId()))
+                            .locationName(mapService.getMapName(targetUser.getLocationId()))
                             .isInSameLocation(inSameLocation)
                             .bonusPercentage(bonus)
                             .build();
@@ -218,7 +216,7 @@ public class CharacterStatusService {
                             .userName(protector.getNickname())
                             .userLevel(protector.getLevel())
                             .locationId(protector.getLocationId())
-                            .locationName(getMapName(protector.getLocationId()))
+                            .locationName(mapService.getMapName(protector.getLocationId()))
                             .isInSameLocation(inSameLocation)
                             .bonusPercentage(bonus)
                             .build();
@@ -228,9 +226,6 @@ public class CharacterStatusService {
     }
 
     private boolean isInSameLocation(User user1, User user2) {
-        if (user1.getLocationId() == null || user2.getLocationId() == null) {
-            return false;
-        }
         return user1.getLocationId().equals(user2.getLocationId());
     }
 
@@ -239,11 +234,4 @@ public class CharacterStatusService {
         return 5.0 + (levelDiff * 1.0);
     }
 
-    private String getMapName(Long mapId) {
-        if (mapId == null) {
-            return "未知";
-        }
-        Optional<MapNode> mapOpt = mapNodeRepository.findById(mapId);
-        return mapOpt.map(MapNode::getName).orElse("未知");
-    }
 }

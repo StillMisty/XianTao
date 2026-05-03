@@ -138,8 +138,8 @@ public class EquipmentService {
                             .conChange(-equipment.getConBonus())
                             .agiChange(-equipment.getAgiBonus())
                             .wisChange(-equipment.getWisBonus())
-                            .attackChange(-(equipment.getAttackBonus() != null ? equipment.getAttackBonus() : 0))
-                            .defenseChange(-(equipment.getDefenseBonus() != null ? equipment.getDefenseBonus() : 0))
+                            .attackChange(-equipment.getAttackBonus())
+                            .defenseChange(-equipment.getDefenseBonus())
                             .maxHpChange(-equipment.getConBonus() * 20)
                             .build();
 
@@ -258,8 +258,8 @@ public class EquipmentService {
         int conChange = newEquipment.getConBonus();
         int agiChange = newEquipment.getAgiBonus();
         int wisChange = newEquipment.getWisBonus();
-        int attackChange = newEquipment.getAttackBonus() != null ? newEquipment.getAttackBonus() : 0;
-        int defenseChange = newEquipment.getDefenseBonus() != null ? newEquipment.getDefenseBonus() : 0;
+        int attackChange = newEquipment.getAttackBonus();
+        int defenseChange = newEquipment.getDefenseBonus();
         int maxHpChange = newEquipment.getConBonus() * 20;
 
         if (replacedEquipment != null) {
@@ -267,8 +267,8 @@ public class EquipmentService {
             conChange -= replacedEquipment.getConBonus();
             agiChange -= replacedEquipment.getAgiBonus();
             wisChange -= replacedEquipment.getWisBonus();
-            attackChange -= (replacedEquipment.getAttackBonus() != null ? replacedEquipment.getAttackBonus() : 0);
-            defenseChange -= (replacedEquipment.getDefenseBonus() != null ? replacedEquipment.getDefenseBonus() : 0);
+            attackChange -= replacedEquipment.getAttackBonus();
+            defenseChange -= replacedEquipment.getDefenseBonus();
             maxHpChange -= replacedEquipment.getConBonus() * 20;
         }
 

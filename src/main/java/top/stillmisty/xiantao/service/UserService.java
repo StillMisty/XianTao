@@ -99,13 +99,4 @@ public class UserService {
         return personalities[RANDOM.nextInt(personalities.length)];
     }
 
-    /**
-     * 根据ID查找用户
-     *
-     * @param userId 用户ID
-     * @return 用户实体（Optional）
-     */
-    public Optional<User> findById(Long userId) {
-        return userRepository.findById(userId);
-    }
 }

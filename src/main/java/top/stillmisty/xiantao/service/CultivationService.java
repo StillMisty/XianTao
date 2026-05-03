@@ -4,8 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import top.stillmisty.xiantao.domain.map.entity.MapNode;
-import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
 import top.stillmisty.xiantao.domain.pill.entity.PlayerBuff;
 import top.stillmisty.xiantao.domain.pill.repository.PlayerBuffRepository;
 import top.stillmisty.xiantao.domain.user.entity.DaoProtection;
@@ -15,7 +13,6 @@ import top.stillmisty.xiantao.domain.user.repository.DaoProtectionRepository;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 import top.stillmisty.xiantao.domain.user.vo.*;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -35,8 +32,8 @@ public class CultivationService {
     private static final double LEVEL_DIFF_BONUS_PERCENTAGE = 1.0; // 每级差距额外1%
     private static final double MAX_TOTAL_BONUS_PERCENTAGE = 20.0; // 总加成上限20%
     private final UserRepository userRepository;
+    private final MapService mapService;
     private final DaoProtectionRepository daoProtectionRepository;
-    private final MapNodeRepository mapNodeRepository;
     private final PlayerBuffRepository playerBuffRepository;
     // ===================== 公开 API（含认证） =====================
 
@@ -298,7 +295,7 @@ public class CultivationService {
                                                    .userName(protege.getNickname())
                                                    .userLevel(protege.getLevel())
                                                    .locationId(protege.getLocationId())
-                                                   .locationName(getMapName(protege.getLocationId()))
+                                                    .locationName(mapService.getMapName(protege.getLocationId()))
                                                    .isInSameLocation(inSameLocation)
                                                    .bonusPercentage(bonus)
                                                    .build());
@@ -335,7 +332,7 @@ public class CultivationService {
                                                     .userName(protector.getNickname())
                                                     .userLevel(protector.getLevel())
                                                     .locationId(protector.getLocationId())
-                                                    .locationName(getMapName(protector.getLocationId()))
+                                                     .locationName(mapService.getMapName(protector.getLocationId()))
                                                     .isInSameLocation(inSameLocation)
                                                     .bonusPercentage(bonus)
                                                     .build());
@@ -415,9 +412,6 @@ public class CultivationService {
      * 检查两个用户是否在同一地点
      */
     private boolean isInSameLocation(User user1, User user2) {
-        if (user1.getLocationId() == null || user2.getLocationId() == null) {
-            return false;
-        }
         return user1.getLocationId().equals(user2.getLocationId());
     }
 
@@ -428,14 +422,4 @@ public class CultivationService {
         daoProtectionRepository.deleteByProtegeId(protegeId);
     }
 
-    /**
-     * 获取地图名称
-     */
-    private String getMapName(Long mapId) {
-        if (mapId == null) {
-            return "未知";
-        }
-        Optional<MapNode> mapOpt = mapNodeRepository.findById(mapId);
-        return mapOpt.map(MapNode::getName).orElse("未知");
-    }
 }
