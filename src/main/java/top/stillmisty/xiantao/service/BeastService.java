@@ -153,20 +153,6 @@ public class BeastService {
     @Transactional
     public PenCellVO hatchBeast(Long userId, String position, String eggName) {
         Integer cellId = fudiHelper.parseCellId(position);
-        Fudi fudi = fudiHelper.getFudiByUserId(userId)
-                .orElseThrow(() -> new IllegalStateException("未找到福地"));
-        fudiHelper.consumeSpiritEnergy(fudi, 10);
-
-        FudiCell cell = fudiCellRepository.findByFudiIdAndCellId(fudi.getId(), cellId)
-                .orElseThrow(() -> new IllegalStateException("地块 " + cellId + " 不存在"));
-
-        if (cell.getCellType() != CellType.PEN) {
-            throw new IllegalStateException("地块 " + cellId + " 不是兽栏");
-        }
-
-        if (cell.getIntConfig("beast_id") != null) {
-            throw new IllegalStateException("该兽栏已有灵兽，请先放生");
-        }
 
         ItemTemplate eggTemplate = itemTemplateRepository.findByType(ItemType.BEAST_EGG).stream()
                 .filter(t -> t.getName().equals(eggName) || t.getName().contains(eggName))
@@ -177,74 +163,7 @@ public class BeastService {
                 .orElseThrow(() -> new IllegalStateException("背包中没有 [%s]".formatted(eggName)));
         stackableItemService.reduceStackableItem(userId, eggTemplate.getId(), 1);
 
-        int tier = fudiHelper.getCropTier(eggTemplate.getGrowTime() != null ? eggTemplate.getGrowTime() : 72);
-
-        int cellLevel = cell.getCellLevel();
-        if (cellLevel < tier) {
-            throw new IllegalStateException("灵兽等阶(T%d)需要至少Lv%d兽栏".formatted(tier, tier));
-        }
-
-        int stoneCost = tier * 200 + 200;
-        fudiHelper.checkSpiritStones(userId, stoneCost);
-        fudiHelper.deductSpiritStones(userId, stoneCost);
-
-        BeastQuality quality = rollBeastQuality();
-
-        boolean isMutant = ThreadLocalRandom.current().nextInt(100) < 5;
-        List<String> mutationTraits = new ArrayList<>();
-        if (isMutant) {
-            mutationTraits.add(rollRandomTrait());
-        }
-
-        double levelSpeed = fudiHelper.getLevelSpeedMultiplier(cellLevel, tier);
-        double productionInterval = 4.0 / levelSpeed;
-        double baseHatchHours = 24 + tier * 8;
-        double hatchHours = baseHatchHours / levelSpeed;
-
-        String beastName = eggName.replace("兽卵", "").replace("蛋", "灵兽");
-        LocalDateTime now = LocalDateTime.now();
-
-        Beast beast = new Beast();
-        beast.setUserId(userId);
-        beast.setFudiId(fudi.getId());
-        beast.setTemplateId(eggTemplate.getId());
-        beast.setBeastName(beastName);
-        beast.setTier(tier);
-        beast.setQuality(quality);
-        beast.setIsMutant(isMutant);
-        beast.setMutationTraits(mutationTraits);
-        beast.setLevel(1);
-        beast.setExp(0);
-        beast.setAttack(calculateBeastAttack(1, quality));
-        beast.setDefense(calculateBeastDefense(1, quality));
-        int maxHp = tier * 200;
-        beast.setMaxHp(maxHp);
-        beast.setHpCurrent(maxHp);
-        beast.setSkills(List.of());
-        beast.setIsDeployed(false);
-        beast.setRecoveryUntil(null);
-        beast.setPennedCellId(cellId);
-        beast.setBirthTime(now);
-        beast.setEvolutionCount(0);
-        beast.setLevelCap(tier * 10 + 10);
-        beastRepository.save(beast);
-
-        unlockInnateSkills(beast, "birth");
-        beastRepository.save(beast);
-
-        cell.setConfigValue("beast_id", beast.getId());
-        cell.setConfigValue("template_id", eggTemplate.getId());
-        cell.setConfigValue("is_incubating", true);
-        cell.setConfigValue("hatch_time", now.toString());
-        cell.setConfigValue("mature_time", now.plusHours((long) hatchHours).toString());
-        cell.setConfigValue("production_stored", 0);
-        cell.setConfigValue("last_production_time", now.toString());
-        cell.setConfigValue("production_interval_hours", productionInterval);
-        fudiCellRepository.save(cell);
-
-        log.info("用户 {} 在地块 {} 孵化 {} (T{}, {}{})", userId, cellId, beastName, tier, quality.getChineseName(), isMutant ? ", 变异" : "");
-
-        return buildPenCellVO(cell);
+        return hatchBeastWithTemplate(userId, cellId, eggTemplate);
     }
 
     @Transactional
@@ -731,52 +650,7 @@ public class BeastService {
 
         updateBeastProduction(cell, fudi);
 
-        List<Map<String, Object>> productionStored = cell.getProductionStored();
-        if (productionStored.isEmpty()) {
-            Integer stored = cell.getIntConfig("production_stored");
-            if (stored == null || stored <= 0) {
-                throw new IllegalStateException("暂无产出可收取");
-            }
-            var productionItems = getProductionItems(cell);
-            if (productionItems.isEmpty()) {
-                productionStored = new ArrayList<>();
-                Map<String, Object> defaultItem = new HashMap<>();
-                defaultItem.put("template_id", 1L);
-                defaultItem.put("name", "灵草");
-                defaultItem.put("quantity", stored);
-                productionStored.add(defaultItem);
-            } else {
-                productionStored = new ArrayList<>();
-                int remaining = stored;
-                while (remaining > 0) {
-                    var selectedItem = selectRandomProductionItem(productionItems);
-                    if (selectedItem != null) {
-                        long templateId = selectedItem.templateId();
-                        String name = selectedItem.name();
-                        boolean found = false;
-                        for (Map<String, Object> item : productionStored) {
-                            Object id = item.get("template_id");
-                            if (id instanceof Number n && n.longValue() == templateId) {
-                                Object currentQty = item.get("quantity");
-                                if (currentQty instanceof Number currentN) {
-                                    item.put("quantity", currentN.intValue() + 1);
-                                }
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (!found) {
-                            Map<String, Object> newItem = new HashMap<>();
-                            newItem.put("template_id", templateId);
-                            newItem.put("name", name);
-                            newItem.put("quantity", 1);
-                            productionStored.add(newItem);
-                        }
-                    }
-                    remaining--;
-                }
-            }
-        }
+        List<Map<String, Object>> productionStored = distributeBeastProduction(cell);
 
         if (productionStored.isEmpty()) {
             throw new IllegalStateException("暂无产出可收取");
@@ -925,6 +799,63 @@ public class BeastService {
     ItemProperties.ProductionItem selectHigherTierItem(List<ItemProperties.ProductionItem> productionItems) {
         if (productionItems.isEmpty()) return null;
         return productionItems.stream().min(Comparator.comparingInt(ItemProperties.ProductionItem::weight)).orElse(null);
+    }
+
+    /**
+     * 将灵兽的生产计数分发为具体产出物品列表
+     */
+    List<Map<String, Object>> distributeBeastProduction(FudiCell cell) {
+        List<Map<String, Object>> productionStored = cell.getProductionStored();
+        if (!productionStored.isEmpty()) {
+            return productionStored;
+        }
+
+        Integer stored = cell.getIntConfig("production_stored");
+        if (stored == null || stored <= 0) {
+            return List.of();
+        }
+
+        var productionItems = getProductionItems(cell);
+        if (productionItems.isEmpty()) {
+            productionStored = new ArrayList<>();
+            Map<String, Object> defaultItem = new HashMap<>();
+            defaultItem.put("template_id", 1L);
+            defaultItem.put("name", "灵草");
+            defaultItem.put("quantity", stored);
+            productionStored.add(defaultItem);
+        } else {
+            productionStored = new ArrayList<>();
+            int remaining = stored;
+            while (remaining > 0) {
+                var selectedItem = selectRandomProductionItem(productionItems);
+                if (selectedItem != null) {
+                    long templateId = selectedItem.templateId();
+                    String name = selectedItem.name();
+                    boolean found = false;
+                    for (Map<String, Object> item : productionStored) {
+                        Object id = item.get("template_id");
+                        if (id instanceof Number n && n.longValue() == templateId) {
+                            Object currentQty = item.get("quantity");
+                            if (currentQty instanceof Number currentN) {
+                                item.put("quantity", currentN.intValue() + 1);
+                            }
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        Map<String, Object> newItem = new HashMap<>();
+                        newItem.put("template_id", templateId);
+                        newItem.put("name", name);
+                        newItem.put("quantity", 1);
+                        productionStored.add(newItem);
+                    }
+                }
+                remaining--;
+            }
+        }
+
+        return productionStored;
     }
 
     // ===================== 灵兽辅助方法 =====================

@@ -184,6 +184,22 @@ public class FudiService {
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
     }
 
+    private record CellContext(Fudi fudi, FudiCell cell, Integer cellId) {}
+
+    private CellContext getCellContext(Long userId, String position) {
+        Integer cellId = fudiHelper.parseCellId(position);
+        Fudi fudi = getFudiOrThrow(userId);
+        FudiCell cell = fudiCellRepository.findByFudiIdAndCellId(fudi.getId(), cellId)
+                .orElseThrow(() -> new IllegalStateException("地块 " + cellId + " 不存在"));
+        return new CellContext(fudi, cell, cellId);
+    }
+
+    private FudiCell getCellOrNull(Long userId, String position) {
+        Integer cellId = fudiHelper.parseCellId(position);
+        Fudi fudi = getFudiOrThrow(userId);
+        return fudiCellRepository.findByFudiIdAndCellId(fudi.getId(), cellId).orElse(null);
+    }
+
     private void autoExpandCells(Fudi fudi) {
         int maxCells = 3 + fudi.getTribulationStage() / 3;
         int currentCount = fudiCellRepository.countByFudiId(fudi.getId());
@@ -318,11 +334,10 @@ public class FudiService {
     @ConsumeSpiritEnergy(5)
     @Transactional
     public CollectVO collect(Long userId, String position) {
-        Integer cellId = fudiHelper.parseCellId(position);
-        Fudi fudi = getFudiOrThrow(userId);
-
-        FudiCell cell = fudiCellRepository.findByFudiIdAndCellId(fudi.getId(), cellId)
-                .orElseThrow(() -> new IllegalStateException("地块 " + cellId + " 不存在"));
+        CellContext ctx = getCellContext(userId, position);
+        FudiCell cell = ctx.cell();
+        Integer cellId = ctx.cellId();
+        Fudi fudi = ctx.fudi();
 
         if (cell.isEmpty()) {
             throw new IllegalStateException("地块 " + cellId + " 为空");
@@ -414,51 +429,7 @@ public class FudiService {
 
             beastService.updateBeastProduction(cell, fudi);
 
-            List<Map<String, Object>> productionStored = cell.getProductionStored();
-            if (productionStored.isEmpty()) {
-                Integer stored = cell.getIntConfig("production_stored");
-                if (stored == null || stored <= 0) continue;
-                var productionItems = beastService.getProductionItems(cell);
-                if (productionItems.isEmpty()) {
-                    productionStored = new ArrayList<>();
-                    Map<String, Object> defaultItem = new HashMap<>();
-                    defaultItem.put("template_id", 1L);
-                    defaultItem.put("name", "灵草");
-                    defaultItem.put("quantity", stored);
-                    productionStored.add(defaultItem);
-                } else {
-                    productionStored = new ArrayList<>();
-                    int remaining = stored;
-                    while (remaining > 0) {
-                        var selectedItem = beastService.selectRandomProductionItem(productionItems);
-                        if (selectedItem != null) {
-                            long templateId = selectedItem.templateId();
-                            String name = selectedItem.name();
-                            boolean found = false;
-                            for (Map<String, Object> item : productionStored) {
-                                Object id = item.get("template_id");
-                                if (id instanceof Number n && n.longValue() == templateId) {
-                                    Object currentQty = item.get("quantity");
-                                    if (currentQty instanceof Number currentN) {
-                                        item.put("quantity", currentN.intValue() + 1);
-                                    }
-                                    found = true;
-                                    break;
-                                }
-                            }
-                            if (!found) {
-                                Map<String, Object> newItem = new HashMap<>();
-                                newItem.put("template_id", templateId);
-                                newItem.put("name", name);
-                                newItem.put("quantity", 1);
-                                productionStored.add(newItem);
-                            }
-                        }
-                        remaining--;
-                    }
-                }
-            }
-
+            List<Map<String, Object>> productionStored = beastService.distributeBeastProduction(cell);
             if (productionStored.isEmpty()) continue;
 
             Beast collectBeast = beastService.findBeastByCell(cell);
@@ -543,11 +514,9 @@ public class FudiService {
 
     @Transactional
     public UpgradeCellVO upgradeCell(Long userId, String position) {
-        Integer cellId = fudiHelper.parseCellId(position);
-        Fudi fudi = getFudiOrThrow(userId);
-
-        FudiCell cell = fudiCellRepository.findByFudiIdAndCellId(fudi.getId(), cellId)
-                .orElseThrow(() -> new IllegalStateException("地块 " + cellId + " 不存在"));
+        CellContext ctx = getCellContext(userId, position);
+        FudiCell cell = ctx.cell();
+        Integer cellId = ctx.cellId();
 
         if (cell.isEmpty()) {
             throw new IllegalStateException("地块 " + cellId + " 为空");
