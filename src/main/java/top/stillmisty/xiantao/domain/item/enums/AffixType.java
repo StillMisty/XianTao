@@ -85,6 +85,19 @@ public enum AffixType {
     }
 
     /**
+     * 从存储的key值获取词条类型（兼容statField和枚举名）
+     */
+    public static AffixType fromKey(String key) {
+        String upper = key.toUpperCase();
+        for (AffixType type : values()) {
+            if (upper.equals(type.statField) || type.name().equals(upper)) {
+                return type;
+            }
+        }
+        return null;
+    }
+
+    /**
      * 检查是否为特殊词条（仅金装）
      */
     public boolean isSpecial() {

@@ -3,6 +3,7 @@ package top.stillmisty.xiantao.handle.command;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import top.stillmisty.xiantao.domain.pill.enums.ElementType;
 import top.stillmisty.xiantao.domain.pill.vo.PillRecipeVO;
 import top.stillmisty.xiantao.domain.pill.vo.PillRefiningResultVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
@@ -137,14 +138,8 @@ public class PillCommandHandler {
     }
 
     private String getElementName(String element) {
-        return switch (element) {
-            case "metal" -> "金";
-            case "wood" -> "木";
-            case "water" -> "水";
-            case "fire" -> "火";
-            case "earth" -> "土";
-            default -> element;
-        };
+        ElementType type = ElementType.fromCode(element);
+        return type != null ? type.getName() : element;
     }
 
     private String getQualityName(String quality) {

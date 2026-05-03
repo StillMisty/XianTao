@@ -14,6 +14,7 @@ import top.stillmisty.xiantao.domain.pill.entity.PlayerBuff;
 import top.stillmisty.xiantao.domain.pill.repository.PillResistanceRepository;
 import top.stillmisty.xiantao.domain.pill.repository.PlayerBuffRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.enums.AttributeType;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
@@ -125,26 +126,27 @@ public class PillConsumptionService {
         int actualStat = (int) (e.amount() * qualityMultiplier * gradeDecay * resistanceDecay);
         if (actualStat <= 0) return null;
 
-        var statName = switch (e.statAttr()) {
-            case "str" -> {
+        var attrType = AttributeType.fromCode(e.statAttr());
+        if (attrType == null) return null;
+
+        var statName = switch (attrType) {
+            case STR -> {
                 user.addStatStr(actualStat);
                 yield "力道";
             }
-            case "con" -> {
+            case CON -> {
                 user.addStatCon(actualStat);
                 yield "根骨";
             }
-            case "agi" -> {
+            case AGI -> {
                 user.addStatAgi(actualStat);
                 yield "身法";
             }
-            case "wis" -> {
+            case WIS -> {
                 user.addStatWis(actualStat);
                 yield "悟性";
             }
-            default -> null;
         };
-        if (statName == null) return null;
 
         pillResistanceRepository.incrementCount(user.getId(), templateId);
         return statName + " +" + actualStat;

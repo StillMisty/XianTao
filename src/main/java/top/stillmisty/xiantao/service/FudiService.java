@@ -874,7 +874,7 @@ public class FudiService {
                     Beast beast = beastService.findBeastByCell(cell);
                     builder.name(beast != null ? beast.getBeastName() : "空兽栏");
                     builder.level(beast != null && beast.getTier() != null ? beast.getTier() : 0);
-                    builder.quality(beast != null ? beast.getQuality() : null);
+                    builder.quality(beast != null && beast.getQuality() != null ? beast.getQuality().getCode() : null);
                     Integer stored = cell.getIntConfig("production_stored");
                     builder.productionStored(stored != null ? stored : 0);
                     builder.isIncubating(cell.getBoolConfig("is_incubating"));

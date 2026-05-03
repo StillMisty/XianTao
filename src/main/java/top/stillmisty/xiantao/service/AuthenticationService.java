@@ -46,7 +46,7 @@ public class AuthenticationService {
             return ServiceResult.authFailure("用户不存在");
         }
         if (requiredStatus != null && user.get().getStatus() != requiredStatus) {
-            String current = user.get().getStatus() != null ? user.get().getStatus().getName() : "未知";
+            String current = user.get().getStatus().getName();
             return ServiceResult.authFailure(
                     String.format("您当前处于 %s 状态，无法进行此操作（需要 %s 状态）", current, requiredStatus.getName()));
         }

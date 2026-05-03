@@ -42,7 +42,7 @@ public class TravelService {
         User user = userRepository.findById(userId).orElseThrow();
 
         if (user.getStatus() != UserStatus.IDLE) {
-            throw new IllegalStateException("您当前处于 " + (user.getStatus() != null ? user.getStatus().getName() : "未知") + " 状态，无法旅行（需要 空闲 状态）");
+            throw new IllegalStateException("您当前处于 " + user.getStatus().getName() + " 状态，无法旅行（需要 空闲 状态）");
         }
 
         Optional<MapNode> currentMapOpt = mapNodeRepository.findById(user.getLocationId());

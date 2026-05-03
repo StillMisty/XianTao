@@ -5,6 +5,7 @@ import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import lombok.Data;
+import top.stillmisty.xiantao.domain.fudi.enums.BeastQuality;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
 
 import java.time.LocalDateTime;
@@ -27,7 +28,7 @@ public class Beast {
 
     private Integer tier;
 
-    private String quality;
+    private BeastQuality quality;
 
     private Boolean isMutant;
 
@@ -161,11 +162,11 @@ public class Beast {
      * 获取品质属性倍率
      */
     public double getQualityMultiplier() {
-        return switch (quality != null ? quality : "mortal") {
-            case "spirit" -> 1.0;
-            case "immortal" -> 1.3;
-            case "saint" -> 1.6;
-            case "divine" -> 2.0;
+        return switch (quality) {
+            case SPIRIT -> 1.0;
+            case IMMORTAL -> 1.3;
+            case SAINT -> 1.6;
+            case DIVINE -> 2.0;
             default -> 0.8;
         };
     }
@@ -201,16 +202,8 @@ public class Beast {
      * 品质突破（升品）
      */
     public void qualityBreak() {
-        // 品质提升逻辑，需要根据当前品质提升到下一级
-        // 这里简化处理，实际应该有品质枚举
-        if ("mortal".equals(quality)) {
-            quality = "spirit";
-        } else if ("spirit".equals(quality)) {
-            quality = "immortal";
-        } else if ("immortal".equals(quality)) {
-            quality = "saint";
-        } else if ("saint".equals(quality)) {
-            quality = "divine";
+        if (quality != BeastQuality.DIVINE) {
+            quality = quality.next();
         }
     }
 }

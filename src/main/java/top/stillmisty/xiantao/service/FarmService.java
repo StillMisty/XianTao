@@ -331,8 +331,8 @@ public class FarmService {
 
     void checkSpiritStones(Long userId, int cost) {
         User user = userRepository.findById(userId).orElseThrow();
-        if (user.getSpiritStones() == null || user.getSpiritStones() < cost) {
-            throw new IllegalStateException("灵石不足（需要 %d，当前 %d）".formatted(cost, user.getSpiritStones() != null ? user.getSpiritStones() : 0));
+        if (user.getSpiritStones() < cost) {
+            throw new IllegalStateException("灵石不足（需要 %d，当前 %d）".formatted(cost, user.getSpiritStones()));
         }
     }
 

@@ -87,7 +87,7 @@ public class BountyService {
     public List<BountyVO> listBounties(Long userId) {
         User user = userRepository.findById(userId).orElseThrow();
         if (user.getStatus() != UserStatus.IDLE) {
-            throw new IllegalStateException("您当前处于 " + (user.getStatus() != null ? user.getStatus().getName() : "未知") + " 状态，无法查看悬赏（需要 空闲 状态）");
+            throw new IllegalStateException("您当前处于 " + user.getStatus().getName() + " 状态，无法查看悬赏（需要 空闲 状态）");
         }
         MapNode mapNode = mapNodeRepository.findById(user.getLocationId()).orElseThrow();
 
@@ -104,7 +104,7 @@ public class BountyService {
     public String startBounty(Long userId, Long bountyId) {
         User user = userRepository.findById(userId).orElseThrow();
         if (user.getStatus() != UserStatus.IDLE) {
-            throw new IllegalStateException("您当前处于 " + (user.getStatus() != null ? user.getStatus().getName() : "未知") + " 状态，无法接取悬赏（需要 空闲 状态）");
+            throw new IllegalStateException("您当前处于 " + user.getStatus().getName() + " 状态，无法接取悬赏（需要 空闲 状态）");
         }
 
         Bounty bounty = bountyRepository.findById(bountyId)
@@ -148,7 +148,7 @@ public class BountyService {
     public BountyRewardVO completeBounty(Long userId) {
         User user = userRepository.findById(userId).orElseThrow();
         if (user.getStatus() != UserStatus.BOUNTY) {
-            throw new IllegalStateException("您当前处于 " + (user.getStatus() != null ? user.getStatus().getName() : "未知") + " 状态，无法完成悬赏（需要 悬赏 状态）");
+            throw new IllegalStateException("您当前处于 " + user.getStatus().getName() + " 状态，无法完成悬赏（需要 悬赏 状态）");
         }
         UserBounty record = userBountyRepository.findActiveByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("当前没有进行中的悬赏"));
@@ -224,7 +224,7 @@ public class BountyService {
     public String abandonBounty(Long userId) {
         User user = userRepository.findById(userId).orElseThrow();
         if (user.getStatus() != UserStatus.BOUNTY) {
-            throw new IllegalStateException("您当前处于 " + (user.getStatus() != null ? user.getStatus().getName() : "未知") + " 状态，无法放弃悬赏（需要 悬赏 状态）");
+            throw new IllegalStateException("您当前处于 " + user.getStatus().getName() + " 状态，无法放弃悬赏（需要 悬赏 状态）");
         }
         UserBounty record = userBountyRepository.findActiveByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("当前没有进行中的悬赏"));

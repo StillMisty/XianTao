@@ -160,10 +160,7 @@ public class ItemResolver {
                 .sorted((a, b) -> {
                     int cmp = Integer.compare(b.getRarity().ordinal(), a.getRarity().ordinal());
                     if (cmp != 0) return cmp;
-                    cmp = Integer.compare(
-                            b.getForgeLevel() != null ? b.getForgeLevel() : 0,
-                            a.getForgeLevel() != null ? a.getForgeLevel() : 0
-                    );
+                    cmp = Integer.compare(b.getForgeLevel(), a.getForgeLevel());
                     if (cmp != 0) return cmp;
                     return a.getName().compareTo(b.getName());
                 })

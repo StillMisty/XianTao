@@ -8,6 +8,7 @@ import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
+import top.stillmisty.xiantao.domain.item.enums.Rarity;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
@@ -87,7 +88,7 @@ public class TrainingService {
         User user = userRepository.findById(userId).orElseThrow();
 
         if (user.getStatus() != UserStatus.IDLE) {
-            throw new IllegalStateException("您当前处于 " + (user.getStatus() != null ? user.getStatus().getName() : "未知") + " 状态，无法开始历练（需要 空闲 状态）");
+            throw new IllegalStateException("您当前处于 " + user.getStatus().getName() + " 状态，无法开始历练（需要 空闲 状态）");
         }
 
         if (user.getLocationId() == null) {
@@ -128,7 +129,7 @@ public class TrainingService {
         User user = userRepository.findById(userId).orElseThrow();
 
         if (user.getStatus() != UserStatus.EXERCISING) {
-            throw new IllegalStateException("您当前处于 " + (user.getStatus() != null ? user.getStatus().getName() : "未知") + " 状态，无法结束历练（需要 历练 状态）");
+            throw new IllegalStateException("您当前处于 " + user.getStatus().getName() + " 状态，无法结束历练（需要 历练 状态）");
         }
 
         if (user.getTrainingStartTime() == null) {
@@ -362,13 +363,12 @@ public class TrainingService {
         int score = 0;
         for (Equipment equip : equipped) {
             score += equip.getFinalAttack() + equip.getFinalDefense() * 2;
-            score += switch (equip.getRarity().getCode()) {
-                case "common" -> 10;
-                case "uncommon" -> 20;
-                case "rare" -> 40;
-                case "epic" -> 80;
-                case "legendary" -> 160;
-                default -> 0;
+            score += switch (equip.getRarity()) {
+                case BROKEN -> 0;
+                case COMMON -> 10;
+                case RARE -> 40;
+                case EPIC -> 80;
+                case LEGENDARY -> 160;
             };
         }
         return score;

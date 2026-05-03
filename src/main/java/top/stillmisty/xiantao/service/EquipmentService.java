@@ -224,8 +224,8 @@ public class EquipmentService {
                 .sorted((a, b) -> {
                     int rarityCompare = b.getRarity().ordinal() - a.getRarity().ordinal();
                     if (rarityCompare != 0) return rarityCompare;
-                    Integer aForge = a.getForgeLevel() != null ? a.getForgeLevel() : 0;
-                    Integer bForge = b.getForgeLevel() != null ? b.getForgeLevel() : 0;
+                    int aForge = a.getForgeLevel();
+                    int bForge = b.getForgeLevel();
                     return bForge - aForge;
                 })
                 .map(this::convertToEquipmentDetailVO)
@@ -287,15 +287,12 @@ public class EquipmentService {
         List<String> affixDescriptions = new ArrayList<>();
         if (equipment.getAffixes() != null && !equipment.getAffixes().isEmpty()) {
             equipment.getAffixes().forEach((key, value) -> {
-                String desc = switch (key.toUpperCase()) {
-                    case "STR" -> String.format("力量 +%d", value);
-                    case "CON" -> String.format("体质 +%d", value);
-                    case "AGI" -> String.format("敏捷 +%d", value);
-                    case "WIS" -> String.format("智慧 +%d", value);
-                    case "LIFE_STEAL" -> String.format("吸血 +%d%%", value);
-                    case "TREASURE_HUNT" -> String.format("寻宝 +%d%%", value);
-                    default -> key + " +" + value;
-                };
+                var affixType = AffixType.fromKey(key);
+                String desc = affixType != null
+                        ? (affixType.isSpecial()
+                            ? String.format("%s +%d%%", affixType.getDisplayName(), value)
+                            : String.format("%s +%d", affixType.getDisplayName(), value))
+                        : key + " +" + value;
                 affixDescriptions.add(desc);
             });
         }
@@ -312,7 +309,7 @@ public class EquipmentService {
                 .weaponType(equipment.getWeaponType())
                 .weaponTypeName(equipment.getWeaponType() != null ? equipment.getWeaponType().getName() : null)
                 .qualityMultiplier(equipment.getQualityMultiplier())
-                .forgeLevel(equipment.getForgeLevel() != null ? equipment.getForgeLevel() : 0)
+                .forgeLevel(equipment.getForgeLevel())
                 .attack(equipment.getFinalAttack())
                 .defense(equipment.getFinalDefense())
                 .strBonus(equipment.getStrBonus())

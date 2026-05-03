@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
-import top.stillmisty.xiantao.domain.fudi.enums.BeastQuality;
 import top.stillmisty.xiantao.domain.monster.BeastCombatant;
 import top.stillmisty.xiantao.domain.monster.Combatant;
 import top.stillmisty.xiantao.domain.monster.PlayerCombatant;
@@ -46,7 +45,7 @@ public class PostCombatProcessor {
                 beast.setHpCurrent(c.getHp());
                 if (!c.isAlive()) {
                     beast.setIsDeployed(false);
-                    int recoveryMinutes = BeastQuality.fromCode(beast.getQuality()).getRecoveryMinutes();
+                    int recoveryMinutes = beast.getQuality().getRecoveryMinutes();
                     beast.setRecoveryUntil(LocalDateTime.now().plusMinutes(recoveryMinutes));
 
                     if (playerWon) {

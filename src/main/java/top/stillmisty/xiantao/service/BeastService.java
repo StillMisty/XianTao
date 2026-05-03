@@ -213,7 +213,7 @@ public class BeastService {
         beast.setTemplateId(eggTemplate.getId());
         beast.setBeastName(beastName);
         beast.setTier(tier);
-        beast.setQuality(quality.getCode());
+        beast.setQuality(quality);
         beast.setIsMutant(isMutant);
         beast.setMutationTraits(mutationTraits);
         beast.setLevel(1);
@@ -318,7 +318,7 @@ public class BeastService {
         beast.setTemplateId(eggTemplate.getId());
         beast.setBeastName(beastName);
         beast.setTier(tier);
-        beast.setQuality(quality.getCode());
+        beast.setQuality(quality);
         beast.setIsMutant(isMutant);
         beast.setMutationTraits(mutationTraits);
         beast.setLevel(1);
@@ -373,7 +373,7 @@ public class BeastService {
         Beast beast = findBeastByCell(cell);
         String beastName = beast != null ? beast.getBeastName() : "未知灵兽";
         int tier = beast != null ? beast.getTier() : 1;
-        String qualityStr = beast != null ? beast.getQuality() : "mortal";
+        String qualityStr = beast != null ? beast.getQuality().getCode() : BeastQuality.MORTAL.getCode();
 
         clearBeastCell(cell);
         if (beast != null) {
@@ -455,7 +455,7 @@ public class BeastService {
         beast.setHpCurrent(beast.getMaxHp());
 
         boolean qualityUpgraded = false;
-        if (ThreadLocalRandom.current().nextInt(100) < 10 && !"divine".equals(beast.getQuality())) {
+        if (ThreadLocalRandom.current().nextInt(100) < 10 && beast.getQuality() != BeastQuality.DIVINE) {
             beast.qualityBreak();
             qualityUpgraded = true;
         }
@@ -490,7 +490,7 @@ public class BeastService {
             throw new IllegalStateException("未找到灵兽");
         }
 
-        if ("divine".equals(beast.getQuality())) {
+        if (beast.getQuality() == BeastQuality.DIVINE) {
             throw new IllegalStateException("已是最高品质神品");
         }
 
@@ -498,13 +498,7 @@ public class BeastService {
             throw new IllegalStateException("灵兽需要先达到等级上限才能突破");
         }
 
-        String currentQualityCode = beast.getQuality();
-        BeastQuality currentQuality;
-        try {
-            currentQuality = BeastQuality.fromCode(currentQualityCode != null ? currentQualityCode : "mortal");
-        } catch (IllegalArgumentException e) {
-            currentQuality = BeastQuality.MORTAL;
-        }
+        BeastQuality currentQuality = beast.getQuality();
         BeastQuality nextQuality = currentQuality.next();
 
         int cost = nextQuality.getOrder() * 300;
@@ -956,7 +950,7 @@ public class BeastService {
         return BeastStatusVO.builder()
                 .id(beast.getId())
                 .beastName(beast.getBeastName())
-                .quality(beast.getQuality())
+                .quality(beast.getQuality().getCode())
                 .isMutant(Boolean.TRUE.equals(beast.getIsMutant()))
                 .mutationTraits(beast.getMutationTraits())
                 .tier(beast.getTier())
@@ -980,8 +974,8 @@ public class BeastService {
 
         String beastName = beast != null ? beast.getBeastName() : "未知灵兽";
         int tier = beast != null ? beast.getTier() : 1;
-        String qualityChinese = beast != null && beast.getQuality() != null ? BeastQuality.fromCode(beast.getQuality()).getChineseName() : "凡品";
-        int qualityOrdinal = beast != null && beast.getQuality() != null ? BeastQuality.fromCode(beast.getQuality()).getOrder() : 1;
+        String qualityChinese = beast != null ? beast.getQuality().getChineseName() : "凡品";
+        int qualityOrdinal = beast != null ? beast.getQuality().getOrder() : 1;
         boolean isMutant = beast != null && Boolean.TRUE.equals(beast.getIsMutant());
         List<String> mutationTraits = beast != null && beast.getMutationTraits() != null ? beast.getMutationTraits() : List.of();
         int powerScore = tier * 10;
@@ -1012,7 +1006,7 @@ public class BeastService {
         if (beast == null) {
             builder.name("空兽栏");
         } else {
-            String qualityChinese = beast.getQuality() != null ? BeastQuality.fromCode(beast.getQuality()).getChineseName() : "凡品";
+            String qualityChinese = beast.getQuality().getChineseName();
             List<String> traits = beast.getMutationTraits() != null ? beast.getMutationTraits() : List.of();
             builder.name(beast.getBeastName())
                     .level(beast.getTier())
@@ -1206,8 +1200,8 @@ public class BeastService {
 
     void checkSpiritStones(Long userId, int cost) {
         User user = userRepository.findById(userId).orElseThrow();
-        if (user.getSpiritStones() == null || user.getSpiritStones() < cost) {
-            throw new IllegalStateException("灵石不足（需要 %d，当前 %d）".formatted(cost, user.getSpiritStones() != null ? user.getSpiritStones() : 0));
+        if (user.getSpiritStones() < cost) {
+            throw new IllegalStateException("灵石不足（需要 %d，当前 %d）".formatted(cost, user.getSpiritStones()));
         }
     }
 
