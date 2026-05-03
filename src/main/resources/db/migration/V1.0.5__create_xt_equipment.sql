@@ -14,13 +14,19 @@ CREATE TABLE xt_equipment
     equipped           BOOLEAN      NOT NULL DEFAULT FALSE,
     quality_multiplier DOUBLE PRECISION,
     affixes            JSONB                 DEFAULT '{}'::jsonb,
-    forge_level        INT                   DEFAULT 0,
+    forge_level        INT          NOT NULL DEFAULT 0,
     create_time        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     update_time        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     -- 外键关联
     CONSTRAINT fk_equipment_user FOREIGN KEY (user_id) REFERENCES xt_user (id) ON DELETE CASCADE,
-    CONSTRAINT fk_equipment_template FOREIGN KEY (template_id) REFERENCES xt_item_template (id)
+    CONSTRAINT fk_equipment_template FOREIGN KEY (template_id) REFERENCES xt_item_template (id),
+    CONSTRAINT chk_equipment_slot CHECK (slot IN ('weapon', 'armor', 'accessory')),
+    CONSTRAINT chk_equipment_rarity CHECK (rarity IN ('broken', 'common', 'rare', 'epic', 'legendary')),
+    CONSTRAINT chk_equipment_weapon_type CHECK (weapon_type IS NULL OR weapon_type IN ('blade', 'sword', 'axe', 'spear', 'staff', 'bow', 'whip', 'halberd', 'hammer', 'dagger', 'fan', 'flywhisk', 'ring', 'bell')),
+    CONSTRAINT chk_equipment_forge_level CHECK (forge_level >= 0),
+    CONSTRAINT chk_equipment_attack_bonus CHECK (attack_bonus >= 0),
+    CONSTRAINT chk_equipment_defense_bonus CHECK (defense_bonus >= 0)
 );
 
 -- 字段备注

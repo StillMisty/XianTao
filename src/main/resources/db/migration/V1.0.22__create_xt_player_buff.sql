@@ -6,7 +6,9 @@ CREATE TABLE xt_player_buff (
     buff_type   VARCHAR(32) NOT NULL,
     value       INT NOT NULL,
     expires_at  TIMESTAMP NOT NULL,
-    created_at  TIMESTAMP NOT NULL DEFAULT NOW()
+    created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
+    CONSTRAINT chk_player_buff_type CHECK (buff_type IN ('attack', 'defense', 'speed', 'breakthrough')),
+    CONSTRAINT chk_player_buff_value CHECK (value >= 0)
 );
 
 CREATE INDEX idx_player_buff_expires ON xt_player_buff(expires_at);

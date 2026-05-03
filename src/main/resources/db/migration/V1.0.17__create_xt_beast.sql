@@ -27,7 +27,15 @@ CREATE TABLE xt_beast
     update_time     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT chk_beast_tier CHECK (tier > 0),
     CONSTRAINT chk_beast_level CHECK (level > 0),
-    CONSTRAINT chk_beast_hp CHECK (hp_current >= 0)
+    CONSTRAINT chk_beast_hp CHECK (hp_current >= 0),
+    CONSTRAINT chk_beast_quality CHECK (quality IN ('mortal', 'spirit', 'immortal', 'saint', 'divine')),
+    CONSTRAINT chk_beast_exp CHECK (exp >= 0),
+    CONSTRAINT chk_beast_attack CHECK (attack >= 0),
+    CONSTRAINT chk_beast_defense CHECK (defense >= 0),
+    CONSTRAINT chk_beast_max_hp CHECK (max_hp > 0),
+    CONSTRAINT chk_beast_evolution_count CHECK (evolution_count >= 0),
+    CONSTRAINT chk_beast_level_cap CHECK (level_cap >= 1),
+    CONSTRAINT chk_beast_penned_cell_id CHECK (penned_cell_id IS NULL OR penned_cell_id >= 1)
 );
 
 COMMENT ON TABLE xt_beast IS '灵兽实体表（战斗化）';

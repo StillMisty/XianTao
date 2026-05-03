@@ -17,7 +17,18 @@ CREATE TABLE xt_equipment_template
     attack_range   VARCHAR(16),
     drop_weight    JSONB        DEFAULT '{}'::jsonb,
     create_time    TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    update_time    TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+    update_time    TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT chk_equip_tmpl_slot CHECK (slot IN ('weapon', 'armor', 'accessory')),
+    CONSTRAINT chk_equip_tmpl_weapon_type CHECK (weapon_type IS NULL OR weapon_type IN ('blade', 'sword', 'axe', 'spear', 'staff', 'bow', 'whip', 'halberd', 'hammer', 'dagger', 'fan', 'flywhisk', 'ring', 'bell')),
+    CONSTRAINT chk_equip_tmpl_category CHECK (category IS NULL OR category IN ('刀兵', '长兵', '远兵', '奇兵')),
+    CONSTRAINT chk_equip_tmpl_equip_level CHECK (equip_level >= 1),
+    CONSTRAINT chk_equip_tmpl_base_attack CHECK (base_attack >= 0),
+    CONSTRAINT chk_equip_tmpl_base_defense CHECK (base_defense >= 0),
+    CONSTRAINT chk_equip_tmpl_base_str CHECK (base_str >= 0),
+    CONSTRAINT chk_equip_tmpl_base_con CHECK (base_con >= 0),
+    CONSTRAINT chk_equip_tmpl_base_agi CHECK (base_agi >= 0),
+    CONSTRAINT chk_equip_tmpl_base_wis CHECK (base_wis >= 0),
+    CONSTRAINT chk_equip_tmpl_attack_speed CHECK (attack_speed IS NULL OR attack_speed > 0)
 );
 
 COMMENT ON TABLE xt_equipment_template IS '装备模板表（法器/护甲/饰品专用属性）';

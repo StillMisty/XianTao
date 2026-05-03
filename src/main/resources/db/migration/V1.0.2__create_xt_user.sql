@@ -30,12 +30,26 @@ CREATE TABLE xt_user
 
     -- 唯一约束：道号必须唯一
     CONSTRAINT uq_nickname UNIQUE (nickname),
-    CONSTRAINT chk_user_status CHECK (status IN ('idle', 'training', 'traveling', 'fighting', 'dead'))
+    CONSTRAINT chk_user_status CHECK (status IN ('idle', 'exercising', 'running', 'bounty', 'dying')),
+    CONSTRAINT chk_user_level CHECK (level >= 1),
+    CONSTRAINT chk_user_exp CHECK (exp >= 0),
+    CONSTRAINT chk_user_spirit_stones CHECK (spirit_stones >= 0),
+    CONSTRAINT chk_user_hp_current CHECK (hp_current >= 0),
+    CONSTRAINT chk_user_free_stat_points CHECK (free_stat_points >= 0),
+    CONSTRAINT chk_user_breakthrough_fail_count CHECK (breakthrough_fail_count >= 0),
+    CONSTRAINT chk_user_stat_str CHECK (stat_str >= 0),
+    CONSTRAINT chk_user_stat_con CHECK (stat_con >= 0),
+    CONSTRAINT chk_user_stat_agi CHECK (stat_agi >= 0),
+    CONSTRAINT chk_user_stat_wis CHECK (stat_wis >= 0),
+    CONSTRAINT fk_user_location FOREIGN KEY (location_id) REFERENCES xt_map_node (id),
+    CONSTRAINT fk_user_travel_destination FOREIGN KEY (travel_destination_id) REFERENCES xt_map_node (id)
 );
 
 -- 索引:排行榜常用
 CREATE INDEX idx_xt_user_level ON xt_user (level DESC);
 CREATE INDEX idx_xt_user_spirit_stones ON xt_user (spirit_stones DESC);
+CREATE INDEX idx_xt_user_location ON xt_user (location_id);
+CREATE INDEX idx_xt_user_status ON xt_user (status);
 
 -- 字段备注
 COMMENT ON TABLE xt_user IS '游戏角色核心表';

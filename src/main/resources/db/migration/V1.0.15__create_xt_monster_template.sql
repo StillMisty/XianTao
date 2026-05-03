@@ -12,7 +12,14 @@ CREATE TABLE xt_monster_template
     skills       JSONB        DEFAULT '[]'::jsonb,
     drop_table   JSONB        DEFAULT '{}'::jsonb,
     create_time  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    update_time  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+    update_time  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uq_monster_template_name UNIQUE (name),
+    CONSTRAINT chk_monster_template_type CHECK (monster_type IN ('beast', 'spirit', 'armored', 'wild_beast', 'evil', 'flying', 'human')),
+    CONSTRAINT chk_monster_template_base_level CHECK (base_level >= 1),
+    CONSTRAINT chk_monster_template_base_hp CHECK (base_hp >= 0),
+    CONSTRAINT chk_monster_template_base_attack CHECK (base_attack >= 0),
+    CONSTRAINT chk_monster_template_base_defense CHECK (base_defense >= 0),
+    CONSTRAINT chk_monster_template_base_speed CHECK (base_speed >= 0)
 );
 
 COMMENT ON TABLE xt_monster_template IS '怪物模板表';

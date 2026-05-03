@@ -11,7 +11,8 @@ CREATE TABLE xt_fudi
     update_time            TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_fudi_user FOREIGN KEY (user_id) REFERENCES xt_user (id) ON DELETE CASCADE,
-    CONSTRAINT chk_tribulation_stage CHECK (tribulation_stage >= 0)
+    CONSTRAINT chk_tribulation_stage CHECK (tribulation_stage >= 0),
+    CONSTRAINT chk_tribulation_win_streak CHECK (tribulation_win_streak >= 0)
 );
 
 -- 注释

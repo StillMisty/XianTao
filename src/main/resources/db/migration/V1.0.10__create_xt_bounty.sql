@@ -14,7 +14,8 @@ CREATE TABLE xt_bounty
 
     CONSTRAINT fk_bounty_map FOREIGN KEY (map_id) REFERENCES xt_map_node (id),
     CONSTRAINT chk_bounty_duration CHECK (duration_minutes > 0),
-    CONSTRAINT chk_bounty_event_weight CHECK (event_weight >= 0)
+    CONSTRAINT chk_bounty_event_weight CHECK (event_weight >= 0),
+    CONSTRAINT chk_bounty_require_level CHECK (require_level >= 1)
 );
 
 COMMENT ON TABLE xt_bounty IS '悬赏任务配置表';

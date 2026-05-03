@@ -19,7 +19,9 @@ CREATE TABLE xt_spirit
 
     CONSTRAINT chk_spirit_energy CHECK (energy >= 0),
     CONSTRAINT chk_spirit_affection_max CHECK (affection_max > 0),
-    CONSTRAINT chk_spirit_mbti CHECK (mbti_type ~ '^[EI][SN][TF][JP]$')
+    CONSTRAINT chk_spirit_mbti CHECK (mbti_type ~ '^[EI][SN][TF][JP]$'),
+    CONSTRAINT chk_spirit_emotion_state CHECK (emotion_state IN ('happy', 'calm', 'anxious', 'fatigued', 'angry', 'excited')),
+    CONSTRAINT chk_spirit_affection CHECK (affection >= 0)
 );
 
 CREATE INDEX idx_spirit_fudi_id ON xt_spirit (fudi_id);

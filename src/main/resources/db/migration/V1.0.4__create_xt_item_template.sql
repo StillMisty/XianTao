@@ -8,7 +8,8 @@ CREATE TABLE xt_item_template
     tags        JSONB        DEFAULT '[]'::jsonb,
     description TEXT,
     create_time TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    update_time TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+    update_time TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT chk_item_template_type CHECK (type IN ('material', 'seed', 'beast_egg', 'potion', 'evolution_stone', 'skill_jade', 'recipe_scroll', 'herb'))
 );
 
 COMMENT ON TABLE xt_item_template IS '物品模板配置表';

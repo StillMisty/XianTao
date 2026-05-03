@@ -4,18 +4,25 @@ CREATE TABLE xt_skill
     id               BIGSERIAL PRIMARY KEY,
     name             VARCHAR(64)   NOT NULL,
     description      VARCHAR(256),
-    skill_type       VARCHAR(16)   NOT NULL DEFAULT 'ACTIVE',
+    skill_type       VARCHAR(16)   NOT NULL DEFAULT 'active',
     effects          JSONB         NOT NULL DEFAULT '[]',
-    binding_type     VARCHAR(32)   NOT NULL DEFAULT 'NONE',
+    binding_type     VARCHAR(32)   NOT NULL DEFAULT 'none',
     binding_value    VARCHAR(64),
     cooldown_seconds INT           NOT NULL DEFAULT 30,
     require_wis INTEGER,
     require_skill_id BIGINT,
-    tags JSONB DEFAULT '[]',
+    tags JSONB NOT NULL DEFAULT '[]',
     level_requirement INT          NOT NULL DEFAULT 1,
     create_time      TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    update_time      TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP
+    update_time      TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_skill_prerequisite FOREIGN KEY (require_skill_id) REFERENCES xt_skill (id),
+    CONSTRAINT chk_skill_type CHECK (skill_type IN ('active', 'passive')),
+    CONSTRAINT chk_skill_binding_type CHECK (binding_type IN ('none', 'weapon_type', 'weapon_category', 'element')),
+    CONSTRAINT chk_skill_cooldown CHECK (cooldown_seconds >= 0),
+    CONSTRAINT chk_skill_level_requirement CHECK (level_requirement >= 1)
 );
+
+CREATE INDEX idx_xt_skill_prerequisite ON xt_skill (require_skill_id);
 
 COMMENT ON TABLE xt_skill IS '法决定义表';
 COMMENT ON COLUMN xt_skill.skill_type IS 'ACTIVE / PASSIVE';

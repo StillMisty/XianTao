@@ -8,7 +8,11 @@ CREATE TABLE xt_fudi_cell (
     config      JSONB NOT NULL DEFAULT '{}'::jsonb,
     create_time TIMESTAMP NOT NULL DEFAULT NOW(),
     update_time TIMESTAMP NOT NULL DEFAULT NOW(),
-    CONSTRAINT uq_fudi_cell UNIQUE (fudi_id, cell_id)
+    CONSTRAINT uq_fudi_cell UNIQUE (fudi_id, cell_id),
+    CONSTRAINT fk_fudi_cell_fudi FOREIGN KEY (fudi_id) REFERENCES xt_fudi (id) ON DELETE CASCADE,
+    CONSTRAINT chk_fudi_cell_type CHECK (cell_type IN ('empty', 'farm', 'pen')),
+    CONSTRAINT chk_fudi_cell_level CHECK (cell_level BETWEEN 1 AND 5),
+    CONSTRAINT chk_fudi_cell_id CHECK (cell_id >= 1)
 );
 
 -- 索引

@@ -17,7 +17,9 @@ CREATE TABLE xt_inventory_item
     CONSTRAINT fk_inventory_item_template FOREIGN KEY (template_id) REFERENCES xt_item_template (id),
 
     -- 唯一约束：同一用户的同一类型物品只能有一条记录（堆叠）
-    CONSTRAINT uk_user_template UNIQUE (user_id, template_id)
+    CONSTRAINT uk_user_template UNIQUE (user_id, template_id),
+    CONSTRAINT chk_inventory_item_type CHECK (item_type IN ('material', 'seed', 'beast_egg', 'potion', 'evolution_stone', 'skill_jade', 'recipe_scroll', 'herb')),
+    CONSTRAINT chk_inventory_item_quantity CHECK (quantity >= 0)
 );
 
 -- 字段备注

@@ -12,7 +12,8 @@ CREATE TABLE xt_map_node
     monster_encounters  JSONB                 DEFAULT '{}'::jsonb,
     create_time         TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     update_time         TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT uq_map_node_name UNIQUE (name)
+    CONSTRAINT uq_map_node_name UNIQUE (name),
+    CONSTRAINT chk_map_node_type CHECK (map_type IN ('safe_town', 'training_zone', 'hidden_zone'))
 );
 
 COMMENT ON TABLE xt_map_node IS '地图节点表';
