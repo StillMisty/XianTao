@@ -22,4 +22,12 @@
         ]
     </select>
 
+    <!-- 根据多个物品类型查找模板 -->
+    <select id="selectByTypes" resultType="top.stillmisty.xiantao.domain.item.entity.ItemTemplate">
+        SELECT * FROM xt_item_template WHERE type IN
+        <foreach collection="types" item="type" open="(" separator="," close=")">
+            #{type}
+        </foreach>
+    </select>
+
 </mapper>

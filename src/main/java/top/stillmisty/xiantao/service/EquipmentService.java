@@ -34,11 +34,13 @@ public class EquipmentService {
     private final ItemResolver itemResolver;
     // ===================== 公开 API（含认证） =====================
 
+    @Transactional
     public ServiceResult<EquipResult> equipItem(PlatformType platform, String openId, String itemName) {
         Long userId = UserContext.getCurrentUserId();
         return new ServiceResult.Success<>(equipItem(userId, itemName));
     }
 
+    @Transactional
     public ServiceResult<UnequipResult> unequipItem(PlatformType platform, String openId, String slotName) {
         Long userId = UserContext.getCurrentUserId();
         return new ServiceResult.Success<>(unequipItem(userId, slotName));
@@ -166,11 +168,11 @@ public class EquipmentService {
      * 创建装备实例（稀有度加权随机）
      */
     @Transactional
-    public Equipment createEquipment(Long userId, Long templateId) {
+    public void createEquipment(Long userId, Long templateId) {
         var equipTmpl = equipmentTemplateRepository.findByTemplateId(templateId).orElse(null);
-        if (equipTmpl == null) return null;
+        if (equipTmpl == null) return;
         var itemTmpl = itemTemplateRepository.findById(templateId).orElse(null);
-        if (itemTmpl == null) return null;
+        if (itemTmpl == null) return;
 
         Rarity rarity = Rarity.roll(equipTmpl.getDropWeight());
         double qm = rarity.randomQualityMultiplier();
@@ -208,7 +210,6 @@ public class EquipmentService {
                 equipTmpl.getBaseAttack(), equipTmpl.getBaseDefense()
         );
         equipmentRepository.save(equipment);
-        return equipment;
     }
 
     /**

@@ -60,8 +60,8 @@ public class EncounterCalculator {
         // 确保最小间隔
         interval = Math.max(MIN_INTERVAL, interval);
 
-        log.debug("遇怪间隔计算 - 地图等级: {}, 玩家等级: {}, 装备评分: {}, 间隔: {:.1f}分钟",
-                mapLevel, playerLevel, gearScore, interval);
+        log.debug("遇怪间隔计算 - 地图等级: {}, 玩家等级: {}, 装备评分: {}, 间隔: {}分钟",
+                mapLevel, playerLevel, gearScore, String.format("%.1f", interval));
 
         return interval;
     }

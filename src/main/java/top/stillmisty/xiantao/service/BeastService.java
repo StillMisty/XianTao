@@ -67,6 +67,7 @@ public class BeastService {
 
     // ===================== 公开 API（含认证） =====================
 
+    @Transactional
     public ServiceResult<PenCellVO> hatchBeast(PlatformType platform, String openId, String position, String eggName) {
         try {
             Long userId = UserContext.getCurrentUserId();
@@ -76,6 +77,7 @@ public class BeastService {
         }
     }
 
+    @Transactional
     public ServiceResult<PenCellVO> hatchBeastByInput(PlatformType platform, String openId, String position, String input) {
         try {
             Long userId = UserContext.getCurrentUserId();
@@ -85,6 +87,7 @@ public class BeastService {
         }
     }
 
+    @Transactional
     public ServiceResult<ReleaseBeastVO> releaseBeast(PlatformType platform, String openId, String position) {
         try {
             Long userId = UserContext.getCurrentUserId();
@@ -94,6 +97,7 @@ public class BeastService {
         }
     }
 
+    @Transactional
     public ServiceResult<PenCellVO> evolveBeast(PlatformType platform, String openId, String position, String mode) {
         try {
             Long userId = UserContext.getCurrentUserId();
@@ -103,6 +107,7 @@ public class BeastService {
         }
     }
 
+    @Transactional
     public ServiceResult<ActionResultVO> deployBeast(PlatformType platform, String openId, String position) {
         try {
             Long userId = UserContext.getCurrentUserId();
@@ -112,6 +117,7 @@ public class BeastService {
         }
     }
 
+    @Transactional
     public ServiceResult<Object> undeployBeast(PlatformType platform, String openId, String position) {
         try {
             Long userId = UserContext.getCurrentUserId();
@@ -121,6 +127,7 @@ public class BeastService {
         }
     }
 
+    @Transactional
     public ServiceResult<Object> recoverBeast(PlatformType platform, String openId, String position) {
         try {
             Long userId = UserContext.getCurrentUserId();
@@ -423,7 +430,7 @@ public class BeastService {
             throw new IllegalStateException("已是最高等阶 T5");
         }
 
-        if (!beast.canEvolve()) {
+        if (beast.needsMoreLevels()) {
             throw new IllegalStateException("灵兽需要先达到等级上限才能进化");
         }
 
@@ -484,7 +491,7 @@ public class BeastService {
             throw new IllegalStateException("已是最高品质神品");
         }
 
-        if (!beast.canEvolve()) {
+        if (beast.needsMoreLevels()) {
             throw new IllegalStateException("灵兽需要先达到等级上限才能突破");
         }
 
@@ -1054,27 +1061,27 @@ public class BeastService {
         beast.setSkills(currentSkills);
     }
 
-    public boolean tryAwakeningSkill(Beast beast) {
+    public void tryAwakeningSkill(Beast beast) {
         BeastSkillPoolVO skillPool = getBeastSkillPool(beast.getTemplateId().intValue());
         if (skillPool == null || skillPool.awakeningSkills().isEmpty()) {
-            return false;
+            return;
         }
         List<Long> currentSkills = beast.getSkills();
         if (currentSkills == null) {
             currentSkills = new ArrayList<>();
         }
         if (currentSkills.size() >= 4) {
-            return false;
+            return;
         }
         if (ThreadLocalRandom.current().nextInt(100) >= 15) {
-            return false;
+            return;
         }
         int totalWeight = 0;
         for (BeastSkillPoolVO.AwakeningSkill awakeningSkill : skillPool.awakeningSkills()) {
             totalWeight += awakeningSkill.weight();
         }
         if (totalWeight <= 0) {
-            return false;
+            return;
         }
         int random = ThreadLocalRandom.current().nextInt(totalWeight);
         int current = 0;
@@ -1085,25 +1092,23 @@ public class BeastService {
                     currentSkills.add(awakeningSkill.skillId());
                     beast.setSkills(currentSkills);
                     log.info("灵兽 {} 觉醒后天悟: {}", beast.getBeastName(), awakeningSkill.skillId());
-                    return true;
+                    return;
                 }
                 break;
             }
         }
-        return false;
     }
 
     // ===================== 灵兽经验系统 =====================
 
     @Transactional
-    public long addBeastExp(Long beastId, long expToAdd) {
+    public void addBeastExp(Long beastId, long expToAdd) {
         Beast beast = beastRepository.findById(beastId).orElse(null);
         if (beast == null) {
-            return 0;
+            return;
         }
-        long actualAdd = beast.addExp(expToAdd);
+        beast.addExp(expToAdd);
         beastRepository.save(beast);
-        return actualAdd;
     }
 
     @Transactional

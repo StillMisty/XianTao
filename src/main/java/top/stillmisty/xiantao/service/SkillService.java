@@ -139,7 +139,7 @@ public class SkillService {
         }
 
         // 6. 消耗玉简
-        if (!matchedJade.reduceQuantity(1)) {
+        if (matchedJade.reduceQuantity(1)) {
             stackableItemRepository.deleteById(matchedJade.getId());
         } else {
             stackableItemRepository.save(matchedJade);
@@ -163,23 +163,14 @@ public class SkillService {
     }
 
     List<SkillVO> getLearnedSkills(Long userId) {
-        var playerSkills = playerSkillRepository.findByUserId(userId);
-        if (playerSkills.isEmpty()) return List.of();
-
-        var skillIds = playerSkills.stream()
-                .map(PlayerSkill::getSkillId)
-                .toList();
-        var skillMap = skillRepository.findByIds(skillIds).stream()
-                .collect(Collectors.toMap(Skill::getId, s -> s));
-
-        return playerSkills.stream()
-                .map(ps -> toSkillVO(ps, skillMap.get(ps.getSkillId())))
-                .filter(Objects::nonNull)
-                .toList();
+        return toSkillVOList(playerSkillRepository.findByUserId(userId));
     }
 
     List<SkillVO> getEquippedSkills(Long userId) {
-        var playerSkills = playerSkillRepository.findEquippedByUserId(userId);
+        return toSkillVOList(playerSkillRepository.findEquippedByUserId(userId));
+    }
+
+    private List<SkillVO> toSkillVOList(List<PlayerSkill> playerSkills) {
         if (playerSkills.isEmpty()) return List.of();
 
         var skillIds = playerSkills.stream()

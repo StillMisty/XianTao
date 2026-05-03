@@ -60,6 +60,7 @@ public class FudiService {
         }
     }
 
+    @Transactional
     public ServiceResult<CollectVO> collect(PlatformType platform, String openId, String position) {
         try {
             Long userId = UserContext.getCurrentUserId();
@@ -69,6 +70,7 @@ public class FudiService {
         }
     }
 
+    @Transactional
     public ServiceResult<CollectAllVO> collectAll(PlatformType platform, String openId) {
         try {
             Long userId = UserContext.getCurrentUserId();
@@ -78,6 +80,7 @@ public class FudiService {
         }
     }
 
+    @Transactional
     public ServiceResult<CellOperationVO> buildCell(PlatformType platform, String openId, String position, CellType type) {
         try {
             Long userId = UserContext.getCurrentUserId();
@@ -87,6 +90,7 @@ public class FudiService {
         }
     }
 
+    @Transactional
     public ServiceResult<CellOperationVO> removeCell(PlatformType platform, String openId, String position) {
         try {
             Long userId = UserContext.getCurrentUserId();
@@ -96,6 +100,7 @@ public class FudiService {
         }
     }
 
+    @Transactional
     public ServiceResult<UpgradeCellVO> upgradeCell(PlatformType platform, String openId, String position) {
         try {
             Long userId = UserContext.getCurrentUserId();
@@ -105,6 +110,7 @@ public class FudiService {
         }
     }
 
+    @Transactional
     public ServiceResult<GiveGiftVO> giveGift(PlatformType platform, String openId, String itemName) {
         try {
             Long userId = UserContext.getCurrentUserId();
@@ -114,6 +120,7 @@ public class FudiService {
         }
     }
 
+    @Transactional
     public ServiceResult<TriggerTribulationVO> triggerTribulation(PlatformType platform, String openId) {
         try {
             Long userId = UserContext.getCurrentUserId();
@@ -454,11 +461,7 @@ public class FudiService {
 
             if (productionStored.isEmpty()) continue;
 
-            String beastName = "灵兽";
             Beast collectBeast = beastService.findBeastByCell(cell);
-            if (collectBeast != null) {
-                beastName = collectBeast.getBeastName();
-            }
 
             int cellTotalItems = 0;
             for (Map<String, Object> item : productionStored) {

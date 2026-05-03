@@ -37,16 +37,19 @@ public class CultivationService {
     private final PlayerBuffRepository playerBuffRepository;
     // ===================== 公开 API（含认证） =====================
 
+    @Transactional
     public ServiceResult<BreakthroughResult> attemptBreakthrough(PlatformType platform, String openId) {
         Long userId = UserContext.getCurrentUserId();
         return new ServiceResult.Success<>(attemptBreakthrough(userId));
     }
 
+    @Transactional
     public ServiceResult<DaoProtectionResult> establishProtection(PlatformType platform, String openId, String protegeNickname) {
         Long userId = UserContext.getCurrentUserId();
         return new ServiceResult.Success<>(establishProtection(userId, protegeNickname));
     }
 
+    @Transactional
     public ServiceResult<DaoProtectionResult> removeProtection(PlatformType platform, String openId, String protegeNickname) {
         Long userId = UserContext.getCurrentUserId();
         return new ServiceResult.Success<>(removeProtection(userId, protegeNickname));

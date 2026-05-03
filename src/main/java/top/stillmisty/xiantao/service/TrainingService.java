@@ -62,6 +62,7 @@ public class TrainingService {
     // ===================== 公开 API（含认证） =====================
     private final SkillRepository skillRepository;
 
+    @Transactional
     public ServiceResult<TrainingStartResult> startTraining(PlatformType platform, String openId) {
         try {
             Long userId = UserContext.getCurrentUserId();
@@ -73,6 +74,7 @@ public class TrainingService {
 
     // ===================== 内部 API =====================
 
+    @Transactional
     public ServiceResult<TrainingRewardVO> endTraining(PlatformType platform, String openId) {
         try {
             Long userId = UserContext.getCurrentUserId();

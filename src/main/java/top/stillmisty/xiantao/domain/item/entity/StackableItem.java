@@ -109,14 +109,14 @@ public class StackableItem {
      * 减少数量
      *
      * @param amount 减少的数量
-     * @return 是否还有剩余
+     * @return 是否已用完（true=数量归零或不足，需要删除该物品）
      */
     public boolean reduceQuantity(int amount) {
         if (this.quantity == null || this.quantity < amount) {
-            return false;
+            return true;
         }
         this.quantity -= amount;
-        return this.quantity > 0;
+        return this.quantity <= 0;
     }
 
     /**

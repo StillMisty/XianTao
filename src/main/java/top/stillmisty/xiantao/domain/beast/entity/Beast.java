@@ -98,17 +98,14 @@ public class Beast {
 
     /**
      * 升级
-     *
-     * @return 是否升级成功
      */
-    public boolean levelUp() {
+    public void levelUp() {
         if (!canLevelUp()) {
-            return false;
+            return;
         }
         exp -= (int) calculateExpToNextLevel();
         level++;
         recalculateAttributes();
-        return true;
     }
 
     /**
@@ -180,11 +177,10 @@ public class Beast {
     }
 
     /**
-     * 检查是否可以进化
-     *
+     * 检查是否还需要提升等级才能进化
      */
-    public boolean canEvolve() {
-        return levelCap != null && level >= levelCap;
+    public boolean needsMoreLevels() {
+        return levelCap == null || level < levelCap;
     }
 
     /**

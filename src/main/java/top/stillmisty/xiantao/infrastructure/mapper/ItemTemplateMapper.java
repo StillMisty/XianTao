@@ -52,9 +52,5 @@ public interface ItemTemplateMapper extends BaseMapper<ItemTemplate> {
     /**
      * 根据多个物品类型查找模板
      */
-    @Select("<script>"
-            + "SELECT * FROM xt_item_template WHERE type IN "
-            + "<foreach item='type' collection='types' open='(' separator=',' close=')'>#{type}</foreach>"
-            + "</script>")
     List<ItemTemplate> selectByTypes(@Param("types") List<ItemType> types);
 }

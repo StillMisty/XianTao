@@ -88,7 +88,12 @@ public class TribulationService {
         return affection >= 800 && defense >= attack * 0.8 && defense < attack;
     }
 
-    private String applyTribulationCompassion(Fudi fudi, int attack, int defense) {
+    /**
+     * 更新劫数进度和连胜，返回 {oldStage, newWinStreak, newStage, stoneReward}
+     */
+    private record TribulationProgress(int oldStage, int newWinStreak, int newStage, int stoneReward) {}
+
+    private TribulationProgress advanceTribulation(Fudi fudi) {
         int oldStage = fudi.getTribulationStage();
         int newWinStreak = fudi.getTribulationWinStreak() + 1;
         int newStage = oldStage + 1;
@@ -98,6 +103,12 @@ public class TribulationService {
 
         int stoneReward = newWinStreak * 100;
         fudiHelper.addSpiritStones(fudi.getUserId(), stoneReward);
+
+        return new TribulationProgress(oldStage, newWinStreak, newStage, stoneReward);
+    }
+
+    private String applyTribulationCompassion(Fudi fudi, int attack, int defense) {
+        TribulationProgress p = advanceTribulation(fudi);
 
         spiritRepository.findByFudiId(fudi.getId()).ifPresent(spirit -> {
             spirit.setEnergy(0);
@@ -108,21 +119,13 @@ public class TribulationService {
 
         return "🛡️⚡ 天劫降临！地灵燃烧灵体为你挡下了天雷……\n" +
                 "   攻击力：" + attack + " ｜ 防御力：" + defense + " ｜ 怜悯庇护！\n" +
-                "   劫数：" + oldStage + " → " + newStage + " ｜ 连胜×" + newWinStreak + "\n" +
-                "   灵石奖励：+" + stoneReward + "\n" +
+                "   劫数：" + p.oldStage() + " → " + p.newStage() + " ｜ 连胜×" + p.newWinStreak() + "\n" +
+                "   灵石奖励：+" + p.stoneReward() + "\n" +
                 "   精力归零，地灵陷入疲惫…";
     }
 
     private String applyTribulationWin(Fudi fudi, int attack, int defense) {
-        int oldStage = fudi.getTribulationStage();
-        int newWinStreak = fudi.getTribulationWinStreak() + 1;
-        int newStage = oldStage + 1;
-
-        fudi.setTribulationWinStreak(newWinStreak);
-        fudi.setTribulationStage(newStage);
-
-        int stoneReward = newWinStreak * 100;
-        fudiHelper.addSpiritStones(fudi.getUserId(), stoneReward);
+        TribulationProgress p = advanceTribulation(fudi);
 
         var spirit = spiritRepository.findByFudiId(fudi.getId()).orElse(null);
         int oldAffection = spirit != null ? spirit.getAffection() : 0;
@@ -139,8 +142,8 @@ public class TribulationService {
                            劫数：%d → %d ｜ 连胜×%d
                            灵石奖励：+%d ｜ 好感度：%d → %d""",
                 attack, defense,
-                oldStage, newStage, newWinStreak,
-                stoneReward, oldAffection, spirit != null ? spirit.getAffection() : 0
+                p.oldStage(), p.newStage(), p.newWinStreak(),
+                p.stoneReward(), oldAffection, spirit != null ? spirit.getAffection() : 0
         );
     }
 

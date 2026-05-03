@@ -271,9 +271,8 @@ public class FudiCommandHandler {
         if (result.isMutant()) {
             sb.append("✨ 变异灵兽！特性：").append(String.join(",", result.getMutationTraits())).append("\n");
         }
-        sb.append("预计 %.1f 小时后孵化完成。".formatted(
-                java.time.Duration.between(java.time.LocalDateTime.now(), result.getMatureTime()).toHours()
-        ));
+        long hours = java.time.Duration.between(java.time.LocalDateTime.now(), result.getMatureTime()).toHours();
+        sb.append("预计 %d 小时后孵化完成。".formatted(hours));
         return sb.toString();
     }
 

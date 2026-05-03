@@ -64,6 +64,7 @@ public class BountyService {
         }
     }
 
+    @Transactional
     public ServiceResult<BountyRewardVO> completeBounty(PlatformType platform, String openId) {
         try {
             Long userId = UserContext.getCurrentUserId();
@@ -362,7 +363,7 @@ public class BountyService {
             if (!sb.isEmpty()) sb.append(" ");
             sb.append("获得物品：");
             sb.append(items.stream()
-                              .map(i -> String.format("%s x%d", i.get("name"), i.get("quantity")))
+                              .map(i -> String.format("%s x%d", i.get("name"), ((Number) i.get("quantity")).intValue()))
                               .collect(Collectors.joining("、")));
             sb.append("。");
         }

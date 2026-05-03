@@ -35,6 +35,7 @@ public class FarmService {
 
     // ===================== 公开 API（含认证） =====================
 
+    @Transactional
     public ServiceResult<FarmCellVO> plantCropByName(PlatformType platform, String openId, String position, String cropName) {
         try {
             Long userId = UserContext.getCurrentUserId();
@@ -44,6 +45,7 @@ public class FarmService {
         }
     }
 
+    @Transactional
     public ServiceResult<FarmCellVO> plantCropByInput(PlatformType platform, String openId, String position, String input) {
         try {
             Long userId = UserContext.getCurrentUserId();

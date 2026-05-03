@@ -26,7 +26,7 @@ public class StackableItemService {
     /**
      * 添加堆叠物品到背包
      */
-    public boolean addStackableItem(
+    public void addStackableItem(
             Long userId, Long templateId, ItemType itemType,
             String name, int quantity
     ) {
@@ -44,37 +44,31 @@ public class StackableItemService {
             stackableItemRepository.save(newItem);
             log.info("添加新堆叠物品: userId={}, templateId={}, quantity={}", userId, templateId, quantity);
         }
-
-        return true;
     }
 
     /**
      * 减少堆叠物品数量
-     *
-     * @return 实际减少的数量，如果物品不足则返回 -1
      */
-    public int reduceStackableItem(Long userId, Long templateId, int quantity) {
+    public void reduceStackableItem(Long userId, Long templateId, int quantity) {
         var existingItem = stackableItemRepository.findByUserIdAndTemplateId(userId, templateId);
 
         if (existingItem.isEmpty()) {
-            return -1;
+            return;
         }
 
         StackableItem item = existingItem.get();
 
         if (!item.hasEnoughQuantity(quantity)) {
-            return -1;
+            return;
         }
 
-        if (!item.reduceQuantity(quantity)) {
+        if (item.reduceQuantity(quantity)) {
             stackableItemRepository.deleteById(item.getId());
             log.info("删除堆叠物品（数量为0）: userId={}, templateId={}", userId, templateId);
         } else {
             stackableItemRepository.save(item);
             log.info("减少堆叠物品数量: userId={}, templateId={}, quantity={}", userId, templateId, quantity);
         }
-
-        return quantity;
     }
 
     /**

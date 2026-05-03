@@ -77,14 +77,12 @@ public class Spirit extends Model<Spirit> {
         return (int) Math.max(1, baseCost * (1.0 - discount));
     }
 
-    public boolean deductEnergy(int cost) {
+    public void deductEnergy(int cost) {
         if (energy == null) energy = 0;
         energy = Math.max(0, energy - cost);
         if (energy <= 0) {
             emotionState = EmotionState.FATIGUED;
-            return true;
         }
-        return false;
     }
 
     public void addAffection(int amount) {

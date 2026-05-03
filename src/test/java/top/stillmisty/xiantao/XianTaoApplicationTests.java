@@ -8,6 +8,7 @@ class XianTaoApplicationTests {
 
     @Test
     void contextLoads() {
+        // Application context loads successfully
     }
 
 }

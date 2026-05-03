@@ -197,7 +197,7 @@ public class MapCommandHandler {
         if (reward.items() != null && !reward.items().isEmpty()) {
             sb.append("物品:\n");
             for (Map<String, Object> item : reward.items()) {
-                sb.append(String.format("  %s x%d\n", item.get("name"), item.get("quantity")));
+                sb.append(String.format("  %s x%d\n", item.get("name"), ((Number) item.get("quantity")).intValue()));
             }
         }
         return sb.toString();

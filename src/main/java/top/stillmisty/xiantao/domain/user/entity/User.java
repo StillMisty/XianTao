@@ -221,30 +221,20 @@ public class User extends Model<User> {
 
     /**
      * 消耗生命值（受伤）
-     *
-     * @param amount 伤害量
-     * @return 实际伤害量
      */
-    public int takeDamage(int amount) {
-        int oldHp = hpCurrent;
+    public void takeDamage(int amount) {
         hpCurrent = Math.max(0, hpCurrent - amount);
-        return oldHp - hpCurrent;
     }
 
     /**
      * 添加经验值（考虑存储上限）
-     *
-     * @param expToAdd 要添加的经验值
-     * @return 实际添加的经验值
      */
-    public long addExp(long expToAdd) {
+    public void addExp(long expToAdd) {
         long maxStorage = calculateMaxExpStorage();
         long currentStorage = exp - (level > 1 ? calculateExpToPrevLevel() : 0);
         long availableSpace = maxStorage - currentStorage;
-
         long actualAdd = Math.min(expToAdd, availableSpace);
         this.exp += actualAdd;
-        return actualAdd;
     }
 
     /**

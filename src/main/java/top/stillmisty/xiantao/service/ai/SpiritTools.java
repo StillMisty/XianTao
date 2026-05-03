@@ -14,7 +14,10 @@ import top.stillmisty.xiantao.domain.fudi.vo.CollectAllVO;
 import top.stillmisty.xiantao.domain.fudi.vo.CollectVO;
 import top.stillmisty.xiantao.domain.fudi.vo.FarmCellVO;
 import top.stillmisty.xiantao.domain.fudi.vo.GiveGiftVO;
+import top.stillmisty.xiantao.domain.item.vo.ItemEntry;
 import top.stillmisty.xiantao.service.*;
+
+import java.util.List;
 
 /**
  * 地灵可用的工具函数（Function Calling）
@@ -71,13 +74,7 @@ public class SpiritTools {
                 case "种子" -> {
                     var list = inventoryService.getSeedInventory(userId);
                     if (list.isEmpty()) yield "背包中没有种子。";
-                    var sb = new StringBuilder("【种子列表】\n");
-                    for (var e : list) {
-                        sb.append(e.index()).append(". ").append(e.name());
-                        if (e.quantity() > 1) sb.append(" x").append(e.quantity());
-                        sb.append(" [").append(e.metadata()).append("]\n");
-                    }
-                    yield sb.toString().strip();
+                    yield formatInventoryList("种子", list);
                 }
                 case "装备" -> {
                     var list = inventoryService.getEquipmentInventory(userId);
@@ -92,13 +89,7 @@ public class SpiritTools {
                 case "兽卵" -> {
                     var list = inventoryService.getEggInventory(userId);
                     if (list.isEmpty()) yield "背包中没有兽卵。";
-                    var sb = new StringBuilder("【兽卵列表】\n");
-                    for (var e : list) {
-                        sb.append(e.index()).append(". ").append(e.name());
-                        if (e.quantity() > 1) sb.append(" x").append(e.quantity());
-                        sb.append(" [").append(e.metadata()).append("]\n");
-                    }
-                    yield sb.toString().strip();
+                    yield formatInventoryList("兽卵", list);
                 }
                 default -> "支持的类别：种子、装备、兽卵";
             };
@@ -106,6 +97,16 @@ public class SpiritTools {
             log.error("查询背包失败: category={}", category, e);
             return "查询背包失败：" + e.getMessage();
         }
+    }
+
+    private static String formatInventoryList(String category, List<ItemEntry> list) {
+        var sb = new StringBuilder("【" + category + "列表】\n");
+        for (var e : list) {
+            sb.append(e.index()).append(". ").append(e.name());
+            if (e.quantity() > 1) sb.append(" x").append(e.quantity());
+            sb.append(" [").append(e.metadata()).append("]\n");
+        }
+        return sb.toString().strip();
     }
 
     /**

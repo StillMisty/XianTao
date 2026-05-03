@@ -25,8 +25,7 @@ public class AuthenticationService {
      */
     public ServiceResult<Long> authenticate(PlatformType platform, String openId) {
         var userAuth = userAuthService.findUserIdByOpenId(platform, openId);
-        return userAuth.map(auth -> new ServiceResult.Success<>(auth.getUserId()))
-                .map(ServiceResult.class::cast)
+        return userAuth.<ServiceResult<Long>>map(auth -> new ServiceResult.Success<>(auth.getUserId()))
                 .orElseGet(() -> ServiceResult.authFailure("输入「我要修仙 [道号]」进入仙途吧！"));
     }
 
