@@ -455,8 +455,9 @@ public class BeastService {
 
     // ===================== 灵兽系统 — 出战/召回 =====================
 
-    @Transactional
-    public ActionResultVO deployBeast(Long userId, String position) {
+    private record PenCellBeast(Fudi fudi, FudiCell cell, Integer cellId, Beast beast) {}
+
+    private PenCellBeast getBeastFromPenCell(Long userId, String position, boolean checkIncubating) {
         Integer cellId = fudiHelper.parseCellId(position);
         Fudi fudi = fudiHelper.getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
@@ -467,7 +468,7 @@ public class BeastService {
         if (cell.getCellType() != CellType.PEN) {
             throw new IllegalStateException("地块 " + cellId + " 不是兽栏");
         }
-        if (Boolean.TRUE.equals(cell.getBoolConfig("is_incubating"))) {
+        if (checkIncubating && Boolean.TRUE.equals(cell.getBoolConfig("is_incubating"))) {
             throw new IllegalStateException("灵兽尚在孵化中");
         }
 
@@ -475,6 +476,13 @@ public class BeastService {
         if (beast == null) {
             throw new IllegalStateException("未找到灵兽");
         }
+        return new PenCellBeast(fudi, cell, cellId, beast);
+    }
+
+    @Transactional
+    public ActionResultVO deployBeast(Long userId, String position) {
+        PenCellBeast pcb = getBeastFromPenCell(userId, position, true);
+        Beast beast = pcb.beast();
 
         if (Boolean.TRUE.equals(beast.getIsDeployed())) {
             return new ActionResultVO(true, "灵兽已处于出战状态");
@@ -485,7 +493,7 @@ public class BeastService {
         }
 
         // 检查出战上限
-        List<Beast> allBeasts = beastRepository.findByFudiId(fudi.getId());
+        List<Beast> allBeasts = beastRepository.findByFudiId(pcb.fudi().getId());
         long deployedCount = allBeasts.stream().filter(b -> Boolean.TRUE.equals(b.getIsDeployed()) && b.canFight()).count();
         if (deployedCount >= 2) {
             throw new IllegalStateException("出战灵兽已达上限 (2只)，请先召回其他灵兽");
@@ -505,21 +513,8 @@ public class BeastService {
             return undeployAllBeasts(userId);
         }
 
-        Integer cellId = fudiHelper.parseCellId(position);
-        Fudi fudi = fudiHelper.getFudiByUserId(userId)
-                .orElseThrow(() -> new IllegalStateException("未找到福地"));
-
-        FudiCell cell = fudiCellRepository.findByFudiIdAndCellId(fudi.getId(), cellId)
-                .orElseThrow(() -> new IllegalStateException("地块 " + cellId + " 不存在"));
-
-        if (cell.getCellType() != CellType.PEN) {
-            throw new IllegalStateException("地块 " + cellId + " 不是兽栏");
-        }
-
-        Beast beast = findBeastByCell(cell);
-        if (beast == null) {
-            throw new IllegalStateException("未找到灵兽");
-        }
+        PenCellBeast pcb = getBeastFromPenCell(userId, position, false);
+        Beast beast = pcb.beast();
 
         if (!Boolean.TRUE.equals(beast.getIsDeployed())) {
             return new ActionResultVO(true, "灵兽未在出战状态");
@@ -558,25 +553,8 @@ public class BeastService {
             return recoverAllBeasts(userId);
         }
 
-        Integer cellId = fudiHelper.parseCellId(position);
-        Fudi fudi = fudiHelper.getFudiByUserId(userId)
-                .orElseThrow(() -> new IllegalStateException("未找到福地"));
-
-        FudiCell cell = fudiCellRepository.findByFudiIdAndCellId(fudi.getId(), cellId)
-                .orElseThrow(() -> new IllegalStateException("地块 " + cellId + " 不存在"));
-
-        if (cell.getCellType() != CellType.PEN) {
-            throw new IllegalStateException("地块 " + cellId + " 不是兽栏");
-        }
-
-        if (Boolean.TRUE.equals(cell.getBoolConfig("is_incubating"))) {
-            throw new IllegalStateException("灵兽尚在孵化中");
-        }
-
-        Beast beast = findBeastByCell(cell);
-        if (beast == null) {
-            throw new IllegalStateException("未找到灵兽");
-        }
+        PenCellBeast pcb = getBeastFromPenCell(userId, position, true);
+        Beast beast = pcb.beast();
 
         int hpCurrent = beast.getHpCurrent();
         int hpMax = beast.getMaxHp();

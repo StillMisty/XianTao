@@ -445,18 +445,7 @@ public class TrainingService {
         int dropChances = (int) (minutesTraining / 10.0 * efficiencyMultiplier);
 
         for (int i = 0; i < dropChances; i++) {
-            int totalWeight = specialties.values().stream().mapToInt(Integer::intValue).sum();
-            if (totalWeight == 0) continue;
-            int roll = ThreadLocalRandom.current().nextInt(totalWeight);
-            int cumulative = 0;
-            Long selectedTemplateId = null;
-            for (Map.Entry<Long, Integer> entry : specialties.entrySet()) {
-                cumulative += entry.getValue();
-                if (roll < cumulative) {
-                    selectedTemplateId = entry.getKey();
-                    break;
-                }
-            }
+            Long selectedTemplateId = TypeUtils.weightedRandomSelect(specialties, ThreadLocalRandom.current());
             if (selectedTemplateId == null) continue;
 
             int quantity = ThreadLocalRandom.current().nextInt(3) + 1;

@@ -21,6 +21,7 @@ import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 import top.stillmisty.xiantao.service.ai.ExplorationDescriptionFunction;
+import top.stillmisty.xiantao.infrastructure.util.TypeUtils;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -303,26 +304,17 @@ public class BountyService {
                 .stream()
                 .collect(Collectors.toMap(ItemTemplate::getId, t -> t));
 
-        int totalWeight = specialties.values().stream().mapToInt(Integer::intValue).sum();
-
         List<Map<String, Object>> items = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            int roll = rng.nextInt(Math.max(1, totalWeight));
-            int cum = 0;
-            for (Map.Entry<Long, Integer> entry : specialties.entrySet()) {
-                cum += entry.getValue();
-                if (roll < cum) {
-                    Long templateId = entry.getKey();
-                    ItemTemplate template = templateMap.get(templateId);
-                    String name = template != null ? template.getName() : "未知物品";
-                    Map<String, Object> item = new HashMap<>();
-                    item.put("templateId", templateId);
-                    item.put("name", name);
-                    item.put("quantity", 1);
-                    items.add(item);
-                    break;
-                }
-            }
+            Long templateId = TypeUtils.weightedRandomSelect(specialties, rng);
+            if (templateId == null) continue;
+            ItemTemplate template = templateMap.get(templateId);
+            String name = template != null ? template.getName() : "未知物品";
+            Map<String, Object> item = new HashMap<>();
+            item.put("templateId", templateId);
+            item.put("name", name);
+            item.put("quantity", 1);
+            items.add(item);
         }
         return items;
     }

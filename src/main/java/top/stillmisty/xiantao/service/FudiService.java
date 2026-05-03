@@ -391,13 +391,7 @@ public class FudiService {
 
             if (isPerennial && hCount < maxHarvest) {
                 cell.setConfigValue("harvest_count", hCount);
-                cell.setConfigValue("growth_progress", 0.0);
-                cell.setConfigValue("plant_time", LocalDateTime.now().toString());
-                Double baseGrowthHours = cell.getDoubleConfig("base_growth_hours");
-                Double levelSpeed = cell.getDoubleConfig("level_speed_multiplier");
-                if (levelSpeed == null) levelSpeed = 1.0;
-                cell.setConfigValue("mature_time", LocalDateTime.now().plusHours((long) (baseGrowthHours / levelSpeed)).toString());
-                fudiCellRepository.save(cell);
+                farmService.replantAfterHarvest(cell);
             } else {
                 toRemove.add(cell.getId());
             }

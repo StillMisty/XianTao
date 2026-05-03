@@ -204,13 +204,7 @@ public class FarmService {
 
         if (Boolean.TRUE.equals(isPerennial) && harvestCount < maxHarvest) {
             cell.setConfigValue("harvest_count", harvestCount);
-            cell.setConfigValue("growth_progress", 0.0);
-            cell.setConfigValue("plant_time", LocalDateTime.now().toString());
-            Double baseGrowthHours = cell.getDoubleConfig("base_growth_hours");
-            Double levelSpeed = cell.getDoubleConfig("level_speed_multiplier");
-            if (levelSpeed == null) levelSpeed = 1.0;
-            cell.setConfigValue("mature_time", LocalDateTime.now().plusHours((long) (baseGrowthHours / levelSpeed)).toString());
-            fudiCellRepository.save(cell);
+            replantAfterHarvest(cell);
         } else {
             fudiCellRepository.deleteById(cell.getId());
         }
@@ -218,6 +212,19 @@ public class FarmService {
         log.info("用户 {} 收获地块 {} 的 {}，获得 {}份", fudi.getUserId(), cellId, cropName, yield);
 
         return new CollectVO(cellId, "farm", cropName, null, yield, yield);
+    }
+
+    /**
+     * 多年生作物收获后重置生长状态
+     */
+    void replantAfterHarvest(FudiCell cell) {
+        cell.setConfigValue("growth_progress", 0.0);
+        cell.setConfigValue("plant_time", LocalDateTime.now().toString());
+        Double baseGrowthHours = cell.getDoubleConfig("base_growth_hours");
+        Double levelSpeed = cell.getDoubleConfig("level_speed_multiplier");
+        if (levelSpeed == null) levelSpeed = 1.0;
+        cell.setConfigValue("mature_time", LocalDateTime.now().plusHours((long) (baseGrowthHours / levelSpeed)).toString());
+        fudiCellRepository.save(cell);
     }
 
     // ===================== 灵田详情构建 =====================
