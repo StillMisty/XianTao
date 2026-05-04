@@ -8,10 +8,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
-import top.stillmisty.xiantao.domain.user.repository.UserRepository;
+import top.stillmisty.xiantao.service.UserStateService;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -21,7 +20,7 @@ import static org.mockito.Mockito.*;
 class TrainingServiceTest {
 
     @Mock
-    private UserRepository userRepository;
+    private UserStateService userStateService;
 
     @InjectMocks
     private TrainingService trainingService;
@@ -44,32 +43,32 @@ class TrainingServiceTest {
     @DisplayName("endTraining — trainingStartTime 为空时恢复 IDLE")
     void endTraining_whenNoTrainingStartTime_shouldRestoreIdle() {
         User user = createUser(UserStatus.EXERCISING, null);
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userStateService.getUser(userId)).thenReturn(user);
 
         trainingService.endTraining(userId);
 
         assertEquals(UserStatus.IDLE, user.getStatus());
-        verify(userRepository).save(user);
+        verify(userStateService).save(user);
     }
 
     @Test
     @DisplayName("endTraining — 时间不足 5 分钟时恢复 IDLE")
     void endTraining_whenLessThan5Minutes_shouldRestoreIdle() {
         User user = createUser(UserStatus.EXERCISING, LocalDateTime.now());
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userStateService.getUser(userId)).thenReturn(user);
 
         trainingService.endTraining(userId);
 
         assertEquals(UserStatus.IDLE, user.getStatus());
         assertNull(user.getTrainingStartTime());
-        verify(userRepository).save(user);
+        verify(userStateService).save(user);
     }
 
     @Test
     @DisplayName("endTraining — 非 EXERCISING 状态抛异常")
     void endTraining_whenNotExercising_shouldThrow() {
         User user = createUser(UserStatus.IDLE, LocalDateTime.now().minusMinutes(10));
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userStateService.getUser(userId)).thenReturn(user);
 
         assertThrows(IllegalStateException.class, () -> trainingService.endTraining(userId));
     }
@@ -80,7 +79,7 @@ class TrainingServiceTest {
     @DisplayName("startTraining — 非 IDLE 状态抛异常")
     void startTraining_whenNotIdle_shouldThrow() {
         User user = createUser(UserStatus.EXERCISING, null);
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userStateService.getUser(userId)).thenReturn(user);
 
         assertThrows(IllegalStateException.class, () -> trainingService.startTraining(userId));
     }
@@ -89,7 +88,7 @@ class TrainingServiceTest {
     @DisplayName("startTraining — 位置为空返回失败")
     void startTraining_whenNoLocation_shouldReturnFailure() {
         User user = createUser(UserStatus.IDLE, null).setLocationId(null);
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userStateService.getUser(userId)).thenReturn(user);
 
         var result = trainingService.startTraining(userId);
 

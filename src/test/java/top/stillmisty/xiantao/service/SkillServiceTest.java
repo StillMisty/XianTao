@@ -17,7 +17,7 @@ import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
-import top.stillmisty.xiantao.domain.user.repository.UserRepository;
+import top.stillmisty.xiantao.service.UserStateService;
 
 import java.util.List;
 import java.util.Map;
@@ -32,7 +32,7 @@ import static org.mockito.Mockito.*;
 class SkillServiceTest {
 
     @Mock
-    private UserRepository userRepository;
+    private UserStateService userStateService;
     @Mock
     private SkillRepository skillRepository;
     @Mock
@@ -121,7 +121,7 @@ class SkillServiceTest {
         StackableItem jade = createJadeItem(1L, 100L);
         setUpJadeMock(skill, jade);
         when(playerSkillRepository.findByUserIdAndSkillId(userId, 100L)).thenReturn(Optional.empty());
-        when(userRepository.findById(userId)).thenReturn(Optional.of(createUser(5)));
+        when(userStateService.getUser(userId)).thenReturn(createUser(5));
 
         SkillSlotResult result = skillService.learnFromJade(userId, "1");
 
@@ -136,7 +136,7 @@ class SkillServiceTest {
         StackableItem jade = createJadeItem(1L, skillId, 2);
         setUpJadeMock(skill, jade);
         when(playerSkillRepository.findByUserIdAndSkillId(userId, skillId)).thenReturn(Optional.empty());
-        when(userRepository.findById(userId)).thenReturn(Optional.of(createUser(5)));
+        when(userStateService.getUser(userId)).thenReturn(createUser(5));
         when(stackableItemRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
         when(playerSkillRepository.save(any())).thenAnswer(inv -> {
             PlayerSkill ps = inv.getArgument(0);

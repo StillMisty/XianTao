@@ -16,10 +16,9 @@ import top.stillmisty.xiantao.domain.item.vo.InventorySummaryVO;
 import top.stillmisty.xiantao.domain.item.vo.ItemEntry;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
-import top.stillmisty.xiantao.domain.user.repository.UserRepository;
+import top.stillmisty.xiantao.service.UserStateService;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -29,7 +28,7 @@ import static org.mockito.Mockito.when;
 class InventoryServiceTest {
 
     @Mock
-    private UserRepository userRepository;
+    private UserStateService userStateService;
     @Mock
     private EquipmentRepository equipmentRepository;
     @Mock
@@ -56,7 +55,7 @@ class InventoryServiceTest {
     @Test
     @DisplayName("getInventorySummary — 背包为空时返回零值摘要")
     void getInventorySummary_whenEmptyInventory_shouldReturnEmptySummary() {
-        when(userRepository.findById(userId)).thenReturn(Optional.of(createTestUser()));
+        when(userStateService.getUser(userId)).thenReturn(createTestUser());
         when(equipmentRepository.findUnequippedByUserId(userId)).thenReturn(List.of());
         when(stackableItemRepository.findByUserId(userId)).thenReturn(List.of());
 
@@ -71,7 +70,7 @@ class InventoryServiceTest {
     @Test
     @DisplayName("getInventorySummary — 按品质聚合装备数量")
     void getInventorySummary_withEquipments_shouldGroupByQuality() {
-        when(userRepository.findById(userId)).thenReturn(Optional.of(createTestUser()));
+        when(userStateService.getUser(userId)).thenReturn(createTestUser());
         when(stackableItemRepository.findByUserId(userId)).thenReturn(List.of());
 
         Equipment eq1 = new Equipment();
@@ -92,7 +91,7 @@ class InventoryServiceTest {
     @Test
     @DisplayName("getInventorySummary — 统计可堆叠物品类型数量")
     void getInventorySummary_withStackableItems_shouldCountByType() {
-        when(userRepository.findById(userId)).thenReturn(Optional.of(createTestUser()));
+        when(userStateService.getUser(userId)).thenReturn(createTestUser());
         when(equipmentRepository.findUnequippedByUserId(userId)).thenReturn(List.of());
 
         StackableItem seed1 = new StackableItem();
@@ -113,7 +112,7 @@ class InventoryServiceTest {
     @Test
     @DisplayName("getInventorySummary — 用户不存在抛异常")
     void getInventorySummary_whenUserNotFound_shouldThrow() {
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+        when(userStateService.getUser(userId)).thenThrow(new RuntimeException("用户不存在"));
 
         assertThrows(Exception.class, () -> inventoryService.getInventorySummary(userId));
     }

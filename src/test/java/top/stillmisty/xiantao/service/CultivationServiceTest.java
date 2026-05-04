@@ -16,6 +16,7 @@ import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 import top.stillmisty.xiantao.domain.user.vo.BreakthroughResult;
 import top.stillmisty.xiantao.domain.user.vo.DaoProtectionQueryResult;
 import top.stillmisty.xiantao.domain.user.vo.DaoProtectionResult;
+import top.stillmisty.xiantao.service.UserStateService;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +31,8 @@ class CultivationServiceTest {
 
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private UserStateService userStateService;
     @Mock
     private MapService mapService;
     @Mock
@@ -65,7 +68,7 @@ class CultivationServiceTest {
     @DisplayName("attemptBreakthrough — 经验不足时返回失败结果")
     void attemptBreakthrough_whenExpInsufficient_shouldReturnFailedResult() {
         User user = createUser(5, 0L, 0);
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userStateService.getUser(userId)).thenReturn(user);
 
         BreakthroughResult result = cultivationService.attemptBreakthrough(userId);
 
@@ -77,7 +80,7 @@ class CultivationServiceTest {
     @DisplayName("attemptBreakthrough — 突破后清除了护道关系和丹药加成")
     void attemptBreakthrough_shouldClearRelationsAndBuffs() {
         User user = createUser(2, 1000L, 0);
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userStateService.getUser(userId)).thenReturn(user);
         when(daoProtectionRepository.findByProtegeId(userId)).thenReturn(List.of());
         when(playerBuffRepository.findActiveByUserIdAndType(userId, "breakthrough")).thenReturn(List.of());
 
@@ -94,7 +97,7 @@ class CultivationServiceTest {
     @DisplayName("establishProtection — 被护道者不存在返回失败")
     void establishProtection_whenProtegeNotFound_shouldReturnFailure() {
         User protector = createUser(5, 0L, 0);
-        when(userRepository.findById(userId)).thenReturn(Optional.of(protector));
+        when(userStateService.getUser(userId)).thenReturn(protector);
         when(userRepository.findByNickname("不存在的道友")).thenReturn(Optional.empty());
 
         DaoProtectionResult result = cultivationService.establishProtection(userId, "不存在的道友");
@@ -109,7 +112,7 @@ class CultivationServiceTest {
         User protector = createUser(2, 0L, 0);
         User protege = User.create().setId(2L).setNickname("高境界道友").setLevel(10).setLocationId(1L);
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(protector));
+        when(userStateService.getUser(userId)).thenReturn(protector);
         when(userRepository.findByNickname("高境界道友")).thenReturn(Optional.of(protege));
 
         DaoProtectionResult result = cultivationService.establishProtection(userId, "高境界道友");
@@ -124,7 +127,7 @@ class CultivationServiceTest {
         User protector = createUser(10, 0L, 0);
         User protege = User.create().setId(2L).setNickname("弟子").setLevel(5).setLocationId(1L);
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(protector));
+        when(userStateService.getUser(userId)).thenReturn(protector);
         when(userRepository.findByNickname("弟子")).thenReturn(Optional.of(protege));
         when(daoProtectionRepository.countByProtectorId(userId)).thenReturn(3L);
 
@@ -140,7 +143,7 @@ class CultivationServiceTest {
         User protector = createUser(10, 0L, 0);
         User protege = User.create().setId(2L).setNickname("弟子").setLevel(5).setLocationId(1L);
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(protector));
+        when(userStateService.getUser(userId)).thenReturn(protector);
         when(userRepository.findByNickname("弟子")).thenReturn(Optional.of(protege));
         when(daoProtectionRepository.countByProtectorId(userId)).thenReturn(0L);
         when(daoProtectionRepository.findByProtectorAndProtege(userId, 2L))
@@ -160,7 +163,7 @@ class CultivationServiceTest {
         User protector = User.create().setId(userId).setNickname("护道者").setLevel(10).setLocationId(1L);
         User protege = User.create().setId(2L).setNickname("弟子").setLevel(5).setLocationId(1L);
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(protector));
+        when(userStateService.getUser(userId)).thenReturn(protector);
         when(userRepository.findByNickname("弟子")).thenReturn(Optional.of(protege));
         when(daoProtectionRepository.countByProtectorId(userId)).thenReturn(0L);
         when(daoProtectionRepository.findByProtectorAndProtege(userId, 2L)).thenReturn(Optional.empty());
@@ -193,7 +196,7 @@ class CultivationServiceTest {
     @DisplayName("queryProtectionInfo — 无人护道时返回空结果")
     void queryProtectionInfo_whenNoProtections_shouldReturnEmptyInfo() {
         User user = createUser(5, 0L, 0);
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userStateService.getUser(userId)).thenReturn(user);
         when(daoProtectionRepository.findByProtectorId(userId)).thenReturn(List.of());
         when(daoProtectionRepository.findByProtegeId(userId)).thenReturn(List.of());
 
@@ -214,7 +217,7 @@ class CultivationServiceTest {
                 .setProtectorId(10L)
                 .setProtegeId(userId);
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userStateService.getUser(userId)).thenReturn(user);
         when(daoProtectionRepository.findByProtectorId(userId)).thenReturn(List.of());
         when(daoProtectionRepository.findByProtegeId(userId)).thenReturn(List.of(protection));
         when(userRepository.findByIds(List.of(10L))).thenReturn(List.of(protector));
@@ -236,7 +239,7 @@ class CultivationServiceTest {
                 .setProtectorId(10L)
                 .setProtegeId(userId);
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userStateService.getUser(userId)).thenReturn(user);
         when(daoProtectionRepository.findByProtectorId(userId)).thenReturn(List.of());
         when(daoProtectionRepository.findByProtegeId(userId)).thenReturn(List.of(protection));
         when(userRepository.findByIds(List.of(10L))).thenReturn(List.of(protector));
