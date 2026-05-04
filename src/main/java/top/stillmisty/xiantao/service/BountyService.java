@@ -31,6 +31,7 @@ import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.util.TypeUtils;
 import top.stillmisty.xiantao.service.ai.ExplorationDescriptionFunction;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
+import top.stillmisty.xiantao.infrastructure.util.WeightedRandom;
 
 /**
  * 悬赏服务
@@ -393,8 +394,7 @@ public class BountyService {
         List<BountyRewardPool> pool = bounty.getRewards();
         if (pool.isEmpty()) return List.of();
 
-        int totalWeight = pool.stream().mapToInt(BountyRewardPool::weight).sum();
-        BountyRewardPool selected = weightedSelect(pool, totalWeight, rng);
+        BountyRewardPool selected = WeightedRandom.select(pool, BountyRewardPool::weight, rng);
         if (selected == null) return List.of();
 
         return switch (selected) {
@@ -417,17 +417,6 @@ public class BountyService {
         };
     }
 
-    private BountyRewardPool weightedSelect(
-            List<BountyRewardPool> pool, int totalWeight, Random rng) {
-        int roll = rng.nextInt(totalWeight);
-        int cumulative = 0;
-        for (BountyRewardPool reward : pool) {
-            cumulative += reward.weight();
-            if (roll < cumulative) return reward;
-        }
-        return null;
-    }
-
     private List<BountyRewardItem> findRareItems(
         MapNode mapNode,
         int count,
@@ -444,8 +433,9 @@ public class BountyService {
 
         List<BountyRewardItem> items = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            Long templateId = weightedSelectSpecialty(specialties, rng);
-            if (templateId == null) continue;
+            SpecialtyEntry entry = WeightedRandom.select(specialties, SpecialtyEntry::weight, rng);
+            if (entry == null) continue;
+            Long templateId = entry.templateId();
             ItemTemplate template = templateMap.get(templateId);
             String name = template != null ? template.getName() : "未知物品";
             items.add(new BountyRewardItem.ItemReward(templateId, name, 1));
@@ -618,15 +608,4 @@ public class BountyService {
         }
     }
 
-    private Long weightedSelectSpecialty(List<SpecialtyEntry> specialties, java.util.Random rng) {
-        int total = specialties.stream().mapToInt(SpecialtyEntry::weight).sum();
-        if (total <= 0) return null;
-        int roll = rng.nextInt(total);
-        int cumulative = 0;
-        for (var entry : specialties) {
-            cumulative += entry.weight();
-            if (roll < cumulative) return entry.templateId();
-        }
-        return null;
-    }
 }
