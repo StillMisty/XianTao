@@ -12,21 +12,21 @@ import tools.jackson.databind.ObjectMapper;
 import top.stillmisty.xiantao.domain.fudi.entity.CellConfig;
 
 /**
- * PostgreSQL JSONB Type Handler for MyBatis.
- * For CellConfig, reads cell_type from row to determine concrete subtype.
+ * PostgreSQL JSONB 单独对象类型处理器。
+ * 对于 CellConfig，会读取 cell_type 列来判断具体子类型。
  */
 @MappedTypes({ CellConfig.class })
-public class PgJsonbTypeHandler extends BaseTypeHandler<Object> {
+public class JsonbTypeHandler extends BaseTypeHandler<Object> {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private final Class<?> propertyType;
 
-    public PgJsonbTypeHandler() {
+    public JsonbTypeHandler() {
         this.propertyType = Object.class;
     }
 
-    public PgJsonbTypeHandler(Class<?> propertyType) {
+    public JsonbTypeHandler(Class<?> propertyType) {
         this.propertyType = propertyType;
     }
 
