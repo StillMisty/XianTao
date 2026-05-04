@@ -81,6 +81,17 @@ public class MapHandle {
 
     @Listener
     @ContentTrim
+    @Filter("悬赏")
+    public void bountyStatus(MessageEvent event) {
+        String response = mapCommandHandler.handleBountyStatus(
+            PlatformType.ONE_BOT_V11,
+            event.getAuthorId().toString()
+        );
+        event.replyBlocking(response);
+    }
+
+    @Listener
+    @ContentTrim
     @Filter("悬赏接取 {{bountyId}}")
     public void startBounty(
         MessageEvent event,

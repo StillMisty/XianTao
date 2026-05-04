@@ -2,11 +2,14 @@ package top.stillmisty.xiantao.handle.command;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.bounty.BountyRewardItem;
+import top.stillmisty.xiantao.domain.bounty.BountyRewardPool;
 import top.stillmisty.xiantao.domain.bounty.vo.BountyRewardVO;
+import top.stillmisty.xiantao.domain.bounty.vo.BountyStatusVO;
 import top.stillmisty.xiantao.domain.bounty.vo.BountyVO;
 import top.stillmisty.xiantao.domain.map.vo.MapInfoVO;
 import top.stillmisty.xiantao.domain.map.vo.TrainingRewardVO;
@@ -89,6 +92,14 @@ public class MapCommandHandler {
         return switch (bountyService.listBounties(platform, openId)) {
             case ServiceResult.Failure(var code, var msg) -> msg;
             case ServiceResult.Success(var vo) -> formatBountyList(vo);
+        };
+    }
+
+    public String handleBountyStatus(PlatformType platform, String openId) {
+        log.debug("处理悬赏状态 - Platform: {}, OpenId: {}", platform, openId);
+        return switch (bountyService.getBountyStatus(platform, openId)) {
+            case ServiceResult.Failure(var code, var msg) -> msg;
+            case ServiceResult.Success(var vo) -> formatBountyStatus(vo);
         };
     }
 
@@ -242,9 +253,59 @@ public class MapCommandHandler {
                 sb.append(String.format("  %s\n", b.description()));
             }
             sb.append(String.format("  要求等级: %d\n", b.requireLevel()));
+            if (b.rewards() != null && !b.rewards().isEmpty()) {
+                sb.append("  奖励: ");
+                sb.append(
+                    b.rewards().stream()
+                        .map(BountyRewardPool::displayText)
+                        .collect(Collectors.joining("、"))
+                );
+                sb.append("\n");
+            }
             sb.append("\n");
         }
-        sb.append("使用「悬赏接取 [ID]」，完成后「悬赏结算」。");
+        sb.append("「悬赏接取 [ID]」接取，完成后「悬赏结算」。");
+        return sb.toString();
+    }
+
+    private String formatBountyStatus(BountyStatusVO status) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("【悬赏进行中】\n");
+        sb.append(String.format("悬赏: %s\n", status.bountyName()));
+        if (status.description() != null && !status.description().isEmpty()) {
+            sb.append(String.format("  %s\n", status.description()));
+        }
+        sb.append(
+            String.format(
+                "%d / %d 分钟",
+                status.minutesElapsed(),
+                status.durationMinutes()
+            )
+        );
+        if (status.minutesRemaining() > 0) {
+            sb.append(
+                String.format("（剩余 %d 分钟）", status.minutesRemaining())
+            );
+        } else {
+            sb.append("（已可结算）");
+        }
+        sb.append("\n");
+
+        if (status.rewards() != null && !status.rewards().isEmpty()) {
+            sb.append("\n预计奖励:\n");
+            for (BountyRewardItem item : status.rewards()) {
+                switch (item) {
+                    case BountyRewardItem.ItemReward(_, var name, var quantity) ->
+                            sb.append(String.format("  %s x%d\n", name, quantity));
+                    case BountyRewardItem.SpiritStonesReward(var amount) ->
+                            sb.append(String.format("  %d 灵石\n", amount));
+                    case BountyRewardItem.BeastEggReward(_, var name) ->
+                            sb.append(String.format("  %s（灵兽卵）\n", name));
+                }
+            }
+        }
+
+        sb.append("\n「悬赏结算」结算  「悬赏放弃」放弃");
         return sb.toString();
     }
 

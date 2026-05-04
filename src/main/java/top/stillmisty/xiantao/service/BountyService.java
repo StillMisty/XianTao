@@ -16,6 +16,7 @@ import top.stillmisty.xiantao.domain.bounty.entity.UserBounty;
 import top.stillmisty.xiantao.domain.bounty.repository.BountyRepository;
 import top.stillmisty.xiantao.domain.bounty.repository.UserBountyRepository;
 import top.stillmisty.xiantao.domain.bounty.vo.BountyRewardVO;
+import top.stillmisty.xiantao.domain.bounty.vo.BountyStatusVO;
 import top.stillmisty.xiantao.domain.bounty.vo.BountyVO;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
@@ -57,6 +58,19 @@ public class BountyService {
         try {
             Long userId = UserContext.getCurrentUserId();
             return new ServiceResult.Success<>(listBounties(userId));
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return ServiceResult.businessFailure(e.getMessage());
+        }
+    }
+
+    @Authenticated
+    public ServiceResult<BountyStatusVO> getBountyStatus(
+        PlatformType platform,
+        String openId
+    ) {
+        try {
+            Long userId = UserContext.getCurrentUserId();
+            return new ServiceResult.Success<>(getBountyStatus(userId));
         } catch (IllegalStateException | IllegalArgumentException e) {
             return ServiceResult.businessFailure(e.getMessage());
         }
@@ -107,13 +121,6 @@ public class BountyService {
 
     public List<BountyVO> listBounties(Long userId) {
         User user = userRepository.findById(userId).orElseThrow();
-        if (user.getStatus() != UserStatus.IDLE) {
-            throw new IllegalStateException(
-                "您当前处于 " +
-                    user.getStatus().getName() +
-                    " 状态，无法查看悬赏（需要 空闲 状态）"
-            );
-        }
         MapNode mapNode = mapNodeRepository
             .findById(user.getLocationId())
             .orElseThrow();
@@ -128,12 +135,42 @@ public class BountyService {
                     b.getName(),
                     b.getDescription(),
                     b.getDurationMinutes(),
-                    b.getParsedRewardPool(),
+                    b.getRewards(),
                     b.getRequireLevel(),
                     b.getEventWeight()
                 )
             )
             .toList();
+    }
+
+    public BountyStatusVO getBountyStatus(Long userId) {
+        UserBounty record = userBountyRepository
+            .findActiveByUserId(userId)
+            .orElseThrow(() ->
+                new IllegalStateException("当前没有进行中的悬赏")
+            );
+
+        long minutesElapsed = Duration.between(
+            record.getStartTime(),
+            LocalDateTime.now()
+        ).toMinutes();
+        long minutesRemaining = Math.max(0,
+            record.getDurationMinutes() - minutesElapsed);
+
+        Bounty bounty = bountyRepository
+            .findById(record.getBountyId())
+            .orElseThrow();
+
+        return new BountyStatusVO(
+            record.getBountyId(),
+            record.getBountyName(),
+            bounty.getDescription(),
+            record.getStartTime(),
+            record.getDurationMinutes(),
+            minutesElapsed,
+            minutesRemaining,
+            record.getParsedRewardItems()
+        );
     }
 
     public String startBounty(Long userId, Long bountyId) {
@@ -352,7 +389,7 @@ public class BountyService {
         MapNode mapNode,
         Random rng
     ) {
-        List<BountyRewardPool> pool = bounty.getParsedRewardPool();
+        List<BountyRewardPool> pool = bounty.getRewards();
         if (pool.isEmpty()) return List.of();
 
         int totalWeight = pool.stream().mapToInt(BountyRewardPool::weight).sum();
@@ -360,9 +397,14 @@ public class BountyService {
         if (selected == null) return List.of();
 
         return switch (selected) {
-            case BountyRewardPool.RareItem(_, var count) -> findRareItems(mapNode, count, rng);
-            case BountyRewardPool.SpiritStones(_, var amount) ->
-                    List.of(new BountyRewardItem.SpiritStonesReward(amount));
+            case BountyRewardPool.RareItem(_, var minCount, var maxCount, _) -> {
+                int count = minCount + rng.nextInt(maxCount - minCount + 1);
+                yield findRareItems(mapNode, count, rng);
+            }
+            case BountyRewardPool.SpiritStones(_, var minAmount, var maxAmount, _) -> {
+                long amount = minAmount + (minAmount == maxAmount ? 0 : (rng.nextLong(maxAmount - minAmount + 1)));
+                yield List.of(new BountyRewardItem.SpiritStonesReward(amount));
+            }
             case BountyRewardPool.BeastEgg _ -> {
                 List<ItemTemplate> eggs = itemTemplateRepository.findByType(ItemType.BEAST_EGG);
                 yield !eggs.isEmpty()

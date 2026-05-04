@@ -6,11 +6,10 @@ import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import lombok.Data;
 import top.stillmisty.xiantao.domain.bounty.BountyRewardPool;
-import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
+import top.stillmisty.xiantao.infrastructure.mybatis.handler.BountyRewardListTypeHandler;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 悬赏任务实体
@@ -30,8 +29,8 @@ public class Bounty {
 
     private Integer durationMinutes;
 
-    @Column(typeHandler = PgJsonbTypeHandler.class)
-    private List<Map<String, Object>> rewards;
+    @Column(typeHandler = BountyRewardListTypeHandler.class)
+    private List<BountyRewardPool> rewards;
 
     private Integer requireLevel;
 
@@ -42,8 +41,4 @@ public class Bounty {
 
     @Column(onUpdateValue = "now()", onInsertValue = "now()")
     private LocalDateTime updateTime;
-
-    public List<BountyRewardPool> getParsedRewardPool() {
-        return BountyRewardPool.parse(rewards);
-    }
 }
