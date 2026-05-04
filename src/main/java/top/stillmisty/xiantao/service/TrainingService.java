@@ -157,7 +157,7 @@ public class TrainingService {
         }
         MapNode mapNode = mapOpt.get();
 
-        double efficiencyMultiplier = calculateEfficiencyMultiplier(user.getStatAgi());
+        double efficiencyMultiplier = calculateEfficiencyMultiplier(user.getEffectiveStatAgi());
         double levelDecayMultiplier = calculateLevelDecayMultiplier(user.getLevel(), mapNode.getLevelRequirement());
         long baseExp = (long) (BASE_EXP_PER_MINUTE * minutesTraining * efficiencyMultiplier * levelDecayMultiplier);
         List<Map<String, Object>> trainingItems = calculateItemsReward(minutesTraining, efficiencyMultiplier, mapNode);

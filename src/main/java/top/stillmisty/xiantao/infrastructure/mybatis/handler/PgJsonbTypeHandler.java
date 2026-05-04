@@ -46,13 +46,21 @@ public class PgJsonbTypeHandler extends BaseTypeHandler<Object> {
     @Override
     public Object getNullableResult(ResultSet rs, String columnName) throws SQLException {
         String jsonString = rs.getString(columnName);
-        return parseJson(jsonString, rs.getString("cell_type"));
+        return parseJson(jsonString, getCellType(rs));
     }
 
     @Override
     public Object getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
         String jsonString = rs.getString(columnIndex);
-        return parseJson(jsonString, rs.getString("cell_type"));
+        return parseJson(jsonString, getCellType(rs));
+    }
+
+    private String getCellType(ResultSet rs) {
+        try {
+            return rs.getString("cell_type");
+        } catch (SQLException e) {
+            return null;
+        }
     }
 
     @Override
@@ -76,6 +84,7 @@ public class PgJsonbTypeHandler extends BaseTypeHandler<Object> {
     private Class<?> resolveConcreteType(String cellType) {
         if ("farm".equals(cellType)) return CellConfig.FarmConfig.class;
         if ("pen".equals(cellType)) return CellConfig.PenConfig.class;
-        return CellConfig.EmptyConfig.class;
+        if (CellConfig.class.isAssignableFrom(propertyType)) return CellConfig.EmptyConfig.class;
+        return propertyType;
     }
 }

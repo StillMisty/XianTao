@@ -59,7 +59,7 @@ public class UserService {
             );
         }
 
-        // 创建用户
+        // 创建用户（未设置的字段走 DB 默认值）
         var user = userRepository.save(
                 User.create()
                         .setNickname(nickname)

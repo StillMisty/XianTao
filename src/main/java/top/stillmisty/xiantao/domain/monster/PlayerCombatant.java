@@ -57,12 +57,12 @@ public class PlayerCombatant implements Combatant {
 
     @Override
     public int getSpeed() {
-        return user.getStatAgi() * 2 + 10 + speedBuff;
+        return user.getEffectiveStatAgi() * 2 + 10 + speedBuff;
     }
 
     @Override
     public int getAttack() {
-        int statValue = user.getStatStr();
+        int statValue = user.getEffectiveStatStr();
         int equipAttack = 0;
         if (weapon != null) {
             equipAttack = weapon.getFinalAttack();
@@ -72,7 +72,7 @@ public class PlayerCombatant implements Combatant {
 
     @Override
     public int getDefense() {
-        return user.getStatCon() + defenseBuff;
+        return user.getEffectiveStatCon() + defenseBuff;
     }
 
     @Override
@@ -110,7 +110,7 @@ public class PlayerCombatant implements Combatant {
     }
 
     public int getWis() {
-        return user.getStatWis();
+        return user.getEffectiveStatWis();
     }
 
     @Override

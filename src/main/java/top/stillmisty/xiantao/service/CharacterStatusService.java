@@ -62,10 +62,10 @@ public class CharacterStatusService {
         }
 
         // 计算最终属性
-        int totalStr = user.getStatStr() + equipStr;
-        int totalCon = user.getStatCon() + equipCon;
-        int totalAgi = user.getStatAgi() + equipAgi;
-        int totalWis = user.getStatWis() + equipWis;
+        int totalStr = user.getEffectiveStatStr() + equipStr;
+        int totalCon = user.getEffectiveStatCon() + equipCon;
+        int totalAgi = user.getEffectiveStatAgi() + equipAgi;
+        int totalWis = user.getEffectiveStatWis() + equipWis;
 
         // 计算战斗属性
         int attack = totalStr * 2 + equipAttack;
@@ -114,10 +114,10 @@ public class CharacterStatusService {
                 .hpCurrent(user.getHpCurrent())
                 .hpMax(hpMax)
                 .hpPercentage(user.getHpCurrent() * 100.0 / hpMax)
-                .statStr(user.getStatStr())
-                .statCon(user.getStatCon())
-                .statAgi(user.getStatAgi())
-                .statWis(user.getStatWis())
+                .statStr(user.getEffectiveStatStr())
+                .statCon(user.getEffectiveStatCon())
+                .statAgi(user.getEffectiveStatAgi())
+                .statWis(user.getEffectiveStatWis())
                 .equipStr(equipStr)
                 .equipCon(equipCon)
                 .equipAgi(equipAgi)

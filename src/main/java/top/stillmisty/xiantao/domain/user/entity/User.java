@@ -94,13 +94,11 @@ public class User extends Model<User> {
     /**
      * 旅行开始时间戳 (用于计算旅行进度)
      */
-    @Column(onInsertValue = "null")
     private LocalDateTime travelStartTime;
 
     /**
      * 旅行目的地地图 ID
      */
-    @Column(onInsertValue = "0")
     private Long travelDestinationId;
 
     /**
@@ -142,23 +140,23 @@ public class User extends Model<User> {
      * 获取当前属性值（四维平均）
      */
     public int getStatValue() {
-        return (getStatStr() + getStatCon() + getStatAgi() + getStatWis()) / 4;
+        return (getEffectiveStatStr() + getEffectiveStatCon() + getEffectiveStatAgi() + getEffectiveStatWis()) / 4;
     }
 
-    public int getStatStr() {
-        return (statStr != null ? statStr : 0) + (4 + level);
+    public int getEffectiveStatStr() {
+        return (statStr != null ? statStr : 0) + (4 + (level != null ? level : 0));
     }
 
-    public int getStatCon() {
-        return (statCon != null ? statCon : 0) + (4 + level);
+    public int getEffectiveStatCon() {
+        return (statCon != null ? statCon : 0) + (4 + (level != null ? level : 0));
     }
 
-    public int getStatAgi() {
-        return (statAgi != null ? statAgi : 0) + (4 + level);
+    public int getEffectiveStatAgi() {
+        return (statAgi != null ? statAgi : 0) + (4 + (level != null ? level : 0));
     }
 
-    public int getStatWis() {
-        return (statWis != null ? statWis : 0) + (4 + level);
+    public int getEffectiveStatWis() {
+        return (statWis != null ? statWis : 0) + (4 + (level != null ? level : 0));
     }
 
     /**
