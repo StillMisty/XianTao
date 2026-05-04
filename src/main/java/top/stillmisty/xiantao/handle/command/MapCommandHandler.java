@@ -15,6 +15,7 @@ import top.stillmisty.xiantao.domain.map.vo.MapInfoVO;
 import top.stillmisty.xiantao.domain.map.vo.TrainingRewardVO;
 import top.stillmisty.xiantao.domain.map.vo.TravelResultVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.infrastructure.util.FormatUtils;
 import top.stillmisty.xiantao.service.*;
 
 @Slf4j
@@ -172,7 +173,7 @@ public class MapCommandHandler {
                 sb.append(
                     String.format(
                         "\n预计到达时间: %s",
-                        result.getEstimatedArrivalTime()
+                        FormatUtils.formatDateTime(result.getEstimatedArrivalTime())
                     )
                 );
             }
@@ -189,7 +190,7 @@ public class MapCommandHandler {
         sb.append("【历练结算】");
         sb.append(rewards.getMapName());
         sb.append(" | ");
-        sb.append(rewards.getDurationMinutes()).append("分钟");
+        sb.append(FormatUtils.formatMinutes(rewards.getDurationMinutes()));
         sb
             .append(" | 效率")
             .append(String.format("%.1f", rewards.getEfficiencyMultiplier()))
@@ -243,10 +244,10 @@ public class MapCommandHandler {
         for (BountyVO b : bounties) {
             sb.append(
                 String.format(
-                    "ID: %d | %s（%d 分钟）\n",
+                    "ID: %d | %s（%s）\n",
                     b.id(),
                     b.name(),
-                    b.durationMinutes()
+                    FormatUtils.formatMinutes(b.durationMinutes())
                 )
             );
             if (b.description() != null && !b.description().isEmpty()) {
@@ -277,14 +278,14 @@ public class MapCommandHandler {
         }
         sb.append(
             String.format(
-                "%d / %d 分钟",
-                status.minutesElapsed(),
-                status.durationMinutes()
+                "%s / %s",
+                FormatUtils.formatMinutes(status.minutesElapsed()),
+                FormatUtils.formatMinutes(status.durationMinutes())
             )
         );
         if (status.minutesRemaining() > 0) {
             sb.append(
-                String.format("（剩余 %d 分钟）", status.minutesRemaining())
+                String.format("（剩余 %s）", FormatUtils.formatMinutes(status.minutesRemaining()))
             );
         } else {
             sb.append("（已可结算）");
@@ -314,7 +315,7 @@ public class MapCommandHandler {
         sb.append("【悬赏结算】\n");
         sb.append(String.format("悬赏: %s\n", reward.bountyName()));
         sb.append(String.format("地点: %s\n", reward.mapName()));
-        sb.append(String.format("耗时: %d 分钟\n", reward.durationMinutes()));
+        sb.append(String.format("耗时: %s\n", FormatUtils.formatMinutes(reward.durationMinutes())));
 
         if (reward.eventDescription() != null) {
             sb.append(
