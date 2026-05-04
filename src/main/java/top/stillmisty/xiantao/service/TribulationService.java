@@ -201,9 +201,7 @@ public class TribulationService {
     private String applyTribulationCompassion(Fudi fudi, top.stillmisty.xiantao.domain.fudi.entity.Spirit spirit, TribulationBoss boss) {
         TribulationProgress p = advanceTribulation(fudi);
 
-        spirit.setEnergy(0);
-        spirit.setEmotionState(EmotionState.FATIGUED);
-        spirit.setLastEnergyUpdate(LocalDateTime.now());
+        spirit.setEmotionState(EmotionState.EXHAUSTED);
         spiritRepository.save(spirit);
 
         return """

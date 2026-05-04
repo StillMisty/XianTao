@@ -19,10 +19,8 @@ public class FudiStatusVO {
     private Integer tribulationStage;
     private Integer totalCells;
     private MBTIPersonality mbtiType;
-    private Integer spiritEnergy;
     private Integer spiritAffection;
     private Integer affectionMax;
-    private Integer energyMax;
     private String spiritForm;
     private String spiritFormName;
     private List<String> likedTags;

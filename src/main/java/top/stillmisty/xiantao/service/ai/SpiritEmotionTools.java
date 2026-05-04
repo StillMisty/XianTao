@@ -26,9 +26,9 @@ public class SpiritEmotionTools {
     /**
      * 更新地灵情绪状态
      */
-    @Tool(description = "更新地灵的情绪状态。可选状态：CALM(平静), HAPPY(开心), ANGRY(生气), EXCITED(兴奋), FATIGUED(疲惫), CURIOUS(好奇), BORED(无聊), SAD(伤心)")
+    @Tool(description = "更新地灵的情绪状态")
     public String updateEmotion(
-            @ToolParam(description = "新的情绪状态") String emotionState
+            @ToolParam(description = "新的情绪状态") EmotionState emotionState
     ) {
         Long userId = UserContext.CURRENT_USER.get();
         if (userId == null) {
@@ -36,18 +36,14 @@ public class SpiritEmotionTools {
         }
 
         try {
-            EmotionState newState = EmotionState.valueOf(emotionState.toUpperCase());
-
             Spirit spirit = spiritRepository.findByFudiId(getFudiId(userId))
                     .orElseThrow(() -> new IllegalStateException("地灵不存在"));
 
-            spirit.setEmotionState(newState);
+            spirit.setEmotionState(emotionState);
             spiritRepository.save(spirit);
 
-            log.info("地灵情绪更新 - userId: {}, emotion: {}", userId, newState);
-            return "情绪已更新为：" + newState.getDescription();
-        } catch (IllegalArgumentException e) {
-            return "无效的情绪状态：" + emotionState + "。可选：CALM, HAPPY, ANGRY, EXCITED, FATIGUED, CURIOUS, BORED, SAD";
+            log.info("地灵情绪更新 - userId: {}, emotion: {}", userId, emotionState);
+            return "情绪已更新为：" + emotionState.getDescription();
         } catch (Exception e) {
             log.error("更新情绪失败 - userId: {}, error: {}", userId, e.getMessage());
             return "更新情绪失败：" + e.getMessage();

@@ -27,7 +27,6 @@ import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
-import top.stillmisty.xiantao.service.annotation.ConsumeSpiritEnergy;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -169,12 +168,10 @@ public class FudiService {
 
         Spirit spirit = Spirit.create();
         spirit.setFudiId(fudi.getId());
-        spirit.setEnergy(100);
         spirit.setAffection(0);
         spirit.setAffectionMax(1000);
-        spirit.setEmotionState(EmotionState.CALM);
+        spirit.setEmotionState(EmotionState.NEUTRAL);
         spirit.setMbtiType(mbtiType);
-        spirit.setLastEnergyUpdate(LocalDateTime.now());
 
         if (allForms != null && !allForms.isEmpty()) {
             SpiritForm randomForm = allForms.get(ThreadLocalRandom.current().nextInt(allForms.size()));
@@ -236,7 +233,6 @@ public class FudiService {
         String tribulationResult = tribulationService.resolveTribulation(fudi, user, false);
 
         spiritRepository.findByFudiId(fudi.getId()).ifPresent(spirit -> {
-            spirit.restoreEnergy(fudi.getTribulationStage());
             if (tribulationResult == null) {
                 spirit.updateEmotionState();
             }
@@ -272,10 +268,8 @@ public class FudiService {
                 .tribulationStage(fudi.getTribulationStage())
                 .totalCells(getTotalCellCount(fudi))
                 .mbtiType(spirit != null ? spirit.getMbtiType() : null)
-                .spiritEnergy(spirit != null ? spirit.getEnergy() : null)
                 .spiritAffection(spirit != null ? spirit.getAffection() : null)
                 .affectionMax(spirit != null ? spirit.getAffectionMax() : null)
-                .energyMax(spirit != null ? spirit.getEnergyMax(fudi.getTribulationStage()) : null)
                 .spiritForm(formName)
                 .spiritFormName(formName)
                 .likedTags(likedTags)
@@ -341,7 +335,6 @@ public class FudiService {
 
     // ===================== 统一收取系统（种植收获 + 灵兽产出） =====================
 
-    @ConsumeSpiritEnergy(5)
     @Transactional
     public CollectVO collect(Long userId, String position) {
         CellContext ctx = getCellContext(userId, position);
@@ -412,18 +405,6 @@ public class FudiService {
             fudiCellRepository.deleteById(id);
         }
 
-        // 精力扣除：第一个收获已由 ConsumeSpiritEnergy(5) 扣除
-        final int extraCount = harvestCount;
-        if (extraCount > 1) {
-            spiritRepository.findByFudiId(fudi.getId()).ifPresent(spirit -> {
-                spirit.restoreEnergy(fudi.getTribulationStage());
-                int extraCost = spirit.calculateEnergyConsumption(5 * (extraCount - 1));
-                spirit.deductEnergy(extraCost);
-                spirit.setLastEnergyUpdate(LocalDateTime.now());
-                spiritRepository.save(spirit);
-            });
-        }
-
         // 收取兽栏产出
         for (FudiCell cell : cells) {
             if (cell.getCellType() != CellType.PEN) continue;
@@ -459,7 +440,6 @@ public class FudiService {
     public CellOperationVO buildCell(Long userId, String position, CellType type) {
         Integer cellId = fudiHelper.parseCellId(position);
         Fudi fudi = getFudiOrThrow(userId);
-        fudiHelper.consumeSpiritEnergy(fudi, 3);
 
         FudiCell existingCell = fudiCellRepository.findByFudiIdAndCellId(fudi.getId(), cellId).orElse(null);
         if (existingCell != null && existingCell.getCellType() != CellType.EMPTY) {
@@ -484,7 +464,6 @@ public class FudiService {
     public CellOperationVO removeCell(Long userId, String position) {
         Integer cellId = fudiHelper.parseCellId(position);
         Fudi fudi = getFudiOrThrow(userId);
-        fudiHelper.consumeSpiritEnergy(fudi, 3);
 
         FudiCell cell = fudiCellRepository.findByFudiIdAndCellId(fudi.getId(), cellId)
                 .orElseThrow(() -> new IllegalStateException("地块 " + cellId + " 不存在"));

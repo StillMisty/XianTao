@@ -19,7 +19,6 @@ import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
-import top.stillmisty.xiantao.service.annotation.ConsumeSpiritEnergy;
 
 import java.time.LocalDateTime;
 import java.util.concurrent.ThreadLocalRandom;
@@ -65,7 +64,6 @@ public class FarmService {
     FarmCellVO plantCrop(Long userId, Integer cellId, Integer cropId, String cropName, int cropTier) {
         Fudi fudi = fudiHelper.getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
-        fudiHelper.consumeSpiritEnergy(fudi, 3);
 
         FudiCell existingCell = fudiCellRepository.findByFudiIdAndCellId(fudi.getId(), cellId).orElse(null);
         if (existingCell != null && existingCell.getCellType() != CellType.EMPTY && existingCell.getCellType() != CellType.FARM) {
@@ -168,7 +166,6 @@ public class FarmService {
 
     // ===================== 收获系统 =====================
 
-    @ConsumeSpiritEnergy(5)
     public CollectVO harvestCrop(Fudi fudi, FudiCell cell, Integer cellId) {
         updateGrowthProgress(cell);
 

@@ -8,7 +8,6 @@ import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 /**
@@ -23,33 +22,19 @@ public class FudiHelper {
     private final UserRepository userRepository;
 
     /**
-     * 根据 userId 查找福地，并自动：更新在线时间、恢复地灵精力、更新情绪状态
+     * 根据 userId 查找福地，并自动：更新在线时间、更新地灵情绪状态
      */
     public Optional<Fudi> getFudiByUserId(Long userId) {
         Optional<Fudi> fudiOpt = fudiRepository.findByUserId(userId);
         fudiOpt.ifPresent(fudi -> {
             fudi.touchOnlineTime();
             spiritRepository.findByFudiId(fudi.getId()).ifPresent(spirit -> {
-                spirit.restoreEnergy(fudi.getTribulationStage());
                 spirit.updateEmotionState();
                 spiritRepository.save(spirit);
             });
             fudiRepository.save(fudi);
         });
         return fudiOpt;
-    }
-
-    /**
-     * 手动扣除地灵精力（用于未被 @ConsumeSpiritEnergy 切面覆盖的场景）
-     */
-    public void consumeSpiritEnergy(Fudi fudi, int baseCost) {
-        spiritRepository.findByFudiId(fudi.getId()).ifPresent(spirit -> {
-            spirit.restoreEnergy(fudi.getTribulationStage());
-            int actualCost = spirit.calculateEnergyConsumption(baseCost);
-            spirit.deductEnergy(actualCost);
-            spirit.setLastEnergyUpdate(LocalDateTime.now());
-            spiritRepository.save(spirit);
-        });
     }
 
     /**

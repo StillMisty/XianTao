@@ -203,7 +203,6 @@ public class BeastService {
     PenCellVO hatchBeastWithTemplate(Long userId, Integer cellId, ItemTemplate eggTemplate) {
         Fudi fudi = fudiHelper.getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
-        fudiHelper.consumeSpiritEnergy(fudi, 10);
 
         FudiCell cell = fudiCellRepository.findByFudiIdAndCellId(fudi.getId(), cellId)
                 .orElseThrow(() -> new IllegalStateException("地块 " + cellId + " 不存在"));
@@ -312,7 +311,6 @@ public class BeastService {
         Integer cellId = fudiHelper.parseCellId(position);
         Fudi fudi = fudiHelper.getFudiByUserId(userId)
                 .orElseThrow(() -> new IllegalStateException("未找到福地"));
-        fudiHelper.consumeSpiritEnergy(fudi, 8);
 
         FudiCell cell = fudiCellRepository.findByFudiIdAndCellId(fudi.getId(), cellId)
                 .orElseThrow(() -> new IllegalStateException("地块 " + cellId + " 不存在"));

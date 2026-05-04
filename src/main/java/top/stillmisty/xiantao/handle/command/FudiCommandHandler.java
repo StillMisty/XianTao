@@ -245,7 +245,6 @@ public class FudiCommandHandler {
         sb.append("语气风格：").append(status.getMbtiType().getToneStyle()).append("\n");
         sb.append("劫数：").append(status.getTribulationStage()).append("\n");
         sb.append("好感度：").append(status.getSpiritAffection()).append("/").append(status.getAffectionMax()).append(" 点\n");
-        sb.append("精力值：").append(status.getSpiritEnergy()).append("/").append(status.getEnergyMax()).append("\n");
         sb.append("当前情绪：").append(status.getEmotionState().getEmoji()).append(" ").append(status.getEmotionState().getDescription()).append("\n");
         if (status.getLikedTags() != null && !status.getLikedTags().isEmpty()) {
             sb.append("喜爱：").append(String.join("、", status.getLikedTags())).append("\n");

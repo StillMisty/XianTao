@@ -135,6 +135,8 @@ public class TrainingService {
         }
 
         if (user.getTrainingStartTime() == null) {
+            user.setStatus(UserStatus.IDLE);
+            userRepository.save(user);
             return TrainingRewardVO.builder()
                     .userId(userId)
                     .mapId(user.getLocationId())
@@ -144,6 +146,9 @@ public class TrainingService {
 
         long minutesTraining = Duration.between(user.getTrainingStartTime(), LocalDateTime.now()).toMinutes();
         if (minutesTraining <= 5) {
+            user.setStatus(UserStatus.IDLE);
+            user.setTrainingStartTime(null);
+            userRepository.save(user);
             return TrainingRewardVO.builder()
                     .userId(userId)
                     .mapId(user.getLocationId())
@@ -153,6 +158,9 @@ public class TrainingService {
 
         Optional<MapNode> mapOpt = mapNodeRepository.findById(user.getLocationId());
         if (mapOpt.isEmpty()) {
+            user.setStatus(UserStatus.IDLE);
+            user.setTrainingStartTime(null);
+            userRepository.save(user);
             return TrainingRewardVO.builder()
                     .userId(userId)
                     .summary("当前地图不存在")

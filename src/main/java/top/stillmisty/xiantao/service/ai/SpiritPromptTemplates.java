@@ -9,11 +9,9 @@ public class SpiritPromptTemplates {
     public String buildSpiritPrompt(
             MBTIPersonality mbtiType,
             int fudiLevel,
-            int spiritEnergy,
             int spiritAffection,
             String cellDetail,
             String emotionState,
-            int energyMax,
             String spiritForm
     ) {
         String cellInfo = (cellDetail == null || cellDetail.isBlank())
@@ -39,7 +37,6 @@ public class SpiritPromptTemplates {
                         
                         【福地状态】
                         - 劫数：%d
-                        - 精力：%d/%d
                         - 好感度：%d
                         
                         【地块状态】
@@ -50,9 +47,8 @@ public class SpiritPromptTemplates {
                         2. 如果用户只是聊天，不执行任何操作，直接人格化回复即可
                         3. 操作完成后根据执行结果生成人格化回复
                         4. 严格保持语气风格中描述的人格特点，根据当前情绪调整语气
-                        5. 精力不足时主动提醒玩家休息
-                        6. 根据好感度调整对玩家的态度：高好感亲密温暖，低好感冷淡疏远
-                        7. 玩家可以送你礼物，调用 giveGift 工具
+                        5. 根据好感度调整对玩家的态度：高好感亲密温暖，低好感冷淡疏远
+                        6. 玩家可以送你礼物，调用 giveGift 工具
                         """,
                 mbtiType.getCode(),
                 spiritForm != null ? spiritForm : "未知形态",
@@ -61,8 +57,6 @@ public class SpiritPromptTemplates {
                 spiritAffection,
                 affectionTone,
                 fudiLevel,
-                spiritEnergy,
-                energyMax,
                 spiritAffection,
                 cellInfo
         );

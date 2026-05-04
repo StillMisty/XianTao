@@ -26,8 +26,6 @@ public class Spirit extends Model<Spirit> {
 
     private Integer formId;
 
-    private Integer energy;
-
     private Integer affection;
 
     private Integer affectionMax;
@@ -35,8 +33,6 @@ public class Spirit extends Model<Spirit> {
     private EmotionState emotionState;
 
     private MBTIPersonality mbtiType;
-
-    private LocalDateTime lastEnergyUpdate;
 
     private LocalDateTime lastGiftTime;
 
@@ -48,43 +44,6 @@ public class Spirit extends Model<Spirit> {
     @Column(onUpdateValue = "now()", onInsertValue = "now()")
     private LocalDateTime updateTime;
 
-    public int getEnergyMax(int tribulationStage) {
-        return 100 + tribulationStage * 20;
-    }
-
-    public void restoreEnergy(int tribulationStage) {
-        if (lastEnergyUpdate == null || energy == null) {
-            lastEnergyUpdate = LocalDateTime.now();
-            return;
-        }
-
-        int maxEnergy = getEnergyMax(tribulationStage);
-        if (energy >= maxEnergy) return;
-
-        long hoursElapsed = java.time.Duration.between(lastEnergyUpdate, LocalDateTime.now()).toHours();
-        if (hoursElapsed <= 0) return;
-
-        int recoveryRate = (int) (maxEnergy * 0.05 * hoursElapsed);
-        if (recoveryRate > 0) {
-            energy = Math.min(maxEnergy, energy + recoveryRate);
-        }
-    }
-
-    public int calculateEnergyConsumption(int baseCost) {
-        int aff = affection != null ? affection : 0;
-        int maxAff = affectionMax != null ? affectionMax : 1000;
-        double discount = Math.min(0.5, (double) aff / maxAff);
-        return (int) Math.max(1, baseCost * (1.0 - discount));
-    }
-
-    public void deductEnergy(int cost) {
-        if (energy == null) energy = 0;
-        energy = Math.max(0, energy - cost);
-        if (energy <= 0) {
-            emotionState = EmotionState.FATIGUED;
-        }
-    }
-
     public void addAffection(int amount) {
         int maxAff = affectionMax != null ? affectionMax : 1000;
         affection = Math.clamp(
@@ -95,18 +54,17 @@ public class Spirit extends Model<Spirit> {
     }
 
     public void updateEmotionState() {
-        if (energy != null && energy <= 0) {
-            emotionState = EmotionState.FATIGUED;
-            return;
-        }
-
         int aff = affection != null ? affection : 0;
         if (aff >= 800) {
-            emotionState = EmotionState.HAPPY;
-        } else if (aff >= 400) {
-            emotionState = EmotionState.CALM;
+            emotionState = EmotionState.AFFECTIONATE;
+        } else if (aff >= 500) {
+            emotionState = EmotionState.JOYFUL;
+        } else if (aff >= 200) {
+            emotionState = EmotionState.CONTENT;
+        } else if (aff >= 50) {
+            emotionState = EmotionState.NEUTRAL;
         } else {
-            emotionState = EmotionState.ANXIOUS;
+            emotionState = EmotionState.DISTANT;
         }
     }
 }

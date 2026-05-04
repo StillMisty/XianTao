@@ -81,7 +81,6 @@ class FarmServiceTest {
         when(fudiHelper.getFudiByUserId(userId)).thenReturn(Optional.of(createTestFudi()));
         when(fudiHelper.getCropTier(anyInt())).thenReturn(1);
         when(fudiHelper.getLevelSpeedMultiplier(anyInt(), anyInt())).thenReturn(1.0);
-        doNothing().when(fudiHelper).consumeSpiritEnergy(any(Fudi.class), eq(3));
         doNothing().when(fudiHelper).checkSpiritStones(eq(userId), anyInt());
         doNothing().when(fudiHelper).deductSpiritStones(eq(userId), anyInt());
 

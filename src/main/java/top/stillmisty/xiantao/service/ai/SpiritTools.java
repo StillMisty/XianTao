@@ -14,6 +14,7 @@ import top.stillmisty.xiantao.domain.fudi.vo.CollectAllVO;
 import top.stillmisty.xiantao.domain.fudi.vo.CollectVO;
 import top.stillmisty.xiantao.domain.fudi.vo.FarmCellVO;
 import top.stillmisty.xiantao.domain.fudi.vo.GiveGiftVO;
+import top.stillmisty.xiantao.domain.item.enums.InventoryCategory;
 import top.stillmisty.xiantao.domain.item.vo.ItemEntry;
 import top.stillmisty.xiantao.service.*;
 
@@ -66,17 +67,17 @@ public class SpiritTools {
      */
     @Tool(description = "查询玩家背包中的物品列表。可以查看种子、装备或兽卵。返回编号列表，后续可以使用编号代替名称来操作物品。")
     public String queryBag(
-            @ToolParam(description = "要查询的类别：种子、装备、兽卵") String category
+            @ToolParam(description = "要查询的类别") InventoryCategory category
     ) {
         try {
             Long userId = getCurrentUserId();
             return switch (category) {
-                case "种子" -> {
+                case SEED -> {
                     var list = inventoryService.getSeedInventory(userId);
                     if (list.isEmpty()) yield "背包中没有种子。";
                     yield formatInventoryList("种子", list);
                 }
-                case "装备" -> {
+                case EQUIPMENT -> {
                     var list = inventoryService.getEquipmentInventory(userId);
                     if (list.isEmpty()) yield "背包中没有可装备的物品。";
                     var sb = new StringBuilder("【装备列表】\n");
@@ -86,12 +87,11 @@ public class SpiritTools {
                     }
                     yield sb.toString().strip();
                 }
-                case "兽卵" -> {
+                case BEAST_EGG -> {
                     var list = inventoryService.getEggInventory(userId);
                     if (list.isEmpty()) yield "背包中没有兽卵。";
                     yield formatInventoryList("兽卵", list);
                 }
-                default -> "支持的类别：种子、装备、兽卵";
             };
         } catch (Exception e) {
             log.error("查询背包失败: category={}", category, e);
@@ -112,7 +112,7 @@ public class SpiritTools {
     /**
      * 种植灵药工具
      */
-    @Tool(description = "在福地的指定地块编号种植灵药。需要先调用getGridStatus确认地块为空，再调用queryBag('种子')查看可用种子的编号。提供地块编号（如1、2等）和种子名称或编号。")
+    @Tool(description = "在福地的指定地块编号种植灵药。需要先调用getCellStatus确认地块为空，再调用queryBag查看可用种子。提供地块编号（如1、2等）和种子名称或编号。")
     public PlantCropResponse plantCrop(
             @ToolParam(description = "种植地块编号，如'1'、'2'等") String position,
             @ToolParam(description = "种子编号或名称。先调用queryBag('种子')查看编号，例如'1'、'2'，或直接使用名称如'灵草种子'") String cropName
@@ -143,23 +143,22 @@ public class SpiritTools {
     @Tool(description = "在福地的指定地块编号建造地块，可以建造灵田或兽栏。")
     public BuildCellResponse buildCell(
             @ToolParam(description = "建造地块编号，如'1'、'2'等") String position,
-            @ToolParam(description = "地块类型：灵田、兽栏") String cellType
+            @ToolParam(description = "地块类型") CellType cellType
     ) {
         try {
             Long userId = getCurrentUserId();
-            CellType type = CellType.fromChineseName(cellType);
 
-            fudiService.buildCell(userId, position, type);
+            fudiService.buildCell(userId, position, cellType);
 
             return new BuildCellResponse(
                     true,
-                    String.format("已在地块 %s 建造%s。", position, cellType),
+                    String.format("已在地块 %s 建造%s。", position, cellType.getChineseName()),
                     position,
-                    cellType
+                    cellType.getChineseName()
             );
         } catch (Exception e) {
             log.error("建造地块失败: position={}, cellType={}", position, cellType, e);
-            return new BuildCellResponse(false, "建造失败：" + e.getMessage(), position, cellType);
+            return new BuildCellResponse(false, "建造失败：" + e.getMessage(), position, cellType.getChineseName());
         }
     }
 

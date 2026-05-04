@@ -8,12 +8,15 @@ import lombok.Getter;
  */
 @Getter
 public enum EmotionState {
-    HAPPY("happy", "😊", "灵气充足，无焦土地块"),
-    CALM("calm", "😐", "正常状态"),
-    ANXIOUS("anxious", "😰", "灵气低于30%"),
-    FATIGUED("fatigued", "😴", "精力耗尽"),
-    ANGRY("angry", "😤", "天劫失利，地块被毁"),
-    EXCITED("excited", "🥳", "天劫胜利或玩家升级福地");
+    AFFECTIONATE("affectionate", "💕", "与你心意相通，寸步不愿离开"),
+    JOYFUL("joyful", "😊", "心情舒畅，觉得跟着你是天大的福分"),
+    CONTENT("content", "😌", "对现状颇为满意，岁月静好"),
+    NEUTRAL("neutral", "😐", "心如止水，与你客气相处"),
+    DISTANT("distant", "😶", "与你尚有隔阂，态度疏离"),
+    WORRIED("worried", "😰", "为福地荒芜感到忧虑，盼你多加照料"),
+    EXCITED("excited", "🥳", "欣喜若狂，有好事降临"),
+    ANGRY("angry", "💢", "天劫失利，迁怒于你的疏忽"),
+    EXHAUSTED("exhausted", "😵", "替你挡下天劫，元气大伤陷入沉睡");
 
     @EnumValue
     private final String code;

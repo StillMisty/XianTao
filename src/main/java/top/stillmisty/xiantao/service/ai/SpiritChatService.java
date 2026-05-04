@@ -19,7 +19,6 @@ import top.stillmisty.xiantao.infrastructure.mapper.SpiritFormMapper;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
-import top.stillmisty.xiantao.service.annotation.ConsumeSpiritEnergy;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -57,7 +56,6 @@ public class SpiritChatService {
 
     // ===================== 内部 API（需预先完成认证） =====================
 
-    @ConsumeSpiritEnergy(5)
     public String chatWithSpirit(Long userId, String userInput) {
         try {
             return ScopedValue.where(UserContext.CURRENT_USER, userId).call(() -> {
@@ -72,7 +70,7 @@ public class SpiritChatService {
 
                 // 生成福地事件
                 List<FudiEvent> events = fudiEventGenerator.generateEvents(
-                        spirit.getLastEventTime() != null ? spirit.getLastEventTime() : spirit.getLastEnergyUpdate()
+                        spirit.getLastEventTime()
                 );
 
                 // 获取历史记录
@@ -144,11 +142,9 @@ public class SpiritChatService {
         return promptTemplates.buildSpiritPrompt(
                 spirit.getMbtiType(),
                 fudi.getTribulationStage(),
-                spirit.getEnergy(),
                 spirit.getAffection(),
                 cellDetail,
                 emotionState,
-                spirit.getEnergyMax(fudi.getTribulationStage()),
                 formName
         ) + eventContext + historyContext;
     }
