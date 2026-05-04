@@ -28,6 +28,7 @@ repositories {
 }
 
 dependencies {
+    implementation(libs.caffeine)
     implementation(libs.spring.boot.starter.cache)
     implementation(libs.mybatis.flex.spring.boot4.starter)
     annotationProcessor(libs.mybatis.flex.processor)
