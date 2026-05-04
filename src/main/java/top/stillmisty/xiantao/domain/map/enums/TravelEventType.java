@@ -2,6 +2,9 @@ package top.stillmisty.xiantao.domain.map.enums;
 
 import com.mybatisflex.annotation.EnumValue;
 import lombok.Getter;
+import top.stillmisty.xiantao.domain.map.entity.TravelEventEntry;
+
+import java.util.List;
 
 /**
  * 旅行事件类型枚举
@@ -53,15 +56,15 @@ public enum TravelEventType {
     /**
      * 根据权重随机获取事件类型
      *
-     * @param eventTypeWeights 事件权重表 (eventTypeName -> weight)
+     * @param eventEntries 事件权重列表
      * @return 随机事件类型
      */
-    public static TravelEventType randomEvent(java.util.Map<String, Integer> eventTypeWeights) {
-        if (eventTypeWeights == null || eventTypeWeights.isEmpty()) {
+    public static TravelEventType randomEvent(List<TravelEventEntry> eventEntries) {
+        if (eventEntries == null || eventEntries.isEmpty()) {
             return SAFE_PASSAGE;
         }
 
-        int totalWeight = eventTypeWeights.values().stream().mapToInt(Integer::intValue).sum();
+        int totalWeight = eventEntries.stream().mapToInt(TravelEventEntry::weight).sum();
         if (totalWeight == 0) {
             return SAFE_PASSAGE;
         }
@@ -69,15 +72,13 @@ public enum TravelEventType {
         int random = (int) (Math.random() * totalWeight);
         int currentWeight = 0;
 
-        for (TravelEventType type : values()) {
-            if (type == SAFE_PASSAGE) continue; // 跳过安全通行
-
-            Integer weight = eventTypeWeights.get(type.getCode());
-            if (weight == null) weight = 0;
-
-            currentWeight += weight;
+        for (TravelEventEntry entry : eventEntries) {
+            currentWeight += entry.weight();
             if (random < currentWeight) {
-                return type;
+                TravelEventType type = fromCode(entry.eventType());
+                if (type != null) {
+                    return type;
+                }
             }
         }
 

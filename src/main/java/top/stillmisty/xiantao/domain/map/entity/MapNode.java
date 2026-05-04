@@ -9,11 +9,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import top.stillmisty.xiantao.domain.map.enums.MapType;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
-import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 地图节点实体
@@ -51,10 +49,10 @@ public class MapNode extends Model<MapNode> {
 
     /**
      * 相邻地图 (JSONB)
-     * 格式: {"1": 5, "2": 10} （mapId → 旅行耗时/分钟）
+     * 格式: [{"targetId": 1, "cost": 5}]
      */
-    @Column(typeHandler = PgJsonbTypeHandler.class)
-    private Map<String, Integer> neighbors;
+    @Column(typeHandler = JsonbCollectionTypeHandler.class)
+    private List<NeighborEntry> neighbors;
 
     /**
      * 历练掉落池/特产 (JSONB)
@@ -65,10 +63,10 @@ public class MapNode extends Model<MapNode> {
 
     /**
      * 旅行事件权重 (JSONB)
-     * 格式: {"ambush": 40, "find_treasure": 10} (eventType → weight)
+     * 格式: [{"eventType": "ambush", "weight": 40}]
      */
-    @Column(typeHandler = PgJsonbTypeHandler.class)
-    private Map<String, Integer> travelEvents;
+    @Column(typeHandler = JsonbCollectionTypeHandler.class)
+    private List<TravelEventEntry> travelEvents;
 
     /**
      * 遇怪池 (JSONB)
@@ -104,7 +102,11 @@ public class MapNode extends Model<MapNode> {
      */
     public Integer getTravelTimeTo(Long mapId) {
         if (neighbors == null) return null;
-        return neighbors.get(String.valueOf(mapId));
+        return neighbors.stream()
+                .filter(n -> n.targetId().equals(mapId))
+                .findFirst()
+                .map(NeighborEntry::cost)
+                .orElse(null);
     }
 
     /**
@@ -112,7 +114,7 @@ public class MapNode extends Model<MapNode> {
      */
     public boolean isAdjacentTo(Long mapId) {
         if (neighbors == null) return false;
-        return neighbors.containsKey(String.valueOf(mapId));
+        return neighbors.stream().anyMatch(n -> n.targetId().equals(mapId));
     }
 
     /**
@@ -120,6 +122,8 @@ public class MapNode extends Model<MapNode> {
      */
     public java.util.Set<Long> getAdjacentMapIds() {
         if (neighbors == null) return java.util.Set.of();
-        return neighbors.keySet().stream().map(Long::valueOf).collect(java.util.stream.Collectors.toSet());
+        return neighbors.stream()
+                .map(NeighborEntry::targetId)
+                .collect(java.util.stream.Collectors.toSet());
     }
 }

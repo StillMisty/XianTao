@@ -84,9 +84,8 @@ public class MapService {
         var neighbors = mapNode.getNeighbors();
         List<String> adjacentMapNames;
         if (neighbors != null && !neighbors.isEmpty()) {
-            adjacentMapNames = neighbors.keySet().stream()
-                    .map(Long::valueOf)
-                    .map(id -> mapNodeRepository.findById(id).map(MapNode::getName).orElse("未知"))
+            adjacentMapNames = neighbors.stream()
+                    .map(n -> mapNodeRepository.findById(n.targetId()).map(MapNode::getName).orElse("未知"))
                     .toList();
         } else {
             adjacentMapNames = List.of();

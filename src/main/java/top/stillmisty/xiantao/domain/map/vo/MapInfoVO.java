@@ -2,11 +2,12 @@ package top.stillmisty.xiantao.domain.map.vo;
 
 import lombok.Builder;
 import lombok.Data;
+import top.stillmisty.xiantao.domain.map.entity.NeighborEntry;
 import top.stillmisty.xiantao.domain.map.entity.SpecialtyEntry;
+import top.stillmisty.xiantao.domain.map.entity.TravelEventEntry;
 import top.stillmisty.xiantao.domain.map.enums.MapType;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 地图信息 VO
@@ -45,10 +46,10 @@ public class MapInfoVO {
     private Integer levelRequirement;
 
     /**
-     * 相邻地图 ID → 旅行耗时 (JSONB 反序列化后处理)
-     * 格式: {"1": 5, "2": 10}
+     * 相邻地图列表 (JSONB 反序列化后处理)
+     * 格式: [{"targetId": 1, "cost": 5}]
      */
-    private Map<String, Integer> neighbors;
+    private List<NeighborEntry> neighbors;
 
     /**
      * 相邻地图名称列表（已解析，用于展示）
@@ -62,9 +63,9 @@ public class MapInfoVO {
 
     /**
      * 旅行事件权重 (JSONB)
-     * 格式: {"ambush": 40, "find_treasure": 10} (eventType → weight)
+     * 格式: [{"eventType": "ambush", "weight": 40}]
      */
-    private Map<String, Integer> travelEvents;
+    private List<TravelEventEntry> travelEvents;
 
     /**
      * 遇怪列表（已解析怪物名称）

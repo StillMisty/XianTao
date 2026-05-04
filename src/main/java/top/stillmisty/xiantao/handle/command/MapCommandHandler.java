@@ -434,8 +434,11 @@ public class MapCommandHandler {
             !map.getAdjacentMapNames().isEmpty()
         ) {
             sb.append("\n【相邻地图】\n");
-            for (String adjName : map.getAdjacentMapNames()) {
-                Integer travelTime = map.getNeighbors().get(adjName);
+            for (int i = 0; i < map.getAdjacentMapNames().size(); i++) {
+                String adjName = map.getAdjacentMapNames().get(i);
+                Integer travelTime = map.getNeighbors() != null && i < map.getNeighbors().size()
+                    ? map.getNeighbors().get(i).cost()
+                    : null;
                 String timeStr = travelTime != null
                     ? " (" + FormatUtils.formatMinutes(travelTime) + ")"
                     : "";

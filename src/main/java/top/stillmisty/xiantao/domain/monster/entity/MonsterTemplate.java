@@ -7,11 +7,9 @@ import com.mybatisflex.annotation.Table;
 import lombok.Data;
 import top.stillmisty.xiantao.domain.monster.enums.MonsterType;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
-import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 @Data
 @Table("xt_monster_template")
@@ -37,8 +35,8 @@ public class MonsterTemplate {
     @Column(typeHandler = JsonbCollectionTypeHandler.class)
     private List<Long> skills;
 
-    @Column(typeHandler = PgJsonbTypeHandler.class)
-    private Map<String, Object> dropTable;
+    @Column(typeHandler = JsonbCollectionTypeHandler.class)
+    private List<DropTableEntry> dropTable;
 
     private LocalDateTime createTime;
 

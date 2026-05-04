@@ -1,52 +1,54 @@
 spring:
-  profiles:
-    active: local
-  application:
-    name: XianTao
-    version: 0.0.1
-  threads:
-    virtual:
-      enabled: true
+    profiles:
+        active: local
+    application:
+        name: XianTao
+        version: 0.0.1
+    threads:
+        virtual:
+            enabled: true
+    cache:
+        type: caffeine
 
-  datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/xiantao}
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:}
-    driver-class-name: org.postgresql.Driver
-    # HikariCP 连接池配置（可选）
-    hikari:
-      minimum-idle: 10
-      maximum-pool-size: 50
-      idle-timeout: 30000
-      max-lifetime: 1800000
-      connection-timeout: 30000
-      pool-name: XianTaoHikariCP
+    datasource:
+        url: ${DB_URL:jdbc:postgresql://localhost:5432/xiantao}
+        username: ${DB_USERNAME:postgres}
+        password: ${DB_PASSWORD:}
+        driver-class-name: org.postgresql.Driver
+        # HikariCP 连接池配置（可选）
+        hikari:
+            minimum-idle: 10
+            maximum-pool-size: 50
+            idle-timeout: 30000
+            max-lifetime: 1800000
+            connection-timeout: 30000
+            pool-name: XianTaoHikariCP
 
-  flyway:
-    enabled: true
-    baseline-on-migrate: true
-    baseline-version: "0"
-    locations: classpath:db/migration
-    validate-on-migrate: false
-  ai:
-    openai:
-          api-key: ${OPENAI_API_KEY:sk-placeholder}
-          base-url: ${OPENAI_BASE_URL:https://api.deepseek.com}
-          chat:
-            options:
-              model: ${OPENAI_MODEL:deepseek-v4-flash}
-              temperature: 0.7
-              max-tokens: 1000
+    flyway:
+        enabled: true
+        baseline-on-migrate: true
+        baseline-version: "0"
+        locations: classpath:db/migration
+        validate-on-migrate: false
+    ai:
+        openai:
+            api-key: ${OPENAI_API_KEY:sk-placeholder}
+            base-url: ${OPENAI_BASE_URL:https://api.deepseek.com}
+            chat:
+                options:
+                    model: ${OPENAI_MODEL:deepseek-v4-flash}
+                    temperature: 0.7
+                    max-tokens: 1000
 
 # MyBatis-Flex 配置
 mybatis-flex:
-  mapper-locations: classpath*:/mappers/**/*.xml
-  type-aliases-package: top.stillmisty.xiantao.domain
-  configuration:
-    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+    mapper-locations: classpath*:/mappers/**/*.xml
+    type-aliases-package: top.stillmisty.xiantao.domain
+    configuration:
+        log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
 
 # 日志配置
 logging:
-  level:
-    # MyBatis-Flex SQL 日志
-    top.stillmisty.xiantao.infrastructure.mapper: DEBUG
+    level:
+        # MyBatis-Flex SQL 日志
+        top.stillmisty.xiantao.infrastructure.mapper: DEBUG
