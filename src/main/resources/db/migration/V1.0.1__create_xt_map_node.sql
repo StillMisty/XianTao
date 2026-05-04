@@ -32,3 +32,9 @@ COMMENT ON COLUMN xt_map_node.update_time IS '更新时间';
 -- 创建索引
 CREATE INDEX idx_map_node_type ON xt_map_node (map_type);
 CREATE INDEX idx_map_node_level ON xt_map_node (level_requirement);
+
+-- JSONB GIN 索引，支持 @> 等包含查询
+CREATE INDEX idx_map_node_monster_encounters_gin ON xt_map_node USING GIN (monster_encounters);
+CREATE INDEX idx_map_node_specialties_gin ON xt_map_node USING GIN (specialties);
+CREATE INDEX idx_map_node_neighbors_gin ON xt_map_node USING GIN (neighbors);
+CREATE INDEX idx_map_node_travel_events_gin ON xt_map_node USING GIN (travel_events);

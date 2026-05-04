@@ -123,8 +123,8 @@ public class CharacterStatusService {
             travelStartTime = user.getTravelStartTime();
 
             var currentMap = mapNodeRepository.findById(user.getLocationId());
-            if (currentMap.isPresent() && travelDestinationName != null) {
-                travelTimeMinutes = currentMap.get().getTravelTimeTo(travelDestinationName);
+            if (currentMap.isPresent()) {
+                travelTimeMinutes = currentMap.get().getTravelTimeTo(user.getTravelDestinationId());
             }
 
             if (travelStartTime != null) {

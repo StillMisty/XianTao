@@ -86,7 +86,7 @@ public class UserStateService {
             return false;
         }
 
-        Integer travelTime = currentMap.get().getTravelTimeTo(destinationMap.get().getName());
+        Integer travelTime = currentMap.get().getTravelTimeTo(destinationMap.get().getId());
         if (travelTime == null) {
             return false;
         }

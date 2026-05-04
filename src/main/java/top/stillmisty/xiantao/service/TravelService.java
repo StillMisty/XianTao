@@ -58,7 +58,7 @@ public class TravelService {
         }
         MapNode targetMap = targetMapOpt.get();
 
-        if (!currentMap.isAdjacentTo(targetMap.getName())) {
+        if (!currentMap.isAdjacentTo(targetMap.getId())) {
             return TravelResultVO.builder()
                     .success(false)
                     .message(currentMap.getName() + " 与 " + targetMap.getName() + " 不相邻，无法直接前往")
@@ -72,7 +72,7 @@ public class TravelService {
                     .build();
         }
 
-        Integer travelTime = currentMap.getTravelTimeTo(targetMap.getName());
+        Integer travelTime = currentMap.getTravelTimeTo(targetMap.getId());
 
         user.setStatus(UserStatus.RUNNING);
         user.setTravelStartTime(LocalDateTime.now());

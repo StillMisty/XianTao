@@ -37,3 +37,21 @@ INSERT INTO xt_map_node (name, description, map_type, level_requirement, neighbo
 ('虚空裂缝','现世与虚空之间不稳定空间。裂缝喷涌混沌之气——疯子修士最爱来因为修炼一天抵十年——至于修完是人是妖是死是活不在统计范围。','hidden_zone',80,'{"魔界裂隙":10,"天机阁":12,"远古神墓":12}',jsonb_build_array(jsonb_build_object('templateId',(SELECT id FROM xt_item_template WHERE name='混沌元晶'),'weight',35),jsonb_build_object('templateId',(SELECT id FROM xt_item_template WHERE name='天道碎片'),'weight',35),jsonb_build_object('templateId',(SELECT id FROM xt_item_template WHERE name='天道花瓣'),'weight',30)),'{"ambush":60,"find_treasure":10}',jsonb_build_array(jsonb_build_object('templateId',(SELECT id FROM xt_monster_template WHERE name='虚空领主'),'weight',30,'min',1,'max',3),jsonb_build_object('templateId',(SELECT id FROM xt_monster_template WHERE name='魔界之主'),'weight',30,'min',1,'max',3),jsonb_build_object('templateId',(SELECT id FROM xt_monster_template WHERE name='万剑剑灵'),'weight',20,'min',1,'max',2),jsonb_build_object('templateId',(SELECT id FROM xt_monster_template WHERE name='飞升失败者'),'weight',20,'min',1,'max',2))),
 ('混沌之源','万物本源之地。没人知道在哪——连去过的人都说不清楚因为进去再出来的人记忆支离破碎。不是标注地点而是一种状态——修炼到一定境界它会来找你——也可能只是错觉。修真界最大未解之谜:"混沌之源存不存在？"道观说存在魔教说不存在——打了一万年。','hidden_zone',100,'{"天道之路":10,"仙界遗迹核心":12,"虚空裂缝":12}',jsonb_build_array(jsonb_build_object('templateId',(SELECT id FROM xt_item_template WHERE name='混沌元晶'),'weight',25),jsonb_build_object('templateId',(SELECT id FROM xt_item_template WHERE name='天道碎片'),'weight',35),jsonb_build_object('templateId',(SELECT id FROM xt_item_template WHERE name='天道花瓣'),'weight',40)),'{"ambush":50,"find_treasure":30}',jsonb_build_array(jsonb_build_object('templateId',(SELECT id FROM xt_monster_template WHERE name='万剑剑灵'),'weight',25,'min',1,'max',3),jsonb_build_object('templateId',(SELECT id FROM xt_monster_template WHERE name='上古龙神'),'weight',30,'min',1,'max',3),jsonb_build_object('templateId',(SELECT id FROM xt_monster_template WHERE name='飞升失败者'),'weight',45,'min',1,'max',3)));
 SELECT setval('xt_map_node_id_seq', (SELECT COALESCE(MAX(id), 0) FROM xt_map_node));
+
+-- 将 neighbors 从 {"地图名称": 耗时} 迁移为 {"地图ID": 耗时}
+WITH mapping AS (
+    SELECT id, name FROM xt_map_node
+),
+transformed AS (
+    SELECT 
+        mn.id AS map_id,
+        (SELECT jsonb_object_agg(target.id::text, (n.value)::int)
+         FROM jsonb_each(mn.neighbors) AS n
+         JOIN mapping target ON target.name = n.key) AS new_neighbors
+    FROM xt_map_node mn
+    WHERE mn.neighbors IS NOT NULL AND mn.neighbors::text <> '{}'
+)
+UPDATE xt_map_node mn
+SET neighbors = COALESCE(t.new_neighbors, '{}'::jsonb)
+FROM transformed t
+WHERE mn.id = t.map_id;

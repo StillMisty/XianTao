@@ -45,13 +45,13 @@ public class MapInfoVO {
     private Integer levelRequirement;
 
     /**
-     * 相邻地图 (JSONB)
-     * 格式: {"黑金主城": 5, "枯骨林": 10}
+     * 相邻地图 ID → 旅行耗时 (JSONB 反序列化后处理)
+     * 格式: {"1": 5, "2": 10}
      */
     private Map<String, Integer> neighbors;
 
     /**
-     * 相邻地图名称列表
+     * 相邻地图名称列表（已解析，用于展示）
      */
     private List<String> adjacentMapNames;
 

@@ -51,7 +51,7 @@ public class MapNode extends Model<MapNode> {
 
     /**
      * 相邻地图 (JSONB)
-     * 格式: {"黑金主城": 5, "枯骨林": 10}
+     * 格式: {"1": 5, "2": 10} （mapId → 旅行耗时/分钟）
      */
     @Column(typeHandler = PgJsonbTypeHandler.class)
     private Map<String, Integer> neighbors;
@@ -102,24 +102,24 @@ public class MapNode extends Model<MapNode> {
     /**
      * 获取到指定地图的旅行时间
      */
-    public Integer getTravelTimeTo(String mapName) {
+    public Integer getTravelTimeTo(Long mapId) {
         if (neighbors == null) return null;
-        return neighbors.get(mapName);
+        return neighbors.get(String.valueOf(mapId));
     }
 
     /**
      * 检查是否与指定地图相邻
      */
-    public boolean isAdjacentTo(String mapName) {
+    public boolean isAdjacentTo(Long mapId) {
         if (neighbors == null) return false;
-        return neighbors.containsKey(mapName);
+        return neighbors.containsKey(String.valueOf(mapId));
     }
 
     /**
-     * 获取所有相邻地图名称
+     * 获取所有相邻地图 ID
      */
-    public List<String> getAdjacentMapNames() {
-        if (neighbors == null) return List.of();
-        return List.copyOf(neighbors.keySet());
+    public java.util.Set<Long> getAdjacentMapIds() {
+        if (neighbors == null) return java.util.Set.of();
+        return neighbors.keySet().stream().map(Long::valueOf).collect(java.util.stream.Collectors.toSet());
     }
 }

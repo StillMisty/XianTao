@@ -81,6 +81,17 @@ public class MapService {
     private MapInfoVO convertToMapInfoVO(MapNode mapNode) {
         List<MapInfoVO.MonsterInfoVO> monsters = buildMonsterInfoList(mapNode.getMonsterEncounters());
 
+        var neighbors = mapNode.getNeighbors();
+        List<String> adjacentMapNames;
+        if (neighbors != null && !neighbors.isEmpty()) {
+            adjacentMapNames = neighbors.keySet().stream()
+                    .map(Long::valueOf)
+                    .map(id -> mapNodeRepository.findById(id).map(MapNode::getName).orElse("未知"))
+                    .toList();
+        } else {
+            adjacentMapNames = List.of();
+        }
+
         return MapInfoVO.builder()
                 .id(mapNode.getId())
                 .name(mapNode.getName())
@@ -89,7 +100,7 @@ public class MapService {
                 .mapTypeName(mapNode.getMapType().getName())
                 .levelRequirement(mapNode.getLevelRequirement())
                 .neighbors(mapNode.getNeighbors())
-                .adjacentMapNames(mapNode.getAdjacentMapNames())
+                .adjacentMapNames(adjacentMapNames)
                 .specialties(mapNode.getSpecialties())
                 .travelEvents(mapNode.getTravelEvents())
                 .monsters(monsters)
