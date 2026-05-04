@@ -12,7 +12,6 @@ import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -92,7 +91,7 @@ public class PgJsonbTypeHandler extends BaseTypeHandler<Object> {
             Class<?> targetType = resolveConcreteType(cellType);
             if (genericType != null && Collection.class.isAssignableFrom(targetType)) {
                 JavaType javaType = OBJECT_MAPPER.getTypeFactory()
-                        .constructCollectionType(ArrayList.class, genericType);
+                        .constructCollectionType((Class<? extends Collection>) targetType, genericType);
                 return OBJECT_MAPPER.readValue(jsonString, javaType);
             }
             return OBJECT_MAPPER.readValue(jsonString, targetType);
