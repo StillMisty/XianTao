@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
-import top.stillmisty.xiantao.domain.map.entity.MonsterSpawn;
+import top.stillmisty.xiantao.domain.map.entity.MonsterEncounterEntry;
 import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
 import top.stillmisty.xiantao.domain.map.vo.MapInfoVO;
 import top.stillmisty.xiantao.domain.monster.entity.MonsterTemplate;
@@ -14,7 +14,6 @@ import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -100,29 +99,28 @@ public class MapService {
     /**
      * 根据遇怪池构建怪物信息列表
      */
-    private List<MapInfoVO.MonsterInfoVO> buildMonsterInfoList(Map<Long, MonsterSpawn> monsterEncounters) {
+    private List<MapInfoVO.MonsterInfoVO> buildMonsterInfoList(List<MonsterEncounterEntry> monsterEncounters) {
         if (monsterEncounters == null || monsterEncounters.isEmpty()) {
             return List.of();
         }
-        List<Long> templateIds = new ArrayList<>(monsterEncounters.keySet());
+        List<Long> templateIds = monsterEncounters.stream()
+                .map(MonsterEncounterEntry::templateId)
+                .toList();
         Map<Long, MonsterTemplate> templateMap = monsterTemplateRepository.findByIds(templateIds).stream()
                 .collect(java.util.stream.Collectors.toMap(MonsterTemplate::getId, t -> t));
 
-        return monsterEncounters.entrySet().stream()
+        return monsterEncounters.stream()
                 .map(entry -> {
-                    Long templateId = entry.getKey();
-                    MonsterSpawn spawn = entry.getValue();
-                    MonsterTemplate template = templateMap.get(templateId);
-
+                    MonsterTemplate template = templateMap.get(entry.templateId());
                     return MapInfoVO.MonsterInfoVO.builder()
-                            .templateId(templateId)
+                            .templateId(entry.templateId())
                             .name(template != null ? template.getName() : "未知怪物")
                             .typeName(template != null && template.getMonsterType() != null
                                     ? template.getMonsterType().getName() : "未知")
                             .baseLevel(template != null ? template.getBaseLevel() : null)
-                            .weight(spawn.weight())
-                            .minCount(spawn.min())
-                            .maxCount(spawn.max())
+                            .weight(entry.weight())
+                            .minCount(entry.min())
+                            .maxCount(entry.max())
                             .build();
                 })
                 .sorted((a, b) -> Integer.compare(b.getWeight(), a.getWeight()))

@@ -12,7 +12,8 @@ import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
-import top.stillmisty.xiantao.domain.map.entity.MonsterSpawn;
+import top.stillmisty.xiantao.domain.map.entity.SpecialtyEntry;
+import top.stillmisty.xiantao.domain.map.entity.MonsterEncounterEntry;
 import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
 import top.stillmisty.xiantao.domain.map.vo.TrainingRewardVO;
 import top.stillmisty.xiantao.domain.map.vo.TrainingStartResult;
@@ -224,7 +225,7 @@ public class TrainingService {
         User user = userStateService.getUser(userId);
         MapNode mapNode = mapNodeRepository.findById(user.getLocationId()).orElseThrow();
 
-        Map<Long, MonsterSpawn> monsterEncounters = mapNode.getMonsterEncounters();
+        List<MonsterEncounterEntry> monsterEncounters = mapNode.getMonsterEncounters();
         if (monsterEncounters == null || monsterEncounters.isEmpty()) {
             return buildEmptyBattleResult(mapNode);
         }
@@ -243,7 +244,7 @@ public class TrainingService {
         Map<Long, Beast> beastCache = new LinkedHashMap<>();
 
         // 预加载怪物模板，避免 N+1 查询
-        var templateIds = new ArrayList<>(monsterEncounters.keySet());
+        var templateIds = monsterEncounters.stream().map(MonsterEncounterEntry::templateId).toList();
         Map<Long, MonsterTemplate> templateMap = monsterTemplateRepository.findByIds(templateIds).stream()
                 .collect(Collectors.toMap(MonsterTemplate::getId, t -> t));
 
@@ -266,9 +267,11 @@ public class TrainingService {
             Long selectedTemplateId = weightedSelect(monsterEncounters);
             if (selectedTemplateId == null) continue;
 
-            MonsterSpawn spawn = monsterEncounters.get(selectedTemplateId);
             MonsterTemplate tmpl = templateMap.get(selectedTemplateId);
             if (tmpl == null) continue;
+
+            MonsterEncounterEntry spawn = findEncounterEntry(monsterEncounters, selectedTemplateId);
+            if (spawn == null) continue;
 
             totalEncounters++;
             int count = spawn.min() + ThreadLocalRandom.current().nextInt(spawn.max() - spawn.min() + 1);
@@ -356,16 +359,20 @@ public class TrainingService {
         }
     }
 
-    private Long weightedSelect(Map<Long, MonsterSpawn> spawnMap) {
-        int total = spawnMap.values().stream().mapToInt(MonsterSpawn::weight).sum();
+    private Long weightedSelect(List<MonsterEncounterEntry> encounterEntries) {
+        int total = encounterEntries.stream().mapToInt(MonsterEncounterEntry::weight).sum();
         if (total <= 0) return null;
         int roll = ThreadLocalRandom.current().nextInt(total);
         int cumulative = 0;
-        for (var entry : spawnMap.entrySet()) {
-            cumulative += entry.getValue().weight();
-            if (roll < cumulative) return entry.getKey();
+        for (var entry : encounterEntries) {
+            cumulative += entry.weight();
+            if (roll < cumulative) return entry.templateId();
         }
         return null;
+    }
+
+    private MonsterEncounterEntry findEncounterEntry(List<MonsterEncounterEntry> encounterEntries, Long templateId) {
+        return encounterEntries.stream().filter(e -> e.templateId().equals(templateId)).findFirst().orElse(null);
     }
 
     private int calculateGearScore(Long userId) {
@@ -448,14 +455,15 @@ public class TrainingService {
         var specialties = mapNode.getSpecialties();
         if (specialties == null || specialties.isEmpty()) return items;
 
-        Map<Long, ItemTemplate> templateMap = itemTemplateRepository.findByIds(new ArrayList<>(specialties.keySet()))
+        Map<Long, ItemTemplate> templateMap = itemTemplateRepository.findByIds(
+                        specialties.stream().map(top.stillmisty.xiantao.domain.map.entity.SpecialtyEntry::templateId).toList())
                 .stream()
                 .collect(Collectors.toMap(ItemTemplate::getId, t -> t));
 
         int dropChances = (int) (minutesTraining / 10.0 * efficiencyMultiplier);
 
         for (int i = 0; i < dropChances; i++) {
-            Long selectedTemplateId = TypeUtils.weightedRandomSelect(specialties, ThreadLocalRandom.current());
+            Long selectedTemplateId = weightedSelectSpecialty(specialties, ThreadLocalRandom.current());
             if (selectedTemplateId == null) continue;
 
             int quantity = ThreadLocalRandom.current().nextInt(3) + 1;
@@ -494,6 +502,18 @@ public class TrainingService {
                     .orElse(ItemType.MATERIAL);
             stackableItemService.addStackableItem(userId, templateId, itemType, name, quantity);
         }
+    }
+
+    private Long weightedSelectSpecialty(List<SpecialtyEntry> specialties, java.util.Random rng) {
+        int total = specialties.stream().mapToInt(SpecialtyEntry::weight).sum();
+        if (total <= 0) return null;
+        int roll = rng.nextInt(total);
+        int cumulative = 0;
+        for (var entry : specialties) {
+            cumulative += entry.weight();
+            if (roll < cumulative) return entry.templateId();
+        }
+        return null;
     }
 
     private record EncounterParams(int encounterChances, double encounterChance) {

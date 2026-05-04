@@ -1,5 +1,6 @@
 package top.stillmisty.xiantao.domain.monster.enums;
 
+import com.mybatisflex.annotation.EnumValue;
 import lombok.Getter;
 
 /**
@@ -16,6 +17,7 @@ public enum MonsterType {
     FLYING("flying", "飞行"),
     HUMAN("human", "人形");
 
+    @EnumValue
     private final String code;
     private final String name;
 

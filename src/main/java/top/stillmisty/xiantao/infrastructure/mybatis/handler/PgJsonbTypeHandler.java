@@ -4,6 +4,7 @@ import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.MappedTypes;
 import org.postgresql.util.PGobject;
+import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ObjectMapper;
 import top.stillmisty.xiantao.domain.fudi.entity.CellConfig;
 
@@ -11,6 +12,8 @@ import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * PostgreSQL JSONB Type Handler for MyBatis.
@@ -22,13 +25,25 @@ public class PgJsonbTypeHandler extends BaseTypeHandler<Object> {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private final Class<?> propertyType;
+    private final Class<?> genericType;
 
     public PgJsonbTypeHandler() {
         this.propertyType = Object.class;
+        this.genericType = null;
     }
 
     public PgJsonbTypeHandler(Class<?> propertyType) {
         this.propertyType = propertyType;
+        this.genericType = null;
+    }
+
+    /**
+     * MyBatis-Flex 的 createCollectionTypeHandler 会调用此构造器，
+     * 传入原始类型(如 List.class)和泛型元素类型(如 SkillEffect.class)。
+     */
+    public PgJsonbTypeHandler(Class<?> propertyType, Class<?> genericType) {
+        this.propertyType = propertyType;
+        this.genericType = genericType;
     }
 
     @Override
@@ -75,6 +90,11 @@ public class PgJsonbTypeHandler extends BaseTypeHandler<Object> {
         }
         try {
             Class<?> targetType = resolveConcreteType(cellType);
+            if (genericType != null && Collection.class.isAssignableFrom(targetType)) {
+                JavaType javaType = OBJECT_MAPPER.getTypeFactory()
+                        .constructCollectionType(ArrayList.class, genericType);
+                return OBJECT_MAPPER.readValue(jsonString, javaType);
+            }
             return OBJECT_MAPPER.readValue(jsonString, targetType);
         } catch (Exception e) {
             throw new SQLException("Failed to deserialize JSONB to object: " + jsonString, e);

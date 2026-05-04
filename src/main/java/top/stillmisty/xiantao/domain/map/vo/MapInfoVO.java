@@ -2,6 +2,7 @@ package top.stillmisty.xiantao.domain.map.vo;
 
 import lombok.Builder;
 import lombok.Data;
+import top.stillmisty.xiantao.domain.map.entity.SpecialtyEntry;
 import top.stillmisty.xiantao.domain.map.enums.MapType;
 
 import java.util.List;
@@ -56,9 +57,8 @@ public class MapInfoVO {
 
     /**
      * 历练掉落池/特产 (JSONB)
-     * 格式: {"1": 30, "2": 50} (templateId → weight)
      */
-    private Map<Long, Integer> specialties;
+    private List<SpecialtyEntry> specialties;
 
     /**
      * 旅行事件权重 (JSONB)

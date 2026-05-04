@@ -57,10 +57,10 @@ public class MapNode extends Model<MapNode> {
 
     /**
      * 历练掉落池/特产 (JSONB)
-     * 格式: {"1": 30, "2": 50} (templateId → weight)
+     * 格式: [{"templateId": 1, "weight": 30}]
      */
     @Column(typeHandler = PgJsonbTypeHandler.class)
-    private Map<Long, Integer> specialties;
+    private List<SpecialtyEntry> specialties;
 
     /**
      * 旅行事件权重 (JSONB)
@@ -71,10 +71,10 @@ public class MapNode extends Model<MapNode> {
 
     /**
      * 遇怪池 (JSONB)
-     * 格式: {"template_id": {"weight": 50, "min": 1, "max": 3}}
+     * 格式: [{"templateId": 1, "weight": 50, "min": 1, "max": 3}]
      */
     @Column(typeHandler = PgJsonbTypeHandler.class)
-    private Map<Long, MonsterSpawn> monsterEncounters;
+    private List<MonsterEncounterEntry> monsterEncounters;
 
     /**
      * 创建时间

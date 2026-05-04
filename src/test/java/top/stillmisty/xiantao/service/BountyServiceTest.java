@@ -18,6 +18,7 @@ import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
+import top.stillmisty.xiantao.domain.map.entity.SpecialtyEntry;
 import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
@@ -281,7 +282,7 @@ class BountyServiceTest {
     void startBounty_rewardShouldSupportRange() {
         User user = createUser(UserStatus.IDLE);
         MapNode mapNode = createMapNode();
-        mapNode.setSpecialties(Map.of(1L, 100));
+        mapNode.setSpecialties(List.of(new SpecialtyEntry(1L, 100)));
         Bounty bounty = createBounty(3, 5);
         bounty.setRewards(List.of(
             new BountyRewardPool.RareItem(100, 2, 5, "培元丹")

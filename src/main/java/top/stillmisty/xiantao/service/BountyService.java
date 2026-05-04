@@ -22,6 +22,7 @@ import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
+import top.stillmisty.xiantao.domain.map.entity.SpecialtyEntry;
 import top.stillmisty.xiantao.domain.map.enums.TravelEventType;
 import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
@@ -437,13 +438,13 @@ public class BountyService {
 
         // Batch lookup item templates
         Map<Long, ItemTemplate> templateMap = itemTemplateRepository
-            .findByIds(new ArrayList<>(specialties.keySet()))
+            .findByIds(specialties.stream().map(top.stillmisty.xiantao.domain.map.entity.SpecialtyEntry::templateId).toList())
             .stream()
             .collect(Collectors.toMap(ItemTemplate::getId, t -> t));
 
         List<BountyRewardItem> items = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            Long templateId = TypeUtils.weightedRandomSelect(specialties, rng);
+            Long templateId = weightedSelectSpecialty(specialties, rng);
             if (templateId == null) continue;
             ItemTemplate template = templateMap.get(templateId);
             String name = template != null ? template.getName() : "未知物品";
@@ -617,4 +618,15 @@ public class BountyService {
         }
     }
 
+    private Long weightedSelectSpecialty(List<SpecialtyEntry> specialties, java.util.Random rng) {
+        int total = specialties.stream().mapToInt(SpecialtyEntry::weight).sum();
+        if (total <= 0) return null;
+        int roll = rng.nextInt(total);
+        int cumulative = 0;
+        for (var entry : specialties) {
+            cumulative += entry.weight();
+            if (roll < cumulative) return entry.templateId();
+        }
+        return null;
+    }
 }
