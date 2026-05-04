@@ -18,6 +18,7 @@ import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.annotation.ConsumeSpiritEnergy;
 
 import java.time.LocalDateTime;
@@ -37,6 +38,7 @@ public class FarmService {
 
     // ===================== 公开 API（含认证） =====================
 
+    @Authenticated
     @Transactional
     public ServiceResult<FarmCellVO> plantCropByName(PlatformType platform, String openId, String position, String cropName) {
         try {
@@ -47,6 +49,7 @@ public class FarmService {
         }
     }
 
+    @Authenticated
     @Transactional
     public ServiceResult<FarmCellVO> plantCropByInput(PlatformType platform, String openId, String position, String input) {
         try {

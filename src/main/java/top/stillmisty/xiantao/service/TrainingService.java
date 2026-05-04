@@ -31,6 +31,7 @@ import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
+import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.infrastructure.util.TypeUtils;
 
 import java.time.Duration;
@@ -62,6 +63,7 @@ public class TrainingService {
     // ===================== 公开 API（含认证） =====================
     private final SkillRepository skillRepository;
 
+    @Authenticated
     @Transactional
     public ServiceResult<TrainingStartResult> startTraining(PlatformType platform, String openId) {
         try {
@@ -74,6 +76,7 @@ public class TrainingService {
 
     // ===================== 内部 API =====================
 
+    @Authenticated
     @Transactional
     public ServiceResult<TrainingRewardVO> endTraining(PlatformType platform, String openId) {
         try {

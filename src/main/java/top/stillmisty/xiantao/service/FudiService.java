@@ -26,6 +26,7 @@ import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.annotation.ConsumeSpiritEnergy;
 
 import java.time.LocalDateTime;
@@ -52,6 +53,7 @@ public class FudiService {
 
     // ===================== 公开 API（含认证） =====================
 
+    @Authenticated
     public ServiceResult<FudiStatusVO> getFudiStatus(PlatformType platform, String openId) {
         try {
             Long userId = UserContext.getCurrentUserId();
@@ -61,6 +63,7 @@ public class FudiService {
         }
     }
 
+    @Authenticated
     @Transactional
     public ServiceResult<CollectVO> collect(PlatformType platform, String openId, String position) {
         try {
@@ -71,6 +74,7 @@ public class FudiService {
         }
     }
 
+    @Authenticated
     @Transactional
     public ServiceResult<CollectAllVO> collectAll(PlatformType platform, String openId) {
         try {
@@ -81,6 +85,7 @@ public class FudiService {
         }
     }
 
+    @Authenticated
     @Transactional
     public ServiceResult<CellOperationVO> buildCell(PlatformType platform, String openId, String position, CellType type) {
         try {
@@ -91,6 +96,7 @@ public class FudiService {
         }
     }
 
+    @Authenticated
     @Transactional
     public ServiceResult<CellOperationVO> removeCell(PlatformType platform, String openId, String position) {
         try {
@@ -101,6 +107,7 @@ public class FudiService {
         }
     }
 
+    @Authenticated
     @Transactional
     public ServiceResult<UpgradeCellVO> upgradeCell(PlatformType platform, String openId, String position) {
         try {
@@ -111,6 +118,7 @@ public class FudiService {
         }
     }
 
+    @Authenticated
     @Transactional
     public ServiceResult<GiveGiftVO> giveGift(PlatformType platform, String openId, String itemName) {
         try {
@@ -121,6 +129,7 @@ public class FudiService {
         }
     }
 
+    @Authenticated
     @Transactional
     public ServiceResult<TriggerTribulationVO> triggerTribulation(PlatformType platform, String openId) {
         try {

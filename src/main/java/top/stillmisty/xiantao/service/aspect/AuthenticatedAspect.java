@@ -30,7 +30,7 @@ public class AuthenticatedAspect {
      * 已移除 authService.authenticateAndValidateUser 和 authenticateAndValidateStatus
      * 现在 authenticate(platform, openId, requiredStatus) 支持 null requiredStatus 表示不校验状态
      */
-    @Around("execution(public top.stillmisty.xiantao.service.ServiceResult top.stillmisty.xiantao.service..*.*(..))")
+    @Around("@annotation(top.stillmisty.xiantao.service.annotation.Authenticated)")
     public Object authenticate(ProceedingJoinPoint pjp) throws Throwable {
         Object[] args = pjp.getArgs();
         if (args.length < 2 || !(args[0] instanceof PlatformType platform) || !(args[1] instanceof String openId)) {

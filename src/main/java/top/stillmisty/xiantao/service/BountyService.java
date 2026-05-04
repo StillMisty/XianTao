@@ -21,6 +21,7 @@ import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 import top.stillmisty.xiantao.service.ai.ExplorationDescriptionFunction;
+import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.infrastructure.util.TypeUtils;
 
 import java.time.Duration;
@@ -47,6 +48,7 @@ public class BountyService {
 
     // ===================== 公开 API（含认证） =====================
 
+    @Authenticated
     public ServiceResult<List<BountyVO>> listBounties(PlatformType platform, String openId) {
         try {
             Long userId = UserContext.getCurrentUserId();
@@ -56,6 +58,7 @@ public class BountyService {
         }
     }
 
+    @Authenticated
     public ServiceResult<String> startBounty(PlatformType platform, String openId, Long bountyId) {
         try {
             Long userId = UserContext.getCurrentUserId();
@@ -65,6 +68,7 @@ public class BountyService {
         }
     }
 
+    @Authenticated
     @Transactional
     public ServiceResult<BountyRewardVO> completeBounty(PlatformType platform, String openId) {
         try {
@@ -75,6 +79,7 @@ public class BountyService {
         }
     }
 
+    @Authenticated
     public ServiceResult<String> abandonBounty(PlatformType platform, String openId) {
         try {
             Long userId = UserContext.getCurrentUserId();

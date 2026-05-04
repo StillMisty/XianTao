@@ -17,6 +17,7 @@ import top.stillmisty.xiantao.domain.skill.vo.SkillSlotResult;
 import top.stillmisty.xiantao.domain.skill.vo.SkillVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
+import top.stillmisty.xiantao.service.annotation.Authenticated;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,28 +37,33 @@ public class SkillService {
 
     // ===================== 公开 API（含认证） =====================
 
+    @Authenticated
     @Transactional
     public ServiceResult<SkillSlotResult> learnFromJade(PlatformType platform, String openId, String jadeInput) {
         Long userId = UserContext.getCurrentUserId();
         return new ServiceResult.Success<>(learnFromJade(userId, jadeInput));
     }
 
+    @Authenticated
     public ServiceResult<List<SkillVO>> getLearnedSkills(PlatformType platform, String openId) {
         Long userId = UserContext.getCurrentUserId();
         return new ServiceResult.Success<>(getLearnedSkills(userId));
     }
 
+    @Authenticated
     public ServiceResult<List<SkillVO>> getEquippedSkills(PlatformType platform, String openId) {
         Long userId = UserContext.getCurrentUserId();
         return new ServiceResult.Success<>(getEquippedSkills(userId));
     }
 
+    @Authenticated
     @Transactional
     public ServiceResult<SkillSlotResult> equipSkill(PlatformType platform, String openId, String skillInput) {
         Long userId = UserContext.getCurrentUserId();
         return new ServiceResult.Success<>(equipSkill(userId, skillInput));
     }
 
+    @Authenticated
     @Transactional
     public ServiceResult<SkillSlotResult> unequipSkill(PlatformType platform, String openId, String skillInput) {
         Long userId = UserContext.getCurrentUserId();

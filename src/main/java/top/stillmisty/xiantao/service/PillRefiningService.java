@@ -14,6 +14,7 @@ import top.stillmisty.xiantao.domain.pill.entity.PlayerPillRecipe;
 import top.stillmisty.xiantao.domain.pill.repository.PlayerPillRecipeRepository;
 import top.stillmisty.xiantao.domain.pill.vo.PillRefiningResultVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.service.annotation.Authenticated;
 
 import java.util.*;
 
@@ -39,6 +40,7 @@ public class PillRefiningService {
         return null;
     }
 
+    @Authenticated
     @Transactional
     public ServiceResult<PillRefiningResultVO> refinePillAuto(PlatformType platform, String openId, String recipeName) {
         Long userId = UserContext.getCurrentUserId();
@@ -47,6 +49,7 @@ public class PillRefiningService {
 
     // ===================== 内部 API =====================
 
+    @Authenticated
     @Transactional
     public ServiceResult<PillRefiningResultVO> refinePillManual(PlatformType platform, String openId, List<String> herbInputs) {
         Long userId = UserContext.getCurrentUserId();

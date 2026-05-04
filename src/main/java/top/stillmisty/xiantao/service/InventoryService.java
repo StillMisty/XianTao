@@ -15,6 +15,7 @@ import top.stillmisty.xiantao.domain.item.vo.ItemEntry;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
+import top.stillmisty.xiantao.service.annotation.Authenticated;
 
 import java.util.HashMap;
 import java.util.List;
@@ -36,6 +37,7 @@ public class InventoryService {
     private final ItemResolver itemResolver;
     // ===================== 公开 API（含认证） =====================
 
+    @Authenticated
     public ServiceResult<InventorySummaryVO> getInventorySummary(PlatformType platform, String openId) {
         try {
             Long userId = UserContext.getCurrentUserId();
@@ -45,6 +47,7 @@ public class InventoryService {
         }
     }
 
+    @Authenticated
     public ServiceResult<List<ItemEntry>> getSeedInventory(PlatformType platform, String openId) {
         try {
             Long userId = UserContext.getCurrentUserId();
@@ -54,6 +57,7 @@ public class InventoryService {
         }
     }
 
+    @Authenticated
     public ServiceResult<List<ItemEntry>> getEquipmentInventory(PlatformType platform, String openId) {
         try {
             Long userId = UserContext.getCurrentUserId();
@@ -63,6 +67,7 @@ public class InventoryService {
         }
     }
 
+    @Authenticated
     public ServiceResult<List<ItemEntry>> getEggInventory(PlatformType platform, String openId) {
         try {
             Long userId = UserContext.getCurrentUserId();

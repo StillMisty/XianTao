@@ -7,6 +7,7 @@ import top.stillmisty.xiantao.domain.map.entity.MapNode;
 import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
 import top.stillmisty.xiantao.domain.map.vo.MapInfoVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.service.annotation.Authenticated;
 
 import java.util.List;
 
@@ -21,6 +22,7 @@ public class MapService {
     private final MapNodeRepository mapNodeRepository;
     // ===================== 公开 API（含认证） =====================
 
+    @Authenticated
     public ServiceResult<List<MapInfoVO>> getAllMaps(PlatformType platform, String openId) {
         Long userId = UserContext.getCurrentUserId();
         return new ServiceResult.Success<>(getAllMaps());

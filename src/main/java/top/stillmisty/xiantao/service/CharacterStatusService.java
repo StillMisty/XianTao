@@ -11,6 +11,7 @@ import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.repository.DaoProtectionRepository;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
+import top.stillmisty.xiantao.service.annotation.Authenticated;
 
 import java.util.List;
 import java.util.Objects;
@@ -31,6 +32,7 @@ public class CharacterStatusService {
     private final MapService mapService;
     // ===================== 公开 API（含认证） =====================
 
+    @Authenticated
     public ServiceResult<CharacterStatusResult> getCharacterStatus(PlatformType platform, String openId) {
         Long userId = UserContext.getCurrentUserId();
         return new ServiceResult.Success<>(getCharacterStatus(userId));

@@ -25,6 +25,7 @@ import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.service.annotation.Authenticated;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -68,6 +69,7 @@ public class BeastService {
 
     // ===================== 公开 API（含认证） =====================
 
+    @Authenticated
     @Transactional
     public ServiceResult<PenCellVO> hatchBeast(PlatformType platform, String openId, String position, String eggName) {
         try {
@@ -78,6 +80,7 @@ public class BeastService {
         }
     }
 
+    @Authenticated
     @Transactional
     public ServiceResult<PenCellVO> hatchBeastByInput(PlatformType platform, String openId, String position, String input) {
         try {
@@ -88,6 +91,7 @@ public class BeastService {
         }
     }
 
+    @Authenticated
     @Transactional
     public ServiceResult<ReleaseBeastVO> releaseBeast(PlatformType platform, String openId, String position) {
         try {
@@ -98,6 +102,7 @@ public class BeastService {
         }
     }
 
+    @Authenticated
     @Transactional
     public ServiceResult<PenCellVO> evolveBeast(PlatformType platform, String openId, String position, String mode) {
         try {
@@ -108,6 +113,7 @@ public class BeastService {
         }
     }
 
+    @Authenticated
     @Transactional
     public ServiceResult<ActionResultVO> deployBeast(PlatformType platform, String openId, String position) {
         try {
@@ -118,6 +124,7 @@ public class BeastService {
         }
     }
 
+    @Authenticated
     @Transactional
     public ServiceResult<Object> undeployBeast(PlatformType platform, String openId, String position) {
         try {
@@ -128,6 +135,7 @@ public class BeastService {
         }
     }
 
+    @Authenticated
     @Transactional
     public ServiceResult<Object> recoverBeast(PlatformType platform, String openId, String position) {
         try {
@@ -138,6 +146,7 @@ public class BeastService {
         }
     }
 
+    @Authenticated
     public ServiceResult<List<BeastStatusVO>> getDeployedBeasts(PlatformType platform, String openId) {
         try {
             Long userId = UserContext.getCurrentUserId();

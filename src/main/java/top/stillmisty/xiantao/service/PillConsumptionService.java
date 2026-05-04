@@ -18,6 +18,7 @@ import top.stillmisty.xiantao.domain.user.enums.AttributeType;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
+import top.stillmisty.xiantao.service.annotation.Authenticated;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -40,6 +41,7 @@ public class PillConsumptionService {
     private final PlayerBuffRepository playerBuffRepository;
     // ===================== 公开 API（含认证） =====================
 
+    @Authenticated
     @Transactional
     public ServiceResult<String> takePill(PlatformType platform, String openId, String pillName) {
         Long userId = UserContext.getCurrentUserId();

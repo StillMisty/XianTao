@@ -9,6 +9,7 @@ import top.stillmisty.xiantao.domain.item.handler.ItemUseHandler;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.service.annotation.Authenticated;
 
 import java.util.List;
 
@@ -29,6 +30,7 @@ public class ItemUseService {
     /**
      * 使用物品（公开API，含认证）
      */
+    @Authenticated
     public ServiceResult<String> useItem(PlatformType platform, String openId, String itemName, String args) {
         try {
             Long userId = UserContext.getCurrentUserId();

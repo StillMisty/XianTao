@@ -11,6 +11,7 @@ import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
+import top.stillmisty.xiantao.service.annotation.Authenticated;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -25,6 +26,7 @@ public class TravelService {
 
     // ===================== 公开 API =====================
 
+    @Authenticated
     @Transactional
     public ServiceResult<TravelResultVO> startTravel(PlatformType platform, String openId, String mapName) {
         try {

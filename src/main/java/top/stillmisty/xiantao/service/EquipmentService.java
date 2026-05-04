@@ -13,6 +13,7 @@ import top.stillmisty.xiantao.domain.item.repository.EquipmentTemplateRepository
 import top.stillmisty.xiantao.domain.item.vo.*;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
+import top.stillmisty.xiantao.service.annotation.Authenticated;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -32,12 +33,14 @@ public class EquipmentService {
     private final ItemResolver itemResolver;
     // ===================== 公开 API（含认证） =====================
 
+    @Authenticated
     @Transactional
     public ServiceResult<EquipResult> equipItem(PlatformType platform, String openId, String itemName) {
         Long userId = UserContext.getCurrentUserId();
         return new ServiceResult.Success<>(equipItem(userId, itemName));
     }
 
+    @Authenticated
     @Transactional
     public ServiceResult<UnequipResult> unequipItem(PlatformType platform, String openId, String slotName) {
         Long userId = UserContext.getCurrentUserId();

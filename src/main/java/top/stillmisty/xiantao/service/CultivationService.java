@@ -12,6 +12,7 @@ import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.repository.DaoProtectionRepository;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 import top.stillmisty.xiantao.domain.user.vo.*;
+import top.stillmisty.xiantao.service.annotation.Authenticated;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,24 +38,28 @@ public class CultivationService {
     private final PlayerBuffRepository playerBuffRepository;
     // ===================== 公开 API（含认证） =====================
 
+    @Authenticated
     @Transactional
     public ServiceResult<BreakthroughResult> attemptBreakthrough(PlatformType platform, String openId) {
         Long userId = UserContext.getCurrentUserId();
         return new ServiceResult.Success<>(attemptBreakthrough(userId));
     }
 
+    @Authenticated
     @Transactional
     public ServiceResult<DaoProtectionResult> establishProtection(PlatformType platform, String openId, String protegeNickname) {
         Long userId = UserContext.getCurrentUserId();
         return new ServiceResult.Success<>(establishProtection(userId, protegeNickname));
     }
 
+    @Authenticated
     @Transactional
     public ServiceResult<DaoProtectionResult> removeProtection(PlatformType platform, String openId, String protegeNickname) {
         Long userId = UserContext.getCurrentUserId();
         return new ServiceResult.Success<>(removeProtection(userId, protegeNickname));
     }
 
+    @Authenticated
     public ServiceResult<DaoProtectionQueryResult> queryProtectionInfo(PlatformType platform, String openId) {
         Long userId = UserContext.getCurrentUserId();
         return new ServiceResult.Success<>(queryProtectionInfo(userId));

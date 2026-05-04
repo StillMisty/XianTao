@@ -14,6 +14,7 @@ import top.stillmisty.xiantao.domain.pill.entity.PlayerPillRecipe;
 import top.stillmisty.xiantao.domain.pill.repository.PlayerPillRecipeRepository;
 import top.stillmisty.xiantao.domain.pill.vo.PillRecipeVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.service.annotation.Authenticated;
 
 import java.util.List;
 import java.util.Objects;
@@ -33,16 +34,19 @@ public class PillRecipeService {
 
     // ===================== 公开 API（含认证） =====================
 
+    @Authenticated
     public ServiceResult<List<PillRecipeVO>> getLearnedRecipes(PlatformType platform, String openId) {
         Long userId = UserContext.getCurrentUserId();
         return new ServiceResult.Success<>(getLearnedRecipes(userId));
     }
 
+    @Authenticated
     public ServiceResult<PillRecipeVO> getRecipeDetail(PlatformType platform, String openId, String recipeName) {
         Long userId = UserContext.getCurrentUserId();
         return new ServiceResult.Success<>(getRecipeDetail(userId, recipeName));
     }
 
+    @Authenticated
     @Transactional
     public ServiceResult<PillRecipeVO> learnRecipe(PlatformType platform, String openId, String recipeName) {
         Long userId = UserContext.getCurrentUserId();

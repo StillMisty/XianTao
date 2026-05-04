@@ -18,6 +18,7 @@ import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.infrastructure.mapper.SpiritFormMapper;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
+import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.annotation.ConsumeSpiritEnergy;
 
 import java.time.LocalDateTime;
@@ -48,6 +49,7 @@ public class SpiritChatService {
 
     // ===================== 公开 API（含认证） =====================
 
+    @Authenticated
     public ServiceResult<String> chatWithSpirit(PlatformType platform, String openId, String userInput) {
         Long userId = UserContext.getCurrentUserId();
         return new ServiceResult.Success<>(chatWithSpirit(userId, userInput));
