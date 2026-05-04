@@ -8,7 +8,7 @@ import com.mybatisflex.annotation.Table;
 import lombok.Data;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
-import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
+import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -45,7 +45,7 @@ public class ItemTemplate {
      * 丹药: {"effects":[{"type":"exp","amount":100}]}
      * 灵兽: {"production_items":[...],"skill_pool":{...}}
      */
-    @Column(typeHandler = PgJsonbTypeHandler.class)
+    @Column(typeHandler = JsonbTypeHandler.class)
     private Map<String, Object> properties;
     /**
      * 物品标签 JSONB

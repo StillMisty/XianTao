@@ -8,7 +8,7 @@ import lombok.Data;
 import top.stillmisty.xiantao.domain.skill.enums.BindingType;
 import top.stillmisty.xiantao.domain.skill.enums.SkillType;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
-import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
+import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -43,7 +43,7 @@ public class Skill {
 
     private Long requireSkillId;
 
-    @Column(typeHandler = PgJsonbTypeHandler.class)
+    @Column(typeHandler = JsonbTypeHandler.class)
     private String tags;
 
     private Integer levelRequirement;

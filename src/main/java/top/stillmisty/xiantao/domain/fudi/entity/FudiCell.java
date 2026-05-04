@@ -6,7 +6,7 @@ import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import lombok.Data;
 import top.stillmisty.xiantao.domain.fudi.enums.CellType;
-import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
+import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -44,7 +44,7 @@ public class FudiCell {
     /**
      * 建筑专有属性（JSONB）
      */
-    @Column(typeHandler = PgJsonbTypeHandler.class)
+    @Column(typeHandler = JsonbTypeHandler.class)
     private CellConfig config;
 
     @Column(onInsertValue = "now()")

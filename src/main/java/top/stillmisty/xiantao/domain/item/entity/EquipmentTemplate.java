@@ -8,7 +8,7 @@ import lombok.Data;
 import top.stillmisty.xiantao.domain.item.enums.EquipmentSlot;
 import top.stillmisty.xiantao.domain.item.enums.WeaponType;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
-import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
+import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -56,7 +56,7 @@ public class EquipmentTemplate {
 
     private String attackRange;
 
-    @Column(typeHandler = PgJsonbTypeHandler.class)
+    @Column(typeHandler = JsonbTypeHandler.class)
     private Map<String, Integer> dropWeight;
 
     @Column(onInsertValue = "now()")

@@ -28,7 +28,6 @@ src/main/java/top/stillmisty/xiantao/
 └── infrastructure/                  # MyBatis-Flex mappers + repository impls
     ├── mapper/                      # 21 Mapper interfaces
     ├── repository/                  # 21 RepositoryImpl classes
-    └── mybatis/                     # PgJsonbTypeHandler, custom mapper overrides
 ```
 
 ## Key Patterns
@@ -37,7 +36,6 @@ src/main/java/top/stillmisty/xiantao/
 - **Auth AOP**: `AuthenticatedAspect` auto-authenticates via `AuthenticationService`, binds userId to `ScopedValue` via `UserContext.CURRENT_USER`
 - **ServiceResult**: sealed `Success<T> | Failure<T>` — used with pattern matching in command handlers
 - **Item Use Strategy**: `ItemUseHandler` per `ItemType`; `consumesInternally()` controls consumption
-- **DB**: `xt_` prefix, JSONB + `PgJsonbTypeHandler`, `create_time`/`update_time` audit cols, Flyway `V1.0.x` naming
 - **AI**: Two `ChatClient` beans (spirit/general), function calling via `SpiritTools`, emotion engine
 - **Concurrency**: Virtual threads + `ScopedValue<Long> CURRENT_USER` (no ThreadLocal)
 

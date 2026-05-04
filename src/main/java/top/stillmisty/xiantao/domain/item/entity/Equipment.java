@@ -8,7 +8,7 @@ import lombok.Data;
 import top.stillmisty.xiantao.domain.item.enums.EquipmentSlot;
 import top.stillmisty.xiantao.domain.item.enums.Rarity;
 import top.stillmisty.xiantao.domain.item.enums.WeaponType;
-import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
+import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -61,7 +61,7 @@ public class Equipment {
     /**
      * 随机词条 JSONB: {"STR": 3, "AGI": 2, "LIFE_STEAL": 5}
      */
-    @Column(typeHandler = PgJsonbTypeHandler.class)
+    @Column(typeHandler = JsonbTypeHandler.class)
     private Map<String, Integer> affixes;
 
     /**
@@ -73,7 +73,7 @@ public class Equipment {
      * 属性加成 JSONB: {"str": 5, "con": 3, "agi": 2, "wis": 0}
      * 注：此字段保留用于存储基础属性加成，最终属性需加上词条和锻造加成
      */
-    @Column(typeHandler = PgJsonbTypeHandler.class)
+    @Column(typeHandler = JsonbTypeHandler.class)
     private Map<String, Integer> statBonus;
 
     /**

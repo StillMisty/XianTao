@@ -9,7 +9,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
-import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
+import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -104,7 +104,7 @@ public class User extends Model<User> {
     /**
      * JSONB 扩展字段 (存储称号、成就、小规模系统数据)
      */
-    @Column(typeHandler = PgJsonbTypeHandler.class)
+    @Column(typeHandler = JsonbTypeHandler.class)
     private Map<String, Object> extraData;
 
     /**

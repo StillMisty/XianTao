@@ -4,7 +4,7 @@ import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
+import java.util.List;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 import org.postgresql.util.PGobject;
@@ -83,12 +83,12 @@ public class JsonbCollectionTypeHandler extends BaseTypeHandler<Object> {
             return null;
         }
         try {
-            JavaType javaType =
-                OBJECT_MAPPER.getTypeFactory().constructCollectionType(
-                    (Class<? extends Collection>) propertyType,
-                    genericType
-                );
-            return OBJECT_MAPPER.readValue(jsonString, javaType);
+            if (genericType != null) {
+                JavaType javaType = OBJECT_MAPPER.getTypeFactory()
+                    .constructCollectionLikeType(propertyType, genericType);
+                return OBJECT_MAPPER.readValue(jsonString, javaType);
+            }
+            return OBJECT_MAPPER.readValue(jsonString, List.class);
         } catch (Exception e) {
             throw new SQLException(
                 "Failed to deserialize JSONB to collection: " + jsonString,
