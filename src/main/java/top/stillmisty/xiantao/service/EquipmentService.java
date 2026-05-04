@@ -10,7 +10,6 @@ import top.stillmisty.xiantao.domain.item.enums.EquipmentSlot;
 import top.stillmisty.xiantao.domain.item.enums.Rarity;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentTemplateRepository;
-import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.item.vo.*;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
@@ -30,7 +29,6 @@ public class EquipmentService {
     private final UserRepository userRepository;
     private final EquipmentRepository equipmentRepository;
     private final EquipmentTemplateRepository equipmentTemplateRepository;
-    private final ItemTemplateRepository itemTemplateRepository;
     private final ItemResolver itemResolver;
     // ===================== 公开 API（含认证） =====================
 
@@ -169,10 +167,8 @@ public class EquipmentService {
      */
     @Transactional
     public void createEquipment(Long userId, Long templateId) {
-        var equipTmpl = equipmentTemplateRepository.findByTemplateId(templateId).orElse(null);
+        var equipTmpl = equipmentTemplateRepository.findById(templateId).orElse(null);
         if (equipTmpl == null) return;
-        var itemTmpl = itemTemplateRepository.findById(templateId).orElse(null);
-        if (itemTmpl == null) return;
 
         Rarity rarity = Rarity.roll(equipTmpl.getDropWeight());
         double qm = rarity.randomQualityMultiplier();
@@ -194,7 +190,7 @@ public class EquipmentService {
             }
         }
 
-        String name = rarity.randomPrefix() + itemTmpl.getName();
+        String name = rarity.randomPrefix() + equipTmpl.getName();
 
         Map<String, Integer> statBonus = Map.of(
                 "str", equipTmpl.getBaseStr(),

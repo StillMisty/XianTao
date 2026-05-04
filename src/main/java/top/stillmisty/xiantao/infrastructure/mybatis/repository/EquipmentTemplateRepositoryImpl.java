@@ -22,11 +22,10 @@ public class EquipmentTemplateRepositoryImpl implements EquipmentTemplateReposit
     }
 
     @Override
-    public Optional<EquipmentTemplate> findByTemplateId(Long templateId) {
-        return Optional.ofNullable(
-                mapper.selectOneByQuery(QueryWrapper.create()
-                        .eq("template_id", templateId))
-        );
+    public List<EquipmentTemplate> findByIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) return List.of();
+        return mapper.selectListByQuery(QueryWrapper.create()
+                .in("id", ids));
     }
 
     @Override

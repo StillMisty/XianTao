@@ -20,7 +20,7 @@ CREATE TABLE xt_equipment
 
     -- 外键关联
     CONSTRAINT fk_equipment_user FOREIGN KEY (user_id) REFERENCES xt_user (id) ON DELETE CASCADE,
-    CONSTRAINT fk_equipment_template FOREIGN KEY (template_id) REFERENCES xt_item_template (id),
+    CONSTRAINT fk_equipment_template FOREIGN KEY (template_id) REFERENCES xt_equipment_template (id),
     CONSTRAINT chk_equipment_slot CHECK (slot IN ('weapon', 'armor', 'accessory')),
     CONSTRAINT chk_equipment_rarity CHECK (rarity IN ('broken', 'common', 'rare', 'epic', 'legendary')),
     CONSTRAINT chk_equipment_weapon_type CHECK (weapon_type IS NULL OR weapon_type IN ('blade', 'sword', 'axe', 'spear', 'staff', 'bow', 'whip', 'halberd', 'hammer', 'dagger', 'fan', 'flywhisk', 'ring', 'bell')),
@@ -33,7 +33,7 @@ CREATE TABLE xt_equipment
 COMMENT ON TABLE xt_equipment IS '装备实例表';
 COMMENT ON COLUMN xt_equipment.id IS '装备唯一ID';
 COMMENT ON COLUMN xt_equipment.user_id IS '持有者用户ID';
-COMMENT ON COLUMN xt_equipment.template_id IS '物品模板ID';
+COMMENT ON COLUMN xt_equipment.template_id IS '装备模板ID → xt_equipment_template(id)';
 COMMENT ON COLUMN xt_equipment.name IS '装备名称';
 COMMENT ON COLUMN xt_equipment.slot IS '装备部位';
 COMMENT ON COLUMN xt_equipment.weapon_type IS '法器子类型 BLADE/SWORD/AXE/...（护甲/饰品为 null）';

@@ -2,7 +2,9 @@
 CREATE TABLE xt_equipment_template
 (
     id             BIGSERIAL PRIMARY KEY,
-    template_id    BIGINT       NOT NULL UNIQUE REFERENCES xt_item_template (id),
+    name           VARCHAR(128) NOT NULL,
+    description    TEXT,
+    tags           JSONB        DEFAULT '[]'::jsonb,
     slot           VARCHAR(32)  NOT NULL,
     weapon_type    VARCHAR(32),
     category       VARCHAR(16),
@@ -32,7 +34,10 @@ CREATE TABLE xt_equipment_template
 );
 
 COMMENT ON TABLE xt_equipment_template IS '装备模板表（法器/护甲/饰品专用属性）';
-COMMENT ON COLUMN xt_equipment_template.template_id IS 'FK → xt_item_template(id)';
+COMMENT ON COLUMN xt_equipment_template.id IS '装备模板ID，xt_equipment.template_id 引用此列';
+COMMENT ON COLUMN xt_equipment_template.name IS '装备名称';
+COMMENT ON COLUMN xt_equipment_template.description IS '装备描述';
+COMMENT ON COLUMN xt_equipment_template.tags IS '装备标签 JSONB，用于AI检索';
 COMMENT ON COLUMN xt_equipment_template.slot IS '装备部位 WEAPON/ARMOR/ACCESSORY';
 COMMENT ON COLUMN xt_equipment_template.weapon_type IS '法器子类型 BLADE/SWORD/AXE/SPEAR/STAFF/BOW...（法器专属，护甲/饰品为 null）';
 COMMENT ON COLUMN xt_equipment_template.category IS '法器大类 刀兵/长兵/远兵/奇兵（法器专属）';
@@ -51,3 +56,4 @@ COMMENT ON COLUMN xt_equipment_template.drop_weight IS '稀有度掉落权重 JS
 CREATE INDEX idx_equipment_template_slot ON xt_equipment_template (slot);
 CREATE INDEX idx_equipment_template_weapon_type ON xt_equipment_template (weapon_type);
 CREATE INDEX idx_equipment_template_category ON xt_equipment_template (category);
+CREATE INDEX idx_equipment_template_tags ON xt_equipment_template USING GIN (tags);

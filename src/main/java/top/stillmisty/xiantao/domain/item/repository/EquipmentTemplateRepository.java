@@ -12,7 +12,7 @@ public interface EquipmentTemplateRepository {
 
     Optional<EquipmentTemplate> findById(Long id);
 
-    Optional<EquipmentTemplate> findByTemplateId(Long templateId);
+    List<EquipmentTemplate> findByIds(List<Long> ids);
 
     List<EquipmentTemplate> findAll();
 }

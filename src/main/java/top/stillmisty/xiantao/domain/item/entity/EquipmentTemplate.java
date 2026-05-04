@@ -11,10 +11,11 @@ import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 装备模板实体
- * 存储装备（法器/护甲/饰品）的专有属性
+ * 独立于 xt_item_template，存储装备专属属性
  */
 @Data
 @Table("xt_equipment_template")
@@ -23,7 +24,12 @@ public class EquipmentTemplate {
     @Id(keyType = KeyType.Auto)
     private Long id;
 
-    private Long templateId;
+    private String name;
+
+    private String description;
+
+    @Column(typeHandler = PgJsonbTypeHandler.class)
+    private Set<String> tags;
 
     private EquipmentSlot slot;
 
