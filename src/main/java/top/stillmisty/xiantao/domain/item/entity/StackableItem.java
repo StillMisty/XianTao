@@ -6,6 +6,7 @@ import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import lombok.Data;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
+import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
 
 import java.time.LocalDateTime;
@@ -53,7 +54,7 @@ public class StackableItem {
      * 物品标签 JSONB，用于AI检索和NPC交互
      * 示例: ["ore", "metal", "forge_base"]
      */
-    @Column(typeHandler = PgJsonbTypeHandler.class)
+    @Column(typeHandler = JsonbCollectionTypeHandler.class)
     private Set<String> tags;
 
     /**

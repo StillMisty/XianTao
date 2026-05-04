@@ -8,6 +8,7 @@ import com.mybatisflex.core.activerecord.Model;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import top.stillmisty.xiantao.domain.map.enums.MapType;
+import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
 
 import java.time.LocalDateTime;
@@ -59,7 +60,7 @@ public class MapNode extends Model<MapNode> {
      * 历练掉落池/特产 (JSONB)
      * 格式: [{"templateId": 1, "weight": 30}]
      */
-    @Column(typeHandler = PgJsonbTypeHandler.class)
+    @Column(typeHandler = JsonbCollectionTypeHandler.class)
     private List<SpecialtyEntry> specialties;
 
     /**
@@ -73,7 +74,7 @@ public class MapNode extends Model<MapNode> {
      * 遇怪池 (JSONB)
      * 格式: [{"templateId": 1, "weight": 50, "min": 1, "max": 3}]
      */
-    @Column(typeHandler = PgJsonbTypeHandler.class)
+    @Column(typeHandler = JsonbCollectionTypeHandler.class)
     private List<MonsterEncounterEntry> monsterEncounters;
 
     /**

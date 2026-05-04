@@ -6,6 +6,7 @@ import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import lombok.Data;
 import top.stillmisty.xiantao.domain.monster.enums.MonsterType;
+import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
 
 import java.time.LocalDateTime;
@@ -33,7 +34,7 @@ public class MonsterTemplate {
 
     private Integer baseSpeed;
 
-    @Column(typeHandler = PgJsonbTypeHandler.class)
+    @Column(typeHandler = JsonbCollectionTypeHandler.class)
     private List<Long> skills;
 
     @Column(typeHandler = PgJsonbTypeHandler.class)

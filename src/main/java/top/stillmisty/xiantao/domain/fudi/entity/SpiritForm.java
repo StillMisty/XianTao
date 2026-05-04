@@ -8,7 +8,7 @@ import com.mybatisflex.core.activerecord.Model;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
+import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
 
 import java.util.Set;
 
@@ -28,9 +28,9 @@ public class SpiritForm extends Model<SpiritForm> {
 
     private String description;
 
-    @Column(typeHandler = PgJsonbTypeHandler.class)
+    @Column(typeHandler = JsonbCollectionTypeHandler.class)
     private Set<String> likedTags;
 
-    @Column(typeHandler = PgJsonbTypeHandler.class)
+    @Column(typeHandler = JsonbCollectionTypeHandler.class)
     private Set<String> dislikedTags;
 }

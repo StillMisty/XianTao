@@ -7,6 +7,7 @@ import com.mybatisflex.annotation.Table;
 import lombok.Data;
 import top.stillmisty.xiantao.domain.item.enums.EquipmentSlot;
 import top.stillmisty.xiantao.domain.item.enums.WeaponType;
+import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
 
 import java.time.LocalDateTime;
@@ -28,7 +29,7 @@ public class EquipmentTemplate {
 
     private String description;
 
-    @Column(typeHandler = PgJsonbTypeHandler.class)
+    @Column(typeHandler = JsonbCollectionTypeHandler.class)
     private Set<String> tags;
 
     private EquipmentSlot slot;

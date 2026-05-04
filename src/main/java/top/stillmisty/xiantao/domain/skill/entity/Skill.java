@@ -7,6 +7,7 @@ import com.mybatisflex.annotation.Table;
 import lombok.Data;
 import top.stillmisty.xiantao.domain.skill.enums.BindingType;
 import top.stillmisty.xiantao.domain.skill.enums.SkillType;
+import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
 
 import java.time.LocalDateTime;
@@ -29,7 +30,7 @@ public class Skill {
      * 效果列表（JSONB）
      * 支持多效果组合，每个效果有独立参数
      */
-    @Column(typeHandler = PgJsonbTypeHandler.class)
+    @Column(typeHandler = JsonbCollectionTypeHandler.class)
     private List<SkillEffect> effects;
 
     private BindingType bindingType;

@@ -6,7 +6,7 @@ import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import lombok.Data;
 import top.stillmisty.xiantao.domain.fudi.enums.BeastQuality;
-import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
+import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,7 +32,7 @@ public class Beast {
 
     private Boolean isMutant;
 
-    @Column(typeHandler = PgJsonbTypeHandler.class)
+    @Column(typeHandler = JsonbCollectionTypeHandler.class)
     private List<String> mutationTraits;
 
     private Integer level;
@@ -47,7 +47,7 @@ public class Beast {
 
     private Integer hpCurrent;
 
-    @Column(typeHandler = PgJsonbTypeHandler.class)
+    @Column(typeHandler = JsonbCollectionTypeHandler.class)
     private List<Long> skills;
 
     private Boolean isDeployed;
