@@ -5,6 +5,7 @@ import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import lombok.Data;
+import top.stillmisty.xiantao.domain.bounty.BountyRewardPool;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
 
 import java.time.LocalDateTime;
@@ -41,4 +42,8 @@ public class Bounty {
 
     @Column(onUpdateValue = "now()", onInsertValue = "now()")
     private LocalDateTime updateTime;
+
+    public List<BountyRewardPool> getParsedRewardPool() {
+        return BountyRewardPool.parse(rewards);
+    }
 }

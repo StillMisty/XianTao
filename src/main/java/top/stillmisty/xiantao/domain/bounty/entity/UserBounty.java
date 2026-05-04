@@ -5,6 +5,7 @@ import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import lombok.Data;
+import top.stillmisty.xiantao.domain.bounty.BountyRewardItem;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.PgJsonbTypeHandler;
 
 import java.time.LocalDateTime;
@@ -45,5 +46,9 @@ public class UserBounty {
 
     public boolean isCompleted() {
         return "completed".equals(status);
+    }
+
+    public List<BountyRewardItem> getParsedRewardItems() {
+        return BountyRewardItem.parse(rewards);
     }
 }

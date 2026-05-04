@@ -22,15 +22,25 @@ public class MapHandle {
     @ContentTrim
     @Filter("地图")
     public void mapList(MessageEvent event) {
-        String response = mapCommandHandler.handleMapList(PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
+        String response = mapCommandHandler.handleMapList(
+            PlatformType.ONE_BOT_V11,
+            event.getAuthorId().toString()
+        );
         event.replyBlocking(response);
     }
 
     @Listener
     @ContentTrim
     @Filter("前往 {{mapName}}")
-    public void goTo(MessageEvent event, @FilterValue("mapName") String mapName) {
-        String response = mapCommandHandler.handleGoTo(PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), mapName);
+    public void goTo(
+        MessageEvent event,
+        @FilterValue("mapName") String mapName
+    ) {
+        String response = mapCommandHandler.handleGoTo(
+            PlatformType.ONE_BOT_V11,
+            event.getAuthorId().toString(),
+            mapName
+        );
         event.replyBlocking(response);
     }
 
@@ -38,7 +48,10 @@ public class MapHandle {
     @ContentTrim
     @Filter("历练")
     public void training(MessageEvent event) {
-        String response = mapCommandHandler.handleTraining(PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
+        String response = mapCommandHandler.handleTraining(
+            PlatformType.ONE_BOT_V11,
+            event.getAuthorId().toString()
+        );
         event.replyBlocking(response);
     }
 
@@ -46,7 +59,10 @@ public class MapHandle {
     @ContentTrim
     @Filter("历练结算")
     public void endTraining(MessageEvent event) {
-        String response = mapCommandHandler.handleEndTraining(PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
+        String response = mapCommandHandler.handleEndTraining(
+            PlatformType.ONE_BOT_V11,
+            event.getAuthorId().toString()
+        );
         event.replyBlocking(response);
     }
 
@@ -56,23 +72,36 @@ public class MapHandle {
     @ContentTrim
     @Filter("悬赏列表")
     public void bountyList(MessageEvent event) {
-        String response = mapCommandHandler.handleBountyList(PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
+        String response = mapCommandHandler.handleBountyList(
+            PlatformType.ONE_BOT_V11,
+            event.getAuthorId().toString()
+        );
         event.replyBlocking(response);
     }
 
     @Listener
     @ContentTrim
     @Filter("悬赏接取 {{bountyId}}")
-    public void startBounty(MessageEvent event, @FilterValue("bountyId") String bountyId) {
-        String response = mapCommandHandler.handleStartBounty(PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), bountyId);
+    public void startBounty(
+        MessageEvent event,
+        @FilterValue("bountyId") String bountyId
+    ) {
+        String response = mapCommandHandler.handleStartBounty(
+            PlatformType.ONE_BOT_V11,
+            event.getAuthorId().toString(),
+            bountyId
+        );
         event.replyBlocking(response);
     }
 
     @Listener
     @ContentTrim
-    @Filter("悬赏提交")
+    @Filter("悬赏结算")
     public void completeBounty(MessageEvent event) {
-        String response = mapCommandHandler.handleCompleteBounty(PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
+        String response = mapCommandHandler.handleCompleteBounty(
+            PlatformType.ONE_BOT_V11,
+            event.getAuthorId().toString()
+        );
         event.replyBlocking(response);
     }
 
@@ -80,7 +109,10 @@ public class MapHandle {
     @ContentTrim
     @Filter("悬赏放弃")
     public void abandonBounty(MessageEvent event) {
-        String response = mapCommandHandler.handleAbandonBounty(PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
+        String response = mapCommandHandler.handleAbandonBounty(
+            PlatformType.ONE_BOT_V11,
+            event.getAuthorId().toString()
+        );
         event.replyBlocking(response);
     }
 }

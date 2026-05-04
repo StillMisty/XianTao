@@ -1,9 +1,9 @@
 package top.stillmisty.xiantao.domain.bounty.vo;
 
 import lombok.Builder;
+import top.stillmisty.xiantao.domain.bounty.BountyRewardPool;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 悬赏列表 VO
@@ -14,7 +14,7 @@ public record BountyVO(
         String name,
         String description,
         int durationMinutes,
-        List<Map<String, Object>> rewards,
+        List<BountyRewardPool> rewards,
         int requireLevel,
         int eventWeight
 ) {

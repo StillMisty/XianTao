@@ -1,9 +1,16 @@
 package top.stillmisty.xiantao.service;
 
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import top.stillmisty.xiantao.domain.bounty.BountyRewardItem;
+import top.stillmisty.xiantao.domain.bounty.BountyRewardPool;
 import top.stillmisty.xiantao.domain.bounty.entity.Bounty;
 import top.stillmisty.xiantao.domain.bounty.entity.UserBounty;
 import top.stillmisty.xiantao.domain.bounty.repository.BountyRepository;
@@ -20,15 +27,9 @@ import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
+import top.stillmisty.xiantao.infrastructure.util.TypeUtils;
 import top.stillmisty.xiantao.service.ai.ExplorationDescriptionFunction;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
-import top.stillmisty.xiantao.infrastructure.util.TypeUtils;
-
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 悬赏服务
@@ -49,7 +50,10 @@ public class BountyService {
     // ===================== 公开 API（含认证） =====================
 
     @Authenticated
-    public ServiceResult<List<BountyVO>> listBounties(PlatformType platform, String openId) {
+    public ServiceResult<List<BountyVO>> listBounties(
+        PlatformType platform,
+        String openId
+    ) {
         try {
             Long userId = UserContext.getCurrentUserId();
             return new ServiceResult.Success<>(listBounties(userId));
@@ -59,7 +63,11 @@ public class BountyService {
     }
 
     @Authenticated
-    public ServiceResult<String> startBounty(PlatformType platform, String openId, Long bountyId) {
+    public ServiceResult<String> startBounty(
+        PlatformType platform,
+        String openId,
+        Long bountyId
+    ) {
         try {
             Long userId = UserContext.getCurrentUserId();
             return new ServiceResult.Success<>(startBounty(userId, bountyId));
@@ -70,7 +78,10 @@ public class BountyService {
 
     @Authenticated
     @Transactional
-    public ServiceResult<BountyRewardVO> completeBounty(PlatformType platform, String openId) {
+    public ServiceResult<BountyRewardVO> completeBounty(
+        PlatformType platform,
+        String openId
+    ) {
         try {
             Long userId = UserContext.getCurrentUserId();
             return new ServiceResult.Success<>(completeBounty(userId));
@@ -80,7 +91,10 @@ public class BountyService {
     }
 
     @Authenticated
-    public ServiceResult<String> abandonBounty(PlatformType platform, String openId) {
+    public ServiceResult<String> abandonBounty(
+        PlatformType platform,
+        String openId
+    ) {
         try {
             Long userId = UserContext.getCurrentUserId();
             return new ServiceResult.Success<>(abandonBounty(userId));
@@ -94,30 +108,51 @@ public class BountyService {
     public List<BountyVO> listBounties(Long userId) {
         User user = userRepository.findById(userId).orElseThrow();
         if (user.getStatus() != UserStatus.IDLE) {
-            throw new IllegalStateException("您当前处于 " + user.getStatus().getName() + " 状态，无法查看悬赏（需要 空闲 状态）");
+            throw new IllegalStateException(
+                "您当前处于 " +
+                    user.getStatus().getName() +
+                    " 状态，无法查看悬赏（需要 空闲 状态）"
+            );
         }
-        MapNode mapNode = mapNodeRepository.findById(user.getLocationId()).orElseThrow();
+        MapNode mapNode = mapNodeRepository
+            .findById(user.getLocationId())
+            .orElseThrow();
 
-        return bountyRepository.findByMapId(mapNode.getId()).stream()
-                .filter(b -> user.getLevel() >= b.getRequireLevel())
-                .map(b -> new BountyVO(
-                        b.getId(), b.getName(), b.getDescription(),
-                        b.getDurationMinutes(), b.getRewards(),
-                        b.getRequireLevel(), b.getEventWeight()
-                ))
-                .toList();
+        return bountyRepository
+            .findByMapId(mapNode.getId())
+            .stream()
+            .filter(b -> user.getLevel() >= b.getRequireLevel())
+            .map(b ->
+                new BountyVO(
+                    b.getId(),
+                    b.getName(),
+                    b.getDescription(),
+                    b.getDurationMinutes(),
+                    b.getParsedRewardPool(),
+                    b.getRequireLevel(),
+                    b.getEventWeight()
+                )
+            )
+            .toList();
     }
 
     public String startBounty(Long userId, Long bountyId) {
         User user = userRepository.findById(userId).orElseThrow();
         if (user.getStatus() != UserStatus.IDLE) {
-            throw new IllegalStateException("您当前处于 " + user.getStatus().getName() + " 状态，无法接取悬赏（需要 空闲 状态）");
+            throw new IllegalStateException(
+                "您当前处于 " +
+                    user.getStatus().getName() +
+                    " 状态，无法接取悬赏（需要 空闲 状态）"
+            );
         }
 
-        Bounty bounty = bountyRepository.findById(bountyId)
-                .orElseThrow(() -> new IllegalArgumentException("悬赏不存在"));
+        Bounty bounty = bountyRepository
+            .findById(bountyId)
+            .orElseThrow(() -> new IllegalArgumentException("悬赏不存在"));
 
-        MapNode mapNode = mapNodeRepository.findById(user.getLocationId()).orElseThrow();
+        MapNode mapNode = mapNodeRepository
+            .findById(user.getLocationId())
+            .orElseThrow();
         if (!bounty.getMapId().equals(mapNode.getId())) {
             throw new IllegalArgumentException("该悬赏不属于当前地图");
         }
@@ -128,7 +163,11 @@ public class BountyService {
         // 种子随机预确定奖励物品（userId + 当日日期为种子）
         long seed = userId * 31 + LocalDate.now().toEpochDay();
         Random rng = new Random(seed);
-        List<Map<String, Object>> predeterminedRewards = determineRewards(bounty, mapNode, rng);
+        List<BountyRewardItem> predeterminedRewards = determineRewards(
+            bounty,
+            mapNode,
+            rng
+        );
 
         UserBounty record = new UserBounty();
         record.setUserId(userId);
@@ -136,7 +175,7 @@ public class BountyService {
         record.setBountyName(bounty.getName());
         record.setStartTime(LocalDateTime.now());
         record.setDurationMinutes(bounty.getDurationMinutes());
-        record.setRewards(predeterminedRewards);
+        record.setRewards(predeterminedRewards.stream().map(BountyRewardItem::toMap).toList());
         record.setStatus("active");
         userBountyRepository.save(record);
 
@@ -144,52 +183,79 @@ public class BountyService {
         userRepository.save(user);
 
         log.info(
-                "用户 {} 接取悬赏: {} (ID={}, 耗时{}分, 预存物品数={})",
-                userId, bounty.getName(), bountyId, bounty.getDurationMinutes(), predeterminedRewards.size()
+            "用户 {} 接取悬赏: {} (ID={}, 耗时{}分, 预存物品数={})",
+            userId,
+            bounty.getName(),
+            bountyId,
+            bounty.getDurationMinutes(),
+            predeterminedRewards.size()
         );
 
-        return String.format("已接取悬赏「%s」，预计 %d 分钟后完成。", bounty.getName(), bounty.getDurationMinutes());
+        return String.format(
+            "已接取悬赏「%s」，预计 %d 分钟后完成。",
+            bounty.getName(),
+            bounty.getDurationMinutes()
+        );
     }
 
     @Transactional
     public BountyRewardVO completeBounty(Long userId) {
         User user = userRepository.findById(userId).orElseThrow();
         if (user.getStatus() != UserStatus.BOUNTY) {
-            throw new IllegalStateException("您当前处于 " + user.getStatus().getName() + " 状态，无法完成悬赏（需要 悬赏 状态）");
+            throw new IllegalStateException(
+                "您当前处于 " +
+                    user.getStatus().getName() +
+                    " 状态，无法完成悬赏（需要 悬赏 状态）"
+            );
         }
-        UserBounty record = userBountyRepository.findActiveByUserId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("当前没有进行中的悬赏"));
+        UserBounty record = userBountyRepository
+            .findActiveByUserId(userId)
+            .orElseThrow(() ->
+                new IllegalArgumentException("当前没有进行中的悬赏")
+            );
 
         // 检查时间
-        long minutesElapsed = Duration.between(record.getStartTime(), LocalDateTime.now()).toMinutes();
+        long minutesElapsed = Duration.between(
+            record.getStartTime(),
+            LocalDateTime.now()
+        ).toMinutes();
         if (minutesElapsed < record.getDurationMinutes()) {
             long remaining = record.getDurationMinutes() - minutesElapsed;
             throw new IllegalArgumentException(
-                    String.format("悬赏「%s」还需 %d 分钟（共需 %d 分）", record.getBountyName(), remaining, record.getDurationMinutes()));
+                String.format(
+                    "悬赏「%s」还需 %d 分钟（共需 %d 分）",
+                    record.getBountyName(),
+                    remaining,
+                    record.getDurationMinutes()
+                )
+            );
         }
 
-        MapNode mapNode = mapNodeRepository.findById(user.getLocationId()).orElseThrow();
-        Bounty bounty = bountyRepository.findById(record.getBountyId()).orElseThrow();
+        MapNode mapNode = mapNodeRepository
+            .findById(user.getLocationId())
+            .orElseThrow();
+        Bounty bounty = bountyRepository
+            .findById(record.getBountyId())
+            .orElseThrow();
 
         // 从预存记录中读取奖励物品
-        List<Map<String, Object>> items = record.getRewards() != null ? new ArrayList<>(record.getRewards()) : List.of();
+        List<BountyRewardItem> rewardItems = record.getParsedRewardItems();
         long spiritStones = 0;
         boolean hasBeastEgg = false;
 
         // 统计奖励类型
-        for (Map<String, Object> item : items) {
-            String type = (String) item.get("_rewardType");
-            if ("spirit_stones".equals(type)) {
-                spiritStones = ((Number) item.getOrDefault("amount", 0)).longValue();
-            } else if ("beast_egg".equals(type)) {
-                hasBeastEgg = true;
+        for (BountyRewardItem item : rewardItems) {
+            switch (item) {
+                case BountyRewardItem.SpiritStonesReward(var amount) -> spiritStones = amount;
+                case BountyRewardItem.BeastEggReward _ -> hasBeastEgg = true;
+                default -> {}
             }
         }
 
-        // 去除内部标记字段
-        items = items.stream()
-                .filter(i -> !"spirit_stones".equals(i.get("_rewardType")))
-                .collect(Collectors.toCollection(ArrayList::new));
+        // 分离物品 (非灵石、非兽卵)
+        List<BountyRewardItem> items = rewardItems.stream()
+                .filter(i -> !(i instanceof BountyRewardItem.SpiritStonesReward))
+                .toList();
 
         // 发放物品
         addRewardsToInventory(userId, items);
@@ -203,10 +269,20 @@ public class BountyService {
         String eventDescription = resolveEvent(user, mapNode);
 
         // 奖励描述
-        String rewardDescription = buildRewardDescription(spiritStones, items, hasBeastEgg);
+        String rewardDescription = buildRewardDescription(
+            spiritStones,
+            items,
+            hasBeastEgg
+        );
 
         // LLM 美化
-        String beautified = beautifyBountyCompletion(mapNode, record.getBountyName(), rewardDescription, eventDescription, items);
+        String beautified = beautifyBountyCompletion(
+            mapNode,
+            record.getBountyName(),
+            rewardDescription,
+            eventDescription,
+            items
+        );
 
         // 标记完成
         record.setStatus("completed");
@@ -216,25 +292,42 @@ public class BountyService {
         userRepository.save(user);
 
         log.info(
-                "用户 {} 完成悬赏: {} (耗时{}分, 物品数={}, 灵石={})",
-                userId, record.getBountyName(), minutesElapsed, items.size(), spiritStones
+            "用户 {} 完成悬赏: {} (耗时{}分, 物品数={}, 灵石={})",
+            userId,
+            record.getBountyName(),
+            minutesElapsed,
+            items.size(),
+            spiritStones
         );
 
         return new BountyRewardVO(
-                userId, record.getBountyId(), record.getBountyName(), mapNode.getName(),
-                minutesElapsed,
-                beautified != null ? beautified : rewardDescription,
-                eventDescription, items, spiritStones, hasBeastEgg
+            userId,
+            record.getBountyId(),
+            record.getBountyName(),
+            mapNode.getName(),
+            minutesElapsed,
+            beautified != null ? beautified : rewardDescription,
+            eventDescription,
+            items,
+            spiritStones,
+            hasBeastEgg
         );
     }
 
     public String abandonBounty(Long userId) {
         User user = userRepository.findById(userId).orElseThrow();
         if (user.getStatus() != UserStatus.BOUNTY) {
-            throw new IllegalStateException("您当前处于 " + user.getStatus().getName() + " 状态，无法放弃悬赏（需要 悬赏 状态）");
+            throw new IllegalStateException(
+                "您当前处于 " +
+                    user.getStatus().getName() +
+                    " 状态，无法放弃悬赏（需要 悬赏 状态）"
+            );
         }
-        UserBounty record = userBountyRepository.findActiveByUserId(userId)
-                .orElseThrow(() -> new IllegalArgumentException("当前没有进行中的悬赏"));
+        UserBounty record = userBountyRepository
+            .findActiveByUserId(userId)
+            .orElseThrow(() ->
+                new IllegalArgumentException("当前没有进行中的悬赏")
+            );
 
         record.setStatus("abandoned");
         userBountyRepository.update(record);
@@ -243,7 +336,10 @@ public class BountyService {
         userRepository.save(user);
 
         log.info("用户 {} 放弃悬赏: {}", userId, record.getBountyName());
-        return String.format("已放弃悬赏「%s」，无任何产出。", record.getBountyName());
+        return String.format(
+            "已放弃悬赏「%s」，无任何产出。",
+            record.getBountyName()
+        );
     }
 
     // ===================== 奖励预计算 =====================
@@ -251,107 +347,117 @@ public class BountyService {
     /**
      * 接取时预确定奖励（种子随机）
      */
-    private List<Map<String, Object>> determineRewards(Bounty bounty, MapNode mapNode, Random rng) {
-        if (bounty.getRewards() == null || bounty.getRewards().isEmpty()) return List.of();
+    private List<BountyRewardItem> determineRewards(
+        Bounty bounty,
+        MapNode mapNode,
+        Random rng
+    ) {
+        List<BountyRewardPool> pool = bounty.getParsedRewardPool();
+        if (pool.isEmpty()) return List.of();
 
-        int totalWeight = bounty.getRewards().stream()
-                .mapToInt(r -> ((Number) r.getOrDefault("weight", 1)).intValue())
-                .sum();
-        int roll = rng.nextInt(totalWeight);
-        int cumulative = 0;
-        Map<String, Object> selected = null;
-        for (Map<String, Object> reward : bounty.getRewards()) {
-            cumulative += ((Number) reward.getOrDefault("weight", 1)).intValue();
-            if (roll < cumulative) {
-                selected = reward;
-                break;
-            }
-        }
-
+        int totalWeight = pool.stream().mapToInt(BountyRewardPool::weight).sum();
+        BountyRewardPool selected = weightedSelect(pool, totalWeight, rng);
         if (selected == null) return List.of();
 
-        String type = (String) selected.get("type");
-        return switch (type) {
-            case "rare_item" -> {
-                int count = ((Number) selected.getOrDefault("count", 1)).intValue();
-                yield findRareItems(mapNode, count, rng);
-            }
-            case "spirit_stones" -> {
-                long amount = ((Number) selected.getOrDefault("amount", 0)).longValue();
-                Map<String, Object> meta = new HashMap<>();
-                meta.put("_rewardType", "spirit_stones");
-                meta.put("amount", amount);
-                yield List.of(meta);
-            }
-            case "beast_egg" -> {
+        return switch (selected) {
+            case BountyRewardPool.RareItem(_, var count) -> findRareItems(mapNode, count, rng);
+            case BountyRewardPool.SpiritStones(_, var amount) ->
+                    List.of(new BountyRewardItem.SpiritStonesReward(amount));
+            case BountyRewardPool.BeastEgg _ -> {
                 List<ItemTemplate> eggs = itemTemplateRepository.findByType(ItemType.BEAST_EGG);
-                if (!eggs.isEmpty()) {
-                    ItemTemplate egg = eggs.get(rng.nextInt(eggs.size()));
-                    Map<String, Object> eggItem = new HashMap<>();
-                    eggItem.put("_rewardType", "beast_egg");
-                    eggItem.put("name", egg.getName());
-                    eggItem.put("templateId", egg.getId());
-                    eggItem.put("quantity", 1);
-                    yield List.of(eggItem);
-                }
-                yield List.of();
+                yield !eggs.isEmpty()
+                        ? List.of(new BountyRewardItem.BeastEggReward(
+                                eggs.get(rng.nextInt(eggs.size())).getId(),
+                                eggs.get(rng.nextInt(eggs.size())).getName()))
+                        : List.of();
             }
-            default -> List.of();
         };
     }
 
-    private List<Map<String, Object>> findRareItems(MapNode mapNode, int count, Random rng) {
+    private BountyRewardPool weightedSelect(
+            List<BountyRewardPool> pool, int totalWeight, Random rng) {
+        int roll = rng.nextInt(totalWeight);
+        int cumulative = 0;
+        for (BountyRewardPool reward : pool) {
+            cumulative += reward.weight();
+            if (roll < cumulative) return reward;
+        }
+        return null;
+    }
+
+    private List<BountyRewardItem> findRareItems(
+        MapNode mapNode,
+        int count,
+        Random rng
+    ) {
         var specialties = mapNode.getSpecialties();
         if (specialties == null || specialties.isEmpty()) return List.of();
 
         // Batch lookup item templates
-        Map<Long, ItemTemplate> templateMap = itemTemplateRepository.findByIds(new ArrayList<>(specialties.keySet()))
-                .stream()
-                .collect(Collectors.toMap(ItemTemplate::getId, t -> t));
+        Map<Long, ItemTemplate> templateMap = itemTemplateRepository
+            .findByIds(new ArrayList<>(specialties.keySet()))
+            .stream()
+            .collect(Collectors.toMap(ItemTemplate::getId, t -> t));
 
-        List<Map<String, Object>> items = new ArrayList<>();
+        List<BountyRewardItem> items = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             Long templateId = TypeUtils.weightedRandomSelect(specialties, rng);
             if (templateId == null) continue;
             ItemTemplate template = templateMap.get(templateId);
             String name = template != null ? template.getName() : "未知物品";
-            Map<String, Object> item = new HashMap<>();
-            item.put("templateId", templateId);
-            item.put("name", name);
-            item.put("quantity", 1);
-            items.add(item);
+            items.add(new BountyRewardItem.ItemReward(templateId, name, 1));
         }
         return items;
     }
 
     // ===================== 奖励发放 =====================
 
-    private void addRewardsToInventory(Long userId, List<Map<String, Object>> items) {
-        if (items.isEmpty()) return;
+    private void addRewardsToInventory(
+        Long userId,
+        List<BountyRewardItem> items
+    ) {
+        var itemRewards = items.stream()
+                .filter(i -> i instanceof BountyRewardItem.ItemReward || i instanceof BountyRewardItem.BeastEggReward)
+                .toList();
+        if (itemRewards.isEmpty()) return;
 
-        Set<Long> templateIds = items.stream()
-                .map(item -> toLong(item.get("templateId")))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+        Set<Long> templateIds = new HashSet<>();
+        for (BountyRewardItem item : itemRewards) {
+            switch (item) {
+                case BountyRewardItem.ItemReward(var templateId, _, _) -> templateIds.add(templateId);
+                case BountyRewardItem.BeastEggReward(var templateId, _) -> templateIds.add(templateId);
+                default -> {}
+            }
+        }
 
         if (templateIds.isEmpty()) return;
 
-        Map<Long, ItemType> typeMap = itemTemplateRepository.findByIds(new ArrayList<>(templateIds))
-                .stream()
-                .collect(Collectors.toMap(ItemTemplate::getId, ItemTemplate::getType));
+        Map<Long, ItemType> typeMap = itemTemplateRepository
+            .findByIds(new ArrayList<>(templateIds))
+            .stream()
+            .collect(
+                Collectors.toMap(ItemTemplate::getId, ItemTemplate::getType)
+            );
 
-        for (Map<String, Object> item : items) {
-            Object templateIdObj = item.get("templateId");
-            if (templateIdObj == null) continue;
-            String name = (String) item.get("name");
-            Long templateId = toLong(templateIdObj);
-            int quantity = ((Number) item.get("quantity")).intValue();
-            ItemType itemType = typeMap.getOrDefault(templateId, ItemType.MATERIAL);
-            stackableItemService.addStackableItem(userId, templateId, itemType, name, quantity);
+        for (BountyRewardItem item : itemRewards) {
+            switch (item) {
+                case BountyRewardItem.ItemReward(var templateId, var name, var quantity) -> {
+                    ItemType itemType = typeMap.getOrDefault(templateId, ItemType.MATERIAL);
+                    stackableItemService.addStackableItem(userId, templateId, itemType, name, quantity);
+                }
+                case BountyRewardItem.BeastEggReward(var templateId, var name) -> {
+                    stackableItemService.addStackableItem(userId, templateId, ItemType.BEAST_EGG, name, 1);
+                }
+                default -> {}
+            }
         }
     }
 
-    private String buildRewardDescription(long spiritStones, List<Map<String, Object>> items, boolean hasBeastEgg) {
+    private String buildRewardDescription(
+        long spiritStones,
+        List<BountyRewardItem> items,
+        boolean hasBeastEgg
+    ) {
         StringBuilder sb = new StringBuilder();
         if (spiritStones > 0) {
             sb.append("获得 ").append(spiritStones).append(" 灵石。");
@@ -359,9 +465,19 @@ public class BountyService {
         if (!items.isEmpty()) {
             if (!sb.isEmpty()) sb.append(" ");
             sb.append("获得物品：");
-            sb.append(items.stream()
-                              .map(i -> String.format("%s x%d", i.get("name"), ((Number) i.get("quantity")).intValue()))
-                              .collect(Collectors.joining("、")));
+            sb.append(
+                items
+                    .stream()
+                    .map(i -> switch (i) {
+                        case BountyRewardItem.ItemReward(_, var name, var quantity) ->
+                                String.format("%s x%d", name, quantity);
+                        case BountyRewardItem.BeastEggReward(_, var name) ->
+                                String.format("%s x1", name);
+                        default -> "";
+                    })
+                    .filter(s -> !s.isEmpty())
+                    .collect(Collectors.joining("、"))
+            );
             sb.append("。");
         }
         if (hasBeastEgg) {
@@ -377,12 +493,17 @@ public class BountyService {
     // ===================== 事件 =====================
 
     private String resolveEvent(User user, MapNode mapNode) {
-        if (mapNode.getTravelEvents() == null || mapNode.getTravelEvents().isEmpty()) return null;
+        if (
+            mapNode.getTravelEvents() == null ||
+            mapNode.getTravelEvents().isEmpty()
+        ) return null;
 
         int d20Roll = (int) (Math.random() * 20) + 1;
         if (d20Roll > 10) return null;
 
-        TravelEventType eventType = TravelEventType.randomEvent(mapNode.getTravelEvents());
+        TravelEventType eventType = TravelEventType.randomEvent(
+            mapNode.getTravelEvents()
+        );
         if (eventType == TravelEventType.SAFE_PASSAGE) return null;
 
         String description = processEvent(user, eventType);
@@ -395,12 +516,19 @@ public class BountyService {
             case AMBUSH -> {
                 int damage = 10 + (int) (Math.random() * 20);
                 user.takeDamage(damage);
-                yield String.format("途中遭遇敌人袭击，受到 %d 点伤害（剩余 HP: %d）", damage, user.getHpCurrent());
+                yield String.format(
+                    "途中遭遇敌人袭击，受到 %d 点伤害（剩余 HP: %d）",
+                    damage,
+                    user.getHpCurrent()
+                );
             }
             case FIND_TREASURE -> {
                 long reward = 5 + (long) (Math.random() * 15);
                 user.setSpiritStones(user.getSpiritStones() + reward);
-                yield String.format("途中发现了一个隐藏宝箱，获得 %d 灵石", reward);
+                yield String.format(
+                    "途中发现了一个隐藏宝箱，获得 %d 灵石",
+                    reward
+                );
             }
             case WEATHER -> "遭遇毒雾天气，艰难穿过才得以继续前行";
             case SAFE_PASSAGE -> null;
@@ -410,23 +538,32 @@ public class BountyService {
     // ===================== LLM 美化 =====================
 
     private String beautifyBountyCompletion(
-            MapNode mapNode, String bountyName,
-            String rewardDescription, String eventDescription,
-            List<Map<String, Object>> items
+        MapNode mapNode,
+        String bountyName,
+        String rewardDescription,
+        String eventDescription,
+        List<BountyRewardItem> items
     ) {
         List<String> itemNames = null;
         if (items != null && !items.isEmpty()) {
-            itemNames = items.stream().map(i -> (String) i.get("name")).toList();
+            itemNames = items.stream()
+                    .map(i -> switch (i) {
+                        case BountyRewardItem.ItemReward(_, var name, _) -> name;
+                        case BountyRewardItem.BeastEggReward(_, var name) -> name;
+                        default -> null;
+                    })
+                    .filter(Objects::nonNull)
+                    .toList();
         }
 
         var request = new ExplorationDescriptionFunction.Request(
-                mapNode.getName(),
-                mapNode.getDescription(),
-                "完成悬赏「" + bountyName + "」",
-                itemNames,
-                null,
-                null,
-                eventDescription
+            mapNode.getName(),
+            mapNode.getDescription(),
+            "完成悬赏「" + bountyName + "」",
+            itemNames,
+            null,
+            null,
+            eventDescription
         );
 
         try {
@@ -438,9 +575,4 @@ public class BountyService {
         }
     }
 
-    private Long toLong(Object value) {
-        if (value instanceof Long longVal) return longVal;
-        if (value instanceof Number number) return number.longValue();
-        throw new IllegalArgumentException("无法转换为 Long: " + value);
-    }
 }

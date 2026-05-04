@@ -1,8 +1,11 @@
 package top.stillmisty.xiantao.handle.command;
 
+import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import top.stillmisty.xiantao.domain.bounty.BountyRewardItem;
 import top.stillmisty.xiantao.domain.bounty.vo.BountyRewardVO;
 import top.stillmisty.xiantao.domain.bounty.vo.BountyVO;
 import top.stillmisty.xiantao.domain.map.vo.MapInfoVO;
@@ -10,9 +13,6 @@ import top.stillmisty.xiantao.domain.map.vo.TrainingRewardVO;
 import top.stillmisty.xiantao.domain.map.vo.TravelResultVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.service.*;
-
-import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Component
@@ -24,11 +24,22 @@ public class MapCommandHandler {
     private final TrainingService trainingService;
     private final BountyService bountyService;
 
-    public String handleGoTo(PlatformType platform, String openId, String mapName) {
-        log.debug("处理前往请求 - Platform: {}, OpenId: {}, MapName: {}", platform, openId, mapName);
+    public String handleGoTo(
+        PlatformType platform,
+        String openId,
+        String mapName
+    ) {
+        log.debug(
+            "处理前往请求 - Platform: {}, OpenId: {}, MapName: {}",
+            platform,
+            openId,
+            mapName
+        );
         return switch (travelService.startTravel(platform, openId, mapName)) {
             case ServiceResult.Failure(var code, var msg) -> msg;
-            case ServiceResult.Success(var vo) -> vo.isSuccess() ? formatTravelResult(vo) : vo.getMessage();
+            case ServiceResult.Success(var vo) -> vo.isSuccess()
+                ? formatTravelResult(vo)
+                : vo.getMessage();
         };
     }
 
@@ -36,13 +47,21 @@ public class MapCommandHandler {
         log.debug("处理历练请求 - Platform: {}, OpenId: {}", platform, openId);
         return switch (trainingService.startTraining(platform, openId)) {
             case ServiceResult.Failure(var code, var msg) -> msg;
-            case ServiceResult.Success(var vo) ->
-                    vo.isSuccess() ? String.format("开始在%s历练，使用「历练结算」结算收益。", vo.getMapName()) : vo.getMessage();
+            case ServiceResult.Success(var vo) -> vo.isSuccess()
+                ? String.format(
+                      "开始在%s历练，使用「历练结算」结算收益。",
+                      vo.getMapName()
+                  )
+                : vo.getMessage();
         };
     }
 
     public String handleEndTraining(PlatformType platform, String openId) {
-        log.debug("处理结束历练请求 - Platform: {}, OpenId: {}", platform, openId);
+        log.debug(
+            "处理结束历练请求 - Platform: {}, OpenId: {}",
+            platform,
+            openId
+        );
         return switch (trainingService.endTraining(platform, openId)) {
             case ServiceResult.Failure(var code, var msg) -> msg;
             case ServiceResult.Success(var vo) -> formatTrainingReward(vo);
@@ -50,10 +69,16 @@ public class MapCommandHandler {
     }
 
     public String handleMapList(PlatformType platform, String openId) {
-        log.debug("处理地图列表查询 - Platform: {}, OpenId: {}", platform, openId);
+        log.debug(
+            "处理地图列表查询 - Platform: {}, OpenId: {}",
+            platform,
+            openId
+        );
         return switch (mapService.getAllMaps(platform, openId)) {
             case ServiceResult.Failure(var code, var msg) -> msg;
-            case ServiceResult.Success(var vo) -> vo.isEmpty() ? "暂无可用地图" : formatMapList(vo);
+            case ServiceResult.Success(var vo) -> vo.isEmpty()
+                ? "暂无可用地图"
+                : formatMapList(vo);
         };
     }
 
@@ -67,8 +92,17 @@ public class MapCommandHandler {
         };
     }
 
-    public String handleStartBounty(PlatformType platform, String openId, String bountyId) {
-        log.debug("处理接取悬赏 - Platform: {}, OpenId: {}, BountyId: {}", platform, openId, bountyId);
+    public String handleStartBounty(
+        PlatformType platform,
+        String openId,
+        String bountyId
+    ) {
+        log.debug(
+            "处理接取悬赏 - Platform: {}, OpenId: {}, BountyId: {}",
+            platform,
+            openId,
+            bountyId
+        );
         try {
             Long id = Long.parseLong(bountyId);
             return switch (bountyService.startBounty(platform, openId, id)) {
@@ -104,15 +138,32 @@ public class MapCommandHandler {
         if (result.isArrived()) {
             if (result.getEventType() != null) {
                 sb.append("\n【路途事件】\n");
-                sb.append(String.format("  骰点: %d/20\n", result.getD20Roll()));
-                sb.append(String.format("  事件: %s\n", result.getEventType().getName()));
+                sb.append(
+                    String.format("  骰点: %d/20\n", result.getD20Roll())
+                );
+                sb.append(
+                    String.format(
+                        "  事件: %s\n",
+                        result.getEventType().getName()
+                    )
+                );
                 if (result.getEventDescription() != null) {
-                    sb.append(String.format("  描述: %s\n", result.getEventDescription()));
+                    sb.append(
+                        String.format(
+                            "  描述: %s\n",
+                            result.getEventDescription()
+                        )
+                    );
                 }
             }
         } else {
             if (result.getEstimatedArrivalTime() != null) {
-                sb.append(String.format("\n预计到达时间: %s", result.getEstimatedArrivalTime()));
+                sb.append(
+                    String.format(
+                        "\n预计到达时间: %s",
+                        result.getEstimatedArrivalTime()
+                    )
+                );
             }
         }
         return sb.toString();
@@ -128,11 +179,19 @@ public class MapCommandHandler {
         sb.append(rewards.getMapName());
         sb.append(" | ");
         sb.append(rewards.getDurationMinutes()).append("分钟");
-        sb.append(" | 效率").append(String.format("%.1f", rewards.getEfficiencyMultiplier())).append("x");
+        sb
+            .append(" | 效率")
+            .append(String.format("%.1f", rewards.getEfficiencyMultiplier()))
+            .append("x");
 
         // 显示等级衰减（如果有）
-        if (rewards.getLevelDecayMultiplier() != null && rewards.getLevelDecayMultiplier() < 1.0) {
-            int decayPercent = (int) ((1.0 - rewards.getLevelDecayMultiplier()) * 100);
+        if (
+            rewards.getLevelDecayMultiplier() != null &&
+            rewards.getLevelDecayMultiplier() < 1.0
+        ) {
+            int decayPercent = (int) ((1.0 -
+                    rewards.getLevelDecayMultiplier()) *
+                100);
             sb.append(" | 衰减").append(decayPercent).append("%");
         }
 
@@ -153,7 +212,10 @@ public class MapCommandHandler {
             }
             for (int i = 0; i < rewards.getItems().size(); i++) {
                 Map<String, Object> item = rewards.getItems().get(i);
-                sb.append(item.get("name")).append("×").append(item.get("quantity"));
+                sb
+                    .append(item.get("name"))
+                    .append("×")
+                    .append(item.get("quantity"));
                 if (i < rewards.getItems().size() - 1) sb.append(" ");
             }
         }
@@ -168,26 +230,35 @@ public class MapCommandHandler {
         StringBuilder sb = new StringBuilder();
         sb.append("【悬赏列表】\n\n");
         for (BountyVO b : bounties) {
-            sb.append(String.format("ID: %d | %s（%d 分钟）\n", b.id(), b.name(), b.durationMinutes()));
+            sb.append(
+                String.format(
+                    "ID: %d | %s（%d 分钟）\n",
+                    b.id(),
+                    b.name(),
+                    b.durationMinutes()
+                )
+            );
             if (b.description() != null && !b.description().isEmpty()) {
                 sb.append(String.format("  %s\n", b.description()));
             }
             sb.append(String.format("  要求等级: %d\n", b.requireLevel()));
             sb.append("\n");
         }
-        sb.append("使用「接悬赏 [ID]」接取，完成后「交悬赏」结算。");
+        sb.append("使用「悬赏接取 [ID]」，完成后「悬赏结算」。");
         return sb.toString();
     }
 
     private String formatBountyReward(BountyRewardVO reward) {
         StringBuilder sb = new StringBuilder();
-        sb.append("【悬赏完成】\n");
+        sb.append("【悬赏结算】\n");
         sb.append(String.format("悬赏: %s\n", reward.bountyName()));
         sb.append(String.format("地点: %s\n", reward.mapName()));
         sb.append(String.format("耗时: %d 分钟\n", reward.durationMinutes()));
 
         if (reward.eventDescription() != null) {
-            sb.append(String.format("\n【途中事件】%s\n", reward.eventDescription()));
+            sb.append(
+                String.format("\n【途中事件】%s\n", reward.eventDescription())
+            );
         }
 
         if (reward.rewardDescription() != null) {
@@ -196,8 +267,14 @@ public class MapCommandHandler {
 
         if (reward.items() != null && !reward.items().isEmpty()) {
             sb.append("物品:\n");
-            for (Map<String, Object> item : reward.items()) {
-                sb.append(String.format("  %s x%d\n", item.get("name"), ((Number) item.get("quantity")).intValue()));
+            for (BountyRewardItem item : reward.items()) {
+                switch (item) {
+                    case BountyRewardItem.ItemReward(_, var name, var quantity) ->
+                            sb.append(String.format("  %s x%d\n", name, quantity));
+                    case BountyRewardItem.BeastEggReward(_, var name) ->
+                            sb.append(String.format("  %s x1\n", name));
+                    default -> {}
+                }
             }
         }
         return sb.toString();
@@ -207,11 +284,23 @@ public class MapCommandHandler {
         StringBuilder sb = new StringBuilder();
         sb.append("【世界地图】\n\n");
         for (MapInfoVO map : maps) {
-            sb.append(String.format("【%s】%s (等级: %d)\n", map.getMapTypeName(), map.getName(), map.getLevelRequirement()));
-            if (map.getDescription() != null && !map.getDescription().isEmpty()) {
+            sb.append(
+                String.format(
+                    "【%s】%s (等级: %d)\n",
+                    map.getMapTypeName(),
+                    map.getName(),
+                    map.getLevelRequirement()
+                )
+            );
+            if (
+                map.getDescription() != null && !map.getDescription().isEmpty()
+            ) {
                 sb.append(String.format("  描述: %s\n", map.getDescription()));
             }
-            if (map.getAdjacentMapNames() != null && !map.getAdjacentMapNames().isEmpty()) {
+            if (
+                map.getAdjacentMapNames() != null &&
+                !map.getAdjacentMapNames().isEmpty()
+            ) {
                 sb.append("  相邻: ");
                 sb.append(String.join(", ", map.getAdjacentMapNames()));
                 sb.append("\n");
