@@ -14,7 +14,7 @@ import top.stillmisty.xiantao.domain.item.vo.InventorySummaryVO;
 import top.stillmisty.xiantao.domain.item.vo.ItemEntry;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
-import top.stillmisty.xiantao.domain.user.repository.UserRepository;
+import top.stillmisty.xiantao.service.UserStateService;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
 
 import java.util.HashMap;
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class InventoryService {
 
-    private final UserRepository userRepository;
+    private final UserStateService userStateService;
     private final EquipmentRepository equipmentRepository;
     private final StackableItemRepository stackableItemRepository;
     private final ItemResolver itemResolver;
@@ -83,7 +83,7 @@ public class InventoryService {
      * 查看背包详情（背包）
      */
     public InventoryResult getInventory(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow();
+        User user = userStateService.getUser(userId);
 
         List<Equipment> allEquipments = equipmentRepository.findUnequippedByUserId(userId);
         List<StackableItem> stackableItems = stackableItemRepository.findByUserId(userId);
@@ -122,7 +122,7 @@ public class InventoryService {
      * 获取背包摘要（按品质折叠装备，用于 #背包 命令防刷屏）
      */
     public InventorySummaryVO getInventorySummary(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow();
+        User user = userStateService.getUser(userId);
 
         List<Equipment> allEquipments = equipmentRepository.findUnequippedByUserId(userId);
         List<StackableItem> stackableItems = stackableItemRepository.findByUserId(userId);

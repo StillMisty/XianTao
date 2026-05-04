@@ -51,4 +51,9 @@ public class PlayerBuffRepositoryImpl implements PlayerBuffRepository {
     public void deleteExpired() {
         mapper.deleteExpired();
     }
+
+    @Override
+    public void deleteExpiredByUserId(Long userId) {
+        mapper.deleteExpiredByUserId(userId);
+    }
 }

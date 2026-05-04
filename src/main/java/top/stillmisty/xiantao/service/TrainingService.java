@@ -30,7 +30,6 @@ import top.stillmisty.xiantao.domain.skill.repository.SkillRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
-import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.infrastructure.util.TypeUtils;
 
@@ -47,7 +46,7 @@ public class TrainingService {
 
     private static final long BASE_EXP_PER_MINUTE = 2;
     private static final int DEFAULT_MAX_ROUNDS = 20;
-    private final UserRepository userRepository;
+    private final UserStateService userStateService;
     private final MapNodeRepository mapNodeRepository;
     private final MonsterTemplateRepository monsterTemplateRepository;
     private final ItemTemplateRepository itemTemplateRepository;
@@ -91,7 +90,7 @@ public class TrainingService {
 
     @Transactional
     public TrainingStartResult startTraining(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow();
+        User user = userStateService.getUser(userId);
 
         if (user.getStatus() != UserStatus.IDLE) {
             throw new IllegalStateException("您当前处于 " + user.getStatus().getName() + " 状态，无法开始历练（需要 空闲 状态）");
@@ -117,7 +116,7 @@ public class TrainingService {
 
         user.setTrainingStartTime(LocalDateTime.now());
         user.setStatus(UserStatus.EXERCISING);
-        userRepository.save(user);
+        userStateService.save(user);
 
         log.info("用户 {} 开始在 {} 历练", userId, mapName);
         return TrainingStartResult.builder()
@@ -128,7 +127,7 @@ public class TrainingService {
 
     @Transactional
     public TrainingRewardVO endTraining(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow();
+        User user = userStateService.getUser(userId);
 
         if (user.getStatus() != UserStatus.EXERCISING) {
             throw new IllegalStateException("您当前处于 " + user.getStatus().getName() + " 状态，无法结束历练（需要 历练 状态）");
@@ -136,7 +135,7 @@ public class TrainingService {
 
         if (user.getTrainingStartTime() == null) {
             user.setStatus(UserStatus.IDLE);
-            userRepository.save(user);
+            userStateService.save(user);
             return TrainingRewardVO.builder()
                     .userId(userId)
                     .mapId(user.getLocationId())
@@ -148,7 +147,7 @@ public class TrainingService {
         if (minutesTraining <= 5) {
             user.setStatus(UserStatus.IDLE);
             user.setTrainingStartTime(null);
-            userRepository.save(user);
+            userStateService.save(user);
             return TrainingRewardVO.builder()
                     .userId(userId)
                     .mapId(user.getLocationId())
@@ -160,7 +159,7 @@ public class TrainingService {
         if (mapOpt.isEmpty()) {
             user.setStatus(UserStatus.IDLE);
             user.setTrainingStartTime(null);
-            userRepository.save(user);
+            userStateService.save(user);
             return TrainingRewardVO.builder()
                     .userId(userId)
                     .summary("当前地图不存在")
@@ -177,7 +176,7 @@ public class TrainingService {
         long combatExp = battleResult.expGained();
         long totalExp = baseExp + combatExp;
 
-        user = userRepository.findById(userId).orElseThrow();
+        user = userStateService.getUser(userId);
         if (totalExp > 0) {
             user.addExp(totalExp);
         }
@@ -186,7 +185,7 @@ public class TrainingService {
 
         user.setStatus(UserStatus.IDLE);
         user.setTrainingStartTime(null);
-        userRepository.save(user);
+        userStateService.save(user);
 
         StringBuilder summary = new StringBuilder();
         summary.append(String.format("历练时长: %d 分钟\n", minutesTraining));
@@ -222,7 +221,7 @@ public class TrainingService {
     // ===================== 遭遇编排（核心） =====================
 
     private BattleResultVO simulateTraining(Long userId, int durationMinutes) {
-        User user = userRepository.findById(userId).orElseThrow();
+        User user = userStateService.getUser(userId);
         MapNode mapNode = mapNodeRepository.findById(user.getLocationId()).orElseThrow();
 
         Map<Long, MonsterSpawn> monsterEncounters = mapNode.getMonsterEncounters();
@@ -300,7 +299,7 @@ public class TrainingService {
 
             if (!playerWon && playerTeam.isAllDead()) {
                 user.setDying();
-                userRepository.save(user);
+                userStateService.save(user);
                 saveBeastCache(beastCache);
                 return buildSummary(
                         user, mapNode, totalEncounters, totalKills, defeatCount,
@@ -312,7 +311,7 @@ public class TrainingService {
         if (expGained > 0) {
             user.addExp(expGained);
         }
-        userRepository.save(user);
+        userStateService.save(user);
         saveBeastCache(beastCache);
 
         if (!allDrops.isEmpty()) {

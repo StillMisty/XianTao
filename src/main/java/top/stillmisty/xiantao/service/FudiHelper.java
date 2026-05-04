@@ -6,7 +6,7 @@ import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
-import top.stillmisty.xiantao.domain.user.repository.UserRepository;
+import top.stillmisty.xiantao.service.UserStateService;
 
 import java.util.Optional;
 
@@ -19,7 +19,7 @@ public class FudiHelper {
 
     private final FudiRepository fudiRepository;
     private final SpiritRepository spiritRepository;
-    private final UserRepository userRepository;
+    private final UserStateService userStateService;
 
     /**
      * 根据 userId 查找福地，并自动：更新在线时间、更新地灵情绪状态
@@ -41,7 +41,7 @@ public class FudiHelper {
      * 检查灵石是否足够，不足则抛出异常
      */
     public void checkSpiritStones(Long userId, int cost) {
-        User user = userRepository.findById(userId).orElseThrow();
+        User user = userStateService.getUser(userId);
         if (user.getSpiritStones() < cost) {
             throw new IllegalStateException("灵石不足（需要 %d，当前 %d）".formatted(cost, user.getSpiritStones()));
         }
@@ -51,25 +51,25 @@ public class FudiHelper {
      * 扣除灵石
      */
     public void deductSpiritStones(Long userId, int cost) {
-        User user = userRepository.findById(userId).orElseThrow();
+        User user = userStateService.getUser(userId);
         user.setSpiritStones(user.getSpiritStones() - cost);
-        userRepository.save(user);
+        userStateService.save(user);
     }
 
     /**
      * 增加灵石
      */
     public void addSpiritStones(Long userId, int amount) {
-        User user = userRepository.findById(userId).orElseThrow();
+        User user = userStateService.getUser(userId);
         user.setSpiritStones(user.getSpiritStones() + amount);
-        userRepository.save(user);
+        userStateService.save(user);
     }
 
     /**
      * 获取用户信息，不存在则抛出异常
      */
     public User getUserOrThrow(Long userId) {
-        return userRepository.findById(userId).orElseThrow();
+        return userStateService.getUser(userId);
     }
 
     /**

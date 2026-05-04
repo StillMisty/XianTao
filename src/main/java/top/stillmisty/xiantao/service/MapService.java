@@ -4,12 +4,19 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
+import top.stillmisty.xiantao.domain.map.entity.MonsterSpawn;
 import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
 import top.stillmisty.xiantao.domain.map.vo.MapInfoVO;
+import top.stillmisty.xiantao.domain.monster.entity.MonsterTemplate;
+import top.stillmisty.xiantao.domain.monster.repository.MonsterTemplateRepository;
+import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 地图服务
@@ -20,6 +27,8 @@ import java.util.List;
 public class MapService {
 
     private final MapNodeRepository mapNodeRepository;
+    private final MonsterTemplateRepository monsterTemplateRepository;
+    private final UserStateService userStateService;
     // ===================== 公开 API（含认证） =====================
 
     @Authenticated
@@ -28,12 +37,16 @@ public class MapService {
         return new ServiceResult.Success<>(getAllMaps());
     }
 
+    @Authenticated
+    public ServiceResult<MapInfoVO> getCurrentMapInfo(PlatformType platform, String openId) {
+        Long userId = UserContext.getCurrentUserId();
+        return new ServiceResult.Success<>(getCurrentMapInfo(userId));
+    }
+
     // ===================== 内部 API（需预先完成认证） =====================
 
     /**
      * 获取所有地图
-     *
-     * @return 地图列表
      */
     public List<MapInfoVO> getAllMaps() {
         return mapNodeRepository.findAll().stream()
@@ -42,10 +55,17 @@ public class MapService {
     }
 
     /**
+     * 获取当前所在地图详情
+     */
+    public MapInfoVO getCurrentMapInfo(Long userId) {
+        User user = userStateService.getUser(userId);
+        MapNode mapNode = mapNodeRepository.findById(user.getLocationId())
+                .orElseThrow(() -> new IllegalStateException("当前所在地图不存在"));
+        return convertToMapInfoVO(mapNode);
+    }
+
+    /**
      * 根据地图ID获取地图名称
-     *
-     * @param mapId 地图ID
-     * @return 地图名称，未找到返回"未知"
      */
     public String getMapName(Long mapId) {
         if (mapId == null) {
@@ -60,6 +80,8 @@ public class MapService {
      * 转换为地图信息 VO
      */
     private MapInfoVO convertToMapInfoVO(MapNode mapNode) {
+        List<MapInfoVO.MonsterInfoVO> monsters = buildMonsterInfoList(mapNode.getMonsterEncounters());
+
         return MapInfoVO.builder()
                 .id(mapNode.getId())
                 .name(mapNode.getName())
@@ -71,6 +93,39 @@ public class MapService {
                 .adjacentMapNames(mapNode.getAdjacentMapNames())
                 .specialties(mapNode.getSpecialties())
                 .travelEvents(mapNode.getTravelEvents())
+                .monsters(monsters)
                 .build();
+    }
+
+    /**
+     * 根据遇怪池构建怪物信息列表
+     */
+    private List<MapInfoVO.MonsterInfoVO> buildMonsterInfoList(Map<Long, MonsterSpawn> monsterEncounters) {
+        if (monsterEncounters == null || monsterEncounters.isEmpty()) {
+            return List.of();
+        }
+        List<Long> templateIds = new ArrayList<>(monsterEncounters.keySet());
+        Map<Long, MonsterTemplate> templateMap = monsterTemplateRepository.findByIds(templateIds).stream()
+                .collect(java.util.stream.Collectors.toMap(MonsterTemplate::getId, t -> t));
+
+        return monsterEncounters.entrySet().stream()
+                .map(entry -> {
+                    Long templateId = entry.getKey();
+                    MonsterSpawn spawn = entry.getValue();
+                    MonsterTemplate template = templateMap.get(templateId);
+
+                    return MapInfoVO.MonsterInfoVO.builder()
+                            .templateId(templateId)
+                            .name(template != null ? template.getName() : "未知怪物")
+                            .typeName(template != null && template.getMonsterType() != null
+                                    ? template.getMonsterType().getName() : "未知")
+                            .baseLevel(template != null ? template.getBaseLevel() : null)
+                            .weight(spawn.weight())
+                            .minCount(spawn.min())
+                            .maxCount(spawn.max())
+                            .build();
+                })
+                .sorted((a, b) -> Integer.compare(b.getWeight(), a.getWeight()))
+                .toList();
     }
 }

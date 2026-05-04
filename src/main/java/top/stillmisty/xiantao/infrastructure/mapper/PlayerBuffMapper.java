@@ -23,4 +23,7 @@ public interface PlayerBuffMapper extends BaseMapper<PlayerBuff> {
 
     @Delete("DELETE FROM xt_player_buff WHERE expires_at <= NOW()")
     void deleteExpired();
+
+    @Delete("DELETE FROM xt_player_buff WHERE user_id = #{userId} AND expires_at <= NOW()")
+    void deleteExpiredByUserId(@Param("userId") Long userId);
 }

@@ -21,6 +21,17 @@ public class MapHandle {
     @Listener
     @ContentTrim
     @Filter("地图")
+    public void currentMap(MessageEvent event) {
+        String response = mapCommandHandler.handleCurrentMap(
+            PlatformType.ONE_BOT_V11,
+            event.getAuthorId().toString()
+        );
+        event.replyBlocking(response);
+    }
+
+    @Listener
+    @ContentTrim
+    @Filter("地图列表")
     public void mapList(MessageEvent event) {
         String response = mapCommandHandler.handleMapList(
             PlatformType.ONE_BOT_V11,

@@ -65,4 +65,51 @@ public class MapInfoVO {
      * 格式: {"ambush": 40, "find_treasure": 10} (eventType → weight)
      */
     private Map<String, Integer> travelEvents;
+
+    /**
+     * 遇怪列表（已解析怪物名称）
+     */
+    private List<MonsterInfoVO> monsters;
+
+    /**
+     * 地图遇怪信息 VO
+     */
+    @Data
+    @Builder
+    public static class MonsterInfoVO {
+        /**
+         * 怪物模板 ID
+         */
+        private Long templateId;
+
+        /**
+         * 怪物名称
+         */
+        private String name;
+
+        /**
+         * 怪物类型名称
+         */
+        private String typeName;
+
+        /**
+         * 基础等级
+         */
+        private Integer baseLevel;
+
+        /**
+         * 出现权重
+         */
+        private int weight;
+
+        /**
+         * 最少出现数量
+         */
+        private int minCount;
+
+        /**
+         * 最多出现数量
+         */
+        private int maxCount;
+    }
 }

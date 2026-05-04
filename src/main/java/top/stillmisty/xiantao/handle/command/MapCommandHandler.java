@@ -86,6 +86,18 @@ public class MapCommandHandler {
         };
     }
 
+    public String handleCurrentMap(PlatformType platform, String openId) {
+        log.debug(
+            "处理当前地图查询 - Platform: {}, OpenId: {}",
+            platform,
+            openId
+        );
+        return switch (mapService.getCurrentMapInfo(platform, openId)) {
+            case ServiceResult.Failure(var code, var msg) -> msg;
+            case ServiceResult.Success(var vo) -> formatCurrentMap(vo);
+        };
+    }
+
     // ===================== 悬赏命令 =====================
 
     public String handleBountyList(PlatformType platform, String openId) {
@@ -360,6 +372,17 @@ public class MapCommandHandler {
                 sb.append(String.format("  描述: %s\n", map.getDescription()));
             }
             if (
+                map.getMonsters() != null && !map.getMonsters().isEmpty()
+            ) {
+                sb.append("  怪物: ");
+                sb.append(
+                    map.getMonsters().stream()
+                        .map(m -> m.getName() + "{" + m.getTypeName() + " Lv" + m.getBaseLevel() + "}")
+                        .collect(Collectors.joining("、"))
+                );
+                sb.append("\n");
+            }
+            if (
                 map.getAdjacentMapNames() != null &&
                 !map.getAdjacentMapNames().isEmpty()
             ) {
@@ -370,6 +393,56 @@ public class MapCommandHandler {
             sb.append("\n");
         }
         sb.append("使用「前往 [地图名]」开始旅行。");
+        return sb.toString();
+    }
+
+    private String formatCurrentMap(MapInfoVO map) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(
+            String.format(
+                "【%s】%s (要求等级: %d)\n",
+                map.getMapTypeName(),
+                map.getName(),
+                map.getLevelRequirement()
+            )
+        );
+        if (map.getDescription() != null && !map.getDescription().isEmpty()) {
+            sb.append(String.format("\n%s\n", map.getDescription()));
+        }
+        if (
+            map.getMonsters() != null && !map.getMonsters().isEmpty()
+        ) {
+            sb.append("\n【遇怪列表】\n");
+            for (MapInfoVO.MonsterInfoVO monster : map.getMonsters()) {
+                String countRange = monster.getMinCount() == monster.getMaxCount()
+                    ? String.valueOf(monster.getMinCount())
+                    : monster.getMinCount() + "~" + monster.getMaxCount();
+                sb.append(
+                    String.format(
+                        "  %s [%s] Lv%d  权重:%d  数量:%s\n",
+                        monster.getName(),
+                        monster.getTypeName(),
+                        monster.getBaseLevel(),
+                        monster.getWeight(),
+                        countRange
+                    )
+                );
+            }
+        }
+        if (
+            map.getAdjacentMapNames() != null &&
+            !map.getAdjacentMapNames().isEmpty()
+        ) {
+            sb.append("\n【相邻地图】\n");
+            for (String adjName : map.getAdjacentMapNames()) {
+                Integer travelTime = map.getNeighbors().get(adjName);
+                String timeStr = travelTime != null
+                    ? " (" + FormatUtils.formatMinutes(travelTime) + ")"
+                    : "";
+                sb.append(String.format("  %s%s\n", adjName, timeStr));
+            }
+        }
+        sb.append("\n使用「前往 [地图名]」开始旅行。");
         return sb.toString();
     }
 }

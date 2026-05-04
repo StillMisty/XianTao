@@ -17,7 +17,7 @@ import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.AttributeType;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
-import top.stillmisty.xiantao.domain.user.repository.UserRepository;
+import top.stillmisty.xiantao.service.UserStateService;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
 
 import java.time.LocalDateTime;
@@ -34,7 +34,7 @@ import java.util.List;
 public class PillConsumptionService {
 
     private static final double GRADE_DECAY_COEFFICIENT = 0.2;
-    private final UserRepository userRepository;
+    private final UserStateService userStateService;
     private final ItemTemplateRepository itemTemplateRepository;
     private final StackableItemRepository stackableItemRepository;
     private final PillResistanceRepository pillResistanceRepository;
@@ -64,7 +64,7 @@ public class PillConsumptionService {
         var props = template.typedProperties();
         if (!(props instanceof ItemProperties.Potion(List<ItemProperties.Effect> effects))) return "丹药没有效果";
 
-        User user = userRepository.findById(userId).orElseThrow();
+        User user = userStateService.getUser(userId);
         double qualityMultiplier = getQualityMultiplier(pill.getQuality());
         int grade = getPillGrade(pill);
         var messages = new ArrayList<String>();
@@ -74,7 +74,7 @@ public class PillConsumptionService {
             if (msg != null && !msg.isEmpty()) messages.add(msg);
         }
 
-        userRepository.save(user);
+        userStateService.save(user);
 
         if (messages.isEmpty()) return "丹药效果未知";
         return "服用丹药成功：" + String.join("，", messages);

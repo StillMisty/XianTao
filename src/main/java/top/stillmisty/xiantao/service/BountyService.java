@@ -27,7 +27,6 @@ import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
-import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 import top.stillmisty.xiantao.infrastructure.util.TypeUtils;
 import top.stillmisty.xiantao.service.ai.ExplorationDescriptionFunction;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
@@ -40,7 +39,7 @@ import top.stillmisty.xiantao.service.annotation.Authenticated;
 @RequiredArgsConstructor
 public class BountyService {
 
-    private final UserRepository userRepository;
+    private final UserStateService userStateService;
     private final MapNodeRepository mapNodeRepository;
     private final BountyRepository bountyRepository;
     private final UserBountyRepository userBountyRepository;
@@ -120,7 +119,7 @@ public class BountyService {
     // ===================== 内部 API =====================
 
     public List<BountyVO> listBounties(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow();
+        User user = userStateService.getUser(userId);
         MapNode mapNode = mapNodeRepository
             .findById(user.getLocationId())
             .orElseThrow();
@@ -174,7 +173,8 @@ public class BountyService {
     }
 
     public String startBounty(Long userId, Long bountyId) {
-        User user = userRepository.findById(userId).orElseThrow();
+        User user = userStateService.getUser(userId);
+
         if (user.getStatus() != UserStatus.IDLE) {
             throw new IllegalStateException(
                 "您当前处于 " +
@@ -217,7 +217,7 @@ public class BountyService {
         userBountyRepository.save(record);
 
         user.setStatus(UserStatus.BOUNTY);
-        userRepository.save(user);
+        userStateService.save(user);
 
         log.info(
             "用户 {} 接取悬赏: {} (ID={}, 耗时{}分, 预存物品数={})",
@@ -237,7 +237,7 @@ public class BountyService {
 
     @Transactional
     public BountyRewardVO completeBounty(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow();
+        User user = userStateService.getUser(userId);
         if (user.getStatus() != UserStatus.BOUNTY) {
             throw new IllegalStateException(
                 "您当前处于 " +
@@ -326,7 +326,7 @@ public class BountyService {
         userBountyRepository.update(record);
 
         user.setStatus(UserStatus.IDLE);
-        userRepository.save(user);
+        userStateService.save(user);
 
         log.info(
             "用户 {} 完成悬赏: {} (耗时{}分, 物品数={}, 灵石={})",
@@ -352,7 +352,7 @@ public class BountyService {
     }
 
     public String abandonBounty(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow();
+        User user = userStateService.getUser(userId);
         if (user.getStatus() != UserStatus.BOUNTY) {
             throw new IllegalStateException(
                 "您当前处于 " +
@@ -370,7 +370,7 @@ public class BountyService {
         userBountyRepository.update(record);
 
         user.setStatus(UserStatus.IDLE);
-        userRepository.save(user);
+        userStateService.save(user);
 
         log.info("用户 {} 放弃悬赏: {}", userId, record.getBountyName());
         return String.format(

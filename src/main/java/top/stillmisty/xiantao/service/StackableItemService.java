@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
-import top.stillmisty.xiantao.domain.user.repository.UserRepository;
+import top.stillmisty.xiantao.service.UserStateService;
 
 import java.util.List;
 
@@ -20,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StackableItemService {
 
-    private final UserRepository userRepository;
+    private final UserStateService userStateService;
     private final StackableItemRepository stackableItemRepository;
 
     /**
@@ -30,7 +30,7 @@ public class StackableItemService {
             Long userId, Long templateId, ItemType itemType,
             String name, int quantity
     ) {
-        userRepository.findById(userId).orElseThrow();
+        userStateService.getUser(userId);
 
         var existingItem = stackableItemRepository.findByUserIdAndTemplateId(userId, templateId);
 

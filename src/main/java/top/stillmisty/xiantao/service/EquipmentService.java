@@ -12,7 +12,7 @@ import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentTemplateRepository;
 import top.stillmisty.xiantao.domain.item.vo.*;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
-import top.stillmisty.xiantao.domain.user.repository.UserRepository;
+import top.stillmisty.xiantao.service.UserStateService;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
 
 import java.util.*;
@@ -27,7 +27,7 @@ import java.util.concurrent.ThreadLocalRandom;
 @RequiredArgsConstructor
 public class EquipmentService {
 
-    private final UserRepository userRepository;
+    private final UserStateService userStateService;
     private final EquipmentRepository equipmentRepository;
     private final EquipmentTemplateRepository equipmentTemplateRepository;
     private final ItemResolver itemResolver;
@@ -54,7 +54,7 @@ public class EquipmentService {
      */
     @Transactional
     public EquipResult equipItem(Long userId, String input) {
-        userRepository.findById(userId).orElseThrow();
+        userStateService.getUser(userId);
 
         var result = itemResolver.resolveEquipment(userId, input);
         if (result instanceof ItemResolver.NotFound<?>(String input1)) {
@@ -215,7 +215,7 @@ public class EquipmentService {
      * 获取装备列表（展开显示）
      */
     public EquipmentListResult getEquipmentList(Long userId) {
-        userRepository.findById(userId).orElseThrow();
+        userStateService.getUser(userId);
 
         List<Equipment> allEquipments = equipmentRepository.findByUserId(userId);
 

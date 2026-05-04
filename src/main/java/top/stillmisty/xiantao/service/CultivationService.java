@@ -12,6 +12,7 @@ import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.repository.DaoProtectionRepository;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 import top.stillmisty.xiantao.domain.user.vo.*;
+import top.stillmisty.xiantao.service.UserStateService;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
 
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ public class CultivationService {
     private static final double LEVEL_DIFF_BONUS_PERCENTAGE = 1.0; // 每级差距额外1%
     private static final double MAX_TOTAL_BONUS_PERCENTAGE = 20.0; // 总加成上限20%
     private final UserRepository userRepository;
+    private final UserStateService userStateService;
     private final MapService mapService;
     private final DaoProtectionRepository daoProtectionRepository;
     private final PlayerBuffRepository playerBuffRepository;
@@ -75,7 +77,7 @@ public class CultivationService {
      */
     @Transactional
     public BreakthroughResult attemptBreakthrough(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow();
+        User user = userStateService.getUser(userId);
 
         // 检查修为是否足够
         long expNeeded = user.calculateExpToNextLevel();
@@ -118,7 +120,7 @@ public class CultivationService {
             // 清除突破丹药加成
             playerBuffRepository.deleteByUserIdAndType(userId, "breakthrough");
 
-            userRepository.save(user);
+            userStateService.save(user);
 
             return BreakthroughResult.builder()
                     .success(true)
@@ -142,7 +144,7 @@ public class CultivationService {
             // 清除突破丹药加成
             playerBuffRepository.deleteByUserIdAndType(userId, "breakthrough");
 
-            userRepository.save(user);
+            userStateService.save(user);
 
             return BreakthroughResult.builder()
                     .success(true)
@@ -165,7 +167,7 @@ public class CultivationService {
      */
     @Transactional
     public DaoProtectionResult establishProtection(Long protectorId, String protegeNickname) {
-        User protector = userRepository.findById(protectorId).orElseThrow();
+        User protector = userStateService.getUser(protectorId);
 
         // 查找被护道者
         Optional<User> protegeOpt = findUserByNickname(protegeNickname);
@@ -281,7 +283,7 @@ public class CultivationService {
      * @return 护道查询结果
      */
     public DaoProtectionQueryResult queryProtectionInfo(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow();
+        User user = userStateService.getUser(userId);
 
         // 查询正在为谁护道
         List<DaoProtection> protectingList = daoProtectionRepository.findByProtectorId(userId);

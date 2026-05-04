@@ -6,13 +6,17 @@ import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
 import top.stillmisty.xiantao.domain.item.vo.CharacterStatusResult;
+import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
 import top.stillmisty.xiantao.domain.user.entity.DaoProtection;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.domain.user.repository.DaoProtectionRepository;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -26,10 +30,12 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CharacterStatusService {
 
+    private final UserStateService userStateService;
     private final UserRepository userRepository;
     private final EquipmentRepository equipmentRepository;
     private final DaoProtectionRepository daoProtectionRepository;
     private final MapService mapService;
+    private final MapNodeRepository mapNodeRepository;
     // ===================== 公开 API（含认证） =====================
 
     @Authenticated
@@ -45,7 +51,7 @@ public class CharacterStatusService {
      * 包含：HP、属性、装扮（已穿戴装备）、境界进度（等级经验）、当前状态
      */
     public CharacterStatusResult getCharacterStatus(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow();
+        User user = userStateService.getUser(userId);
 
         // 获取已穿戴装备
         List<Equipment> equippedItems = equipmentRepository.findEquippedByUserId(userId);
@@ -101,6 +107,39 @@ public class CharacterStatusService {
                 .sum();
         totalProtectionBonus = Math.min(20.0, totalProtectionBonus); // 上限 20%
 
+        // 旅行相关信息
+        String locationName = mapService.getMapName(user.getLocationId());
+        Long travelDestinationId = null;
+        String travelDestinationName = null;
+        LocalDateTime travelStartTime = null;
+        LocalDateTime estimatedArrivalTime = null;
+        Integer travelTimeMinutes = null;
+        Long travelMinutesElapsed = null;
+        Long travelMinutesRemaining = null;
+
+        if (user.getStatus() == UserStatus.RUNNING && user.getTravelDestinationId() != null) {
+            travelDestinationId = user.getTravelDestinationId();
+            travelDestinationName = mapService.getMapName(user.getTravelDestinationId());
+            travelStartTime = user.getTravelStartTime();
+
+            var currentMap = mapNodeRepository.findById(user.getLocationId());
+            if (currentMap.isPresent() && travelDestinationName != null) {
+                travelTimeMinutes = currentMap.get().getTravelTimeTo(travelDestinationName);
+            }
+
+            if (travelStartTime != null) {
+                LocalDateTime now = LocalDateTime.now();
+                if (travelTimeMinutes != null) {
+                    travelMinutesElapsed = Math.min(
+                        travelTimeMinutes.longValue(),
+                        Duration.between(travelStartTime, now).toMinutes()
+                    );
+                    travelMinutesRemaining = Math.max(0, travelTimeMinutes.longValue() - travelMinutesElapsed);
+                    estimatedArrivalTime = travelStartTime.plusMinutes(travelTimeMinutes);
+                }
+            }
+        }
+
         return CharacterStatusResult.builder()
                 .success(true)
                 .message("")
@@ -113,6 +152,14 @@ public class CharacterStatusService {
                 .status(user.getStatus())
                 .statusName(user.getStatus().getName())
                 .locationId(user.getLocationId())
+                .locationName(locationName)
+                .travelDestinationId(travelDestinationId)
+                .travelDestinationName(travelDestinationName)
+                .travelStartTime(travelStartTime)
+                .estimatedArrivalTime(estimatedArrivalTime)
+                .travelTimeMinutes(travelTimeMinutes)
+                .travelMinutesElapsed(travelMinutesElapsed)
+                .travelMinutesRemaining(travelMinutesRemaining)
                 .hpCurrent(user.getHpCurrent())
                 .hpMax(hpMax)
                 .hpPercentage(user.getHpCurrent() * 100.0 / hpMax)

@@ -16,7 +16,7 @@ import top.stillmisty.xiantao.domain.skill.repository.SkillRepository;
 import top.stillmisty.xiantao.domain.skill.vo.SkillSlotResult;
 import top.stillmisty.xiantao.domain.skill.vo.SkillVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
-import top.stillmisty.xiantao.domain.user.repository.UserRepository;
+import top.stillmisty.xiantao.service.UserStateService;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
 
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SkillService {
 
-    private final UserRepository userRepository;
+    private final UserStateService userStateService;
     private final SkillRepository skillRepository;
     private final PlayerSkillRepository playerSkillRepository;
     private final StackableItemRepository stackableItemRepository;
@@ -133,7 +133,7 @@ public class SkillService {
         }
 
         // 5. 检查等级要求
-        var user = userRepository.findById(userId).orElseThrow();
+        var user = userStateService.getUser(userId);
         if (user.getLevel() < skill.getLevelRequirement()) {
             return SkillSlotResult.builder()
                     .success(false)
@@ -221,7 +221,7 @@ public class SkillService {
         }
 
         // 4. 检查槽位
-        var user = userRepository.findById(userId).orElseThrow();
+        var user = userStateService.getUser(userId);
         int maxSlots = calculateMaxSlots(user.getLevel());
         long equippedCount = playerSkills.stream().filter(PlayerSkill::getIsEquipped).count();
         if (equippedCount >= maxSlots) {
@@ -280,7 +280,7 @@ public class SkillService {
         matched.setIsEquipped(false);
         playerSkillRepository.save(matched);
 
-        var user = userRepository.findById(userId).orElseThrow();
+        var user = userStateService.getUser(userId);
         int maxSlots = calculateMaxSlots(user.getLevel());
 
         var skill = skillRepository.findById(matched.getSkillId()).orElse(null);

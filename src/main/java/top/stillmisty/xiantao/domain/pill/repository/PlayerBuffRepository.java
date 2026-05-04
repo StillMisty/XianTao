@@ -43,4 +43,9 @@ public interface PlayerBuffRepository {
      * 删除所有过期的Buff
      */
     void deleteExpired();
+
+    /**
+     * 删除指定用户的所有过期Buff
+     */
+    void deleteExpiredByUserId(Long userId);
 }

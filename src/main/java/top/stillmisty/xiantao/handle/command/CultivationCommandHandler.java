@@ -8,7 +8,9 @@ import top.stillmisty.xiantao.domain.item.vo.CharacterStatusResult;
 import top.stillmisty.xiantao.domain.item.vo.InventorySummaryVO;
 import top.stillmisty.xiantao.domain.item.vo.ItemEntry;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.domain.user.vo.*;
+import top.stillmisty.xiantao.infrastructure.util.FormatUtils;
 import top.stillmisty.xiantao.service.CharacterStatusService;
 import top.stillmisty.xiantao.service.CultivationService;
 import top.stillmisty.xiantao.service.EquipmentService;
@@ -138,9 +140,36 @@ public class CultivationCommandHandler {
     private String formatCharacterStatus(CharacterStatusResult status) {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("【%s】的修仙状态\n", status.getNickname()));
-        if (status.getStatus() != null && status.getStatusName() != null) {
+
+        // 位置信息
+        if (status.getLocationName() != null) {
+            sb.append(String.format("所在地：%s\n", status.getLocationName()));
+        }
+
+        // 状态：赶路时显示优化信息，其余显示普通状态名
+        if (status.getStatus() == UserStatus.RUNNING && status.getTravelDestinationName() != null) {
+            sb.append(String.format("状态：赶路中 (%s → %s)\n",
+                status.getLocationName(),
+                status.getTravelDestinationName()));
+            if (status.getTravelTimeMinutes() != null && status.getTravelMinutesElapsed() != null && status.getTravelMinutesRemaining() != null) {
+                sb.append(String.format("旅途进度：%s/%s",
+                    FormatUtils.formatMinutes(status.getTravelMinutesElapsed()),
+                    FormatUtils.formatMinutes(status.getTravelTimeMinutes().longValue())));
+                if (status.getTravelMinutesRemaining() > 0) {
+                    sb.append(String.format("（剩余 %s）",
+                        FormatUtils.formatMinutes(status.getTravelMinutesRemaining())));
+                } else {
+                    sb.append("（即将到达）");
+                }
+                sb.append("\n");
+            } else if (status.getEstimatedArrivalTime() != null) {
+                sb.append(String.format("预计到达：%s\n",
+                    FormatUtils.formatDateTime(status.getEstimatedArrivalTime())));
+            }
+        } else if (status.getStatus() != null && status.getStatusName() != null) {
             sb.append(String.format("状态：%s\n", status.getStatusName()));
         }
+
         sb.append(String.format("境界：第%d层 (%.1f%%)\n", status.getLevel(), status.getExpPercentage()));
         sb.append(String.format("HP：%d/%d (%.1f%%)\n", status.getHpCurrent(), status.getHpMax(), status.getHpPercentage()));
         sb.append("\n");

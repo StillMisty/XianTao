@@ -10,7 +10,6 @@ import top.stillmisty.xiantao.domain.map.vo.TravelResultVO;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
-import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
 
 import java.time.LocalDateTime;
@@ -21,7 +20,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class TravelService {
 
-    private final UserRepository userRepository;
+    private final UserStateService userStateService;
     private final MapNodeRepository mapNodeRepository;
 
     // ===================== 公开 API =====================
@@ -41,7 +40,7 @@ public class TravelService {
 
     @Transactional
     public TravelResultVO startTravel(Long userId, String mapName) {
-        User user = userRepository.findById(userId).orElseThrow();
+        User user = userStateService.getUser(userId);
 
         if (user.getStatus() != UserStatus.IDLE) {
             throw new IllegalStateException("您当前处于 " + user.getStatus().getName() + " 状态，无法旅行（需要 空闲 状态）");
@@ -78,7 +77,7 @@ public class TravelService {
         user.setStatus(UserStatus.RUNNING);
         user.setTravelStartTime(LocalDateTime.now());
         user.setTravelDestinationId(targetMap.getId());
-        userRepository.save(user);
+        userStateService.save(user);
 
         LocalDateTime estimatedArrival = LocalDateTime.now().plusMinutes(travelTime);
 

@@ -32,6 +32,16 @@ public class CharacterStatusResult {
     private UserStatus status;
     private String statusName;
     private Long locationId;
+    private String locationName;
+
+    // ===================== 旅行相关（仅 USER.RUNNING 时有值） =====================
+    private Long travelDestinationId;
+    private String travelDestinationName;
+    private java.time.LocalDateTime travelStartTime;
+    private java.time.LocalDateTime estimatedArrivalTime;
+    private Integer travelTimeMinutes;
+    private Long travelMinutesElapsed;
+    private Long travelMinutesRemaining;
 
     // ===================== HP =====================
     private Integer hpCurrent;
