@@ -1,13 +1,14 @@
 package top.stillmisty.xiantao.domain.pill.repository;
 
 import java.util.List;
+import java.util.Optional;
 import top.stillmisty.xiantao.domain.pill.entity.PlayerBuff;
 
 /** 玩家 Buff 仓储接口 */
 public interface PlayerBuffRepository {
 
   /** 根据ID查找Buff */
-  PlayerBuff findById(Long id);
+  Optional<PlayerBuff> findById(Long id);
 
   /** 根据用户ID查找所有未过期的Buff */
   List<PlayerBuff> findActiveByUserId(Long userId);

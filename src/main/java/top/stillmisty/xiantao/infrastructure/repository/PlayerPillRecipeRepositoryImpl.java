@@ -40,10 +40,10 @@ public class PlayerPillRecipeRepositoryImpl implements PlayerPillRecipeRepositor
 
   @Override
   public PlayerPillRecipe save(PlayerPillRecipe recipe) {
-    if (recipe.getId() == null || !existsById(recipe.getId())) {
+    if (recipe.getId() == null) {
       mapper.insert(recipe);
     } else {
-      mapper.update(recipe);
+      mapper.insertOrUpdate(recipe);
     }
     return recipe;
   }
@@ -58,9 +58,5 @@ public class PlayerPillRecipeRepositoryImpl implements PlayerPillRecipeRepositor
     mapper
         .selectByUserIdAndRecipeTemplateId(userId, recipeTemplateId)
         .ifPresent(recipe -> mapper.deleteById(recipe.getId()));
-  }
-
-  private boolean existsById(Long id) {
-    return mapper.selectOneById(id) != null;
   }
 }

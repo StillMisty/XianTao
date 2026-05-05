@@ -16,15 +16,21 @@ public class SpiritPromptTemplates {
     String cellInfo =
         (cellDetail == null || cellDetail.isBlank()) ? "福地尚处于初生阶段，暂无灵田/兽栏，所有地块均可支配。" : cellDetail;
 
-    String affectionTone =
-        switch (spiritAffection / 200) {
-          case 5 -> "亲密无间，视你为最重要的人";
-          case 4 -> "非常喜欢，对你温柔体贴";
-          case 3 -> "有好感，愿意主动帮忙";
-          case 2 -> "态度平和，礼貌相待";
-          case 1 -> "略有隔阂，语气生疏";
-          default -> "态度冷淡，不愿多说话";
-        };
+    int bracket = spiritAffection / 200;
+    String affectionTone;
+    if (spiritAffection < 0 && bracket >= 0) {
+      affectionTone = "态度冷淡，对你有所不满";
+    } else {
+      affectionTone =
+          switch (bracket) {
+            case 5 -> "亲密无间，视你为最重要的人";
+            case 4 -> "非常喜欢，对你温柔体贴";
+            case 3 -> "有好感，愿意主动帮忙";
+            case 2 -> "态度平和，礼貌相待";
+            case 1 -> "略有隔阂，语气生疏";
+            default -> bracket < 0 ? "对你极度厌烦，语气充满敌意" : "态度冷淡，不愿多说话";
+          };
+    }
 
     return String.format(
         """

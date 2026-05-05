@@ -1,5 +1,6 @@
 package top.stillmisty.xiantao.domain.item.enums;
 
+import com.mybatisflex.annotation.EnumValue;
 import lombok.Getter;
 
 /** 法器子类型枚举 */
@@ -20,7 +21,7 @@ public enum WeaponType {
   RING("ring", "圈", "奇兵", "乾天坤地"),
   BELL("bell", "钟", "奇兵", "震慑心神");
 
-  private final String code;
+  @EnumValue private final String code;
   private final String name;
   private final String category;
   private final String description;

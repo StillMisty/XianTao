@@ -1,5 +1,6 @@
 package top.stillmisty.xiantao.domain.skill.enums;
 
+import com.mybatisflex.annotation.EnumValue;
 import lombok.Getter;
 
 @Getter
@@ -9,7 +10,7 @@ public enum BindingType {
   WEAPON_CATEGORY("weapon_category", "法器大类"),
   ELEMENT("element", "元素");
 
-  private final String code;
+  @EnumValue private final String code;
   private final String name;
 
   BindingType(String code, String name) {

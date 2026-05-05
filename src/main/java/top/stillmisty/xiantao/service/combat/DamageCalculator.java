@@ -1,9 +1,13 @@
-package top.stillmisty.xiantao.domain.monster;
+package top.stillmisty.xiantao.service.combat;
 
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.item.enums.WeaponType;
+import top.stillmisty.xiantao.domain.monster.BuffManager;
+import top.stillmisty.xiantao.domain.monster.Combatant;
+import top.stillmisty.xiantao.domain.monster.Monster;
+import top.stillmisty.xiantao.domain.monster.PlayerCombatant;
 import top.stillmisty.xiantao.domain.monster.enums.MonsterType;
 import top.stillmisty.xiantao.domain.skill.entity.SkillEffect;
 

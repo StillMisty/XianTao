@@ -1,4 +1,4 @@
-package top.stillmisty.xiantao.domain.monster;
+package top.stillmisty.xiantao.service.combat;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -8,6 +8,13 @@ import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import top.stillmisty.xiantao.domain.monster.BattleContext;
+import top.stillmisty.xiantao.domain.monster.BeastCombatant;
+import top.stillmisty.xiantao.domain.monster.Buff;
+import top.stillmisty.xiantao.domain.monster.BuffManager;
+import top.stillmisty.xiantao.domain.monster.CombatEngine;
+import top.stillmisty.xiantao.domain.monster.Combatant;
+import top.stillmisty.xiantao.domain.monster.Team;
 import top.stillmisty.xiantao.domain.monster.enums.BuffType;
 import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
 import top.stillmisty.xiantao.domain.monster.vo.CombatLogEntry;

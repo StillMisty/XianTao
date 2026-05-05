@@ -1,6 +1,8 @@
 package top.stillmisty.xiantao.domain.pill.entity;
 
 import com.mybatisflex.annotation.Column;
+import com.mybatisflex.annotation.Id;
+import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import java.time.LocalDateTime;
 import lombok.Data;
@@ -9,6 +11,10 @@ import lombok.Data;
 @Data
 @Table("xt_pill_resistance")
 public class PillResistance {
+
+  /** 代理主键 */
+  @Id(keyType = KeyType.Auto)
+  private Long id;
 
   /** 用户ID */
   private Long userId;

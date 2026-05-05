@@ -44,7 +44,9 @@ public class Skill {
 
   private Integer levelRequirement;
 
+  @Column(onInsertValue = "now()")
   private LocalDateTime createTime;
 
+  @Column(onUpdateValue = "now()")
   private LocalDateTime updateTime;
 }

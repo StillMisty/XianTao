@@ -22,16 +22,9 @@ public final class TypeUtils {
    * @return 选中的 key，如果总权重为0则返回 null
    */
   public static Long weightedRandomSelect(Map<Long, Integer> weightMap, Random rng) {
-    int totalWeight = weightMap.values().stream().mapToInt(Integer::intValue).sum();
-    if (totalWeight <= 0) return null;
-    int roll = rng.nextInt(totalWeight);
-    int cumulative = 0;
-    for (Map.Entry<Long, Integer> entry : weightMap.entrySet()) {
-      cumulative += entry.getValue();
-      if (roll < cumulative) {
-        return entry.getKey();
-      }
-    }
-    return null;
+    var entries =
+        weightMap.entrySet().stream().map(e -> Map.entry(e.getKey(), e.getValue())).toList();
+    var result = WeightedRandom.select(entries, Map.Entry::getValue, rng);
+    return result != null ? result.getKey() : null;
   }
 }

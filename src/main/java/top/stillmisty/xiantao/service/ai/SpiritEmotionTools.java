@@ -23,7 +23,7 @@ public class SpiritEmotionTools {
   /** 更新地灵情绪状态 */
   @Tool(description = "更新地灵的情绪状态")
   public String updateEmotion(@ToolParam(description = "新的情绪状态") EmotionState emotionState) {
-    Long userId = UserContext.CURRENT_USER.get();
+    Long userId = UserContext.getCurrentUserId();
     if (userId == null) {
       return "无法获取用户信息";
     }
@@ -48,7 +48,7 @@ public class SpiritEmotionTools {
   /** 添加地灵想法/记忆 */
   @Tool(description = "记录地灵的想法或重要事件到记忆中")
   public String addThought(@ToolParam(description = "要记录的想法或事件内容") String thought) {
-    Long userId = UserContext.CURRENT_USER.get();
+    Long userId = UserContext.getCurrentUserId();
     if (userId == null) {
       return "无法获取用户信息";
     }

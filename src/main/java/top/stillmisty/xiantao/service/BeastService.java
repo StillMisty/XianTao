@@ -110,7 +110,7 @@ public class BeastService {
 
   @Authenticated
   @Transactional
-  public ServiceResult<Object> undeployBeast(
+  public ServiceResult<BeastUndeployResult> undeployBeast(
       PlatformType platform, String openId, String position) {
     Long userId = UserContext.getCurrentUserId();
     return new ServiceResult.Success<>(undeployBeast(userId, position));
@@ -118,7 +118,8 @@ public class BeastService {
 
   @Authenticated
   @Transactional
-  public ServiceResult<Object> recoverBeast(PlatformType platform, String openId, String position) {
+  public ServiceResult<BeastRecoverResult> recoverBeast(
+      PlatformType platform, String openId, String position) {
     Long userId = UserContext.getCurrentUserId();
     return new ServiceResult.Success<>(recoverBeast(userId, position));
   }
@@ -541,7 +542,7 @@ public class BeastService {
   }
 
   @Transactional
-  public Object undeployBeast(Long userId, String position) {
+  public BeastUndeployResult undeployBeast(Long userId, String position) {
     if ("all".equalsIgnoreCase(position)) {
       return undeployAllBeasts(userId);
     }
@@ -581,7 +582,7 @@ public class BeastService {
   // ===================== 灵兽系统 — 恢复 =====================
 
   @Transactional
-  public Object recoverBeast(Long userId, String position) {
+  public BeastRecoverResult recoverBeast(Long userId, String position) {
     if ("all".equalsIgnoreCase(position)) {
       return recoverAllBeasts(userId);
     }
@@ -610,7 +611,7 @@ public class BeastService {
         true, "灵兽 [%s] HP已恢复（消耗%d灵石）".formatted(beastName, stoneCost), stoneCost);
   }
 
-  Object recoverAllBeasts(Long userId) {
+  BeastRecoverResult recoverAllBeasts(Long userId) {
     Fudi fudi =
         fudiHelper.getFudiByUserId(userId).orElseThrow(() -> new IllegalStateException("未找到福地"));
 

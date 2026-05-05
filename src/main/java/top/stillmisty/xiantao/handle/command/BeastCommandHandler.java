@@ -90,7 +90,7 @@ public class BeastCommandHandler implements CommandGroup {
     }
   }
 
-  private String formatUndeployResult(Object result) {
+  private String formatUndeployResult(BeastUndeployResult result) {
     if (result instanceof ActionResultVO vo) return formatUndeploySingle(vo);
     if (result instanceof BatchCountVO vo) return formatUndeployBatch(vo);
     return "召回完成";
@@ -108,7 +108,7 @@ public class BeastCommandHandler implements CommandGroup {
     return "【灵兽召回】\n已召回 %d 只灵兽。".formatted(vo.count());
   }
 
-  private String formatRecoverResult(Object result) {
+  private String formatRecoverResult(BeastRecoverResult result) {
     if (result instanceof ActionResultVO vo) return formatRecoverSingle(vo);
     if (result instanceof RecoverResultVO vo) return formatRecoverDetailed(vo);
     if (result instanceof BatchRecoverVO vo) return formatRecoverBatch(vo);

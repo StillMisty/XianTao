@@ -65,9 +65,16 @@ public class BountyService {
   }
 
   @Authenticated
-  public ServiceResult<String> startBounty(PlatformType platform, String openId, Long bountyId) {
+  @Transactional
+  public ServiceResult<String> startBounty(PlatformType platform, String openId, String bountyId) {
     Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(startBounty(userId, bountyId));
+    Long id;
+    try {
+      id = Long.parseLong(bountyId);
+    } catch (NumberFormatException e) {
+      return new ServiceResult.Failure<>("INVALID_INPUT", "请输入有效的悬赏编号");
+    }
+    return new ServiceResult.Success<>(startBounty(userId, id));
   }
 
   @Authenticated
@@ -78,6 +85,7 @@ public class BountyService {
   }
 
   @Authenticated
+  @Transactional
   public ServiceResult<String> abandonBounty(PlatformType platform, String openId) {
     Long userId = UserContext.getCurrentUserId();
     return new ServiceResult.Success<>(abandonBounty(userId));

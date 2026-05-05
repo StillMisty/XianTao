@@ -94,15 +94,10 @@ public class MapCommandHandler implements CommandGroup {
 
   public String handleStartBounty(PlatformType platform, String openId, String bountyId) {
     log.debug("处理接取悬赏 - Platform: {}, OpenId: {}, BountyId: {}", platform, openId, bountyId);
-    try {
-      Long id = Long.parseLong(bountyId);
-      return switch (bountyService.startBounty(platform, openId, id)) {
-        case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
-        case ServiceResult.Success(var msg) -> msg;
-      };
-    } catch (NumberFormatException e) {
-      return "请输入有效的悬赏编号";
-    }
+    return switch (bountyService.startBounty(platform, openId, bountyId)) {
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Success(var msg) -> msg;
+    };
   }
 
   public String handleCompleteBounty(PlatformType platform, String openId) {

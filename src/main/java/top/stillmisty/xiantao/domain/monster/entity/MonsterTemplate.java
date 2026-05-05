@@ -37,7 +37,9 @@ public class MonsterTemplate {
   @Column(typeHandler = JsonbCollectionTypeHandler.class)
   private List<DropTableEntry> dropTable;
 
+  @Column(onInsertValue = "now()")
   private LocalDateTime createTime;
 
+  @Column(onUpdateValue = "now()")
   private LocalDateTime updateTime;
 }

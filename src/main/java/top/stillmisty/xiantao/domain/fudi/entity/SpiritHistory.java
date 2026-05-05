@@ -1,5 +1,6 @@
 package top.stillmisty.xiantao.domain.fudi.entity;
 
+import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
@@ -28,5 +29,6 @@ public class SpiritHistory {
   private EmotionState emotionState;
 
   /** 创建时间 */
+  @Column(onInsertValue = "now()")
   private LocalDateTime createTime;
 }

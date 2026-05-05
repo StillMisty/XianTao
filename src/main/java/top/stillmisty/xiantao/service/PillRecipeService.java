@@ -96,26 +96,26 @@ public class PillRecipeService {
       }
     }
 
-    if (recipeItem == null) return null;
+    if (recipeItem == null) throw new IllegalArgumentException("未找到名为「" + recipeName + "」的丹方卷轴");
 
     ItemTemplate recipeTemplate =
         itemTemplateRepository.findById(recipeItem.getTemplateId()).orElse(null);
-    if (recipeTemplate == null) return null;
+    if (recipeTemplate == null) throw new IllegalArgumentException("丹方卷轴数据异常");
 
     if (playerPillRecipeRepository.existsByUserIdAndRecipeTemplateId(
         userId, recipeTemplate.getId())) {
-      return null;
+      throw new IllegalArgumentException("已学会该丹方");
     }
 
     var recipeScroll = getRecipeScroll(recipeTemplate);
-    if (recipeScroll == null) return null;
+    if (recipeScroll == null) throw new IllegalArgumentException("该物品不是丹方卷轴");
     long resultItemId = recipeScroll.product().itemId();
 
     PlayerPillRecipe recipe = PlayerPillRecipe.create(userId, recipeTemplate.getId(), resultItemId);
     playerPillRecipeRepository.save(recipe);
 
     ItemTemplate resultTemplate = itemTemplateRepository.findById(resultItemId).orElse(null);
-    if (resultTemplate == null) return null;
+    if (resultTemplate == null) throw new IllegalArgumentException("丹药产物数据异常");
 
     return convertToPillRecipeVO(recipe, recipeTemplate, resultTemplate);
   }

@@ -1,7 +1,5 @@
 package top.stillmisty.xiantao.infrastructure.mybatis.handler;
 
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,6 +8,8 @@ import java.util.List;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 import org.postgresql.util.PGobject;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.ObjectMapper;
 import top.stillmisty.xiantao.domain.bounty.BountyRewardPool;
 
 public class BountyRewardListTypeHandler extends BaseTypeHandler<List<BountyRewardPool>> {

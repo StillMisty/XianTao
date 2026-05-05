@@ -22,16 +22,7 @@ public class PillResistanceRepositoryImpl implements PillResistanceRepository {
 
   @Override
   public int incrementCount(Long userId, Long templateId) {
-    var existing = mapper.selectByUserIdAndTemplateId(userId, templateId);
-    if (existing.isPresent()) {
-      PillResistance pr = existing.get();
-      pr.setCount(pr.getCount() + 1);
-      mapper.update(pr);
-      return pr.getCount();
-    } else {
-      PillResistance pr = PillResistance.create(userId, templateId);
-      mapper.insert(pr);
-      return 1;
-    }
+    mapper.upsertIncrementCount(userId, templateId);
+    return findByUserIdAndTemplateId(userId, templateId).map(PillResistance::getCount).orElse(1);
   }
 }

@@ -29,7 +29,8 @@ public final class WeightedRandom {
       cumulative += weightExtractor.applyAsInt(item);
       if (roll < cumulative) return item;
     }
-    return null;
+    throw new IllegalStateException(
+        "WeightedRandom: unreachable — weight sum is positive but no item selected");
   }
 
   /** 预构建累积权重数组，后续 select() 为 O(log n) 二分查找。 适用于需反复从同一列表中采样的场景（如历练遇怪循环）。 */

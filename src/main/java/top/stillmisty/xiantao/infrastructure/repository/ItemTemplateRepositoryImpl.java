@@ -66,6 +66,16 @@ public class ItemTemplateRepositoryImpl implements ItemTemplateRepository {
 
   @Override
   public boolean existsById(Long templateId) {
-    return mapper.selectOneById(templateId) != null;
+    return mapper.selectCountByQuery(
+            com.mybatisflex.core.query.QueryWrapper.create()
+                .select()
+                .from(
+                    top.stillmisty.xiantao.domain.item.entity.table.ItemTemplateTableDef
+                        .ITEM_TEMPLATE)
+                .where(
+                    top.stillmisty.xiantao.domain.item.entity.table.ItemTemplateTableDef
+                        .ITEM_TEMPLATE
+                        .ID.eq(templateId)))
+        > 0;
   }
 }

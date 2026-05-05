@@ -61,8 +61,10 @@ public class Beast {
 
   private Integer levelCap;
 
+  @Column(onInsertValue = "now()")
   private LocalDateTime createTime;
 
+  @Column(onUpdateValue = "now()")
   private LocalDateTime updateTime;
 
   public boolean needsRecovery() {

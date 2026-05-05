@@ -4,11 +4,9 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 /** Spring AI 配置类 */
 @Configuration
-@EnableAspectJAutoProxy
 public class SpringAiConfig {
 
   /** 创建地灵专用 ChatClient */

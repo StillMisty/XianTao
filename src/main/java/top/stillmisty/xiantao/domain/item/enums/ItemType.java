@@ -1,5 +1,6 @@
 package top.stillmisty.xiantao.domain.item.enums;
 
+import com.mybatisflex.annotation.EnumValue;
 import lombok.Getter;
 
 /** 物品类型枚举 */
@@ -21,7 +22,7 @@ public enum ItemType {
 
   HERB("herb", "药材");
 
-  private final String code;
+  @EnumValue private final String code;
   private final String name;
 
   ItemType(String code, String name) {

@@ -1,6 +1,7 @@
 package top.stillmisty.xiantao.infrastructure.repository;
 
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -16,8 +17,8 @@ public class PlayerBuffRepositoryImpl implements PlayerBuffRepository {
   private final PlayerBuffMapper mapper;
 
   @Override
-  public PlayerBuff findById(Long id) {
-    return mapper.selectOneById(id);
+  public Optional<PlayerBuff> findById(Long id) {
+    return Optional.ofNullable(mapper.selectOneById(id));
   }
 
   @Override
@@ -32,7 +33,11 @@ public class PlayerBuffRepositoryImpl implements PlayerBuffRepository {
 
   @Override
   public PlayerBuff save(PlayerBuff buff) {
-    mapper.insert(buff);
+    if (buff.getId() == null) {
+      mapper.insert(buff);
+    } else {
+      mapper.insertOrUpdate(buff);
+    }
     return buff;
   }
 

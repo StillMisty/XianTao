@@ -281,7 +281,7 @@ public class FarmService {
     return secondsSinceMature > maxSeconds;
   }
 
-  Double calculateGrowthProgress(FudiCell cell) {
+  public Double calculateGrowthProgress(FudiCell cell) {
     if (!(cell.getConfig() instanceof CellConfig.FarmConfig farm)) return null;
 
     LocalDateTime plantTime = farm.plantTime();
@@ -297,7 +297,7 @@ public class FarmService {
     return Math.min(1.0, (double) elapsedSeconds / totalSeconds);
   }
 
-  String getCropName(Integer cropId) {
+  public String getCropName(Integer cropId) {
     return itemTemplateRepository.findById((long) cropId).map(ItemTemplate::getName).orElse("未知灵草");
   }
 

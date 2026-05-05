@@ -13,12 +13,12 @@ import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
 import top.stillmisty.xiantao.domain.fudi.enums.FudiEvent;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiCellRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
+import top.stillmisty.xiantao.domain.fudi.repository.SpiritFormRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritHistoryRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
-import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
-import top.stillmisty.xiantao.infrastructure.mapper.SpiritFormMapper;
+import top.stillmisty.xiantao.service.FarmService;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
@@ -34,13 +34,14 @@ public class SpiritChatService {
   private final FudiCellRepository fudiCellRepository;
   private final SpiritRepository spiritRepository;
   private final SpiritHistoryRepository spiritHistoryRepository;
-  private final SpiritFormMapper spiritFormMapper;
+  private final SpiritFormRepository spiritFormRepository;
   private final SpiritPromptTemplates promptTemplates;
   private final SpiritTools spiritTools;
   private final SpiritEmotionTools spiritEmotionTools;
   private final FudiEventGenerator fudiEventGenerator;
   private final BeastRepository beastRepository;
   private final ItemTemplateRepository itemTemplateRepository;
+  private final FarmService farmService;
 
   // ===================== 公开 API（含认证） =====================
 
@@ -108,8 +109,11 @@ public class SpiritChatService {
     String emotionState = spirit.getEmotionState().getDescription();
     String formName = null;
     if (spirit.getFormId() != null) {
-      SpiritForm form = spiritFormMapper.selectOneById(spirit.getFormId().longValue());
-      if (form != null) formName = form.getName();
+      formName =
+          spiritFormRepository
+              .findById(spirit.getFormId().longValue())
+              .map(SpiritForm::getName)
+              .orElse(null);
     }
 
     // 构建事件描述
@@ -207,8 +211,8 @@ public class SpiritChatService {
     for (FudiCell cell : farmCells) {
       sb.append("- [").append(cell.getCellId()).append("] farm");
       if (cell.getConfig() instanceof CellConfig.FarmConfig farm) {
-        sb.append(" 种植:").append(getCropName(farm.cropId()));
-        Double progress = calculateGrowthProgress(farm);
+        sb.append(" 种植:").append(farmService.getCropName(farm.cropId()));
+        Double progress = farmService.calculateGrowthProgress(cell);
         if (progress != null) {
           if (progress >= 1.0) {
             sb.append(" 可收获✅");
@@ -235,8 +239,8 @@ public class SpiritChatService {
         farmCells.stream()
             .filter(
                 c -> {
-                  if (c.getConfig() instanceof CellConfig.FarmConfig farm) {
-                    Double progress = calculateGrowthProgress(farm);
+                  if (c.getConfig() instanceof CellConfig.FarmConfig) {
+                    Double progress = farmService.calculateGrowthProgress(c);
                     return progress != null && progress >= 1.0;
                   }
                   return false;
@@ -247,31 +251,5 @@ public class SpiritChatService {
     }
 
     return sb.toString();
-  }
-
-  private Double calculateGrowthProgress(CellConfig.FarmConfig farm) {
-    LocalDateTime plantTime = farm.plantTime();
-    LocalDateTime matureTime = farm.matureTime();
-    if (plantTime == null || matureTime == null) return null;
-
-    try {
-      LocalDateTime now = LocalDateTime.now();
-      if (now.isAfter(matureTime) || now.isEqual(matureTime)) return 1.0;
-
-      long totalSeconds = java.time.Duration.between(plantTime, matureTime).getSeconds();
-      if (totalSeconds <= 0) return 1.0;
-      long elapsedSeconds = java.time.Duration.between(plantTime, now).getSeconds();
-      return Math.min(1.0, (double) elapsedSeconds / totalSeconds);
-    } catch (Exception e) {
-      return null;
-    }
-  }
-
-  private String getCropName(Integer cropId) {
-    if (cropId == null) return "未知灵草";
-    return itemTemplateRepository
-        .findById(cropId.longValue())
-        .map(ItemTemplate::getName)
-        .orElse("未知灵草");
   }
 }

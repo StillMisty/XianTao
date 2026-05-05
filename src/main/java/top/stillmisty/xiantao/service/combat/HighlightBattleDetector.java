@@ -1,4 +1,4 @@
-package top.stillmisty.xiantao.domain.monster;
+package top.stillmisty.xiantao.service.combat;
 
 import java.util.List;
 import java.util.Map;

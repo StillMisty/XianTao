@@ -35,6 +35,9 @@ public class AuthenticatedAspect {
     if (args.length < 2
         || !(args[0] instanceof PlatformType platform)
         || !(args[1] instanceof String openId)) {
+      log.warn(
+          "AuthenticatedAspect: first two args are not (PlatformType, String), skipping auth for {}",
+          pjp.getSignature());
       return pjp.proceed();
     }
 
@@ -46,7 +49,7 @@ public class AuthenticatedAspect {
 
     ServiceResult<Long> auth = authService.authenticate(platform, openId, requiredStatus);
     if (auth instanceof ServiceResult.Failure<Long> f) {
-      return ServiceResult.authFailure(f.errorMessage());
+      return new ServiceResult.Failure<>(f.errorCode(), f.errorMessage());
     }
 
     Long userId = ((ServiceResult.Success<Long>) auth).data();

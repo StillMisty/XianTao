@@ -1,4 +1,4 @@
-package top.stillmisty.xiantao.domain.monster;
+package top.stillmisty.xiantao.service.combat;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

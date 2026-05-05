@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
-import top.stillmisty.xiantao.domain.fudi.enums.CellType;
 import top.stillmisty.xiantao.domain.fudi.vo.FarmCellVO;
 import top.stillmisty.xiantao.domain.fudi.vo.FudiStatusVO;
 import top.stillmisty.xiantao.domain.fudi.vo.PenCellVO;
@@ -87,13 +86,7 @@ public class FudiCommandHandler implements CommandGroup {
 
   public String handleBuild(
       PlatformType platform, String openId, String position, String cellTypeName) {
-    CellType cellType;
-    try {
-      cellType = CellType.fromChineseName(cellTypeName);
-    } catch (IllegalArgumentException e) {
-      return ("❌ 不支持的地块类型：" + cellTypeName + "（可选：灵田、兽栏）");
-    }
-    return switch (fudiService.buildCell(platform, openId, position, cellType)) {
+    return switch (fudiService.buildCell(platform, openId, position, cellTypeName)) {
       case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(_) -> "✅ 已在地块 %s 建造%s。".formatted(position, cellTypeName);
     };

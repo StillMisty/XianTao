@@ -62,6 +62,6 @@ public class FudiCellRepositoryImpl implements FudiCellRepository {
   @Override
   public int countByFudiId(Long fudiId) {
     QueryWrapper queryWrapper = QueryWrapper.create().where(FUDI_CELL.FUDI_ID.eq(fudiId));
-    return (int) fudiCellMapper.selectCountByQuery(queryWrapper);
+    return Math.toIntExact(fudiCellMapper.selectCountByQuery(queryWrapper));
   }
 }
