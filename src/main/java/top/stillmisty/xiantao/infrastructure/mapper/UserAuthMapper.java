@@ -5,5 +5,4 @@ import org.apache.ibatis.annotations.Mapper;
 import top.stillmisty.xiantao.domain.user.entity.UserAuth;
 
 @Mapper
-public interface UserAuthMapper extends BaseMapper<UserAuth> {
-}
+public interface UserAuthMapper extends BaseMapper<UserAuth> {}

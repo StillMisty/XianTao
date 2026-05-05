@@ -1,13 +1,12 @@
 package top.stillmisty.xiantao.domain.fudi.repository;
 
-import top.stillmisty.xiantao.domain.fudi.entity.SpiritForm;
-
 import java.util.List;
 import java.util.Optional;
+import top.stillmisty.xiantao.domain.fudi.entity.SpiritForm;
 
 public interface SpiritFormRepository {
 
-    Optional<SpiritForm> findById(Long id);
+  Optional<SpiritForm> findById(Long id);
 
-    List<SpiritForm> findAll();
+  List<SpiritForm> findAll();
 }

@@ -5,5 +5,4 @@ import org.apache.ibatis.annotations.Mapper;
 import top.stillmisty.xiantao.domain.item.entity.EquipmentTemplate;
 
 @Mapper
-public interface EquipmentTemplateMapper extends BaseMapper<EquipmentTemplate> {
-}
+public interface EquipmentTemplateMapper extends BaseMapper<EquipmentTemplate> {}

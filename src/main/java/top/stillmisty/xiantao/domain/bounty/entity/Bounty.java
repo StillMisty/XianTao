@@ -4,41 +4,38 @@ import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.Data;
 import top.stillmisty.xiantao.domain.bounty.BountyRewardPool;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.BountyRewardListTypeHandler;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
-/**
- * 悬赏任务实体
- */
+/** 悬赏任务实体 */
 @Data
 @Table("xt_bounty")
 public class Bounty {
 
-    @Id(keyType = KeyType.Auto)
-    private Long id;
+  @Id(keyType = KeyType.Auto)
+  private Long id;
 
-    private Long mapId;
+  private Long mapId;
 
-    private String name;
+  private String name;
 
-    private String description;
+  private String description;
 
-    private Integer durationMinutes;
+  private Integer durationMinutes;
 
-    @Column(typeHandler = BountyRewardListTypeHandler.class)
-    private List<BountyRewardPool> rewards;
+  @Column(typeHandler = BountyRewardListTypeHandler.class)
+  private List<BountyRewardPool> rewards;
 
-    private Integer requireLevel;
+  private Integer requireLevel;
 
-    private Integer eventWeight;
+  private Integer eventWeight;
 
-    @Column(onInsertValue = "now()")
-    private LocalDateTime createTime;
+  @Column(onInsertValue = "now()")
+  private LocalDateTime createTime;
 
-    @Column(onUpdateValue = "now()", onInsertValue = "now()")
-    private LocalDateTime updateTime;
+  @Column(onUpdateValue = "now()", onInsertValue = "now()")
+  private LocalDateTime updateTime;
 }

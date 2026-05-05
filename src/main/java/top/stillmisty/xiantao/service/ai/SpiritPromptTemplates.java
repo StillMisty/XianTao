@@ -6,42 +6,41 @@ import top.stillmisty.xiantao.domain.fudi.enums.MBTIPersonality;
 @Component
 public class SpiritPromptTemplates {
 
-    public String buildSpiritPrompt(
-            MBTIPersonality mbtiType,
-            int fudiLevel,
-            int spiritAffection,
-            String cellDetail,
-            String emotionState,
-            String spiritForm
-    ) {
-        String cellInfo = (cellDetail == null || cellDetail.isBlank())
-                ? "福地尚处于初生阶段，暂无灵田/兽栏，所有地块均可支配。"
-                : cellDetail;
+  public String buildSpiritPrompt(
+      MBTIPersonality mbtiType,
+      int fudiLevel,
+      int spiritAffection,
+      String cellDetail,
+      String emotionState,
+      String spiritForm) {
+    String cellInfo =
+        (cellDetail == null || cellDetail.isBlank()) ? "福地尚处于初生阶段，暂无灵田/兽栏，所有地块均可支配。" : cellDetail;
 
-        String affectionTone = switch (spiritAffection / 200) {
-            case 5 -> "亲密无间，视你为最重要的人";
-            case 4 -> "非常喜欢，对你温柔体贴";
-            case 3 -> "有好感，愿意主动帮忙";
-            case 2 -> "态度平和，礼貌相待";
-            case 1 -> "略有隔阂，语气生疏";
-            default -> "态度冷淡，不愿多说话";
+    String affectionTone =
+        switch (spiritAffection / 200) {
+          case 5 -> "亲密无间，视你为最重要的人";
+          case 4 -> "非常喜欢，对你温柔体贴";
+          case 3 -> "有好感，愿意主动帮忙";
+          case 2 -> "态度平和，礼貌相待";
+          case 1 -> "略有隔阂，语气生疏";
+          default -> "态度冷淡，不愿多说话";
         };
 
-        return String.format(
-                """
+    return String.format(
+        """
                         你是%s性格的地灵。
                         你当前的形态：%s
                         你的语气风格：%s
                         你当前的情绪状态：%s
                         对你的好感度：%d → %s
-                        
+
                         【福地状态】
                         - 劫数：%d
                         - 好感度：%d
-                        
+
                         【地块状态】
                         %s
-                        
+
                         【规则】
                         1. 用户用自然语言与你交流，你自主判断是否需要操作福地
                         2. 如果用户只是聊天，不执行任何操作，直接人格化回复即可
@@ -50,15 +49,14 @@ public class SpiritPromptTemplates {
                         5. 根据好感度调整对玩家的态度：高好感亲密温暖，低好感冷淡疏远
                         6. 玩家可以送你礼物，调用 giveGift 工具
                         """,
-                mbtiType.getCode(),
-                spiritForm != null ? spiritForm : "未知形态",
-                mbtiType.getToneStyle(),
-                emotionState,
-                spiritAffection,
-                affectionTone,
-                fudiLevel,
-                spiritAffection,
-                cellInfo
-        );
-    }
+        mbtiType.getCode(),
+        spiritForm != null ? spiritForm : "未知形态",
+        mbtiType.getToneStyle(),
+        emotionState,
+        spiritAffection,
+        affectionTone,
+        fudiLevel,
+        spiritAffection,
+        cellInfo);
+  }
 }

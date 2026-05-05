@@ -5,32 +5,29 @@ import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import com.mybatisflex.core.activerecord.Model;
+import java.util.Set;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
 
-import java.util.Set;
-
-/**
- * 地灵形态定义实体
- */
+/** 地灵形态定义实体 */
 @EqualsAndHashCode(callSuper = true)
 @Table("xt_spirit_form")
 @Accessors(chain = true)
 @Data(staticConstructor = "create")
 public class SpiritForm extends Model<SpiritForm> {
 
-    @Id(keyType = KeyType.Auto)
-    private Long id;
+  @Id(keyType = KeyType.Auto)
+  private Long id;
 
-    private String name;
+  private String name;
 
-    private String description;
+  private String description;
 
-    @Column(typeHandler = JsonbCollectionTypeHandler.class)
-    private Set<String> likedTags;
+  @Column(typeHandler = JsonbCollectionTypeHandler.class)
+  private Set<String> likedTags;
 
-    @Column(typeHandler = JsonbCollectionTypeHandler.class)
-    private Set<String> dislikedTags;
+  @Column(typeHandler = JsonbCollectionTypeHandler.class)
+  private Set<String> dislikedTags;
 }

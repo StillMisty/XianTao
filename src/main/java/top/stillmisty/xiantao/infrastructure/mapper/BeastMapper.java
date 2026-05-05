@@ -5,5 +5,4 @@ import org.apache.ibatis.annotations.Mapper;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
 
 @Mapper
-public interface BeastMapper extends BaseMapper<Beast> {
-}
+public interface BeastMapper extends BaseMapper<Beast> {}

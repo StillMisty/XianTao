@@ -5,5 +5,4 @@ import org.apache.ibatis.annotations.Mapper;
 import top.stillmisty.xiantao.domain.bounty.entity.UserBounty;
 
 @Mapper
-public interface UserBountyMapper extends BaseMapper<UserBounty> {
-}
+public interface UserBountyMapper extends BaseMapper<UserBounty> {}

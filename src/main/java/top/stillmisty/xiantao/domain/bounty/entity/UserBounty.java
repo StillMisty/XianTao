@@ -4,51 +4,50 @@ import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
-import lombok.Data;
-import top.stillmisty.xiantao.domain.bounty.BountyRewardItem;
-import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import lombok.Data;
+import top.stillmisty.xiantao.domain.bounty.BountyRewardItem;
+import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
 
 @Data
 @Table("xt_user_bounty")
 public class UserBounty {
 
-    @Id(keyType = KeyType.Auto)
-    private Long id;
+  @Id(keyType = KeyType.Auto)
+  private Long id;
 
-    private Long userId;
+  private Long userId;
 
-    private Long bountyId;
+  private Long bountyId;
 
-    private String bountyName;
+  private String bountyName;
 
-    private LocalDateTime startTime;
+  private LocalDateTime startTime;
 
-    private Integer durationMinutes;
+  private Integer durationMinutes;
 
-    @Column(typeHandler = JsonbCollectionTypeHandler.class)
-    private List<Map<String, Object>> rewards;
+  @Column(typeHandler = JsonbCollectionTypeHandler.class)
+  private List<Map<String, Object>> rewards;
 
-    private String status;
+  private String status;
 
-    @Column(onInsertValue = "now()")
-    private LocalDateTime createTime;
+  @Column(onInsertValue = "now()")
+  private LocalDateTime createTime;
 
-    @Column(onUpdateValue = "now()", onInsertValue = "now()")
-    private LocalDateTime updateTime;
+  @Column(onUpdateValue = "now()", onInsertValue = "now()")
+  private LocalDateTime updateTime;
 
-    public boolean isActive() {
-        return "active".equals(status);
-    }
+  public boolean isActive() {
+    return "active".equals(status);
+  }
 
-    public boolean isCompleted() {
-        return "completed".equals(status);
-    }
+  public boolean isCompleted() {
+    return "completed".equals(status);
+  }
 
-    public List<BountyRewardItem> getParsedRewardItems() {
-        return BountyRewardItem.parse(rewards);
-    }
+  public List<BountyRewardItem> getParsedRewardItems() {
+    return BountyRewardItem.parse(rewards);
+  }
 }

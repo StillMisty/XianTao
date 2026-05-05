@@ -5,5 +5,4 @@ import org.apache.ibatis.annotations.Mapper;
 import top.stillmisty.xiantao.domain.fudi.entity.FudiCell;
 
 @Mapper
-public interface FudiCellMapper extends BaseMapper<FudiCell> {
-}
+public interface FudiCellMapper extends BaseMapper<FudiCell> {}

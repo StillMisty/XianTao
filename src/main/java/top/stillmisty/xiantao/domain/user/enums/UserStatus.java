@@ -3,44 +3,30 @@ package top.stillmisty.xiantao.domain.user.enums;
 import com.mybatisflex.annotation.EnumValue;
 import lombok.Getter;
 
-/**
- * 用户状态枚举
- */
+/** 用户状态枚举 */
 @Getter
 public enum UserStatus {
 
-    /**
-     * 空闲
-     */
-    IDLE("idle", "空闲"),
+  /** 空闲 */
+  IDLE("idle", "空闲"),
 
-    /**
-     * 历练
-     */
-    EXERCISING("exercising", "历练"),
+  /** 历练 */
+  EXERCISING("exercising", "历练"),
 
-    /**
-     * 赶路
-     */
-    RUNNING("running", "赶路"),
+  /** 赶路 */
+  RUNNING("running", "赶路"),
 
-    /**
-     * 悬赏
-     */
-    BOUNTY("bounty", "悬赏"),
+  /** 悬赏 */
+  BOUNTY("bounty", "悬赏"),
 
-    /**
-     * 濒死
-     */
-    DYING("dying", "濒死");
+  /** 濒死 */
+  DYING("dying", "濒死");
 
+  @EnumValue private final String code;
+  private final String name;
 
-    @EnumValue
-    private final String code;
-    private final String name;
-
-    UserStatus(String code, String name) {
-        this.code = code;
-        this.name = name;
-    }
+  UserStatus(String code, String name) {
+    this.code = code;
+    this.name = name;
+  }
 }

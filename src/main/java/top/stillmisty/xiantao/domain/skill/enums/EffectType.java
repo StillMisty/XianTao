@@ -4,34 +4,34 @@ import lombok.Getter;
 
 @Getter
 public enum EffectType {
-    DAMAGE("damage", "伤害"),
-    ARMOR_BREAK("armor_break", "破甲"),
-    SLOW("slow", "减速"),
-    EXECUTE("execute", "斩杀"),
-    LIFESTEAL("lifesteal", "吸血"),
-    MULTI_HIT("multi_hit", "连击"),
-    DOT("dot", "持续伤害"),
-    HEAL("heal", "治疗"),
-    ATTACK_BUFF("attack_buff", "攻击增益"),
-    DEFENSE_BUFF("defense_buff", "防御增益"),
-    SPEED_BUFF("speed_buff", "速度增益"),
-    STUN("stun", "眩晕"),
-    FREEZE("freeze", "冰冻"),
-    SILENCE("silence", "沉默"),
-    AOE_DAMAGE("aoe_damage", "群体伤害");
+  DAMAGE("damage", "伤害"),
+  ARMOR_BREAK("armor_break", "破甲"),
+  SLOW("slow", "减速"),
+  EXECUTE("execute", "斩杀"),
+  LIFESTEAL("lifesteal", "吸血"),
+  MULTI_HIT("multi_hit", "连击"),
+  DOT("dot", "持续伤害"),
+  HEAL("heal", "治疗"),
+  ATTACK_BUFF("attack_buff", "攻击增益"),
+  DEFENSE_BUFF("defense_buff", "防御增益"),
+  SPEED_BUFF("speed_buff", "速度增益"),
+  STUN("stun", "眩晕"),
+  FREEZE("freeze", "冰冻"),
+  SILENCE("silence", "沉默"),
+  AOE_DAMAGE("aoe_damage", "群体伤害");
 
-    private final String code;
-    private final String name;
+  private final String code;
+  private final String name;
 
-    EffectType(String code, String name) {
-        this.code = code;
-        this.name = name;
+  EffectType(String code, String name) {
+    this.code = code;
+    this.name = name;
+  }
+
+  public static EffectType fromCode(String code) {
+    for (EffectType type : values()) {
+      if (type.code.equalsIgnoreCase(code)) return type;
     }
-
-    public static EffectType fromCode(String code) {
-        for (EffectType type : values()) {
-            if (type.code.equalsIgnoreCase(code)) return type;
-        }
-        return DAMAGE;
-    }
+    return DAMAGE;
+  }
 }

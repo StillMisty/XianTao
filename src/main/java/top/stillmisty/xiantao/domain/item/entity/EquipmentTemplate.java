@@ -4,69 +4,65 @@ import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
+import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.Set;
 import lombok.Data;
 import top.stillmisty.xiantao.domain.item.enums.EquipmentSlot;
 import top.stillmisty.xiantao.domain.item.enums.WeaponType;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
 
-import java.time.LocalDateTime;
-import java.util.Map;
-import java.util.Set;
-
-/**
- * 装备模板实体
- * 独立于 xt_item_template，存储装备专属属性
- */
+/** 装备模板实体 独立于 xt_item_template，存储装备专属属性 */
 @Data
 @Table("xt_equipment_template")
 public class EquipmentTemplate {
 
-    @Id(keyType = KeyType.Auto)
-    private Long id;
+  @Id(keyType = KeyType.Auto)
+  private Long id;
 
-    private String name;
+  private String name;
 
-    private String description;
+  private String description;
 
-    @Column(typeHandler = JsonbCollectionTypeHandler.class)
-    private Set<String> tags;
+  @Column(typeHandler = JsonbCollectionTypeHandler.class)
+  private Set<String> tags;
 
-    private EquipmentSlot slot;
+  private EquipmentSlot slot;
 
-    private WeaponType weaponType;
+  private WeaponType weaponType;
 
-    private String category;
+  private String category;
 
-    private Integer equipLevel;
+  private Integer equipLevel;
 
-    private Integer baseAttack;
+  private Integer baseAttack;
 
-    private Integer baseDefense;
+  private Integer baseDefense;
 
-    private Integer baseStr;
+  private Integer baseStr;
 
-    private Integer baseCon;
+  private Integer baseCon;
 
-    private Integer baseAgi;
+  private Integer baseAgi;
 
-    private Integer baseWis;
+  private Integer baseWis;
 
-    private Double attackSpeed;
+  private Double attackSpeed;
 
-    private String attackRange;
+  private String attackRange;
 
-    @Column(typeHandler = JsonbTypeHandler.class)
-    private Map<String, Integer> dropWeight;
+  @Column(typeHandler = JsonbTypeHandler.class)
+  private Map<String, Integer> dropWeight;
 
-    @Column(onInsertValue = "now()")
-    private LocalDateTime createTime;
+  @Column(onInsertValue = "now()")
+  private LocalDateTime createTime;
 
-    @Column(onUpdateValue = "now()", onInsertValue = "now()")
-    private LocalDateTime updateTime;
+  @Column(onUpdateValue = "now()", onInsertValue = "now()")
+  private LocalDateTime updateTime;
 
-    public int getTotalDropWeight() {
-        if (dropWeight == null || dropWeight.isEmpty()) return 0;
-        return dropWeight.values().stream().mapToInt(Integer::intValue).sum();
-    }
+  public int getTotalDropWeight() {
+    if (dropWeight == null || dropWeight.isEmpty()) return 0;
+    return dropWeight.values().stream().mapToInt(Integer::intValue).sum();
+  }
 }

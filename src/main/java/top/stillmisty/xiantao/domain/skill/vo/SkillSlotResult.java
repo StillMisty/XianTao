@@ -7,11 +7,11 @@ import lombok.Data;
 @Builder
 public class SkillSlotResult {
 
-    private boolean success;
-    private String message;
+  private boolean success;
+  private String message;
 
-    private SkillVO skill;
+  private SkillVO skill;
 
-    private int equippedCount;
-    private int maxSlots;
+  private int equippedCount;
+  private int maxSlots;
 }

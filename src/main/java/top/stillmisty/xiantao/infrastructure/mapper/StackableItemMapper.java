@@ -5,5 +5,4 @@ import org.apache.ibatis.annotations.Mapper;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 
 @Mapper
-public interface StackableItemMapper extends BaseMapper<StackableItem> {
-}
+public interface StackableItemMapper extends BaseMapper<StackableItem> {}

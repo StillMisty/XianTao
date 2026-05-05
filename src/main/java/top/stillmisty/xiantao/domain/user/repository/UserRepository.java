@@ -1,34 +1,23 @@
 package top.stillmisty.xiantao.domain.user.repository;
 
-import top.stillmisty.xiantao.domain.user.entity.User;
-
 import java.util.List;
 import java.util.Optional;
+import top.stillmisty.xiantao.domain.user.entity.User;
 
 public interface UserRepository {
 
-    /**
-     * 保存用户
-     */
-    User save(User user);
+  /** 保存用户 */
+  User save(User user);
 
-    /**
-     * 根据ID查找用户
-     */
-    Optional<User> findById(Long id);
+  /** 根据ID查找用户 */
+  Optional<User> findById(Long id);
 
-    /**
-     * 根据ID列表批量查找用户
-     */
-    List<User> findByIds(List<Long> ids);
+  /** 根据ID列表批量查找用户 */
+  List<User> findByIds(List<Long> ids);
 
-    /**
-     * 检查昵称是否已存在
-     */
-    boolean existsByNickname(String nickname);
+  /** 检查昵称是否已存在 */
+  boolean existsByNickname(String nickname);
 
-    /**
-     * 根据昵称查找用户
-     */
-    Optional<User> findByNickname(String nickname);
+  /** 根据昵称查找用户 */
+  Optional<User> findByNickname(String nickname);
 }

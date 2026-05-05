@@ -5,5 +5,4 @@ import org.apache.ibatis.annotations.Mapper;
 import top.stillmisty.xiantao.domain.skill.entity.Skill;
 
 @Mapper
-public interface SkillMapper extends BaseMapper<Skill> {
-}
+public interface SkillMapper extends BaseMapper<Skill> {}

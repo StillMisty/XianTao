@@ -2,42 +2,39 @@ package top.stillmisty.xiantao.domain.item.enums;
 
 import lombok.Getter;
 
-/**
- * 物品类型枚举
- */
+/** 物品类型枚举 */
 @Getter
 public enum ItemType {
+  MATERIAL("material", "材料"),
 
-    MATERIAL("material", "材料"),
+  SEED("seed", "种子"),
 
-    SEED("seed", "种子"),
+  BEAST_EGG("beast_egg", "灵兽卵"),
 
-    BEAST_EGG("beast_egg", "灵兽卵"),
+  POTION("potion", "丹药"),
 
-    POTION("potion", "丹药"),
+  EVOLUTION_STONE("evolution_stone", "进化石"),
 
-    EVOLUTION_STONE("evolution_stone", "进化石"),
+  SKILL_JADE("skill_jade", "法决玉简"),
 
-    SKILL_JADE("skill_jade", "法决玉简"),
+  RECIPE_SCROLL("recipe_scroll", "丹方卷轴"),
 
-    RECIPE_SCROLL("recipe_scroll", "丹方卷轴"),
+  HERB("herb", "药材");
 
-    HERB("herb", "药材");
+  private final String code;
+  private final String name;
 
-    private final String code;
-    private final String name;
+  ItemType(String code, String name) {
+    this.code = code;
+    this.name = name;
+  }
 
-    ItemType(String code, String name) {
-        this.code = code;
-        this.name = name;
+  public static ItemType fromCode(String code) {
+    for (ItemType type : values()) {
+      if (type.code.equalsIgnoreCase(code)) {
+        return type;
+      }
     }
-
-    public static ItemType fromCode(String code) {
-        for (ItemType type : values()) {
-            if (type.code.equalsIgnoreCase(code)) {
-                return type;
-            }
-        }
-        return null;
-    }
+    return null;
+  }
 }

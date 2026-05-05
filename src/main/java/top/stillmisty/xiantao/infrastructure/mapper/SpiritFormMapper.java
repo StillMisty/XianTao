@@ -5,5 +5,4 @@ import org.apache.ibatis.annotations.Mapper;
 import top.stillmisty.xiantao.domain.fudi.entity.SpiritForm;
 
 @Mapper
-public interface SpiritFormMapper extends BaseMapper<SpiritForm> {
-}
+public interface SpiritFormMapper extends BaseMapper<SpiritForm> {}

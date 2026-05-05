@@ -2,6 +2,17 @@ plugins {
     java
     alias(libs.plugins.spring.boot)
     alias(libs.plugins.dependency.management)
+    alias(libs.plugins.spotless)
+}
+
+spotless {
+    java {
+        googleJavaFormat()
+        removeUnusedImports()
+        importOrder()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
 }
 
 group = "top.stillmisty"
@@ -60,4 +71,11 @@ tasks.withType<Test> {
 
 tasks.withType<JavaExec> {
     jvmArgs("--enable-native-access=ALL-UNNAMED")
+}
+
+tasks.register<Exec>("installGitHooks") {
+    commandLine(
+        "bash", "-c",
+        "cp gradle/hooks/* .git/hooks/ && chmod +x .git/hooks/*"
+    )
 }

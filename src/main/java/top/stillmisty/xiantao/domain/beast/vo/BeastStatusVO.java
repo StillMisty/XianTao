@@ -1,25 +1,23 @@
 package top.stillmisty.xiantao.domain.beast.vo;
 
-import lombok.Builder;
-
 import java.util.List;
+import lombok.Builder;
 
 @Builder
 public record BeastStatusVO(
-        Long id,
-        String beastName,
-        String quality,
-        boolean isMutant,
-        List<String> mutationTraits,
-        int tier,
-        int level,
-        int exp,
-        int attack,
-        int defense,
-        int maxHp,
-        int hpCurrent,
-        List<Long> skills,
-        boolean isDeployed,
-        boolean needsRecovery,
-        int pennedCellId
-) {}
+    Long id,
+    String beastName,
+    String quality,
+    boolean isMutant,
+    List<String> mutationTraits,
+    int tier,
+    int level,
+    int exp,
+    int attack,
+    int defense,
+    int maxHp,
+    int hpCurrent,
+    List<Long> skills,
+    boolean isDeployed,
+    boolean needsRecovery,
+    int pennedCellId) {}

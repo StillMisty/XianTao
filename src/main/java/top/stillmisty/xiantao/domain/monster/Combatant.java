@@ -1,44 +1,41 @@
 package top.stillmisty.xiantao.domain.monster;
 
-import top.stillmisty.xiantao.domain.skill.entity.Skill;
-
 import java.util.List;
+import top.stillmisty.xiantao.domain.skill.entity.Skill;
 
 public interface Combatant {
 
-    Long getId();
+  Long getId();
 
-    String getName();
+  String getName();
 
-    int getSpeed();
+  int getSpeed();
 
-    int getAttack();
+  int getAttack();
 
-    int getDefense();
+  int getDefense();
 
-    int getHp();
+  int getHp();
 
-    int getMaxHp();
+  int getMaxHp();
 
-    /**
-     * 获取攻击速度（影响CD恢复速度）
-     * 默认值1.0
-     */
-    default double getAttackSpeed() {
-        return 1.0;
-    }
+  /** 获取攻击速度（影响CD恢复速度） 默认值1.0 */
+  default double getAttackSpeed() {
+    return 1.0;
+  }
 
-    void takeDamage(int amount);
+  void takeDamage(int amount);
 
-    /**
-     * 恢复生命值
-     * @param amount 恢复量
-     */
-    default void heal(int amount) {
-        // 默认实现：不超过最大生命值
-    }
+  /**
+   * 恢复生命值
+   *
+   * @param amount 恢复量
+   */
+  default void heal(int amount) {
+    // 默认实现：不超过最大生命值
+  }
 
-    boolean isAlive();
+  boolean isAlive();
 
-    List<Skill> getSkills();
+  List<Skill> getSkills();
 }
