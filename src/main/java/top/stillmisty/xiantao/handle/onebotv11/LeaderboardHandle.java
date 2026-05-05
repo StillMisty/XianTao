@@ -19,20 +19,13 @@ public class LeaderboardHandle {
 
   @Listener
   @ContentTrim
-  @Filter("排位")
+  @Filter("排行榜")
   public void levelLeaderboard(MessageEvent event) {
-    log.debug("收到排位请求 - AuthorId: {}", event.getAuthorId());
+    log.debug("收到排行榜请求 - AuthorId: {}", event.getAuthorId());
     String response =
         leaderboardCommandHandler.handleLevelLeaderboard(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
     event.replyBlocking(response);
-  }
-
-  @Listener
-  @ContentTrim
-  @Filter("排行榜")
-  public void levelLeaderboard2(MessageEvent event) {
-    levelLeaderboard(event);
   }
 
   @Listener
