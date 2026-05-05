@@ -45,7 +45,5 @@ src/main/java/top/stillmisty/xiantao/
 2. `db/migration/` — Flyway migration (DML + COMMENT ON)
 3. `infrastructure/` — Mapper + RepositoryImpl + type handlers
 4. `service/` — internal method (`Long userId`) + public method (`ServiceResult<T>`)
-5. AOP — `@ConsumeSpiritEnergy` if needed, register new auth path in `AuthenticatedAspect`
-6. `handle/command/` — VO → text formatter
-7. `handle/onebotv11/` or `web/` — listener/controller trigger
-
+5. `handle/command/` — VO → text formatter
+6. `handle/onebotv11/` or `web/` — listener/controller trigger
