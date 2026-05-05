@@ -126,7 +126,6 @@ public class CultivationService {
       return BreakthroughResult.builder()
           .success(true)
           .message(String.format("恭喜！突破成功！晋升至第%d层！", user.getLevel()))
-          .breakthroughSuccess(true)
           .successRate(finalSuccessRate)
           .newLevel(user.getLevel())
           .failCount(0)
@@ -148,9 +147,8 @@ public class CultivationService {
       userStateService.save(user);
 
       return BreakthroughResult.builder()
-          .success(true)
+          .success(false)
           .message(String.format("突破失败！道基反噬，损失 %d 修为，当前修为 %d", expNeeded, newExp))
-          .breakthroughSuccess(false)
           .successRate(finalSuccessRate)
           .newLevel(user.getLevel())
           .failCount(user.getBreakthroughFailCount())

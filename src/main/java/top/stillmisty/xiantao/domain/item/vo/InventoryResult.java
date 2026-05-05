@@ -3,7 +3,6 @@ package top.stillmisty.xiantao.domain.item.vo;
 import java.util.List;
 import lombok.Builder;
 import lombok.Data;
-import top.stillmisty.xiantao.domain.item.entity.InventoryItem;
 
 /** 背包查看结果 VO 包含：装备、材料、种子、灵蛋、消耗品、灵石/铜币 */
 @Data

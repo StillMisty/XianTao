@@ -6,13 +6,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
-import org.apache.ibatis.type.MappedTypes;
 import org.postgresql.util.PGobject;
 import tools.jackson.databind.ObjectMapper;
-import top.stillmisty.xiantao.domain.fudi.entity.CellConfig;
 
-/** PostgreSQL JSONB 单独对象类型处理器。 对于 CellConfig，会读取 cell_type 列来判断具体子类型。 */
-@MappedTypes({CellConfig.class})
+/** PostgreSQL JSONB 单一对象类型处理器。直接按 propertyType 序列化/反序列化。 */
 public class JsonbTypeHandler extends BaseTypeHandler<Object> {
 
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
@@ -42,46 +39,27 @@ public class JsonbTypeHandler extends BaseTypeHandler<Object> {
 
   @Override
   public Object getNullableResult(ResultSet rs, String columnName) throws SQLException {
-    String jsonString = rs.getString(columnName);
-    return parseJson(jsonString, getCellType(rs));
+    return deserialize(rs.getString(columnName));
   }
 
   @Override
   public Object getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
-    String jsonString = rs.getString(columnIndex);
-    return parseJson(jsonString, getCellType(rs));
-  }
-
-  private String getCellType(ResultSet rs) {
-    try {
-      return rs.getString("cell_type");
-    } catch (SQLException e) {
-      return null;
-    }
+    return deserialize(rs.getString(columnIndex));
   }
 
   @Override
   public Object getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
-    String jsonString = cs.getString(columnIndex);
-    return parseJson(jsonString, null);
+    return deserialize(cs.getString(columnIndex));
   }
 
-  private Object parseJson(String jsonString, String cellType) throws SQLException {
+  private Object deserialize(String jsonString) throws SQLException {
     if (jsonString == null || jsonString.trim().isEmpty()) {
       return null;
     }
     try {
-      Class<?> targetType = resolveConcreteType(cellType);
-      return OBJECT_MAPPER.readValue(jsonString, targetType);
+      return OBJECT_MAPPER.readValue(jsonString, propertyType);
     } catch (Exception e) {
       throw new SQLException("Failed to deserialize JSONB to object: " + jsonString, e);
     }
-  }
-
-  private Class<?> resolveConcreteType(String cellType) {
-    if ("farm".equals(cellType)) return CellConfig.FarmConfig.class;
-    if ("pen".equals(cellType)) return CellConfig.PenConfig.class;
-    if (CellConfig.class.isAssignableFrom(propertyType)) return CellConfig.EmptyConfig.class;
-    return propertyType;
   }
 }

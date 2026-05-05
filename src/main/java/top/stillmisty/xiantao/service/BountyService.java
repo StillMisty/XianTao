@@ -166,7 +166,7 @@ public class BountyService {
     record.setBountyName(bounty.getName());
     record.setStartTime(LocalDateTime.now());
     record.setDurationMinutes(bounty.getDurationMinutes());
-    record.setRewards(predeterminedRewards.stream().map(BountyRewardItem::toMap).toList());
+    record.setRewards(predeterminedRewards);
     record.setStatus("active");
     userBountyRepository.save(record);
 

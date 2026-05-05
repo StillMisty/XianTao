@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.pill.enums.ElementType;
+import top.stillmisty.xiantao.domain.pill.enums.PillQuality;
 import top.stillmisty.xiantao.domain.pill.vo.PillRecipeVO;
 import top.stillmisty.xiantao.domain.pill.vo.PillRefiningResultVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
@@ -98,8 +99,9 @@ public class PillCommandHandler implements CommandGroup {
     if (result.success()) {
       sb.append("【炼丹成功】\n");
       sb.append(String.format("成丹：%s x%d\n", result.pillName(), result.quantity()));
-      sb.append(String.format("成色：%s\n", getQualityName(result.quality())));
-      sb.append(String.format("效果倍率：%.1f\n", getQualityMultiplier(result.quality())));
+      sb.append(String.format("成色：%s\n", PillQuality.fromCode(result.quality()).getChineseName()));
+      sb.append(
+          String.format("效果倍率：%.1f\n", PillQuality.fromCode(result.quality()).getMultiplier()));
 
       if (result.usedHerbs() != null && !result.usedHerbs().isEmpty()) {
         sb.append("\n消耗药材：\n");
@@ -131,25 +133,6 @@ public class PillCommandHandler implements CommandGroup {
   private String getElementName(String element) {
     ElementType type = ElementType.fromCode(element);
     return type != null ? type.getName() : element;
-  }
-
-  private String getQualityName(String quality) {
-    if (quality == null) return "未知";
-    return switch (quality) {
-      case "superior" -> "上成";
-      case "normal" -> "中成";
-      case "inferior" -> "下成";
-      default -> "未知";
-    };
-  }
-
-  private double getQualityMultiplier(String quality) {
-    if (quality == null) return 1.0;
-    return switch (quality) {
-      case "superior" -> 1.5;
-      case "inferior" -> 0.7;
-      default -> 1.0;
-    };
   }
 
   @Override

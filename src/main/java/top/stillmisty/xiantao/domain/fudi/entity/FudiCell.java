@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Data;
 import top.stillmisty.xiantao.domain.fudi.enums.CellType;
-import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
+import top.stillmisty.xiantao.infrastructure.mybatis.handler.CellConfigTypeHandler;
 
 /** 福地地块实体 */
 @Data
@@ -31,7 +31,7 @@ public class FudiCell {
   private Integer cellLevel;
 
   /** 建筑专有属性（JSONB） */
-  @Column(typeHandler = JsonbTypeHandler.class)
+  @Column(typeHandler = CellConfigTypeHandler.class)
   private CellConfig config;
 
   @Column(onInsertValue = "now()")

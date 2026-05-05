@@ -6,11 +6,11 @@ import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import lombok.Data;
 import top.stillmisty.xiantao.domain.skill.enums.BindingType;
 import top.stillmisty.xiantao.domain.skill.enums.SkillType;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
-import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
 
 @Data
 @Table("xt_skill")
@@ -39,8 +39,8 @@ public class Skill {
 
   private Long requireSkillId;
 
-  @Column(typeHandler = JsonbTypeHandler.class)
-  private String tags;
+  @Column(typeHandler = JsonbCollectionTypeHandler.class)
+  private Set<String> tags;
 
   private Integer levelRequirement;
 

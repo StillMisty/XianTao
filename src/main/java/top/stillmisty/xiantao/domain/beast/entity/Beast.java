@@ -7,10 +7,12 @@ import com.mybatisflex.annotation.Table;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Data;
+import lombok.experimental.Accessors;
 import top.stillmisty.xiantao.domain.fudi.enums.BeastQuality;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
 
 @Data
+@Accessors(chain = true)
 @Table("xt_beast")
 public class Beast {
 

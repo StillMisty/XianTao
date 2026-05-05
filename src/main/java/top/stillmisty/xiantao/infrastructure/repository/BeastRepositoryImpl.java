@@ -32,6 +32,17 @@ public class BeastRepositoryImpl implements BeastRepository {
   }
 
   @Override
+  public List<Beast> findByUserId(Long userId, int limit, int offset) {
+    return mapper.selectListByQuery(
+        QueryWrapper.create()
+            .select()
+            .from(BEAST)
+            .where(BEAST.USER_ID.eq(userId))
+            .limit(limit)
+            .offset(offset));
+  }
+
+  @Override
   public List<Beast> findByFudiId(Long fudiId) {
     return mapper.selectListByQuery(
         QueryWrapper.create().select().from(BEAST).where(BEAST.FUDI_ID.eq(fudiId)));
@@ -39,6 +50,7 @@ public class BeastRepositoryImpl implements BeastRepository {
 
   @Override
   public List<Beast> findDeployedByUserId(Long userId) {
+    LocalDateTime now = LocalDateTime.now();
     return mapper.selectListByQuery(
         QueryWrapper.create()
             .select()
@@ -46,7 +58,7 @@ public class BeastRepositoryImpl implements BeastRepository {
             .where(BEAST.USER_ID.eq(userId))
             .and(BEAST.IS_DEPLOYED.eq(true))
             .and(BEAST.HP_CURRENT.gt(0))
-            .and(BEAST.RECOVERY_UNTIL.lt(LocalDateTime.now()).or(BEAST.RECOVERY_UNTIL.isNull())));
+            .and(BEAST.RECOVERY_UNTIL.lt(now).or(BEAST.RECOVERY_UNTIL.isNull())));
   }
 
   @Override
@@ -67,6 +79,15 @@ public class BeastRepositoryImpl implements BeastRepository {
       mapper.update(beast);
     }
     return beast;
+  }
+
+  @Override
+  public List<Beast> saveAll(List<Beast> beasts) {
+    if (beasts == null || beasts.isEmpty()) return List.of();
+    for (Beast beast : beasts) {
+      save(beast);
+    }
+    return beasts;
   }
 
   @Override

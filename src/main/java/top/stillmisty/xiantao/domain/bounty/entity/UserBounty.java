@@ -6,10 +6,9 @@ import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import lombok.Data;
 import top.stillmisty.xiantao.domain.bounty.BountyRewardItem;
-import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
+import top.stillmisty.xiantao.infrastructure.mybatis.handler.BountyRewardListTypeHandler;
 
 @Data
 @Table("xt_user_bounty")
@@ -28,8 +27,8 @@ public class UserBounty {
 
   private Integer durationMinutes;
 
-  @Column(typeHandler = JsonbCollectionTypeHandler.class)
-  private List<Map<String, Object>> rewards;
+  @Column(typeHandler = BountyRewardListTypeHandler.class)
+  private List<BountyRewardItem> rewards;
 
   private String status;
 
@@ -48,6 +47,6 @@ public class UserBounty {
   }
 
   public List<BountyRewardItem> getParsedRewardItems() {
-    return BountyRewardItem.parse(rewards);
+    return rewards != null ? rewards : List.of();
   }
 }

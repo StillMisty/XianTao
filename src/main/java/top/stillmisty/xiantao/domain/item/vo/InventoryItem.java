@@ -1,4 +1,4 @@
-package top.stillmisty.xiantao.domain.item.entity;
+package top.stillmisty.xiantao.domain.item.vo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

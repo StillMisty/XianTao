@@ -12,6 +12,7 @@ import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.domain.pill.entity.PlayerPillRecipe;
+import top.stillmisty.xiantao.domain.pill.enums.PillQuality;
 import top.stillmisty.xiantao.domain.pill.repository.PlayerPillRecipeRepository;
 import top.stillmisty.xiantao.domain.pill.vo.PillRefiningResultVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
@@ -128,7 +129,7 @@ public class PillRefiningService {
       var requirements = recipeScroll.requirements();
       if (matchesRequirements(elementTotals, requirements)) {
         double qualityScore = calculateQualityScore(elementTotals, requirements);
-        String quality = determineQuality(qualityScore);
+        PillQuality quality = determineQuality(qualityScore);
 
         for (HerbInput input : parsedInputs) {
           stackableItemService.reduceStackableItem(
@@ -148,7 +149,7 @@ public class PillRefiningService {
             resultItemId,
             resultTemplate.getName(),
             resultQuantity,
-            quality,
+            quality.getCode(),
             usedHerbs,
             null);
       }
@@ -235,7 +236,7 @@ public class PillRefiningService {
     }
 
     double qualityScore = calculateQualityScore(elementTotals, requirements);
-    String quality = determineQuality(qualityScore);
+    PillQuality quality = determineQuality(qualityScore);
 
     for (Map.Entry<String, Integer> entry : usedHerbs.entrySet()) {
       for (StackableItem herb : herbs) {
@@ -265,7 +266,7 @@ public class PillRefiningService {
         resultItemId,
         resultTemplate.getName(),
         resultQuantity,
-        quality,
+        quality.getCode(),
         usedHerbs,
         null);
   }
@@ -333,17 +334,15 @@ public class PillRefiningService {
     return count > 0 ? totalScore / count : 0;
   }
 
-  private String determineQuality(double score) {
-    if (score >= 0.8) return "superior";
-    if (score >= 0.5) return "normal";
-    return "inferior";
+  private PillQuality determineQuality(double score) {
+    return PillQuality.determine(score);
   }
 
   private void createPillItem(
-      Long userId, ItemTemplate resultTemplate, int grade, String quality, int quantity) {
+      Long userId, ItemTemplate resultTemplate, int grade, PillQuality quality, int quantity) {
     Map<String, Object> properties = new HashMap<>();
     properties.put("grade", grade);
-    properties.put("quality", quality);
+    properties.put("quality", quality.getCode());
 
     Optional<StackableItem> existingItem =
         stackableItemRepository.findByUserIdAndTemplateId(userId, resultTemplate.getId());

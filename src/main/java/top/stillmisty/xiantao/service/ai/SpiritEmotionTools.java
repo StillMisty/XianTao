@@ -6,8 +6,10 @@ import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.fudi.entity.Spirit;
+import top.stillmisty.xiantao.domain.fudi.entity.SpiritHistory;
 import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
+import top.stillmisty.xiantao.domain.fudi.repository.SpiritHistoryRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
 import top.stillmisty.xiantao.service.UserContext;
 
@@ -19,6 +21,7 @@ public class SpiritEmotionTools {
 
   private final SpiritRepository spiritRepository;
   private final FudiRepository fudiRepository;
+  private final SpiritHistoryRepository spiritHistoryRepository;
 
   /** 更新地灵情绪状态 */
   @Tool(description = "更新地灵的情绪状态")
@@ -54,16 +57,17 @@ public class SpiritEmotionTools {
     }
 
     try {
-      Spirit spirit =
-          spiritRepository
-              .findByFudiId(getFudiId(userId))
-              .orElseThrow(() -> new IllegalStateException("地灵不存在"));
+      Long fudiId = getFudiId(userId);
+      SpiritHistory history = new SpiritHistory();
+      history.setFudiId(fudiId);
+      history.setRole("system");
+      history.setContent(thought);
+      spiritHistoryRepository.save(history);
 
-      // 暂时只记录日志，不存储到数据库
-      log.info("地灵想法记录 - userId: {}, thought: {}", userId, thought);
+      log.info("地灵想法已记录 - userId: {}, thought: {}", userId, thought);
       return "想法已记录";
     } catch (Exception e) {
-      log.error("记录想法失败 - userId: {}, error: {}", userId, e.getMessage());
+      log.error("记录想法失败 - userId: {}, error: {}", e.getMessage());
       return "记录想法失败：" + e.getMessage();
     }
   }

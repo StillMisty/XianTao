@@ -10,6 +10,8 @@ public interface BeastRepository {
 
   List<Beast> findByUserId(Long userId);
 
+  List<Beast> findByUserId(Long userId, int limit, int offset);
+
   List<Beast> findByFudiId(Long fudiId);
 
   List<Beast> findDeployedByUserId(Long userId);
@@ -17,6 +19,8 @@ public interface BeastRepository {
   List<Beast> findByUserIdAndIsDeployed(Long userId, boolean isDeployed);
 
   Beast save(Beast beast);
+
+  List<Beast> saveAll(List<Beast> beasts);
 
   void deleteById(Long id);
 

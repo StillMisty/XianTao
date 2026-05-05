@@ -70,8 +70,6 @@ public class TrainingService {
     return new ServiceResult.Success<>(startTraining(userId));
   }
 
-  // ===================== 内部 API =====================
-
   @Authenticated
   @Transactional
   public ServiceResult<TrainingRewardVO> endTraining(PlatformType platform, String openId) {
@@ -79,7 +77,7 @@ public class TrainingService {
     return new ServiceResult.Success<>(endTraining(userId));
   }
 
-  // ===================== 遭遇战斗 =====================
+  // ===================== 内部 API =====================
 
   @Transactional
   public TrainingStartResult startTraining(Long userId) {

@@ -14,6 +14,7 @@ import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.domain.pill.entity.PillResistance;
 import top.stillmisty.xiantao.domain.pill.entity.PlayerBuff;
+import top.stillmisty.xiantao.domain.pill.enums.PillQuality;
 import top.stillmisty.xiantao.domain.pill.repository.PillResistanceRepository;
 import top.stillmisty.xiantao.domain.pill.repository.PlayerBuffRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
@@ -60,7 +61,7 @@ public class PillConsumptionService {
       return "丹药没有效果";
 
     User user = userStateService.getUser(userId);
-    double qualityMultiplier = getQualityMultiplier(pill.getQuality());
+    double qualityMultiplier = PillQuality.fromCode(pill.getQuality()).getMultiplier();
     int grade = getPillGrade(pill);
     var messages = new ArrayList<String>();
 
@@ -247,14 +248,5 @@ public class PillConsumptionService {
     if (gradeObj instanceof Long l) return l.intValue();
     if (gradeObj instanceof Number n) return n.intValue();
     return 1;
-  }
-
-  private double getQualityMultiplier(String quality) {
-    if (quality == null) return 1.0;
-    return switch (quality) {
-      case "superior" -> 1.5;
-      case "inferior" -> 0.7;
-      default -> 1.0;
-    };
   }
 }

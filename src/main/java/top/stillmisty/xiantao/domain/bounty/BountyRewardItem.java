@@ -55,7 +55,7 @@ public sealed interface BountyRewardItem {
     return raw.stream().map(BountyRewardItem::parseOne).toList();
   }
 
-  private static BountyRewardItem parseOne(Map<String, Object> map) {
+  public static BountyRewardItem parseOne(Map<String, Object> map) {
     String rewardType = (String) map.get("_rewardType");
     if ("spirit_stones".equals(rewardType)) {
       return new SpiritStonesReward(((Number) map.getOrDefault("amount", 0)).longValue());

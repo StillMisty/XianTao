@@ -10,7 +10,6 @@ public class BreakthroughResult {
 
   private boolean success;
   private String message;
-  private Boolean breakthroughSuccess;
   private Double successRate;
   private Integer newLevel;
   private Integer failCount;

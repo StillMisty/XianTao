@@ -78,7 +78,7 @@ class BountyServiceTest {
     ub.setBountyName("采药童子");
     ub.setStartTime(LocalDateTime.now().minusMinutes(minutesAgo));
     ub.setDurationMinutes(durationMinutes);
-    ub.setRewards(List.of(new BountyRewardItem.ItemReward(1L, "培元丹", 1).toMap()));
+    ub.setRewards(List.of(new BountyRewardItem.ItemReward(1L, "培元丹", 1)));
     ub.setStatus("active");
     return ub;
   }
