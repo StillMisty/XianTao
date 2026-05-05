@@ -119,15 +119,10 @@ public class TrainingService {
     }
 
     if (user.getStatus() == UserStatus.DYING) {
-      user.setStatus(UserStatus.IDLE);
-      user.setTrainingStartTime(null);
-      int recoveryHp = Math.max(1, user.calculateMaxHp() / 5);
-      user.setHpCurrent(recoveryHp);
-      userStateService.save(user);
       return TrainingRewardVO.builder()
           .userId(userId)
           .mapId(user.getLocationId())
-          .summary("历练中战败重伤，已结束历练，获得 0 经验，恢复 20% HP")
+          .summary("你正处于重伤濒死中，请等待自动恢复（30 分钟后恢复至 20% HP）")
           .build();
     }
 
@@ -177,13 +172,17 @@ public class TrainingService {
     long totalExp = baseExp + combatExp;
 
     user = userStateService.getUser(userId);
-    if (totalExp > 0) {
-      user.addExp(totalExp);
-    }
+    boolean diedInTraining = user.getStatus() == UserStatus.DYING;
 
+    // simulateTraining already added combatExp to user (both normal and death paths)
+    if (baseExp > 0) {
+      user.addExp(baseExp);
+    }
     addTrainingItemsToInventory(userId, trainingItems);
 
-    user.setStatus(UserStatus.IDLE);
+    if (!diedInTraining) {
+      user.setStatus(UserStatus.IDLE);
+    }
     user.setTrainingStartTime(null);
     userStateService.save(user);
 
@@ -202,6 +201,9 @@ public class TrainingService {
         Integer qty = ((Number) item.getOrDefault("quantity", 1)).intValue();
         summary.append(String.format("  %s x%d\n", name, qty));
       }
+    }
+    if (diedInTraining) {
+      summary.append("\n重伤濒死！30 分钟后自动恢复至 20% HP");
     }
 
     log.info("用户 {} 结束历练并应用奖励", userId);
@@ -303,9 +305,13 @@ public class TrainingService {
           playerTeam, user, playerWon, isHighlightBattle, beastCache);
 
       if (!playerWon && playerTeam.isAllDead()) {
-        int recoveryHp = Math.max(1, user.calculateMaxHp() / 5);
-        user.setHpCurrent(recoveryHp);
-        user.setStatus(UserStatus.IDLE);
+        if (!allDrops.isEmpty()) {
+          dropProcessor.distributeDrops(userId, allDrops);
+        }
+        if (expGained > 0) {
+          user.addExp(expGained);
+        }
+        user.setDying();
         user.setTrainingStartTime(null);
         userStateService.save(user);
         saveBeastCache(beastCache);
@@ -315,9 +321,9 @@ public class TrainingService {
             totalEncounters,
             totalKills,
             defeatCount,
-            0,
+            expGained,
             totalRounds,
-            List.of(),
+            allDrops,
             allLogs,
             allSkillProcs);
       }
