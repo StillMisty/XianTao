@@ -11,6 +11,8 @@ import top.stillmisty.xiantao.domain.bounty.BountyRewardPool;
 import top.stillmisty.xiantao.domain.bounty.vo.BountyRewardVO;
 import top.stillmisty.xiantao.domain.bounty.vo.BountyStatusVO;
 import top.stillmisty.xiantao.domain.bounty.vo.BountyVO;
+import top.stillmisty.xiantao.domain.command.CommandEntry;
+import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.map.vo.MapInfoVO;
 import top.stillmisty.xiantao.domain.map.vo.TrainingRewardVO;
 import top.stillmisty.xiantao.domain.map.vo.TravelResultVO;
@@ -21,7 +23,7 @@ import top.stillmisty.xiantao.service.*;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class MapCommandHandler {
+public class MapCommandHandler implements CommandGroup {
 
   private final MapService mapService;
   private final TravelService travelService;
@@ -355,5 +357,30 @@ public class MapCommandHandler {
     }
     sb.append("\n使用「前往 [地图名]」开始旅行。");
     return sb.toString();
+  }
+
+  @Override
+  public String groupName() {
+    return "地图";
+  }
+
+  @Override
+  public String groupDescription() {
+    return "地图探索、历练、悬赏";
+  }
+
+  @Override
+  public List<CommandEntry> commands() {
+    return List.of(
+        new CommandEntry("地图", "查看当前地图信息", "地图"),
+        new CommandEntry("地图列表", "查看所有地图", "地图列表"),
+        new CommandEntry("前往 {{地图名}}", "前往相邻地图", "前往 青木林"),
+        new CommandEntry("历练", "开始在地图历练", "历练"),
+        new CommandEntry("历练结算", "结束历练并结算收益", "历练结算"),
+        new CommandEntry("悬赏", "查看当前悬赏状态", "悬赏"),
+        new CommandEntry("悬赏列表", "查看可接取悬赏", "悬赏列表"),
+        new CommandEntry("悬赏接取 {{编号}}", "接取悬赏任务", "悬赏接取 1"),
+        new CommandEntry("悬赏结算", "完成并结算悬赏", "悬赏结算"),
+        new CommandEntry("悬赏放弃", "放弃当前悬赏", "悬赏放弃"));
   }
 }

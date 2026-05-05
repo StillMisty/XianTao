@@ -5,6 +5,8 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import top.stillmisty.xiantao.domain.command.CommandEntry;
+import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.pill.enums.ElementType;
 import top.stillmisty.xiantao.domain.pill.vo.PillRecipeVO;
 import top.stillmisty.xiantao.domain.pill.vo.PillRefiningResultVO;
@@ -17,7 +19,7 @@ import top.stillmisty.xiantao.service.ServiceResult;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class PillCommandHandler {
+public class PillCommandHandler implements CommandGroup {
 
   private final PillRecipeService pillRecipeService;
   private final PillRefiningService pillRefiningService;
@@ -148,5 +150,24 @@ public class PillCommandHandler {
       case "inferior" -> 0.7;
       default -> 1.0;
     };
+  }
+
+  @Override
+  public String groupName() {
+    return "炼丹";
+  }
+
+  @Override
+  public String groupDescription() {
+    return "丹方查询、炼丹";
+  }
+
+  @Override
+  public List<CommandEntry> commands() {
+    return List.of(
+        new CommandEntry("丹方", "查看已学会的丹方列表", "丹方"),
+        new CommandEntry("丹方 {{名称}}", "查看丹方详情", "丹方 天元丹"),
+        new CommandEntry("炼 {{药材输入}}", "手动炼丹（指定药材配比）", "炼 灵草×3 火灵花×2"),
+        new CommandEntry("炼方 {{丹方名}}", "根据丹方自动炼丹", "炼方 天元丹"));
   }
 }

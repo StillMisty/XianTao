@@ -170,39 +170,4 @@ public class FudiHandle {
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), itemName);
     event.replyBlocking(response);
   }
-
-  // ===================== 灵兽出战/召回/恢复（Phase 4 新增） =====================
-
-  @Listener
-  @ContentTrim
-  @Filter("灵兽出战 {{position}}")
-  public void handleDeployBeast(MessageEvent event, @FilterValue("position") String position) {
-    log.debug("收到灵兽出战请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
-    String response =
-        fudiCommandHandler.handleDeployBeast(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), position);
-    event.replyBlocking(response);
-  }
-
-  @Listener
-  @ContentTrim
-  @Filter("灵兽召回 {{position}}")
-  public void handleUndeployBeast(MessageEvent event, @FilterValue("position") String position) {
-    log.debug("收到灵兽召回请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
-    String response =
-        fudiCommandHandler.handleUndeployBeast(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), position);
-    event.replyBlocking(response);
-  }
-
-  @Listener
-  @ContentTrim
-  @Filter("灵兽恢复 {{position}}")
-  public void handleRecoverBeast(MessageEvent event, @FilterValue("position") String position) {
-    log.debug("收到灵兽恢复请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
-    String response =
-        fudiCommandHandler.handleRecoverBeast(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), position);
-    event.replyBlocking(response);
-  }
 }

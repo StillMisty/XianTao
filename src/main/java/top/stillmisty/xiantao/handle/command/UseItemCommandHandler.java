@@ -1,8 +1,11 @@
 package top.stillmisty.xiantao.handle.command;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import top.stillmisty.xiantao.domain.command.CommandEntry;
+import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.service.ItemUseService;
 import top.stillmisty.xiantao.service.ServiceResult;
@@ -11,7 +14,7 @@ import top.stillmisty.xiantao.service.ServiceResult;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class UseItemCommandHandler {
+public class UseItemCommandHandler implements CommandGroup {
 
   private final ItemUseService itemUseService;
 
@@ -32,5 +35,22 @@ public class UseItemCommandHandler {
       case ServiceResult.Failure(var code, var msg) -> msg;
       case ServiceResult.Success(var result) -> result;
     };
+  }
+
+  @Override
+  public String groupName() {
+    return "物品";
+  }
+
+  @Override
+  public String groupDescription() {
+    return "使用物品";
+  }
+
+  @Override
+  public List<CommandEntry> commands() {
+    return List.of(
+        new CommandEntry("使用 {{物品}}", "使用物品（丹药、玉简、卷轴等）", "使用 天元丹"),
+        new CommandEntry("使用 {{物品}} {{参数}}", "使用物品并指定参数", "使用 进化石 1"));
   }
 }

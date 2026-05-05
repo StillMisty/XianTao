@@ -20,4 +20,10 @@ public interface UserRepository {
 
   /** 根据昵称查找用户 */
   Optional<User> findByNickname(String nickname);
+
+  /** 获取修为排行榜（按等级降序） */
+  List<User> findTopByLevel(int limit);
+
+  /** 获取财富排行榜（按灵石降序） */
+  List<User> findTopBySpiritStones(int limit);
 }

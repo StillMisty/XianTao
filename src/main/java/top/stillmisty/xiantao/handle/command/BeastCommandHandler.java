@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.beast.vo.*;
+import top.stillmisty.xiantao.domain.command.CommandEntry;
+import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.fudi.vo.PenCellVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.service.BeastService;
@@ -14,7 +16,7 @@ import top.stillmisty.xiantao.service.ServiceResult;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class BeastCommandHandler {
+public class BeastCommandHandler implements CommandGroup {
 
   private final BeastService beastService;
 
@@ -154,5 +156,26 @@ public class BeastCommandHandler {
       }
     }
     return sb.toString();
+  }
+
+  @Override
+  public String groupName() {
+    return "灵兽";
+  }
+
+  @Override
+  public String groupDescription() {
+    return "灵兽出战、召回、恢复、进化、放生";
+  }
+
+  @Override
+  public List<CommandEntry> commands() {
+    return List.of(
+        new CommandEntry("灵兽出战 {{编号}}", "派出灵兽参与战斗", "灵兽出战 1"),
+        new CommandEntry("灵兽召回 {{编号/all}}", "召回出战的灵兽", "灵兽召回 1"),
+        new CommandEntry("灵兽恢复 {{编号/all}}", "恢复灵兽生命值", "灵兽恢复 1"),
+        new CommandEntry("灵兽进化 {{编号}} {{升阶/升品}}", "进化灵兽", "灵兽进化 1 升阶"),
+        new CommandEntry("灵兽放生 {{编号}}", "放生灵兽", "灵兽放生 1"),
+        new CommandEntry("出战灵兽", "查看当前出战的灵兽", "出战灵兽"));
   }
 }

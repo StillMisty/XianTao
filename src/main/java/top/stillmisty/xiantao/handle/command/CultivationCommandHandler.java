@@ -4,6 +4,8 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import top.stillmisty.xiantao.domain.command.CommandEntry;
+import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.item.vo.AttributeChange;
 import top.stillmisty.xiantao.domain.item.vo.CharacterStatusResult;
 import top.stillmisty.xiantao.domain.item.vo.InventorySummaryVO;
@@ -11,11 +13,14 @@ import top.stillmisty.xiantao.domain.item.vo.ItemEntry;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.domain.user.vo.*;
+import top.stillmisty.xiantao.domain.user.vo.PlayerViewVO;
 import top.stillmisty.xiantao.infrastructure.util.FormatUtils;
 import top.stillmisty.xiantao.service.CharacterStatusService;
 import top.stillmisty.xiantao.service.CultivationService;
+import top.stillmisty.xiantao.service.DiscardService;
 import top.stillmisty.xiantao.service.EquipmentService;
 import top.stillmisty.xiantao.service.InventoryService;
+import top.stillmisty.xiantao.service.PlayerViewService;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserService;
 
@@ -23,13 +28,15 @@ import top.stillmisty.xiantao.service.UserService;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class CultivationCommandHandler {
+public class CultivationCommandHandler implements CommandGroup {
 
   private final UserService userService;
   private final CharacterStatusService characterStatusService;
   private final InventoryService inventoryService;
   private final EquipmentService equipmentService;
   private final CultivationService cultivationService;
+  private final DiscardService discardService;
+  private final PlayerViewService playerViewService;
 
   /** 注册（UserService.createUser 内部做重复注册检查） */
   public String handleRegister(PlatformType platform, String openId, String nickname) {
@@ -81,6 +88,15 @@ public class CultivationCommandHandler {
     };
   }
 
+  public String handleInventoryByCategory(PlatformType platform, String openId, String category) {
+    return switch (category) {
+      case "种子" -> handleSeedInventory(platform, openId);
+      case "装备" -> handleEquipmentInventory(platform, openId);
+      case "兽卵" -> handleEggInventory(platform, openId);
+      default -> "未知分类，可选：种子、装备、兽卵";
+    };
+  }
+
   public String handleEquip(PlatformType platform, String openId, String itemName) {
     log.debug("处理装备穿戴 - Platform: {}, OpenId: {}, ItemName: {}", platform, openId, itemName);
     return switch (equipmentService.equipItem(platform, openId, itemName)) {
@@ -123,6 +139,22 @@ public class CultivationCommandHandler {
     return switch (cultivationService.removeProtection(platform, openId, protegeNickname)) {
       case ServiceResult.Failure(var code, var msg) -> msg;
       case ServiceResult.Success(var vo) -> vo.getMessage();
+    };
+  }
+
+  public String handleDiscard(PlatformType platform, String openId, String itemName) {
+    log.debug("处理丢弃 - Platform: {}, OpenId: {}, ItemName: {}", platform, openId, itemName);
+    return switch (discardService.discardItem(platform, openId, itemName)) {
+      case ServiceResult.Failure(var code, var msg) -> msg;
+      case ServiceResult.Success(var msg) -> msg;
+    };
+  }
+
+  public String handleViewPlayer(PlatformType platform, String openId, String targetNickname) {
+    log.debug("处理查看 - Platform: {}, OpenId: {}, Target: {}", platform, openId, targetNickname);
+    return switch (playerViewService.viewPlayer(platform, openId, targetNickname)) {
+      case ServiceResult.Failure(var code, var msg) -> msg;
+      case ServiceResult.Success(var vo) -> formatPlayerView(vo);
     };
   }
 
@@ -342,6 +374,54 @@ public class CultivationCommandHandler {
   private String formatAttrChange(String attrName, int change) {
     String sign = change > 0 ? "+" : "";
     return String.format("  %s：%s%d", attrName, sign, change);
+  }
+
+  private String formatPlayerView(PlayerViewVO vo) {
+    StringBuilder sb = new StringBuilder();
+    sb.append("【").append(vo.nickname()).append("】\n");
+    sb.append("境界：第").append(vo.level()).append("层\n");
+    sb.append("状态：").append(vo.statusName()).append("\n");
+    sb.append("HP：").append(vo.hpCurrent()).append("/").append(vo.hpMax()).append("\n");
+    sb.append("攻击：").append(vo.attack()).append(" | 防御：").append(vo.defense()).append("\n");
+    sb.append("力道：").append(vo.statStr()).append(" | 根骨：").append(vo.statCon());
+    sb.append(" | 身法：").append(vo.statAgi()).append(" | 悟性：").append(vo.statWis()).append("\n");
+    if (vo.locationName() != null) {
+      sb.append("所在地：").append(vo.locationName()).append("\n");
+    }
+    if (vo.equippedItems() != null && !vo.equippedItems().isEmpty()) {
+      sb.append("\n【已穿戴装备】\n");
+      for (String item : vo.equippedItems()) {
+        sb.append("  ").append(item).append("\n");
+      }
+    }
+    return sb.toString();
+  }
+
+  @Override
+  public String groupName() {
+    return "角色";
+  }
+
+  @Override
+  public String groupDescription() {
+    return "角色注册、状态查看、背包、装备、突破、护道";
+  }
+
+  @Override
+  public List<CommandEntry> commands() {
+    return List.of(
+        new CommandEntry("我要修仙 {{道号}}", "注册新角色", "我要修仙 张三"),
+        new CommandEntry("状态", "查看角色完整信息", "状态"),
+        new CommandEntry("背包", "查看背包汇总", "背包"),
+        new CommandEntry("背包 {{分类}}", "查看分类物品（种子/装备/兽卵）", "背包 种子"),
+        new CommandEntry("装备 {{物品}}", "穿戴装备", "装备 玄铁剑"),
+        new CommandEntry("卸下 {{部位/物品}}", "卸下装备（支持部位名或物品名/编号）", "卸下 武器"),
+        new CommandEntry("丢弃 {{物品}}", "丢弃物品或装备", "丢弃 玄铁剑"),
+        new CommandEntry("查看 {{道号}}", "查看其他玩家的信息", "查看 张三"),
+        new CommandEntry("突破", "尝试境界突破", "突破"),
+        new CommandEntry("护道 {{道号}}", "建立护道关系", "护道 李四"),
+        new CommandEntry("护道解除 {{道号}}", "解除护道关系", "护道解除 李四"),
+        new CommandEntry("护道查询", "查看护道信息", "护道查询"));
   }
 
   private String formatBreakthroughResult(BreakthroughResult result) {

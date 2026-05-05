@@ -4,6 +4,8 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import top.stillmisty.xiantao.domain.command.CommandEntry;
+import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.skill.vo.SkillSlotResult;
 import top.stillmisty.xiantao.domain.skill.vo.SkillVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
@@ -13,7 +15,7 @@ import top.stillmisty.xiantao.service.SkillService;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class SkillCommandHandler {
+public class SkillCommandHandler implements CommandGroup {
 
   private final SkillService skillService;
 
@@ -131,5 +133,25 @@ public class SkillCommandHandler {
       sb.append("\n  描述：").append(skill.description());
     }
     return sb.toString();
+  }
+
+  @Override
+  public String groupName() {
+    return "法决";
+  }
+
+  @Override
+  public String groupDescription() {
+    return "学习、装载、卸下法决";
+  }
+
+  @Override
+  public List<CommandEntry> commands() {
+    return List.of(
+        new CommandEntry("法决", "查看已装载法决", "法决"),
+        new CommandEntry("法决 全部", "查看所有已学法决", "法决 全部"),
+        new CommandEntry("法决 已学", "查看所有已学法决", "法决 已学"),
+        new CommandEntry("法决装载 {{法决}}", "装载法决到槽位", "法决装载 御剑术"),
+        new CommandEntry("法决卸下 {{法决}}", "从槽位卸下法决", "法决卸下 御剑术"));
   }
 }

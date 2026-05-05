@@ -113,12 +113,12 @@ public class EquipmentService {
         .build();
   }
 
-  /** 装备卸下（卸下 [部位]） */
+  /** 装备卸下（卸下 [部位/物品名/编号]） */
   @Transactional
-  public UnequipResult unequipItem(Long userId, String slotName) {
-    EquipmentSlot slot = EquipmentSlot.fromChineseName(slotName);
+  public UnequipResult unequipItem(Long userId, String input) {
+    EquipmentSlot slot = EquipmentSlot.fromChineseName(input);
     if (slot == null) {
-      return UnequipResult.builder().success(false).message("无效的装备部位，可选：法器、护甲、饰品").build();
+      return unequipByItemInput(userId, input);
     }
 
     return equipmentRepository
@@ -150,7 +150,67 @@ public class EquipmentService {
                   .build();
             })
         .orElse(
-            UnequipResult.builder().success(false).message("[" + slotName + "] 部位未穿戴任何装备").build());
+            UnequipResult.builder()
+                .success(false)
+                .message("[" + slot.getName() + "] 部位未穿戴任何装备")
+                .build());
+  }
+
+  /** 通过物品名称/编号卸下装备 */
+  @Transactional
+  public UnequipResult unequipByItemInput(Long userId, String input) {
+    var result = itemResolver.resolveEquipment(userId, input);
+    if (result instanceof ItemResolver.NotFound<?>(String input1)) {
+      return UnequipResult.builder()
+          .success(false)
+          .message("未找到装备【" + input1 + "】，可输入部位名（法器/护甲/饰品）或装备名称/编号")
+          .build();
+    }
+    if (result instanceof ItemResolver.Ambiguous<?> a) {
+      var sb = new StringBuilder("找到多个装备，请使用编号：\n");
+      for (var e : a.candidates()) {
+        sb.append(e.index())
+            .append(". ")
+            .append(e.name())
+            .append(" [")
+            .append(e.metadata())
+            .append("]\n");
+      }
+      return UnequipResult.builder().success(false).message(sb.toString().strip()).build();
+    }
+
+    var found = (ItemResolver.Found<Equipment>) result;
+    Equipment equipment = found.item();
+    if (!equipment.getEquipped()) {
+      return UnequipResult.builder()
+          .success(false)
+          .message("【" + equipment.getName() + "】未装备")
+          .build();
+    }
+
+    AttributeChange attributeChange =
+        AttributeChange.builder()
+            .strChange(-equipment.getStrBonus())
+            .conChange(-equipment.getConBonus())
+            .agiChange(-equipment.getAgiBonus())
+            .wisChange(-equipment.getWisBonus())
+            .attackChange(-equipment.getAttackBonus())
+            .defenseChange(-equipment.getDefenseBonus())
+            .maxHpChange(-equipment.getConBonus() * 20)
+            .build();
+
+    equipment.setEquipped(false);
+    equipmentRepository.save(equipment);
+
+    return UnequipResult.builder()
+        .success(true)
+        .message("成功卸下【" + equipment.getName() + "】")
+        .equipmentId(equipment.getId())
+        .equipmentName(equipment.getName())
+        .slot(equipment.getSlot())
+        .slotName(equipment.getSlot().getName())
+        .attributeChange(attributeChange)
+        .build();
   }
 
   /** 创建装备实例（稀有度加权随机） */

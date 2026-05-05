@@ -21,10 +21,10 @@ public class PillHandle {
 
   private final PillCommandHandler pillCommandHandler;
 
-  /** 处理丹方列表命令 格式：丹方列表 */
+  /** 处理丹方列表/详情命令 格式：丹方 [名称] 示例：丹方 或 丹方 天元丹 */
   @Listener
   @ContentTrim
-  @Filter("丹方列表")
+  @Filter("丹方")
   public void recipeList(MessageEvent event) {
     log.debug("收到丹方列表查询请求 - AuthorId: {}", event.getAuthorId());
     String response =
@@ -45,10 +45,10 @@ public class PillHandle {
     event.replyBlocking(response);
   }
 
-  /** 处理自动炼丹命令 格式：炼 [丹方名] 示例：炼 天元丹 */
+  /** 处理自动炼丹命令 格式：炼方 [丹方名] 示例：炼方 天元丹 */
   @Listener
   @ContentTrim
-  @Filter("炼 {{recipeName}}")
+  @Filter("炼方 {{recipeName}}")
   public void refineAuto(MessageEvent event, @FilterValue("recipeName") String recipeName) {
     log.debug("收到自动炼丹请求 - AuthorId: {}, RecipeName: {}", event.getAuthorId(), recipeName);
     String response =

@@ -1,12 +1,11 @@
 package top.stillmisty.xiantao.handle.command;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import top.stillmisty.xiantao.domain.beast.vo.ActionResultVO;
-import top.stillmisty.xiantao.domain.beast.vo.BatchCountVO;
-import top.stillmisty.xiantao.domain.beast.vo.BatchRecoverVO;
-import top.stillmisty.xiantao.domain.beast.vo.RecoverResultVO;
+import top.stillmisty.xiantao.domain.command.CommandEntry;
+import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.fudi.enums.CellType;
 import top.stillmisty.xiantao.domain.fudi.vo.FarmCellVO;
 import top.stillmisty.xiantao.domain.fudi.vo.FudiStatusVO;
@@ -22,7 +21,7 @@ import top.stillmisty.xiantao.service.ai.SpiritChatService;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class FudiCommandHandler {
+public class FudiCommandHandler implements CommandGroup {
 
   private final FudiService fudiService;
   private final BeastService beastService;
@@ -157,38 +156,6 @@ public class FudiCommandHandler {
     };
   }
 
-  public String handleDeployBeast(PlatformType platform, String openId, String position) {
-    return switch (beastService.deployBeast(platform, openId, position)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
-      case ServiceResult.Success(var result) -> result.message();
-    };
-  }
-
-  public String handleUndeployBeast(PlatformType platform, String openId, String position) {
-    return switch (beastService.undeployBeast(platform, openId, position)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
-      case ServiceResult.Success(var result) ->
-          switch (result) {
-            case ActionResultVO vo -> vo.message();
-            case BatchCountVO vo -> "✅ 已召回 %d 只灵兽。".formatted(vo.count());
-            default -> "召回完成";
-          };
-    };
-  }
-
-  public String handleRecoverBeast(PlatformType platform, String openId, String position) {
-    return switch (beastService.recoverBeast(platform, openId, position)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
-      case ServiceResult.Success(var result) ->
-          switch (result) {
-            case ActionResultVO vo -> vo.message();
-            case RecoverResultVO vo -> vo.message();
-            case BatchRecoverVO vo -> "✅ 已恢复 %d 只灵兽，消耗 %d 灵石。".formatted(vo.count(), vo.cost());
-            default -> "恢复完成";
-          };
-    };
-  }
-
   // ===================== 文本格式化方法 =====================
 
   private String formatFudiStatus(FudiStatusVO status) {
@@ -314,5 +281,32 @@ public class FudiCommandHandler {
       sb.append("能力：").append(String.join(",", result.getMutationTraits())).append("\n");
     }
     return sb.toString();
+  }
+
+  @Override
+  public String groupName() {
+    return "福地";
+  }
+
+  @Override
+  public String groupDescription() {
+    return "福地经营、地灵互动、灵兽培育";
+  }
+
+  @Override
+  public List<CommandEntry> commands() {
+    return List.of(
+        new CommandEntry("福地", "查看福地概况", "福地"),
+        new CommandEntry("福地地块", "查看福地详细布局", "福地地块"),
+        new CommandEntry("福地种植 {{位置}} {{作物}}", "种植作物", "福地种植 1 灵芝"),
+        new CommandEntry("福地收取 {{位置/all}}", "收获作物或收取产物", "福地收取 1"),
+        new CommandEntry("福地建造 {{位置}} {{类型}}", "建造新地块（灵田/兽栏）", "福地建造 2 灵田"),
+        new CommandEntry("福地拆除 {{位置}}", "拆除地块", "福地拆除 1"),
+        new CommandEntry("福地升级 {{位置}}", "升级地块等级", "福地升级 1"),
+        new CommandEntry("福地孵化 {{位置}} {{兽卵}}", "孵化灵兽蛋", "福地孵化 1 火凤卵"),
+        new CommandEntry("福地放生 {{位置}}", "放生灵兽", "福地放生 1"),
+        new CommandEntry("福地进化 {{位置}} {{升阶/升品}}", "进化灵兽", "福地进化 1 升阶"),
+        new CommandEntry("地灵 {{内容}}", "与地灵自然语言聊天", "地灵 你好呀"),
+        new CommandEntry("地灵送礼 {{物品}}", "赠送礼物给地灵", "地灵送礼 灵果"));
   }
 }

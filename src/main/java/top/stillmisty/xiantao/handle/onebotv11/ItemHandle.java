@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.command.CultivationCommandHandler;
 
-/** 物品管理监听器 处理背包、装备相关命令 */
+/** 物品管理监听器 处理背包、装备、丢弃相关命令 */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -32,35 +32,14 @@ public class ItemHandle {
     event.replyBlocking(response);
   }
 
-  /** 处理种子列表命令 */
+  /** 处理背包分类查询命令 格式：背包 [分类] 分类可选：种子、装备、兽卵 */
   @Listener
   @ContentTrim
-  @Filter("背包 种子")
-  public void listSeeds(MessageEvent event) {
+  @Filter("背包 {{category}}")
+  public void inventoryByCategory(MessageEvent event, @FilterValue("category") String category) {
     String response =
-        commandHandler.handleSeedInventory(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
-    event.replyBlocking(response);
-  }
-
-  /** 处理装备列表命令 */
-  @Listener
-  @ContentTrim
-  @Filter("背包 装备")
-  public void listEquipment(MessageEvent event) {
-    String response =
-        commandHandler.handleEquipmentInventory(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
-    event.replyBlocking(response);
-  }
-
-  /** 处理兽卵列表命令 */
-  @Listener
-  @ContentTrim
-  @Filter("背包 兽卵")
-  public void listEggs(MessageEvent event) {
-    String response =
-        commandHandler.handleEggInventory(PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
+        commandHandler.handleInventoryByCategory(
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), category);
     event.replyBlocking(response);
   }
 
@@ -89,6 +68,18 @@ public class ItemHandle {
         commandHandler.handleUnequip(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), slotName);
 
+    event.replyBlocking(response);
+  }
+
+  /** 处理丢弃命令 格式：丢弃 [物品名/编号] */
+  @Listener
+  @ContentTrim
+  @Filter("丢弃 {{itemName}}")
+  public void discard(MessageEvent event, @FilterValue("itemName") String itemName) {
+    log.debug("收到丢弃请求 - AuthorId: {}, ItemName: {}", event.getAuthorId(), itemName);
+    String response =
+        commandHandler.handleDiscard(
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), itemName);
     event.replyBlocking(response);
   }
 }

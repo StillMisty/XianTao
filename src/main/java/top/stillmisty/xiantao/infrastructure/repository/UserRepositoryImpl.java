@@ -42,4 +42,16 @@ public class UserRepositoryImpl implements UserRepository {
     QueryWrapper query = new QueryWrapper().eq(User::getNickname, nickname);
     return Optional.ofNullable(userMapper.selectOneByQuery(query));
   }
+
+  @Override
+  public List<User> findTopByLevel(int limit) {
+    QueryWrapper query = new QueryWrapper().orderBy(User::getLevel, true).limit(limit);
+    return userMapper.selectListByQuery(query);
+  }
+
+  @Override
+  public List<User> findTopBySpiritStones(int limit) {
+    QueryWrapper query = new QueryWrapper().orderBy(User::getSpiritStones, true).limit(limit);
+    return userMapper.selectListByQuery(query);
+  }
 }
