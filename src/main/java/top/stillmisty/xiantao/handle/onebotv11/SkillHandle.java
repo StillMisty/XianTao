@@ -20,19 +20,8 @@ public class SkillHandle {
 
   @Listener
   @ContentTrim
-  @Filter("法决 全部")
+  @Filter("法决列表")
   public void learnedSkillsAll(MessageEvent event) {
-    handleLearnedSkills(event);
-  }
-
-  @Listener
-  @ContentTrim
-  @Filter("法决 已学")
-  public void learnedSkills(MessageEvent event) {
-    handleLearnedSkills(event);
-  }
-
-  private void handleLearnedSkills(MessageEvent event) {
     log.debug("收到法决列表请求 - AuthorId: {}", event.getAuthorId());
     String response =
         skillCommandHandler.handleLearnedSkills(
