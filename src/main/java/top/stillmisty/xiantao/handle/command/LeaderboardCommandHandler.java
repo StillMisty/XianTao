@@ -44,8 +44,11 @@ public class LeaderboardCommandHandler implements CommandGroup {
             default -> "  " + e.rank() + ".";
           };
       sb.append(medal).append(" ").append(e.nickname());
-      sb.append("  第").append(e.level()).append("层");
-      sb.append("  灵石：").append(e.spiritStones());
+      if (vo.showLevel()) {
+        sb.append("  第").append(e.level()).append("层");
+      } else {
+        sb.append("  灵石：").append(e.spiritStones());
+      }
       sb.append("\n");
     }
     return sb.toString();
