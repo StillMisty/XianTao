@@ -33,36 +33,33 @@ public class UserService {
    * @return 注册结果
    */
   @Transactional
-  public RegisterResult createUser(PlatformType platform, String openId, String nickname) {
-    // 检查是否已注册
+  public ServiceResult<RegisterResult> createUser(
+      PlatformType platform, String openId, String nickname) {
     var existingAuth = userAuthRepository.findByPlatformAndOpenId(platform, openId);
     if (existingAuth.isPresent()) {
-      return new RegisterResult(false, "阁下已在仙路中~", null, null);
+      return ServiceResult.businessFailure("阁下已在仙路中~");
     }
 
-    // 检查道号是否已被占用
     if (userRepository.existsByNickname(nickname)) {
-      return new RegisterResult(false, "此道号已被他人使用，请另择佳名~", null, null);
+      return ServiceResult.businessFailure("此道号已被他人使用，请另择佳名~");
     }
 
-    // 创建用户（未设置的字段走 DB 默认值）
     var user = userRepository.save(User.create().setNickname(nickname));
 
     log.info("创建用户成功 - UserId: {}, Nickname: {}", user.getId(), user.getNickname());
 
-    // 创建授权记录
     UserAuth userAuth = UserAuth.init(platform, openId, user.getId());
     userAuthRepository.save(userAuth);
 
     log.info("创建授权记录成功 - UserId: {}, Platform: {}, OpenId: {}", user.getId(), platform, openId);
 
-    // 自动为用户创建福地和地灵（随机分配MBTI人格）
     MBTIPersonality randomMBTI = getRandomMBTI();
     fudiService.createFudi(user.getId(), randomMBTI);
 
     log.info("创建福地成功 - UserId: {}, MBTI: {}", user.getId(), randomMBTI.getCode());
 
-    return new RegisterResult(true, "注册成功~", user.getId(), user.getNickname());
+    return new ServiceResult.Success<>(
+        new RegisterResult(true, "注册成功~", user.getId(), user.getNickname()));
   }
 
   /** 随机获取一个MBTI人格类型 */

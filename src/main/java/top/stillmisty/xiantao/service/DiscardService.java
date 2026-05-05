@@ -26,12 +26,8 @@ public class DiscardService {
   @Authenticated
   @Transactional
   public ServiceResult<String> discardItem(PlatformType platform, String openId, String itemName) {
-    try {
-      Long userId = UserContext.getCurrentUserId();
-      return new ServiceResult.Success<>(discardItem(userId, itemName));
-    } catch (IllegalStateException | IllegalArgumentException e) {
-      return ServiceResult.businessFailure(e.getMessage());
-    }
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(discardItem(userId, itemName));
   }
 
   @Transactional

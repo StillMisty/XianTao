@@ -66,12 +66,8 @@ public class TrainingService {
   @Authenticated
   @Transactional
   public ServiceResult<TrainingStartResult> startTraining(PlatformType platform, String openId) {
-    try {
-      Long userId = UserContext.getCurrentUserId();
-      return new ServiceResult.Success<>(startTraining(userId));
-    } catch (IllegalStateException | IllegalArgumentException e) {
-      return ServiceResult.businessFailure(e.getMessage());
-    }
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(startTraining(userId));
   }
 
   // ===================== 内部 API =====================
@@ -79,12 +75,8 @@ public class TrainingService {
   @Authenticated
   @Transactional
   public ServiceResult<TrainingRewardVO> endTraining(PlatformType platform, String openId) {
-    try {
-      Long userId = UserContext.getCurrentUserId();
-      return new ServiceResult.Success<>(endTraining(userId));
-    } catch (IllegalStateException | IllegalArgumentException e) {
-      return ServiceResult.businessFailure(e.getMessage());
-    }
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(endTraining(userId));
   }
 
   // ===================== 遭遇战斗 =====================
@@ -121,9 +113,22 @@ public class TrainingService {
   public TrainingRewardVO endTraining(Long userId) {
     User user = userStateService.getUser(userId);
 
-    if (user.getStatus() != UserStatus.EXERCISING) {
+    if (user.getStatus() != UserStatus.EXERCISING && user.getStatus() != UserStatus.DYING) {
       throw new IllegalStateException(
           "您当前处于 " + user.getStatus().getName() + " 状态，无法结束历练（需要 历练 状态）");
+    }
+
+    if (user.getStatus() == UserStatus.DYING) {
+      user.setStatus(UserStatus.IDLE);
+      user.setTrainingStartTime(null);
+      int recoveryHp = Math.max(1, user.calculateMaxHp() / 5);
+      user.setHpCurrent(recoveryHp);
+      userStateService.save(user);
+      return TrainingRewardVO.builder()
+          .userId(userId)
+          .mapId(user.getLocationId())
+          .summary("历练中战败重伤，已结束历练，获得 0 经验，恢复 20% HP")
+          .build();
     }
 
     if (user.getTrainingStartTime() == null) {
@@ -298,7 +303,10 @@ public class TrainingService {
           playerTeam, user, playerWon, isHighlightBattle, beastCache);
 
       if (!playerWon && playerTeam.isAllDead()) {
-        user.setDying();
+        int recoveryHp = Math.max(1, user.calculateMaxHp() / 5);
+        user.setHpCurrent(recoveryHp);
+        user.setStatus(UserStatus.IDLE);
+        user.setTrainingStartTime(null);
         userStateService.save(user);
         saveBeastCache(beastCache);
         return buildSummary(

@@ -33,7 +33,7 @@ public class MapCommandHandler implements CommandGroup {
   public String handleGoTo(PlatformType platform, String openId, String mapName) {
     log.debug("处理前往请求 - Platform: {}, OpenId: {}, MapName: {}", platform, openId, mapName);
     return switch (travelService.startTravel(platform, openId, mapName)) {
-      case ServiceResult.Failure(var code, var msg) -> msg;
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var vo) ->
           vo.isSuccess() ? formatTravelResult(vo) : vo.getMessage();
     };
@@ -42,7 +42,7 @@ public class MapCommandHandler implements CommandGroup {
   public String handleTraining(PlatformType platform, String openId) {
     log.debug("处理历练请求 - Platform: {}, OpenId: {}", platform, openId);
     return switch (trainingService.startTraining(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> msg;
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var vo) ->
           vo.isSuccess()
               ? String.format("开始在%s历练，使用「历练结算」结算收益。", vo.getMapName())
@@ -53,7 +53,7 @@ public class MapCommandHandler implements CommandGroup {
   public String handleEndTraining(PlatformType platform, String openId) {
     log.debug("处理结束历练请求 - Platform: {}, OpenId: {}", platform, openId);
     return switch (trainingService.endTraining(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> msg;
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var vo) -> formatTrainingReward(vo);
     };
   }
@@ -61,7 +61,7 @@ public class MapCommandHandler implements CommandGroup {
   public String handleMapList(PlatformType platform, String openId) {
     log.debug("处理地图列表查询 - Platform: {}, OpenId: {}", platform, openId);
     return switch (mapService.getAllMaps(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> msg;
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var vo) -> vo.isEmpty() ? "暂无可用地图" : formatMapList(vo);
     };
   }
@@ -69,7 +69,7 @@ public class MapCommandHandler implements CommandGroup {
   public String handleCurrentMap(PlatformType platform, String openId) {
     log.debug("处理当前地图查询 - Platform: {}, OpenId: {}", platform, openId);
     return switch (mapService.getCurrentMapInfo(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> msg;
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var vo) -> formatCurrentMap(vo);
     };
   }
@@ -79,7 +79,7 @@ public class MapCommandHandler implements CommandGroup {
   public String handleBountyList(PlatformType platform, String openId) {
     log.debug("处理悬赏列表 - Platform: {}, OpenId: {}", platform, openId);
     return switch (bountyService.listBounties(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> msg;
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var vo) -> formatBountyList(vo);
     };
   }
@@ -87,7 +87,7 @@ public class MapCommandHandler implements CommandGroup {
   public String handleBountyStatus(PlatformType platform, String openId) {
     log.debug("处理悬赏状态 - Platform: {}, OpenId: {}", platform, openId);
     return switch (bountyService.getBountyStatus(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> msg;
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var vo) -> formatBountyStatus(vo);
     };
   }
@@ -97,7 +97,7 @@ public class MapCommandHandler implements CommandGroup {
     try {
       Long id = Long.parseLong(bountyId);
       return switch (bountyService.startBounty(platform, openId, id)) {
-        case ServiceResult.Failure(var code, var msg) -> msg;
+        case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
         case ServiceResult.Success(var msg) -> msg;
       };
     } catch (NumberFormatException e) {
@@ -108,7 +108,7 @@ public class MapCommandHandler implements CommandGroup {
   public String handleCompleteBounty(PlatformType platform, String openId) {
     log.debug("处理完成悬赏 - Platform: {}, OpenId: {}", platform, openId);
     return switch (bountyService.completeBounty(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> msg;
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var vo) -> formatBountyReward(vo);
     };
   }
@@ -116,7 +116,7 @@ public class MapCommandHandler implements CommandGroup {
   public String handleAbandonBounty(PlatformType platform, String openId) {
     log.debug("处理放弃悬赏 - Platform: {}, OpenId: {}", platform, openId);
     return switch (bountyService.abandonBounty(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> msg;
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var msg) -> msg;
     };
   }

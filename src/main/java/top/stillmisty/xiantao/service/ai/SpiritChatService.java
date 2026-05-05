@@ -55,62 +55,45 @@ public class SpiritChatService {
 
   public String chatWithSpirit(Long userId, String userInput) {
     try {
-      return ScopedValue.where(UserContext.CURRENT_USER, userId)
-          .call(
-              () -> {
-                Fudi fudi =
-                    fudiRepository
-                        .findByUserId(userId)
-                        .orElseThrow(() -> new IllegalStateException("未找到福地"));
-                Spirit spirit =
-                    spiritRepository
-                        .findByFudiId(fudi.getId())
-                        .orElseThrow(() -> new IllegalStateException("地灵不存在"));
+      Fudi fudi =
+          fudiRepository.findByUserId(userId).orElseThrow(() -> new IllegalStateException("未找到福地"));
+      Spirit spirit =
+          spiritRepository
+              .findByFudiId(fudi.getId())
+              .orElseThrow(() -> new IllegalStateException("地灵不存在"));
 
-                fudi.touchOnlineTime();
-                spirit.updateEmotionState();
-                spiritRepository.save(spirit);
+      fudi.touchOnlineTime();
+      spirit.updateEmotionState();
+      spiritRepository.save(spirit);
 
-                // 生成福地事件
-                List<FudiEvent> events =
-                    fudiEventGenerator.generateEvents(spirit.getLastEventTime());
+      List<FudiEvent> events = fudiEventGenerator.generateEvents(spirit.getLastEventTime());
 
-                // 获取历史记录
-                int maxHistory = calculateMaxHistory(fudi.getTribulationStage());
-                List<SpiritHistory> history =
-                    spiritHistoryRepository.findByFudiIdOrderByCreateTimeDesc(
-                        fudi.getId(), maxHistory);
+      int maxHistory = calculateMaxHistory(fudi.getTribulationStage());
+      List<SpiritHistory> history =
+          spiritHistoryRepository.findByFudiIdOrderByCreateTimeDesc(fudi.getId(), maxHistory);
 
-                String systemPrompt = buildPrompt(fudi, spirit, events, history);
+      String systemPrompt = buildPrompt(fudi, spirit, events, history);
 
-                // 保存用户输入到历史
-                saveHistory(fudi.getId(), "user", userInput, spirit.getEmotionState());
+      saveHistory(fudi.getId(), "user", userInput, spirit.getEmotionState());
 
-                String response =
-                    spiritChatClient
-                        .prompt()
-                        .system(systemPrompt)
-                        .user(userInput)
-                        .tools(spiritTools, spiritEmotionTools)
-                        .call()
-                        .content();
+      String response =
+          spiritChatClient
+              .prompt()
+              .system(systemPrompt)
+              .user(userInput)
+              .tools(spiritTools, spiritEmotionTools)
+              .call()
+              .content();
 
-                // 保存地灵回复到历史
-                saveHistory(fudi.getId(), "assistant", response, spirit.getEmotionState());
+      saveHistory(fudi.getId(), "assistant", response, spirit.getEmotionState());
 
-                // 更新最后事件时间
-                if (!events.isEmpty()) {
-                  spirit.setLastEventTime(LocalDateTime.now());
-                  spiritRepository.save(spirit);
-                }
+      if (!events.isEmpty()) {
+        spirit.setLastEventTime(LocalDateTime.now());
+        spiritRepository.save(spirit);
+      }
 
-                log.info(
-                    "地灵对话成功 - userId: {}, mbti: {}, input: {}",
-                    userId,
-                    spirit.getMbtiType(),
-                    userInput);
-                return response;
-              });
+      log.info("地灵对话成功 - userId: {}, mbti: {}, input: {}", userId, spirit.getMbtiType(), userInput);
+      return response;
     } catch (Exception e) {
       log.error("地灵对话失败 - userId: {}, error: {}", userId, e.getMessage(), e);
       return "地灵暂时无法回应，请稍后再试。";

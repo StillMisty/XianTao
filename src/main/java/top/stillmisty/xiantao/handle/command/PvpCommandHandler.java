@@ -17,7 +17,7 @@ public class PvpCommandHandler implements CommandGroup {
 
   public String handleSpar(PlatformType platform, String openId, String targetNickname) {
     return switch (pvpService.spar(platform, openId, targetNickname)) {
-      case ServiceResult.Failure(var code, var msg) -> msg;
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var msg) -> msg;
     };
   }

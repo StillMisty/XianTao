@@ -53,93 +53,61 @@ public class FudiService {
 
   @Authenticated
   public ServiceResult<FudiStatusVO> getFudiStatus(PlatformType platform, String openId) {
-    try {
-      Long userId = UserContext.getCurrentUserId();
-      return new ServiceResult.Success<>(getFudiStatus(userId));
-    } catch (IllegalStateException | IllegalArgumentException e) {
-      return ServiceResult.businessFailure(e.getMessage());
-    }
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(getFudiStatus(userId));
   }
 
   @Authenticated
   @Transactional
   public ServiceResult<CollectVO> collect(PlatformType platform, String openId, String position) {
-    try {
-      Long userId = UserContext.getCurrentUserId();
-      return new ServiceResult.Success<>(collect(userId, position));
-    } catch (IllegalStateException | IllegalArgumentException e) {
-      return ServiceResult.businessFailure(e.getMessage());
-    }
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(collect(userId, position));
   }
 
   @Authenticated
   @Transactional
   public ServiceResult<CollectAllVO> collectAll(PlatformType platform, String openId) {
-    try {
-      Long userId = UserContext.getCurrentUserId();
-      return new ServiceResult.Success<>(collectAll(userId));
-    } catch (IllegalStateException | IllegalArgumentException e) {
-      return ServiceResult.businessFailure(e.getMessage());
-    }
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(collectAll(userId));
   }
 
   @Authenticated
   @Transactional
   public ServiceResult<CellOperationVO> buildCell(
       PlatformType platform, String openId, String position, CellType type) {
-    try {
-      Long userId = UserContext.getCurrentUserId();
-      return new ServiceResult.Success<>(buildCell(userId, position, type));
-    } catch (IllegalStateException | IllegalArgumentException e) {
-      return ServiceResult.businessFailure(e.getMessage());
-    }
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(buildCell(userId, position, type));
   }
 
   @Authenticated
   @Transactional
   public ServiceResult<CellOperationVO> removeCell(
       PlatformType platform, String openId, String position) {
-    try {
-      Long userId = UserContext.getCurrentUserId();
-      return new ServiceResult.Success<>(removeCell(userId, position));
-    } catch (IllegalStateException | IllegalArgumentException e) {
-      return ServiceResult.businessFailure(e.getMessage());
-    }
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(removeCell(userId, position));
   }
 
   @Authenticated
   @Transactional
   public ServiceResult<UpgradeCellVO> upgradeCell(
       PlatformType platform, String openId, String position) {
-    try {
-      Long userId = UserContext.getCurrentUserId();
-      return new ServiceResult.Success<>(upgradeCell(userId, position));
-    } catch (IllegalStateException | IllegalArgumentException e) {
-      return ServiceResult.businessFailure(e.getMessage());
-    }
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(upgradeCell(userId, position));
   }
 
   @Authenticated
   @Transactional
   public ServiceResult<GiveGiftVO> giveGift(PlatformType platform, String openId, String itemName) {
-    try {
-      Long userId = UserContext.getCurrentUserId();
-      return new ServiceResult.Success<>(giveGift(userId, itemName));
-    } catch (IllegalStateException | IllegalArgumentException e) {
-      return ServiceResult.businessFailure(e.getMessage());
-    }
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(giveGift(userId, itemName));
   }
 
   @Authenticated
   @Transactional
   public ServiceResult<TriggerTribulationVO> triggerTribulation(
       PlatformType platform, String openId) {
-    try {
-      Long userId = UserContext.getCurrentUserId();
-      return new ServiceResult.Success<>(triggerTribulation(userId));
-    } catch (IllegalStateException | IllegalArgumentException e) {
-      return ServiceResult.businessFailure(e.getMessage());
-    }
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(triggerTribulation(userId));
   }
 
   // ===================== 内部 API =====================
@@ -383,7 +351,7 @@ public class FudiService {
     int totalItems = 0;
 
     // 收取灵田
-    List<Long> toRemove = new ArrayList<>();
+    List<FudiCell> toReset = new ArrayList<>();
     for (FudiCell cell : cells) {
       if (cell.getCellType() != CellType.FARM) continue;
       if (!(cell.getConfig() instanceof CellConfig.FarmConfig farm)) continue;
@@ -394,7 +362,7 @@ public class FudiService {
 
       boolean isPerennial = farm.harvestCount() < farmService.getMaxHarvest(farm.cropId());
       if (!isPerennial && progress > 1.0 && farmService.isWilted(cell)) {
-        toRemove.add(cell.getId());
+        toReset.add(cell);
         continue;
       }
 
@@ -406,15 +374,17 @@ public class FudiService {
         cell.setConfig(farm.withHarvestCount(hCount));
         farmService.replantAfterHarvest(cell);
       } else {
-        toRemove.add(cell.getId());
+        toReset.add(cell);
       }
 
       totalItems += yield;
       harvestCount++;
     }
 
-    for (Long id : toRemove) {
-      fudiCellRepository.deleteById(id);
+    for (FudiCell cell : toReset) {
+      cell.setCellType(CellType.EMPTY);
+      cell.clearConfig();
+      fudiCellRepository.save(cell);
     }
 
     // 收取兽栏产出

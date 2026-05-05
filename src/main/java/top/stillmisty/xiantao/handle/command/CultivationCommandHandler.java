@@ -41,20 +41,23 @@ public class CultivationCommandHandler implements CommandGroup {
   /** 注册（UserService.createUser 内部做重复注册检查） */
   public String handleRegister(PlatformType platform, String openId, String nickname) {
     log.debug("处理注册请求 - Platform: {}, OpenId: {}, Nickname: {}", platform, openId, nickname);
-    var result = userService.createUser(platform, openId, nickname);
-    if (!result.success()) {
-      log.error("用户创建失败 - OpenId: {}, Nickname: {}", openId, nickname);
-      return result.message() != null ? result.message() : "系统错误：用户创建失败，请联系管理员";
-    }
-    log.info("用户注册成功 - UserId: {}, Nickname: {}", result.userId(), result.nickname());
-    return String.format("欢迎踏入仙途！您的道号为：%s\n输入「状态」查看您的角色信息", result.nickname());
+    return switch (userService.createUser(platform, openId, nickname)) {
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Success(var result) -> {
+        if (!result.success()) {
+          yield result.message() != null ? result.message() : "系统错误：用户创建失败，请联系管理员";
+        }
+        log.info("用户注册成功 - UserId: {}, Nickname: {}", result.userId(), result.nickname());
+        yield "欢迎踏入仙途！您的道号为：" + result.nickname() + "\n输入「状态」查看您的角色信息";
+      }
+    };
   }
 
   public String handleStatus(PlatformType platform, String openId) {
     log.debug("处理状态查询 - Platform: {}, OpenId: {}", platform, openId);
     var status = characterStatusService.getCharacterStatus(platform, openId);
     return switch (status) {
-      case ServiceResult.Failure(var code, var msg) -> msg;
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var vo) -> formatCharacterStatus(vo);
     };
   }
@@ -62,28 +65,28 @@ public class CultivationCommandHandler implements CommandGroup {
   public String handleInventory(PlatformType platform, String openId) {
     log.debug("处理背包查询 - Platform: {}, OpenId: {}", platform, openId);
     return switch (inventoryService.getInventorySummary(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> msg;
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var vo) -> formatInventorySummary(vo);
     };
   }
 
   public String handleSeedInventory(PlatformType platform, String openId) {
     return switch (inventoryService.getSeedInventory(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> msg;
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var entries) -> formatItemList("种子", entries);
     };
   }
 
   public String handleEquipmentInventory(PlatformType platform, String openId) {
     return switch (inventoryService.getEquipmentInventory(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> msg;
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var entries) -> formatItemList("装备", entries);
     };
   }
 
   public String handleEggInventory(PlatformType platform, String openId) {
     return switch (inventoryService.getEggInventory(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> msg;
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var entries) -> formatItemList("兽卵", entries);
     };
   }
@@ -100,7 +103,7 @@ public class CultivationCommandHandler implements CommandGroup {
   public String handleEquip(PlatformType platform, String openId, String itemName) {
     log.debug("处理装备穿戴 - Platform: {}, OpenId: {}, ItemName: {}", platform, openId, itemName);
     return switch (equipmentService.equipItem(platform, openId, itemName)) {
-      case ServiceResult.Failure(var code, var msg) -> msg;
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var vo) ->
           vo.isSuccess() ? formatEquipResult(vo) : vo.getMessage();
     };
@@ -109,7 +112,7 @@ public class CultivationCommandHandler implements CommandGroup {
   public String handleUnequip(PlatformType platform, String openId, String slotName) {
     log.debug("处理装备卸下 - Platform: {}, OpenId: {}, SlotName: {}", platform, openId, slotName);
     return switch (equipmentService.unequipItem(platform, openId, slotName)) {
-      case ServiceResult.Failure(var code, var msg) -> msg;
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var vo) ->
           vo.isSuccess() ? formatUnequipResult(vo) : vo.getMessage();
     };
@@ -118,7 +121,7 @@ public class CultivationCommandHandler implements CommandGroup {
   public String handleBreakthrough(PlatformType platform, String openId) {
     log.debug("处理突破 - Platform: {}, OpenId: {}", platform, openId);
     return switch (cultivationService.attemptBreakthrough(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> msg;
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var vo) -> formatBreakthroughResult(vo);
     };
   }
@@ -127,7 +130,7 @@ public class CultivationCommandHandler implements CommandGroup {
       PlatformType platform, String openId, String protegeNickname) {
     log.debug("处理护道 - Platform: {}, OpenId: {}, Protege: {}", platform, openId, protegeNickname);
     return switch (cultivationService.establishProtection(platform, openId, protegeNickname)) {
-      case ServiceResult.Failure(var code, var msg) -> msg;
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var vo) ->
           vo.isSuccess() ? formatProtectionResult(vo) : vo.getMessage();
     };
@@ -137,7 +140,7 @@ public class CultivationCommandHandler implements CommandGroup {
       PlatformType platform, String openId, String protegeNickname) {
     log.debug("处理护道解除 - Platform: {}, OpenId: {}, Protege: {}", platform, openId, protegeNickname);
     return switch (cultivationService.removeProtection(platform, openId, protegeNickname)) {
-      case ServiceResult.Failure(var code, var msg) -> msg;
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var vo) -> vo.getMessage();
     };
   }
@@ -145,7 +148,7 @@ public class CultivationCommandHandler implements CommandGroup {
   public String handleDiscard(PlatformType platform, String openId, String itemName) {
     log.debug("处理丢弃 - Platform: {}, OpenId: {}, ItemName: {}", platform, openId, itemName);
     return switch (discardService.discardItem(platform, openId, itemName)) {
-      case ServiceResult.Failure(var code, var msg) -> msg;
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var msg) -> msg;
     };
   }
@@ -153,7 +156,7 @@ public class CultivationCommandHandler implements CommandGroup {
   public String handleViewPlayer(PlatformType platform, String openId, String targetNickname) {
     log.debug("处理查看 - Platform: {}, OpenId: {}, Target: {}", platform, openId, targetNickname);
     return switch (playerViewService.viewPlayer(platform, openId, targetNickname)) {
-      case ServiceResult.Failure(var code, var msg) -> msg;
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var vo) -> formatPlayerView(vo);
     };
   }
@@ -161,7 +164,7 @@ public class CultivationCommandHandler implements CommandGroup {
   public String handleQueryProtection(PlatformType platform, String openId) {
     log.debug("处理护道查询 - Platform: {}, OpenId: {}", platform, openId);
     return switch (cultivationService.queryProtectionInfo(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> msg;
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var vo) ->
           vo.isSuccess() ? formatProtectionQueryResult(vo) : vo.getMessage();
     };

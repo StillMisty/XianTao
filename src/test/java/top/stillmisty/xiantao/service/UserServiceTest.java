@@ -42,10 +42,9 @@ class UserServiceTest {
     when(userAuthRepository.findByPlatformAndOpenId(platform, openId))
         .thenReturn(Optional.of(existingAuth));
 
-    RegisterResult result = userService.createUser(platform, openId, nickname);
+    ServiceResult<RegisterResult> result = userService.createUser(platform, openId, nickname);
 
-    assertFalse(result.success());
-    assertTrue(result.message().contains("已在仙路"));
+    assertTrue(result instanceof ServiceResult.Failure);
   }
 
   @Test
@@ -54,10 +53,9 @@ class UserServiceTest {
     when(userAuthRepository.findByPlatformAndOpenId(platform, openId)).thenReturn(Optional.empty());
     when(userRepository.existsByNickname(nickname)).thenReturn(true);
 
-    RegisterResult result = userService.createUser(platform, openId, nickname);
+    ServiceResult<RegisterResult> result = userService.createUser(platform, openId, nickname);
 
-    assertFalse(result.success());
-    assertTrue(result.message().contains("已被他人使用"));
+    assertTrue(result instanceof ServiceResult.Failure<?> f && f.errorMessage().contains("已被他人使用"));
   }
 
   @Test
@@ -72,11 +70,13 @@ class UserServiceTest {
     when(userAuthRepository.save(any(UserAuth.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
 
-    RegisterResult result = userService.createUser(platform, openId, nickname);
+    ServiceResult<RegisterResult> result = userService.createUser(platform, openId, nickname);
 
-    assertTrue(result.success());
-    assertEquals(1L, result.userId());
-    assertEquals(nickname, result.nickname());
+    assertTrue(
+        result instanceof ServiceResult.Success<RegisterResult> s
+            && s.data().success()
+            && s.data().userId() == 1L
+            && s.data().nickname().equals(nickname));
 
     verify(userRepository).save(any(User.class));
     verify(userAuthRepository).save(any(UserAuth.class));

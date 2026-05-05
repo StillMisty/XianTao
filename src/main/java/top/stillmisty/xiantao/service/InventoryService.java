@@ -36,43 +36,27 @@ public class InventoryService {
   @Authenticated
   public ServiceResult<InventorySummaryVO> getInventorySummary(
       PlatformType platform, String openId) {
-    try {
-      Long userId = UserContext.getCurrentUserId();
-      return new ServiceResult.Success<>(getInventorySummary(userId));
-    } catch (IllegalStateException | IllegalArgumentException e) {
-      return ServiceResult.businessFailure(e.getMessage());
-    }
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(getInventorySummary(userId));
   }
 
   @Authenticated
   public ServiceResult<List<ItemEntry>> getSeedInventory(PlatformType platform, String openId) {
-    try {
-      Long userId = UserContext.getCurrentUserId();
-      return new ServiceResult.Success<>(getSeedInventory(userId));
-    } catch (IllegalStateException | IllegalArgumentException e) {
-      return ServiceResult.businessFailure(e.getMessage());
-    }
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(getSeedInventory(userId));
   }
 
   @Authenticated
   public ServiceResult<List<ItemEntry>> getEquipmentInventory(
       PlatformType platform, String openId) {
-    try {
-      Long userId = UserContext.getCurrentUserId();
-      return new ServiceResult.Success<>(getEquipmentInventory(userId));
-    } catch (IllegalStateException | IllegalArgumentException e) {
-      return ServiceResult.businessFailure(e.getMessage());
-    }
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(getEquipmentInventory(userId));
   }
 
   @Authenticated
   public ServiceResult<List<ItemEntry>> getEggInventory(PlatformType platform, String openId) {
-    try {
-      Long userId = UserContext.getCurrentUserId();
-      return new ServiceResult.Success<>(getEggInventory(userId));
-    } catch (IllegalStateException | IllegalArgumentException e) {
-      return ServiceResult.businessFailure(e.getMessage());
-    }
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(getEggInventory(userId));
   }
 
   // ===================== 内部 API（需预先完成认证） =====================

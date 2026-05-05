@@ -28,12 +28,8 @@ public class TravelService {
   @Transactional
   public ServiceResult<TravelResultVO> startTravel(
       PlatformType platform, String openId, String mapName) {
-    try {
-      Long userId = UserContext.getCurrentUserId();
-      return new ServiceResult.Success<>(startTravel(userId, mapName));
-    } catch (IllegalStateException | IllegalArgumentException e) {
-      return ServiceResult.businessFailure(e.getMessage());
-    }
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(startTravel(userId, mapName));
   }
 
   // ===================== 内部 API =====================

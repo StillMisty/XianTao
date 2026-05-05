@@ -25,12 +25,8 @@ public class PlayerViewService {
   @Authenticated
   public ServiceResult<PlayerViewVO> viewPlayer(
       PlatformType platform, String openId, String targetNickname) {
-    try {
-      Long userId = UserContext.getCurrentUserId();
-      return new ServiceResult.Success<>(viewPlayer(userId, targetNickname));
-    } catch (IllegalStateException e) {
-      return ServiceResult.businessFailure(e.getMessage());
-    }
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(viewPlayer(userId, targetNickname));
   }
 
   public PlayerViewVO viewPlayer(Long userId, String targetNickname) {
@@ -51,13 +47,21 @@ public class PlayerViewService {
 
     String statusName = target.getStatus() != null ? target.getStatus().getName() : "未知";
 
+    int equipAttack = 0, equipDefense = 0;
+    for (Equipment e : equipped) {
+      equipAttack += e.getAttackBonus();
+      equipDefense += e.getDefenseBonus();
+    }
+    int attack = target.getEffectiveStatStr() * 2 + equipAttack;
+    int defense = target.getEffectiveStatCon() + equipDefense;
+
     return new PlayerViewVO(
         target.getNickname(),
         target.getLevel(),
         target.getHpCurrent(),
         target.calculateMaxHp(),
-        0,
-        0,
+        attack,
+        defense,
         target.getEffectiveStatStr(),
         target.getEffectiveStatCon(),
         target.getEffectiveStatAgi(),

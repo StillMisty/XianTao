@@ -32,7 +32,7 @@ public class UseItemCommandHandler implements CommandGroup {
         itemName,
         args);
     return switch (itemUseService.useItem(platform, openId, itemName, args)) {
-      case ServiceResult.Failure(var code, var msg) -> msg;
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var result) -> result;
     };
   }

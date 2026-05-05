@@ -40,24 +40,16 @@ public class FarmService {
   @Transactional
   public ServiceResult<FarmCellVO> plantCropByName(
       PlatformType platform, String openId, String position, String cropName) {
-    try {
-      Long userId = UserContext.getCurrentUserId();
-      return new ServiceResult.Success<>(plantCropByName(userId, position, cropName));
-    } catch (IllegalStateException | IllegalArgumentException e) {
-      return ServiceResult.businessFailure(e.getMessage());
-    }
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(plantCropByName(userId, position, cropName));
   }
 
   @Authenticated
   @Transactional
   public ServiceResult<FarmCellVO> plantCropByInput(
       PlatformType platform, String openId, String position, String input) {
-    try {
-      Long userId = UserContext.getCurrentUserId();
-      return new ServiceResult.Success<>(plantCropByInput(userId, position, input));
-    } catch (IllegalStateException | IllegalArgumentException e) {
-      return ServiceResult.businessFailure(e.getMessage());
-    }
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(plantCropByInput(userId, position, input));
   }
 
   // ===================== 内部 API =====================

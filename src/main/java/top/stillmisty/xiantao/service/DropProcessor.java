@@ -1,6 +1,7 @@
 package top.stillmisty.xiantao.service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
@@ -41,11 +42,14 @@ public class DropProcessor {
     Map<Long, EquipmentTemplate> equipTmplMap = loadEquipmentTemplates(equipmentDrops);
     Map<Long, ItemTemplate> itemTmplMap = loadItemTemplates(itemDrops);
 
+    List<DropItem> candidates = new ArrayList<>();
+
     for (var entry : equipmentDrops) {
       if (ThreadLocalRandom.current().nextInt(100) < entry.weight()) {
         EquipmentTemplate tmplEquip = equipTmplMap.get(entry.templateId());
         if (tmplEquip != null) {
-          drops.add(new DropItem(DropType.EQUIPMENT, entry.templateId(), tmplEquip.getName(), 1));
+          candidates.add(
+              new DropItem(DropType.EQUIPMENT, entry.templateId(), tmplEquip.getName(), 1));
         }
       }
     }
@@ -55,9 +59,21 @@ public class DropProcessor {
         ItemTemplate tmplItem = itemTmplMap.get(entry.templateId());
         if (tmplItem != null) {
           int qty = 1 + ThreadLocalRandom.current().nextInt(3);
-          drops.add(new DropItem(DropType.ITEM, entry.templateId(), tmplItem.getName(), qty));
+          candidates.add(new DropItem(DropType.ITEM, entry.templateId(), tmplItem.getName(), qty));
         }
       }
+    }
+
+    int maxDrops = 2 + ThreadLocalRandom.current().nextInt(2);
+    candidates.sort(
+        Comparator.comparingInt(
+            a -> {
+              var entry =
+                  dropTable.stream().filter(d -> d.templateId().equals(a.templateId())).findFirst();
+              return entry.map(e -> -e.weight()).orElse(0);
+            }));
+    for (int i = 0; i < Math.min(maxDrops, candidates.size()); i++) {
+      drops.add(candidates.get(i));
     }
 
     return drops;

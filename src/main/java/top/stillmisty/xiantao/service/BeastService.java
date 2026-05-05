@@ -72,94 +72,62 @@ public class BeastService {
   @Transactional
   public ServiceResult<PenCellVO> hatchBeast(
       PlatformType platform, String openId, String position, String eggName) {
-    try {
-      Long userId = UserContext.getCurrentUserId();
-      return new ServiceResult.Success<>(hatchBeast(userId, position, eggName));
-    } catch (IllegalStateException | IllegalArgumentException e) {
-      return ServiceResult.businessFailure(e.getMessage());
-    }
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(hatchBeast(userId, position, eggName));
   }
 
   @Authenticated
   @Transactional
   public ServiceResult<PenCellVO> hatchBeastByInput(
       PlatformType platform, String openId, String position, String input) {
-    try {
-      Long userId = UserContext.getCurrentUserId();
-      return new ServiceResult.Success<>(hatchBeastByInput(userId, position, input));
-    } catch (IllegalStateException | IllegalArgumentException e) {
-      return ServiceResult.businessFailure(e.getMessage());
-    }
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(hatchBeastByInput(userId, position, input));
   }
 
   @Authenticated
   @Transactional
   public ServiceResult<ReleaseBeastVO> releaseBeast(
       PlatformType platform, String openId, String position) {
-    try {
-      Long userId = UserContext.getCurrentUserId();
-      return new ServiceResult.Success<>(releaseBeast(userId, position));
-    } catch (IllegalStateException | IllegalArgumentException e) {
-      return ServiceResult.businessFailure(e.getMessage());
-    }
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(releaseBeast(userId, position));
   }
 
   @Authenticated
   @Transactional
   public ServiceResult<PenCellVO> evolveBeast(
       PlatformType platform, String openId, String position, String mode) {
-    try {
-      Long userId = UserContext.getCurrentUserId();
-      return new ServiceResult.Success<>(evolveBeast(userId, position, mode));
-    } catch (IllegalStateException | IllegalArgumentException e) {
-      return ServiceResult.businessFailure(e.getMessage());
-    }
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(evolveBeast(userId, position, mode));
   }
 
   @Authenticated
   @Transactional
   public ServiceResult<ActionResultVO> deployBeast(
       PlatformType platform, String openId, String position) {
-    try {
-      Long userId = UserContext.getCurrentUserId();
-      return new ServiceResult.Success<>(deployBeast(userId, position));
-    } catch (IllegalStateException | IllegalArgumentException e) {
-      return ServiceResult.businessFailure(e.getMessage());
-    }
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(deployBeast(userId, position));
   }
 
   @Authenticated
   @Transactional
   public ServiceResult<Object> undeployBeast(
       PlatformType platform, String openId, String position) {
-    try {
-      Long userId = UserContext.getCurrentUserId();
-      return new ServiceResult.Success<>(undeployBeast(userId, position));
-    } catch (IllegalStateException | IllegalArgumentException e) {
-      return ServiceResult.businessFailure(e.getMessage());
-    }
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(undeployBeast(userId, position));
   }
 
   @Authenticated
   @Transactional
   public ServiceResult<Object> recoverBeast(PlatformType platform, String openId, String position) {
-    try {
-      Long userId = UserContext.getCurrentUserId();
-      return new ServiceResult.Success<>(recoverBeast(userId, position));
-    } catch (IllegalStateException | IllegalArgumentException e) {
-      return ServiceResult.businessFailure(e.getMessage());
-    }
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(recoverBeast(userId, position));
   }
 
   @Authenticated
   public ServiceResult<List<BeastStatusVO>> getDeployedBeasts(
       PlatformType platform, String openId) {
-    try {
-      Long userId = UserContext.getCurrentUserId();
-      return new ServiceResult.Success<>(getDeployedBeasts(userId));
-    } catch (IllegalStateException | IllegalArgumentException e) {
-      return ServiceResult.businessFailure(e.getMessage());
-    }
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(getDeployedBeasts(userId));
   }
 
   // ===================== 内部 API =====================

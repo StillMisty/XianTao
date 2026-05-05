@@ -163,35 +163,53 @@ public class PillRefiningService {
       List<ItemProperties.ElementRequirement> requirements,
       ItemTemplate recipeTemplate) {
     Map<String, Integer> elementTotals = new HashMap<>();
-    Map<String, Integer> usedHerbs = new HashMap<>();
-    List<String> missingElements = new ArrayList<>();
+    Map<String, Integer> usedHerbs = new LinkedHashMap<>();
+    Map<StackableItem, Integer> remainingQuantities = new HashMap<>();
+    for (StackableItem herb : herbs) {
+      remainingQuantities.put(herb, herb.getQuantity());
+    }
 
-    for (var req : requirements) {
-      String element = req.element();
-      int min = req.min();
-      int currentTotal = elementTotals.getOrDefault(element, 0);
-      if (currentTotal < min) {
-        boolean found = false;
+    for (int pass = 0; pass < requirements.size(); pass++) {
+      boolean anyProgress = false;
+      for (var req : requirements) {
+        String element = req.element();
+        int min = req.min();
+        int currentTotal = elementTotals.getOrDefault(element, 0);
+        if (currentTotal >= min) continue;
+
+        int bestGain = 0;
+        StackableItem bestHerb = null;
+        int bestQty = 0;
+
         for (StackableItem herb : herbs) {
+          Integer remaining = remainingQuantities.get(herb);
+          if (remaining == null || remaining <= 0) continue;
           int herbValue = herb.getElementValue(element);
-          if (herbValue > 0 && !usedHerbs.containsKey(herb.getName())) {
-            int needed = (int) Math.ceil((double) (min - currentTotal) / herbValue);
-            int available = herb.getQuantity();
-            int toUse = Math.min(needed, available);
-            if (toUse > 0) {
-              elementTotals.merge(element, herbValue * toUse, Integer::sum);
-              usedHerbs.put(herb.getName(), toUse);
-              currentTotal = elementTotals.get(element);
-              if (currentTotal >= min) {
-                found = true;
-                break;
-              }
-            }
+          if (herbValue <= 0) continue;
+          int needed = (int) Math.ceil((double) (min - currentTotal) / herbValue);
+          int toUse = Math.min(needed, remaining);
+          int totalGain = computeTotalGain(herb, toUse, requirements, elementTotals);
+          if (totalGain > bestGain || (totalGain == bestGain && toUse < bestQty)) {
+            bestGain = totalGain;
+            bestHerb = herb;
+            bestQty = toUse;
           }
         }
-        if (!found) {
-          missingElements.add(element);
+
+        if (bestHerb != null && bestQty > 0) {
+          applyHerbElements(bestHerb, bestQty, elementTotals);
+          remainingQuantities.merge(bestHerb, -bestQty, Integer::sum);
+          usedHerbs.merge(bestHerb.getName(), bestQty, Integer::sum);
+          anyProgress = true;
         }
+      }
+      if (!anyProgress) break;
+    }
+
+    List<String> missingElements = new ArrayList<>();
+    for (var req : requirements) {
+      if (elementTotals.getOrDefault(req.element(), 0) < req.min()) {
+        missingElements.add(req.element());
       }
     }
 
@@ -250,6 +268,34 @@ public class PillRefiningService {
         quality,
         usedHerbs,
         null);
+  }
+
+  private int computeTotalGain(
+      StackableItem herb,
+      int quantity,
+      List<ItemProperties.ElementRequirement> requirements,
+      Map<String, Integer> currentTotals) {
+    int gain = 0;
+    for (var req : requirements) {
+      int current = currentTotals.getOrDefault(req.element(), 0);
+      int min = req.min();
+      if (current >= min) continue;
+      int contrib = herb.getElementValue(req.element()) * quantity;
+      if (contrib > 0) {
+        gain += Math.min(contrib, min - current);
+      }
+    }
+    return gain;
+  }
+
+  private void applyHerbElements(
+      StackableItem herb, int quantity, Map<String, Integer> elementTotals) {
+    for (String element : List.of("metal", "wood", "water", "fire", "earth")) {
+      int value = herb.getElementValue(element);
+      if (value > 0) {
+        elementTotals.merge(element, value * quantity, Integer::sum);
+      }
+    }
   }
 
   private boolean matchesRequirements(

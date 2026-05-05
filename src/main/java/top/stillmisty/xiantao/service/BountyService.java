@@ -54,53 +54,33 @@ public class BountyService {
 
   @Authenticated
   public ServiceResult<List<BountyVO>> listBounties(PlatformType platform, String openId) {
-    try {
-      Long userId = UserContext.getCurrentUserId();
-      return new ServiceResult.Success<>(listBounties(userId));
-    } catch (IllegalStateException | IllegalArgumentException e) {
-      return ServiceResult.businessFailure(e.getMessage());
-    }
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(listBounties(userId));
   }
 
   @Authenticated
   public ServiceResult<BountyStatusVO> getBountyStatus(PlatformType platform, String openId) {
-    try {
-      Long userId = UserContext.getCurrentUserId();
-      return new ServiceResult.Success<>(getBountyStatus(userId));
-    } catch (IllegalStateException | IllegalArgumentException e) {
-      return ServiceResult.businessFailure(e.getMessage());
-    }
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(getBountyStatus(userId));
   }
 
   @Authenticated
   public ServiceResult<String> startBounty(PlatformType platform, String openId, Long bountyId) {
-    try {
-      Long userId = UserContext.getCurrentUserId();
-      return new ServiceResult.Success<>(startBounty(userId, bountyId));
-    } catch (IllegalStateException | IllegalArgumentException e) {
-      return ServiceResult.businessFailure(e.getMessage());
-    }
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(startBounty(userId, bountyId));
   }
 
   @Authenticated
   @Transactional
   public ServiceResult<BountyRewardVO> completeBounty(PlatformType platform, String openId) {
-    try {
-      Long userId = UserContext.getCurrentUserId();
-      return new ServiceResult.Success<>(completeBounty(userId));
-    } catch (IllegalStateException | IllegalArgumentException e) {
-      return ServiceResult.businessFailure(e.getMessage());
-    }
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(completeBounty(userId));
   }
 
   @Authenticated
   public ServiceResult<String> abandonBounty(PlatformType platform, String openId) {
-    try {
-      Long userId = UserContext.getCurrentUserId();
-      return new ServiceResult.Success<>(abandonBounty(userId));
-    } catch (IllegalStateException | IllegalArgumentException e) {
-      return ServiceResult.businessFailure(e.getMessage());
-    }
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(abandonBounty(userId));
   }
 
   // ===================== 内部 API =====================
@@ -338,12 +318,12 @@ public class BountyService {
       }
       case BountyRewardPool.BeastEgg _ -> {
         List<ItemTemplate> eggs = itemTemplateRepository.findByType(ItemType.BEAST_EGG);
-        yield !eggs.isEmpty()
-            ? List.of(
-                new BountyRewardItem.BeastEggReward(
-                    eggs.get(rng.nextInt(eggs.size())).getId(),
-                    eggs.get(rng.nextInt(eggs.size())).getName()))
-            : List.of();
+        if (!eggs.isEmpty()) {
+          int idx = rng.nextInt(eggs.size());
+          yield List.of(
+              new BountyRewardItem.BeastEggReward(eggs.get(idx).getId(), eggs.get(idx).getName()));
+        }
+        yield List.of();
       }
       case BountyRewardPool.EquipmentReward(_, var templateId, var name) -> {
         EquipmentTemplate equipmentTemplate =

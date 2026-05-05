@@ -67,8 +67,6 @@ public class LeaderboardCommandHandler implements CommandGroup {
   @Override
   public List<CommandEntry> commands() {
     return List.of(
-        new CommandEntry("排位", "查看修为排行榜", "排位"),
-        new CommandEntry("排行榜", "查看修为排行榜", "排行榜"),
-        new CommandEntry("排行榜 灵石", "查看灵石排行榜", "排行榜 灵石"));
+        new CommandEntry("排行榜", "查看修为排行榜", "排行榜"), new CommandEntry("排行榜 灵石", "查看灵石排行榜", "排行榜 灵石"));
   }
 }

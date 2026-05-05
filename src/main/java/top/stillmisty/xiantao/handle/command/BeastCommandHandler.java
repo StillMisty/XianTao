@@ -24,7 +24,7 @@ public class BeastCommandHandler implements CommandGroup {
   public String handleDeployBeast(PlatformType platform, String openId, String position) {
     log.debug("处理灵兽出战 - Platform: {}, OpenId: {}, Position: {}", platform, openId, position);
     return switch (beastService.deployBeast(platform, openId, position)) {
-      case ServiceResult.Failure(var code, var msg) -> msg;
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var result) -> formatDeployResult(result);
     };
   }
@@ -33,7 +33,7 @@ public class BeastCommandHandler implements CommandGroup {
   public String handleUndeployBeast(PlatformType platform, String openId, String position) {
     log.debug("处理灵兽召回 - Platform: {}, OpenId: {}, Position: {}", platform, openId, position);
     return switch (beastService.undeployBeast(platform, openId, position)) {
-      case ServiceResult.Failure(var code, var msg) -> msg;
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var result) -> formatUndeployResult(result);
     };
   }
@@ -42,7 +42,7 @@ public class BeastCommandHandler implements CommandGroup {
   public String handleRecoverBeast(PlatformType platform, String openId, String position) {
     log.debug("处理灵兽恢复 - Platform: {}, OpenId: {}, Position: {}", platform, openId, position);
     return switch (beastService.recoverBeast(platform, openId, position)) {
-      case ServiceResult.Failure(var code, var msg) -> msg;
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var result) -> formatRecoverResult(result);
     };
   }
@@ -57,7 +57,7 @@ public class BeastCommandHandler implements CommandGroup {
         position,
         mode);
     return switch (beastService.evolveBeast(platform, openId, position, mode)) {
-      case ServiceResult.Failure(var code, var msg) -> msg;
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var result) -> formatEvolveResult(result);
     };
   }
@@ -66,7 +66,7 @@ public class BeastCommandHandler implements CommandGroup {
   public String handleReleaseBeast(PlatformType platform, String openId, String position) {
     log.debug("处理灵兽放生 - Platform: {}, OpenId: {}, Position: {}", platform, openId, position);
     return switch (beastService.releaseBeast(platform, openId, position)) {
-      case ServiceResult.Failure(var code, var msg) -> msg;
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var result) -> formatReleaseResult(result);
     };
   }
@@ -75,7 +75,7 @@ public class BeastCommandHandler implements CommandGroup {
   public String handleGetDeployedBeasts(PlatformType platform, String openId) {
     log.debug("处理查看出战灵兽 - Platform: {}, OpenId: {}", platform, openId);
     return switch (beastService.getDeployedBeasts(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> msg;
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var beasts) -> formatDeployedBeasts(beasts);
     };
   }
@@ -91,38 +91,48 @@ public class BeastCommandHandler implements CommandGroup {
   }
 
   private String formatUndeployResult(Object result) {
-    return switch (result) {
-      case ActionResultVO vo -> {
-        if (vo.success()) {
-          yield "【灵兽召回】\n" + vo.message();
-        } else {
-          yield "【召回失败】\n" + vo.message();
-        }
-      }
-      case BatchCountVO vo -> "【灵兽召回】\n已召回 %d 只灵兽。".formatted(vo.count());
-      default -> "召回完成";
-    };
+    if (result instanceof ActionResultVO vo) return formatUndeploySingle(vo);
+    if (result instanceof BatchCountVO vo) return formatUndeployBatch(vo);
+    return "召回完成";
+  }
+
+  private String formatUndeploySingle(ActionResultVO vo) {
+    if (vo.success()) {
+      return "【灵兽召回】\n" + vo.message();
+    } else {
+      return "【召回失败】\n" + vo.message();
+    }
+  }
+
+  private String formatUndeployBatch(BatchCountVO vo) {
+    return "【灵兽召回】\n已召回 %d 只灵兽。".formatted(vo.count());
   }
 
   private String formatRecoverResult(Object result) {
-    return switch (result) {
-      case ActionResultVO vo -> {
-        if (vo.success()) {
-          yield "【灵兽恢复】\n" + vo.message();
-        } else {
-          yield "【恢复失败】\n" + vo.message();
-        }
-      }
-      case RecoverResultVO vo -> {
-        if (vo.success()) {
-          yield "【灵兽恢复】\n" + vo.message();
-        } else {
-          yield "【恢复失败】\n" + vo.message();
-        }
-      }
-      case BatchRecoverVO vo -> "【灵兽恢复】\n已恢复 %d 只灵兽，消耗 %d 灵石。".formatted(vo.count(), vo.cost());
-      default -> "恢复完成";
-    };
+    if (result instanceof ActionResultVO vo) return formatRecoverSingle(vo);
+    if (result instanceof RecoverResultVO vo) return formatRecoverDetailed(vo);
+    if (result instanceof BatchRecoverVO vo) return formatRecoverBatch(vo);
+    return "恢复完成";
+  }
+
+  private String formatRecoverSingle(ActionResultVO vo) {
+    if (vo.success()) {
+      return "【灵兽恢复】\n" + vo.message();
+    } else {
+      return "【恢复失败】\n" + vo.message();
+    }
+  }
+
+  private String formatRecoverDetailed(RecoverResultVO vo) {
+    if (vo.success()) {
+      return "【灵兽恢复】\n" + vo.message();
+    } else {
+      return "【恢复失败】\n" + vo.message();
+    }
+  }
+
+  private String formatRecoverBatch(BatchRecoverVO vo) {
+    return "【灵兽恢复】\n已恢复 %d 只灵兽，消耗 %d 灵石。".formatted(vo.count(), vo.cost());
   }
 
   private String formatEvolveResult(PenCellVO beast) {

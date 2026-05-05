@@ -19,7 +19,9 @@ import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 public class UserStateService {
 
   private static final long HP_RECOVERY_INTERVAL_MINUTES = 5;
+  private static final long DYING_RECOVERY_TIMEOUT_MINUTES = 30;
   private static final String EXTRA_LAST_HP_RECOVERY = "lastHpRecovery";
+  private static final String EXTRA_DYING_SINCE = "dyingSince";
 
   private final UserRepository userRepository;
   private final MapNodeRepository mapNodeRepository;
@@ -44,6 +46,7 @@ public class UserStateService {
     boolean dirty = false;
 
     dirty |= tryCompleteTravel(user);
+    dirty |= tryDyingRecovery(user);
     dirty |= tryHpRecovery(user);
     dirty |= tryExpireBuffs(user);
 
@@ -133,6 +136,34 @@ public class UserStateService {
     return false; // buff 操作不修改 user 实体，无需额外保存
   }
 
+  /** DYING 超时恢复：濒死状态超过 30 分钟后自动恢复 20% HP 并回到 IDLE */
+  private boolean tryDyingRecovery(User user) {
+    if (user.getStatus() != UserStatus.DYING) {
+      return false;
+    }
+
+    LocalDateTime now = LocalDateTime.now();
+    LocalDateTime dyingSince = readDyingSince(user);
+    if (dyingSince == null) {
+      writeDyingSince(user, now);
+      return true;
+    }
+
+    long elapsedMinutes = Duration.between(dyingSince, now).toMinutes();
+    if (elapsedMinutes < DYING_RECOVERY_TIMEOUT_MINUTES) {
+      return false;
+    }
+
+    int recoveryHp = Math.max(1, user.calculateMaxHp() / 5);
+    user.setHpCurrent(recoveryHp);
+    user.setStatus(UserStatus.IDLE);
+    user.setTrainingStartTime(null);
+    clearDyingSince(user);
+
+    log.info("玩家 {} 濒死超时自动恢复，HP 恢复到 {}", user.getId(), recoveryHp);
+    return true;
+  }
+
   // ===================== extraData 读写 =====================
 
   private LocalDateTime readLastHpRecovery(User user) {
@@ -155,6 +186,39 @@ public class UserStateService {
       extra = new HashMap<>(extra);
     }
     extra.put(EXTRA_LAST_HP_RECOVERY, time.toString());
+    user.setExtraData(extra);
+  }
+
+  private LocalDateTime readDyingSince(User user) {
+    var extra = user.getExtraData();
+    if (extra == null || !extra.containsKey(EXTRA_DYING_SINCE)) {
+      return null;
+    }
+    try {
+      return LocalDateTime.parse(extra.get(EXTRA_DYING_SINCE).toString());
+    } catch (Exception e) {
+      return null;
+    }
+  }
+
+  private void writeDyingSince(User user, LocalDateTime time) {
+    var extra = user.getExtraData();
+    if (extra == null) {
+      extra = new HashMap<>();
+    } else {
+      extra = new HashMap<>(extra);
+    }
+    extra.put(EXTRA_DYING_SINCE, time.toString());
+    user.setExtraData(extra);
+  }
+
+  private void clearDyingSince(User user) {
+    var extra = user.getExtraData();
+    if (extra == null || !extra.containsKey(EXTRA_DYING_SINCE)) {
+      return;
+    }
+    extra = new HashMap<>(extra);
+    extra.remove(EXTRA_DYING_SINCE);
     user.setExtraData(extra);
   }
 }

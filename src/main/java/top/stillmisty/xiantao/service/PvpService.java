@@ -1,6 +1,5 @@
 package top.stillmisty.xiantao.service;
 
-import java.util.HashMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,17 +18,12 @@ public class PvpService {
   private final UserStateService userStateService;
   private final UserRepository userRepository;
   private final CombatService combatService;
-  private final PostCombatProcessor postCombatProcessor;
 
   @Authenticated
   @Transactional
   public ServiceResult<String> spar(PlatformType platform, String openId, String targetNickname) {
-    try {
-      Long userId = UserContext.getCurrentUserId();
-      return new ServiceResult.Success<>(spar(userId, targetNickname));
-    } catch (IllegalStateException e) {
-      return ServiceResult.businessFailure(e.getMessage());
-    }
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(spar(userId, targetNickname));
   }
 
   @Transactional
@@ -47,17 +41,12 @@ public class PvpService {
     var teamA = combatService.buildPlayerTeam(attacker);
     var teamB = combatService.buildPlayerTeam(defender);
 
+    teamA.members().forEach(m -> m.heal(m.getMaxHp()));
+    teamB.members().forEach(m -> m.heal(m.getMaxHp()));
+
     var result = combatService.simulate(teamA, teamB, 50);
 
-    postCombatProcessor.applyHpToUser(attacker, teamA);
-    postCombatProcessor.applyHpToUser(defender, teamB);
-
     boolean playerAWon = "Player".equals(result.winner());
-    postCombatProcessor.applyHpToBeasts(teamA, attacker, playerAWon, false, new HashMap<>());
-    postCombatProcessor.applyHpToBeasts(teamB, defender, !playerAWon, false, new HashMap<>());
-
-    userRepository.save(attacker);
-    userRepository.save(defender);
 
     StringBuilder sb = new StringBuilder();
     sb.append("⚔️ ")
@@ -89,18 +78,7 @@ public class PvpService {
       sb.append("\n");
     }
 
-    sb.append("\n")
-        .append(attacker.getNickname())
-        .append(" HP：")
-        .append(attacker.getHpCurrent())
-        .append("/")
-        .append(attacker.calculateMaxHp());
-    sb.append("  |  ")
-        .append(defender.getNickname())
-        .append(" HP：")
-        .append(defender.getHpCurrent())
-        .append("/")
-        .append(defender.calculateMaxHp());
+    sb.append("\n").append("切磋为模拟战，不实际消耗 HP，双方状态不变");
 
     return sb.toString();
   }

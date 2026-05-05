@@ -65,7 +65,11 @@ public class AuthenticatedAspect {
               });
     } catch (RuntimeException e) {
       log.error("Service exception for userId={}: {}", userId, e.getMessage(), e);
-      return ServiceResult.businessFailure(e.getMessage());
+      String message =
+          e instanceof IllegalStateException || e instanceof IllegalArgumentException
+              ? e.getMessage()
+              : "系统繁忙，请稍后再试";
+      return ServiceResult.businessFailure(message);
     }
   }
 }
