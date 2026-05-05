@@ -1,0 +1,19 @@
+#!/bin/sh
+
+staged=$(git diff --cached --name-only --diff-filter=ACMR | grep '\.java$' || true)
+if [ -z "$staged" ]; then
+    exit 0
+fi
+
+echo "Running Spotless formatting on staged Java files..."
+
+if ! ./gradlew spotlessApply -q; then
+    echo "Spotless formatting failed, aborting commit."
+    exit 1
+fi
+
+echo "$staged" | tr '\n' '\0' | xargs -0 git add
+
+git diff --cached --name-only | grep '\.java$' > /dev/null && {
+    echo "Spotless applied formatting changes."
+}
