@@ -185,7 +185,9 @@ public class MapCommandHandler {
                 sb.append(
                     String.format(
                         "\n预计到达时间: %s",
-                        FormatUtils.formatDateTime(result.getEstimatedArrivalTime())
+                        FormatUtils.formatDateTime(
+                            result.getEstimatedArrivalTime()
+                        )
                     )
                 );
             }
@@ -269,7 +271,9 @@ public class MapCommandHandler {
             if (b.rewards() != null && !b.rewards().isEmpty()) {
                 sb.append("  奖励: ");
                 sb.append(
-                    b.rewards().stream()
+                    b
+                        .rewards()
+                        .stream()
                         .map(BountyRewardPool::displayText)
                         .collect(Collectors.joining("、"))
                 );
@@ -297,7 +301,10 @@ public class MapCommandHandler {
         );
         if (status.minutesRemaining() > 0) {
             sb.append(
-                String.format("（剩余 %s）", FormatUtils.formatMinutes(status.minutesRemaining()))
+                String.format(
+                    "（剩余 %s）",
+                    FormatUtils.formatMinutes(status.minutesRemaining())
+                )
             );
         } else {
             sb.append("（已可结算）");
@@ -308,12 +315,18 @@ public class MapCommandHandler {
             sb.append("\n预计奖励:\n");
             for (BountyRewardItem item : status.rewards()) {
                 switch (item) {
-                    case BountyRewardItem.ItemReward(_, var name, var quantity) ->
-                            sb.append(String.format("  %s x%d\n", name, quantity));
-                    case BountyRewardItem.SpiritStonesReward(var amount) ->
-                            sb.append(String.format("  %d 灵石\n", amount));
-                    case BountyRewardItem.BeastEggReward(_, var name) ->
-                            sb.append(String.format("  %s（灵兽卵）\n", name));
+                    case BountyRewardItem.ItemReward(
+                        _,
+                        var name,
+                        var quantity
+                    ) -> sb.append(String.format("  %s x%d\n", name, quantity));
+                    case BountyRewardItem.SpiritStonesReward(
+                        var amount
+                    ) -> sb.append(String.format("  %d 灵石\n", amount));
+                    case BountyRewardItem.BeastEggReward(
+                        _,
+                        var name
+                    ) -> sb.append(String.format("  %s（灵兽卵）\n", name));
                 }
             }
         }
@@ -327,7 +340,12 @@ public class MapCommandHandler {
         sb.append("【悬赏结算】\n");
         sb.append(String.format("悬赏: %s\n", reward.bountyName()));
         sb.append(String.format("地点: %s\n", reward.mapName()));
-        sb.append(String.format("耗时: %s\n", FormatUtils.formatMinutes(reward.durationMinutes())));
+        sb.append(
+            String.format(
+                "耗时: %s",
+                FormatUtils.formatMinutes(reward.durationMinutes())
+            )
+        );
 
         if (reward.eventDescription() != null) {
             sb.append(
@@ -343,11 +361,17 @@ public class MapCommandHandler {
             sb.append("物品:\n");
             for (BountyRewardItem item : reward.items()) {
                 switch (item) {
-                    case BountyRewardItem.ItemReward(_, var name, var quantity) ->
-                            sb.append(String.format("  %s x%d\n", name, quantity));
-                    case BountyRewardItem.BeastEggReward(_, var name) ->
-                            sb.append(String.format("  %s x1\n", name));
-                    default -> {}
+                    case BountyRewardItem.ItemReward(
+                        _,
+                        var name,
+                        var quantity
+                    ) -> sb.append(String.format("  %s x%d\n", name, quantity));
+                    case BountyRewardItem.BeastEggReward(
+                        _,
+                        var name
+                    ) -> sb.append(String.format("  %s x1\n", name));
+                    default -> {
+                    }
                 }
             }
         }
@@ -371,13 +395,21 @@ public class MapCommandHandler {
             ) {
                 sb.append(String.format("  描述: %s\n", map.getDescription()));
             }
-            if (
-                map.getMonsters() != null && !map.getMonsters().isEmpty()
-            ) {
+            if (map.getMonsters() != null && !map.getMonsters().isEmpty()) {
                 sb.append("  怪物: ");
                 sb.append(
-                    map.getMonsters().stream()
-                        .map(m -> m.getName() + "{" + m.getTypeName() + " Lv" + m.getBaseLevel() + "}")
+                    map
+                        .getMonsters()
+                        .stream()
+                        .map(
+                            m ->
+                                m.getName() +
+                                "{" +
+                                m.getTypeName() +
+                                " Lv" +
+                                m.getBaseLevel() +
+                                "}"
+                        )
                         .collect(Collectors.joining("、"))
                 );
                 sb.append("\n");
@@ -409,14 +441,13 @@ public class MapCommandHandler {
         if (map.getDescription() != null && !map.getDescription().isEmpty()) {
             sb.append(String.format("\n%s\n", map.getDescription()));
         }
-        if (
-            map.getMonsters() != null && !map.getMonsters().isEmpty()
-        ) {
+        if (map.getMonsters() != null && !map.getMonsters().isEmpty()) {
             sb.append("\n【遇怪列表】\n");
             for (MapInfoVO.MonsterInfoVO monster : map.getMonsters()) {
-                String countRange = monster.getMinCount() == monster.getMaxCount()
-                    ? String.valueOf(monster.getMinCount())
-                    : monster.getMinCount() + "~" + monster.getMaxCount();
+                String countRange =
+                    monster.getMinCount() == monster.getMaxCount()
+                        ? String.valueOf(monster.getMinCount())
+                        : monster.getMinCount() + "~" + monster.getMaxCount();
                 sb.append(
                     String.format(
                         "  %s [%s] Lv%d  权重:%d  数量:%s\n",
@@ -436,12 +467,14 @@ public class MapCommandHandler {
             sb.append("\n【相邻地图】\n");
             for (int i = 0; i < map.getAdjacentMapNames().size(); i++) {
                 String adjName = map.getAdjacentMapNames().get(i);
-                Integer travelTime = map.getNeighbors() != null && i < map.getNeighbors().size()
-                    ? map.getNeighbors().get(i).cost()
-                    : null;
-                String timeStr = travelTime != null
-                    ? " (" + FormatUtils.formatMinutes(travelTime) + ")"
-                    : "";
+                Integer travelTime =
+                    map.getNeighbors() != null && i < map.getNeighbors().size()
+                        ? map.getNeighbors().get(i).cost()
+                        : null;
+                String timeStr =
+                    travelTime != null
+                        ? " (" + FormatUtils.formatMinutes(travelTime) + ")"
+                        : "";
                 sb.append(String.format("  %s%s\n", adjName, timeStr));
             }
         }
