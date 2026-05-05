@@ -18,6 +18,11 @@ import top.stillmisty.xiantao.domain.bounty.repository.UserBountyRepository;
 import top.stillmisty.xiantao.domain.bounty.vo.BountyRewardVO;
 import top.stillmisty.xiantao.domain.bounty.vo.BountyStatusVO;
 import top.stillmisty.xiantao.domain.bounty.vo.BountyVO;
+import top.stillmisty.xiantao.domain.item.entity.EquipmentTemplate;
+
+
+import top.stillmisty.xiantao.domain.item.repository.EquipmentTemplateRepository;
+
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
@@ -46,8 +51,10 @@ public class BountyService {
     private final BountyRepository bountyRepository;
     private final UserBountyRepository userBountyRepository;
     private final ItemTemplateRepository itemTemplateRepository;
+    private final EquipmentTemplateRepository equipmentTemplateRepository;
     private final ExplorationDescriptionFunction explorationDescriptionFunction;
     private final StackableItemService stackableItemService;
+    private final EquipmentService equipmentService;
 
     // ===================== 公开 API（含认证） =====================
 
@@ -281,19 +288,22 @@ public class BountyService {
         List<BountyRewardItem> rewardItems = record.getParsedRewardItems();
         long spiritStones = 0;
         boolean hasBeastEgg = false;
+        boolean hasEquipment = false;
 
         // 统计奖励类型
         for (BountyRewardItem item : rewardItems) {
             switch (item) {
                 case BountyRewardItem.SpiritStonesReward(var amount) -> spiritStones = amount;
                 case BountyRewardItem.BeastEggReward _ -> hasBeastEgg = true;
+                case BountyRewardItem.EquipmentRewardItem _ -> hasEquipment = true;
                 default -> {}
             }
         }
 
-        // 分离物品 (非灵石、非兽卵)
+        // 分离物品 (非灵石、非兽卵、非装备)
         List<BountyRewardItem> items = rewardItems.stream()
-                .filter(i -> !(i instanceof BountyRewardItem.SpiritStonesReward))
+                .filter(i -> !(i instanceof BountyRewardItem.SpiritStonesReward)
+                        && !(i instanceof BountyRewardItem.EquipmentRewardItem))
                 .toList();
 
         // 发放物品
@@ -311,7 +321,8 @@ public class BountyService {
         String rewardDescription = buildRewardDescription(
             spiritStones,
             items,
-            hasBeastEgg
+            hasBeastEgg,
+            hasEquipment
         );
 
         // LLM 美化
@@ -349,7 +360,8 @@ public class BountyService {
             eventDescription,
             items,
             spiritStones,
-            hasBeastEgg
+            hasBeastEgg,
+            hasEquipment
         );
     }
 
@@ -414,6 +426,12 @@ public class BountyService {
                                 eggs.get(rng.nextInt(eggs.size())).getName()))
                         : List.of();
             }
+            case BountyRewardPool.EquipmentReward(_, var templateId, var name) -> {
+                EquipmentTemplate equipmentTemplate = equipmentTemplateRepository.findById(templateId).orElse(null);
+                yield equipmentTemplate != null
+                        ? List.of(new BountyRewardItem.EquipmentRewardItem(templateId, name))
+                        : List.of();
+            }
         };
     }
 
@@ -450,7 +468,9 @@ public class BountyService {
         List<BountyRewardItem> items
     ) {
         var itemRewards = items.stream()
-                .filter(i -> i instanceof BountyRewardItem.ItemReward || i instanceof BountyRewardItem.BeastEggReward)
+                .filter(i -> i instanceof BountyRewardItem.ItemReward
+                        || i instanceof BountyRewardItem.BeastEggReward
+                        || i instanceof BountyRewardItem.EquipmentRewardItem)
                 .toList();
         if (itemRewards.isEmpty()) return;
 
@@ -459,6 +479,7 @@ public class BountyService {
             switch (item) {
                 case BountyRewardItem.ItemReward(var templateId, _, _) -> templateIds.add(templateId);
                 case BountyRewardItem.BeastEggReward(var templateId, _) -> templateIds.add(templateId);
+                case BountyRewardItem.EquipmentRewardItem(var templateId, _) -> templateIds.add(templateId);
                 default -> {}
             }
         }
@@ -481,6 +502,9 @@ public class BountyService {
                 case BountyRewardItem.BeastEggReward(var templateId, var name) -> {
                     stackableItemService.addStackableItem(userId, templateId, ItemType.BEAST_EGG, name, 1);
                 }
+                case BountyRewardItem.EquipmentRewardItem(var templateId, var name) -> {
+                    equipmentService.createEquipment(userId, templateId);
+                }
                 default -> {}
             }
         }
@@ -489,7 +513,8 @@ public class BountyService {
     private String buildRewardDescription(
         long spiritStones,
         List<BountyRewardItem> items,
-        boolean hasBeastEgg
+        boolean hasBeastEgg,
+        boolean hasEquipment
     ) {
         StringBuilder sb = new StringBuilder();
         if (spiritStones > 0) {
@@ -515,10 +540,11 @@ public class BountyService {
         }
         if (hasBeastEgg) {
             if (!sb.isEmpty()) sb.append(" ");
-            sb.append("获得了一颗灵兽卵！");
+            sb.append("获得灵兽卵。");
         }
-        if (sb.isEmpty()) {
-            sb.append("完成悬赏，但未获得额外奖励。");
+        if (hasEquipment) {
+            if (!sb.isEmpty()) sb.append(" ");
+            sb.append("获得装备。");
         }
         return sb.toString();
     }
@@ -583,6 +609,7 @@ public class BountyService {
                     .map(i -> switch (i) {
                         case BountyRewardItem.ItemReward(_, var name, _) -> name;
                         case BountyRewardItem.BeastEggReward(_, var name) -> name;
+                        case BountyRewardItem.EquipmentRewardItem(_, var name) -> name;
                         default -> null;
                     })
                     .filter(Objects::nonNull)

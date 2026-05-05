@@ -11,7 +11,8 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 @JsonSubTypes({
     @JsonSubTypes.Type(value = BountyRewardPool.RareItem.class, name = "rare_item"),
     @JsonSubTypes.Type(value = BountyRewardPool.SpiritStones.class, name = "spirit_stones"),
-    @JsonSubTypes.Type(value = BountyRewardPool.BeastEgg.class, name = "beast_egg")
+    @JsonSubTypes.Type(value = BountyRewardPool.BeastEgg.class, name = "beast_egg"),
+    @JsonSubTypes.Type(value = BountyRewardPool.EquipmentReward.class, name = "equipment")
 })
 public sealed interface BountyRewardPool {
 
@@ -59,6 +60,19 @@ public sealed interface BountyRewardPool {
     @JsonIgnoreProperties(ignoreUnknown = true)
     record BeastEgg(
         int weight,
+        @JsonProperty("name") String label
+    ) implements BountyRewardPool {
+        @Override
+        public String displayText() {
+            return label;
+        }
+    }
+
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    record EquipmentReward(
+        int weight,
+        long templateId,
         @JsonProperty("name") String label
     ) implements BountyRewardPool {
         @Override

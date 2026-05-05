@@ -17,6 +17,7 @@ public record BountyRewardVO(
         String eventDescription,
         List<BountyRewardItem> items,
         Long spiritStones,
-        boolean hasBeastEgg
+        boolean hasBeastEgg,
+        boolean hasEquipment
 ) {
 }

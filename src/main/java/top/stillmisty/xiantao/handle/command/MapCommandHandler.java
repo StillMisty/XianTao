@@ -327,6 +327,10 @@ public class MapCommandHandler {
                         _,
                         var name
                     ) -> sb.append(String.format("  %s（灵兽卵）\n", name));
+                case BountyRewardItem.EquipmentRewardItem(
+                    _,
+                    var name
+                ) -> sb.append(String.format("  %s（装备）\n", name));
                 }
             }
         }
@@ -367,6 +371,10 @@ public class MapCommandHandler {
                         var quantity
                     ) -> sb.append(String.format("  %s x%d\n", name, quantity));
                     case BountyRewardItem.BeastEggReward(
+                        _,
+                        var name
+                    ) -> sb.append(String.format("  %s x1\n", name));
+                    case BountyRewardItem.EquipmentRewardItem(
                         _,
                         var name
                     ) -> sb.append(String.format("  %s x1\n", name));
