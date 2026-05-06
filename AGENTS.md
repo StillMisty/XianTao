@@ -48,7 +48,21 @@ src/main/java/top/stillmisty/xiantao/
 - **Item Use Strategy**: `ItemUseHandler` per `ItemType` (5 handlers: PillUseHandler, SkillJadeUseHandler, RecipeScrollUseHandler, EvolutionStoneUseHandler, ...). `consumesInternally()` controls whether `ItemUseService` auto-deducts quantity (default `false`).
 - **AI**: Two `ChatClient` beans in `SpringAiConfig` — `spiritChatClient` (no token limit) and `chatClient` (maxTokens=150). Function calling via `SpiritTools`.
 - **Concurrency**: Virtual threads (`spring.threads.virtual.enabled=true`) + `ScopedValue<Long> CURRENT_USER` (no ThreadLocal). ScopedValue is bound per-request in the AOP aspect.
-- **SimBot listeners**: `@Listener` + `@ContentTrim` + `@Filter("command {{param}}")` on methods taking `MessageEvent` + `@FilterValue("param")`. Use `event.replyBlocking(text)` to respond.
+
+## Design Rules
+
+- Enum code values must be `UPPER_SNAKE_CASE`; field annotated with `@EnumValue`  
+- `fromCode` must throw `IllegalArgumentException` for unknown codes (never `null` or default)  
+- DB `CHECK` constraints must match enum codes exactly, including case  
+- Always use `mapper.insertOrUpdateSelective()` for saves — no separate `insert`/`update` branches  
+- Repository interfaces expose a single `save()`, never persistence details  
+- Atomic operations: use `UPDATE ... WHERE column >= ?` instead of check-then-act patterns  
+- All VOs must be Java `record` (immutable)  
+- Entities: `@Data` + `@NoArgsConstructor`, **no** `staticConstructor`  
+- Entities must contain behavioral methods, not be pure data carriers  
+- Domain entities must **not** inject repositories or depend on infrastructure layers  
+- Every write method must be annotated with `@Transactional`  
+- Avoid copy-paste across services — extract shared logic into `@Component` helpers  
 
 ## Development Flow
 
