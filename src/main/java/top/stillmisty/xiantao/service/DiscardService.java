@@ -32,7 +32,7 @@ public class DiscardService {
 
   @Transactional
   public String discardItem(Long userId, String input) {
-    userStateService.getUser(userId);
+    userStateService.loadUser(userId);
 
     var equipResult = itemResolver.resolveEquipment(userId, input);
     if (equipResult instanceof ItemResolver.Found<Equipment> found) {

@@ -36,7 +36,7 @@ public class TravelService {
 
   @Transactional
   public TravelResultVO startTravel(Long userId, String mapName) {
-    User user = userStateService.getUser(userId);
+    User user = userStateService.loadUser(userId);
 
     if (user.getStatus() != UserStatus.IDLE) {
       throw new IllegalStateException("您当前处于 " + user.getStatus().getName() + " 状态，无法旅行（需要 空闲 状态）");

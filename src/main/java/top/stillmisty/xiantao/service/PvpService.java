@@ -28,7 +28,7 @@ public class PvpService {
 
   @Transactional
   public String spar(Long userId, String targetNickname) {
-    User attacker = userStateService.getUser(userId);
+    User attacker = userStateService.loadUser(userId);
     User defender =
         userRepository
             .findByNickname(targetNickname)

@@ -60,7 +60,7 @@ public class PillConsumptionService {
     if (!(props instanceof ItemProperties.Potion(List<ItemProperties.Effect> effects)))
       return "丹药没有效果";
 
-    User user = userStateService.getUser(userId);
+    User user = userStateService.loadUser(userId);
     double qualityMultiplier = PillQuality.fromCode(pill.getQuality()).getMultiplier();
     int grade = getPillGrade(pill);
     var messages = new ArrayList<String>();

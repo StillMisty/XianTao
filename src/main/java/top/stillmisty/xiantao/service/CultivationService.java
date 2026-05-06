@@ -77,7 +77,7 @@ public class CultivationService {
    */
   @Transactional
   public BreakthroughResult attemptBreakthrough(Long userId) {
-    User user = userStateService.getUser(userId);
+    User user = userStateService.loadUser(userId);
 
     // 检查修为是否足够
     long expNeeded = user.calculateExpToNextLevel();
@@ -166,7 +166,7 @@ public class CultivationService {
    */
   @Transactional
   public DaoProtectionResult establishProtection(Long protectorId, String protegeNickname) {
-    User protector = userStateService.getUser(protectorId);
+    User protector = userStateService.loadUser(protectorId);
 
     // 查找被护道者
     Optional<User> protegeOpt = findUserByNickname(protegeNickname);
@@ -282,7 +282,7 @@ public class CultivationService {
    * @return 护道查询结果
    */
   public DaoProtectionQueryResult queryProtectionInfo(Long userId) {
-    User user = userStateService.getUser(userId);
+    User user = userStateService.loadUser(userId);
 
     // 查询正在为谁护道
     List<DaoProtection> protectingList = daoProtectionRepository.findByProtectorId(userId);

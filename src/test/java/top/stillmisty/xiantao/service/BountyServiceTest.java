@@ -92,7 +92,7 @@ class BountyServiceTest {
     MapNode mapNode = createMapNode();
     Bounty bounty = createBounty(1, 5);
 
-    when(userStateService.getUser(userId)).thenReturn(user);
+    when(userStateService.loadUser(userId)).thenReturn(user);
     when(mapNodeRepository.findById(mapId)).thenReturn(Optional.of(mapNode));
     when(bountyRepository.findByMapId(mapId)).thenReturn(List.of(bounty));
 
@@ -108,7 +108,7 @@ class BountyServiceTest {
     User user = createUser(UserStatus.IDLE).setLevel(1);
     MapNode mapNode = createMapNode();
     Bounty highBounty = createBounty(10, 5);
-    when(userStateService.getUser(userId)).thenReturn(user);
+    when(userStateService.loadUser(userId)).thenReturn(user);
     when(mapNodeRepository.findById(mapId)).thenReturn(Optional.of(mapNode));
     when(bountyRepository.findByMapId(mapId)).thenReturn(List.of(highBounty));
 
@@ -164,7 +164,7 @@ class BountyServiceTest {
   @DisplayName("startBounty — 非 IDLE 状态抛异常")
   void startBounty_whenNotIdle_shouldThrow() {
     User user = createUser(UserStatus.BOUNTY);
-    when(userStateService.getUser(userId)).thenReturn(user);
+    when(userStateService.loadUser(userId)).thenReturn(user);
 
     assertThrows(IllegalStateException.class, () -> bountyService.startBounty(userId, bountyId));
   }
@@ -178,7 +178,7 @@ class BountyServiceTest {
     otherMap.setName("其他地图");
     Bounty bounty = createBounty(1, 5);
 
-    when(userStateService.getUser(userId)).thenReturn(user);
+    when(userStateService.loadUser(userId)).thenReturn(user);
     when(bountyRepository.findById(bountyId)).thenReturn(Optional.of(bounty));
     when(mapNodeRepository.findById(999L)).thenReturn(Optional.of(otherMap));
 
@@ -192,7 +192,7 @@ class BountyServiceTest {
     MapNode mapNode = createMapNode();
     Bounty bounty = createBounty(10, 5);
 
-    when(userStateService.getUser(userId)).thenReturn(user);
+    when(userStateService.loadUser(userId)).thenReturn(user);
     when(bountyRepository.findById(bountyId)).thenReturn(Optional.of(bounty));
     when(mapNodeRepository.findById(mapId)).thenReturn(Optional.of(mapNode));
 
@@ -205,7 +205,7 @@ class BountyServiceTest {
   @DisplayName("completeBounty — 非 BOUNTY 状态抛异常")
   void completeBounty_whenNotBounty_shouldThrow() {
     User user = createUser(UserStatus.IDLE);
-    when(userStateService.getUser(userId)).thenReturn(user);
+    when(userStateService.loadUser(userId)).thenReturn(user);
 
     assertThrows(IllegalStateException.class, () -> bountyService.completeBounty(userId));
   }
@@ -216,7 +216,7 @@ class BountyServiceTest {
     User user = createUser(UserStatus.BOUNTY);
     UserBounty userBounty = createUserBounty(10, 3);
 
-    when(userStateService.getUser(userId)).thenReturn(user);
+    when(userStateService.loadUser(userId)).thenReturn(user);
     when(userBountyRepository.findActiveByUserId(userId)).thenReturn(Optional.of(userBounty));
 
     assertThrows(IllegalArgumentException.class, () -> bountyService.completeBounty(userId));
@@ -228,7 +228,7 @@ class BountyServiceTest {
   @DisplayName("abandonBounty — 非 BOUNTY 状态抛异常")
   void abandonBounty_whenNotBounty_shouldThrow() {
     User user = createUser(UserStatus.IDLE);
-    when(userStateService.getUser(userId)).thenReturn(user);
+    when(userStateService.loadUser(userId)).thenReturn(user);
 
     assertThrows(IllegalStateException.class, () -> bountyService.abandonBounty(userId));
   }
@@ -239,7 +239,7 @@ class BountyServiceTest {
     User user = createUser(UserStatus.BOUNTY);
     UserBounty userBounty = createUserBounty(5, 3);
 
-    when(userStateService.getUser(userId)).thenReturn(user);
+    when(userStateService.loadUser(userId)).thenReturn(user);
     when(userBountyRepository.findActiveByUserId(userId)).thenReturn(Optional.of(userBounty));
 
     String result = bountyService.abandonBounty(userId);
@@ -264,7 +264,7 @@ class BountyServiceTest {
     template.setName("培元丹");
     template.setType(ItemType.MATERIAL);
 
-    when(userStateService.getUser(userId)).thenReturn(user);
+    when(userStateService.loadUser(userId)).thenReturn(user);
     when(bountyRepository.findById(bountyId)).thenReturn(Optional.of(bounty));
     when(mapNodeRepository.findById(mapId)).thenReturn(Optional.of(mapNode));
     when(itemTemplateRepository.findByIds(anyList())).thenReturn(List.of(template));

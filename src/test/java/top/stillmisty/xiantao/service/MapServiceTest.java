@@ -78,7 +78,7 @@ class MapServiceTest {
       MapNode mapNode = createMapNode();
       mapNode.setMonsterEncounters(List.of(encounter(1L, 50, 1, 3), encounter(2L, 30, 2, 5)));
 
-      when(userStateService.getUser(userId)).thenReturn(user);
+      when(userStateService.loadUser(userId)).thenReturn(user);
       when(mapNodeRepository.findById(mapId)).thenReturn(Optional.of(mapNode));
       when(monsterTemplateRepository.findByIds(anyList()))
           .thenReturn(List.of(createTemplate(1L, "妖兽A", 5), createTemplate(2L, "妖兽B", 8)));
@@ -98,7 +98,7 @@ class MapServiceTest {
       User user = createUser(mapId);
       MapNode mapNode = createMapNode();
 
-      when(userStateService.getUser(userId)).thenReturn(user);
+      when(userStateService.loadUser(userId)).thenReturn(user);
       when(mapNodeRepository.findById(mapId)).thenReturn(Optional.of(mapNode));
 
       MapInfoVO result = mapService.getCurrentMapInfo(userId);
@@ -112,7 +112,7 @@ class MapServiceTest {
     void whenMapNotFound_shouldThrow() {
       User user = createUser(mapId);
 
-      when(userStateService.getUser(userId)).thenReturn(user);
+      when(userStateService.loadUser(userId)).thenReturn(user);
       when(mapNodeRepository.findById(mapId)).thenReturn(Optional.empty());
 
       assertThrows(IllegalStateException.class, () -> mapService.getCurrentMapInfo(userId));
@@ -126,7 +126,7 @@ class MapServiceTest {
       mapNode.setMonsterEncounters(
           List.of(encounter(1L, 10, 1, 1), encounter(2L, 90, 1, 1), encounter(3L, 50, 1, 1)));
 
-      when(userStateService.getUser(userId)).thenReturn(user);
+      when(userStateService.loadUser(userId)).thenReturn(user);
       when(mapNodeRepository.findById(mapId)).thenReturn(Optional.of(mapNode));
       when(monsterTemplateRepository.findByIds(anyList()))
           .thenReturn(
@@ -150,7 +150,7 @@ class MapServiceTest {
       User user = createUser(mapId);
       MapNode mapNode = createMapNode();
 
-      when(userStateService.getUser(userId)).thenReturn(user);
+      when(userStateService.loadUser(userId)).thenReturn(user);
       when(mapNodeRepository.findById(mapId)).thenReturn(Optional.of(mapNode));
 
       MapInfoVO result = mapService.getCurrentMapInfo(userId);

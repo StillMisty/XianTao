@@ -46,7 +46,7 @@ public class CharacterStatusService {
 
   /** 查看角色状态（状态） 包含：HP、属性、装扮（已穿戴装备）、境界进度（等级经验）、当前状态 */
   public CharacterStatusResult getCharacterStatus(Long userId) {
-    User user = userStateService.getUser(userId);
+    User user = userStateService.loadUser(userId);
 
     // 获取已穿戴装备
     List<Equipment> equippedItems = equipmentRepository.findEquippedByUserId(userId);

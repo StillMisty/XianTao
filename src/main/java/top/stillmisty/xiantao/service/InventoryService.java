@@ -63,7 +63,7 @@ public class InventoryService {
 
   /** 查看背包详情（背包） */
   public InventoryResult getInventory(Long userId) {
-    User user = userStateService.getUser(userId);
+    User user = userStateService.loadUser(userId);
 
     List<Equipment> allEquipments = equipmentRepository.findUnequippedByUserId(userId);
     List<StackableItem> stackableItems = stackableItemRepository.findByUserId(userId);
@@ -101,7 +101,7 @@ public class InventoryService {
 
   /** 获取背包摘要（按品质折叠装备，用于 #背包 命令防刷屏） */
   public InventorySummaryVO getInventorySummary(Long userId) {
-    User user = userStateService.getUser(userId);
+    User user = userStateService.loadUser(userId);
 
     List<Equipment> allEquipments = equipmentRepository.findUnequippedByUserId(userId);
     List<StackableItem> stackableItems = stackableItemRepository.findByUserId(userId);

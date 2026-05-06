@@ -94,7 +94,7 @@ public class BountyService {
   // ===================== 内部 API =====================
 
   public List<BountyVO> listBounties(Long userId) {
-    User user = userStateService.getUser(userId);
+    User user = userStateService.loadUser(userId);
     MapNode mapNode = mapNodeRepository.findById(user.getLocationId()).orElseThrow();
 
     return bountyRepository.findByMapId(mapNode.getId()).stream()
@@ -135,7 +135,7 @@ public class BountyService {
   }
 
   public String startBounty(Long userId, Long bountyId) {
-    User user = userStateService.getUser(userId);
+    User user = userStateService.loadUser(userId);
 
     if (user.getStatus() != UserStatus.IDLE) {
       throw new IllegalStateException(
@@ -186,7 +186,7 @@ public class BountyService {
 
   @Transactional
   public BountyRewardVO completeBounty(Long userId) {
-    User user = userStateService.getUser(userId);
+    User user = userStateService.loadUser(userId);
     if (user.getStatus() != UserStatus.BOUNTY) {
       throw new IllegalStateException(
           "您当前处于 " + user.getStatus().getName() + " 状态，无法完成悬赏（需要 悬赏 状态）");
@@ -284,7 +284,7 @@ public class BountyService {
   }
 
   public String abandonBounty(Long userId) {
-    User user = userStateService.getUser(userId);
+    User user = userStateService.loadUser(userId);
     if (user.getStatus() != UserStatus.BOUNTY) {
       throw new IllegalStateException(
           "您当前处于 " + user.getStatus().getName() + " 状态，无法放弃悬赏（需要 悬赏 状态）");

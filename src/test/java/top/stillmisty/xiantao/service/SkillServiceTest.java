@@ -114,7 +114,7 @@ class SkillServiceTest {
     StackableItem jade = createJadeItem(1L, 100L);
     setUpJadeMock(skill, jade);
     when(playerSkillRepository.findByUserIdAndSkillId(userId, 100L)).thenReturn(Optional.empty());
-    when(userStateService.getUser(userId)).thenReturn(createUser(5));
+    when(userStateService.loadUser(userId)).thenReturn(createUser(5));
 
     SkillSlotResult result = skillService.learnFromJade(userId, "1");
 
@@ -130,7 +130,7 @@ class SkillServiceTest {
     setUpJadeMock(skill, jade);
     when(playerSkillRepository.findByUserIdAndSkillId(userId, skillId))
         .thenReturn(Optional.empty());
-    when(userStateService.getUser(userId)).thenReturn(createUser(5));
+    when(userStateService.loadUser(userId)).thenReturn(createUser(5));
     when(stackableItemRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
     when(playerSkillRepository.save(any()))
         .thenAnswer(

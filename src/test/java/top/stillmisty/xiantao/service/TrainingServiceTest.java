@@ -39,7 +39,7 @@ class TrainingServiceTest {
   @DisplayName("endTraining — trainingStartTime 为空时恢复 IDLE")
   void endTraining_whenNoTrainingStartTime_shouldRestoreIdle() {
     User user = createUser(UserStatus.EXERCISING, null);
-    when(userStateService.getUser(userId)).thenReturn(user);
+    when(userStateService.loadUser(userId)).thenReturn(user);
 
     trainingService.endTraining(userId);
 
@@ -51,7 +51,7 @@ class TrainingServiceTest {
   @DisplayName("endTraining — 时间不足 5 分钟时恢复 IDLE")
   void endTraining_whenLessThan5Minutes_shouldRestoreIdle() {
     User user = createUser(UserStatus.EXERCISING, LocalDateTime.now());
-    when(userStateService.getUser(userId)).thenReturn(user);
+    when(userStateService.loadUser(userId)).thenReturn(user);
 
     trainingService.endTraining(userId);
 
@@ -64,7 +64,7 @@ class TrainingServiceTest {
   @DisplayName("endTraining — 非 EXERCISING 状态抛异常")
   void endTraining_whenNotExercising_shouldThrow() {
     User user = createUser(UserStatus.IDLE, LocalDateTime.now().minusMinutes(10));
-    when(userStateService.getUser(userId)).thenReturn(user);
+    when(userStateService.loadUser(userId)).thenReturn(user);
 
     assertThrows(IllegalStateException.class, () -> trainingService.endTraining(userId));
   }
@@ -75,7 +75,7 @@ class TrainingServiceTest {
   @DisplayName("startTraining — 非 IDLE 状态抛异常")
   void startTraining_whenNotIdle_shouldThrow() {
     User user = createUser(UserStatus.EXERCISING, null);
-    when(userStateService.getUser(userId)).thenReturn(user);
+    when(userStateService.loadUser(userId)).thenReturn(user);
 
     assertThrows(IllegalStateException.class, () -> trainingService.startTraining(userId));
   }
@@ -84,7 +84,7 @@ class TrainingServiceTest {
   @DisplayName("startTraining — 位置为空返回失败")
   void startTraining_whenNoLocation_shouldReturnFailure() {
     User user = createUser(UserStatus.IDLE, null).setLocationId(null);
-    when(userStateService.getUser(userId)).thenReturn(user);
+    when(userStateService.loadUser(userId)).thenReturn(user);
 
     var result = trainingService.startTraining(userId);
 

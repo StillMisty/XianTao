@@ -28,7 +28,7 @@ public class UserStateService {
   private final PlayerBuffRepository playerBuffRepository;
 
   /** 加载用户并自动解析过期状态。 替代所有 userRepository.findById(userId).orElseThrow() 调用。 */
-  public User getUser(Long userId) {
+  public User loadUser(Long userId) {
     User user = userRepository.findById(userId).orElseThrow();
     resolveState(user);
     return user;

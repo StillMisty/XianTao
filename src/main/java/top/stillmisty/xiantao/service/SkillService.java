@@ -124,7 +124,7 @@ public class SkillService {
     }
 
     // 5. 检查等级要求
-    var user = userStateService.getUser(userId);
+    var user = userStateService.loadUser(userId);
     if (user.getLevel() < skill.getLevelRequirement()) {
       return SkillSlotResult.builder()
           .success(false)
@@ -212,7 +212,7 @@ public class SkillService {
     }
 
     // 4. 检查槽位
-    var user = userStateService.getUser(userId);
+    var user = userStateService.loadUser(userId);
     int maxSlots = calculateMaxSlots(user.getLevel());
     long equippedCount = playerSkills.stream().filter(PlayerSkill::getIsEquipped).count();
     if (equippedCount >= maxSlots) {
@@ -265,7 +265,7 @@ public class SkillService {
     matched.setIsEquipped(false);
     playerSkillRepository.save(matched);
 
-    var user = userStateService.getUser(userId);
+    var user = userStateService.loadUser(userId);
     int maxSlots = calculateMaxSlots(user.getLevel());
 
     var skill = skillRepository.findById(matched.getSkillId()).orElse(null);

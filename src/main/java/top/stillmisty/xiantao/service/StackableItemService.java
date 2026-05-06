@@ -20,7 +20,7 @@ public class StackableItemService {
   /** 添加堆叠物品到背包 */
   public void addStackableItem(
       Long userId, Long templateId, ItemType itemType, String name, int quantity) {
-    userStateService.getUser(userId);
+    userStateService.loadUser(userId);
 
     var existingItem = stackableItemRepository.findByUserIdAndTemplateId(userId, templateId);
 

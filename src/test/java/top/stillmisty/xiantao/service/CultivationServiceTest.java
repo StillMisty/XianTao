@@ -59,7 +59,7 @@ class CultivationServiceTest {
   @DisplayName("attemptBreakthrough — 经验不足时返回失败结果")
   void attemptBreakthrough_whenExpInsufficient_shouldReturnFailedResult() {
     User user = createUser(5, 0L, 0);
-    when(userStateService.getUser(userId)).thenReturn(user);
+    when(userStateService.loadUser(userId)).thenReturn(user);
 
     BreakthroughResult result = cultivationService.attemptBreakthrough(userId);
 
@@ -71,7 +71,7 @@ class CultivationServiceTest {
   @DisplayName("attemptBreakthrough — 突破后清除了护道关系和丹药加成")
   void attemptBreakthrough_shouldClearRelationsAndBuffs() {
     User user = createUser(2, 1000L, 0);
-    when(userStateService.getUser(userId)).thenReturn(user);
+    when(userStateService.loadUser(userId)).thenReturn(user);
     when(daoProtectionRepository.findByProtegeId(userId)).thenReturn(List.of());
     when(playerBuffRepository.findActiveByUserIdAndType(userId, "breakthrough"))
         .thenReturn(List.of());
@@ -89,7 +89,7 @@ class CultivationServiceTest {
   @DisplayName("establishProtection — 被护道者不存在返回失败")
   void establishProtection_whenProtegeNotFound_shouldReturnFailure() {
     User protector = createUser(5, 0L, 0);
-    when(userStateService.getUser(userId)).thenReturn(protector);
+    when(userStateService.loadUser(userId)).thenReturn(protector);
     when(userRepository.findByNickname("不存在的道友")).thenReturn(Optional.empty());
 
     DaoProtectionResult result = cultivationService.establishProtection(userId, "不存在的道友");
@@ -104,7 +104,7 @@ class CultivationServiceTest {
     User protector = createUser(2, 0L, 0);
     User protege = User.create().setId(2L).setNickname("高境界道友").setLevel(10).setLocationId(1L);
 
-    when(userStateService.getUser(userId)).thenReturn(protector);
+    when(userStateService.loadUser(userId)).thenReturn(protector);
     when(userRepository.findByNickname("高境界道友")).thenReturn(Optional.of(protege));
 
     DaoProtectionResult result = cultivationService.establishProtection(userId, "高境界道友");
@@ -119,7 +119,7 @@ class CultivationServiceTest {
     User protector = createUser(10, 0L, 0);
     User protege = User.create().setId(2L).setNickname("弟子").setLevel(5).setLocationId(1L);
 
-    when(userStateService.getUser(userId)).thenReturn(protector);
+    when(userStateService.loadUser(userId)).thenReturn(protector);
     when(userRepository.findByNickname("弟子")).thenReturn(Optional.of(protege));
     when(daoProtectionRepository.countByProtectorId(userId)).thenReturn(3L);
 
@@ -135,7 +135,7 @@ class CultivationServiceTest {
     User protector = createUser(10, 0L, 0);
     User protege = User.create().setId(2L).setNickname("弟子").setLevel(5).setLocationId(1L);
 
-    when(userStateService.getUser(userId)).thenReturn(protector);
+    when(userStateService.loadUser(userId)).thenReturn(protector);
     when(userRepository.findByNickname("弟子")).thenReturn(Optional.of(protege));
     when(daoProtectionRepository.countByProtectorId(userId)).thenReturn(0L);
     when(daoProtectionRepository.findByProtectorAndProtege(userId, 2L))
@@ -153,7 +153,7 @@ class CultivationServiceTest {
     User protector = User.create().setId(userId).setNickname("护道者").setLevel(10).setLocationId(1L);
     User protege = User.create().setId(2L).setNickname("弟子").setLevel(5).setLocationId(1L);
 
-    when(userStateService.getUser(userId)).thenReturn(protector);
+    when(userStateService.loadUser(userId)).thenReturn(protector);
     when(userRepository.findByNickname("弟子")).thenReturn(Optional.of(protege));
     when(daoProtectionRepository.countByProtectorId(userId)).thenReturn(0L);
     when(daoProtectionRepository.findByProtectorAndProtege(userId, 2L))
@@ -188,7 +188,7 @@ class CultivationServiceTest {
   @DisplayName("queryProtectionInfo — 无人护道时返回空结果")
   void queryProtectionInfo_whenNoProtections_shouldReturnEmptyInfo() {
     User user = createUser(5, 0L, 0);
-    when(userStateService.getUser(userId)).thenReturn(user);
+    when(userStateService.loadUser(userId)).thenReturn(user);
     when(daoProtectionRepository.findByProtectorId(userId)).thenReturn(List.of());
     when(daoProtectionRepository.findByProtegeId(userId)).thenReturn(List.of());
 
@@ -207,7 +207,7 @@ class CultivationServiceTest {
 
     DaoProtection protection = DaoProtection.create().setProtectorId(10L).setProtegeId(userId);
 
-    when(userStateService.getUser(userId)).thenReturn(user);
+    when(userStateService.loadUser(userId)).thenReturn(user);
     when(daoProtectionRepository.findByProtectorId(userId)).thenReturn(List.of());
     when(daoProtectionRepository.findByProtegeId(userId)).thenReturn(List.of(protection));
     when(userRepository.findByIds(List.of(10L))).thenReturn(List.of(protector));
@@ -227,7 +227,7 @@ class CultivationServiceTest {
 
     DaoProtection protection = DaoProtection.create().setProtectorId(10L).setProtegeId(userId);
 
-    when(userStateService.getUser(userId)).thenReturn(user);
+    when(userStateService.loadUser(userId)).thenReturn(user);
     when(daoProtectionRepository.findByProtectorId(userId)).thenReturn(List.of());
     when(daoProtectionRepository.findByProtegeId(userId)).thenReturn(List.of(protection));
     when(userRepository.findByIds(List.of(10L))).thenReturn(List.of(protector));

@@ -81,7 +81,7 @@ public class TrainingService {
 
   @Transactional
   public TrainingStartResult startTraining(Long userId) {
-    User user = userStateService.getUser(userId);
+    User user = userStateService.loadUser(userId);
 
     if (user.getStatus() != UserStatus.IDLE) {
       throw new IllegalStateException(
@@ -109,7 +109,7 @@ public class TrainingService {
 
   @Transactional
   public TrainingRewardVO endTraining(Long userId) {
-    User user = userStateService.getUser(userId);
+    User user = userStateService.loadUser(userId);
 
     if (user.getStatus() != UserStatus.EXERCISING && user.getStatus() != UserStatus.DYING) {
       throw new IllegalStateException(
@@ -169,7 +169,7 @@ public class TrainingService {
     long combatExp = battleResult.expGained();
     long totalExp = baseExp + combatExp;
 
-    user = userStateService.getUser(userId);
+    user = userStateService.loadUser(userId);
     boolean diedInTraining = user.getStatus() == UserStatus.DYING;
 
     // simulateTraining already added combatExp to user (both normal and death paths)
@@ -221,7 +221,7 @@ public class TrainingService {
   // ===================== 遭遇编排（核心） =====================
 
   private BattleResultVO simulateTraining(Long userId, int durationMinutes, MapNode mapNode) {
-    User user = userStateService.getUser(userId);
+    User user = userStateService.loadUser(userId);
 
     List<MonsterEncounterEntry> monsterEncounters = mapNode.getMonsterEncounters();
     if (monsterEncounters == null || monsterEncounters.isEmpty()) {

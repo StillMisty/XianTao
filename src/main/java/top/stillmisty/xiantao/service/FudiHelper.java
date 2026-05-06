@@ -37,7 +37,7 @@ public class FudiHelper {
 
   /** 检查灵石是否足够，不足则抛出异常 */
   public void checkSpiritStones(Long userId, int cost) {
-    User user = userStateService.getUser(userId);
+    User user = userStateService.loadUser(userId);
     if (user.getSpiritStones() < cost) {
       throw new IllegalStateException("灵石不足（需要 %d，当前 %d）".formatted(cost, user.getSpiritStones()));
     }
@@ -45,21 +45,21 @@ public class FudiHelper {
 
   /** 扣除灵石 */
   public void deductSpiritStones(Long userId, int cost) {
-    User user = userStateService.getUser(userId);
+    User user = userStateService.loadUser(userId);
     user.setSpiritStones(user.getSpiritStones() - cost);
     userStateService.save(user);
   }
 
   /** 增加灵石 */
   public void addSpiritStones(Long userId, int amount) {
-    User user = userStateService.getUser(userId);
+    User user = userStateService.loadUser(userId);
     user.setSpiritStones(user.getSpiritStones() + amount);
     userStateService.save(user);
   }
 
   /** 获取用户信息，不存在则抛出异常 */
   public User getUserOrThrow(Long userId) {
-    return userStateService.getUser(userId);
+    return userStateService.loadUser(userId);
   }
 
   /** 解析地块编号（字符串 → 整数） */

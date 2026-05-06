@@ -48,7 +48,7 @@ public class MapService {
 
   /** 获取当前所在地图详情 */
   public MapInfoVO getCurrentMapInfo(Long userId) {
-    User user = userStateService.getUser(userId);
+    User user = userStateService.loadUser(userId);
     MapNode mapNode =
         mapNodeRepository
             .findById(user.getLocationId())

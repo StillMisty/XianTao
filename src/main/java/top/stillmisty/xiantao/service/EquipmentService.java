@@ -50,7 +50,7 @@ public class EquipmentService {
   /** 装备穿戴（装备 [物品名/编号]） */
   @Transactional
   public EquipResult equipItem(Long userId, String input) {
-    userStateService.getUser(userId);
+    userStateService.loadUser(userId);
 
     var result = itemResolver.resolveEquipment(userId, input);
     if (result instanceof ItemResolver.NotFound<?>(String input1)) {
@@ -266,7 +266,7 @@ public class EquipmentService {
 
   /** 获取装备列表（展开显示） */
   public EquipmentListResult getEquipmentList(Long userId) {
-    userStateService.getUser(userId);
+    userStateService.loadUser(userId);
 
     List<Equipment> allEquipments = equipmentRepository.findByUserId(userId);
 
