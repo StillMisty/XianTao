@@ -65,7 +65,7 @@ public class BeastProductionService {
 
     log.info("用户 {} 收取地块 {} 的灵兽产出 {} 件", fudi.getUserId(), cellId, totalItems);
 
-    return new CollectVO(cellId, "pen", null, beastName, totalItems, totalItems);
+    return new CollectVO(cellId, "PEN", null, beastName, totalItems, totalItems);
   }
 
   void updateBeastProduction(FudiCell cell, Fudi fudi) {
@@ -93,6 +93,11 @@ public class BeastProductionService {
     int cycles = (int) (elapsed / intervalSeconds);
     if (cycles <= 0) return;
 
+    int produced = calculateProductionAmount(beast, cycles);
+    applyProductionToCell(cell, pen, beast, produced, now);
+  }
+
+  private int calculateProductionAmount(Beast beast, int cycles) {
     int tier = beast.getTier();
     double outputMultiplier = beast.getQualityMultiplier();
     int perCycle =
@@ -105,9 +110,16 @@ public class BeastProductionService {
     int produced = Math.max(1, perCycle * cycles);
 
     List<String> mutationTraits = beast.getMutationTraits();
-    if (mutationTraits != null && mutationTraits.contains("high_yield")) {
+    if (mutationTraits != null && mutationTraits.contains("HIGH_YIELD")) {
       produced = (int) (produced * 1.3);
     }
+    return produced;
+  }
+
+  private void applyProductionToCell(
+      FudiCell cell, CellConfig.PenConfig pen, Beast beast, int produced, LocalDateTime now) {
+    int tier = beast.getTier();
+    List<String> mutationTraits = beast.getMutationTraits();
 
     List<ItemProperties.ProductionItem> productionItems = getProductionItems(cell);
     if (productionItems.isEmpty()) {
@@ -134,7 +146,7 @@ public class BeastProductionService {
           pen.addProductionItem(selectedItem.templateId(), selectedItem.name(), 1);
         }
       }
-      if (mutationTraits != null && mutationTraits.contains("rare_produce")) {
+      if (mutationTraits != null && mutationTraits.contains("RARE_PRODUCE")) {
         if (ThreadLocalRandom.current().nextInt(100) < 5) {
           var higherItem = selectHigherTierItem(productionItems);
           if (higherItem != null) {

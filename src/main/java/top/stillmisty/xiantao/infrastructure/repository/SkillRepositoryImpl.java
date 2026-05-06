@@ -34,11 +34,7 @@ public class SkillRepositoryImpl implements SkillRepository {
 
   @Override
   public Skill save(Skill skill) {
-    if (skill.getId() == null) {
-      mapper.insert(skill);
-    } else {
-      mapper.update(skill);
-    }
+    mapper.insertOrUpdateSelective(skill);
     return skill;
   }
 }

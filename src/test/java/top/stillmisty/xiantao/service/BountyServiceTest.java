@@ -17,6 +17,7 @@ import top.stillmisty.xiantao.domain.bounty.BountyRewardItem;
 import top.stillmisty.xiantao.domain.bounty.BountyRewardPool;
 import top.stillmisty.xiantao.domain.bounty.entity.Bounty;
 import top.stillmisty.xiantao.domain.bounty.entity.UserBounty;
+import top.stillmisty.xiantao.domain.bounty.enums.BountyStatus;
 import top.stillmisty.xiantao.domain.bounty.repository.BountyRepository;
 import top.stillmisty.xiantao.domain.bounty.repository.UserBountyRepository;
 import top.stillmisty.xiantao.domain.bounty.vo.BountyStatusVO;
@@ -40,6 +41,7 @@ class BountyServiceTest {
   @Mock private UserBountyRepository userBountyRepository;
   @Mock private ItemTemplateRepository itemTemplateRepository;
   @Mock private StackableItemService stackableItemService;
+  @Mock private BountyCombatService bountyCombatService;
 
   @InjectMocks private BountyService bountyService;
 
@@ -79,7 +81,7 @@ class BountyServiceTest {
     ub.setStartTime(LocalDateTime.now().minusMinutes(minutesAgo));
     ub.setDurationMinutes(durationMinutes);
     ub.setRewards(List.of(new BountyRewardItem.ItemReward(1L, "培元丹", 1)));
-    ub.setStatus("active");
+    ub.setStatus(BountyStatus.ACTIVE);
     return ub;
   }
 
@@ -202,24 +204,23 @@ class BountyServiceTest {
   // ===================== completeBounty =====================
 
   @Test
-  @DisplayName("completeBounty — 非 BOUNTY 状态抛异常")
-  void completeBounty_whenNotBounty_shouldThrow() {
-    User user = createUser(UserStatus.IDLE);
-    when(userStateService.loadUser(userId)).thenReturn(user);
+  @DisplayName("completeBounty — 委托给 BountyCombatService")
+  void completeBounty_shouldDelegateToBountyCombatService() {
+    when(bountyCombatService.completeBounty(userId))
+        .thenThrow(new IllegalStateException("您当前处于 空闲 状态，无法完成悬赏（需要 悬赏 状态）"));
 
     assertThrows(IllegalStateException.class, () -> bountyService.completeBounty(userId));
+    verify(bountyCombatService).completeBounty(userId);
   }
 
   @Test
-  @DisplayName("completeBounty — 时间未到抛异常")
-  void completeBounty_whenTimeNotReached_shouldThrow() {
-    User user = createUser(UserStatus.BOUNTY);
-    UserBounty userBounty = createUserBounty(10, 3);
-
-    when(userStateService.loadUser(userId)).thenReturn(user);
-    when(userBountyRepository.findActiveByUserId(userId)).thenReturn(Optional.of(userBounty));
+  @DisplayName("completeBounty — 时间未到委托给 BountyCombatService 抛异常")
+  void completeBounty_whenTimeNotReached_shouldDelegate() {
+    when(bountyCombatService.completeBounty(userId))
+        .thenThrow(new IllegalArgumentException("悬赏「采药童子」还需 7 分钟"));
 
     assertThrows(IllegalArgumentException.class, () -> bountyService.completeBounty(userId));
+    verify(bountyCombatService).completeBounty(userId);
   }
 
   // ===================== abandonBounty =====================
@@ -245,7 +246,7 @@ class BountyServiceTest {
     String result = bountyService.abandonBounty(userId);
 
     assertEquals(UserStatus.IDLE, user.getStatus());
-    assertEquals("abandoned", userBounty.getStatus());
+    assertEquals(BountyStatus.ABANDONED, userBounty.getStatus());
   }
 
   // ===================== Reward Range =====================

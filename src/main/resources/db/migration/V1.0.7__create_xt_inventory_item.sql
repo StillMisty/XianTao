@@ -18,7 +18,7 @@ CREATE TABLE xt_inventory_item
 
     -- 唯一约束：同一用户的同一类型物品只能有一条记录（堆叠）
     CONSTRAINT uk_user_template UNIQUE (user_id, template_id),
-    CONSTRAINT chk_inventory_item_type CHECK (item_type IN ('material', 'seed', 'beast_egg', 'potion', 'evolution_stone', 'skill_jade', 'recipe_scroll', 'herb')),
+    CONSTRAINT chk_inventory_item_type CHECK (item_type IN ('MATERIAL', 'SEED', 'BEAST_EGG', 'POTION', 'EVOLUTION_STONE', 'SKILL_JADE', 'RECIPE_SCROLL', 'HERB')),
     CONSTRAINT chk_inventory_item_quantity CHECK (quantity >= 0)
 );
 

@@ -8,19 +8,19 @@ import lombok.Getter;
 public enum UserStatus {
 
   /** 空闲 */
-  IDLE("idle", "空闲"),
+  IDLE("IDLE", "空闲"),
 
   /** 历练 */
-  EXERCISING("exercising", "历练"),
+  EXERCISING("EXERCISING", "历练"),
 
   /** 赶路 */
-  RUNNING("running", "赶路"),
+  RUNNING("RUNNING", "赶路"),
 
   /** 悬赏 */
-  BOUNTY("bounty", "悬赏"),
+  BOUNTY("BOUNTY", "悬赏"),
 
   /** 濒死 */
-  DYING("dying", "濒死");
+  DYING("DYING", "濒死");
 
   @EnumValue private final String code;
   private final String name;

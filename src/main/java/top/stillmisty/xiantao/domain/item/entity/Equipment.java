@@ -48,7 +48,7 @@ public class Equipment {
   /** 锻造强化等级 */
   private Integer forgeLevel;
 
-  /** 属性加成 JSONB: {"str": 5, "con": 3, "agi": 2, "wis": 0} 注：此字段保留用于存储基础属性加成，最终属性需加上词条和锻造加成 */
+  /** 属性加成 JSONB: {"STR": 5, "CON": 3, "AGI": 2, "WIS": 0} 注：此字段保留用于存储基础属性加成，最终属性需加上词条和锻造加成 */
   @Column(typeHandler = JsonbTypeHandler.class)
   private Map<String, Integer> statBonus;
 
@@ -155,22 +155,22 @@ public class Equipment {
 
   /** 获取力量加成 */
   public int getStrBonus() {
-    return getTotalStatBonus("str");
+    return getTotalStatBonus("STR");
   }
 
   /** 获取体质加成 */
   public int getConBonus() {
-    return getTotalStatBonus("con");
+    return getTotalStatBonus("CON");
   }
 
   /** 获取敏捷加成 */
   public int getAgiBonus() {
-    return getTotalStatBonus("agi");
+    return getTotalStatBonus("AGI");
   }
 
   /** 获取智慧加成 */
   public int getWisBonus() {
-    return getTotalStatBonus("wis");
+    return getTotalStatBonus("WIS");
   }
 
   /** 是否含有特殊词条（吸血、寻宝等） */

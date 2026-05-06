@@ -30,6 +30,10 @@ public class UserAuth {
   @Column(onInsertValue = "now()")
   private LocalDateTime createTime;
 
+  public boolean matches(PlatformType platform, String openId) {
+    return this.platform == platform && this.platformOpenId.equals(openId);
+  }
+
   /** 创建新绑定 */
   public static UserAuth init(PlatformType platform, String openId, Long userId) {
     UserAuth userAuth = new UserAuth();

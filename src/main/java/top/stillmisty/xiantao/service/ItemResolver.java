@@ -22,22 +22,15 @@ public class ItemResolver {
   private final StackableItemRepository stackableItemRepository;
   private final ItemTemplateRepository itemTemplateRepository;
   private final EquipmentRepository equipmentRepository;
+  private final FudiHelper fudiHelper;
 
   // ===================== Result Types =====================
 
-  private static int tier(ItemTemplate template) {
-    return getCropTier(template.getGrowTime() != null ? template.getGrowTime() : 0);
+  private int tier(ItemTemplate template) {
+    return fudiHelper.getCropTier(template.getGrowTime() != null ? template.getGrowTime() : 0);
   }
 
-  private static int getCropTier(int growTime) {
-    if (growTime <= 24) return 1;
-    if (growTime <= 48) return 2;
-    if (growTime <= 72) return 3;
-    if (growTime <= 120) return 4;
-    return 5;
-  }
-
-  private static String tierMetadata(ItemTemplate template) {
+  private String tierMetadata(ItemTemplate template) {
     return "T" + tier(template);
   }
 

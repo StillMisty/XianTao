@@ -18,7 +18,7 @@ public class EquipmentRepositoryImpl implements EquipmentRepository {
 
   @Override
   public Equipment save(Equipment equipment) {
-    equipmentMapper.insertOrUpdate(equipment);
+    equipmentMapper.insertOrUpdateSelective(equipment);
     return equipment;
   }
 

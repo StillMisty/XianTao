@@ -22,11 +22,6 @@ import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritFormRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
 import top.stillmisty.xiantao.domain.fudi.vo.*;
-import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
-import top.stillmisty.xiantao.domain.item.entity.StackableItem;
-import top.stillmisty.xiantao.domain.item.enums.ItemType;
-import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
-import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
@@ -38,9 +33,6 @@ public class FudiService {
 
   private final FudiRepository fudiRepository;
   private final FudiCellRepository fudiCellRepository;
-  private final StackableItemService stackableItemService;
-  private final ItemTemplateRepository itemTemplateRepository;
-  private final StackableItemRepository stackableItemRepository;
   private final SpiritRepository spiritRepository;
   private final SpiritFormRepository spiritFormRepository;
   private final BeastRepository beastRepository;
@@ -48,6 +40,8 @@ public class FudiService {
   private final FarmService farmService;
   private final FudiHelper fudiHelper;
   private final TribulationService tribulationService;
+  private final FudiGiftService fudiGiftService;
+  private final FudiCollectService fudiCollectService;
 
   // ===================== 公开 API（含认证） =====================
 
@@ -204,6 +198,7 @@ public class FudiService {
 
   // ===================== 福地状态查询 =====================
 
+  @Transactional
   public FudiStatusVO getFudiStatus(Long userId) {
     Fudi fudi = getFudiOrThrow(userId);
     autoExpandCells(fudi);
@@ -344,84 +339,8 @@ public class FudiService {
 
   // ===================== 种植系统 =====================
 
-  @Transactional
   public CollectAllVO collectAll(Long userId) {
-    Fudi fudi = getFudiOrThrow(userId);
-
-    List<FudiCell> cells = fudiCellRepository.findByFudiId(fudi.getId());
-    if (cells.isEmpty()) {
-      return new CollectAllVO(0, 0, 0);
-    }
-
-    int harvestCount = 0;
-    int collectedCount = 0;
-    int totalItems = 0;
-
-    // 收取灵田
-    List<FudiCell> toReset = new ArrayList<>();
-    for (FudiCell cell : cells) {
-      if (cell.getCellType() != CellType.FARM) continue;
-      if (!(cell.getConfig() instanceof CellConfig.FarmConfig farm)) continue;
-
-      farmService.updateGrowthProgress(cell);
-      Double progress = farmService.calculateGrowthProgress(cell);
-      if (progress == null || progress < 1.0) continue;
-
-      boolean isPerennial = farm.harvestCount() < farmService.getMaxHarvest(farm.cropId());
-      if (!isPerennial && progress > 1.0 && farmService.isWilted(cell)) {
-        toReset.add(cell);
-        continue;
-      }
-
-      int yield = farmService.calculateYield(farm.cropId(), fudi.getTribulationStage());
-      int hCount = farm.harvestCount() + 1;
-      int maxHarvest = farmService.getMaxHarvest(farm.cropId());
-
-      if (isPerennial && hCount < maxHarvest) {
-        cell.setConfig(farm.withHarvestCount(hCount));
-        farmService.replantAfterHarvest(cell);
-      } else {
-        toReset.add(cell);
-      }
-
-      totalItems += yield;
-      harvestCount++;
-    }
-
-    for (FudiCell cell : toReset) {
-      cell.setCellType(CellType.EMPTY);
-      cell.clearConfig();
-      fudiCellRepository.save(cell);
-    }
-
-    // 收取兽栏产出
-    for (FudiCell cell : cells) {
-      if (cell.getCellType() != CellType.PEN) continue;
-      if (beastService.isIncubating(cell)) continue;
-
-      beastService.updateBeastProduction(cell, fudi);
-
-      List<CellConfig.ProductionItem> productionStored = beastService.getProductionStoredList(cell);
-      if (productionStored.isEmpty()) continue;
-
-      int cellTotalItems = 0;
-      for (CellConfig.ProductionItem item : productionStored) {
-        if (item.quantity() > 0) {
-          stackableItemService.addStackableItem(
-              fudi.getUserId(), item.templateId(), ItemType.HERB, item.name(), item.quantity());
-          cellTotalItems += item.quantity();
-        }
-      }
-
-      cell.clearProductionStored();
-      fudiCellRepository.save(cell);
-
-      totalItems += cellTotalItems;
-      collectedCount++;
-      log.info("用户 {} 收取地块 {} 的灵兽产出 {} 件", fudi.getUserId(), cell.getCellId(), cellTotalItems);
-    }
-
-    return new CollectAllVO(harvestCount, collectedCount, totalItems);
+    return fudiCollectService.collectAll(userId);
   }
 
   // ===================== 建造/拆除/升级系统 =====================
@@ -496,7 +415,6 @@ public class FudiService {
     }
 
     int cost = currentLevel == 1 ? 200 : currentLevel == 2 ? 400 : currentLevel == 3 ? 800 : 1600;
-    fudiHelper.checkSpiritStones(userId, cost);
     fudiHelper.deductSpiritStones(userId, cost);
 
     int newLevel = currentLevel + 1;
@@ -516,89 +434,8 @@ public class FudiService {
 
   // ===================== 送礼系统 =====================
 
-  @Transactional
   public GiveGiftVO giveGift(Long userId, String itemName) {
-    Fudi fudi = getFudiOrThrow(userId);
-
-    List<StackableItem> items =
-        stackableItemRepository.findByUserId(userId).stream()
-            .filter(e -> e.getName().contains(itemName))
-            .toList();
-
-    if (items.isEmpty()) {
-      throw new IllegalStateException("背包中未找到 [" + itemName + "]");
-    }
-
-    if (items.size() > 1) {
-      throw new IllegalStateException("找到多个 [" + itemName + "]，请使用更精确的名称");
-    }
-
-    StackableItem gift = items.getFirst();
-    ItemTemplate template =
-        itemTemplateRepository
-            .findById(gift.getTemplateId() != null ? gift.getTemplateId() : (long) 1)
-            .orElse(null);
-
-    Spirit spirit =
-        spiritRepository
-            .findByFudiId(fudi.getId())
-            .orElseThrow(() -> new IllegalStateException("地灵不存在"));
-
-    if (spirit.getLastGiftTime() != null
-        && spirit.getLastGiftTime().toLocalDate().equals(LocalDateTime.now().toLocalDate())) {
-      throw new IllegalStateException("今日已送过礼物，明天再来吧");
-    }
-
-    Set<String> likedTags = Set.of();
-    Set<String> dislikedTags = Set.of();
-    if (spirit.getFormId() != null) {
-      SpiritForm spiritForm =
-          spiritFormRepository.findById(spirit.getFormId().longValue()).orElse(null);
-      if (spiritForm != null) {
-        likedTags = spiritForm.getLikedTags() != null ? spiritForm.getLikedTags() : Set.of();
-        dislikedTags =
-            spiritForm.getDislikedTags() != null ? spiritForm.getDislikedTags() : Set.of();
-      }
-    }
-
-    Set<String> itemTags =
-        gift.getTags() != null && !gift.getTags().isEmpty()
-            ? gift.getTags()
-            : (template != null && template.getTags() != null ? template.getTags() : Set.of());
-
-    boolean isLiked = itemTags.stream().anyMatch(likedTags::contains);
-    boolean isDisliked = itemTags.stream().anyMatch(dislikedTags::contains);
-
-    int oldAffection = spirit.getAffection();
-    int change;
-    String reaction;
-
-    if (isLiked) {
-      change = 10 + ThreadLocalRandom.current().nextInt(41);
-      reaction = "开心";
-    } else if (isDisliked) {
-      change = -(5 + ThreadLocalRandom.current().nextInt(16));
-      reaction = "嫌弃";
-    } else {
-      change = 1 + ThreadLocalRandom.current().nextInt(3);
-      reaction = "平淡";
-    }
-
-    spirit.addAffection(change);
-    spirit.setLastGiftTime(LocalDateTime.now());
-
-    if (gift.getQuantity() != null && gift.getQuantity() > 1) {
-      gift.setQuantity(gift.getQuantity() - 1);
-      stackableItemRepository.save(gift);
-    } else {
-      stackableItemRepository.deleteById(gift.getId());
-    }
-
-    spiritRepository.save(spirit);
-    fudiRepository.save(fudi);
-
-    return new GiveGiftVO(
-        gift.getName(), oldAffection, spirit.getAffection(), change, reaction, isLiked, isDisliked);
+    return fudiGiftService.giveGift(userId, itemName);
   }
 
   // ===================== 地块状态查询 =====================

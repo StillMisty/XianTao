@@ -9,7 +9,7 @@ CREATE TABLE xt_item_template
     description TEXT,
     create_time TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     update_time TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT chk_item_template_type CHECK (type IN ('material', 'seed', 'beast_egg', 'potion', 'evolution_stone', 'skill_jade', 'recipe_scroll', 'herb'))
+    CONSTRAINT chk_item_template_type CHECK (type IN ('MATERIAL', 'SEED', 'BEAST_EGG', 'POTION', 'EVOLUTION_STONE', 'SKILL_JADE', 'RECIPE_SCROLL', 'HERB'))
 );
 
 COMMENT ON TABLE xt_item_template IS '物品模板配置表';

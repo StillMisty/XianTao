@@ -8,6 +8,7 @@ import com.mybatisflex.core.activerecord.Model;
 import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
 import top.stillmisty.xiantao.domain.fudi.enums.MBTIPersonality;
@@ -15,8 +16,13 @@ import top.stillmisty.xiantao.domain.fudi.enums.MBTIPersonality;
 @EqualsAndHashCode(callSuper = true)
 @Table("xt_spirit")
 @Accessors(chain = true)
-@Data(staticConstructor = "create")
+@Data
+@NoArgsConstructor
 public class Spirit extends Model<Spirit> {
+
+  public static Spirit create() {
+    return new Spirit();
+  }
 
   @Id(keyType = KeyType.Auto)
   private Long id;

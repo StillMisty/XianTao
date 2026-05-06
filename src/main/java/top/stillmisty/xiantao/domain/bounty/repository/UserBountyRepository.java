@@ -8,6 +8,4 @@ public interface UserBountyRepository {
   Optional<UserBounty> findActiveByUserId(Long userId);
 
   void save(UserBounty userBounty);
-
-  void update(UserBounty userBounty);
 }

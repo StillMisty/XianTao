@@ -32,6 +32,7 @@ public class CharacterStatusService {
   private final DaoProtectionRepository daoProtectionRepository;
   private final MapService mapService;
   private final MapNodeRepository mapNodeRepository;
+  private final ProtectionHelper protectionHelper;
 
   // ===================== 公开 API（含认证） =====================
 
@@ -48,10 +49,97 @@ public class CharacterStatusService {
   public CharacterStatusResult getCharacterStatus(Long userId) {
     User user = userStateService.loadUser(userId);
 
-    // 获取已穿戴装备
+    EquipData equipData = buildEquipData(userId);
+    ProtectionData protData = buildProtectionData(userId, user);
+    TravelData travelData = buildTravelData(user);
+
+    int totalStr = user.getEffectiveStatStr() + equipData.equipStr;
+    int totalCon = user.getEffectiveStatCon() + equipData.equipCon;
+    int totalAgi = user.getEffectiveStatAgi() + equipData.equipAgi;
+    int totalWis = user.getEffectiveStatWis() + equipData.equipWis;
+
+    int attack = totalStr * 2 + equipData.equipAttack;
+    int defense = totalCon + equipData.equipDefense;
+    int hpMax = 100 + totalCon * 20;
+
+    return new CharacterStatusResult(
+        true,
+        "",
+        user.getId(),
+        user.getNickname(),
+        user.getLevel(),
+        user.getExp(),
+        user.calculateExpToNextLevel(),
+        user.getExp() * 100.0 / user.calculateExpToNextLevel(),
+        user.getStatus(),
+        user.getStatus().getName(),
+        user.getLocationId(),
+        travelData.locationName,
+        travelData.destinationId,
+        travelData.destinationName,
+        travelData.startTime,
+        travelData.estimatedArrivalTime,
+        travelData.timeMinutes,
+        travelData.minutesElapsed,
+        travelData.minutesRemaining,
+        user.getHpCurrent(),
+        hpMax,
+        user.getHpCurrent() * 100.0 / hpMax,
+        user.getEffectiveStatStr(),
+        user.getEffectiveStatCon(),
+        user.getEffectiveStatAgi(),
+        user.getEffectiveStatWis(),
+        equipData.equipStr,
+        equipData.equipCon,
+        equipData.equipAgi,
+        equipData.equipWis,
+        totalStr,
+        totalCon,
+        totalAgi,
+        totalWis,
+        attack,
+        defense,
+        user.getSpiritStones(),
+        user.calculateBreakthroughSuccessRate(),
+        user.getBreakthroughFailCount(),
+        protData.protectingCount,
+        3,
+        protData.protectingList,
+        protData.protectedByList,
+        protData.totalBonus,
+        equipData.summary);
+  }
+
+  // ===================== 主流程提取的辅助方法 =====================
+
+  private record EquipData(
+      CharacterStatusResult.EquipmentSummary summary,
+      int equipStr,
+      int equipCon,
+      int equipAgi,
+      int equipWis,
+      int equipAttack,
+      int equipDefense) {}
+
+  private record ProtectionData(
+      List<CharacterStatusResult.ProtectionInfoVO> protectingList,
+      List<CharacterStatusResult.ProtectionInfoVO> protectedByList,
+      int protectingCount,
+      double totalBonus) {}
+
+  private record TravelData(
+      String locationName,
+      Long destinationId,
+      String destinationName,
+      LocalDateTime startTime,
+      LocalDateTime estimatedArrivalTime,
+      Integer timeMinutes,
+      Long minutesElapsed,
+      Long minutesRemaining) {}
+
+  private EquipData buildEquipData(Long userId) {
     List<Equipment> equippedItems = equipmentRepository.findEquippedByUserId(userId);
 
-    // 计算装备加成
     int equipStr = 0, equipCon = 0, equipAgi = 0, equipWis = 0;
     int equipAttack = 0, equipDefense = 0;
 
@@ -64,47 +152,36 @@ public class CharacterStatusService {
       equipDefense += equipment.getDefenseBonus();
     }
 
-    // 计算最终属性
-    int totalStr = user.getEffectiveStatStr() + equipStr;
-    int totalCon = user.getEffectiveStatCon() + equipCon;
-    int totalAgi = user.getEffectiveStatAgi() + equipAgi;
-    int totalWis = user.getEffectiveStatWis() + equipWis;
+    CharacterStatusResult.EquipmentSummary summary =
+        new CharacterStatusResult.EquipmentSummary(
+            equippedItems.size(),
+            equippedItems.stream().map(this::convertToEquipmentSummaryItem).toList());
 
-    // 计算战斗属性
-    int attack = totalStr * 2 + equipAttack;
-    int defense = totalCon + equipDefense;
-    int hpMax = 100 + totalCon * 20;
+    return new EquipData(
+        summary, equipStr, equipCon, equipAgi, equipWis, equipAttack, equipDefense);
+  }
 
-    // 转换装备为VO
-    CharacterStatusResult.EquipmentSummary equipmentSummary =
-        CharacterStatusResult.EquipmentSummary.builder()
-            .totalEquipped(equippedItems.size())
-            .items(equippedItems.stream().map(this::convertToEquipmentSummaryItem).toList())
-            .build();
-
-    // 获取突破相关信息
-    double breakthroughSuccessRate = user.calculateBreakthroughSuccessRate();
-    Integer breakthroughFailCount = user.getBreakthroughFailCount();
-
-    // 获取护道相关信息
+  private ProtectionData buildProtectionData(Long userId, User user) {
     List<DaoProtection> protectingList = daoProtectionRepository.findByProtectorId(userId);
     List<DaoProtection> protectedByList = daoProtectionRepository.findByProtegeId(userId);
 
-    // 转换为 VO
     List<CharacterStatusResult.ProtectionInfoVO> protectingVOList =
         convertToProtectionInfoVO(protectingList, user);
     List<CharacterStatusResult.ProtectionInfoVO> protectedByVOList =
         convertToProtectionInfoVOWithBonus(protectedByList, user);
 
-    // 计算总护道加成
     double totalProtectionBonus =
         protectedByVOList.stream()
-            .filter(info -> Boolean.TRUE.equals(info.getIsInSameLocation()))
-            .mapToDouble(CharacterStatusResult.ProtectionInfoVO::getBonusPercentage)
+            .filter(info -> Boolean.TRUE.equals(info.isInSameLocation()))
+            .mapToDouble(CharacterStatusResult.ProtectionInfoVO::bonusPercentage)
             .sum();
-    totalProtectionBonus = Math.min(20.0, totalProtectionBonus); // 上限 20%
+    totalProtectionBonus = Math.min(20.0, totalProtectionBonus);
 
-    // 旅行相关信息
+    return new ProtectionData(
+        protectingVOList, protectedByVOList, protectingList.size(), totalProtectionBonus);
+  }
+
+  private TravelData buildTravelData(User user) {
     String locationName = mapService.getMapName(user.getLocationId());
     Long travelDestinationId = null;
     String travelDestinationName = null;
@@ -138,73 +215,34 @@ public class CharacterStatusService {
       }
     }
 
-    return CharacterStatusResult.builder()
-        .success(true)
-        .message("")
-        .userId(user.getId())
-        .nickname(user.getNickname())
-        .level(user.getLevel())
-        .exp(user.getExp())
-        .expToNextLevel(user.calculateExpToNextLevel())
-        .expPercentage(user.getExp() * 100.0 / user.calculateExpToNextLevel())
-        .status(user.getStatus())
-        .statusName(user.getStatus().getName())
-        .locationId(user.getLocationId())
-        .locationName(locationName)
-        .travelDestinationId(travelDestinationId)
-        .travelDestinationName(travelDestinationName)
-        .travelStartTime(travelStartTime)
-        .estimatedArrivalTime(estimatedArrivalTime)
-        .travelTimeMinutes(travelTimeMinutes)
-        .travelMinutesElapsed(travelMinutesElapsed)
-        .travelMinutesRemaining(travelMinutesRemaining)
-        .hpCurrent(user.getHpCurrent())
-        .hpMax(hpMax)
-        .hpPercentage(user.getHpCurrent() * 100.0 / hpMax)
-        .statStr(user.getEffectiveStatStr())
-        .statCon(user.getEffectiveStatCon())
-        .statAgi(user.getEffectiveStatAgi())
-        .statWis(user.getEffectiveStatWis())
-        .equipStr(equipStr)
-        .equipCon(equipCon)
-        .equipAgi(equipAgi)
-        .equipWis(equipWis)
-        .totalStr(totalStr)
-        .totalCon(totalCon)
-        .totalAgi(totalAgi)
-        .totalWis(totalWis)
-        .attack(attack)
-        .defense(defense)
-        .spiritStones(user.getSpiritStones())
-        .breakthroughSuccessRate(breakthroughSuccessRate)
-        .breakthroughFailCount(breakthroughFailCount)
-        .protectorCount(protectingList.size())
-        .maxProtectorCount(3)
-        .protectingList(protectingVOList)
-        .protectedByList(protectedByVOList)
-        .totalProtectionBonus(totalProtectionBonus)
-        .equipment(equipmentSummary)
-        .build();
+    return new TravelData(
+        locationName,
+        travelDestinationId,
+        travelDestinationName,
+        travelStartTime,
+        estimatedArrivalTime,
+        travelTimeMinutes,
+        travelMinutesElapsed,
+        travelMinutesRemaining);
   }
 
   // ===================== 辅助转换方法 =====================
 
   private CharacterStatusResult.EquipmentSummaryItem convertToEquipmentSummaryItem(
       Equipment equipment) {
-    return CharacterStatusResult.EquipmentSummaryItem.builder()
-        .equipmentId(equipment.getId())
-        .name(equipment.getName())
-        .slot(equipment.getSlot())
-        .slotName(equipment.getSlot().getName())
-        .rarity(equipment.getRarity())
-        .rarityName(equipment.getRarity().getName())
-        .strBonus(equipment.getStrBonus())
-        .conBonus(equipment.getConBonus())
-        .agiBonus(equipment.getAgiBonus())
-        .wisBonus(equipment.getWisBonus())
-        .attackBonus(equipment.getAttackBonus())
-        .defenseBonus(equipment.getDefenseBonus())
-        .build();
+    return new CharacterStatusResult.EquipmentSummaryItem(
+        equipment.getId(),
+        equipment.getName(),
+        equipment.getSlot(),
+        equipment.getSlot().getName(),
+        equipment.getRarity(),
+        equipment.getRarity().getName(),
+        equipment.getStrBonus(),
+        equipment.getConBonus(),
+        equipment.getAgiBonus(),
+        equipment.getWisBonus(),
+        equipment.getAttackBonus(),
+        equipment.getDefenseBonus());
   }
 
   private List<CharacterStatusResult.ProtectionInfoVO> convertToProtectionInfoVO(
@@ -222,18 +260,18 @@ public class CharacterStatusService {
               }
 
               User targetUser = targetUserOpt.get();
-              boolean inSameLocation = isInSameLocation(currentUser, targetUser);
-              double bonus = calculateSingleProtectorBonus(currentUser, targetUser);
+              boolean inSameLocation = protectionHelper.isInSameLocation(currentUser, targetUser);
+              double bonus =
+                  protectionHelper.calculateSingleProtectorBonus(currentUser, targetUser);
 
-              return CharacterStatusResult.ProtectionInfoVO.builder()
-                  .userId(targetUser.getId())
-                  .userName(targetUser.getNickname())
-                  .userLevel(targetUser.getLevel())
-                  .locationId(targetUser.getLocationId())
-                  .locationName(mapService.getMapName(targetUser.getLocationId()))
-                  .isInSameLocation(inSameLocation)
-                  .bonusPercentage(bonus)
-                  .build();
+              return new CharacterStatusResult.ProtectionInfoVO(
+                  targetUser.getId(),
+                  targetUser.getNickname(),
+                  targetUser.getLevel(),
+                  targetUser.getLocationId(),
+                  mapService.getMapName(targetUser.getLocationId()),
+                  inSameLocation,
+                  bonus);
             })
         .filter(Objects::nonNull)
         .toList();
@@ -254,33 +292,23 @@ public class CharacterStatusService {
               }
 
               User protector = protectorOpt.get();
-              boolean inSameLocation = isInSameLocation(currentUser, protector);
+              boolean inSameLocation = protectionHelper.isInSameLocation(currentUser, protector);
 
               double bonus = 0.0;
               if (inSameLocation) {
-                bonus = calculateSingleProtectorBonus(protector, currentUser);
+                bonus = protectionHelper.calculateSingleProtectorBonus(protector, currentUser);
               }
 
-              return CharacterStatusResult.ProtectionInfoVO.builder()
-                  .userId(protector.getId())
-                  .userName(protector.getNickname())
-                  .userLevel(protector.getLevel())
-                  .locationId(protector.getLocationId())
-                  .locationName(mapService.getMapName(protector.getLocationId()))
-                  .isInSameLocation(inSameLocation)
-                  .bonusPercentage(bonus)
-                  .build();
+              return new CharacterStatusResult.ProtectionInfoVO(
+                  protector.getId(),
+                  protector.getNickname(),
+                  protector.getLevel(),
+                  protector.getLocationId(),
+                  mapService.getMapName(protector.getLocationId()),
+                  inSameLocation,
+                  bonus);
             })
         .filter(Objects::nonNull)
         .toList();
-  }
-
-  private boolean isInSameLocation(User user1, User user2) {
-    return user1.getLocationId().equals(user2.getLocationId());
-  }
-
-  private double calculateSingleProtectorBonus(User protector, User protege) {
-    int levelDiff = protector.getLevel() - protege.getLevel();
-    return 5.0 + (levelDiff * 1.0);
   }
 }

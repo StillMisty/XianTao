@@ -40,11 +40,7 @@ public class PlayerPillRecipeRepositoryImpl implements PlayerPillRecipeRepositor
 
   @Override
   public PlayerPillRecipe save(PlayerPillRecipe recipe) {
-    if (recipe.getId() == null) {
-      mapper.insert(recipe);
-    } else {
-      mapper.insertOrUpdate(recipe);
-    }
+    mapper.insertOrUpdateSelective(recipe);
     return recipe;
   }
 

@@ -51,11 +51,7 @@ public class ItemTemplateRepositoryImpl implements ItemTemplateRepository {
 
   @Override
   public ItemTemplate save(ItemTemplate template) {
-    if (template.getId() == null || !existsById(template.getId())) {
-      mapper.insert(template);
-    } else {
-      mapper.update(template);
-    }
+    mapper.insertOrUpdateSelective(template);
     return template;
   }
 

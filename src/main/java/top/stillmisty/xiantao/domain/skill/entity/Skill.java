@@ -49,4 +49,24 @@ public class Skill {
 
   @Column(onUpdateValue = "now()")
   private LocalDateTime updateTime;
+
+  public boolean isActive() {
+    return skillType == SkillType.ACTIVE;
+  }
+
+  public boolean isPassive() {
+    return skillType == SkillType.PASSIVE;
+  }
+
+  public boolean requiresPrecursor() {
+    return requireSkillId != null;
+  }
+
+  public boolean meetsWisRequirement(int wis) {
+    return requireWis == null || wis >= requireWis;
+  }
+
+  public boolean meetsLevelRequirement(int level) {
+    return levelRequirement == null || level >= levelRequirement;
+  }
 }

@@ -22,7 +22,7 @@ public class MapNodeRepositoryImpl implements MapNodeRepository {
   @Override
   @CacheEvict(value = "mapNodes", allEntries = true)
   public MapNode save(MapNode mapNode) {
-    mapNodeMapper.insertOrUpdate(mapNode);
+    mapNodeMapper.insertOrUpdateSelective(mapNode);
     return mapNode;
   }
 

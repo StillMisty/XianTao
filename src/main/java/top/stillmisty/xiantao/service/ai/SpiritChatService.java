@@ -136,7 +136,7 @@ public class SpiritChatService {
     if (!history.isEmpty()) {
       StringBuilder historySb = new StringBuilder("\n【最近对话记录】\n");
       for (SpiritHistory h : history.reversed()) {
-        String role = "user".equals(h.getRole()) ? "修士" : "地灵";
+        String role = h.isFromUser() ? "修士" : "地灵";
         historySb.append(role).append("：").append(h.getContent()).append("\n");
       }
       historyContext = historySb.toString();
@@ -209,7 +209,7 @@ public class SpiritChatService {
 
     sb.append("【已占地块详情】\n");
     for (FudiCell cell : farmCells) {
-      sb.append("- [").append(cell.getCellId()).append("] farm");
+      sb.append("- [").append(cell.getCellId()).append("] FARM");
       if (cell.getConfig() instanceof CellConfig.FarmConfig farm) {
         sb.append(" 种植:").append(farmService.getCropName(farm.cropId()));
         Double progress = farmService.calculateGrowthProgress(cell);
@@ -225,7 +225,7 @@ public class SpiritChatService {
     }
 
     for (FudiCell cell : penCells) {
-      sb.append("- [").append(cell.getCellId()).append("] pen");
+      sb.append("- [").append(cell.getCellId()).append("] PEN");
       if (cell.getConfig() instanceof CellConfig.PenConfig pen) {
         beastRepository
             .findById(pen.beastId())

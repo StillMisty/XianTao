@@ -6,13 +6,13 @@ import lombok.Getter;
 /** 怪物类型枚举 */
 @Getter
 public enum MonsterType {
-  BEAST("beast", "妖兽"),
-  SPIRIT("spirit", "灵体"),
-  ARMORED("armored", "甲胄"),
-  WILD_BEAST("wild_beast", "猛兽"),
-  EVIL("evil", "邪祟"),
-  FLYING("flying", "飞行"),
-  HUMAN("human", "人形");
+  BEAST("BEAST", "妖兽"),
+  SPIRIT("SPIRIT", "灵体"),
+  ARMORED("ARMORED", "甲胄"),
+  WILD_BEAST("WILD_BEAST", "猛兽"),
+  EVIL("EVIL", "邪祟"),
+  FLYING("FLYING", "飞行"),
+  HUMAN("HUMAN", "人形");
 
   @EnumValue private final String code;
   private final String name;
@@ -24,8 +24,8 @@ public enum MonsterType {
 
   public static MonsterType fromCode(String code) {
     for (MonsterType type : values()) {
-      if (type.code.equalsIgnoreCase(code)) return type;
+      if (type.code.equals(code)) return type;
     }
-    return null;
+    throw new IllegalArgumentException("Unknown MonsterType code: " + code);
   }
 }

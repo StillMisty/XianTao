@@ -7,16 +7,16 @@ import lombok.Getter;
 public enum AffixType {
 
   /** 启迪 - 悟性 (WIS) + X */
-  STRENGTH("strength", "蛮力", "STR", "力道"),
-  CONSTITUTION("constitution", "坚韧", "CON", "根骨"),
-  AGILITY("agility", "轻灵", "AGI", "身法"),
-  WISDOM("wisdom", "启迪", "WIS", "悟性"),
+  STRENGTH("STRENGTH", "蛮力", "STR", "力道"),
+  CONSTITUTION("CONSTITUTION", "坚韧", "CON", "根骨"),
+  AGILITY("AGILITY", "轻灵", "AGI", "身法"),
+  WISDOM("WISDOM", "启迪", "WIS", "悟性"),
 
   /** 吸血 - 伤害的5%转化为HP（仅金装） */
-  LIFE_STEAL("life_steal", "吸血", null, "吸血"),
+  LIFE_STEAL("LIFE_STEAL", "吸血", null, "吸血"),
 
   /** 寻宝 - 历练极品掉率+5%（仅金装） */
-  TREASURE_HUNT("treasure_hunt", "寻宝", null, "寻宝");
+  TREASURE_HUNT("TREASURE_HUNT", "寻宝", null, "寻宝");
 
   private final String code;
   private final String name;
@@ -37,11 +37,11 @@ public enum AffixType {
   /** 从代码获取词条类型 */
   public static AffixType fromCode(String code) {
     for (AffixType type : values()) {
-      if (type.code.equalsIgnoreCase(code)) {
+      if (type.code.equals(code)) {
         return type;
       }
     }
-    return null;
+    throw new IllegalArgumentException("Unknown AffixType code: " + code);
   }
 
   /** 获取所有属性词条（不含特殊词条） */
@@ -62,7 +62,7 @@ public enum AffixType {
         return type;
       }
     }
-    return null;
+    throw new IllegalArgumentException("Unknown AffixType key: " + key);
   }
 
   /** 检查是否为特殊词条（仅金装） */

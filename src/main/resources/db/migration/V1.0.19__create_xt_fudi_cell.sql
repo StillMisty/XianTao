@@ -3,14 +3,14 @@ CREATE TABLE xt_fudi_cell (
     id          BIGSERIAL PRIMARY KEY,
     fudi_id     BIGINT NOT NULL,
     cell_id     INT NOT NULL,
-    cell_type   VARCHAR(16) NOT NULL DEFAULT 'empty',
+    cell_type   VARCHAR(16) NOT NULL DEFAULT 'EMPTY',
     cell_level  INT NOT NULL DEFAULT 1,
     config      JSONB NOT NULL DEFAULT '{}'::jsonb,
     create_time TIMESTAMP NOT NULL DEFAULT NOW(),
     update_time TIMESTAMP NOT NULL DEFAULT NOW(),
     CONSTRAINT uq_fudi_cell UNIQUE (fudi_id, cell_id),
     CONSTRAINT fk_fudi_cell_fudi FOREIGN KEY (fudi_id) REFERENCES xt_fudi (id) ON DELETE CASCADE,
-    CONSTRAINT chk_fudi_cell_type CHECK (cell_type IN ('empty', 'farm', 'pen')),
+    CONSTRAINT chk_fudi_cell_type CHECK (cell_type IN ('EMPTY', 'FARM', 'PEN')),
     CONSTRAINT chk_fudi_cell_level CHECK (cell_level BETWEEN 1 AND 5),
     CONSTRAINT chk_fudi_cell_id CHECK (cell_id >= 1)
 );
@@ -23,7 +23,7 @@ CREATE INDEX idx_fudi_cell_type ON xt_fudi_cell (fudi_id, cell_type);
 COMMENT ON TABLE xt_fudi_cell IS '福地地块表';
 COMMENT ON COLUMN xt_fudi_cell.fudi_id IS '关联福地ID';
 COMMENT ON COLUMN xt_fudi_cell.cell_id IS '地块编号（从1开始）';
-COMMENT ON COLUMN xt_fudi_cell.cell_type IS '地块类型：empty/farm/pen';
+COMMENT ON COLUMN xt_fudi_cell.cell_type IS '地块类型：EMPTY/FARM/PEN';
 COMMENT ON COLUMN xt_fudi_cell.cell_level IS '地块等级（1-5）';
 COMMENT ON COLUMN xt_fudi_cell.config IS '建筑专有属性，反序列化时根据 cell_type 映射为 FarmConfig/PenConfig/EmptyConfig：
   farm: {"crop_id":1,"plant_time":"2026-01-01T12:00:00","mature_time":"2026-01-02T12:00:00","harvest_count":0}

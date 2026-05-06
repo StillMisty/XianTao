@@ -6,9 +6,9 @@ import lombok.Getter;
 /** 地块类型 */
 @Getter
 public enum CellType {
-  EMPTY("empty", "空地"),
-  FARM("farm", "灵田"),
-  PEN("pen", "兽栏");
+  EMPTY("EMPTY", "空地"),
+  FARM("FARM", "灵田"),
+  PEN("PEN", "兽栏");
 
   @EnumValue private final String code;
   private final String chineseName;

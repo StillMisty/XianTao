@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
 import top.stillmisty.xiantao.domain.beast.vo.BeastStatusVO;
@@ -129,6 +130,7 @@ public class BeastDisplayHelper {
     }
   }
 
+  @Transactional
   void clearBeastCell(FudiCell cell) {
     cell.setConfig(new CellConfig.EmptyConfig());
     fudiCellRepository.save(cell);

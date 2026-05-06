@@ -7,7 +7,7 @@ CREATE TABLE xt_spirit
 
     affection           INTEGER     NOT NULL DEFAULT 0,
     affection_max       INTEGER     NOT NULL DEFAULT 1000,
-    emotion_state       VARCHAR(20) NOT NULL DEFAULT 'neutral',
+    emotion_state       VARCHAR(20) NOT NULL DEFAULT 'NEUTRAL',
     mbti_type           VARCHAR(4)  NOT NULL,
 
     last_gift_time      TIMESTAMP,
@@ -17,7 +17,7 @@ CREATE TABLE xt_spirit
 
     CONSTRAINT chk_spirit_affection_max CHECK (affection_max > 0),
     CONSTRAINT chk_spirit_mbti CHECK (mbti_type ~ '^[EI][SN][TF][JP]$'),
-    CONSTRAINT chk_spirit_emotion_state CHECK (emotion_state IN ('affectionate', 'joyful', 'content', 'neutral', 'distant', 'worried', 'excited', 'angry', 'exhausted')),
+    CONSTRAINT chk_spirit_emotion_state CHECK (emotion_state IN ('AFFECTIONATE', 'JOYFUL', 'CONTENT', 'NEUTRAL', 'DISTANT', 'WORRIED', 'EXCITED', 'ANGRY', 'EXHAUSTED')),
     CONSTRAINT chk_spirit_affection CHECK (affection >= 0)
 );
 

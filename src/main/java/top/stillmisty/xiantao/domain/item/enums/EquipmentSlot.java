@@ -8,13 +8,13 @@ import lombok.Getter;
 public enum EquipmentSlot {
 
   /** 法器 */
-  WEAPON("weapon", "法器"),
+  WEAPON("WEAPON", "法器"),
 
   /** 护甲 */
-  ARMOR("armor", "护甲"),
+  ARMOR("ARMOR", "护甲"),
 
   /** 饰品 */
-  ACCESSORY("accessory", "饰品");
+  ACCESSORY("ACCESSORY", "饰品");
 
   @EnumValue private final String code;
   private final String name;
@@ -26,11 +26,11 @@ public enum EquipmentSlot {
 
   public static EquipmentSlot fromCode(String code) {
     for (EquipmentSlot slot : values()) {
-      if (slot.code.equalsIgnoreCase(code)) {
+      if (slot.code.equals(code)) {
         return slot;
       }
     }
-    return null;
+    throw new IllegalArgumentException("Unknown EquipmentSlot code: " + code);
   }
 
   public static EquipmentSlot fromChineseName(String name) {

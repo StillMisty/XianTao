@@ -33,11 +33,7 @@ public class PlayerBuffRepositoryImpl implements PlayerBuffRepository {
 
   @Override
   public PlayerBuff save(PlayerBuff buff) {
-    if (buff.getId() == null) {
-      mapper.insert(buff);
-    } else {
-      mapper.insertOrUpdate(buff);
-    }
+    mapper.insertOrUpdateSelective(buff);
     return buff;
   }
 

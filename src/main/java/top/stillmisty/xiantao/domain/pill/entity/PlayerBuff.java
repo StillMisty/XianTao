@@ -32,6 +32,14 @@ public class PlayerBuff {
   @Column(onInsertValue = "now()")
   private LocalDateTime createdAt;
 
+  public boolean isExpired() {
+    return expiresAt != null && expiresAt.isBefore(LocalDateTime.now());
+  }
+
+  public boolean isActive() {
+    return !isExpired();
+  }
+
   public static PlayerBuff create(
       Long userId, String buffType, int value, LocalDateTime expiresAt) {
     PlayerBuff buff = new PlayerBuff();

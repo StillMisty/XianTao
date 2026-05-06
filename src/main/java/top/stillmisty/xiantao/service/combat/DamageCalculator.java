@@ -86,27 +86,83 @@ public class DamageCalculator {
   }
 
   int evaluateExpression(String expr) {
-    expr = expr.replaceAll("(?<=\\d)-", "+-");
-    if (expr.startsWith("+")) {
-      expr = expr.substring(1);
-    }
-    int result = 0;
-    for (String part : expr.split("\\+")) {
-      part = part.trim();
-      if (part.isEmpty()) continue;
-      result += evaluatePart(part);
-    }
-    return result;
+    return new ExprParser(expr).parse();
   }
 
-  private int evaluatePart(String part) {
-    if (part.contains("*")) {
-      int product = 1;
-      for (String mp : part.split("\\*")) {
-        product *= Integer.parseInt(mp.trim());
-      }
-      return product;
+  /** 递归下降表达式解析器，支持 +, -, *, /, 括号和运算符优先级 */
+  private static class ExprParser {
+    private final String input;
+    private int pos;
+
+    ExprParser(String input) {
+      this.input = input;
+      this.pos = 0;
     }
-    return Integer.parseInt(part.trim());
+
+    int parse() {
+      int result = parseAddSub();
+      if (pos < input.length()) {
+        throw new IllegalArgumentException("Unexpected character: " + input.charAt(pos));
+      }
+      return result;
+    }
+
+    private int parseAddSub() {
+      int left = parseMulDiv();
+      while (pos < input.length()) {
+        char op = input.charAt(pos);
+        if (op == '+') {
+          pos++;
+          left += parseMulDiv();
+        } else if (op == '-') {
+          pos++;
+          left -= parseMulDiv();
+        } else {
+          break;
+        }
+      }
+      return left;
+    }
+
+    private int parseMulDiv() {
+      int left = parseFactor();
+      while (pos < input.length()) {
+        char op = input.charAt(pos);
+        if (op == '*') {
+          pos++;
+          left *= parseFactor();
+        } else if (op == '/') {
+          pos++;
+          left /= parseFactor();
+        } else {
+          break;
+        }
+      }
+      return left;
+    }
+
+    private int parseFactor() {
+      if (pos >= input.length()) {
+        throw new IllegalArgumentException("Unexpected end of expression");
+      }
+      char c = input.charAt(pos);
+      if (c == '(') {
+        pos++;
+        int val = parseAddSub();
+        if (pos >= input.length() || input.charAt(pos) != ')') {
+          throw new IllegalArgumentException("Missing closing parenthesis");
+        }
+        pos++;
+        return val;
+      }
+      int start = pos;
+      while (pos < input.length() && Character.isDigit(input.charAt(pos))) {
+        pos++;
+      }
+      if (start == pos) {
+        throw new IllegalArgumentException("Expected number at position " + pos);
+      }
+      return Integer.parseInt(input.substring(start, pos));
+    }
   }
 }

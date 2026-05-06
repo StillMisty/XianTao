@@ -30,30 +30,42 @@ class BeastServiceTest {
   @Mock private BeastRepository beastRepository;
   @Mock private ItemTemplateRepository itemTemplateRepository;
   @Mock private StackableItemRepository stackableItemRepository;
-  @Mock private SpiritRepository spiritRepository;
   @Mock private StackableItemService stackableItemService;
   @Mock private ItemResolver itemResolver;
   @Mock private FudiHelper fudiHelper;
+  @Mock private SpiritRepository spiritRepository;
 
+  private BeastMutationService mutationService;
+  private BeastEvolutionService evolutionService;
   private BeastBreedingService breedingService;
   private BeastDisplayHelper displayHelper;
 
   @org.junit.jupiter.api.BeforeEach
   void setUp() {
     BeastSkillService skillService = new BeastSkillService(itemTemplateRepository);
+    mutationService = new BeastMutationService();
     displayHelper = new BeastDisplayHelper(beastRepository, fudiCellRepository, fudiHelper);
+    evolutionService =
+        new BeastEvolutionService(
+            fudiHelper,
+            beastRepository,
+            spiritRepository,
+            skillService,
+            displayHelper,
+            mutationService);
     breedingService =
         new BeastBreedingService(
             fudiCellRepository,
             beastRepository,
             itemTemplateRepository,
             stackableItemRepository,
-            spiritRepository,
             stackableItemService,
             itemResolver,
             fudiHelper,
             skillService,
-            displayHelper);
+            displayHelper,
+            evolutionService,
+            mutationService);
   }
 
   // ===================== 静态公式测试 =====================
@@ -159,7 +171,7 @@ class BeastServiceTest {
   @Test
   @DisplayName("rollRandomTrait — 返回有效变异特性编码")
   void rollRandomTrait_shouldReturnValidTraitCode() {
-    String trait = breedingService.rollRandomTrait();
+    String trait = mutationService.rollRandomTrait();
     assertNotNull(trait);
     assertFalse(trait.isEmpty());
   }

@@ -18,7 +18,7 @@ public class StackableItemRepositoryImpl implements StackableItemRepository {
 
   @Override
   public StackableItem save(StackableItem item) {
-    stackableItemMapper.insertOrUpdate(item);
+    stackableItemMapper.insertOrUpdateSelective(item);
     return item;
   }
 

@@ -73,20 +73,14 @@ public class BeastRepositoryImpl implements BeastRepository {
 
   @Override
   public Beast save(Beast beast) {
-    if (beast.getId() == null) {
-      mapper.insert(beast);
-    } else {
-      mapper.update(beast);
-    }
+    mapper.insertOrUpdateSelective(beast);
     return beast;
   }
 
   @Override
   public List<Beast> saveAll(List<Beast> beasts) {
     if (beasts == null || beasts.isEmpty()) return List.of();
-    for (Beast beast : beasts) {
-      save(beast);
-    }
+    beasts.forEach(mapper::insertOrUpdateSelective);
     return beasts;
   }
 

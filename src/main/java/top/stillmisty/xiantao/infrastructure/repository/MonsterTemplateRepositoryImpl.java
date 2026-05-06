@@ -34,11 +34,7 @@ public class MonsterTemplateRepositoryImpl implements MonsterTemplateRepository 
 
   @Override
   public MonsterTemplate save(MonsterTemplate template) {
-    if (template.getId() == null) {
-      mapper.insert(template);
-    } else {
-      mapper.update(template);
-    }
+    mapper.insertOrUpdateSelective(template);
     return template;
   }
 

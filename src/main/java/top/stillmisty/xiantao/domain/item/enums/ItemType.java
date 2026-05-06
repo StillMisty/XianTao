@@ -6,21 +6,21 @@ import lombok.Getter;
 /** 物品类型枚举 */
 @Getter
 public enum ItemType {
-  MATERIAL("material", "材料"),
+  MATERIAL("MATERIAL", "材料"),
 
-  SEED("seed", "种子"),
+  SEED("SEED", "种子"),
 
-  BEAST_EGG("beast_egg", "灵兽卵"),
+  BEAST_EGG("BEAST_EGG", "灵兽卵"),
 
-  POTION("potion", "丹药"),
+  POTION("POTION", "丹药"),
 
-  EVOLUTION_STONE("evolution_stone", "进化石"),
+  EVOLUTION_STONE("EVOLUTION_STONE", "进化石"),
 
-  SKILL_JADE("skill_jade", "法决玉简"),
+  SKILL_JADE("SKILL_JADE", "法决玉简"),
 
-  RECIPE_SCROLL("recipe_scroll", "丹方卷轴"),
+  RECIPE_SCROLL("RECIPE_SCROLL", "丹方卷轴"),
 
-  HERB("herb", "药材");
+  HERB("HERB", "药材");
 
   @EnumValue private final String code;
   private final String name;
@@ -32,10 +32,10 @@ public enum ItemType {
 
   public static ItemType fromCode(String code) {
     for (ItemType type : values()) {
-      if (type.code.equalsIgnoreCase(code)) {
+      if (type.code.equals(code)) {
         return type;
       }
     }
-    return null;
+    throw new IllegalArgumentException("Unknown ItemType code: " + code);
   }
 }

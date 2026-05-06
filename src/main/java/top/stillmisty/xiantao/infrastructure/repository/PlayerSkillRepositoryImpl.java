@@ -48,11 +48,7 @@ public class PlayerSkillRepositoryImpl implements PlayerSkillRepository {
 
   @Override
   public PlayerSkill save(PlayerSkill playerSkill) {
-    if (playerSkill.getId() == null) {
-      mapper.insert(playerSkill);
-    } else {
-      mapper.update(playerSkill);
-    }
+    mapper.insertOrUpdateSelective(playerSkill);
     return playerSkill;
   }
 

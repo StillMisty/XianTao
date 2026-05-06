@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 @JsonSubTypes({
   @JsonSubTypes.Type(value = BountyRewardPool.RareItem.class, name = "rare_item"),
   @JsonSubTypes.Type(value = BountyRewardPool.SpiritStones.class, name = "spirit_stones"),
-  @JsonSubTypes.Type(value = BountyRewardPool.BeastEgg.class, name = "beast_egg"),
+  @JsonSubTypes.Type(value = BountyRewardPool.BeastEgg.class, name = "BEAST_EGG"),
   @JsonSubTypes.Type(value = BountyRewardPool.EquipmentReward.class, name = "equipment")
 })
 public sealed interface BountyRewardPool {

@@ -140,8 +140,12 @@ public class PillConsumptionService {
     int actualStat = (int) (e.amount() * qualityMultiplier * gradeDecay * resistanceDecay);
     if (actualStat <= 0) return null;
 
-    var attrType = AttributeType.fromCode(e.statAttr());
-    if (attrType == null) return null;
+    AttributeType attrType;
+    try {
+      attrType = AttributeType.fromCode(e.statAttr());
+    } catch (IllegalArgumentException ex) {
+      return null;
+    }
 
     var statName =
         switch (attrType) {

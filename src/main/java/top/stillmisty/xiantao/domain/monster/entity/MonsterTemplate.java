@@ -42,4 +42,17 @@ public class MonsterTemplate {
 
   @Column(onUpdateValue = "now()")
   private LocalDateTime updateTime;
+
+  public boolean hasSkills() {
+    return skills != null && !skills.isEmpty();
+  }
+
+  public boolean hasDropTable() {
+    return dropTable != null && !dropTable.isEmpty();
+  }
+
+  public int getDropWeightTotal() {
+    if (dropTable == null) return 0;
+    return dropTable.stream().mapToInt(DropTableEntry::weight).sum();
+  }
 }

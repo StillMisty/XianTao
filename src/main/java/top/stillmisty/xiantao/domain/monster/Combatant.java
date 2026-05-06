@@ -31,9 +31,7 @@ public interface Combatant {
    *
    * @param amount 恢复量
    */
-  default void heal(int amount) {
-    // 默认实现：不超过最大生命值
-  }
+  void heal(int amount);
 
   boolean isAlive();
 

@@ -131,8 +131,11 @@ public class PillCommandHandler implements CommandGroup {
   }
 
   private String getElementName(String element) {
-    ElementType type = ElementType.fromCode(element);
-    return type != null ? type.getName() : element;
+    try {
+      return ElementType.fromCode(element).getName();
+    } catch (IllegalArgumentException e) {
+      return element;
+    }
   }
 
   @Override

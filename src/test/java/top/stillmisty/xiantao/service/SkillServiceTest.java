@@ -167,7 +167,7 @@ class SkillServiceTest {
     PlayerSkill ps = new PlayerSkill();
     ps.setId(1L);
     ps.setSkillId(skillId);
-    ps.setIsEquipped(true);
+    ps.equip();
 
     when(playerSkillRepository.findByUserId(userId)).thenReturn(List.of(ps));
     when(skillRepository.findByIds(anyList())).thenReturn(List.of(createSkill()));

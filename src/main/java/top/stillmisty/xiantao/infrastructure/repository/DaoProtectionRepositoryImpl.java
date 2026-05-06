@@ -18,7 +18,7 @@ public class DaoProtectionRepositoryImpl implements DaoProtectionRepository {
 
   @Override
   public DaoProtection save(DaoProtection protection) {
-    daoProtectionMapper.insertOrUpdate(protection);
+    daoProtectionMapper.insertOrUpdateSelective(protection);
     return protection;
   }
 

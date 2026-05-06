@@ -29,6 +29,18 @@ public class PillResistance {
   @Column(onUpdateValue = "now()", onInsertValue = "now()")
   private LocalDateTime updatedAt;
 
+  public void incrementCount() {
+    count = (count != null ? count : 0) + 1;
+  }
+
+  public boolean isResistant(int threshold) {
+    return count != null && count >= threshold;
+  }
+
+  public int getResistanceLevel() {
+    return count != null ? count : 0;
+  }
+
   public static PillResistance create(Long userId, Long templateId) {
     PillResistance pr = new PillResistance();
     pr.userId = userId;

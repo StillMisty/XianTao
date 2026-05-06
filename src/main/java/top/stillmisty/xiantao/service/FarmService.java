@@ -207,7 +207,7 @@ public class FarmService {
 
     log.info("用户 {} 收获地块 {} 的 {}，获得 {}份", fudi.getUserId(), cellId, cropName, yield);
 
-    return new CollectVO(cellId, "farm", cropName, null, yield, yield);
+    return new CollectVO(cellId, "FARM", cropName, null, yield, yield);
   }
 
   /** 多年生作物收获后重置生长状态 */

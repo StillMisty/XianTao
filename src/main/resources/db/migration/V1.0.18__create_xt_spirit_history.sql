@@ -8,7 +8,7 @@ CREATE TABLE xt_spirit_history (
     create_time   TIMESTAMP NOT NULL DEFAULT NOW(),
     CONSTRAINT fk_spirit_history_fudi FOREIGN KEY (fudi_id) REFERENCES xt_fudi (id) ON DELETE CASCADE,
     CONSTRAINT chk_spirit_history_role CHECK (role IN ('user', 'assistant', 'system')),
-    CONSTRAINT chk_spirit_history_emotion_state CHECK (emotion_state IS NULL OR emotion_state IN ('affectionate', 'joyful', 'content', 'neutral', 'distant', 'worried', 'excited', 'angry', 'exhausted'))
+    CONSTRAINT chk_spirit_history_emotion_state CHECK (emotion_state IS NULL OR emotion_state IN ('AFFECTIONATE', 'JOYFUL', 'CONTENT', 'NEUTRAL', 'DISTANT', 'WORRIED', 'EXCITED', 'ANGRY', 'EXHAUSTED'))
 );
 
 CREATE INDEX idx_spirit_history_fudi_time ON xt_spirit_history (fudi_id, create_time DESC);

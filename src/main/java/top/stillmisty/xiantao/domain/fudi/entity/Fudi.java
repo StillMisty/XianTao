@@ -8,14 +8,20 @@ import com.mybatisflex.core.activerecord.Model;
 import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /** 福地核心实体 */
 @EqualsAndHashCode(callSuper = true)
 @Table("xt_fudi")
 @Accessors(chain = true)
-@Data(staticConstructor = "create")
+@Data
+@NoArgsConstructor
 public class Fudi extends Model<Fudi> {
+
+  public static Fudi create() {
+    return new Fudi();
+  }
 
   @Id(keyType = KeyType.Auto)
   private Long id;

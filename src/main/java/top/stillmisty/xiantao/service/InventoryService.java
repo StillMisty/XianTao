@@ -88,15 +88,15 @@ public class InventoryService {
                                 item.getQuantity()),
                         Collectors.toList())));
 
-    return InventoryResult.builder()
-        .success(true)
-        .userId(userId)
-        .equipments(equipments)
-        .materials(groupedItems.getOrDefault(ItemType.MATERIAL, List.of()))
-        .seeds(groupedItems.getOrDefault(ItemType.SEED, List.of()))
-        .beastEggs(groupedItems.getOrDefault(ItemType.BEAST_EGG, List.of()))
-        .spiritStones(user.getSpiritStones())
-        .build();
+    return new InventoryResult(
+        true,
+        null,
+        userId,
+        equipments,
+        groupedItems.getOrDefault(ItemType.MATERIAL, List.of()),
+        groupedItems.getOrDefault(ItemType.SEED, List.of()),
+        groupedItems.getOrDefault(ItemType.BEAST_EGG, List.of()),
+        user.getSpiritStones());
   }
 
   /** 获取背包摘要（按品质折叠装备，用于 #背包 命令防刷屏） */

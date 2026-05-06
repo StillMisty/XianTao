@@ -4,9 +4,9 @@ CREATE TABLE xt_skill
     id               BIGSERIAL PRIMARY KEY,
     name             VARCHAR(64)   NOT NULL,
     description      VARCHAR(256),
-    skill_type       VARCHAR(16)   NOT NULL DEFAULT 'active',
+    skill_type       VARCHAR(16)   NOT NULL DEFAULT 'ACTIVE',
     effects          JSONB         NOT NULL DEFAULT '[]',
-    binding_type     VARCHAR(32)   NOT NULL DEFAULT 'none',
+    binding_type     VARCHAR(32)   NOT NULL DEFAULT 'NONE',
     binding_value    VARCHAR(64),
     cooldown_seconds INT           NOT NULL DEFAULT 30,
     require_wis INTEGER,
@@ -16,8 +16,8 @@ CREATE TABLE xt_skill
     create_time      TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     update_time      TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_skill_prerequisite FOREIGN KEY (require_skill_id) REFERENCES xt_skill (id),
-    CONSTRAINT chk_skill_type CHECK (skill_type IN ('active', 'passive')),
-    CONSTRAINT chk_skill_binding_type CHECK (binding_type IN ('none', 'weapon_type', 'weapon_category', 'element')),
+    CONSTRAINT chk_skill_type CHECK (skill_type IN ('ACTIVE', 'PASSIVE')),
+    CONSTRAINT chk_skill_binding_type CHECK (binding_type IN ('NONE', 'WEAPON_TYPE', 'WEAPON_CATEGORY', 'ELEMENT')),
     CONSTRAINT chk_skill_cooldown CHECK (cooldown_seconds >= 0),
     CONSTRAINT chk_skill_level_requirement CHECK (level_requirement >= 1)
 );

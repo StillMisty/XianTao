@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
+import top.stillmisty.xiantao.domain.item.entity.Equipment;
+import top.stillmisty.xiantao.domain.item.enums.EquipmentSlot;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentTemplateRepository;
 import top.stillmisty.xiantao.domain.monster.*;
@@ -47,8 +49,23 @@ public class CombatService {
       }
     }
 
+    Equipment weapon =
+        equipmentRepository.findEquippedByUserId(user.getId()).stream()
+            .filter(e -> e.getSlot() == EquipmentSlot.WEAPON)
+            .findFirst()
+            .orElse(null);
+
+    double attackSpeed = 1.0;
+    if (weapon != null) {
+      attackSpeed =
+          equipmentTemplateRepository
+              .findById(weapon.getTemplateId())
+              .map(template -> template.getAttackSpeed() != null ? template.getAttackSpeed() : 1.0)
+              .orElse(1.0);
+    }
+
     team.addMember(
-        new PlayerCombatant(user, equipmentRepository, equipmentTemplateRepository)
+        new PlayerCombatant(user, weapon, attackSpeed)
             .withBuffs(attackBuff, defenseBuff, speedBuff));
 
     List<Beast> deployed = beastRepository.findDeployedByUserId(user.getId());

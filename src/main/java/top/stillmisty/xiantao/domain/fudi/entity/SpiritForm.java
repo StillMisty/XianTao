@@ -8,6 +8,7 @@ import com.mybatisflex.core.activerecord.Model;
 import java.util.Set;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
 
@@ -15,7 +16,8 @@ import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionType
 @EqualsAndHashCode(callSuper = true)
 @Table("xt_spirit_form")
 @Accessors(chain = true)
-@Data(staticConstructor = "create")
+@Data
+@NoArgsConstructor
 public class SpiritForm extends Model<SpiritForm> {
 
   @Id(keyType = KeyType.Auto)
@@ -30,4 +32,12 @@ public class SpiritForm extends Model<SpiritForm> {
 
   @Column(typeHandler = JsonbCollectionTypeHandler.class)
   private Set<String> dislikedTags;
+
+  public boolean likes(String tag) {
+    return likedTags != null && likedTags.contains(tag);
+  }
+
+  public boolean dislikes(String tag) {
+    return dislikedTags != null && dislikedTags.contains(tag);
+  }
 }

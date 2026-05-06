@@ -31,4 +31,12 @@ public class SpiritHistory {
   /** 创建时间 */
   @Column(onInsertValue = "now()")
   private LocalDateTime createTime;
+
+  public boolean isFromUser() {
+    return "user".equals(role);
+  }
+
+  public boolean isFromSpirit() {
+    return "assistant".equals(role);
+  }
 }

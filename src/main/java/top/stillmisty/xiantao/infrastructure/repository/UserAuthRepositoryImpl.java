@@ -25,7 +25,7 @@ public class UserAuthRepositoryImpl implements UserAuthRepository {
 
   @Override
   public UserAuth save(UserAuth userAuth) {
-    userAuthMapper.insertOrUpdate(userAuth);
+    userAuthMapper.insertOrUpdateSelective(userAuth);
     return userAuth;
   }
 }

@@ -64,8 +64,8 @@ public class CellConfigTypeHandler extends BaseTypeHandler<CellConfig> {
   }
 
   private Class<?> resolveConcreteType(String cellType) {
-    if ("farm".equals(cellType)) return CellConfig.FarmConfig.class;
-    if ("pen".equals(cellType)) return CellConfig.PenConfig.class;
+    if ("FARM".equals(cellType)) return CellConfig.FarmConfig.class;
+    if ("PEN".equals(cellType)) return CellConfig.PenConfig.class;
     return CellConfig.EmptyConfig.class;
   }
 }

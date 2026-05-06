@@ -97,11 +97,6 @@ class UserServiceTest {
     userService.createUser(platform, openId, nickname);
 
     verify(userAuthRepository)
-        .save(
-            argThat(
-                auth ->
-                    auth.getPlatform() == platform
-                        && openId.equals(auth.getPlatformOpenId())
-                        && auth.getUserId().equals(1L)));
+        .save(argThat(auth -> auth.matches(platform, openId) && auth.getUserId().equals(1L)));
   }
 }

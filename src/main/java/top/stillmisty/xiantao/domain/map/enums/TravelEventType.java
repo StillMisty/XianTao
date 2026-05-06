@@ -10,16 +10,16 @@ import top.stillmisty.xiantao.domain.map.entity.TravelEventEntry;
 public enum TravelEventType {
 
   /** 遇袭 */
-  AMBUSH("ambush", "遇袭"),
+  AMBUSH("AMBUSH", "遇袭"),
 
   /** 捡漏 */
-  FIND_TREASURE("find_treasure", "捡漏"),
+  FIND_TREASURE("FIND_TREASURE", "捡漏"),
 
   /** 毒雾天气 */
-  WEATHER("weather", "毒雾天气"),
+  WEATHER("WEATHER", "毒雾天气"),
 
   /** 安全通行 */
-  SAFE_PASSAGE("safe_passage", "安全通行");
+  SAFE_PASSAGE("SAFE_PASSAGE", "安全通行");
 
   @EnumValue private final String code;
   private final String name;
@@ -32,11 +32,11 @@ public enum TravelEventType {
   /** 根据代码查找事件类型 */
   public static TravelEventType fromCode(String code) {
     for (TravelEventType type : values()) {
-      if (type.code.equalsIgnoreCase(code)) {
+      if (type.code.equals(code)) {
         return type;
       }
     }
-    return null;
+    throw new IllegalArgumentException("Unknown TravelEventType code: " + code);
   }
 
   /**
@@ -61,9 +61,10 @@ public enum TravelEventType {
     for (TravelEventEntry entry : eventEntries) {
       currentWeight += entry.weight();
       if (random < currentWeight) {
-        TravelEventType type = fromCode(entry.eventType());
-        if (type != null) {
-          return type;
+        try {
+          return fromCode(entry.eventType());
+        } catch (IllegalArgumentException ignored) {
+          // fall through to next entry or default
         }
       }
     }

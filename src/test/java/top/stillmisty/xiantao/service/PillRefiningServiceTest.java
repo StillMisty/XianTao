@@ -6,10 +6,10 @@ import static org.mockito.Mockito.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
@@ -30,9 +30,24 @@ class PillRefiningServiceTest {
   @Mock private PlayerPillRecipeRepository playerPillRecipeRepository;
   @Mock private StackableItemService stackableItemService;
 
-  @InjectMocks private PillRefiningService pillRefiningService;
+  private PillCombinationFinder combinationFinder;
+  private PillRefiningService pillRefiningService;
 
   private final Long userId = 1L;
+
+  @BeforeEach
+  void setUp() {
+    combinationFinder =
+        new PillCombinationFinder(
+            stackableItemService, itemTemplateRepository, stackableItemRepository);
+    pillRefiningService =
+        new PillRefiningService(
+            itemTemplateRepository,
+            stackableItemRepository,
+            playerPillRecipeRepository,
+            stackableItemService,
+            combinationFinder);
+  }
 
   // ===================== refinePillAuto =====================
 
@@ -61,7 +76,7 @@ class PillRefiningServiceTest {
         Map.of(
             "grade", 0,
             "product", Map.of("item_id", 100L, "quantity", 1),
-            "requirements", List.of(Map.of("element", "fire", "min", 3, "max", 6))));
+            "requirements", List.of(Map.of("element", "FIRE", "min", 3, "max", 6))));
 
     when(playerPillRecipeRepository.findByUserId(userId)).thenReturn(List.of(recipe));
     when(itemTemplateRepository.findById(1L)).thenReturn(Optional.of(recipeTemplate));
@@ -89,8 +104,8 @@ class PillRefiningServiceTest {
             "product", Map.of("item_id", 100L, "quantity", 1),
             "requirements",
                 List.of(
-                    Map.of("element", "fire", "min", 3, "max", 6),
-                    Map.of("element", "water", "min", 2, "max", 4))));
+                    Map.of("element", "FIRE", "min", 3, "max", 6),
+                    Map.of("element", "WATER", "min", 2, "max", 4))));
 
     StackableItem herb = new StackableItem();
     herb.setId(1L);
@@ -98,7 +113,7 @@ class PillRefiningServiceTest {
     herb.setItemType(ItemType.HERB);
     herb.setQuantity(10);
     herb.setTemplateId(50L);
-    herb.setProperties(Map.of("elements", Map.of("fire", 3)));
+    herb.setProperties(Map.of("elements", Map.of("FIRE", 3)));
 
     when(playerPillRecipeRepository.findByUserId(userId)).thenReturn(List.of(recipe));
     when(itemTemplateRepository.findById(1L)).thenReturn(Optional.of(recipeTemplate));
@@ -148,7 +163,7 @@ class PillRefiningServiceTest {
         Map.of(
             "grade", 1,
             "product", Map.of("item_id", 100L, "quantity", 1),
-            "requirements", List.of(Map.of("element", "fire", "min", 3, "max", 3))));
+            "requirements", List.of(Map.of("element", "FIRE", "min", 3, "max", 3))));
 
     StackableItem herb = new StackableItem();
     herb.setId(1L);
@@ -156,7 +171,7 @@ class PillRefiningServiceTest {
     herb.setItemType(ItemType.HERB);
     herb.setQuantity(1);
     herb.setTemplateId(50L);
-    herb.setProperties(Map.of("elements", Map.of("fire", 3)));
+    herb.setProperties(Map.of("elements", Map.of("FIRE", 3)));
 
     ItemTemplate resultTemplate = new ItemTemplate();
     resultTemplate.setId(100L);

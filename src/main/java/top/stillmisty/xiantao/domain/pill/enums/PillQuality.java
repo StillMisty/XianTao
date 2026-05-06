@@ -5,9 +5,9 @@ import lombok.Getter;
 /** 丹药成色 */
 @Getter
 public enum PillQuality {
-  SUPERIOR("superior", "上成", 1.5),
-  NORMAL("normal", "中成", 1.0),
-  INFERIOR("inferior", "下成", 0.7);
+  SUPERIOR("SUPERIOR", "上成", 1.5),
+  NORMAL("NORMAL", "中成", 1.0),
+  INFERIOR("INFERIOR", "下成", 0.7);
 
   private final String code;
   private final String chineseName;
@@ -25,7 +25,7 @@ public enum PillQuality {
         return q;
       }
     }
-    return NORMAL;
+    throw new IllegalArgumentException("Unknown PillQuality code: " + code);
   }
 
   public static PillQuality determine(double score) {

@@ -104,8 +104,7 @@ public class CultivationCommandHandler implements CommandGroup {
     log.debug("处理装备穿戴 - Platform: {}, OpenId: {}, ItemName: {}", platform, openId, itemName);
     return switch (equipmentService.equipItem(platform, openId, itemName)) {
       case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
-      case ServiceResult.Success(var vo) ->
-          vo.isSuccess() ? formatEquipResult(vo) : vo.getMessage();
+      case ServiceResult.Success(var vo) -> vo.success() ? formatEquipResult(vo) : vo.message();
     };
   }
 
@@ -132,7 +131,7 @@ public class CultivationCommandHandler implements CommandGroup {
     return switch (cultivationService.establishProtection(platform, openId, protegeNickname)) {
       case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var vo) ->
-          vo.isSuccess() ? formatProtectionResult(vo) : vo.getMessage();
+          vo.success() ? formatProtectionResult(vo) : vo.message();
     };
   }
 
@@ -141,7 +140,7 @@ public class CultivationCommandHandler implements CommandGroup {
     log.debug("处理护道解除 - Platform: {}, OpenId: {}, Protege: {}", platform, openId, protegeNickname);
     return switch (cultivationService.removeProtection(platform, openId, protegeNickname)) {
       case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
-      case ServiceResult.Success(var vo) -> vo.getMessage();
+      case ServiceResult.Success(var vo) -> vo.message();
     };
   }
 
@@ -174,119 +173,114 @@ public class CultivationCommandHandler implements CommandGroup {
 
   private String formatCharacterStatus(CharacterStatusResult status) {
     StringBuilder sb = new StringBuilder();
-    sb.append(String.format("【%s】的修仙状态\n", status.getNickname()));
+    sb.append(String.format("【%s】的修仙状态\n", status.nickname()));
 
     // 位置信息
-    if (status.getLocationName() != null) {
-      sb.append(String.format("所在地：%s\n", status.getLocationName()));
+    if (status.locationName() != null) {
+      sb.append(String.format("所在地：%s\n", status.locationName()));
     }
 
     // 状态：赶路时显示优化信息，其余显示普通状态名
-    if (status.getStatus() == UserStatus.RUNNING && status.getTravelDestinationName() != null) {
+    if (status.status() == UserStatus.RUNNING && status.travelDestinationName() != null) {
       sb.append(
           String.format(
-              "状态：赶路中 (%s → %s)\n", status.getLocationName(), status.getTravelDestinationName()));
-      if (status.getTravelTimeMinutes() != null
-          && status.getTravelMinutesElapsed() != null
-          && status.getTravelMinutesRemaining() != null) {
+              "状态：赶路中 (%s → %s)\n", status.locationName(), status.travelDestinationName()));
+      if (status.travelTimeMinutes() != null
+          && status.travelMinutesElapsed() != null
+          && status.travelMinutesRemaining() != null) {
         sb.append(
             String.format(
                 "旅途进度：%s/%s",
-                FormatUtils.formatMinutes(status.getTravelMinutesElapsed()),
-                FormatUtils.formatMinutes(status.getTravelTimeMinutes().longValue())));
-        if (status.getTravelMinutesRemaining() > 0) {
+                FormatUtils.formatMinutes(status.travelMinutesElapsed()),
+                FormatUtils.formatMinutes(status.travelTimeMinutes().longValue())));
+        if (status.travelMinutesRemaining() > 0) {
           sb.append(
-              String.format(
-                  "（剩余 %s）", FormatUtils.formatMinutes(status.getTravelMinutesRemaining())));
+              String.format("（剩余 %s）", FormatUtils.formatMinutes(status.travelMinutesRemaining())));
         } else {
           sb.append("（即将到达）");
         }
         sb.append("\n");
-      } else if (status.getEstimatedArrivalTime() != null) {
+      } else if (status.estimatedArrivalTime() != null) {
         sb.append(
-            String.format(
-                "预计到达：%s\n", FormatUtils.formatDateTime(status.getEstimatedArrivalTime())));
+            String.format("预计到达：%s\n", FormatUtils.formatDateTime(status.estimatedArrivalTime())));
       }
-    } else if (status.getStatus() != null && status.getStatusName() != null) {
-      sb.append(String.format("状态：%s\n", status.getStatusName()));
+    } else if (status.status() != null && status.statusName() != null) {
+      sb.append(String.format("状态：%s\n", status.statusName()));
     }
 
-    sb.append(String.format("境界：第%d层 (%.1f%%)\n", status.getLevel(), status.getExpPercentage()));
+    sb.append(String.format("境界：第%d层 (%.1f%%)\n", status.level(), status.expPercentage()));
     sb.append(
         String.format(
-            "HP：%d/%d (%.1f%%)\n",
-            status.getHpCurrent(), status.getHpMax(), status.getHpPercentage()));
+            "HP：%d/%d (%.1f%%)\n", status.hpCurrent(), status.hpMax(), status.hpPercentage()));
     sb.append("\n");
     sb.append("【基础属性】\n");
-    sb.append(String.format("  力道：%d\n", status.getStatStr()));
-    sb.append(String.format("  根骨：%d\n", status.getStatCon()));
-    sb.append(String.format("  身法：%d\n", status.getStatAgi()));
-    sb.append(String.format("  悟性：%d\n", status.getStatWis()));
-    if (status.getEquipStr() != 0
-        || status.getEquipCon() != 0
-        || status.getEquipAgi() != 0
-        || status.getEquipWis() != 0) {
+    sb.append(String.format("  力道：%d\n", status.statStr()));
+    sb.append(String.format("  根骨：%d\n", status.statCon()));
+    sb.append(String.format("  身法：%d\n", status.statAgi()));
+    sb.append(String.format("  悟性：%d\n", status.statWis()));
+    if (status.equipStr() != 0
+        || status.equipCon() != 0
+        || status.equipAgi() != 0
+        || status.equipWis() != 0) {
       sb.append("\n【装备加成】\n");
-      if (status.getEquipStr() != 0) sb.append(String.format("  力道：+%d\n", status.getEquipStr()));
-      if (status.getEquipCon() != 0) sb.append(String.format("  根骨：+%d\n", status.getEquipCon()));
-      if (status.getEquipAgi() != 0) sb.append(String.format("  身法：+%d\n", status.getEquipAgi()));
-      if (status.getEquipWis() != 0) sb.append(String.format("  悟性：+%d\n", status.getEquipWis()));
+      if (status.equipStr() != 0) sb.append(String.format("  力道：+%d\n", status.equipStr()));
+      if (status.equipCon() != 0) sb.append(String.format("  根骨：+%d\n", status.equipCon()));
+      if (status.equipAgi() != 0) sb.append(String.format("  身法：+%d\n", status.equipAgi()));
+      if (status.equipWis() != 0) sb.append(String.format("  悟性：+%d\n", status.equipWis()));
     }
     sb.append("\n【战斗属性】\n");
-    sb.append(String.format("  攻击：%d\n", status.getAttack()));
-    sb.append(String.format("  防御：%d\n", status.getDefense()));
-    if (status.getBreakthroughSuccessRate() != null) {
+    sb.append(String.format("  攻击：%d\n", status.attack()));
+    sb.append(String.format("  防御：%d\n", status.defense()));
+    if (status.breakthroughSuccessRate() != null) {
       sb.append("\n【突破信息】\n");
-      sb.append(String.format("  突破成功率：%.1f%%\n", status.getBreakthroughSuccessRate()));
-      if (status.getBreakthroughFailCount() != null && status.getBreakthroughFailCount() > 0) {
-        sb.append(String.format("  失败次数：%d（已累积补偿）\n", status.getBreakthroughFailCount()));
+      sb.append(String.format("  突破成功率：%.1f%%\n", status.breakthroughSuccessRate()));
+      if (status.breakthroughFailCount() != null && status.breakthroughFailCount() > 0) {
+        sb.append(String.format("  失败次数：%d（已累积补偿）\n", status.breakthroughFailCount()));
       }
     }
-    if (status.getProtectorCount() != null
-        || (status.getProtectedByList() != null && !status.getProtectedByList().isEmpty())) {
+    if (status.protectorCount() != null
+        || (status.protectedByList() != null && !status.protectedByList().isEmpty())) {
       sb.append("\n【护道信息】\n");
-      if (status.getProtectingList() != null && !status.getProtectingList().isEmpty()) {
+      if (status.protectingList() != null && !status.protectingList().isEmpty()) {
         sb.append(
             String.format(
-                "  你正在为 %d/%d 位道友护道\n", status.getProtectorCount(), status.getMaxProtectorCount()));
-        for (var info : status.getProtectingList()) {
-          String locationStatus =
-              Boolean.TRUE.equals(info.getIsInSameLocation()) ? "[同地点]" : "[异地]";
+                "  你正在为 %d/%d 位道友护道\n", status.protectorCount(), status.maxProtectorCount()));
+        for (var info : status.protectingList()) {
+          String locationStatus = Boolean.TRUE.equals(info.isInSameLocation()) ? "[同地点]" : "[异地]";
           sb.append(
               String.format(
                   "    %s（第%d层）- %s %s - 加成%.1f%%\n",
-                  info.getUserName(),
-                  info.getUserLevel(),
-                  info.getLocationName(),
+                  info.userName(),
+                  info.userLevel(),
+                  info.locationName(),
                   locationStatus,
-                  info.getBonusPercentage()));
+                  info.bonusPercentage()));
         }
       } else {
         sb.append(
             String.format(
                 "  你正在为 %d/%d 位道友护道\n",
-                status.getProtectorCount() != null ? status.getProtectorCount() : 0,
-                status.getMaxProtectorCount() != null ? status.getMaxProtectorCount() : 3));
+                status.protectorCount() != null ? status.protectorCount() : 0,
+                status.maxProtectorCount() != null ? status.maxProtectorCount() : 3));
       }
-      if (status.getProtectedByList() != null && !status.getProtectedByList().isEmpty()) {
+      if (status.protectedByList() != null && !status.protectedByList().isEmpty()) {
         sb.append(
             String.format(
                 "  有 %d 位道友为你护道，总加成：%.1f%%\n",
-                status.getProtectedByList().size(),
-                status.getTotalProtectionBonus() != null ? status.getTotalProtectionBonus() : 0.0));
-        for (var info : status.getProtectedByList()) {
-          String locationStatus =
-              Boolean.TRUE.equals(info.getIsInSameLocation()) ? "[同地点]" : "[异地]";
+                status.protectedByList().size(),
+                status.totalProtectionBonus() != null ? status.totalProtectionBonus() : 0.0));
+        for (var info : status.protectedByList()) {
+          String locationStatus = Boolean.TRUE.equals(info.isInSameLocation()) ? "[同地点]" : "[异地]";
           String bonusText =
-              Boolean.TRUE.equals(info.getIsInSameLocation())
-                  ? String.format("加成%.1f%%", info.getBonusPercentage())
+              Boolean.TRUE.equals(info.isInSameLocation())
+                  ? String.format("加成%.1f%%", info.bonusPercentage())
                   : "无法提供加成";
           sb.append(
               String.format(
                   "    %s（第%d层）- %s %s - %s\n",
-                  info.getUserName(),
-                  info.getUserLevel(),
-                  info.getLocationName(),
+                  info.userName(),
+                  info.userLevel(),
+                  info.locationName(),
                   locationStatus,
                   bonusText));
         }
@@ -294,18 +288,17 @@ public class CultivationCommandHandler implements CommandGroup {
         sb.append("  无道友为你护道\n");
       }
     }
-    sb.append(String.format("\n灵石：%d\n", status.getSpiritStones()));
-    if (status.getEquipment() != null && !status.getEquipment().getItems().isEmpty()) {
+    sb.append(String.format("\n灵石：%d\n", status.spiritStones()));
+    if (status.equipment() != null && !status.equipment().items().isEmpty()) {
       sb.append("\n【已穿戴装备】\n");
       status
-          .getEquipment()
-          .getItems()
+          .equipment()
+          .items()
           .forEach(
               item ->
                   sb.append(
                       String.format(
-                          "  %s：%s [%s]\n",
-                          item.getSlotName(), item.getName(), item.getRarityName())));
+                          "  %s：%s [%s]\n", item.slotName(), item.name(), item.rarityName())));
     }
     return sb.toString();
   }
@@ -344,7 +337,7 @@ public class CultivationCommandHandler implements CommandGroup {
   }
 
   private String formatEquipResult(top.stillmisty.xiantao.domain.item.vo.EquipResult result) {
-    return formatAttributeChangeResult(result.getMessage(), result.getAttributeChange());
+    return formatAttributeChangeResult(result.message(), result.attributeChange());
   }
 
   private String formatUnequipResult(top.stillmisty.xiantao.domain.item.vo.UnequipResult result) {
@@ -356,20 +349,19 @@ public class CultivationCommandHandler implements CommandGroup {
     sb.append(message).append("\n");
     if (change != null) {
       sb.append("\n【属性变化】\n");
-      if (change.getStrChange() != 0)
-        sb.append(formatAttrChange("力道", change.getStrChange())).append("\n");
-      if (change.getConChange() != 0)
-        sb.append(formatAttrChange("根骨", change.getConChange())).append("\n");
-      if (change.getAgiChange() != 0)
-        sb.append(formatAttrChange("身法", change.getAgiChange())).append("\n");
-      if (change.getWisChange() != 0)
-        sb.append(formatAttrChange("悟性", change.getWisChange())).append("\n");
-      if (change.getAttackChange() != 0)
-        sb.append(formatAttrChange("攻击", change.getAttackChange())).append("\n");
-      if (change.getDefenseChange() != 0)
-        sb.append(formatAttrChange("防御", change.getDefenseChange())).append("\n");
-      if (change.getMaxHpChange() != 0)
-        sb.append(formatAttrChange("HP上限", change.getMaxHpChange()));
+      if (change.strChange() != 0)
+        sb.append(formatAttrChange("力道", change.strChange())).append("\n");
+      if (change.conChange() != 0)
+        sb.append(formatAttrChange("根骨", change.conChange())).append("\n");
+      if (change.agiChange() != 0)
+        sb.append(formatAttrChange("身法", change.agiChange())).append("\n");
+      if (change.wisChange() != 0)
+        sb.append(formatAttrChange("悟性", change.wisChange())).append("\n");
+      if (change.attackChange() != 0)
+        sb.append(formatAttrChange("攻击", change.attackChange())).append("\n");
+      if (change.defenseChange() != 0)
+        sb.append(formatAttrChange("防御", change.defenseChange())).append("\n");
+      if (change.maxHpChange() != 0) sb.append(formatAttrChange("HP上限", change.maxHpChange()));
     }
     return sb.toString();
   }
@@ -429,23 +421,23 @@ public class CultivationCommandHandler implements CommandGroup {
 
   private String formatBreakthroughResult(BreakthroughResult result) {
     StringBuilder sb = new StringBuilder();
-    sb.append(result.getMessage()).append("\n\n");
-    if (result.getSuccessRate() != null)
-      sb.append(String.format("突破成功率：%.1f%%\n", result.getSuccessRate()));
-    if (result.getNewLevel() != null) sb.append(String.format("当前境界：第%d层\n", result.getNewLevel()));
-    if (result.getNextBreakthroughRate() != null)
-      sb.append(String.format("下次突破成功率：%.1f%%", result.getNextBreakthroughRate()));
+    sb.append(result.message()).append("\n\n");
+    if (result.successRate() != null)
+      sb.append(String.format("突破成功率：%.1f%%\n", result.successRate()));
+    if (result.newLevel() != null) sb.append(String.format("当前境界：第%d层\n", result.newLevel()));
+    if (result.nextBreakthroughRate() != null)
+      sb.append(String.format("下次突破成功率：%.1f%%", result.nextBreakthroughRate()));
     return sb.toString();
   }
 
   private String formatProtectionResult(DaoProtectionResult result) {
-    return result.getMessage()
+    return result.message()
         + "\n\n"
         + "【护道详情】\n"
-        + String.format("  护道者：%s（第%d层）\n", result.getProtectorName(), result.getProtectorLevel())
-        + String.format("  被护道者：%s（第%d层）\n", result.getProtegeName(), result.getProtegeLevel())
-        + String.format("  单人加成：%.1f%%\n", result.getSingleProtectorBonus())
-        + String.format("  是否同地点：%s", result.getIsInSameLocation() ? "是" : "否");
+        + String.format("  护道者：%s（第%d层）\n", result.protectorName(), result.protectorLevel())
+        + String.format("  被护道者：%s（第%d层）\n", result.protegeName(), result.protegeLevel())
+        + String.format("  单人加成：%.1f%%\n", result.singleProtectorBonus())
+        + String.format("  是否同地点：%s", result.isInSameLocation() ? "是" : "否");
   }
 
   private String formatProtectionQueryResult(DaoProtectionQueryResult result) {

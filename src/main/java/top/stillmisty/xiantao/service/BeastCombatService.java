@@ -130,7 +130,6 @@ public class BeastCombatService {
 
     int missingHp = hpMax - hpCurrent;
     int stoneCost = (int) Math.ceil(missingHp * 0.1);
-    fudiHelper.checkSpiritStones(userId, stoneCost);
     fudiHelper.deductSpiritStones(userId, stoneCost);
 
     beast.setHpCurrent(hpMax);
@@ -168,7 +167,6 @@ public class BeastCombatService {
       return new ActionResultVO(true, "没有需要恢复的灵兽");
     }
 
-    fudiHelper.checkSpiritStones(userId, totalCost);
     fudiHelper.deductSpiritStones(userId, totalCost);
 
     return new BatchRecoverVO(recoverCount, totalCost);

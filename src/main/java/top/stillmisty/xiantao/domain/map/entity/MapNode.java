@@ -9,14 +9,20 @@ import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import top.stillmisty.xiantao.domain.map.enums.MapType;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
 
 /** 地图节点实体 */
 @EqualsAndHashCode(callSuper = true)
 @Table("xt_map_node")
-@Data(staticConstructor = "create")
+@Data
+@NoArgsConstructor
 public class MapNode extends Model<MapNode> {
+
+  public static MapNode create() {
+    return new MapNode();
+  }
 
   /** 地图 ID */
   @Id(keyType = KeyType.Auto)

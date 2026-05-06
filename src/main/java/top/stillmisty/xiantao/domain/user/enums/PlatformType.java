@@ -5,9 +5,9 @@ import lombok.Getter;
 
 @Getter
 public enum PlatformType {
-  ONE_BOT_V11("OneBotV11", "OneBotV11"),
+  ONE_BOT_V11("ONEBOTV11", "OneBotV11"),
   QQ("QQ", "QQ"),
-  WEB("Web", "Web");
+  WEB("WEB", "Web");
 
   @EnumValue private final String code;
   private final String name;

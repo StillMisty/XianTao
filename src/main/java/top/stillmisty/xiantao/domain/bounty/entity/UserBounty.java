@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Data;
 import top.stillmisty.xiantao.domain.bounty.BountyRewardItem;
+import top.stillmisty.xiantao.domain.bounty.enums.BountyStatus;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.BountyRewardListTypeHandler;
 
 @Data
@@ -30,7 +31,7 @@ public class UserBounty {
   @Column(typeHandler = BountyRewardListTypeHandler.class)
   private List<BountyRewardItem> rewards;
 
-  private String status;
+  private BountyStatus status;
 
   @Column(onInsertValue = "now()")
   private LocalDateTime createTime;
@@ -39,11 +40,11 @@ public class UserBounty {
   private LocalDateTime updateTime;
 
   public boolean isActive() {
-    return "active".equals(status);
+    return status == BountyStatus.ACTIVE;
   }
 
   public boolean isCompleted() {
-    return "completed".equals(status);
+    return status == BountyStatus.COMPLETED;
   }
 
   public List<BountyRewardItem> getParsedRewardItems() {

@@ -59,4 +59,9 @@ public class UserRepositoryImpl implements UserRepository {
             .limit(limit);
     return userMapper.selectListByQuery(query);
   }
+
+  @Override
+  public int deductSpiritStonesIfEnough(Long userId, int cost) {
+    return userMapper.deductSpiritStonesIfEnough(userId, cost);
+  }
 }

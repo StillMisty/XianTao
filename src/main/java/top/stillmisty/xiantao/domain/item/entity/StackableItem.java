@@ -41,8 +41,8 @@ public class StackableItem {
   private Set<String> tags;
 
   /**
-   * 类型特有属性 JSONB 丹药: {"grade": 3, "quality": "superior"} 药材: {"elements": {"wood": 3, "fire": 1,
-   * "water": 2}}
+   * 类型特有属性 JSONB 丹药: {"grade": 3, "quality": "SUPERIOR"} 药材: {"elements": {"WOOD": 3, "FIRE": 1,
+   * "WATER": 2}}
    */
   @Column(typeHandler = JsonbTypeHandler.class)
   private Map<String, Object> properties;
@@ -134,7 +134,7 @@ public class StackableItem {
   /**
    * 获取药材五行属性值（仅药材类）
    *
-   * @param elementCode 五行属性代码（metal, wood, water, fire, earth）
+   * @param elementCode 五行属性代码（METAL, WOOD, WATER, FIRE, EARTH）
    * @return 属性值，不存在返回0
    */
   public int getElementValue(String elementCode) {

@@ -5,8 +5,8 @@ import lombok.Getter;
 
 @Getter
 public enum SkillType {
-  ACTIVE("active", "主动"),
-  PASSIVE("passive", "被动");
+  ACTIVE("ACTIVE", "主动"),
+  PASSIVE("PASSIVE", "被动");
 
   @EnumValue private final String code;
   private final String name;
@@ -18,8 +18,8 @@ public enum SkillType {
 
   public static SkillType fromCode(String code) {
     for (SkillType type : values()) {
-      if (type.code.equalsIgnoreCase(code)) return type;
+      if (type.code.equals(code)) return type;
     }
-    return ACTIVE;
+    throw new IllegalArgumentException("Unknown SkillType code: " + code);
   }
 }

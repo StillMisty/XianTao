@@ -4,21 +4,21 @@ import lombok.Getter;
 
 @Getter
 public enum EffectType {
-  DAMAGE("damage", "伤害"),
-  ARMOR_BREAK("armor_break", "破甲"),
-  SLOW("slow", "减速"),
-  EXECUTE("execute", "斩杀"),
-  LIFESTEAL("lifesteal", "吸血"),
-  MULTI_HIT("multi_hit", "连击"),
-  DOT("dot", "持续伤害"),
-  HEAL("heal", "治疗"),
-  ATTACK_BUFF("attack_buff", "攻击增益"),
-  DEFENSE_BUFF("defense_buff", "防御增益"),
-  SPEED_BUFF("speed_buff", "速度增益"),
-  STUN("stun", "眩晕"),
-  FREEZE("freeze", "冰冻"),
-  SILENCE("silence", "沉默"),
-  AOE_DAMAGE("aoe_damage", "群体伤害");
+  DAMAGE("DAMAGE", "伤害"),
+  ARMOR_BREAK("ARMOR_BREAK", "破甲"),
+  SLOW("SLOW", "减速"),
+  EXECUTE("EXECUTE", "斩杀"),
+  LIFESTEAL("LIFESTEAL", "吸血"),
+  MULTI_HIT("MULTI_HIT", "连击"),
+  DOT("DOT", "持续伤害"),
+  HEAL("HEAL", "治疗"),
+  ATTACK_BUFF("ATTACK_BUFF", "攻击增益"),
+  DEFENSE_BUFF("DEFENSE_BUFF", "防御增益"),
+  SPEED_BUFF("SPEED_BUFF", "速度增益"),
+  STUN("STUN", "眩晕"),
+  FREEZE("FREEZE", "冰冻"),
+  SILENCE("SILENCE", "沉默"),
+  AOE_DAMAGE("AOE_DAMAGE", "群体伤害");
 
   private final String code;
   private final String name;
@@ -30,8 +30,8 @@ public enum EffectType {
 
   public static EffectType fromCode(String code) {
     for (EffectType type : values()) {
-      if (type.code.equalsIgnoreCase(code)) return type;
+      if (type.code.equals(code)) return type;
     }
-    return DAMAGE;
+    throw new IllegalArgumentException("Unknown EffectType code: " + code);
   }
 }

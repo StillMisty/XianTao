@@ -3,7 +3,7 @@
 -- ============================================================
 
 -- ============================================================
--- 地图1：青山镇 (safe_town Lv1)
+-- 地图1：青山镇 (SAFE_TOWN Lv1)
 -- ============================================================
 INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, require_level, event_weight) VALUES
 ((SELECT id FROM xt_map_node WHERE name='青山镇'),'采药童子','药铺缺人手去青云山外门采集聚灵草。老板抠门报酬刚好够路费——但新手积累经验的好机会。',5,jsonb_build_array(jsonb_build_object('type','rare_item','name','聚灵草','weight',100,'min_count',1,'max_count',3)),1,100),
@@ -18,7 +18,7 @@ INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, req
 ((SELECT id FROM xt_map_node WHERE name='青山镇'),'矿渣筛选','废弃灵石矿脉剩下的矿渣——筛一筛能凑几块灵石。',8,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',80,'min_amount',5,'max_amount',15),jsonb_build_object('type','rare_item','name','聚灵草','weight',20,'min_count',1,'max_count',2)),1,100);
 
 -- ============================================================
--- 地图2：落霞坊市 (safe_town Lv1)
+-- 地图2：落霞坊市 (SAFE_TOWN Lv1)
 -- ============================================================
 INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, require_level, event_weight) VALUES
 ((SELECT id FROM xt_map_node WHERE name='落霞坊市'),'坊市跑腿','散修需帮忙跑腿送东西——能混脸熟说不定遇到便宜货。',8,jsonb_build_array(jsonb_build_object('type','rare_item','name','凝气丹','weight',60,'min_count',1,'max_count',2),jsonb_build_object('type','spirit_stones','name','灵石','weight',40,'min_amount',3,'max_amount',8)),3,80),
@@ -33,7 +33,7 @@ INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, req
 ((SELECT id FROM xt_map_node WHERE name='落霞坊市'),'地摊砍价','两个散修为一块龙鳞吵了三天——需第三方仲裁。',15,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',60,'min_amount',5,'max_amount',20),jsonb_build_object('type','rare_item','name','筑基丹','weight',40,'min_count',1,'max_count',1)),3,80);
 
 -- ============================================================
--- 地图3：天阙城 (safe_town Lv30)
+-- 地图3：天阙城 (SAFE_TOWN Lv30)
 -- ============================================================
 INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, require_level, event_weight) VALUES
 ((SELECT id FROM xt_map_node WHERE name='天阙城'),'城门守备','守卫长需修士协助维护秩序——不用打打杀杀就是站一天腰有点疼。',30,jsonb_build_array(jsonb_build_object('type','rare_item','name','大还丹','weight',50,'min_count',1,'max_count',2),jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',20,'max_amount',50)),30,40),
@@ -48,7 +48,7 @@ INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, req
 ((SELECT id FROM xt_map_node WHERE name='天阙城'),'代购跑腿','青龙街代购——帮修士买他们懒得排长队的丹药。',25,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',60,'min_amount',10,'max_amount',40),jsonb_build_object('type','rare_item','name','培元丹','weight',40,'min_count',1,'max_count',3)),30,35);
 
 -- ============================================================
--- 地图4：铸剑山 (safe_town Lv15)
+-- 地图4：铸剑山 (SAFE_TOWN Lv15)
 -- ============================================================
 INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, require_level, event_weight) VALUES
 ((SELECT id FROM xt_map_node WHERE name='铸剑山'),'锻铁学徒','铁匠永远缺人——帮拉风箱搬铁块在他骂你时保持微笑。教的都是错的。',10,jsonb_build_array(jsonb_build_object('type','rare_item','name','玄铁','weight',60,'min_count',1,'max_count',5),jsonb_build_object('type','spirit_stones','name','灵石','weight',40,'min_amount',3,'max_amount',10)),15,70),
@@ -63,7 +63,7 @@ INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, req
 ((SELECT id FROM xt_map_node WHERE name='铸剑山'),'铁匠传信','三个打铁世家互不来往——需信使在之间传话。别被火球术误伤就是稳赚。',10,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',100,'min_amount',5,'max_amount',15)),15,70);
 
 -- ============================================================
--- 地图5：灵药谷 (safe_town Lv25)
+-- 地图5：灵药谷 (SAFE_TOWN Lv25)
 -- ============================================================
 INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, require_level, event_weight) VALUES
 ((SELECT id FROM xt_map_node WHERE name='灵药谷'),'采药大典','年度盛事——一炷香内尽可能多采药但不能踩谷主灵植。',20,jsonb_build_array(jsonb_build_object('type','rare_item','name','聚灵草种子','weight',50,'min_count',1,'max_count',5),jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',10,'max_amount',30)),25,60),
@@ -78,7 +78,7 @@ INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, req
 ((SELECT id FROM xt_map_node WHERE name='灵药谷'),'以药换灵石','灵药谷以药换灵石——交出药材换灵石，比率比坊市低但急用。',18,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',80,'min_amount',15,'max_amount',50),jsonb_build_object('type','rare_item','name','千年灵芝孢子','weight',20,'min_count',1,'max_count',1)),25,55);
 
 -- ============================================================
--- 地图6：须弥山 (safe_town Lv60)
+-- 地图6：须弥山 (SAFE_TOWN Lv60)
 -- ============================================================
 INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, require_level, event_weight) VALUES
 ((SELECT id FROM xt_map_node WHERE name='须弥山'),'扫地修行','扫三千六百级台阶——扫到三千级会顿悟人生然后发现还有六百级。',45,jsonb_build_array(jsonb_build_object('type','rare_item','name','舍利子','weight',50,'min_count',1,'max_count',2),jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',30,'max_amount',80)),60,30),
@@ -93,7 +93,7 @@ INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, req
 ((SELECT id FROM xt_map_node WHERE name='须弥山'),'菩提叶收集','菩提树千年落叶一次——每片含佛性可换菩提子。',35,jsonb_build_array(jsonb_build_object('type','rare_item','name','菩提子','weight',70,'min_count',1,'max_count',3),jsonb_build_object('type','spirit_stones','name','灵石','weight',30,'min_amount',10,'max_amount',30)),60,25);
 
 -- ============================================================
--- 地图7：天机阁 (safe_town Lv80)
+-- 地图7：天机阁 (SAFE_TOWN Lv80)
 -- ============================================================
 INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, require_level, event_weight) VALUES
 ((SELECT id FROM xt_map_node WHERE name='天机阁'),'情报员招募','招情报员——从各宗门套公开信息回来报告。不是间谍是信息整合。',15,jsonb_build_array(jsonb_build_object('type','rare_item','name','悟道丹','weight',100,'min_count',1,'max_count',3)),80,40),
@@ -108,7 +108,7 @@ INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, req
 ((SELECT id FROM xt_map_node WHERE name='天机阁'),'妖兽驱赶','天机阁高悬云端——偶有妖兽撞到大阵需驱赶。别真打死砸到天阙城赔不起。',30,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',30,'max_amount',100),jsonb_build_object('type','equipment','name','星辰戒','weight',50,'template_id',(SELECT id FROM xt_equipment_template WHERE name='星辰戒'))),80,25);
 
 -- ============================================================
--- 地图8：青云山外门 (training_zone Lv1)
+-- 地图8：青云山外门 (TRAINING_ZONE Lv1)
 -- ============================================================
 INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, require_level, event_weight) VALUES
 ((SELECT id FROM xt_map_node WHERE name='青云山外门'),'外门巡逻','外门长老安排巡逻确保没妖兽闯入——大部分时间只是散步。',10,jsonb_build_array(jsonb_build_object('type','rare_item','name','凝气丹','weight',60,'min_count',1,'max_count',2),jsonb_build_object('type','spirit_stones','name','灵石','weight',40,'min_amount',3,'max_amount',8)),5,70),
@@ -123,7 +123,7 @@ INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, req
 ((SELECT id FROM xt_map_node WHERE name='青云山外门'),'山精追踪','山精偷吃灵田——需追踪巢穴。找到后别打——先报长老。',25,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',8,'max_amount',25),jsonb_build_object('type','rare_item','name','筑基丹','weight',50,'min_count',1,'max_count',1)),6,65);
 
 -- ============================================================
--- 地图9：枯骨林入口 (training_zone Lv10)
+-- 地图9：枯骨林入口 (TRAINING_ZONE Lv10)
 -- ============================================================
 INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, require_level, event_weight) VALUES
 ((SELECT id FROM xt_map_node WHERE name='枯骨林入口'),'枯骨寻宝','富商声称祖上在枯骨林埋了宝物悬赏勇士寻找——但万一有好东西呢？',20,jsonb_build_array(jsonb_build_object('type','rare_item','name','玄铁','weight',60,'min_count',1,'max_count',5),jsonb_build_object('type','spirit_stones','name','灵石','weight',40,'min_amount',5,'max_amount',15)),10,50),
@@ -138,7 +138,7 @@ INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, req
 ((SELECT id FROM xt_map_node WHERE name='枯骨林入口'),'磷火采集','枯骨林的磷火是炼丹辅料——装进罐子就值灵石。踩到会烫脚。',22,jsonb_build_array(jsonb_build_object('type','rare_item','name','灵茶叶','weight',70,'min_count',1,'max_count',3),jsonb_build_object('type','spirit_stones','name','灵石','weight',30,'min_amount',5,'max_amount',12)),10,50);
 
 -- ============================================================
--- 地图10：枯骨林深处 (training_zone Lv20)
+-- 地图10：枯骨林深处 (TRAINING_ZONE Lv20)
 -- ============================================================
 INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, require_level, event_weight) VALUES
 ((SELECT id FROM xt_map_node WHERE name='枯骨林深处'),'亡者安宁','亡魂越来越多影响坊市生意——需物理安抚（火球术雷法效果佳）。',25,jsonb_build_array(jsonb_build_object('type','rare_item','name','大还丹','weight',60,'min_count',1,'max_count',1),jsonb_build_object('type','spirit_stones','name','灵石','weight',40,'min_amount',10,'max_amount',30)),20,50),
@@ -153,7 +153,7 @@ INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, req
 ((SELECT id FROM xt_map_node WHERE name='枯骨林深处'),'鬼火珠炼制','有修士需枯骨林九幽鬼火炼制鬼火珠——鬼火只在午夜出现。',28,jsonb_build_array(jsonb_build_object('type','rare_item','name','九幽花','weight',60,'min_count',1,'max_count',2),jsonb_build_object('type','spirit_stones','name','灵石','weight',40,'min_amount',10,'max_amount',30)),22,40);
 
 -- ============================================================
--- 地图11：青云山内门 (training_zone Lv25)
+-- 地图11：青云山内门 (TRAINING_ZONE Lv25)
 -- ============================================================
 INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, require_level, event_weight) VALUES
 ((SELECT id FROM xt_map_node WHERE name='青云山内门'),'内门试炼','内门弟子必经试炼——击败指定敌人获长老认可。散修眼里一文不值但奖励是真的。',35,jsonb_build_array(jsonb_build_object('type','rare_item','name','洗髓丹','weight',50,'min_count',1,'max_count',1),jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',15,'max_amount',40)),25,40),
@@ -161,14 +161,14 @@ INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, req
 ((SELECT id FROM xt_map_node WHERE name='青云山内门'),'剑台比试裁判','每月剑台比试需不偏不倚的裁判——两边都是长老徒弟判谁得罪谁。',25,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',12,'max_amount',30),jsonb_build_object('type','equipment','name','寒光剑','weight',50,'template_id',(SELECT id FROM xt_equipment_template WHERE name='寒光剑'))),28,35),
 ((SELECT id FROM xt_map_node WHERE name='青云山内门'),'灵气紊乱溯源','灵气流突然紊乱——需溯源追查原因。可能妖兽也可能谁练功走火。',40,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',20,'max_amount',60),jsonb_build_object('type','rare_item','name','筑基丹','weight',50,'min_count',1,'max_count',3)),25,35),
 ((SELECT id FROM xt_map_node WHERE name='青云山内门'),'藏经阁整理','法决玉简乱堆乱放——需按分类重新排序。最有趣的放最上面。',45,jsonb_build_array(jsonb_build_object('type','rare_item','name','火球术玉简','weight',30,'min_count',1,'max_count',1),jsonb_build_object('type','rare_item','name','轻身术玉简','weight',30,'min_count',1,'max_count',1),jsonb_build_object('type','spirit_stones','name','灵石','weight',40,'min_amount',10,'max_amount',25)),25,35),
-((SELECT id FROM xt_map_node WHERE name='青云山内门'),'妖兽学园','内门捕获一批妖兽幼崽——需喂养训练。教它们别咬人成功率约三成。',35,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',15,'max_amount',40),jsonb_build_object('type','beast_egg','name','灵兽卵','weight',50)),28,35),
+((SELECT id FROM xt_map_node WHERE name='青云山内门'),'妖兽学园','内门捕获一批妖兽幼崽——需喂养训练。教它们别咬人成功率约三成。',35,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',15,'max_amount',40),jsonb_build_object('type','BEAST_EGG','name','灵兽卵','weight',50)),28,35),
 ((SELECT id FROM xt_map_node WHERE name='青云山内门'),'灵泉守护','内门灵泉是整座山灵气来源——需守护不让外人靠近。水中偶尔浮出灵贝。',40,jsonb_build_array(jsonb_build_object('type','rare_item','name','舍利子','weight',50,'min_count',1,'max_count',3),jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',15,'max_amount',40)),28,35),
 ((SELECT id FROM xt_map_node WHERE name='青云山内门'),'法决陪练','内门弟子修炼新法决需要活靶子陪——不会被杀但会被打到怀疑道心。',20,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',70,'min_amount',15,'max_amount',50),jsonb_build_object('type','rare_item','name','狂暴丹','weight',30,'min_count',1,'max_count',1)),25,35),
 ((SELECT id FROM xt_map_node WHERE name='青云山内门'),'护山大阵维补','内门大阵一小段需修补——注入大量灵力回报一次性筑基丹。',60,jsonb_build_array(jsonb_build_object('type','rare_item','name','筑基丹','weight',60,'min_count',1,'max_count',3),jsonb_build_object('type','spirit_stones','name','灵石','weight',40,'min_amount',20,'max_amount',50)),25,30),
 ((SELECT id FROM xt_map_node WHERE name='青云山内门'),'火场清理','某弟子炼焚天诀烧了半片林子——需人去铲灰种树。',50,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',60,'min_amount',25,'max_amount',60),jsonb_build_object('type','rare_item','name','火灵芝孢子','weight',40,'min_count',1,'max_count',3)),25,35);
 
 -- ============================================================
--- 地图12：修罗场外围 (training_zone Lv35)
+-- 地图12：修罗场外围 (TRAINING_ZONE Lv35)
 -- ============================================================
 INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, require_level, event_weight) VALUES
 ((SELECT id FROM xt_map_node WHERE name='修罗场外围'),'修罗试剑','自称剑痴的老人找能接下他三剑的修士。奖励丰厚风险也高。',40,jsonb_build_array(jsonb_build_object('type','rare_item','name','破障丹','weight',50,'min_count',1,'max_count',2),jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',20,'max_amount',60)),35,35),
@@ -183,7 +183,7 @@ INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, req
 ((SELECT id FROM xt_map_node WHERE name='修罗场外围'),'徘徊者救援','有修士被修罗场困住——杀意太重走不出来——需引路带出来。',35,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',60,'min_amount',20,'max_amount',60),jsonb_build_object('type','rare_item','name','风行丹','weight',40,'min_count',1,'max_count',1)),35,30);
 
 -- ============================================================
--- 地图13：万妖谷 (training_zone Lv40)
+-- 地图13：万妖谷 (TRAINING_ZONE Lv40)
 -- ============================================================
 INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, require_level, event_weight) VALUES
 ((SELECT id FROM xt_map_node WHERE name='万妖谷'),'妖王伏诛','深处妖王级怪物悬赏诛杀——建议组队实际组队者互不认识最后奖励没分清。',45,jsonb_build_array(jsonb_build_object('type','rare_item','name','破障丹','weight',50,'min_count',1,'max_count',3),jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',30,'max_amount',80)),40,30),
@@ -191,14 +191,14 @@ INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, req
 ((SELECT id FROM xt_map_node WHERE name='万妖谷'),'大妖遗骨采集','谷底埋上古大妖骨骼——经万年淬炼。挖地三尺有时大腿骨有时碎石。',60,jsonb_build_array(jsonb_build_object('type','rare_item','name','龙血草','weight',60,'min_count',1,'max_count',3),jsonb_build_object('type','spirit_stones','name','灵石','weight',40,'min_amount',30,'max_amount',80)),40,25),
 ((SELECT id FROM xt_map_node WHERE name='万妖谷'),'妖族文字破译','石壁上刻有上古妖族文字——天机阁悬赏拓印破译。已知一个是死一个是跑。',35,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',25,'max_amount',80),jsonb_build_object('type','rare_item','name','龙鳞','weight',50,'min_count',1,'max_count',3)),40,25),
 ((SELECT id FROM xt_map_node WHERE name='万妖谷'),'不死凤凰尾羽收集','换季脱落尾羽含不灭火灵——一根一根拔——不不不是自然脱落别误人子弟。',40,jsonb_build_array(jsonb_build_object('type','rare_item','name','凤凰翎','weight',70,'min_count',2,'max_count',5),jsonb_build_object('type','spirit_stones','name','灵石','weight',30,'min_amount',15,'max_amount',40)),40,25),
-((SELECT id FROM xt_map_node WHERE name='万妖谷'),'妖族友好交流','有一群不太凶的妖类——拿灵芝哄它们开心然后它们带你去藏宝地。',60,jsonb_build_array(jsonb_build_object('type','beast_egg','name','灵兽卵','weight',60),jsonb_build_object('type','spirit_stones','name','灵石','weight',40,'min_amount',20,'max_amount',60)),45,25),
+((SELECT id FROM xt_map_node WHERE name='万妖谷'),'妖族友好交流','有一群不太凶的妖类——拿灵芝哄它们开心然后它们带你去藏宝地。',60,jsonb_build_array(jsonb_build_object('type','BEAST_EGG','name','灵兽卵','weight',60),jsonb_build_object('type','spirit_stones','name','灵石','weight',40,'min_amount',20,'max_amount',60)),45,25),
 ((SELECT id FROM xt_map_node WHERE name='万妖谷'),'噬心魔监控','噬心魔种群有异常——需监视报告。别对视——它会读心。',30,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',100,'min_amount',20,'max_amount',50)),40,30),
 ((SELECT id FROM xt_map_node WHERE name='万妖谷'),'上古阵法修复','谷底镇压大妖元神的封印阵法——需站桩三天。幻听大妖说话别理它。',90,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',50,'max_amount',150),jsonb_build_object('type','equipment','name','血魂刀','weight',50,'template_id',(SELECT id FROM xt_equipment_template WHERE name='血魂刀'))),45,20),
 ((SELECT id FROM xt_map_node WHERE name='万妖谷'),'妖兽血样本收集','灵药谷需要不同妖兽血液样本——噬心魔的血最值钱也最难采。',55,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',30,'max_amount',100),jsonb_build_object('type','rare_item','name','血菩提','weight',50,'min_count',1,'max_count',5)),42,25),
 ((SELECT id FROM xt_map_node WHERE name='万妖谷'),'石像鬼狩猎','远古石像鬼偶出没——弱点慢但皮厚。一直移动一直轰一天下来鞋磨破了。',60,jsonb_build_array(jsonb_build_object('type','rare_item','name','九天息壤','weight',50,'min_count',1,'max_count',3),jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',40,'max_amount',120)),42,25);
 
 -- ============================================================
--- 地图14：亡魂沼泽 (training_zone Lv18)
+-- 地图14：亡魂沼泽 (TRAINING_ZONE Lv18)
 -- ============================================================
 INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, require_level, event_weight) VALUES
 ((SELECT id FROM xt_map_node WHERE name='亡魂沼泽'),'亡者安抚','沼泽亡魂激增——物理安抚(火球术雷法驱散)。安抚亡魂不如打架爽快至少打架有战利品。',15,jsonb_build_array(jsonb_build_object('type','rare_item','name','幽冥铁','weight',60,'min_count',1,'max_count',5),jsonb_build_object('type','spirit_stones','name','灵石','weight',40,'min_amount',5,'max_amount',15)),18,55),
@@ -213,7 +213,7 @@ INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, req
 ((SELECT id FROM xt_map_node WHERE name='亡魂沼泽'),'息土采掘','底层有特殊息土——极品炼丹辅料——挖深了小心掉进沼泽。',45,jsonb_build_array(jsonb_build_object('type','rare_item','name','九天息壤','weight',50,'min_count',1,'max_count',2),jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',15,'max_amount',40)),22,40);
 
 -- ============================================================
--- 地图15：烈焰荒漠 (training_zone Lv35)
+-- 地图15：烈焰荒漠 (TRAINING_ZONE Lv35)
 -- ============================================================
 INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, require_level, event_weight) VALUES
 ((SELECT id FROM xt_map_node WHERE name='烈焰荒漠'),'沙海淘金','火灵石矿脉被沙暴蜥蜴占据——清剿采集火灵石。温度把水蒸发得比喝水快。',30,jsonb_build_array(jsonb_build_object('type','rare_item','name','火灵石','weight',50,'min_count',2,'max_count',10),jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',15,'max_amount',40)),35,40),
@@ -228,7 +228,7 @@ INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, req
 ((SELECT id FROM xt_map_node WHERE name='烈焰荒漠'),'沙漠绿化','有人想把一小块变绿——需水属修士浇一个月灵泉。第一棵灵树长成送你炼器材料。',90,jsonb_build_array(jsonb_build_object('type','rare_item','name','混沌元晶','weight',50,'min_count',1,'max_count',2),jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',40,'max_amount',150)),40,25);
 
 -- ============================================================
--- 地图16：星辰海 (training_zone Lv50)
+-- 地图16：星辰海 (TRAINING_ZONE Lv50)
 -- ============================================================
 INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, require_level, event_weight) VALUES
 ((SELECT id FROM xt_map_node WHERE name='星辰海'),'星光采集','星辰砂天然产地——精确算星光时间采集。提供免费历法——采集到的分天机阁三成。',40,jsonb_build_array(jsonb_build_object('type','rare_item','name','星辰砂','weight',60,'min_count',2,'max_count',10),jsonb_build_object('type','spirit_stones','name','灵石','weight',40,'min_amount',20,'max_amount',60)),50,35),
@@ -243,7 +243,7 @@ INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, req
 ((SELECT id FROM xt_map_node WHERE name='星辰海'),'星光莲子种植','有修士试着种九转金莲——虽气候不合想试试。枯了报酬照发失败也是科学。',80,jsonb_build_array(jsonb_build_object('type','rare_item','name','九转金莲种子','weight',50,'min_count',1,'max_count',1),jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',30,'max_amount',80)),50,30);
 
 -- ============================================================
--- 地图17：魔界裂隙 (training_zone Lv65)
+-- 地图17：魔界裂隙 (TRAINING_ZONE Lv65)
 -- ============================================================
 INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, require_level, event_weight) VALUES
 ((SELECT id FROM xt_map_node WHERE name='魔界裂隙'),'封魔令','裂隙涌出大量蠕虫魔物——把魔赶裂隙对面——裂隙迟早再打开往复循环。',50,jsonb_build_array(jsonb_build_object('type','rare_item','name','虚空结晶','weight',40,'min_count',1,'max_count',5),jsonb_build_object('type','spirit_stones','name','灵石','weight',60,'min_amount',30,'max_amount',80)),65,30),
@@ -258,7 +258,7 @@ INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, req
 ((SELECT id FROM xt_map_node WHERE name='魔界裂隙'),'暗影刺客狩猎','裂隙深处出现暗影刺客——极高危险但身上带稀有材料。',60,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',50,'max_amount',200),jsonb_build_object('type','equipment','name','幽影匕','weight',50,'template_id',(SELECT id FROM xt_equipment_template WHERE name='幽影匕'))),72,20);
 
 -- ============================================================
--- 地图18：无尽海 (training_zone Lv80)
+-- 地图18：无尽海 (TRAINING_ZONE Lv80)
 -- ============================================================
 INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, require_level, event_weight) VALUES
 ((SELECT id FROM xt_map_node WHERE name='无尽海'),'渡海使','自称航海家需同伴横渡无尽海——一千三百多报名者前皆未归。继承了一千多失踪者遗产。',120,jsonb_build_array(jsonb_build_object('type','rare_item','name','混沌元晶','weight',60,'min_count',1,'max_count',3),jsonb_build_object('type','spirit_stones','name','灵石','weight',40,'min_amount',50,'max_amount',150)),80,8),
@@ -268,12 +268,12 @@ INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, req
 ((SELECT id FROM xt_map_node WHERE name='无尽海'),'虚空转灵石','某些区域虚空结晶能自然转灵石——打坐一天灵力全给结晶产出全归你。',90,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',100,'min_amount',50,'max_amount',120)),80,10),
 ((SELECT id FROM xt_map_node WHERE name='无尽海'),'潮汐灵力研究','天机阁想研究潮汐灵力变化——需在海岸记录一整天。凌晨三点那趟海风吹着最困。',60,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',30,'max_amount',100),jsonb_build_object('type','rare_item','name','天道花瓣','weight',50,'min_count',1,'max_count',3)),80,10),
 ((SELECT id FROM xt_map_node WHERE name='无尽海'),'深海冰晶采集','某些地方负压使海面结冰形成万年玄冰——采完没保温已化成水。',60,jsonb_build_array(jsonb_build_object('type','rare_item','name','万年玄冰','weight',70,'min_count',1,'max_count',3),jsonb_build_object('type','spirit_stones','name','灵石','weight',30,'min_amount',20,'max_amount',60)),80,10),
-((SELECT id FROM xt_map_node WHERE name='无尽海'),'海鸟蛋搜集','沿岸巨形海鸟蛋值灵石——偷蛋需轻身术——拿到蛋后跑海鸟追三里。',45,jsonb_build_array(jsonb_build_object('type','beast_egg','name','灵兽卵','weight',60),jsonb_build_object('type','spirit_stones','name','灵石','weight',40,'min_amount',15,'max_amount',40)),80,15),
+((SELECT id FROM xt_map_node WHERE name='无尽海'),'海鸟蛋搜集','沿岸巨形海鸟蛋值灵石——偷蛋需轻身术——拿到蛋后跑海鸟追三里。',45,jsonb_build_array(jsonb_build_object('type','BEAST_EGG','name','灵兽卵','weight',60),jsonb_build_object('type','spirit_stones','name','灵石','weight',40,'min_amount',15,'max_amount',40)),80,15),
 ((SELECT id FROM xt_map_node WHERE name='无尽海'),'无底海渊探测','最深处向下一千里还没到底——绑一根灵力绳下降——绳快没了就靠避水珠跑回来。',120,jsonb_build_array(jsonb_build_object('type','rare_item','name','混沌元晶','weight',50,'min_count',1,'max_count',5),jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',60,'max_amount',200)),85,5),
 ((SELECT id FROM xt_map_node WHERE name='无尽海'),'寒冰女王巢穴监视','有冰山有寒冰女王巢穴——冰山随时移动需每天观察位置。',90,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',60,'min_amount',50,'max_amount',200),jsonb_build_object('type','equipment','name','雷劫铠甲','weight',40,'template_id',(SELECT id FROM xt_equipment_template WHERE name='雷劫铠甲'))),85,8);
 
 -- ============================================================
--- 地图19：万妖谷深处 (training_zone Lv90)
+-- 地图19：万妖谷深处 (TRAINING_ZONE Lv90)
 -- ============================================================
 INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, require_level, event_weight) VALUES
 ((SELECT id FROM xt_map_node WHERE name='万妖谷深处'),'妖王狩猎','极危妖王(疑似远古武神坐骑后)。五人组队每人三颗涅槃丹——凑到四人互相猜疑材料只够分两份。',90,jsonb_build_array(jsonb_build_object('type','rare_item','name','神血石','weight',50,'min_count',1,'max_count',3),jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',50,'max_amount',200)),90,10),
@@ -288,7 +288,7 @@ INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, req
 ((SELECT id FROM xt_map_node WHERE name='万妖谷深处'),'无尽妖丹收集','所有妖兽都会掉妖丹——分门别类装好——二百颗换一颗神血石。',120,jsonb_build_array(jsonb_build_object('type','rare_item','name','神血石','weight',50,'min_count',1,'max_count',3),jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',50,'max_amount',200)),92,8);
 
 -- ============================================================
--- 地图20：九天玄刹 (hidden_zone Lv50)
+-- 地图20：九天玄刹 (HIDDEN_ZONE Lv50)
 -- ============================================================
 INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, require_level, event_weight) VALUES
 ((SELECT id FROM xt_map_node WHERE name='九天玄刹'),'九天寻宝','发现未探索遗迹需去调查——修仙界最危险动词——第一个进去最后一个出来。',50,jsonb_build_array(jsonb_build_object('type','rare_item','name','九转还魂丹','weight',50,'min_count',1,'max_count',1),jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',30,'max_amount',100)),50,25),
@@ -303,7 +303,7 @@ INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, req
 ((SELECT id FROM xt_map_node WHERE name='九天玄刹'),'修罗王虚影监测','九天玄刹偶现修罗王虚影——天机阁让去记录出现时间。',45,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',60,'min_amount',30,'max_amount',100),jsonb_build_object('type','rare_item','name','破劫丹','weight',40,'min_count',1,'max_count',1)),55,20);
 
 -- ============================================================
--- 地图21：修罗场核心 (hidden_zone Lv60)
+-- 地图21：修罗场核心 (HIDDEN_ZONE Lv60)
 -- ============================================================
 INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, require_level, event_weight) VALUES
 ((SELECT id FROM xt_map_node WHERE name='修罗场核心'),'血战修罗','核心大规模混战需活下去——修罗场没任务只有生死。',60,jsonb_build_array(jsonb_build_object('type','rare_item','name','九转还魂丹','weight',40,'min_count',1,'max_count',1),jsonb_build_object('type','spirit_stones','name','灵石','weight',60,'min_amount',40,'max_amount',120)),60,20),
@@ -315,10 +315,10 @@ INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, req
 ((SELECT id FROM xt_map_node WHERE name='修罗场核心'),'血雾提炼','红色血雾含特殊成份——需持收集器提炼。',30,jsonb_build_array(jsonb_build_object('type','rare_item','name','神血石','weight',50,'min_count',1,'max_count',2),jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',20,'max_amount',80)),60,20),
 ((SELECT id FROM xt_map_node WHERE name='修罗场核心'),'净化法阵','在核心布置九个净化阵眼——每个站一个时辰共九时辰。',180,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',60,'min_amount',80,'max_amount',300),jsonb_build_object('type','rare_item','name','天道碎片','weight',40,'min_count',1,'max_count',3)),68,10),
 ((SELECT id FROM xt_map_node WHERE name='修罗场核心'),'血战记录','天机阁悬赏记录每场大型战斗——但有时混进去记录就不客观了。',90,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',40,'max_amount',150),jsonb_build_object('type','equipment','name','裂天剑','weight',50,'template_id',(SELECT id FROM xt_equipment_template WHERE name='裂天剑'))),60,15),
-((SELECT id FROM xt_map_node WHERE name='修罗场核心'),'修罗令守卫','替修罗令持有者守关——不让其他修士靠近。',60,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',60,'min_amount',30,'max_amount',100),jsonb_build_object('type','beast_egg','name','灵兽卵','weight',40)),65,15);
+((SELECT id FROM xt_map_node WHERE name='修罗场核心'),'修罗令守卫','替修罗令持有者守关——不让其他修士靠近。',60,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',60,'min_amount',30,'max_amount',100),jsonb_build_object('type','BEAST_EGG','name','灵兽卵','weight',40)),65,15);
 
 -- ============================================================
--- 地图22：龙渊入口 (hidden_zone Lv70)
+-- 地图22：龙渊入口 (HIDDEN_ZONE Lv70)
 -- ============================================================
 INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, require_level, event_weight) VALUES
 ((SELECT id FROM xt_map_node WHERE name='龙渊入口'),'龙渊试炼','龙族守护者寻找有资格进入龙渊的人——龙族标准比天劫离谱通过凤毛麟角。',90,jsonb_build_array(jsonb_build_object('type','rare_item','name','九转还魂丹','weight',40,'min_count',1,'max_count',2),jsonb_build_object('type','spirit_stones','name','灵石','weight',60,'min_amount',50,'max_amount',150)),70,10),
@@ -330,10 +330,10 @@ INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, req
 ((SELECT id FROM xt_map_node WHERE name='龙渊入口'),'龙族秘宝守卫','深处有龙族封印秘宝——需守卫秘境通道三天。',120,jsonb_build_array(jsonb_build_object('type','rare_item','name','混沌元晶','weight',50,'min_count',1,'max_count',3),jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',50,'max_amount',200)),75,8),
 ((SELECT id FROM xt_map_node WHERE name='龙渊入口'),'龙血石开采','入口岩层中嵌龙血石——需去开采。',80,jsonb_build_array(jsonb_build_object('type','rare_item','name','神血石','weight',60,'min_count',1,'max_count',3),jsonb_build_object('type','spirit_stones','name','灵石','weight',40,'min_amount',30,'max_amount',120)),72,8),
 ((SELECT id FROM xt_map_node WHERE name='龙渊入口'),'深渊回音记录','龙渊深处传出不能理解回音——需用灵石记录法器录。',30,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',60,'min_amount',20,'max_amount',60),jsonb_build_object('type','rare_item','name','龙血草','weight',40,'min_count',1,'max_count',2)),70,10),
-((SELECT id FROM xt_map_node WHERE name='龙渊入口'),'龙族引荐','有人想入龙族学功法——需引荐说服守门人——三个月后守门人睡了再等百年。',90,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',50,'max_amount',200),jsonb_build_object('type','beast_egg','name','灵兽卵','weight',50)),75,8);
+((SELECT id FROM xt_map_node WHERE name='龙渊入口'),'龙族引荐','有人想入龙族学功法——需引荐说服守门人——三个月后守门人睡了再等百年。',90,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',50,'max_amount',200),jsonb_build_object('type','BEAST_EGG','name','灵兽卵','weight',50)),75,8);
 
 -- ============================================================
--- 地图23：龙渊深处 (hidden_zone Lv85)
+-- 地图23：龙渊深处 (HIDDEN_ZONE Lv85)
 -- ============================================================
 INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, require_level, event_weight) VALUES
 ((SELECT id FROM xt_map_node WHERE name='龙渊深处'),'沉睡龙神监测','真龙沉睡——需定期趴在耳边听呼吸。听到活着没听到要跑——世上还没人经历后者。',60,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',40,'max_amount',150),jsonb_build_object('type','rare_item','name','天道碎片','weight',50,'min_count',1,'max_count',3)),85,8),
@@ -343,12 +343,12 @@ INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, req
 ((SELECT id FROM xt_map_node WHERE name='龙渊深处'),'龙威抗性训练','站在龙渊不跪——腰快断坚持——等坚持一炷香恭喜有龙威抗性。',60,jsonb_build_array(jsonb_build_object('type','rare_item','name','破劫丹','weight',50,'min_count',1,'max_count',1),jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',30,'max_amount',100)),85,8),
 ((SELECT id FROM xt_map_node WHERE name='龙渊深处'),'龙族功法传抄','龙族通过神魂波动传授功法——需用灵识感应抄录。',90,jsonb_build_array(jsonb_build_object('type','rare_item','name','悟道丹','weight',50,'min_count',1,'max_count',2),jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',40,'max_amount',150)),88,5),
 ((SELECT id FROM xt_map_node WHERE name='龙渊深处'),'混沌巨兽侦察','龙渊深处混沌巨兽沉睡——天机阁悬赏侦察其体型。',60,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',50,'max_amount',150),jsonb_build_object('type','rare_item','name','混沌元晶','weight',50,'min_count',1,'max_count',3)),90,5),
-((SELECT id FROM xt_map_node WHERE name='龙渊深处'),'守护灵石阵','深处的守护灵石阵需灵兽卵作为祭品维持——需放入并启动。不要问为什么龙族保护阵要灵兽卵。',90,jsonb_build_array(jsonb_build_object('type','beast_egg','name','灵兽卵','weight',50),jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',40,'max_amount',150)),88,5),
+((SELECT id FROM xt_map_node WHERE name='龙渊深处'),'守护灵石阵','深处的守护灵石阵需灵兽卵作为祭品维持——需放入并启动。不要问为什么龙族保护阵要灵兽卵。',90,jsonb_build_array(jsonb_build_object('type','BEAST_EGG','name','灵兽卵','weight',50),jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',40,'max_amount',150)),88,5),
 ((SELECT id FROM xt_map_node WHERE name='龙渊深处'),'龙息潭淬炼','龙息凝结成潭——浸泡一炷香体质飞跃但烫得想跳——忍住就赚。',45,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',60,'min_amount',30,'max_amount',100),jsonb_build_object('type','rare_item','name','神血石','weight',40,'min_count',1,'max_count',2)),85,8),
 ((SELECT id FROM xt_map_node WHERE name='龙渊深处'),'远古宝藏探秘','龙渊深处传说有远古龙皇藏宝——需去探索但通道已被封。找到入口就成功一半。',180,jsonb_build_array(jsonb_build_object('type','rare_item','name','混沌元晶','weight',50,'min_count',1,'max_count',5),jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',80,'max_amount',300)),92,5);
 
 -- ============================================================
--- 地图24：仙界遗迹外围 (hidden_zone Lv90)
+-- 地图24：仙界遗迹外围 (HIDDEN_ZONE Lv90)
 -- ============================================================
 INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, require_level, event_weight) VALUES
 ((SELECT id FROM xt_map_node WHERE name='仙界遗迹外围'),'仙帝遗宝','外围发现疑似仙帝储物法宝碎片——仙帝遗宝面前没有道友只有竞争对手。',120,jsonb_build_array(jsonb_build_object('type','rare_item','name','九天息壤','weight',40,'min_count',1,'max_count',5),jsonb_build_object('type','rare_item','name','舍利子','weight',60,'min_count',1,'max_count',5)),90,5),
@@ -360,10 +360,10 @@ INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, req
 ((SELECT id FROM xt_map_node WHERE name='仙界遗迹外围'),'混沌巨兽警戒线','混沌巨兽在遗迹边缘出没——需在安全距离标警戒线。',60,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',60,'min_amount',40,'max_amount',150),jsonb_build_object('type','rare_item','name','神血石','weight',40,'min_count',1,'max_count',3)),90,5),
 ((SELECT id FROM xt_map_node WHERE name='仙界遗迹外围'),'仙阵残余修复','遗迹外围残留仙阵——需注入灵力修复。修好一小块遗迹会亮——感觉特有成就感。',180,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',80,'max_amount',300),jsonb_build_object('type','equipment','name','时光沙漏','weight',50,'template_id',(SELECT id FROM xt_equipment_template WHERE name='时光沙漏'))),95,3),
 ((SELECT id FROM xt_map_node WHERE name='仙界遗迹外围'),'仙界通道试探','传说外围隐藏通往仙界核心的单向通道——需修士去找。找到坐标上报天机阁。',120,jsonb_build_array(jsonb_build_object('type','rare_item','name','天道碎片','weight',50,'min_count',1,'max_count',5),jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',50,'max_amount',200)),92,5),
-((SELECT id FROM xt_map_node WHERE name='仙界遗迹外围'),'老怪物打杂','遗迹盘踞各路老怪物——需跑腿打杂换宝物。帮化神修士倒茶——他随手赏你几样东西。',60,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',30,'max_amount',120),jsonb_build_object('type','beast_egg','name','灵兽卵','weight',50)),90,8);
+((SELECT id FROM xt_map_node WHERE name='仙界遗迹外围'),'老怪物打杂','遗迹盘踞各路老怪物——需跑腿打杂换宝物。帮化神修士倒茶——他随手赏你几样东西。',60,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',30,'max_amount',120),jsonb_build_object('type','BEAST_EGG','name','灵兽卵','weight',50)),90,8);
 
 -- ============================================================
--- 地图25：仙界遗迹核心 (hidden_zone Lv100)
+-- 地图25：仙界遗迹核心 (HIDDEN_ZONE Lv100)
 -- ============================================================
 INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, require_level, event_weight) VALUES
 ((SELECT id FROM xt_map_node WHERE name='仙界遗迹核心'),'大道参悟','正殿匾额自在天——追寻遁去的一。在此打坐可能有顿悟也可能什么都没有——来过的修士没回来过。',240,jsonb_build_array(jsonb_build_object('type','rare_item','name','天道碎片','weight',70,'min_count',1,'max_count',5),jsonb_build_object('type','spirit_stones','name','灵石','weight',30,'min_amount',60,'max_amount',200)),100,5),
@@ -378,7 +378,7 @@ INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, req
 ((SELECT id FROM xt_map_node WHERE name='仙界遗迹核心'),'终极探索','修真界终极目的地——踏入核心最深区——什么也没有也什么都有——取决于道心。',1440,jsonb_build_array(jsonb_build_object('type','rare_item','name','天道碎片','weight',50,'min_count',5,'max_count',20),jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',200,'max_amount',500)),100,1);
 
 -- ============================================================
--- 地图26：幽冥深渊 (hidden_zone Lv55)
+-- 地图26：幽冥深渊 (HIDDEN_ZONE Lv55)
 -- ============================================================
 INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, require_level, event_weight) VALUES
 ((SELECT id FROM xt_map_node WHERE name='幽冥深渊'),'阴间快递','深渊底部存在需人间日用品——带一箱下去交了回来。深渊怪物抢那箱东西因为好奇。',60,jsonb_build_array(jsonb_build_object('type','rare_item','name','虚空结晶','weight',50,'min_count',1,'max_count',5),jsonb_build_object('type','rare_item','name','虚空草','weight',50,'min_count',1,'max_count',3)),55,20),
@@ -388,12 +388,12 @@ INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, req
 ((SELECT id FROM xt_map_node WHERE name='幽冥深渊'),'星辰守护者研究','深渊底部偶有星辰守护者降临——需靠近观察记录行为不被发现。',60,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',40,'max_amount',150),jsonb_build_object('type','equipment','name','星辰戒','weight',50,'template_id',(SELECT id FROM xt_equipment_template WHERE name='星辰戒'))),58,10),
 ((SELECT id FROM xt_map_node WHERE name='幽冥深渊'),'魔界之主封印探查','传说深渊底部镇压魔界之主分身——需去探查看封印有无松动。看就好别看太久。',90,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',50,'max_amount',200),jsonb_build_object('type','rare_item','name','神血石','weight',50,'min_count',1,'max_count',5)),60,10),
 ((SELECT id FROM xt_map_node WHERE name='幽冥深渊'),'阴气淬炼','深渊阴气浓郁能淬炼冰属修士——打坐三天比外面快十倍但须每半时辰用回春术。',120,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',40,'max_amount',120),jsonb_build_object('type','rare_item','name','破魔丹','weight',50,'min_count',1,'max_count',2)),55,10),
-((SELECT id FROM xt_map_node WHERE name='幽冥深渊'),'冥界传送门守门','深渊底部有古老冥界传送门——虽不常开但需人看守确保无人擅闯。',90,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',60,'min_amount',40,'max_amount',150),jsonb_build_object('type','beast_egg','name','灵兽卵','weight',40)),55,10),
+((SELECT id FROM xt_map_node WHERE name='幽冥深渊'),'冥界传送门守门','深渊底部有古老冥界传送门——虽不常开但需人看守确保无人擅闯。',90,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',60,'min_amount',40,'max_amount',150),jsonb_build_object('type','BEAST_EGG','name','灵兽卵','weight',40)),55,10),
 ((SELECT id FROM xt_map_node WHERE name='幽冥深渊'),'幽灵花种植','有人想在最深处试种幽灵花——需助手帮忙挖坑注冥界的阴气浇灌。',120,jsonb_build_array(jsonb_build_object('type','rare_item','name','九幽花','weight',60,'min_count',1,'max_count',2),jsonb_build_object('type','spirit_stones','name','灵石','weight',40,'min_amount',30,'max_amount',100)),55,10),
 ((SELECT id FROM xt_map_node WHERE name='幽冥深渊'),'深渊地图更新','天机阁需深井最新详细地图——需一步一脚印走遍深渊所有角落。',180,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',60,'min_amount',60,'max_amount',250),jsonb_build_object('type','rare_item','name','天道花瓣','weight',40,'min_count',1,'max_count',3)),58,8);
 
 -- ============================================================
--- 地图27：远古神墓 (hidden_zone Lv75)
+-- 地图27：远古神墓 (HIDDEN_ZONE Lv75)
 -- ============================================================
 INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, require_level, event_weight) VALUES
 ((SELECT id FROM xt_map_node WHERE name='远古神墓'),'解谜大师','上古谜题——解开获神祇祝福。失传文字笔仙可每天翻译十个字——马拉松解谜最慢悬赏。',180,jsonb_build_array(jsonb_build_object('type','rare_item','name','天道碎片','weight',50,'min_count',1,'max_count',5),jsonb_build_object('type','rare_item','name','神血石','weight',50,'min_count',1,'max_count',5)),75,12),
@@ -408,7 +408,7 @@ INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, req
 ((SELECT id FROM xt_map_node WHERE name='远古神墓'),'封神石碑拓印','神墓入口封神石碑刻满不知名文字——需全部拓印回来给天机阁。字多到让你怀疑人生——但一字三灵石。',180,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',70,'min_amount',50,'max_amount',250),jsonb_build_object('type','rare_item','name','神血石','weight',30,'min_count',1,'max_count',3)),75,8);
 
 -- ============================================================
--- 地图28：天道之路 (hidden_zone Lv95)
+-- 地图28：天道之路 (HIDDEN_ZONE Lv95)
 -- ============================================================
 INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, require_level, event_weight) VALUES
 ((SELECT id FROM xt_map_node WHERE name='天道之路'),'渡劫陪跑','散修准备渡最后飞升天劫——需人陪跑。站旁边万一渡劫失败帮他带遗物——最悲壮悬赏。',120,jsonb_build_array(jsonb_build_object('type','rare_item','name','九转金丹','weight',40,'min_count',1,'max_count',1),jsonb_build_object('type','spirit_stones','name','灵石','weight',60,'min_amount',60,'max_amount',200)),95,5),
@@ -423,7 +423,7 @@ INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, req
 ((SELECT id FROM xt_map_node WHERE name='天道之路'),'终途参禅','在飞升台前打坐参悟——据说能看到自己的未来——也可能什么都没看到——但你离天道最近。',480,jsonb_build_array(jsonb_build_object('type','rare_item','name','天道花瓣','weight',50,'min_count',1,'max_count',5),jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',80,'max_amount',300)),100,2);
 
 -- ============================================================
--- 地图29：虚空裂缝 (hidden_zone Lv80)
+-- 地图29：虚空裂缝 (HIDDEN_ZONE Lv80)
 -- ============================================================
 INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, require_level, event_weight) VALUES
 ((SELECT id FROM xt_map_node WHERE name='虚空裂缝'),'时空猎人','虚空裂缝出现虚空领主——天机阁悬赏最强修士击杀。十大不可能悬赏。',240,jsonb_build_array(jsonb_build_object('type','rare_item','name','混沌元晶','weight',50,'min_count',1,'max_count',10),jsonb_build_object('type','rare_item','name','九转金丹','weight',50,'min_count',1,'max_count',3)),85,5),
@@ -433,12 +433,12 @@ INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, req
 ((SELECT id FROM xt_map_node WHERE name='虚空裂缝'),'混沌修炼','疯子修士最爱在裂缝边修炼——一天抵十年——修完是人是妖不在统计范围。',180,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',60,'min_amount',60,'max_amount',200),jsonb_build_object('type','rare_item','name','混沌元晶','weight',40,'min_count',1,'max_count',3)),90,3),
 ((SELECT id FROM xt_map_node WHERE name='虚空裂缝'),'飞升失败者讨伐','裂缝周围有飞升失败者徘徊——需去讨伐。每位失败者都曾是即将飞升的大能——实力仍在。',240,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',80,'max_amount',400),jsonb_build_object('type','equipment','name','裂天剑','weight',50,'template_id',(SELECT id FROM xt_equipment_template WHERE name='裂天剑'))),90,3),
 ((SELECT id FROM xt_map_node WHERE name='虚空裂缝'),'时空裂缝测绘','天机阁需人绘制虚空裂缝变动图——裂缝每时变化需用高灵神识感应边缘。',120,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',60,'min_amount',60,'max_amount',250),jsonb_build_object('type','rare_item','name','虚空结晶','weight',40,'min_count',1,'max_count',5)),85,3),
-((SELECT id FROM xt_map_node WHERE name='虚空裂缝'),'虚空领主目击记录','天机阁需人记录虚空领主每天出没时间——蹲点蹲十二时辰天天如此。',150,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',60,'min_amount',50,'max_amount',250),jsonb_build_object('type','beast_egg','name','灵兽卵','weight',40)),85,3),
+((SELECT id FROM xt_map_node WHERE name='虚空裂缝'),'虚空领主目击记录','天机阁需人记录虚空领主每天出没时间——蹲点蹲十二时辰天天如此。',150,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',60,'min_amount',50,'max_amount',250),jsonb_build_object('type','BEAST_EGG','name','灵兽卵','weight',40)),85,3),
 ((SELECT id FROM xt_map_node WHERE name='虚空裂缝'),'混沌之气收集瓶','裂缝逸散的混沌之气——需用特制收集瓶。瓶子贵但要收集满一瓶十天',300,jsonb_build_array(jsonb_build_object('type','rare_item','name','混沌元晶','weight',70,'min_count',1,'max_count',5),jsonb_build_object('type','spirit_stones','name','灵石','weight',30,'min_amount',40,'max_amount',200)),90,3),
 ((SELECT id FROM xt_map_node WHERE name='虚空裂缝'),'虚空召唤','裂缝偶尔传出虚无之音——说是召唤也说是警告——需人去调研并回报。',90,jsonb_build_array(jsonb_build_object('type','spirit_stones','name','灵石','weight',50,'min_amount',40,'max_amount',150),jsonb_build_object('type','rare_item','name','天道碎片','weight',50,'min_count',1,'max_count',3)),85,5);
 
 -- ============================================================
--- 地图30：混沌之源 (hidden_zone Lv100)
+-- 地图30：混沌之源 (HIDDEN_ZONE Lv100)
 -- ============================================================
 INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, require_level, event_weight) VALUES
 ((SELECT id FROM xt_map_node WHERE name='混沌之源'),'本源探索','修真界最大悬赏——追寻混沌之源。赏金可买整座天阙城——已挂六千年无人领。',8760,jsonb_build_array(jsonb_build_object('type','rare_item','name','天道碎片','weight',50,'min_count',1,'max_count',20),jsonb_build_object('type','rare_item','name','混沌元晶','weight',50,'min_count',1,'max_count',20)),100,1),

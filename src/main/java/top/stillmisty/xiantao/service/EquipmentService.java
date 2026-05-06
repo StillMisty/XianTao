@@ -54,63 +54,73 @@ public class EquipmentService {
 
     var result = itemResolver.resolveEquipment(userId, input);
     if (result instanceof ItemResolver.NotFound<?>(String input1)) {
-      return EquipResult.builder().success(false).message("背包中未找到 [" + input1 + "] 相关的装备").build();
+      return new EquipResult(
+          false, "背包中未找到 [" + input1 + "] 相关的装备", null, null, null, null, null, null, null);
     }
     if (result instanceof ItemResolver.Ambiguous<?> a) {
-      var sb = new StringBuilder("找到多个装备，请使用编号：\n");
-      for (var e : a.candidates()) {
-        sb.append(e.index())
-            .append(". ")
-            .append(e.name())
-            .append(" [")
-            .append(e.metadata())
-            .append("]\n");
-      }
-      return EquipResult.builder().success(false).message(sb.toString().strip()).build();
+      return buildAmbiguousEquipResult(a);
     }
 
     var found = (ItemResolver.Found<Equipment>) result;
     Equipment equipmentToEquip = found.item();
-    EquipmentSlot slot = equipmentToEquip.getSlot();
 
-    var currentEquipped = equipmentRepository.findEquippedByUserIdAndSlot(userId, slot);
-
-    Long replacedEquipmentId = null;
-    String replacedEquipmentName = null;
-    Equipment replacedEquipment = null;
-
-    if (currentEquipped.isPresent()) {
-      replacedEquipment = currentEquipped.get();
-      replacedEquipment.setEquipped(false);
-      equipmentRepository.save(replacedEquipment);
-      replacedEquipmentId = replacedEquipment.getId();
-      replacedEquipmentName = replacedEquipment.getName();
-    }
-
+    ReplacementResult replacement = handleSlotReplacement(userId, equipmentToEquip.getSlot());
     equipmentToEquip.setEquipped(true);
     equipmentRepository.save(equipmentToEquip);
 
-    AttributeChange attributeChange = calculateAttributeChange(replacedEquipment, equipmentToEquip);
+    AttributeChange attributeChange =
+        calculateAttributeChange(replacement.replacedEquipment, equipmentToEquip);
 
-    String message;
-    if (replacedEquipmentName != null) {
-      message =
-          String.format("成功装备 [%s]，替换了 [%s]", equipmentToEquip.getName(), replacedEquipmentName);
-    } else {
-      message = String.format("成功装备 [%s]", equipmentToEquip.getName());
+    String message = buildEquipMessage(equipmentToEquip, replacement);
+
+    return new EquipResult(
+        true,
+        message,
+        equipmentToEquip.getId(),
+        equipmentToEquip.getName(),
+        equipmentToEquip.getSlot(),
+        equipmentToEquip.getSlot().getName(),
+        replacement.replacedEquipmentId,
+        replacement.replacedEquipmentName,
+        attributeChange);
+  }
+
+  private EquipResult buildAmbiguousEquipResult(ItemResolver.Ambiguous<?> a) {
+    var sb = new StringBuilder("找到多个装备，请使用编号：\n");
+    for (var e : a.candidates()) {
+      sb.append(e.index())
+          .append(". ")
+          .append(e.name())
+          .append(" [")
+          .append(e.metadata())
+          .append("]\n");
+    }
+    return new EquipResult(false, sb.toString().strip(), null, null, null, null, null, null, null);
+  }
+
+  private record ReplacementResult(
+      Long replacedEquipmentId, String replacedEquipmentName, Equipment replacedEquipment) {}
+
+  private ReplacementResult handleSlotReplacement(Long userId, EquipmentSlot slot) {
+    var currentEquipped = equipmentRepository.findEquippedByUserIdAndSlot(userId, slot);
+
+    if (currentEquipped.isEmpty()) {
+      return new ReplacementResult(null, null, null);
     }
 
-    return EquipResult.builder()
-        .success(true)
-        .message(message)
-        .equipmentId(equipmentToEquip.getId())
-        .equipmentName(equipmentToEquip.getName())
-        .slot(slot)
-        .slotName(slot.getName())
-        .replacedEquipmentId(replacedEquipmentId)
-        .replacedEquipmentName(replacedEquipmentName)
-        .attributeChange(attributeChange)
-        .build();
+    Equipment replacedEquipment = currentEquipped.get();
+    replacedEquipment.setEquipped(false);
+    equipmentRepository.save(replacedEquipment);
+    return new ReplacementResult(
+        replacedEquipment.getId(), replacedEquipment.getName(), replacedEquipment);
+  }
+
+  private String buildEquipMessage(Equipment equipmentToEquip, ReplacementResult replacement) {
+    if (replacement.replacedEquipmentName != null) {
+      return String.format(
+          "成功装备 [%s]，替换了 [%s]", equipmentToEquip.getName(), replacement.replacedEquipmentName);
+    }
+    return String.format("成功装备 [%s]", equipmentToEquip.getName());
   }
 
   /** 装备卸下（卸下 [部位/物品名/编号]） */
@@ -125,16 +135,7 @@ public class EquipmentService {
         .findEquippedByUserIdAndSlot(userId, slot)
         .map(
             equipment -> {
-              AttributeChange attributeChange =
-                  AttributeChange.builder()
-                      .strChange(-equipment.getStrBonus())
-                      .conChange(-equipment.getConBonus())
-                      .agiChange(-equipment.getAgiBonus())
-                      .wisChange(-equipment.getWisBonus())
-                      .attackChange(-equipment.getAttackBonus())
-                      .defenseChange(-equipment.getDefenseBonus())
-                      .maxHpChange(-equipment.getConBonus() * 20)
-                      .build();
+              AttributeChange attributeChange = calculateAttributeChange(equipment, null);
 
               equipment.setEquipped(false);
               equipmentRepository.save(equipment);
@@ -188,16 +189,7 @@ public class EquipmentService {
           .build();
     }
 
-    AttributeChange attributeChange =
-        AttributeChange.builder()
-            .strChange(-equipment.getStrBonus())
-            .conChange(-equipment.getConBonus())
-            .agiChange(-equipment.getAgiBonus())
-            .wisChange(-equipment.getWisBonus())
-            .attackChange(-equipment.getAttackBonus())
-            .defenseChange(-equipment.getDefenseBonus())
-            .maxHpChange(-equipment.getConBonus() * 20)
-            .build();
+    AttributeChange attributeChange = calculateAttributeChange(equipment, null);
 
     equipment.setEquipped(false);
     equipmentRepository.save(equipment);
@@ -243,10 +235,10 @@ public class EquipmentService {
 
     Map<String, Integer> statBonus =
         Map.of(
-            "str", equipTmpl.getBaseStr(),
-            "con", equipTmpl.getBaseCon(),
-            "agi", equipTmpl.getBaseAgi(),
-            "wis", equipTmpl.getBaseWis());
+            "STR", equipTmpl.getBaseStr(),
+            "CON", equipTmpl.getBaseCon(),
+            "AGI", equipTmpl.getBaseAgi(),
+            "WIS", equipTmpl.getBaseWis());
 
     Equipment equipment =
         Equipment.create(
@@ -306,13 +298,13 @@ public class EquipmentService {
   private AttributeChange calculateAttributeChange(
       Equipment replacedEquipment, Equipment newEquipment) {
 
-    int strChange = newEquipment.getStrBonus();
-    int conChange = newEquipment.getConBonus();
-    int agiChange = newEquipment.getAgiBonus();
-    int wisChange = newEquipment.getWisBonus();
-    int attackChange = newEquipment.getAttackBonus();
-    int defenseChange = newEquipment.getDefenseBonus();
-    int maxHpChange = newEquipment.getConBonus() * 20;
+    int strChange = newEquipment != null ? newEquipment.getStrBonus() : 0;
+    int conChange = newEquipment != null ? newEquipment.getConBonus() : 0;
+    int agiChange = newEquipment != null ? newEquipment.getAgiBonus() : 0;
+    int wisChange = newEquipment != null ? newEquipment.getWisBonus() : 0;
+    int attackChange = newEquipment != null ? newEquipment.getAttackBonus() : 0;
+    int defenseChange = newEquipment != null ? newEquipment.getDefenseBonus() : 0;
+    int maxHpChange = newEquipment != null ? newEquipment.getConBonus() * 20 : 0;
 
     if (replacedEquipment != null) {
       strChange -= replacedEquipment.getStrBonus();
@@ -324,15 +316,8 @@ public class EquipmentService {
       maxHpChange -= replacedEquipment.getConBonus() * 20;
     }
 
-    return AttributeChange.builder()
-        .strChange(strChange)
-        .conChange(conChange)
-        .agiChange(agiChange)
-        .wisChange(wisChange)
-        .attackChange(attackChange)
-        .defenseChange(defenseChange)
-        .maxHpChange(maxHpChange)
-        .build();
+    return new AttributeChange(
+        strChange, conChange, agiChange, wisChange, attackChange, defenseChange, maxHpChange);
   }
 
   private EquipmentDetailVO convertToEquipmentDetailVO(Equipment equipment) {
@@ -342,7 +327,12 @@ public class EquipmentService {
           .getAffixes()
           .forEach(
               (key, value) -> {
-                var affixType = AffixType.fromKey(key);
+                AffixType affixType;
+                try {
+                  affixType = AffixType.fromKey(key);
+                } catch (IllegalArgumentException ex) {
+                  affixType = null;
+                }
                 String desc =
                     affixType != null
                         ? (affixType.isSpecial()

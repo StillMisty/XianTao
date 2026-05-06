@@ -26,4 +26,7 @@ public interface UserRepository {
 
   /** 获取财富排行榜（按灵石降序） */
   List<User> findTopBySpiritStones(int limit);
+
+  /** 原子扣除灵石（灵石不足时返回0，成功返回1） */
+  int deductSpiritStonesIfEnough(Long userId, int cost);
 }

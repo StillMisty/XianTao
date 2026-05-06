@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
@@ -19,8 +20,13 @@ import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
 @EqualsAndHashCode(callSuper = true)
 @Table("xt_user")
 @Accessors(chain = true)
-@Data(staticConstructor = "create")
+@Data
+@NoArgsConstructor
 public class User extends Model<User> {
+
+  public static User create() {
+    return new User();
+  }
 
   /** 内部唯一角色 ID */
   @Id(keyType = KeyType.Auto)

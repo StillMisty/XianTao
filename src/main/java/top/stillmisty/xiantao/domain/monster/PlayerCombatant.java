@@ -2,10 +2,7 @@ package top.stillmisty.xiantao.domain.monster;
 
 import java.util.List;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
-import top.stillmisty.xiantao.domain.item.enums.EquipmentSlot;
 import top.stillmisty.xiantao.domain.item.enums.WeaponType;
-import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
-import top.stillmisty.xiantao.domain.item.repository.EquipmentTemplateRepository;
 import top.stillmisty.xiantao.domain.skill.entity.Skill;
 import top.stillmisty.xiantao.domain.user.entity.User;
 
@@ -19,27 +16,11 @@ public class PlayerCombatant implements Combatant {
   private int defenseBuff;
   private int speedBuff;
 
-  public PlayerCombatant(
-      User user,
-      EquipmentRepository equipmentRepository,
-      EquipmentTemplateRepository equipmentTemplateRepository) {
+  public PlayerCombatant(User user, Equipment weapon, double attackSpeed) {
     this.user = user;
     this.hp = user.getHpCurrent() != null ? user.getHpCurrent() : user.calculateMaxHp();
-
-    this.weapon =
-        equipmentRepository.findEquippedByUserId(user.getId()).stream()
-            .filter(e -> e.getSlot() == EquipmentSlot.WEAPON)
-            .findFirst()
-            .orElse(null);
-
-    this.attackSpeed =
-        weapon != null
-            ? equipmentTemplateRepository
-                .findById(weapon.getTemplateId())
-                .map(
-                    template -> template.getAttackSpeed() != null ? template.getAttackSpeed() : 1.0)
-                .orElse(1.0)
-            : 1.0;
+    this.weapon = weapon;
+    this.attackSpeed = attackSpeed;
   }
 
   public PlayerCombatant withBuffs(int attackBuff, int defenseBuff, int speedBuff) {

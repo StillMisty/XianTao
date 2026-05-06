@@ -6,11 +6,11 @@ import lombok.Getter;
 /** 灵兽品质 */
 @Getter
 public enum BeastQuality {
-  MORTAL("mortal", "凡品", 1.0, 1.0, 1.0, 900, 30),
-  SPIRIT("spirit", "灵品", 1.2, 0.85, 1.1, 80, 60),
-  IMMORTAL("immortal", "仙品", 1.5, 0.70, 1.2, 18, 120),
-  SAINT("saint", "圣品", 2.0, 0.55, 1.3, 2, 240),
-  DIVINE("divine", "神品", 3.0, 0.40, 1.5, 0, 480);
+  MORTAL("MORTAL", "凡品", 1.0, 1.0, 1.0, 900, 30),
+  SPIRIT("SPIRIT", "灵品", 1.2, 0.85, 1.1, 80, 60),
+  IMMORTAL("IMMORTAL", "仙品", 1.5, 0.70, 1.2, 18, 120),
+  SAINT("SAINT", "圣品", 2.0, 0.55, 1.3, 2, 240),
+  DIVINE("DIVINE", "神品", 3.0, 0.40, 1.5, 0, 480);
 
   @EnumValue private final String code;
   private final String chineseName;

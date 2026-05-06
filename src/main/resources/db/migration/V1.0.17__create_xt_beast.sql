@@ -7,7 +7,7 @@ CREATE TABLE xt_beast
     template_id     BIGINT       NOT NULL REFERENCES xt_item_template (id),
     beast_name      VARCHAR(128),
     tier            INT          NOT NULL DEFAULT 1,
-    quality         VARCHAR(32)  NOT NULL DEFAULT 'mortal',
+    quality         VARCHAR(32)  NOT NULL DEFAULT 'MORTAL',
     is_mutant       BOOLEAN      NOT NULL DEFAULT FALSE,
     mutation_traits JSONB        DEFAULT '[]'::jsonb,
     level           INT          NOT NULL DEFAULT 1,
@@ -28,7 +28,7 @@ CREATE TABLE xt_beast
     CONSTRAINT chk_beast_tier CHECK (tier > 0),
     CONSTRAINT chk_beast_level CHECK (level > 0),
     CONSTRAINT chk_beast_hp CHECK (hp_current >= 0),
-    CONSTRAINT chk_beast_quality CHECK (quality IN ('mortal', 'spirit', 'immortal', 'saint', 'divine')),
+    CONSTRAINT chk_beast_quality CHECK (quality IN ('MORTAL', 'SPIRIT', 'IMMORTAL', 'SAINT', 'DIVINE')),
     CONSTRAINT chk_beast_exp CHECK (exp >= 0),
     CONSTRAINT chk_beast_attack CHECK (attack >= 0),
     CONSTRAINT chk_beast_defense CHECK (defense >= 0),
@@ -42,7 +42,7 @@ COMMENT ON TABLE xt_beast IS '灵兽实体表（战斗化）';
 COMMENT ON COLUMN xt_beast.user_id IS 'FK → xt_user(id)';
 COMMENT ON COLUMN xt_beast.fudi_id IS 'FK → xt_fudi(id)，所属福地';
 COMMENT ON COLUMN xt_beast.template_id IS 'FK → xt_item_template(id)，孵化源卵模板';
-COMMENT ON COLUMN xt_beast.quality IS '品质：mortal/spirit/immortal/saint/divine';
+COMMENT ON COLUMN xt_beast.quality IS '品质：MORTAL/SPIRIT/IMMORTAL/SAINT/DIVINE';
 COMMENT ON COLUMN xt_beast.mutation_traits IS '变异特质列表 JSONB';
 COMMENT ON COLUMN xt_beast.skills IS '技能ID列表 JSONB，引用 xt_skill';
 COMMENT ON COLUMN xt_beast.is_deployed IS '是否出战（福地选择）';

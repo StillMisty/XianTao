@@ -29,6 +29,10 @@ public class PlayerPillRecipe {
   @Column(onInsertValue = "now()")
   private LocalDateTime learnTime;
 
+  public boolean isRecipeFor(Long templateId) {
+    return recipeTemplateId != null && recipeTemplateId.equals(templateId);
+  }
+
   /** 创建PlayerPillRecipe实例 */
   public static PlayerPillRecipe create(Long userId, Long recipeTemplateId, Long resultItemId) {
     PlayerPillRecipe recipe = new PlayerPillRecipe();

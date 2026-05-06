@@ -7,7 +7,7 @@ CREATE TABLE xt_equipment
     name               VARCHAR(128) NOT NULL,
     slot               VARCHAR(32)  NOT NULL,
     weapon_type        VARCHAR(32),
-    rarity             VARCHAR(32)  NOT NULL DEFAULT 'common',
+    rarity             VARCHAR(32)  NOT NULL DEFAULT 'COMMON',
     stat_bonus         JSONB                 DEFAULT '{}'::jsonb,
     attack_bonus       INT          NOT NULL DEFAULT 0,
     defense_bonus      INT          NOT NULL DEFAULT 0,
@@ -21,9 +21,9 @@ CREATE TABLE xt_equipment
     -- 外键关联
     CONSTRAINT fk_equipment_user FOREIGN KEY (user_id) REFERENCES xt_user (id) ON DELETE CASCADE,
     CONSTRAINT fk_equipment_template FOREIGN KEY (template_id) REFERENCES xt_equipment_template (id),
-    CONSTRAINT chk_equipment_slot CHECK (slot IN ('weapon', 'armor', 'accessory')),
-    CONSTRAINT chk_equipment_rarity CHECK (rarity IN ('broken', 'common', 'rare', 'epic', 'legendary')),
-    CONSTRAINT chk_equipment_weapon_type CHECK (weapon_type IS NULL OR weapon_type IN ('blade', 'sword', 'axe', 'spear', 'staff', 'bow', 'whip', 'halberd', 'hammer', 'dagger', 'fan', 'flywhisk', 'ring', 'bell')),
+    CONSTRAINT chk_equipment_slot CHECK (slot IN ('WEAPON', 'ARMOR', 'ACCESSORY')),
+    CONSTRAINT chk_equipment_rarity CHECK (rarity IN ('BROKEN', 'COMMON', 'RARE', 'EPIC', 'LEGENDARY')),
+    CONSTRAINT chk_equipment_weapon_type CHECK (weapon_type IS NULL OR weapon_type IN ('BLADE', 'SWORD', 'AXE', 'SPEAR', 'STAFF', 'BOW', 'WHIP', 'HALBERD', 'HAMMER', 'DAGGER', 'FAN', 'FLYWHISK', 'RING', 'BELL')),
     CONSTRAINT chk_equipment_forge_level CHECK (forge_level >= 0),
     CONSTRAINT chk_equipment_attack_bonus CHECK (attack_bonus >= 0),
     CONSTRAINT chk_equipment_defense_bonus CHECK (defense_bonus >= 0)

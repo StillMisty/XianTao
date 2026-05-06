@@ -5,11 +5,11 @@ import lombok.Getter;
 /** 五行属性枚举 */
 @Getter
 public enum ElementType {
-  METAL("metal", "金"),
-  WOOD("wood", "木"),
-  WATER("water", "水"),
-  FIRE("fire", "火"),
-  EARTH("earth", "土");
+  METAL("METAL", "金"),
+  WOOD("WOOD", "木"),
+  WATER("WATER", "水"),
+  FIRE("FIRE", "火"),
+  EARTH("EARTH", "土");
 
   private final String code;
   private final String name;
@@ -21,10 +21,10 @@ public enum ElementType {
 
   public static ElementType fromCode(String code) {
     for (ElementType type : values()) {
-      if (type.code.equalsIgnoreCase(code)) {
+      if (type.code.equals(code)) {
         return type;
       }
     }
-    return null;
+    throw new IllegalArgumentException("Unknown ElementType code: " + code);
   }
 }

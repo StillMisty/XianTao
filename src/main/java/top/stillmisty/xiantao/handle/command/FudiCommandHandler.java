@@ -74,7 +74,7 @@ public class FudiCommandHandler implements CommandGroup {
     return switch (fudiService.collect(platform, openId, position)) {
       case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var result) -> {
-        if ("farm".equals(result.type())) {
+        if ("FARM".equals(result.type())) {
           yield "✅ 已收获地块 %s 的%s，获得 %d 份。".formatted(position, result.cropName(), result.yield());
         } else {
           yield "✅ 从地块 %s 收取了 %d 件%s产出。"

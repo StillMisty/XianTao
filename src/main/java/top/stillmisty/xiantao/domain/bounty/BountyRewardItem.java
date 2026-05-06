@@ -33,7 +33,7 @@ public sealed interface BountyRewardItem {
       }
       case BeastEggReward(var templateId, var name) -> {
         Map<String, Object> m = new HashMap<>();
-        m.put("_rewardType", "beast_egg");
+        m.put("_rewardType", "BEAST_EGG");
         m.put("name", name);
         m.put("templateId", templateId);
         m.put("quantity", 1);
@@ -60,7 +60,7 @@ public sealed interface BountyRewardItem {
     if ("spirit_stones".equals(rewardType)) {
       return new SpiritStonesReward(((Number) map.getOrDefault("amount", 0)).longValue());
     }
-    if ("beast_egg".equals(rewardType)) {
+    if ("BEAST_EGG".equals(rewardType)) {
       return new BeastEggReward(toLong(map.get("templateId")), (String) map.get("name"));
     }
     if ("equipment".equals(rewardType)) {

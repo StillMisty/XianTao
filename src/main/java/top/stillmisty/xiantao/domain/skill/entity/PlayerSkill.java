@@ -22,4 +22,24 @@ public class PlayerSkill {
 
   @Column(onInsertValue = "now()")
   private LocalDateTime createTime;
+
+  public boolean isEquipped() {
+    return isEquipped != null && isEquipped;
+  }
+
+  public void equip() {
+    isEquipped = true;
+  }
+
+  public void unequip() {
+    isEquipped = false;
+  }
+
+  public static PlayerSkill create(Long userId, Long skillId, boolean equipped) {
+    PlayerSkill playerSkill = new PlayerSkill();
+    playerSkill.userId = userId;
+    playerSkill.skillId = skillId;
+    playerSkill.isEquipped = equipped;
+    return playerSkill;
+  }
 }

@@ -193,7 +193,7 @@ public class SpiritTools {
         CollectVO result = fudiService.collect(userId, position);
         int items;
         String message;
-        if ("farm".equals(result.type())) {
+        if ("FARM".equals(result.type())) {
           items = result.yield();
           message = String.format("已收获地块 %s 的%s，获得 %d 份。", position, result.cropName(), items);
         } else {

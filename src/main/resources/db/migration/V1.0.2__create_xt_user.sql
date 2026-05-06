@@ -13,7 +13,7 @@ CREATE TABLE xt_user
     stat_wis                 INT         NOT NULL DEFAULT 5,
     -- 战斗与状态
     hp_current               INT         NOT NULL DEFAULT 200,
-    status                   VARCHAR(32) NOT NULL DEFAULT 'idle',
+    status                   VARCHAR(32) NOT NULL DEFAULT 'IDLE',
     location_id              BIGINT      NOT NULL DEFAULT 1,
     training_start_time      TIMESTAMP,
     breakthrough_fail_count  INT         NOT NULL DEFAULT 0,
@@ -28,7 +28,7 @@ CREATE TABLE xt_user
 
     -- 唯一约束：道号必须唯一
     CONSTRAINT uq_nickname UNIQUE (nickname),
-    CONSTRAINT chk_user_status CHECK (status IN ('idle', 'exercising', 'running', 'bounty', 'dying')),
+    CONSTRAINT chk_user_status CHECK (status IN ('IDLE', 'EXERCISING', 'RUNNING', 'BOUNTY', 'DYING')),
     CONSTRAINT chk_user_level CHECK (level >= 1),
     CONSTRAINT chk_user_exp CHECK (exp >= 0),
     CONSTRAINT chk_user_spirit_stones CHECK (spirit_stones >= 0),

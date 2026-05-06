@@ -8,13 +8,13 @@ import lombok.Getter;
 public enum MapType {
 
   /** 主城/安全区 */
-  SAFE_TOWN("safe_town", "安全区"),
+  SAFE_TOWN("SAFE_TOWN", "安全区"),
 
   /** 历练区 */
-  TRAINING_ZONE("training_zone", "历练区"),
+  TRAINING_ZONE("TRAINING_ZONE", "历练区"),
 
   /** 秘境 */
-  HIDDEN_ZONE("hidden_zone", "秘境");
+  HIDDEN_ZONE("HIDDEN_ZONE", "秘境");
 
   @EnumValue private final String code;
   private final String name;

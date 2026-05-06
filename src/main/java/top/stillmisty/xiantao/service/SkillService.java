@@ -75,7 +75,6 @@ public class SkillService {
 
   @Transactional
   public SkillSlotResult learnFromJade(Long userId, String jadeInput) {
-    // 1. 查找用户背包中的法决玉简
     var jadeItems =
         stackableItemRepository.findByUserId(userId).stream()
             .filter(si -> si.getItemType() == ItemType.SKILL_JADE)
@@ -85,45 +84,65 @@ public class SkillService {
       return SkillSlotResult.builder().success(false).message("你没有法决玉简").build();
     }
 
-    // 2. 解析玉简（支持编号或名称匹配）
     StackableItem matchedJade = resolveJade(jadeItems, jadeInput);
     if (matchedJade == null) {
-      var candidates = new ArrayList<String>();
-      for (int i = 0; i < jadeItems.size(); i++) {
-        candidates.add(
-            (i + 1) + ". " + jadeItems.get(i).getName() + " x" + jadeItems.get(i).getQuantity());
-      }
-      return SkillSlotResult.builder()
-          .success(false)
-          .message("找不到匹配的法决玉简「" + jadeInput + "」，你的玉简有：\n" + String.join("\n", candidates))
-          .build();
+      return buildJadeNotFoundResult(jadeItems, jadeInput);
     }
 
-    // 3. 获取玉简对应的法决
-    var template = itemTemplateRepository.findById(matchedJade.getTemplateId()).orElse(null);
-    if (template == null) {
-      return SkillSlotResult.builder().success(false).message("玉简数据异常").build();
+    Skill skill = resolveSkillFromJade(matchedJade);
+    if (skill == null)
+      return SkillSlotResult.builder().success(false).message("玉简对应的法决不存在").build();
+
+    SkillSlotResult validationError = validateLearningEligibility(userId, skill);
+    if (validationError != null) return validationError;
+
+    consumeJade(matchedJade, userId, skill.getId());
+
+    PlayerSkill playerSkill = new PlayerSkill();
+    playerSkill.setUserId(userId);
+    playerSkill.setSkillId(skill.getId());
+    playerSkill.unequip();
+    playerSkillRepository.save(playerSkill);
+
+    log.info("学习法决成功: userId={}, skillId={}, skillName={}", userId, skill.getId(), skill.getName());
+
+    return SkillSlotResult.builder()
+        .success(true)
+        .message("你成功学会了「" + skill.getName() + "」！")
+        .skill(toSkillVO(playerSkill, skill))
+        .build();
+  }
+
+  private SkillSlotResult buildJadeNotFoundResult(List<StackableItem> jadeItems, String jadeInput) {
+    var candidates = new ArrayList<String>();
+    for (int i = 0; i < jadeItems.size(); i++) {
+      candidates.add(
+          (i + 1) + ". " + jadeItems.get(i).getName() + " x" + jadeItems.get(i).getQuantity());
     }
+    return SkillSlotResult.builder()
+        .success(false)
+        .message("找不到匹配的法决玉简「" + jadeInput + "」，你的玉简有：\n" + String.join("\n", candidates))
+        .build();
+  }
+
+  private Skill resolveSkillFromJade(StackableItem matchedJade) {
+    var template = itemTemplateRepository.findById(matchedJade.getTemplateId()).orElse(null);
+    if (template == null) return null;
 
     var props = template.typedProperties();
-    if (!(props instanceof ItemProperties.SkillJade(long skillId))) {
-      return SkillSlotResult.builder().success(false).message("玉简未包含法决信息").build();
-    }
+    if (!(props instanceof ItemProperties.SkillJade(long skillId))) return null;
 
-    var skill = skillRepository.findById(skillId).orElse(null);
-    if (skill == null) {
-      return SkillSlotResult.builder().success(false).message("玉简对应的法决不存在").build();
-    }
+    return skillRepository.findById(skillId).orElse(null);
+  }
 
-    // 4. 检查是否已学习
-    if (playerSkillRepository.findByUserIdAndSkillId(userId, skillId).isPresent()) {
+  private SkillSlotResult validateLearningEligibility(Long userId, Skill skill) {
+    if (playerSkillRepository.findByUserIdAndSkillId(userId, skill.getId()).isPresent()) {
       return SkillSlotResult.builder()
           .success(false)
           .message("你已经学会「" + skill.getName() + "」了")
           .build();
     }
 
-    // 5. 检查等级要求
     var user = userStateService.loadUser(userId);
     if (user.getLevel() < skill.getLevelRequirement()) {
       return SkillSlotResult.builder()
@@ -134,8 +153,10 @@ public class SkillService {
                   skill.getLevelRequirement(), skill.getName(), user.getLevel()))
           .build();
     }
+    return null;
+  }
 
-    // 6. 消耗玉简
+  private void consumeJade(StackableItem matchedJade, Long userId, Long skillId) {
     if (matchedJade.reduceQuantity(1)) {
       stackableItemRepository.deleteById(matchedJade.getId());
     } else {
@@ -146,21 +167,6 @@ public class SkillService {
         userId,
         matchedJade.getTemplateId(),
         skillId);
-
-    // 7. 学习法决
-    PlayerSkill playerSkill = new PlayerSkill();
-    playerSkill.setUserId(userId);
-    playerSkill.setSkillId(skillId);
-    playerSkill.setIsEquipped(false);
-    playerSkillRepository.save(playerSkill);
-
-    log.info("学习法决成功: userId={}, skillId={}, skillName={}", userId, skillId, skill.getName());
-
-    return SkillSlotResult.builder()
-        .success(true)
-        .message("你成功学会了「" + skill.getName() + "」！")
-        .skill(toSkillVO(playerSkill, skill))
-        .build();
   }
 
   List<SkillVO> getLearnedSkills(Long userId) {
@@ -203,7 +209,7 @@ public class SkillService {
     }
 
     // 3. 检查是否已装载
-    if (matched.getIsEquipped()) {
+    if (matched.isEquipped()) {
       var skill = skillRepository.findById(matched.getSkillId()).orElse(null);
       return SkillSlotResult.builder()
           .success(false)
@@ -214,7 +220,7 @@ public class SkillService {
     // 4. 检查槽位
     var user = userStateService.loadUser(userId);
     int maxSlots = calculateMaxSlots(user.getLevel());
-    long equippedCount = playerSkills.stream().filter(PlayerSkill::getIsEquipped).count();
+    long equippedCount = playerSkills.stream().filter(PlayerSkill::isEquipped).count();
     if (equippedCount >= maxSlots) {
       return SkillSlotResult.builder()
           .success(false)
@@ -225,7 +231,7 @@ public class SkillService {
     }
 
     // 5. 装载
-    matched.setIsEquipped(true);
+    matched.equip();
     playerSkillRepository.save(matched);
 
     var skill = skillRepository.findById(matched.getSkillId()).orElse(null);
@@ -262,7 +268,7 @@ public class SkillService {
     }
 
     // 3. 卸下
-    matched.setIsEquipped(false);
+    matched.unequip();
     playerSkillRepository.save(matched);
 
     var user = userStateService.loadUser(userId);
@@ -309,58 +315,38 @@ public class SkillService {
   }
 
   private StackableItem resolveJade(List<StackableItem> jadeItems, String input) {
-    if (input == null || input.isEmpty()) return null;
-    // 按编号匹配
-    if (input.matches("\\d+")) {
-      int idx = Integer.parseInt(input);
-      if (idx >= 1 && idx <= jadeItems.size()) {
-        return jadeItems.get(idx - 1);
-      }
-    }
-    // 按名称精确匹配
-    for (var item : jadeItems) {
-      if (item.getName().equals(input)) return item;
-    }
-    // 按名称模糊匹配
-    var partial = jadeItems.stream().filter(item -> item.getName().contains(input)).toList();
-    if (partial.size() == 1) return partial.getFirst();
-    return null;
+    return resolveByIndexOrName(jadeItems, input, StackableItem::getName);
   }
 
   private PlayerSkill resolvePlayerSkill(List<PlayerSkill> playerSkills, String input) {
-    if (input == null || input.isEmpty()) return null;
-
-    // 获取所有法决信息用于名称匹配
     var skillIds = playerSkills.stream().map(PlayerSkill::getSkillId).toList();
     var skillMap =
         skillRepository.findByIds(skillIds).stream()
             .collect(Collectors.toMap(Skill::getId, s -> s));
+    return resolveByIndexOrName(
+        playerSkills,
+        input,
+        ps -> {
+          var skill = skillMap.get(ps.getSkillId());
+          return skill != null ? skill.getName() : "";
+        });
+  }
 
-    // 按编号匹配
+  /** 按编号→精确名称→模糊名称三级解析 */
+  private <T> T resolveByIndexOrName(
+      List<T> items, String input, java.util.function.Function<T, String> nameExtractor) {
+    if (input == null || input.isEmpty()) return null;
     if (input.matches("\\d+")) {
       int idx = Integer.parseInt(input);
-      if (idx >= 1 && idx <= playerSkills.size()) {
-        return playerSkills.get(idx - 1);
+      if (idx >= 1 && idx <= items.size()) {
+        return items.get(idx - 1);
       }
     }
-
-    // 按技能名称精确匹配
-    for (var ps : playerSkills) {
-      var skill = skillMap.get(ps.getSkillId());
-      if (skill != null && skill.getName().equals(input)) return ps;
+    for (var item : items) {
+      if (nameExtractor.apply(item).equals(input)) return item;
     }
-
-    // 按技能名称模糊匹配
-    var partial =
-        playerSkills.stream()
-            .filter(
-                ps -> {
-                  var skill = skillMap.get(ps.getSkillId());
-                  return skill != null && skill.getName().contains(input);
-                })
-            .toList();
+    var partial = items.stream().filter(item -> nameExtractor.apply(item).contains(input)).toList();
     if (partial.size() == 1) return partial.getFirst();
-
     return null;
   }
 }
