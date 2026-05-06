@@ -11,4 +11,4 @@ CREATE TABLE xt_pill_resistance (
 );
 
 COMMENT ON TABLE xt_pill_resistance IS '丹药抗性 — 玩家服用每种丹药的次数';
-COMMENT ON COLUMN xt_pill_resistance.count IS '服用次数，用于计算抗性衰减：1/(1+count)';
+COMMENT ON COLUMN xt_pill_resistance.count IS '服用次数，用于计算抗性衰减';
