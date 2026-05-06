@@ -46,8 +46,6 @@ src/main/java/top/stillmisty/xiantao/
 - **Auth AOP**: `AuthenticatedAspect` intercepts any method annotated `@Authenticated`. First two args must be `(PlatformType, String openId)`. Calls `AuthenticationService.authenticate(platform, openId, requiredStatus)`, binds userId to `ScopedValue` via `UserContext.CURRENT_USER`. Returns `ServiceResult.Failure` on auth failure.
 - **ServiceResult**: sealed `Success<T> | Failure<T>`. Command handlers pattern-match with `switch(result)` — no `instanceof` needed.
 - **Item Use Strategy**: `ItemUseHandler` per `ItemType` (5 handlers: PillUseHandler, SkillJadeUseHandler, RecipeScrollUseHandler, EvolutionStoneUseHandler, ...). `consumesInternally()` controls whether `ItemUseService` auto-deducts quantity (default `false`).
-- **AI**: Two `ChatClient` beans in `SpringAiConfig` — `spiritChatClient` (no token limit) and `chatClient` (maxTokens=150). Function calling via `SpiritTools`.
-- **Concurrency**: Virtual threads (`spring.threads.virtual.enabled=true`) + `ScopedValue<Long> CURRENT_USER` (no ThreadLocal). ScopedValue is bound per-request in the AOP aspect.
 
 ## Design Rules
 
