@@ -11,16 +11,22 @@ public class PlayerCombatant implements Combatant {
   private final User user;
   private final Equipment weapon;
   private final double attackSpeed;
+  private final List<Skill> skills;
   private int hp;
   private int attackBuff;
   private int defenseBuff;
   private int speedBuff;
 
   public PlayerCombatant(User user, Equipment weapon, double attackSpeed) {
+    this(user, weapon, attackSpeed, List.of());
+  }
+
+  public PlayerCombatant(User user, Equipment weapon, double attackSpeed, List<Skill> skills) {
     this.user = user;
     this.hp = user.getHpCurrent() != null ? user.getHpCurrent() : user.calculateMaxHp();
     this.weapon = weapon;
     this.attackSpeed = attackSpeed;
+    this.skills = skills != null ? skills : List.of();
   }
 
   public PlayerCombatant withBuffs(int attackBuff, int defenseBuff, int speedBuff) {
@@ -87,7 +93,7 @@ public class PlayerCombatant implements Combatant {
 
   @Override
   public List<Skill> getSkills() {
-    return List.of();
+    return skills;
   }
 
   public WeaponType getWeaponType() {
@@ -96,6 +102,14 @@ public class PlayerCombatant implements Combatant {
 
   public int getWis() {
     return user.getEffectiveStatWis();
+  }
+
+  public int getStr() {
+    return user.getEffectiveStatStr();
+  }
+
+  public int getAgi() {
+    return user.getEffectiveStatAgi();
   }
 
   @Override

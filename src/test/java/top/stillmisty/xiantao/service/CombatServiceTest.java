@@ -20,6 +20,7 @@ import top.stillmisty.xiantao.domain.monster.Team;
 import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
 import top.stillmisty.xiantao.domain.pill.entity.PlayerBuff;
 import top.stillmisty.xiantao.domain.pill.repository.PlayerBuffRepository;
+import top.stillmisty.xiantao.domain.skill.repository.PlayerSkillRepository;
 import top.stillmisty.xiantao.domain.skill.repository.SkillRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
@@ -31,6 +32,7 @@ class CombatServiceTest {
   @Mock private EquipmentRepository equipmentRepository;
   @Mock private EquipmentTemplateRepository equipmentTemplateRepository;
   @Mock private SkillRepository skillRepository;
+  @Mock private PlayerSkillRepository playerSkillRepository;
   @Mock private BeastRepository beastRepository;
   @Mock private PlayerBuffRepository playerBuffRepository;
   @Mock private CombatEngine combatEngine;
@@ -55,6 +57,7 @@ class CombatServiceTest {
             .setStatus(UserStatus.IDLE);
 
     when(playerBuffRepository.findActiveByUserId(1L)).thenReturn(List.of());
+    when(playerSkillRepository.findEquippedByUserId(1L)).thenReturn(List.of());
     when(beastRepository.findDeployedByUserId(1L)).thenReturn(List.of());
 
     Team team = combatService.buildPlayerTeam(user);
@@ -80,6 +83,7 @@ class CombatServiceTest {
             .setStatus(UserStatus.IDLE);
 
     when(playerBuffRepository.findActiveByUserId(2L)).thenReturn(List.of());
+    when(playerSkillRepository.findEquippedByUserId(2L)).thenReturn(List.of());
     when(beastRepository.findDeployedByUserId(2L)).thenReturn(List.of());
 
     Team team = combatService.buildPlayerTeam(user);
@@ -104,6 +108,7 @@ class CombatServiceTest {
 
     PlayerBuff attackBuff = PlayerBuff.create(3L, "attack", 10, null);
     when(playerBuffRepository.findActiveByUserId(3L)).thenReturn(List.of(attackBuff));
+    when(playerSkillRepository.findEquippedByUserId(3L)).thenReturn(List.of());
     when(beastRepository.findDeployedByUserId(3L)).thenReturn(List.of());
 
     Team team = combatService.buildPlayerTeam(user);

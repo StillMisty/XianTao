@@ -44,7 +44,7 @@ public class DamageCalculator {
     int baseDmg;
     if (formula != null && !formula.isBlank()) {
       if (attacker instanceof PlayerCombatant pc) {
-        baseDmg = evaluateFormula(formula, pc.getWis());
+        baseDmg = evaluateFormula(formula, pc);
       } else {
         baseDmg = (int) Math.round(attacker.getAttack() * 1.5);
       }
@@ -75,12 +75,25 @@ public class DamageCalculator {
     return 1.0;
   }
 
-  public int evaluateFormula(String formula, int wis) {
+  public int evaluateFormula(String formula, PlayerCombatant pc) {
     try {
-      String expr = formula.replace("wis", String.valueOf(wis)).replaceAll("\\s+", "");
+      String expr =
+          formula
+              .replace("wis", String.valueOf(pc.getWis()))
+              .replace("str", String.valueOf(pc.getStr()))
+              .replace("agi", String.valueOf(pc.getAgi()))
+              .replace("atk", String.valueOf(pc.getAttack()))
+              .replaceAll("\\s+", "");
       return evaluateExpression(expr);
     } catch (Exception e) {
-      log.warn("公式计算失败: formula={}, wis={}", formula, wis, e);
+      log.warn(
+          "公式计算失败: formula={}, wis={}, str={}, agi={}, atk={}",
+          formula,
+          pc.getWis(),
+          pc.getStr(),
+          pc.getAgi(),
+          pc.getAttack(),
+          e);
       return 10;
     }
   }
