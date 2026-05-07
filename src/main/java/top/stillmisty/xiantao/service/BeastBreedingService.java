@@ -95,7 +95,7 @@ public class BeastBreedingService {
   @Transactional
   PenCellVO hatchBeastWithTemplate(Long userId, Integer cellId, ItemTemplate eggTemplate) {
     Fudi fudi =
-        fudiHelper.getFudiByUserId(userId).orElseThrow(() -> new IllegalStateException("未找到福地"));
+        fudiHelper.findAndTouchFudi(userId).orElseThrow(() -> new IllegalStateException("未找到福地"));
 
     FudiCell cell =
         fudiCellRepository
@@ -232,7 +232,7 @@ public class BeastBreedingService {
   public ReleaseBeastVO releaseBeast(Long userId, String position) {
     Integer cellId = fudiHelper.parseCellId(position);
     Fudi fudi =
-        fudiHelper.getFudiByUserId(userId).orElseThrow(() -> new IllegalStateException("未找到福地"));
+        fudiHelper.findAndTouchFudi(userId).orElseThrow(() -> new IllegalStateException("未找到福地"));
 
     FudiCell cell =
         fudiCellRepository
@@ -263,7 +263,7 @@ public class BeastBreedingService {
   public PenCellVO evolveBeast(Long userId, String position, String mode) {
     Integer cellId = fudiHelper.parseCellId(position);
     Fudi fudi =
-        fudiHelper.getFudiByUserId(userId).orElseThrow(() -> new IllegalStateException("未找到福地"));
+        fudiHelper.findAndTouchFudi(userId).orElseThrow(() -> new IllegalStateException("未找到福地"));
 
     FudiCell cell =
         fudiCellRepository

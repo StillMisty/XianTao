@@ -10,19 +10,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
 
 /** 物品模板配置实体 存储所有物品的静态配置数据 */
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table("xt_item_template")
 public class ItemTemplate {
 
   private static final ObjectMapper OBJECT_MAPPER =
       new com.fasterxml.jackson.databind.ObjectMapper();
 
-  /** 模板ID（唯一标识） */
+  @EqualsAndHashCode.Include
   @Id(keyType = KeyType.Auto)
   private Long id;
 

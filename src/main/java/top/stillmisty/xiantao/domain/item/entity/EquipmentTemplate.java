@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Set;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import top.stillmisty.xiantao.domain.item.enums.EquipmentSlot;
 import top.stillmisty.xiantao.domain.item.enums.WeaponType;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
@@ -15,9 +16,11 @@ import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
 
 /** 装备模板实体 独立于 xt_item_template，存储装备专属属性 */
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table("xt_equipment_template")
 public class EquipmentTemplate {
 
+  @EqualsAndHashCode.Include
   @Id(keyType = KeyType.Auto)
   private Long id;
 

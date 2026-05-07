@@ -67,7 +67,7 @@ class FarmServiceTest {
   @DisplayName("plantCropByName — 成功种植返回 FarmCellVO")
   void plantCropByName_shouldReturnFarmCellVO() {
     when(fudiHelper.parseCellId("1")).thenReturn(1);
-    when(fudiHelper.getFudiByUserId(userId)).thenReturn(Optional.of(createTestFudi()));
+    when(fudiHelper.findAndTouchFudi(userId)).thenReturn(Optional.of(createTestFudi()));
     when(fudiHelper.getCropTier(anyInt())).thenReturn(1);
     when(fudiHelper.getLevelSpeedMultiplier(anyInt(), anyInt())).thenReturn(1.0);
     doNothing().when(fudiHelper).checkSpiritStones(eq(userId), anyInt());
@@ -102,7 +102,7 @@ class FarmServiceTest {
   @DisplayName("plantCropByName — 福地不存在抛异常")
   void plantCropByName_whenFudiNotFound_shouldThrow() {
     when(fudiHelper.parseCellId("1")).thenReturn(1);
-    when(fudiHelper.getFudiByUserId(userId)).thenReturn(Optional.empty());
+    when(fudiHelper.findAndTouchFudi(userId)).thenReturn(Optional.empty());
 
     ItemTemplate seed = createSeedTemplate(1L, "种子名", 6);
     when(itemTemplateRepository.findByType(ItemType.SEED)).thenReturn(List.of(seed));
@@ -117,7 +117,7 @@ class FarmServiceTest {
   @DisplayName("plantCropByName — 地块已有非灵田类型建筑抛异常")
   void plantCropByName_whenCellOccupiedByNonFarm_shouldThrow() {
     when(fudiHelper.parseCellId("5")).thenReturn(5);
-    when(fudiHelper.getFudiByUserId(userId)).thenReturn(Optional.of(createTestFudi()));
+    when(fudiHelper.findAndTouchFudi(userId)).thenReturn(Optional.of(createTestFudi()));
     when(fudiHelper.getCropTier(anyInt())).thenReturn(1);
 
     ItemTemplate seed = createSeedTemplate(10L, "灵芝种子", 6);

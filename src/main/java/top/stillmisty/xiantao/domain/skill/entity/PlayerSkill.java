@@ -6,11 +6,14 @@ import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import java.time.LocalDateTime;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table("xt_player_skill")
 public class PlayerSkill {
 
+  @EqualsAndHashCode.Include
   @Id(keyType = KeyType.Auto)
   private Long id;
 

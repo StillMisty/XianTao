@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import top.stillmisty.xiantao.domain.shared.SharedKernel;
 import top.stillmisty.xiantao.domain.user.entity.DaoProtection;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.repository.DaoProtectionRepository;
@@ -25,7 +26,6 @@ public class DaoProtectionService {
   private final UserStateService userStateService;
   private final MapService mapService;
   private final DaoProtectionRepository daoProtectionRepository;
-  private final ProtectionHelper protectionHelper;
 
   @Transactional
   public DaoProtectionResult establishProtection(Long protectorId, String protegeNickname) {
@@ -103,7 +103,7 @@ public class DaoProtectionService {
         DaoProtection.create().setProtectorId(protectorId).setProtegeId(protege.getId());
     daoProtectionRepository.save(protection);
 
-    double singleBonus = protectionHelper.calculateSingleProtectorBonus(protector, protege);
+    double singleBonus = SharedKernel.calculateSingleProtectorBonus(protector, protege);
 
     return new DaoProtectionResult(
         true,
@@ -117,7 +117,7 @@ public class DaoProtectionService {
         protege.getLevel(),
         singleBonus,
         null,
-        protectionHelper.isInSameLocation(protector, protege));
+        SharedKernel.isInSameLocation(protector, protege));
   }
 
   @Transactional
@@ -211,8 +211,8 @@ public class DaoProtectionService {
     for (DaoProtection protection : protectingList) {
       User protege = protegeMap.get(protection.getProtegeId());
       if (protege != null) {
-        boolean inSameLocation = protectionHelper.isInSameLocation(user, protege);
-        double bonus = protectionHelper.calculateSingleProtectorBonus(user, protege);
+        boolean inSameLocation = SharedKernel.isInSameLocation(user, protege);
+        double bonus = SharedKernel.calculateSingleProtectorBonus(user, protege);
         protectingInfoList.add(
             ProtectionInfo.builder()
                 .userId(protege.getId())
@@ -249,10 +249,10 @@ public class DaoProtectionService {
     for (DaoProtection protection : protectedByList) {
       User protector = protectorMap.get(protection.getProtectorId());
       if (protector != null) {
-        boolean inSameLocation = protectionHelper.isInSameLocation(user, protector);
+        boolean inSameLocation = SharedKernel.isInSameLocation(user, protector);
         double bonus = 0.0;
         if (inSameLocation) {
-          bonus = protectionHelper.calculateSingleProtectorBonus(protector, user);
+          bonus = SharedKernel.calculateSingleProtectorBonus(protector, user);
           totalBonus += bonus;
           sameLocationCount++;
         }

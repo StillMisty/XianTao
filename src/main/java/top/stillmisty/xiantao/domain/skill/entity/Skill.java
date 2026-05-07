@@ -8,14 +8,17 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import top.stillmisty.xiantao.domain.skill.enums.BindingType;
 import top.stillmisty.xiantao.domain.skill.enums.SkillType;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
 
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table("xt_skill")
 public class Skill {
 
+  @EqualsAndHashCode.Include
   @Id(keyType = KeyType.Auto)
   private Long id;
 

@@ -2,9 +2,9 @@
 CREATE TABLE xt_beast
 (
     id              BIGSERIAL PRIMARY KEY,
-    user_id         BIGINT       NOT NULL REFERENCES xt_user (id),
-    fudi_id         BIGINT       NOT NULL REFERENCES xt_fudi (id),
-    template_id     BIGINT       NOT NULL REFERENCES xt_item_template (id),
+    user_id         BIGINT       NOT NULL,
+    fudi_id         BIGINT       NOT NULL,
+    template_id     BIGINT       NOT NULL,
     beast_name      VARCHAR(128),
     tier            INT          NOT NULL DEFAULT 1,
     quality         VARCHAR(32)  NOT NULL DEFAULT 'MORTAL',
@@ -35,7 +35,10 @@ CREATE TABLE xt_beast
     CONSTRAINT chk_beast_max_hp CHECK (max_hp > 0),
     CONSTRAINT chk_beast_evolution_count CHECK (evolution_count >= 0),
     CONSTRAINT chk_beast_level_cap CHECK (level_cap >= 1),
-    CONSTRAINT chk_beast_penned_cell_id CHECK (penned_cell_id IS NULL OR penned_cell_id >= 1)
+    CONSTRAINT chk_beast_penned_cell_id CHECK (penned_cell_id IS NULL OR penned_cell_id >= 1),
+    CONSTRAINT fk_beast_user FOREIGN KEY (user_id) REFERENCES xt_user (id),
+    CONSTRAINT fk_beast_fudi FOREIGN KEY (fudi_id) REFERENCES xt_fudi (id),
+    CONSTRAINT fk_beast_template FOREIGN KEY (template_id) REFERENCES xt_item_template (id)
 );
 
 COMMENT ON TABLE xt_beast IS '灵兽实体表（战斗化）';

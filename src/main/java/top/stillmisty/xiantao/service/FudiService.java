@@ -154,12 +154,12 @@ public class FudiService {
   }
 
   // 保留此内部方法供 SpiritTools 使用
-  public Optional<Fudi> getFudiByUserId(Long userId) {
-    return fudiHelper.getFudiByUserId(userId);
+  public Optional<Fudi> findAndTouchFudi(Long userId) {
+    return fudiHelper.findAndTouchFudi(userId);
   }
 
   private Fudi getFudiOrThrow(Long userId) {
-    return getFudiByUserId(userId).orElseThrow(() -> new IllegalStateException("未找到福地"));
+    return findAndTouchFudi(userId).orElseThrow(() -> new IllegalStateException("未找到福地"));
   }
 
   private record CellContext(Fudi fudi, FudiCell cell, Integer cellId) {}

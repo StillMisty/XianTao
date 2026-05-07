@@ -6,14 +6,16 @@ import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import java.time.LocalDateTime;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 
 /** 跨平台授权绑定表实体 */
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table("xt_user_auth")
 public class UserAuth {
 
-  /** 绑定记录主键 */
+  @EqualsAndHashCode.Include
   @Id(keyType = KeyType.Auto)
   private Long id;
 

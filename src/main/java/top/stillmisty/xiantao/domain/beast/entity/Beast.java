@@ -7,15 +7,18 @@ import com.mybatisflex.annotation.Table;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import top.stillmisty.xiantao.domain.fudi.enums.BeastQuality;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
 
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Accessors(chain = true)
 @Table("xt_beast")
 public class Beast {
 
+  @EqualsAndHashCode.Include
   @Id(keyType = KeyType.Auto)
   private Long id;
 

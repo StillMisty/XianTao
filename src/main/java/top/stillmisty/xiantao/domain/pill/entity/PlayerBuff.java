@@ -6,13 +6,15 @@ import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import java.time.LocalDateTime;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /** 玩家 Buff 实体 — 战斗增益和突破加成等时效性 buff */
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table("xt_player_buff")
 public class PlayerBuff {
 
-  /** 主键ID */
+  @EqualsAndHashCode.Include
   @Id(keyType = KeyType.Auto)
   private Long id;
 

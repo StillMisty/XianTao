@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
+import top.stillmisty.xiantao.domain.shared.SharedKernel;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 
@@ -26,7 +27,7 @@ public class FudiHelper {
    * <p>注意：此方法有写入副作用（会保存 Fudi 和 Spirit），调用方需要在事务上下文中使用。
    */
   @Transactional
-  public Optional<Fudi> getFudiByUserId(Long userId) {
+  public Optional<Fudi> findAndTouchFudi(Long userId) {
     Optional<Fudi> fudiOpt = fudiRepository.findByUserId(userId);
     fudiOpt.ifPresent(
         fudi -> {
@@ -81,13 +82,9 @@ public class FudiHelper {
     }
   }
 
-  /** 根据生长时间计算作物等阶 */
+  /** 根据生长时间计算作物等阶（委托至 SharedKernel） */
   public int getCropTier(int growTime) {
-    if (growTime <= 24) return 1;
-    if (growTime <= 48) return 2;
-    if (growTime <= 72) return 3;
-    if (growTime <= 120) return 4;
-    return 5;
+    return SharedKernel.getCropTier(growTime);
   }
 
   /** 根据灵田等级高于最低需求的程度计算生长速度倍率 */

@@ -6,13 +6,16 @@ import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import java.time.LocalDateTime;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
 
 /** 地灵对话历史实体 */
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table("xt_spirit_history")
 public class SpiritHistory {
 
+  @EqualsAndHashCode.Include
   @Id(keyType = KeyType.Auto)
   private Long id;
 

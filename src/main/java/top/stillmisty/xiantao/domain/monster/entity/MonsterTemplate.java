@@ -7,13 +7,16 @@ import com.mybatisflex.annotation.Table;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import top.stillmisty.xiantao.domain.monster.enums.MonsterType;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
 
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table("xt_monster_template")
 public class MonsterTemplate {
 
+  @EqualsAndHashCode.Include
   @Id(keyType = KeyType.Auto)
   private Long id;
 

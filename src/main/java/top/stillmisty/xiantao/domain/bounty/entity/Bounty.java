@@ -7,14 +7,17 @@ import com.mybatisflex.annotation.Table;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import top.stillmisty.xiantao.domain.bounty.BountyRewardPool;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.BountyRewardListTypeHandler;
 
 /** 悬赏任务实体 */
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table("xt_bounty")
 public class Bounty {
 
+  @EqualsAndHashCode.Include
   @Id(keyType = KeyType.Auto)
   private Long id;
 

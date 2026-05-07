@@ -34,7 +34,7 @@ public class FudiGiftService {
   @Transactional
   public GiveGiftVO giveGift(Long userId, String itemName) {
     Fudi fudi =
-        fudiHelper.getFudiByUserId(userId).orElseThrow(() -> new IllegalStateException("未找到福地"));
+        fudiHelper.findAndTouchFudi(userId).orElseThrow(() -> new IllegalStateException("未找到福地"));
 
     StackableItem gift = resolveGiftItem(userId, itemName);
     ItemTemplate template =

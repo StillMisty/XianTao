@@ -49,27 +49,6 @@ public sealed interface ItemProperties {
 
   record Potion(@JsonProperty("effects") List<Effect> effects) implements ItemProperties {}
 
-  // —— 内嵌子类型 ——
-
-  record Scroll(int grade, Product product, List<ElementRequirement> requirements)
+  record Scroll(int grade, RecipeProduct product, List<ElementRequirement> requirements)
       implements ItemProperties {}
-
-  record ProductionItem(
-      @JsonProperty("weight") int weight,
-      @JsonProperty("template_id") long templateId,
-      @JsonProperty("name") String name) {}
-
-  record BeastSkillPool(
-      @JsonProperty("innate_skills") List<InnateSkill> innateSkills,
-      @JsonProperty("awakening_skills") List<AwakeningSkill> awakeningSkills) {
-    public record InnateSkill(
-        @JsonProperty("skill_id") long skillId, @JsonProperty("unlock") String unlock) {}
-
-    public record AwakeningSkill(
-        @JsonProperty("skill_id") long skillId, @JsonProperty("weight") int weight) {}
-  }
-
-  record Product(@JsonProperty("item_id") long itemId, int quantity) {}
-
-  record ElementRequirement(String element, int min, int max) {}
 }

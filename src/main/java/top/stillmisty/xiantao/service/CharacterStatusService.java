@@ -12,6 +12,7 @@ import top.stillmisty.xiantao.domain.item.entity.Equipment;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
 import top.stillmisty.xiantao.domain.item.vo.CharacterStatusResult;
 import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
+import top.stillmisty.xiantao.domain.shared.SharedKernel;
 import top.stillmisty.xiantao.domain.user.entity.DaoProtection;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
@@ -32,9 +33,6 @@ public class CharacterStatusService {
   private final DaoProtectionRepository daoProtectionRepository;
   private final MapService mapService;
   private final MapNodeRepository mapNodeRepository;
-  private final ProtectionHelper protectionHelper;
-
-  // ===================== 公开 API（含认证） =====================
 
   @Authenticated
   public ServiceResult<CharacterStatusResult> getCharacterStatus(
@@ -260,9 +258,8 @@ public class CharacterStatusService {
               }
 
               User targetUser = targetUserOpt.get();
-              boolean inSameLocation = protectionHelper.isInSameLocation(currentUser, targetUser);
-              double bonus =
-                  protectionHelper.calculateSingleProtectorBonus(currentUser, targetUser);
+              boolean inSameLocation = SharedKernel.isInSameLocation(currentUser, targetUser);
+              double bonus = SharedKernel.calculateSingleProtectorBonus(currentUser, targetUser);
 
               return new CharacterStatusResult.ProtectionInfoVO(
                   targetUser.getId(),
@@ -292,11 +289,11 @@ public class CharacterStatusService {
               }
 
               User protector = protectorOpt.get();
-              boolean inSameLocation = protectionHelper.isInSameLocation(currentUser, protector);
+              boolean inSameLocation = SharedKernel.isInSameLocation(currentUser, protector);
 
               double bonus = 0.0;
               if (inSameLocation) {
-                bonus = protectionHelper.calculateSingleProtectorBonus(protector, currentUser);
+                bonus = SharedKernel.calculateSingleProtectorBonus(protector, currentUser);
               }
 
               return new CharacterStatusResult.ProtectionInfoVO(

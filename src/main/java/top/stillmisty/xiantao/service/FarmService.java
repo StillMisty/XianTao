@@ -56,7 +56,7 @@ public class FarmService {
 
   FarmCellVO plantCrop(Long userId, Integer cellId, Integer cropId, String cropName, int cropTier) {
     Fudi fudi =
-        fudiHelper.getFudiByUserId(userId).orElseThrow(() -> new IllegalStateException("未找到福地"));
+        fudiHelper.findAndTouchFudi(userId).orElseThrow(() -> new IllegalStateException("未找到福地"));
 
     FudiCell existingCell =
         fudiCellRepository.findByFudiIdAndCellId(fudi.getId(), cellId).orElse(null);

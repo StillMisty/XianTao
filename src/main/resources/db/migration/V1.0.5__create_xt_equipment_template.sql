@@ -22,7 +22,7 @@ CREATE TABLE xt_equipment_template
     update_time    TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT chk_equip_tmpl_slot CHECK (slot IN ('WEAPON', 'ARMOR', 'ACCESSORY')),
     CONSTRAINT chk_equip_tmpl_weapon_type CHECK (weapon_type IS NULL OR weapon_type IN ('BLADE', 'SWORD', 'AXE', 'SPEAR', 'STAFF', 'BOW', 'WHIP', 'HALBERD', 'HAMMER', 'DAGGER', 'FAN', 'FLYWHISK', 'RING', 'BELL')),
-    CONSTRAINT chk_equip_tmpl_category CHECK (category IS NULL OR category IN ('刀兵', '长兵', '远兵', '奇兵')),
+    CONSTRAINT chk_equip_tmpl_category CHECK (category IS NULL OR category IN ('MELEE', 'POLEARM', 'RANGED', 'EXOTIC')),
     CONSTRAINT chk_equip_tmpl_equip_level CHECK (equip_level >= 1),
     CONSTRAINT chk_equip_tmpl_base_attack CHECK (base_attack >= 0),
     CONSTRAINT chk_equip_tmpl_base_defense CHECK (base_defense >= 0),

@@ -15,6 +15,7 @@ import top.stillmisty.xiantao.domain.fudi.repository.FudiCellRepository;
 import top.stillmisty.xiantao.domain.fudi.vo.CollectVO;
 import top.stillmisty.xiantao.domain.item.entity.ItemProperties;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
+import top.stillmisty.xiantao.domain.item.entity.ProductionItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 
@@ -121,7 +122,7 @@ public class BeastProductionService {
     int tier = beast.getTier();
     List<String> mutationTraits = beast.getMutationTraits();
 
-    List<ItemProperties.ProductionItem> productionItems = getProductionItems(cell);
+    List<ProductionItem> productionItems = getProductionItems(cell);
     if (productionItems.isEmpty()) {
       int currentStored = pen.totalProductionQuantity();
       int maxStorage = tier * 20;
@@ -160,7 +161,7 @@ public class BeastProductionService {
     fudiCellRepository.save(cell);
   }
 
-  List<ItemProperties.ProductionItem> getProductionItems(FudiCell cell) {
+  List<ProductionItem> getProductionItems(FudiCell cell) {
     if (!(cell.getConfig() instanceof CellConfig.PenConfig pen) || pen.templateId() == null) {
       return List.of();
     }
@@ -176,8 +177,7 @@ public class BeastProductionService {
     return List.of();
   }
 
-  ItemProperties.ProductionItem selectRandomProductionItem(
-      List<ItemProperties.ProductionItem> productionItems) {
+  ProductionItem selectRandomProductionItem(List<ProductionItem> productionItems) {
     if (productionItems.isEmpty()) {
       return null;
     }
@@ -199,11 +199,10 @@ public class BeastProductionService {
     return productionItems.getFirst();
   }
 
-  ItemProperties.ProductionItem selectHigherTierItem(
-      List<ItemProperties.ProductionItem> productionItems) {
+  ProductionItem selectHigherTierItem(List<ProductionItem> productionItems) {
     if (productionItems.isEmpty()) return null;
     return productionItems.stream()
-        .min(Comparator.comparingInt(ItemProperties.ProductionItem::weight))
+        .min(Comparator.comparingInt(ProductionItem::weight))
         .orElse(null);
   }
 

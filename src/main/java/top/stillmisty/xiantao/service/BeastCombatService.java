@@ -97,7 +97,7 @@ public class BeastCombatService {
 
   BatchCountVO undeployAllBeasts(Long userId) {
     Fudi fudi =
-        fudiHelper.getFudiByUserId(userId).orElseThrow(() -> new IllegalStateException("未找到福地"));
+        fudiHelper.findAndTouchFudi(userId).orElseThrow(() -> new IllegalStateException("未找到福地"));
 
     List<Beast> beasts = beastRepository.findByFudiId(fudi.getId());
     int count = 0;
@@ -144,7 +144,7 @@ public class BeastCombatService {
 
   BeastRecoverResult recoverAllBeasts(Long userId) {
     Fudi fudi =
-        fudiHelper.getFudiByUserId(userId).orElseThrow(() -> new IllegalStateException("未找到福地"));
+        fudiHelper.findAndTouchFudi(userId).orElseThrow(() -> new IllegalStateException("未找到福地"));
 
     int totalCost = 0;
     int recoverCount = 0;
@@ -174,7 +174,7 @@ public class BeastCombatService {
 
   List<BeastStatusVO> getDeployedBeasts(Long userId) {
     Fudi fudi =
-        fudiHelper.getFudiByUserId(userId).orElseThrow(() -> new IllegalStateException("未找到福地"));
+        fudiHelper.findAndTouchFudi(userId).orElseThrow(() -> new IllegalStateException("未找到福地"));
     List<Beast> allBeasts = beastRepository.findByFudiId(fudi.getId());
     return allBeasts.stream()
         .filter(b -> Boolean.TRUE.equals(b.getIsDeployed()))

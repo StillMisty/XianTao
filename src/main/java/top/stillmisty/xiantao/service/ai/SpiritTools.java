@@ -241,7 +241,9 @@ public class SpiritTools {
     try {
       Long userId = getCurrentUserId();
       var fudi =
-          fudiService.getFudiByUserId(userId).orElseThrow(() -> new IllegalStateException("未找到福地"));
+          fudiService
+              .findAndTouchFudi(userId)
+              .orElseThrow(() -> new IllegalStateException("未找到福地"));
 
       var spirit =
           spiritRepository

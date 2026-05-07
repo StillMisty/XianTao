@@ -120,7 +120,7 @@ class BeastServiceTest {
   @DisplayName("releaseBeast — 地块不存在抛异常")
   void releaseBeast_whenCellNotFound_shouldThrow() {
     when(fudiHelper.parseCellId("1")).thenReturn(1);
-    when(fudiHelper.getFudiByUserId(anyLong())).thenReturn(Optional.empty());
+    when(fudiHelper.findAndTouchFudi(anyLong())).thenReturn(Optional.empty());
 
     assertThrows(IllegalStateException.class, () -> breedingService.releaseBeast(1L, "1"));
   }
@@ -131,7 +131,7 @@ class BeastServiceTest {
     when(fudiHelper.parseCellId("1")).thenReturn(1);
     var fudi = mock(top.stillmisty.xiantao.domain.fudi.entity.Fudi.class);
     when(fudi.getId()).thenReturn(100L);
-    when(fudiHelper.getFudiByUserId(1L)).thenReturn(Optional.of(fudi));
+    when(fudiHelper.findAndTouchFudi(1L)).thenReturn(Optional.of(fudi));
 
     FudiCell farmCell = new FudiCell();
     farmCell.setCellType(CellType.FARM);
@@ -146,7 +146,7 @@ class BeastServiceTest {
     when(fudiHelper.parseCellId("1")).thenReturn(1);
     var fudi = mock(top.stillmisty.xiantao.domain.fudi.entity.Fudi.class);
     when(fudi.getId()).thenReturn(100L);
-    when(fudiHelper.getFudiByUserId(1L)).thenReturn(Optional.of(fudi));
+    when(fudiHelper.findAndTouchFudi(1L)).thenReturn(Optional.of(fudi));
 
     FudiCell penCell = new FudiCell();
     penCell.setCellType(CellType.PEN);

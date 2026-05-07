@@ -30,7 +30,7 @@ public class BeastDisplayHelper {
   PenCellBeast getBeastFromPenCell(Long userId, String position, boolean checkIncubating) {
     Integer cellId = fudiHelper.parseCellId(position);
     Fudi fudi =
-        fudiHelper.getFudiByUserId(userId).orElseThrow(() -> new IllegalStateException("未找到福地"));
+        fudiHelper.findAndTouchFudi(userId).orElseThrow(() -> new IllegalStateException("未找到福地"));
 
     FudiCell cell =
         fudiCellRepository
