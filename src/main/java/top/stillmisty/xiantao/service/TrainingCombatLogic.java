@@ -12,6 +12,8 @@ import top.stillmisty.xiantao.domain.item.entity.Equipment;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
 import top.stillmisty.xiantao.domain.map.entity.MonsterEncounterEntry;
+import top.stillmisty.xiantao.domain.monster.BeastCombatant;
+import top.stillmisty.xiantao.domain.monster.Combatant;
 import top.stillmisty.xiantao.domain.monster.Monster;
 import top.stillmisty.xiantao.domain.monster.Team;
 import top.stillmisty.xiantao.domain.monster.entity.MonsterTemplate;
@@ -54,6 +56,8 @@ public class TrainingCombatLogic {
     var preloadedData = preloadMonsterData(monsterEncounters);
 
     CombatContext ctx = new CombatContext(userId, user, mapNode, monsterEncounters);
+
+    captureInitialBeastHp(user, ctx);
 
     for (int i = 0; i < encounterParams.encounterChances(); i++) {
       if (ThreadLocalRandom.current().nextDouble() >= encounterParams.encounterChance()) continue;
@@ -118,7 +122,8 @@ public class TrainingCombatLogic {
     boolean playerWon = result.winner().equals("Player");
     if (playerWon) {
       ctx.totalKills += count;
-      ctx.expGained += tmpl.getBaseLevel() * 10L * count;
+      double levelModifier = calculateCombatExpModifier(ctx.user.getLevel(), tmpl.getBaseLevel());
+      ctx.expGained += (long) (tmpl.getExpReward() * count * levelModifier);
       ctx.allDrops.addAll(dropProcessor.processMonsterDrops(tmpl));
     } else {
       ctx.defeatCount++;
@@ -131,6 +136,8 @@ public class TrainingCombatLogic {
     postCombatProcessor.applyHpToUser(ctx.user, playerTeam);
     postCombatProcessor.applyHpToBeasts(
         playerTeam, ctx.user, playerWon, isHighlightBattle, ctx.beastCache);
+
+    updateBeastHpTracks(ctx, playerTeam);
 
     if (!playerWon && playerTeam.isAllDead()) {
       if (!ctx.allDrops.isEmpty()) {
@@ -170,7 +177,8 @@ public class TrainingCombatLogic {
         ctx.totalRounds,
         ctx.allDrops,
         ctx.allLogs,
-        ctx.allSkillProcs);
+        ctx.allSkillProcs,
+        ctx.beastHpTracks);
   }
 
   private record PreloadedMonsterData(
@@ -190,6 +198,7 @@ public class TrainingCombatLogic {
     int totalKills = 0;
     int defeatCount = 0;
     final Map<Long, Beast> beastCache = new LinkedHashMap<>();
+    final Map<Long, BeastHpTrack> beastHpTracks = new LinkedHashMap<>();
 
     CombatContext(
         Long userId, User user, MapNode mapNode, List<MonsterEncounterEntry> monsterEncounters) {
@@ -199,6 +208,8 @@ public class TrainingCombatLogic {
       this.monsterEncounters = monsterEncounters;
     }
   }
+
+  public record BeastHpTrack(String name, int initialHp, int currentHp) {}
 
   private EncounterParams computeEncounterParams(
       Long userId, User user, MapNode mapNode, int durationMinutes) {
@@ -224,6 +235,35 @@ public class TrainingCombatLogic {
       team.addMember(new Monster(tmpl, monsterLevel, monsterSkills));
     }
     return team;
+  }
+
+  static double calculateCombatExpModifier(int playerLevel, int monsterLevel) {
+    double diff = monsterLevel - playerLevel;
+    double modifier = 1.0 + diff * 0.05;
+    return Math.max(0.1, Math.min(3.0, modifier));
+  }
+
+  private void captureInitialBeastHp(User user, CombatContext ctx) {
+    Team initialTeam = combatService.buildPlayerTeam(user);
+    for (Combatant c : initialTeam.members()) {
+      if (c instanceof BeastCombatant) {
+        ctx.beastHpTracks.put(c.getId(), new BeastHpTrack(c.getName(), c.getHp(), c.getHp()));
+      }
+    }
+  }
+
+  private void updateBeastHpTracks(CombatContext ctx, Team playerTeam) {
+    for (Combatant c : playerTeam.members()) {
+      if (c instanceof BeastCombatant) {
+        BeastHpTrack track = ctx.beastHpTracks.get(c.getId());
+        if (track != null) {
+          ctx.beastHpTracks.put(
+              c.getId(), new BeastHpTrack(track.name(), track.initialHp(), c.getHp()));
+        } else {
+          ctx.beastHpTracks.put(c.getId(), new BeastHpTrack(c.getName(), c.getHp(), c.getHp()));
+        }
+      }
+    }
   }
 
   private void saveBeastCache(Map<Long, Beast> beastCache) {
@@ -268,7 +308,8 @@ public class TrainingCombatLogic {
       int totalRounds,
       List<DropItem> allDrops,
       List<CombatLogEntry> allLogs,
-      List<Map<String, Object>> allSkillProcs) {
+      List<Map<String, Object>> allSkillProcs,
+      Map<Long, BeastHpTrack> beastHpTracks) {
     StringBuilder summary = new StringBuilder();
     summary.append(String.format("遇敌%d场 | 击杀%d只", totalEncounters, totalKills));
     if (defeatCount > 0) {
@@ -282,6 +323,17 @@ public class TrainingCombatLogic {
         DropItem drop = allDrops.get(i);
         summary.append(String.format("%s×%d", drop.name(), drop.quantity()));
         if (i < allDrops.size() - 1) summary.append(" ");
+      }
+    }
+
+    if (!beastHpTracks.isEmpty()) {
+      summary.append("\n灵兽：");
+      boolean first = true;
+      for (BeastHpTrack track : beastHpTracks.values()) {
+        if (!first) summary.append(" | ");
+        summary.append(
+            String.format("%s HP%d→%d", track.name(), track.initialHp(), track.currentHp()));
+        first = false;
       }
     }
 

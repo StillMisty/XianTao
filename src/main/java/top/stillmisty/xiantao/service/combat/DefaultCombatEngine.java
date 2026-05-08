@@ -419,7 +419,9 @@ public class DefaultCombatEngine implements CombatEngine {
     for (Combatant c : teamA.members()) {
       if (c instanceof BeastCombatant) {
         Map<String, Object> change = new LinkedHashMap<>();
+        Integer initial = initialHpA.get("member_" + c.getId());
         change.put("name", c.getName());
+        change.put("before", initial != null ? initial : c.getHp());
         change.put("after", c.getHp());
         beastHpChanges.add(change);
       }

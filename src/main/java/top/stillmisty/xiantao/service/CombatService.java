@@ -75,8 +75,7 @@ public class CombatService {
             .withBuffs(attackBuff, defenseBuff, speedBuff));
 
     List<Beast> deployed = beastRepository.findDeployedByUserId(user.getId());
-    int beastLimit = Math.min(3, user.getLevel() / 5 + 1);
-    for (int i = 0; i < Math.min(deployed.size(), beastLimit); i++) {
+    for (int i = 0; i < Math.min(deployed.size(), 2); i++) {
       Beast beast = deployed.get(i);
       if (beast.canFight()) {
         List<Skill> beastSkills = List.of();

@@ -14,6 +14,7 @@ import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
 import top.stillmisty.xiantao.domain.map.entity.SpecialtyEntry;
+import top.stillmisty.xiantao.domain.map.enums.MapType;
 import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
 import top.stillmisty.xiantao.domain.map.vo.TrainingRewardVO;
 import top.stillmisty.xiantao.domain.map.vo.TrainingStartResult;
@@ -66,12 +67,20 @@ public class TrainingService {
       return TrainingStartResult.builder().success(false).message("当前位置无效，无法开始历练").build();
     }
 
-    var mapName =
-        mapNodeRepository.findById(user.getLocationId()).map(MapNode::getName).orElse(null);
+    MapNode mapNode = mapNodeRepository.findById(user.getLocationId()).orElse(null);
 
-    if (mapName == null) {
+    if (mapNode == null) {
       return TrainingStartResult.builder().success(false).message("当前地图不存在，无法开始历练").build();
     }
+
+    if (mapNode.getMapType() != MapType.TRAINING_ZONE) {
+      return TrainingStartResult.builder()
+          .success(false)
+          .message("当前地图不是历练区域（需要野外历练区），无法开始历练")
+          .build();
+    }
+
+    String mapName = mapNode.getName();
 
     user.setTrainingStartTime(LocalDateTime.now());
     user.setStatus(UserStatus.EXERCISING);

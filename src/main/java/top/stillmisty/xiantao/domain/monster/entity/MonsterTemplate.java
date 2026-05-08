@@ -22,6 +22,8 @@ public class MonsterTemplate {
 
   private String name;
 
+  private String description;
+
   private MonsterType monsterType;
 
   private Integer baseLevel;
@@ -36,6 +38,11 @@ public class MonsterTemplate {
 
   @Column(typeHandler = JsonbCollectionTypeHandler.class)
   private List<Long> skills;
+
+  private Integer expReward;
+
+  @Column(typeHandler = JsonbCollectionTypeHandler.class)
+  private List<String> tags;
 
   @Column(typeHandler = JsonbCollectionTypeHandler.class)
   private List<DropTableEntry> dropTable;
