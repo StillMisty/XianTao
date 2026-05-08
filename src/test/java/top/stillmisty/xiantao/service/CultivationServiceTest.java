@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import top.stillmisty.xiantao.domain.pill.enums.PlayerBuffType;
 import top.stillmisty.xiantao.domain.pill.repository.PlayerBuffRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
@@ -67,14 +68,14 @@ class CultivationServiceTest {
   void attemptBreakthrough_shouldClearRelationsAndBuffs() {
     User user = createUser(2, 1000L, 0);
     when(userStateService.loadUser(userId)).thenReturn(user);
-    when(playerBuffRepository.findActiveByUserIdAndType(userId, "breakthrough"))
+    when(playerBuffRepository.findActiveByUserIdAndType(userId, PlayerBuffType.BREAKTHROUGH))
         .thenReturn(List.of());
 
     BreakthroughResult result = cultivationService.attemptBreakthrough(userId);
 
     assertNotNull(result);
     verify(daoProtectionService).clearProtegeRelations(userId);
-    verify(playerBuffRepository).deleteByUserIdAndType(userId, "breakthrough");
+    verify(playerBuffRepository).deleteByUserIdAndType(userId, PlayerBuffType.BREAKTHROUGH);
   }
 
   // ===================== establishProtection (delegates to DaoProtectionService)

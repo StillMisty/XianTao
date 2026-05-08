@@ -15,6 +15,7 @@ import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.domain.pill.entity.PillResistance;
 import top.stillmisty.xiantao.domain.pill.entity.PlayerBuff;
 import top.stillmisty.xiantao.domain.pill.enums.PillQuality;
+import top.stillmisty.xiantao.domain.pill.enums.PlayerBuffType;
 import top.stillmisty.xiantao.domain.pill.repository.PillResistanceRepository;
 import top.stillmisty.xiantao.domain.pill.repository.PlayerBuffRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
@@ -178,7 +179,8 @@ public class PillConsumptionService {
     if (bonusValue <= 0) return null;
 
     LocalDateTime expiresAt = LocalDateTime.now().plusHours(1);
-    PlayerBuff buff = PlayerBuff.create(user.getId(), "breakthrough", bonusValue, expiresAt);
+    PlayerBuff buff =
+        PlayerBuff.create(user.getId(), PlayerBuffType.BREAKTHROUGH, bonusValue, expiresAt);
     playerBuffRepository.save(buff);
 
     return "突破成功率 +" + bonusValue + "%（1小时内有效）";
@@ -190,18 +192,19 @@ public class PillConsumptionService {
     int actualValue = (int) (e.amount() * qualityMultiplier * gradeDecay);
     if (actualValue <= 0) return null;
 
+    PlayerBuffType buffType = PlayerBuffType.fromCode(e.attribute());
+
     LocalDateTime expiresAt = LocalDateTime.now().plusSeconds(e.durationSeconds());
-    PlayerBuff buff = PlayerBuff.create(user.getId(), e.attribute(), actualValue, expiresAt);
+    PlayerBuff buff = PlayerBuff.create(user.getId(), buffType, actualValue, expiresAt);
     playerBuffRepository.save(buff);
 
-    var buffName =
-        switch (e.attribute()) {
-          case "attack" -> "攻击";
-          case "defense" -> "防御";
-          case "speed" -> "速度";
-          default -> e.attribute();
-        };
-    return "获得 " + buffName + " +" + actualValue + "（持续" + e.durationSeconds() + "秒）";
+    return "获得 "
+        + buffType.getDisplayName()
+        + " +"
+        + actualValue
+        + "（持续"
+        + e.durationSeconds()
+        + "秒）";
   }
 
   private String applyCure(User user, ItemProperties.Effect.Cure e) {

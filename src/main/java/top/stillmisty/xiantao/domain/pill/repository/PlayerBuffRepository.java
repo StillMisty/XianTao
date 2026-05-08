@@ -3,6 +3,7 @@ package top.stillmisty.xiantao.domain.pill.repository;
 import java.util.List;
 import java.util.Optional;
 import top.stillmisty.xiantao.domain.pill.entity.PlayerBuff;
+import top.stillmisty.xiantao.domain.pill.enums.PlayerBuffType;
 
 /** 玩家 Buff 仓储接口 */
 public interface PlayerBuffRepository {
@@ -14,7 +15,7 @@ public interface PlayerBuffRepository {
   List<PlayerBuff> findActiveByUserId(Long userId);
 
   /** 根据用户ID和buff类型查找未过期的Buff */
-  List<PlayerBuff> findActiveByUserIdAndType(Long userId, String buffType);
+  List<PlayerBuff> findActiveByUserIdAndType(Long userId, PlayerBuffType buffType);
 
   /** 保存Buff */
   PlayerBuff save(PlayerBuff buff);
@@ -23,7 +24,7 @@ public interface PlayerBuffRepository {
   void deleteById(Long id);
 
   /** 根据用户ID和buff类型删除所有Buff（突破后清除） */
-  void deleteByUserIdAndType(Long userId, String buffType);
+  void deleteByUserIdAndType(Long userId, PlayerBuffType buffType);
 
   /** 删除所有过期的Buff */
   void deleteExpired();

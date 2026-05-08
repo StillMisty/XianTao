@@ -22,6 +22,7 @@ import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
 import top.stillmisty.xiantao.domain.monster.vo.CombatLogEntry;
 import top.stillmisty.xiantao.domain.monster.vo.DropItem;
 import top.stillmisty.xiantao.domain.skill.entity.Skill;
+import top.stillmisty.xiantao.domain.skill.repository.PlayerSkillRepository;
 import top.stillmisty.xiantao.domain.skill.repository.SkillRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.infrastructure.util.WeightedRandom;
@@ -44,6 +45,7 @@ public class TrainingCombatLogic {
   private final PostCombatProcessor postCombatProcessor;
   private final DropProcessor dropProcessor;
   private final SkillRepository skillRepository;
+  private final PlayerSkillRepository playerSkillRepository;
 
   public BattleResultVO simulateTraining(
       Long userId, User user, int durationMinutes, MapNode mapNode) {
@@ -54,10 +56,11 @@ public class TrainingCombatLogic {
 
     var encounterParams = computeEncounterParams(userId, user, mapNode, durationMinutes);
     var preloadedData = preloadMonsterData(monsterEncounters);
+    var allSkills = preloadPlayerAndBeastSkills(user, preloadedData.skillMap);
 
     CombatContext ctx = new CombatContext(userId, user, mapNode, monsterEncounters);
 
-    captureInitialBeastHp(user, ctx);
+    captureInitialBeastHp(user, ctx, allSkills);
 
     for (int i = 0; i < encounterParams.encounterChances(); i++) {
       if (ThreadLocalRandom.current().nextDouble() >= encounterParams.encounterChance()) continue;
@@ -72,7 +75,7 @@ public class TrainingCombatLogic {
       ctx.totalEncounters++;
       int count = WeightedRandom.normalInt(entry.min(), entry.max(), ThreadLocalRandom.current());
 
-      boolean shouldStop = processSingleEncounter(ctx, entry, tmpl, count, preloadedData.skillMap);
+      boolean shouldStop = processSingleEncounter(ctx, entry, tmpl, count, allSkills);
       if (shouldStop) {
         return buildSummaryFromContext(ctx);
       }
@@ -105,13 +108,46 @@ public class TrainingCombatLogic {
     return new PreloadedMonsterData(templateMap, skillMap);
   }
 
+  /** 预加载玩家和灵兽的技能，合并到技能查找表中 */
+  private Map<Long, Skill> preloadPlayerAndBeastSkills(
+      User user, Map<Long, Skill> existingSkillMap) {
+    var playerSkillIds =
+        playerSkillRepository.findEquippedByUserId(user.getId()).stream()
+            .map(top.stillmisty.xiantao.domain.skill.entity.PlayerSkill::getSkillId)
+            .toList();
+
+    List<Beast> deployed = beastRepository.findDeployedByUserId(user.getId());
+    var beastSkillIds =
+        deployed.stream()
+            .filter(
+                beast ->
+                    beast.getSkills() != null && !beast.getSkills().isEmpty() && beast.canFight())
+            .flatMap(beast -> beast.getSkills().stream())
+            .distinct()
+            .toList();
+
+    Set<Long> newSkillIds = new HashSet<>();
+    newSkillIds.addAll(playerSkillIds);
+    newSkillIds.addAll(beastSkillIds);
+    // 只查询尚未在 existingSkillMap 中的技能
+    newSkillIds.removeAll(existingSkillMap.keySet());
+
+    if (newSkillIds.isEmpty()) return existingSkillMap;
+
+    Map<Long, Skill> merged = new HashMap<>(existingSkillMap);
+    merged.putAll(
+        skillRepository.findByIds(new ArrayList<>(newSkillIds)).stream()
+            .collect(Collectors.toMap(Skill::getId, s -> s)));
+    return merged;
+  }
+
   private boolean processSingleEncounter(
       CombatContext ctx,
       MonsterEncounterEntry entry,
       MonsterTemplate tmpl,
       int count,
       Map<Long, Skill> skillMap) {
-    Team playerTeam = combatService.buildPlayerTeam(ctx.user);
+    Team playerTeam = combatService.buildPlayerTeam(ctx.user, skillMap);
     Team monsterTeam = buildMonsterTeamWithSkills(tmpl, count, skillMap);
 
     BattleResultVO result = combatService.simulate(playerTeam, monsterTeam, DEFAULT_MAX_ROUNDS);
@@ -243,8 +279,8 @@ public class TrainingCombatLogic {
     return Math.max(0.1, Math.min(3.0, modifier));
   }
 
-  private void captureInitialBeastHp(User user, CombatContext ctx) {
-    Team initialTeam = combatService.buildPlayerTeam(user);
+  private void captureInitialBeastHp(User user, CombatContext ctx, Map<Long, Skill> skillMap) {
+    Team initialTeam = combatService.buildPlayerTeam(user, skillMap);
     for (Combatant c : initialTeam.members()) {
       if (c instanceof BeastCombatant) {
         ctx.beastHpTracks.put(c.getId(), new BeastHpTrack(c.getName(), c.getHp(), c.getHp()));

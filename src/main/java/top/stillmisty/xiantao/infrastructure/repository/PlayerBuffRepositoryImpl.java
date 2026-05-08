@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import top.stillmisty.xiantao.domain.pill.entity.PlayerBuff;
+import top.stillmisty.xiantao.domain.pill.enums.PlayerBuffType;
 import top.stillmisty.xiantao.domain.pill.repository.PlayerBuffRepository;
 import top.stillmisty.xiantao.infrastructure.mapper.PlayerBuffMapper;
 
@@ -27,8 +28,8 @@ public class PlayerBuffRepositoryImpl implements PlayerBuffRepository {
   }
 
   @Override
-  public List<PlayerBuff> findActiveByUserIdAndType(Long userId, String buffType) {
-    return mapper.selectActiveByUserIdAndType(userId, buffType);
+  public List<PlayerBuff> findActiveByUserIdAndType(Long userId, PlayerBuffType buffType) {
+    return mapper.selectActiveByUserIdAndType(userId, buffType.getCode());
   }
 
   @Override
@@ -43,8 +44,8 @@ public class PlayerBuffRepositoryImpl implements PlayerBuffRepository {
   }
 
   @Override
-  public void deleteByUserIdAndType(Long userId, String buffType) {
-    mapper.deleteByUserIdAndType(userId, buffType);
+  public void deleteByUserIdAndType(Long userId, PlayerBuffType buffType) {
+    mapper.deleteByUserIdAndType(userId, buffType.getCode());
   }
 
   @Override

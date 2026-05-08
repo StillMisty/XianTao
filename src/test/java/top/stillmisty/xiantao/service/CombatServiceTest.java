@@ -19,6 +19,7 @@ import top.stillmisty.xiantao.domain.monster.CombatEngine;
 import top.stillmisty.xiantao.domain.monster.Team;
 import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
 import top.stillmisty.xiantao.domain.pill.entity.PlayerBuff;
+import top.stillmisty.xiantao.domain.pill.enums.PlayerBuffType;
 import top.stillmisty.xiantao.domain.pill.repository.PlayerBuffRepository;
 import top.stillmisty.xiantao.domain.skill.repository.PlayerSkillRepository;
 import top.stillmisty.xiantao.domain.skill.repository.SkillRepository;
@@ -106,7 +107,7 @@ class CombatServiceTest {
             .setStatWis(1)
             .setStatus(UserStatus.IDLE);
 
-    PlayerBuff attackBuff = PlayerBuff.create(3L, "attack", 10, null);
+    PlayerBuff attackBuff = PlayerBuff.create(3L, PlayerBuffType.ATTACK, 10, null);
     when(playerBuffRepository.findActiveByUserId(3L)).thenReturn(List.of(attackBuff));
     when(playerSkillRepository.findEquippedByUserId(3L)).thenReturn(List.of());
     when(beastRepository.findDeployedByUserId(3L)).thenReturn(List.of());

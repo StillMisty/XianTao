@@ -7,6 +7,7 @@ import com.mybatisflex.annotation.Table;
 import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import top.stillmisty.xiantao.domain.pill.enums.PlayerBuffType;
 
 /** 玩家 Buff 实体 — 战斗增益和突破加成等时效性 buff */
 @Data
@@ -21,8 +22,8 @@ public class PlayerBuff {
   /** 用户ID */
   private Long userId;
 
-  /** buff类型：attack/defense/speed/breakthrough */
-  private String buffType;
+  /** buff类型 */
+  private PlayerBuffType buffType;
 
   /** 增益值 */
   private Integer value;
@@ -43,7 +44,7 @@ public class PlayerBuff {
   }
 
   public static PlayerBuff create(
-      Long userId, String buffType, int value, LocalDateTime expiresAt) {
+      Long userId, PlayerBuffType buffType, int value, LocalDateTime expiresAt) {
     PlayerBuff buff = new PlayerBuff();
     buff.userId = userId;
     buff.buffType = buffType;

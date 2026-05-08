@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.pill.entity.PlayerBuff;
+import top.stillmisty.xiantao.domain.pill.enums.PlayerBuffType;
 import top.stillmisty.xiantao.domain.pill.repository.PlayerBuffRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
@@ -107,7 +108,7 @@ public class CultivationService {
   private double calculateFinalBreakthroughRate(User user) {
     double protectionBonus = protectionHelper.calculateProtectionBonus(user);
     List<PlayerBuff> breakthroughBuffs =
-        playerBuffRepository.findActiveByUserIdAndType(user.getId(), "breakthrough");
+        playerBuffRepository.findActiveByUserIdAndType(user.getId(), PlayerBuffType.BREAKTHROUGH);
     double pillBonus = breakthroughBuffs.stream().mapToInt(PlayerBuff::getValue).sum();
     double baseSuccessRate = user.calculateBreakthroughSuccessRate();
     return Math.min(100.0, baseSuccessRate + protectionBonus + pillBonus);
@@ -122,7 +123,7 @@ public class CultivationService {
     user.setHpCurrent(user.calculateMaxHp());
 
     daoProtectionService.clearProtegeRelations(userId);
-    playerBuffRepository.deleteByUserIdAndType(userId, "breakthrough");
+    playerBuffRepository.deleteByUserIdAndType(userId, PlayerBuffType.BREAKTHROUGH);
 
     userStateService.save(user);
 
@@ -143,7 +144,7 @@ public class CultivationService {
     user.setBreakthroughFailCount(user.getBreakthroughFailCount() + 1);
 
     daoProtectionService.clearProtegeRelations(userId);
-    playerBuffRepository.deleteByUserIdAndType(userId, "breakthrough");
+    playerBuffRepository.deleteByUserIdAndType(userId, PlayerBuffType.BREAKTHROUGH);
 
     userStateService.save(user);
 
