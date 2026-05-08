@@ -13,6 +13,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import top.stillmisty.xiantao.domain.event.enums.ActivityType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
 
@@ -65,14 +66,14 @@ public class User extends Model<User> {
   /** 当前所在地图/区域 ID */
   private Long locationId;
 
-  /** 历练开始时间戳 (用于结算收益) */
-  private LocalDateTime trainingStartTime;
+  /** 通用活动类型 (TRAVEL/TRAINING/BOUNTY) */
+  private ActivityType activityType;
 
-  /** 旅行开始时间戳 (用于计算旅行进度) */
-  private LocalDateTime travelStartTime;
+  /** 活动开始时间戳 */
+  private LocalDateTime activityStartTime;
 
-  /** 旅行目的地地图 ID */
-  private Long travelDestinationId;
+  /** 活动目标 ID (根据 activity_type 引用不同表: TRAVEL/TRAINING→map_id, BOUNTY→bounty_record_id) */
+  private Long activityTargetId;
 
   /** JSONB 扩展字段 (存储称号、成就、小规模系统数据) */
   @Column(typeHandler = JsonbTypeHandler.class)
@@ -141,33 +142,24 @@ public class User extends Model<User> {
 
   /** 计算升级到下一级所需经验 */
   public long calculateExpToNextLevel() {
-    // 公式：100 * level^2
     return 100L * level * level;
   }
 
   /** 计算当前等级可存储的最大经验值 */
   public long calculateMaxExpStorage() {
-    // 最多存储为当前等级升级经验的5倍
     return calculateExpToNextLevel() * 5;
   }
 
   /** 计算突破成功率 范围：[0, 100] */
   public double calculateBreakthroughSuccessRate() {
-    double baseMidpoint = 50; // 基础概率减半的等级 (50)
-    double baseSteepness = 4.5; // 基础概率下降的陡峭度
-    double minPity = 3; // 最小失败补偿 (3%)
-    double maxPityOffset = 17; // 额外最大补偿 (17% -> 总计20%)
+    double baseMidpoint = 50;
+    double baseSteepness = 4.5;
+    double minPity = 3;
+    double maxPityOffset = 17;
 
-    // 计算基础概率 (0-100)
     double rawBase = 100.0 / (1.0 + Math.pow((double) level / baseMidpoint, baseSteepness));
-
-    // 计算单次补偿增量
     double rawPityGain = minPity + (maxPityOffset / (1.0 + Math.pow(level / 50.0, 2)));
-
-    // 计算当前总概率并应用范围限制 [0, 100]
     double totalProb = Math.clamp(rawBase + (breakthroughFailCount * rawPityGain), 0.0, 100.0);
-
-    // 舍入到两位小数
     return BigDecimal.valueOf(totalProb).setScale(2, RoundingMode.HALF_UP).doubleValue();
   }
 
@@ -204,5 +196,12 @@ public class User extends Model<User> {
   public void setDying() {
     this.status = UserStatus.DYING;
     this.hpCurrent = 1;
+  }
+
+  /** 清除活动状态，回到空闲 */
+  public void clearActivity() {
+    this.activityType = null;
+    this.activityStartTime = null;
+    this.activityTargetId = null;
   }
 }

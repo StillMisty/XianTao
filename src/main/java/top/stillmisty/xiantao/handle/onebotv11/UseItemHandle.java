@@ -10,16 +10,16 @@ import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.command.UseItemCommandHandler;
+import top.stillmisty.xiantao.service.NotificationAppender;
 
-/** 统一使用物品监听器 支持：使用 [物品名]、使用 [物品名] [参数] */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class UseItemHandle {
 
   private final UseItemCommandHandler useItemCommandHandler;
+  private final NotificationAppender notificationAppender;
 
-  /** 处理使用物品命令（带参数） 格式：使用 [物品名] [参数] 示例：使用 进化石 1 */
   @Listener
   @ContentTrim
   @Filter("使用 {{itemName}} {{args}}")
@@ -32,10 +32,9 @@ public class UseItemHandle {
     String response =
         useItemCommandHandler.handleUseItem(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), itemName, args);
-    event.replyBlocking(response);
+    sendWithNotifications(event, response);
   }
 
-  /** 处理使用物品命令（无参数） 格式：使用 [物品名] 示例：使用 天元丹 */
   @Listener
   @ContentTrim
   @Filter("使用 {{itemName}}")
@@ -44,6 +43,14 @@ public class UseItemHandle {
     String response =
         useItemCommandHandler.handleUseItem(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), itemName, null);
-    event.replyBlocking(response);
+    sendWithNotifications(event, response);
+  }
+
+  private void sendWithNotifications(MessageEvent event, String response) {
+    var result =
+        notificationAppender.prepareAppend(
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), response);
+    event.replyBlocking(result.text());
+    notificationAppender.markDelivered(result.eventIds());
   }
 }

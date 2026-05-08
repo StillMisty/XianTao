@@ -11,10 +11,10 @@ public enum UserStatus {
   IDLE("IDLE", "空闲"),
 
   /** 历练 */
-  EXERCISING("EXERCISING", "历练"),
+  TRAINING("TRAINING", "历练"),
 
   /** 赶路 */
-  RUNNING("RUNNING", "赶路"),
+  TRAVELING("TRAVELING", "赶路"),
 
   /** 悬赏 */
   BOUNTY("BOUNTY", "悬赏"),

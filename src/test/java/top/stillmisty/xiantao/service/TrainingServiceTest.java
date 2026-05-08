@@ -23,22 +23,20 @@ class TrainingServiceTest {
 
   private final Long userId = 1L;
 
-  private User createUser(UserStatus status, LocalDateTime trainingStartTime) {
+  private User createUser(UserStatus status, LocalDateTime activityStartTime) {
     return User.create()
         .setId(userId)
         .setStatus(status)
         .setLocationId(10L)
-        .setTrainingStartTime(trainingStartTime)
+        .setActivityStartTime(activityStartTime)
         .setHpCurrent(100)
         .setLevel(1);
   }
 
-  // ===================== endTraining 状态恢复 =====================
-
   @Test
-  @DisplayName("endTraining — trainingStartTime 为空时恢复 IDLE")
+  @DisplayName("endTraining — activityStartTime 为空时恢复 IDLE")
   void endTraining_whenNoTrainingStartTime_shouldRestoreIdle() {
-    User user = createUser(UserStatus.EXERCISING, null);
+    User user = createUser(UserStatus.TRAINING, null);
     when(userStateService.loadUser(userId)).thenReturn(user);
 
     trainingService.endTraining(userId);
@@ -50,31 +48,29 @@ class TrainingServiceTest {
   @Test
   @DisplayName("endTraining — 时间不足 5 分钟时恢复 IDLE")
   void endTraining_whenLessThan5Minutes_shouldRestoreIdle() {
-    User user = createUser(UserStatus.EXERCISING, LocalDateTime.now());
+    User user = createUser(UserStatus.TRAINING, LocalDateTime.now());
     when(userStateService.loadUser(userId)).thenReturn(user);
 
     trainingService.endTraining(userId);
 
     assertEquals(UserStatus.IDLE, user.getStatus());
-    assertNull(user.getTrainingStartTime());
+    assertNull(user.getActivityStartTime());
     verify(userStateService).save(user);
   }
 
   @Test
-  @DisplayName("endTraining — 非 EXERCISING 状态抛异常")
-  void endTraining_whenNotExercising_shouldThrow() {
+  @DisplayName("endTraining — 非 TRAINING 状态抛异常")
+  void endTraining_whenNotTraining_shouldThrow() {
     User user = createUser(UserStatus.IDLE, LocalDateTime.now().minusMinutes(10));
     when(userStateService.loadUser(userId)).thenReturn(user);
 
     assertThrows(IllegalStateException.class, () -> trainingService.endTraining(userId));
   }
 
-  // ===================== startTraining 状态检查 =====================
-
   @Test
   @DisplayName("startTraining — 非 IDLE 状态抛异常")
   void startTraining_whenNotIdle_shouldThrow() {
-    User user = createUser(UserStatus.EXERCISING, null);
+    User user = createUser(UserStatus.TRAINING, null);
     when(userStateService.loadUser(userId)).thenReturn(user);
 
     assertThrows(IllegalStateException.class, () -> trainingService.startTraining(userId));

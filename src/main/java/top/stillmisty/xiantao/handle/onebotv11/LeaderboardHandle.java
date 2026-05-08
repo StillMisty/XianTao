@@ -9,6 +9,7 @@ import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.command.LeaderboardCommandHandler;
+import top.stillmisty.xiantao.service.NotificationAppender;
 
 @Slf4j
 @Component
@@ -16,6 +17,7 @@ import top.stillmisty.xiantao.handle.command.LeaderboardCommandHandler;
 public class LeaderboardHandle {
 
   private final LeaderboardCommandHandler leaderboardCommandHandler;
+  private final NotificationAppender notificationAppender;
 
   @Listener
   @ContentTrim
@@ -25,7 +27,7 @@ public class LeaderboardHandle {
     String response =
         leaderboardCommandHandler.handleLevelLeaderboard(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
-    event.replyBlocking(response);
+    sendWithNotifications(event, response);
   }
 
   @Listener
@@ -36,6 +38,14 @@ public class LeaderboardHandle {
     String response =
         leaderboardCommandHandler.handleSpiritStoneLeaderboard(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
-    event.replyBlocking(response);
+    sendWithNotifications(event, response);
+  }
+
+  private void sendWithNotifications(MessageEvent event, String response) {
+    var result =
+        notificationAppender.prepareAppend(
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), response);
+    event.replyBlocking(result.text());
+    notificationAppender.markDelivered(result.eventIds());
   }
 }

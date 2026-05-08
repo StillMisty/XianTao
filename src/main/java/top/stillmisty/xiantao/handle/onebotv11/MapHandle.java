@@ -10,6 +10,7 @@ import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.command.MapCommandHandler;
+import top.stillmisty.xiantao.service.NotificationAppender;
 
 @Slf4j
 @Component
@@ -17,6 +18,7 @@ import top.stillmisty.xiantao.handle.command.MapCommandHandler;
 public class MapHandle {
 
   private final MapCommandHandler mapCommandHandler;
+  private final NotificationAppender notificationAppender;
 
   @Listener
   @ContentTrim
@@ -25,7 +27,7 @@ public class MapHandle {
     String response =
         mapCommandHandler.handleCurrentMap(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
-    event.replyBlocking(response);
+    sendWithNotifications(event, response);
   }
 
   @Listener
@@ -34,7 +36,7 @@ public class MapHandle {
   public void mapList(MessageEvent event) {
     String response =
         mapCommandHandler.handleMapList(PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
-    event.replyBlocking(response);
+    sendWithNotifications(event, response);
   }
 
   @Listener
@@ -44,7 +46,7 @@ public class MapHandle {
     String response =
         mapCommandHandler.handleGoTo(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), mapName);
-    event.replyBlocking(response);
+    sendWithNotifications(event, response);
   }
 
   @Listener
@@ -53,7 +55,7 @@ public class MapHandle {
   public void training(MessageEvent event) {
     String response =
         mapCommandHandler.handleTraining(PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
-    event.replyBlocking(response);
+    sendWithNotifications(event, response);
   }
 
   @Listener
@@ -63,10 +65,8 @@ public class MapHandle {
     String response =
         mapCommandHandler.handleEndTraining(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
-    event.replyBlocking(response);
+    sendWithNotifications(event, response);
   }
-
-  // ===================== 悬赏命令 =====================
 
   @Listener
   @ContentTrim
@@ -75,7 +75,7 @@ public class MapHandle {
     String response =
         mapCommandHandler.handleBountyList(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
-    event.replyBlocking(response);
+    sendWithNotifications(event, response);
   }
 
   @Listener
@@ -85,7 +85,7 @@ public class MapHandle {
     String response =
         mapCommandHandler.handleBountyStatus(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
-    event.replyBlocking(response);
+    sendWithNotifications(event, response);
   }
 
   @Listener
@@ -95,7 +95,7 @@ public class MapHandle {
     String response =
         mapCommandHandler.handleStartBounty(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), bountyId);
-    event.replyBlocking(response);
+    sendWithNotifications(event, response);
   }
 
   @Listener
@@ -105,7 +105,7 @@ public class MapHandle {
     String response =
         mapCommandHandler.handleCompleteBounty(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
-    event.replyBlocking(response);
+    sendWithNotifications(event, response);
   }
 
   @Listener
@@ -115,6 +115,14 @@ public class MapHandle {
     String response =
         mapCommandHandler.handleAbandonBounty(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
-    event.replyBlocking(response);
+    sendWithNotifications(event, response);
+  }
+
+  private void sendWithNotifications(MessageEvent event, String response) {
+    var result =
+        notificationAppender.prepareAppend(
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), response);
+    event.replyBlocking(result.text());
+    notificationAppender.markDelivered(result.eventIds());
   }
 }

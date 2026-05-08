@@ -17,10 +17,10 @@ import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
-import top.stillmisty.xiantao.domain.map.enums.TravelEventType;
 import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
+import top.stillmisty.xiantao.service.activity.BountyCompleter;
 import top.stillmisty.xiantao.service.ai.ExplorationDescriptionFunction;
 
 @Service
@@ -35,6 +35,7 @@ public class BountyCombatService {
   private final ExplorationDescriptionFunction explorationDescriptionFunction;
   private final StackableItemService stackableItemService;
   private final EquipmentService equipmentService;
+  private final BountyCompleter bountyCompleter;
 
   @Transactional
   public BountyRewardVO completeBounty(Long userId) {
@@ -68,21 +69,33 @@ public class BountyCombatService {
     List<BountyRewardItem> items = filterNonCurrencyRewards(rewardItems);
 
     addRewardsToInventory(userId, items);
-    if (stats.spiritStones > 0) {
-      user.setSpiritStones(user.getSpiritStones() + stats.spiritStones);
+
+    // Apply bounty side modifier (子事件调节主奖励)
+    long finalSpiritStones =
+        bountyCompleter.applySideModifier(
+            userId, record.getBountyId(), record.getBountyName(), items, stats.spiritStones);
+
+    if (finalSpiritStones > 0) {
+      user.setSpiritStones(user.getSpiritStones() + finalSpiritStones);
     }
 
-    String eventDescription = resolveEvent(user, mapNode);
+    // Bounty completion event
+    bountyCompleter.produceCompletionEvent(
+        userId, record.getBountyName(), items, finalSpiritStones);
+
+    // Check hidden events
+    bountyCompleter.checkHiddenEvents(userId, record);
+
     String rewardDescription =
-        buildRewardDescription(stats.spiritStones, items, stats.hasBeastEgg, stats.hasEquipment);
+        buildRewardDescription(finalSpiritStones, items, stats.hasBeastEgg, stats.hasEquipment);
     String beautified =
-        beautifyBountyCompletion(
-            mapNode, record.getBountyName(), rewardDescription, eventDescription, items);
+        beautifyBountyCompletion(mapNode, record.getBountyName(), rewardDescription, null, items);
 
     record.setStatus(BountyStatus.COMPLETED);
     userBountyRepository.save(record);
 
     user.setStatus(UserStatus.IDLE);
+    user.clearActivity();
     userStateService.save(user);
 
     log.info(
@@ -91,7 +104,7 @@ public class BountyCombatService {
         record.getBountyName(),
         minutesElapsed,
         items.size(),
-        stats.spiritStones);
+        finalSpiritStones);
 
     return new BountyRewardVO(
         userId,
@@ -100,9 +113,9 @@ public class BountyCombatService {
         mapNode.getName(),
         minutesElapsed,
         beautified != null ? beautified : rewardDescription,
-        eventDescription,
+        null,
         items,
-        stats.spiritStones,
+        finalSpiritStones,
         stats.hasBeastEgg,
         stats.hasEquipment);
   }
@@ -210,37 +223,6 @@ public class BountyCombatService {
       sb.append("获得装备。");
     }
     return sb.toString();
-  }
-
-  private String resolveEvent(User user, MapNode mapNode) {
-    if (mapNode.getTravelEvents() == null || mapNode.getTravelEvents().isEmpty()) return null;
-
-    int d20Roll = (int) (Math.random() * 20) + 1;
-    if (d20Roll > 10) return null;
-
-    TravelEventType eventType = TravelEventType.randomEvent(mapNode.getTravelEvents());
-    if (eventType == TravelEventType.SAFE_PASSAGE) return null;
-
-    String description = processEvent(user, eventType);
-    log.info("用户 {} 悬赏途中触发事件: {}", user.getId(), description);
-    return description;
-  }
-
-  private String processEvent(User user, TravelEventType eventType) {
-    return switch (eventType) {
-      case AMBUSH -> {
-        int damage = 10 + (int) (Math.random() * 20);
-        user.takeDamage(damage);
-        yield String.format("途中遭遇敌人袭击，受到 %d 点伤害（剩余 HP: %d）", damage, user.getHpCurrent());
-      }
-      case FIND_TREASURE -> {
-        long reward = 5 + (long) (Math.random() * 15);
-        user.setSpiritStones(user.getSpiritStones() + reward);
-        yield String.format("途中发现了一个隐藏宝箱，获得 %d 灵石", reward);
-      }
-      case WEATHER -> "遭遇毒雾天气，艰难穿过才得以继续前行";
-      case SAFE_PASSAGE -> null;
-    };
   }
 
   private String beautifyBountyCompletion(

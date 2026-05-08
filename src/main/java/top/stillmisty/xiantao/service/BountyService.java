@@ -19,6 +19,7 @@ import top.stillmisty.xiantao.domain.bounty.repository.UserBountyRepository;
 import top.stillmisty.xiantao.domain.bounty.vo.BountyRewardVO;
 import top.stillmisty.xiantao.domain.bounty.vo.BountyStatusVO;
 import top.stillmisty.xiantao.domain.bounty.vo.BountyVO;
+import top.stillmisty.xiantao.domain.event.enums.ActivityType;
 import top.stillmisty.xiantao.domain.item.entity.EquipmentTemplate;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
@@ -46,8 +47,6 @@ public class BountyService {
   private final ItemTemplateRepository itemTemplateRepository;
   private final EquipmentTemplateRepository equipmentTemplateRepository;
   private final BountyCombatService bountyCombatService;
-
-  // ===================== 公开 API（含认证） =====================
 
   @Authenticated
   public ServiceResult<List<BountyVO>> listBounties(PlatformType platform, String openId) {
@@ -152,7 +151,6 @@ public class BountyService {
       throw new IllegalArgumentException("等级不足，无法接取该悬赏");
     }
 
-    // 种子随机预确定奖励物品（userId + 当日日期为种子）
     long seed = userId * 31 + LocalDate.now().toEpochDay();
     Random rng = new Random(seed);
     List<BountyRewardItem> predeterminedRewards = determineRewards(bounty, mapNode, rng);
@@ -165,9 +163,13 @@ public class BountyService {
     record.setDurationMinutes(bounty.getDurationMinutes());
     record.setRewards(predeterminedRewards);
     record.setStatus(BountyStatus.ACTIVE);
+    record.setHiddenClues(Map.of()); // hidden clues checked at start
     userBountyRepository.save(record);
 
     user.setStatus(UserStatus.BOUNTY);
+    user.setActivityType(ActivityType.BOUNTY);
+    user.setActivityStartTime(LocalDateTime.now());
+    user.setActivityTargetId(record.getId());
     userStateService.save(user);
 
     log.info(
@@ -201,6 +203,7 @@ public class BountyService {
     userBountyRepository.save(record);
 
     user.setStatus(UserStatus.IDLE);
+    user.clearActivity();
     userStateService.save(user);
 
     log.info("用户 {} 放弃悬赏: {}", userId, record.getBountyName());
@@ -209,7 +212,6 @@ public class BountyService {
 
   // ===================== 奖励预计算 =====================
 
-  /** 接取时预确定奖励（种子随机） */
   private List<BountyRewardItem> determineRewards(Bounty bounty, MapNode mapNode, Random rng) {
     List<BountyRewardPool> pool = bounty.getRewards();
     if (pool.isEmpty()) return List.of();
@@ -250,13 +252,9 @@ public class BountyService {
     var specialties = mapNode.getSpecialties();
     if (specialties == null || specialties.isEmpty()) return List.of();
 
-    // Batch lookup item templates
     Map<Long, ItemTemplate> templateMap =
         itemTemplateRepository
-            .findByIds(
-                specialties.stream()
-                    .map(top.stillmisty.xiantao.domain.map.entity.SpecialtyEntry::templateId)
-                    .toList())
+            .findByIds(specialties.stream().map(SpecialtyEntry::templateId).toList())
             .stream()
             .collect(Collectors.toMap(ItemTemplate::getId, t -> t));
 

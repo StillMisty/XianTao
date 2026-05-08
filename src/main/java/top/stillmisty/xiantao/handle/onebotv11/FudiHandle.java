@@ -10,14 +10,15 @@ import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.command.FudiCommandHandler;
+import top.stillmisty.xiantao.service.NotificationAppender;
 
-/** 福地系统监听器 */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class FudiHandle {
 
   private final FudiCommandHandler fudiCommandHandler;
+  private final NotificationAppender notificationAppender;
 
   @Listener
   @ContentTrim
@@ -27,7 +28,7 @@ public class FudiHandle {
     String response =
         fudiCommandHandler.handleFudiStatus(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
-    event.replyBlocking(response);
+    sendWithNotifications(event, response);
   }
 
   @Listener
@@ -37,7 +38,7 @@ public class FudiHandle {
     log.debug("收到福地地块请求 - AuthorId: {}", event.getAuthorId());
     String response =
         fudiCommandHandler.handleFudiGrid(PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
-    event.replyBlocking(response);
+    sendWithNotifications(event, response);
   }
 
   @Listener
@@ -48,7 +49,7 @@ public class FudiHandle {
     String response =
         fudiCommandHandler.handleSpiritChat(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), content);
-    event.replyBlocking(response);
+    sendWithNotifications(event, response);
   }
 
   @Listener
@@ -66,7 +67,7 @@ public class FudiHandle {
     String response =
         fudiCommandHandler.handlePlant(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), position, cropName);
-    event.replyBlocking(response);
+    sendWithNotifications(event, response);
   }
 
   @Listener
@@ -77,7 +78,7 @@ public class FudiHandle {
     String response =
         fudiCommandHandler.handleCollect(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), position);
-    event.replyBlocking(response);
+    sendWithNotifications(event, response);
   }
 
   @Listener
@@ -95,7 +96,7 @@ public class FudiHandle {
     String response =
         fudiCommandHandler.handleBuild(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), position, cellType);
-    event.replyBlocking(response);
+    sendWithNotifications(event, response);
   }
 
   @Listener
@@ -106,7 +107,7 @@ public class FudiHandle {
     String response =
         fudiCommandHandler.handleRemove(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), position);
-    event.replyBlocking(response);
+    sendWithNotifications(event, response);
   }
 
   @Listener
@@ -117,7 +118,7 @@ public class FudiHandle {
     String response =
         fudiCommandHandler.handleUpgradeCell(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), position);
-    event.replyBlocking(response);
+    sendWithNotifications(event, response);
   }
 
   @Listener
@@ -132,7 +133,7 @@ public class FudiHandle {
     String response =
         fudiCommandHandler.handleHatch(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), position, eggName);
-    event.replyBlocking(response);
+    sendWithNotifications(event, response);
   }
 
   @Listener
@@ -143,7 +144,7 @@ public class FudiHandle {
     String response =
         fudiCommandHandler.handleRelease(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), position);
-    event.replyBlocking(response);
+    sendWithNotifications(event, response);
   }
 
   @Listener
@@ -157,7 +158,7 @@ public class FudiHandle {
     String response =
         fudiCommandHandler.handleEvolve(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), position, mode);
-    event.replyBlocking(response);
+    sendWithNotifications(event, response);
   }
 
   @Listener
@@ -168,6 +169,14 @@ public class FudiHandle {
     String response =
         fudiCommandHandler.handleGiveGift(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), itemName);
-    event.replyBlocking(response);
+    sendWithNotifications(event, response);
+  }
+
+  private void sendWithNotifications(MessageEvent event, String response) {
+    var result =
+        notificationAppender.prepareAppend(
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), response);
+    event.replyBlocking(result.text());
+    notificationAppender.markDelivered(result.eventIds());
   }
 }

@@ -181,7 +181,7 @@ public class CultivationCommandHandler implements CommandGroup {
     }
 
     // 状态：赶路时显示优化信息，其余显示普通状态名
-    if (status.status() == UserStatus.RUNNING && status.travelDestinationName() != null) {
+    if (status.status() == UserStatus.TRAVELING && status.travelDestinationName() != null) {
       sb.append(
           String.format(
               "状态：赶路中 (%s → %s)\n", status.locationName(), status.travelDestinationName()));

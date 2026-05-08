@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import top.stillmisty.xiantao.domain.event.enums.ActivityType;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
 import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
 import top.stillmisty.xiantao.domain.map.vo.TravelResultVO;
@@ -22,8 +23,6 @@ public class TravelService {
   private final UserStateService userStateService;
   private final MapNodeRepository mapNodeRepository;
 
-  // ===================== 公开 API =====================
-
   @Authenticated
   @Transactional
   public ServiceResult<TravelResultVO> startTravel(
@@ -31,8 +30,6 @@ public class TravelService {
     Long userId = UserContext.getCurrentUserId();
     return new ServiceResult.Success<>(startTravel(userId, mapName));
   }
-
-  // ===================== 内部 API =====================
 
   @Transactional
   public TravelResultVO startTravel(Long userId, String mapName) {
@@ -70,9 +67,10 @@ public class TravelService {
 
     Integer travelTime = currentMap.getTravelTimeTo(targetMap.getId());
 
-    user.setStatus(UserStatus.RUNNING);
-    user.setTravelStartTime(LocalDateTime.now());
-    user.setTravelDestinationId(targetMap.getId());
+    user.setStatus(UserStatus.TRAVELING);
+    user.setActivityType(ActivityType.TRAVEL);
+    user.setActivityStartTime(LocalDateTime.now());
+    user.setActivityTargetId(targetMap.getId());
     userStateService.save(user);
 
     LocalDateTime estimatedArrival = LocalDateTime.now().plusMinutes(travelTime);

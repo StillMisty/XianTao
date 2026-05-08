@@ -183,7 +183,7 @@ public class TrainingCombatLogic {
         ctx.user.addExp(ctx.expGained);
       }
       ctx.user.setDying();
-      ctx.user.setTrainingStartTime(null);
+      ctx.user.clearActivity();
       userStateService.save(ctx.user);
       saveBeastCache(ctx.beastCache);
       return true;

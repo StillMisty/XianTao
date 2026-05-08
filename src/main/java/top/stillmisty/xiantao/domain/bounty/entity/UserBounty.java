@@ -6,11 +6,13 @@ import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import top.stillmisty.xiantao.domain.bounty.BountyRewardItem;
 import top.stillmisty.xiantao.domain.bounty.enums.BountyStatus;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.BountyRewardListTypeHandler;
+import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
 
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -33,6 +35,10 @@ public class UserBounty {
 
   @Column(typeHandler = BountyRewardListTypeHandler.class)
   private List<BountyRewardItem> rewards;
+
+  /** 隐藏事件线索 JSONB {code: "FIRE_LING_MINE", hint_key: "bounty.hidden.fire_ling_mine"} */
+  @Column(typeHandler = JsonbTypeHandler.class)
+  private Map<String, Object> hiddenClues;
 
   private BountyStatus status;
 

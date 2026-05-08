@@ -8,6 +8,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import top.stillmisty.xiantao.domain.event.enums.ActivityType;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
 import top.stillmisty.xiantao.domain.item.vo.CharacterStatusResult;
@@ -189,14 +190,16 @@ public class CharacterStatusService {
     Long travelMinutesElapsed = null;
     Long travelMinutesRemaining = null;
 
-    if (user.getStatus() == UserStatus.RUNNING && user.getTravelDestinationId() != null) {
-      travelDestinationId = user.getTravelDestinationId();
-      travelDestinationName = mapService.getMapName(user.getTravelDestinationId());
-      travelStartTime = user.getTravelStartTime();
+    if (user.getStatus() == UserStatus.TRAVELING
+        && user.getActivityType() == ActivityType.TRAVEL
+        && user.getActivityTargetId() != null) {
+      travelDestinationId = user.getActivityTargetId();
+      travelDestinationName = mapService.getMapName(user.getActivityTargetId());
+      travelStartTime = user.getActivityStartTime();
 
       var currentMap = mapNodeRepository.findById(user.getLocationId());
       if (currentMap.isPresent()) {
-        travelTimeMinutes = currentMap.get().getTravelTimeTo(user.getTravelDestinationId());
+        travelTimeMinutes = currentMap.get().getTravelTimeTo(user.getActivityTargetId());
       }
 
       if (travelStartTime != null) {

@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import top.stillmisty.xiantao.domain.event.enums.ActivityType;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
@@ -24,6 +25,7 @@ import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.util.TypeUtils;
 import top.stillmisty.xiantao.infrastructure.util.WeightedRandom;
+import top.stillmisty.xiantao.service.activity.TrainingCompleter;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
 
 @Slf4j
@@ -37,6 +39,7 @@ public class TrainingService {
   private final ItemTemplateRepository itemTemplateRepository;
   private final StackableItemService stackableItemService;
   private final TrainingCombatLogic trainingCombatLogic;
+  private final TrainingCompleter trainingCompleter;
 
   @Authenticated
   @Transactional
@@ -82,8 +85,10 @@ public class TrainingService {
 
     String mapName = mapNode.getName();
 
-    user.setTrainingStartTime(LocalDateTime.now());
-    user.setStatus(UserStatus.EXERCISING);
+    user.setActivityType(ActivityType.TRAINING);
+    user.setActivityStartTime(LocalDateTime.now());
+    user.setActivityTargetId(mapNode.getId());
+    user.setStatus(UserStatus.TRAINING);
     userStateService.save(user);
 
     log.info("用户 {} 开始在 {} 历练", userId, mapName);
@@ -94,7 +99,7 @@ public class TrainingService {
   public TrainingRewardVO endTraining(Long userId) {
     User user = userStateService.loadUser(userId);
 
-    if (user.getStatus() != UserStatus.EXERCISING && user.getStatus() != UserStatus.DYING) {
+    if (user.getStatus() != UserStatus.TRAINING && user.getStatus() != UserStatus.DYING) {
       throw new IllegalStateException(
           "您当前处于 " + user.getStatus().getName() + " 状态，无法结束历练（需要 历练 状态）");
     }
@@ -103,7 +108,7 @@ public class TrainingService {
     if (earlyResult != null) return earlyResult;
 
     long minutesTraining =
-        Duration.between(user.getTrainingStartTime(), LocalDateTime.now()).toMinutes();
+        Duration.between(user.getActivityStartTime(), LocalDateTime.now()).toMinutes();
     MapNode mapNode = mapNodeRepository.findById(user.getLocationId()).orElseThrow();
 
     return processNormalTrainingEnd(userId, user, minutesTraining, mapNode);
@@ -118,8 +123,9 @@ public class TrainingService {
           .build();
     }
 
-    if (user.getTrainingStartTime() == null) {
+    if (user.getActivityStartTime() == null) {
       user.setStatus(UserStatus.IDLE);
+      user.clearActivity();
       userStateService.save(user);
       return TrainingRewardVO.builder()
           .userId(userId)
@@ -129,10 +135,10 @@ public class TrainingService {
     }
 
     long minutesTraining =
-        Duration.between(user.getTrainingStartTime(), LocalDateTime.now()).toMinutes();
+        Duration.between(user.getActivityStartTime(), LocalDateTime.now()).toMinutes();
     if (minutesTraining <= 5) {
       user.setStatus(UserStatus.IDLE);
-      user.setTrainingStartTime(null);
+      user.clearActivity();
       userStateService.save(user);
       return TrainingRewardVO.builder()
           .userId(userId)
@@ -143,7 +149,7 @@ public class TrainingService {
 
     if (mapNodeRepository.findById(user.getLocationId()).isEmpty()) {
       user.setStatus(UserStatus.IDLE);
-      user.setTrainingStartTime(null);
+      user.clearActivity();
       userStateService.save(user);
       return TrainingRewardVO.builder().userId(userId).summary("当前地图不存在").build();
     }
@@ -177,8 +183,19 @@ public class TrainingService {
 
     if (!diedInTraining) {
       user.setStatus(UserStatus.IDLE);
+      user.clearActivity();
+
+      // 历练结算事件
+      trainingCompleter.produceCompletionEvent(userId, user, mapNode, minutesTraining);
+      // 历练子事件
+      trainingCompleter.rollSubEvents(userId, user, mapNode, minutesTraining);
+      // 历练隐藏事件
+      trainingCompleter.checkHiddenEvents(userId, user, mapNode);
+    } else {
+      user.clearActivity();
+      // 历练中断事件
+      trainingCompleter.produceInterruptedEvent(userId, mapNode);
     }
-    user.setTrainingStartTime(null);
     userStateService.save(user);
 
     String summary =
@@ -227,17 +244,13 @@ public class TrainingService {
     return summary.toString();
   }
 
-  // ===================== 基础历练收益 =====================
-
   private double calculateEfficiencyMultiplier(int agility) {
     return 1.0 + (agility * 0.01);
   }
 
   private double calculateLevelDecayMultiplier(int playerLevel, int mapLevel) {
     int levelDiff = playerLevel - mapLevel - 15;
-    if (levelDiff <= 0) {
-      return 1.0;
-    }
+    if (levelDiff <= 0) return 1.0;
     double decay = levelDiff * 0.04;
     return Math.max(0.1, 1.0 - decay);
   }
@@ -250,10 +263,7 @@ public class TrainingService {
 
     Map<Long, ItemTemplate> templateMap =
         itemTemplateRepository
-            .findByIds(
-                specialties.stream()
-                    .map(top.stillmisty.xiantao.domain.map.entity.SpecialtyEntry::templateId)
-                    .toList())
+            .findByIds(specialties.stream().map(SpecialtyEntry::templateId).toList())
             .stream()
             .collect(Collectors.toMap(ItemTemplate::getId, t -> t));
 

@@ -102,7 +102,7 @@ class AuthenticationServiceTest {
     userAuth.setUserId(userId);
     when(userAuthService.findUserIdByOpenId(platform, openId)).thenReturn(Optional.of(userAuth));
 
-    User user = User.create().setId(userId).setStatus(UserStatus.EXERCISING);
+    User user = User.create().setId(userId).setStatus(UserStatus.TRAINING);
     when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
     ServiceResult<Long> result =

@@ -10,16 +10,16 @@ import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.command.BeastCommandHandler;
+import top.stillmisty.xiantao.service.NotificationAppender;
 
-/** 灵兽系统监听器 处理灵兽出战、召回、恢复、进化、放生等命令 */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class BeastHandle {
 
   private final BeastCommandHandler beastCommandHandler;
+  private final NotificationAppender notificationAppender;
 
-  /** 处理灵兽出战命令 格式：灵兽出战 [编号] 示例：灵兽出战 1 */
   @Listener
   @ContentTrim
   @Filter("灵兽出战 {{position}}")
@@ -28,10 +28,9 @@ public class BeastHandle {
     String response =
         beastCommandHandler.handleDeployBeast(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), position);
-    event.replyBlocking(response);
+    sendWithNotifications(event, response);
   }
 
-  /** 处理灵兽召回命令 格式：灵兽召回 [编号/all] 示例：灵兽召回 1 或 灵兽召回 all */
   @Listener
   @ContentTrim
   @Filter("灵兽召回 {{position}}")
@@ -40,10 +39,9 @@ public class BeastHandle {
     String response =
         beastCommandHandler.handleUndeployBeast(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), position);
-    event.replyBlocking(response);
+    sendWithNotifications(event, response);
   }
 
-  /** 处理灵兽恢复命令 格式：灵兽恢复 [编号/all] 示例：灵兽恢复 1 或 灵兽恢复 all */
   @Listener
   @ContentTrim
   @Filter("灵兽恢复 {{position}}")
@@ -52,10 +50,9 @@ public class BeastHandle {
     String response =
         beastCommandHandler.handleRecoverBeast(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), position);
-    event.replyBlocking(response);
+    sendWithNotifications(event, response);
   }
 
-  /** 处理灵兽进化命令 格式：灵兽进化 [编号] [升阶/升品] 示例：灵兽进化 1 升阶 或 灵兽进化 1 升品 */
   @Listener
   @ContentTrim
   @Filter("灵兽进化 {{position}} {{mode}}")
@@ -68,10 +65,9 @@ public class BeastHandle {
     String response =
         beastCommandHandler.handleEvolveBeast(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), position, mode);
-    event.replyBlocking(response);
+    sendWithNotifications(event, response);
   }
 
-  /** 处理灵兽放生命令 格式：灵兽放生 [编号] 示例：灵兽放生 1 */
   @Listener
   @ContentTrim
   @Filter("灵兽放生 {{position}}")
@@ -80,10 +76,9 @@ public class BeastHandle {
     String response =
         beastCommandHandler.handleReleaseBeast(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), position);
-    event.replyBlocking(response);
+    sendWithNotifications(event, response);
   }
 
-  /** 处理查看出战灵兽命令 格式：出战灵兽 */
   @Listener
   @ContentTrim
   @Filter("出战灵兽")
@@ -92,6 +87,14 @@ public class BeastHandle {
     String response =
         beastCommandHandler.handleGetDeployedBeasts(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
-    event.replyBlocking(response);
+    sendWithNotifications(event, response);
+  }
+
+  private void sendWithNotifications(MessageEvent event, String response) {
+    var result =
+        notificationAppender.prepareAppend(
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), response);
+    event.replyBlocking(result.text());
+    notificationAppender.markDelivered(result.eventIds());
   }
 }

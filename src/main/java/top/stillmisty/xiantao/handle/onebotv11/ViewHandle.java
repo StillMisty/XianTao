@@ -10,14 +10,15 @@ import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.command.CultivationCommandHandler;
+import top.stillmisty.xiantao.service.NotificationAppender;
 
-/** 查看系统监听器 处理查看玩家信息命令 */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class ViewHandle {
 
   private final CultivationCommandHandler commandHandler;
+  private final NotificationAppender notificationAppender;
 
   @Listener
   @ContentTrim
@@ -27,6 +28,14 @@ public class ViewHandle {
     String response =
         commandHandler.handleViewPlayer(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), targetNickname);
-    event.replyBlocking(response);
+    sendWithNotifications(event, response);
+  }
+
+  private void sendWithNotifications(MessageEvent event, String response) {
+    var result =
+        notificationAppender.prepareAppend(
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), response);
+    event.replyBlocking(result.text());
+    notificationAppender.markDelivered(result.eventIds());
   }
 }
