@@ -74,9 +74,16 @@ class PillRefiningServiceTest {
     recipeTemplate.setType(ItemType.RECIPE_SCROLL);
     recipeTemplate.setProperties(
         Map.of(
-            "grade", 0,
-            "product", Map.of("item_id", 100L, "quantity", 1),
-            "requirements", List.of(Map.of("element", "FIRE", "min", 3, "max", 6))));
+            "recipe",
+            Map.of(
+                "grade",
+                0,
+                "result_item_id",
+                100L,
+                "result_quantity",
+                1,
+                "requirements",
+                Map.of("FIRE", Map.of("min", 3, "max", 6)))));
 
     when(playerPillRecipeRepository.findByUserId(userId)).thenReturn(List.of(recipe));
     when(itemTemplateRepository.findById(1L)).thenReturn(Optional.of(recipeTemplate));
@@ -100,12 +107,18 @@ class PillRefiningServiceTest {
     recipeTemplate.setType(ItemType.RECIPE_SCROLL);
     recipeTemplate.setProperties(
         Map.of(
-            "grade", 1,
-            "product", Map.of("item_id", 100L, "quantity", 1),
-            "requirements",
-                List.of(
-                    Map.of("element", "FIRE", "min", 3, "max", 6),
-                    Map.of("element", "WATER", "min", 2, "max", 4))));
+            "recipe",
+            Map.of(
+                "grade",
+                1,
+                "result_item_id",
+                100L,
+                "result_quantity",
+                1,
+                "requirements",
+                Map.of(
+                    "FIRE", Map.of("min", 3, "max", 6),
+                    "WATER", Map.of("min", 2, "max", 4)))));
 
     StackableItem herb = new StackableItem();
     herb.setId(1L);
@@ -161,9 +174,16 @@ class PillRefiningServiceTest {
     recipeTemplate.setType(ItemType.RECIPE_SCROLL);
     recipeTemplate.setProperties(
         Map.of(
-            "grade", 1,
-            "product", Map.of("item_id", 100L, "quantity", 1),
-            "requirements", List.of(Map.of("element", "FIRE", "min", 3, "max", 3))));
+            "recipe",
+            Map.of(
+                "grade",
+                1,
+                "result_item_id",
+                100L,
+                "result_quantity",
+                1,
+                "requirements",
+                Map.of("FIRE", Map.of("min", 3, "max", 3)))));
 
     StackableItem herb = new StackableItem();
     herb.setId(1L);

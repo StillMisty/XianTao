@@ -1,6 +1,4 @@
 -- 灵兽卵种子数据 (xt_item_template, type=BEAST_EGG)
--- production_items.template_id 通过子查询从 xt_item_template 获取
--- skill_pool.skill_id 通过子查询从 xt_skill 获取（需确保 V1.0.28 已运行）
 INSERT INTO xt_item_template (name, type, properties, tags, description)
 SELECT v.name, 'BEAST_EGG',
   jsonb_build_object(
@@ -12,8 +10,8 @@ SELECT v.name, 'BEAST_EGG',
 FROM (VALUES
   ('灵猫卵', 24,
     jsonb_build_array(
-      jsonb_build_object('weight', 70, 'template_id', (SELECT id FROM xt_item_template WHERE name='灵芝'), 'name', '灵芝'),
-      jsonb_build_object('weight', 30, 'template_id', (SELECT id FROM xt_item_template WHERE name='何首乌'), 'name', '何首乌')
+      jsonb_build_object('weight', 70, 'template_id', (SELECT id FROM xt_item_template WHERE name='灵芝')),
+      jsonb_build_object('weight', 30, 'template_id', (SELECT id FROM xt_item_template WHERE name='何首乌'))
     ),
     jsonb_build_object(
       'innate_skills', jsonb_build_array(
@@ -27,8 +25,8 @@ FROM (VALUES
     '一只黏人的灵猫，会找药草和在你打坐时蹭你。'),
   ('铁羽鹰卵', 48,
     jsonb_build_array(
-      jsonb_build_object('weight', 60, 'template_id', (SELECT id FROM xt_item_template WHERE name='妖兽皮'), 'name', '妖兽皮'),
-      jsonb_build_object('weight', 40, 'template_id', (SELECT id FROM xt_item_template WHERE name='兽骨'), 'name', '兽骨')
+      jsonb_build_object('weight', 60, 'template_id', (SELECT id FROM xt_item_template WHERE name='妖兽皮')),
+      jsonb_build_object('weight', 40, 'template_id', (SELECT id FROM xt_item_template WHERE name='兽骨'))
     ),
     jsonb_build_object(
       'innate_skills', jsonb_build_array(
@@ -42,8 +40,8 @@ FROM (VALUES
     '展翅三丈的铁羽鹰，不仅是战斗伙伴更是坐骑。'),
   ('雪狐卵', 36,
     jsonb_build_array(
-      jsonb_build_object('weight', 80, 'template_id', (SELECT id FROM xt_item_template WHERE name='雪莲'), 'name', '雪莲'),
-      jsonb_build_object('weight', 20, 'template_id', (SELECT id FROM xt_item_template WHERE name='冰魄花'), 'name', '冰魄花')
+      jsonb_build_object('weight', 80, 'template_id', (SELECT id FROM xt_item_template WHERE name='雪莲')),
+      jsonb_build_object('weight', 20, 'template_id', (SELECT id FROM xt_item_template WHERE name='冰魄花'))
     ),
     jsonb_build_object(
       'innate_skills', jsonb_build_array(
@@ -57,8 +55,8 @@ FROM (VALUES
     '浑身雪白的灵狐，喜欢在雪地里打滚，产出寒属性药材。'),
   ('火蟾卵', 36,
     jsonb_build_array(
-      jsonb_build_object('weight', 70, 'template_id', (SELECT id FROM xt_item_template WHERE name='地火芝'), 'name', '地火芝'),
-      jsonb_build_object('weight', 30, 'template_id', (SELECT id FROM xt_item_template WHERE name='太阳花'), 'name', '太阳花')
+      jsonb_build_object('weight', 70, 'template_id', (SELECT id FROM xt_item_template WHERE name='地火芝')),
+      jsonb_build_object('weight', 30, 'template_id', (SELECT id FROM xt_item_template WHERE name='太阳花'))
     ),
     jsonb_build_object(
       'innate_skills', jsonb_build_array(
@@ -72,8 +70,8 @@ FROM (VALUES
     '腹部火红的大蟾蜍，看似憨态可掬实则战力超群，专产火属性材料。'),
   ('青鸾卵', 72,
     jsonb_build_array(
-      jsonb_build_object('weight', 50, 'template_id', (SELECT id FROM xt_item_template WHERE name='凤羽'), 'name', '凤羽'),
-      jsonb_build_object('weight', 50, 'template_id', (SELECT id FROM xt_item_template WHERE name='天心兰'), 'name', '天心兰')
+      jsonb_build_object('weight', 50, 'template_id', (SELECT id FROM xt_item_template WHERE name='凤羽')),
+      jsonb_build_object('weight', 50, 'template_id', (SELECT id FROM xt_item_template WHERE name='天心兰'))
     ),
     jsonb_build_object(
       'innate_skills', jsonb_build_array(
@@ -88,8 +86,8 @@ FROM (VALUES
     '青色的凤凰后裔，优雅而高傲，凤凰血脉使其自带祥瑞之气。'),
   ('玄武龟卵', 96,
     jsonb_build_array(
-      jsonb_build_object('weight', 60, 'template_id', (SELECT id FROM xt_item_template WHERE name='龙鳞'), 'name', '龙鳞'),
-      jsonb_build_object('weight', 40, 'template_id', (SELECT id FROM xt_item_template WHERE name='玄晶'), 'name', '玄晶')
+      jsonb_build_object('weight', 60, 'template_id', (SELECT id FROM xt_item_template WHERE name='龙鳞')),
+      jsonb_build_object('weight', 40, 'template_id', (SELECT id FROM xt_item_template WHERE name='玄晶'))
     ),
     jsonb_build_object(
       'innate_skills', jsonb_build_array(
@@ -104,8 +102,8 @@ FROM (VALUES
     '背负龟蛇的玄武后裔，防御无双，据说万年之后可化作一方城池。'),
   ('乘黄卵', 72,
     jsonb_build_array(
-      jsonb_build_object('weight', 50, 'template_id', (SELECT id FROM xt_item_template WHERE name='龙血草'), 'name', '龙血草'),
-      jsonb_build_object('weight', 50, 'template_id', (SELECT id FROM xt_item_template WHERE name='九天仙草'), 'name', '九天仙草')
+      jsonb_build_object('weight', 50, 'template_id', (SELECT id FROM xt_item_template WHERE name='龙血草')),
+      jsonb_build_object('weight', 50, 'template_id', (SELECT id FROM xt_item_template WHERE name='九天仙草'))
     ),
     jsonb_build_object(
       'innate_skills', jsonb_build_array(
@@ -119,7 +117,7 @@ FROM (VALUES
     '《山海经》中的神兽，其状如狐，背生角，乘之寿二千。'),
   ('灵蚕卵', 12,
     jsonb_build_array(
-      jsonb_build_object('weight', 100, 'template_id', (SELECT id FROM xt_item_template WHERE name='灵蚕丝'), 'name', '灵蚕丝')
+      jsonb_build_object('weight', 100, 'template_id', (SELECT id FROM xt_item_template WHERE name='灵蚕丝'))
     ),
     jsonb_build_object(
       'innate_skills', jsonb_build_array(
@@ -133,9 +131,9 @@ FROM (VALUES
     '小小的灵蚕，不打架不惹事，安安静静吐丝就是它最大的贡献。'),
   ('夔牛卵', 120,
     jsonb_build_array(
-      jsonb_build_object('weight', 40, 'template_id', (SELECT id FROM xt_item_template WHERE name='魂玉碎片'), 'name', '魂玉碎片'),
-      jsonb_build_object('weight', 40, 'template_id', (SELECT id FROM xt_item_template WHERE name='龙鳞'), 'name', '龙鳞'),
-      jsonb_build_object('weight', 20, 'template_id', (SELECT id FROM xt_item_template WHERE name='混沌石'), 'name', '混沌石')
+      jsonb_build_object('weight', 40, 'template_id', (SELECT id FROM xt_item_template WHERE name='魂玉碎片')),
+      jsonb_build_object('weight', 40, 'template_id', (SELECT id FROM xt_item_template WHERE name='龙鳞')),
+      jsonb_build_object('weight', 20, 'template_id', (SELECT id FROM xt_item_template WHERE name='混沌石'))
     ),
     jsonb_build_object(
       'innate_skills', jsonb_build_array(
@@ -150,8 +148,8 @@ FROM (VALUES
     '上古异兽夔牛，状如牛、苍身无角、一足，出入水则必有风雨，其声如雷。'),
   ('玉兔卵', 24,
     jsonb_build_array(
-      jsonb_build_object('weight', 80, 'template_id', (SELECT id FROM xt_item_template WHERE name='灵芝孢子'), 'name', '灵芝孢子'),
-      jsonb_build_object('weight', 20, 'template_id', (SELECT id FROM xt_item_template WHERE name='天心兰种子'), 'name', '天心兰种子')
+      jsonb_build_object('weight', 80, 'template_id', (SELECT id FROM xt_item_template WHERE name='灵芝孢子')),
+      jsonb_build_object('weight', 20, 'template_id', (SELECT id FROM xt_item_template WHERE name='天心兰种子'))
     ),
     jsonb_build_object(
       'innate_skills', jsonb_build_array(
@@ -165,9 +163,9 @@ FROM (VALUES
     '月宫玉兔的凡间血脉，不仅可爱还能帮你打理灵田，但别让它偷吃你的灵药。'),
   ('穷奇卵', 168,
     jsonb_build_array(
-      jsonb_build_object('weight', 40, 'template_id', (SELECT id FROM xt_item_template WHERE name='白虎骨'), 'name', '白虎骨'),
-      jsonb_build_object('weight', 40, 'template_id', (SELECT id FROM xt_item_template WHERE name='先天庚金'), 'name', '先天庚金'),
-      jsonb_build_object('weight', 20, 'template_id', (SELECT id FROM xt_item_template WHERE name='混沌石'), 'name', '混沌石')
+      jsonb_build_object('weight', 40, 'template_id', (SELECT id FROM xt_item_template WHERE name='白虎骨')),
+      jsonb_build_object('weight', 40, 'template_id', (SELECT id FROM xt_item_template WHERE name='先天庚金')),
+      jsonb_build_object('weight', 20, 'template_id', (SELECT id FROM xt_item_template WHERE name='混沌石'))
     ),
     jsonb_build_object(
       'innate_skills', jsonb_build_array(

@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
+import top.stillmisty.xiantao.domain.item.entity.ElementRange;
 import top.stillmisty.xiantao.domain.pill.enums.ElementType;
 import top.stillmisty.xiantao.domain.pill.enums.PillQuality;
 import top.stillmisty.xiantao.domain.pill.vo.PillRecipeVO;
@@ -85,9 +86,11 @@ public class PillCommandHandler implements CommandGroup {
     sb.append("\n五行要求：\n");
 
     var requirements = recipe.requirements();
-    for (var req : requirements) {
-      String elementName = getElementName(req.element());
-      sb.append(String.format("  %s：%d~%d\n", elementName, req.min(), req.max()));
+    for (Map.Entry<String, ElementRange> entry : requirements.entrySet()) {
+      String elementName = getElementName(entry.getKey());
+      sb.append(
+          String.format(
+              "  %s：%d~%d\n", elementName, entry.getValue().min(), entry.getValue().max()));
     }
 
     sb.append("\n输入「炼 [丹方名]」自动炼丹");

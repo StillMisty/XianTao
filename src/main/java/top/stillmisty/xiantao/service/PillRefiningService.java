@@ -130,8 +130,8 @@ public class PillRefiningService {
               userId, input.herb().getTemplateId(), input.quantity());
         }
 
-        long resultItemId = recipeScroll.product().itemId();
-        int resultQuantity = recipeScroll.product().quantity();
+        long resultItemId = recipeScroll.resultItemId();
+        int resultQuantity = recipeScroll.resultQuantity();
         ItemTemplate resultTemplate = itemTemplateRepository.findById(resultItemId).orElse(null);
         if (resultTemplate == null) continue;
 

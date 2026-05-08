@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.util.List;
+import java.util.Map;
 
 /** 物品属性密封接口，按 ItemType 路由到类型安全子类 */
 public sealed interface ItemProperties {
@@ -22,7 +23,7 @@ public sealed interface ItemProperties {
 
     record Hp(long amount, double percentage) implements Effect {}
 
-    record Stat(@JsonProperty("stat_attr") String statAttr, int amount) implements Effect {}
+    record Stat(@JsonProperty("statAttr") String statAttr, int amount) implements Effect {}
 
     record Breakthrough(double rate) implements Effect {}
 
@@ -53,6 +54,27 @@ public sealed interface ItemProperties {
 
   record Potion(@JsonProperty("effects") List<Effect> effects) implements ItemProperties {}
 
-  record Scroll(int grade, RecipeProduct product, List<ElementRequirement> requirements)
-      implements ItemProperties {}
+  record Scroll(@JsonProperty("recipe") Recipe recipe) implements ItemProperties {
+    public int grade() {
+      return recipe.grade();
+    }
+
+    public long resultItemId() {
+      return recipe.resultItemId();
+    }
+
+    public int resultQuantity() {
+      return recipe.resultQuantity();
+    }
+
+    public Map<String, ElementRange> requirements() {
+      return recipe.requirements();
+    }
+
+    public record Recipe(
+        int grade,
+        @JsonProperty("result_item_id") long resultItemId,
+        @JsonProperty("result_quantity") int resultQuantity,
+        Map<String, ElementRange> requirements) {}
+  }
 }

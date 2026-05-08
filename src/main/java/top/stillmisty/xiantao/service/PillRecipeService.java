@@ -1,6 +1,7 @@
 package top.stillmisty.xiantao.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -109,7 +110,7 @@ public class PillRecipeService {
 
     var recipeScroll = getRecipeScroll(recipeTemplate);
     if (recipeScroll == null) throw new IllegalArgumentException("该物品不是丹方卷轴");
-    long resultItemId = recipeScroll.product().itemId();
+    long resultItemId = recipeScroll.resultItemId();
 
     PlayerPillRecipe recipe = PlayerPillRecipe.create(userId, recipeTemplate.getId(), resultItemId);
     playerPillRecipeRepository.save(recipe);
@@ -139,7 +140,7 @@ public class PillRecipeService {
           recipe.getResultItemId(),
           resultTemplate.getName(),
           0,
-          List.of());
+          Map.of());
     }
     return new PillRecipeVO(
         recipe.getRecipeTemplateId(),
@@ -147,7 +148,7 @@ public class PillRecipeService {
         recipeScroll.grade(),
         recipe.getResultItemId(),
         resultTemplate.getName(),
-        recipeScroll.product().quantity(),
+        recipeScroll.resultQuantity(),
         recipeScroll.requirements());
   }
 }

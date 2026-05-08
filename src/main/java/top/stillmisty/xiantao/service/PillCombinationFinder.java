@@ -4,7 +4,7 @@ import java.util.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import top.stillmisty.xiantao.domain.item.entity.ElementRequirement;
+import top.stillmisty.xiantao.domain.item.entity.ElementRange;
 import top.stillmisty.xiantao.domain.item.entity.ItemProperties;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
@@ -32,7 +32,7 @@ public class PillCombinationFinder {
   public PillRefiningResultVO findBestCombination(
       Long userId,
       List<StackableItem> herbs,
-      List<ElementRequirement> requirements,
+      Map<String, ElementRange> requirements,
       ItemTemplate recipeTemplate) {
     Map<String, Integer> elementTotals = new HashMap<>();
     Map<String, Integer> usedHerbs = new LinkedHashMap<>();
@@ -66,16 +66,16 @@ public class PillCombinationFinder {
   }
 
   private void tryFindBestHerbCombination(
-      List<ElementRequirement> requirements,
+      Map<String, ElementRange> requirements,
       List<StackableItem> herbs,
       Map<String, Integer> elementTotals,
       Map<String, Integer> usedHerbs,
       Map<StackableItem, Integer> remainingQuantities) {
     for (int pass = 0; pass < requirements.size(); pass++) {
       boolean anyProgress = false;
-      for (var req : requirements) {
-        String element = req.element();
-        int min = req.min();
+      for (var entry : requirements.entrySet()) {
+        String element = entry.getKey();
+        int min = entry.getValue().min();
         int currentTotal = elementTotals.getOrDefault(element, 0);
         if (currentTotal >= min) continue;
 
@@ -110,21 +110,21 @@ public class PillCombinationFinder {
   }
 
   private List<String> collectMissingElements(
-      List<ElementRequirement> requirements, Map<String, Integer> elementTotals) {
+      Map<String, ElementRange> requirements, Map<String, Integer> elementTotals) {
     List<String> missingElements = new ArrayList<>();
-    for (var req : requirements) {
-      if (elementTotals.getOrDefault(req.element(), 0) < req.min()) {
-        missingElements.add(req.element());
+    for (var entry : requirements.entrySet()) {
+      if (elementTotals.getOrDefault(entry.getKey(), 0) < entry.getValue().min()) {
+        missingElements.add(entry.getKey());
       }
     }
     return missingElements;
   }
 
   private boolean exceedsElementMax(
-      List<ElementRequirement> requirements, Map<String, Integer> elementTotals) {
-    for (var req : requirements) {
-      String element = req.element();
-      int max = req.max() == 0 ? Integer.MAX_VALUE : req.max();
+      Map<String, ElementRange> requirements, Map<String, Integer> elementTotals) {
+    for (var entry : requirements.entrySet()) {
+      String element = entry.getKey();
+      int max = entry.getValue().max() == 0 ? Integer.MAX_VALUE : entry.getValue().max();
       if (elementTotals.getOrDefault(element, 0) > max) {
         return true;
       }
@@ -133,10 +133,10 @@ public class PillCombinationFinder {
   }
 
   private String findOverMaxElement(
-      List<ElementRequirement> requirements, Map<String, Integer> elementTotals) {
-    for (var req : requirements) {
-      String element = req.element();
-      int max = req.max() == 0 ? Integer.MAX_VALUE : req.max();
+      Map<String, ElementRange> requirements, Map<String, Integer> elementTotals) {
+    for (var entry : requirements.entrySet()) {
+      String element = entry.getKey();
+      int max = entry.getValue().max() == 0 ? Integer.MAX_VALUE : entry.getValue().max();
       if (elementTotals.getOrDefault(element, 0) > max) {
         return element;
       }
@@ -149,7 +149,7 @@ public class PillCombinationFinder {
       List<StackableItem> herbs,
       Map<String, Integer> elementTotals,
       Map<String, Integer> usedHerbs,
-      List<ElementRequirement> requirements,
+      Map<String, ElementRange> requirements,
       ItemTemplate recipeTemplate) {
     double qualityScore = calculateQualityScore(elementTotals, requirements);
     PillQuality quality = determineQuality(qualityScore);
@@ -167,8 +167,8 @@ public class PillCombinationFinder {
     if (recipeScroll == null) {
       return new PillRefiningResultVO(false, "丹方数据错误", null, null, 0, null, null, null);
     }
-    long resultItemId = recipeScroll.product().itemId();
-    int resultQuantity = recipeScroll.product().quantity();
+    long resultItemId = recipeScroll.resultItemId();
+    int resultQuantity = recipeScroll.resultQuantity();
     ItemTemplate resultTemplate = itemTemplateRepository.findById(resultItemId).orElse(null);
     if (resultTemplate == null) {
       return new PillRefiningResultVO(false, "丹药模板不存在", null, null, 0, null, null, null);
@@ -190,14 +190,15 @@ public class PillCombinationFinder {
   private int computeTotalGain(
       StackableItem herb,
       int quantity,
-      List<ElementRequirement> requirements,
+      Map<String, ElementRange> requirements,
       Map<String, Integer> currentTotals) {
     int gain = 0;
-    for (var req : requirements) {
-      int current = currentTotals.getOrDefault(req.element(), 0);
-      int min = req.min();
+    for (var entry : requirements.entrySet()) {
+      String element = entry.getKey();
+      int current = currentTotals.getOrDefault(element, 0);
+      int min = entry.getValue().min();
       if (current >= min) continue;
-      int contrib = herb.getElementValue(req.element()) * quantity;
+      int contrib = herb.getElementValue(element) * quantity;
       if (contrib > 0) {
         gain += Math.min(contrib, min - current);
       }
@@ -216,11 +217,11 @@ public class PillCombinationFinder {
   }
 
   public boolean matchesRequirements(
-      Map<String, Integer> elementTotals, List<ElementRequirement> requirements) {
-    for (var req : requirements) {
-      String element = req.element();
-      int min = req.min();
-      int max = req.max() == 0 ? Integer.MAX_VALUE : req.max();
+      Map<String, Integer> elementTotals, Map<String, ElementRange> requirements) {
+    for (var entry : requirements.entrySet()) {
+      String element = entry.getKey();
+      int min = entry.getValue().min();
+      int max = entry.getValue().max() == 0 ? Integer.MAX_VALUE : entry.getValue().max();
       int current = elementTotals.getOrDefault(element, 0);
       if (current < min || current > max) return false;
     }
@@ -228,13 +229,13 @@ public class PillCombinationFinder {
   }
 
   public double calculateQualityScore(
-      Map<String, Integer> elementTotals, List<ElementRequirement> requirements) {
+      Map<String, Integer> elementTotals, Map<String, ElementRange> requirements) {
     double totalScore = 0;
     int count = 0;
-    for (var req : requirements) {
-      String element = req.element();
-      int min = req.min();
-      int max = req.max();
+    for (var entry : requirements.entrySet()) {
+      String element = entry.getKey();
+      int min = entry.getValue().min();
+      int max = entry.getValue().max();
       int current = elementTotals.getOrDefault(element, 0);
 
       double center = (max + min) / 2.0;
