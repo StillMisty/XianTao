@@ -194,6 +194,7 @@ public class FarmService {
 
     String cropName = getCropName(farm.cropId());
     int yield = calculateYield(farm.cropId(), fudi.getTribulationStage());
+    grantHarvestItems(fudi.getUserId(), farm.cropId(), yield);
 
     int harvestCount = farm.harvestCount() + 1;
     int maxHarvest = getMaxHarvest(farm.cropId());
@@ -208,6 +209,23 @@ public class FarmService {
     log.info("用户 {} 收获地块 {} 的 {}，获得 {}份", fudi.getUserId(), cellId, cropName, yield);
 
     return new CollectVO(cellId, "FARM", cropName, null, yield, yield);
+  }
+
+  void grantHarvestItems(Long userId, Integer cropId, int yield) {
+    ItemTemplate seedTemplate = itemTemplateRepository.findById(cropId.longValue()).orElse(null);
+    if (seedTemplate == null) return;
+    var props = seedTemplate.typedProperties();
+    if (props instanceof ItemProperties.Growth g) {
+      for (var item : g.productionItems()) {
+        String name =
+            itemTemplateRepository
+                .findById(item.templateId())
+                .map(ItemTemplate::getName)
+                .orElse("未知灵药");
+        stackableItemService.addStackableItem(
+            userId, item.templateId(), ItemType.HERB, name, yield);
+      }
+    }
   }
 
   /** 多年生作物收获后重置生长状态 */

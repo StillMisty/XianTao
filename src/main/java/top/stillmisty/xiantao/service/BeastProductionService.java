@@ -144,14 +144,14 @@ public class BeastProductionService {
       for (int i = 0; i < toProduce; i++) {
         var selectedItem = selectRandomProductionItem(productionItems);
         if (selectedItem != null) {
-          pen.addProductionItem(selectedItem.templateId(), selectedItem.name(), 1);
+          pen.addProductionItem(selectedItem.templateId(), resolveName(selectedItem), 1);
         }
       }
       if (mutationTraits != null && mutationTraits.contains("RARE_PRODUCE")) {
         if (ThreadLocalRandom.current().nextInt(100) < 5) {
           var higherItem = selectHigherTierItem(productionItems);
           if (higherItem != null) {
-            pen.addProductionItem(higherItem.templateId(), higherItem.name(), 1);
+            pen.addProductionItem(higherItem.templateId(), resolveName(higherItem), 1);
           }
         }
       }
@@ -204,6 +204,13 @@ public class BeastProductionService {
     return productionItems.stream()
         .min(Comparator.comparingInt(ProductionItem::weight))
         .orElse(null);
+  }
+
+  private String resolveName(ProductionItem item) {
+    return itemTemplateRepository
+        .findById(item.templateId())
+        .map(ItemTemplate::getName)
+        .orElse("未知灵物");
   }
 
   List<CellConfig.ProductionItem> getProductionStoredList(FudiCell cell) {

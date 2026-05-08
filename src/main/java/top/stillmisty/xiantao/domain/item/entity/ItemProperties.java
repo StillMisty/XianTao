@@ -32,10 +32,14 @@ public sealed interface ItemProperties {
     record Cure(String status) implements Effect {}
   }
 
-  record Growth(@JsonProperty("grow_time") int growTime, @JsonProperty("reharvest") int reharvest)
+  record Growth(
+      @JsonProperty("grow_time") int growTime,
+      @JsonProperty("reharvest") int reharvest,
+      @JsonProperty("production_items") List<ProductionItem> productionItems)
       implements ItemProperties {
     public Growth {
       if (reharvest < 0) reharvest = 0;
+      if (productionItems == null) productionItems = List.of();
     }
   }
 
