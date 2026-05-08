@@ -1,3 +1,4 @@
+/* 用户护道信息表 */
 CREATE TABLE xt_dao_protection
 (
     id           BIGSERIAL PRIMARY KEY,
