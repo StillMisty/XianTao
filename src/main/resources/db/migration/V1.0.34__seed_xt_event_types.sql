@@ -1,9 +1,5 @@
--- =====================================================
 -- 事件类型 + 活动事件关联 种子数据
--- xt_event_type + xt_activity_event
--- =====================================================
 
--- ============ xt_event_type (事件类型定义) ============
 INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
 -- TRAVEL 事件
 ('TRAVEL', 'travel_ambush_beast', '突遇妖兽', '赶路途中突然遭遇妖兽袭击，不得不停下来应对。'),

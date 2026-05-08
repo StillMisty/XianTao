@@ -1,8 +1,4 @@
--- =====================================================
 -- 怪物模板种子数据 (xt_monster_template)
--- 60+ 怪物，覆盖 1-100 级
--- skills 留空 (怪物基础攻击)，drop_table 按名称子查询
--- =====================================================
 
 -- ============ 1-10级 新手区 ============
 INSERT INTO xt_monster_template (name, description, monster_type, base_level, base_hp, base_attack, base_defense, base_speed, exp_reward, skills, drop_table, tags) VALUES

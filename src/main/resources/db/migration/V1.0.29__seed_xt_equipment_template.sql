@@ -1,8 +1,4 @@
--- =====================================================
--- 装备模板种子数据 (xt_equipment_template)
--- 武器64 + 护甲28 + 饰品30 = 122
--- 无显式ID，BIGSERIAL自动生成
--- =====================================================
+-- 装备模板种子数据
 
 -- ============ BLADE (刀) ============
 INSERT INTO xt_equipment_template (name, description, tags, slot, weapon_type, category, equip_level, base_attack, base_defense, base_str, base_con, base_agi, base_wis, attack_speed, attack_range, drop_weight) VALUES

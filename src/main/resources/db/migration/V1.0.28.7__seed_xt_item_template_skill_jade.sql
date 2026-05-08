@@ -1,0 +1,42 @@
+-- 法决玉简种子数据 (xt_item_template, type=SKILL_JADE)
+-- skill_id 通过子查询从 xt_skill 获取（需确保 V1.0.28 已运行）
+INSERT INTO xt_item_template (name, type, properties, tags, description)
+SELECT v.name, 'SKILL_JADE',
+  jsonb_build_object('skill_id', COALESCE((SELECT id FROM xt_skill WHERE name = v.skill_name), 0)),
+  v.tags, v.description
+FROM (VALUES
+  ('破风斩·玉简',   '破风斩',   '["skill_jade","blade","damage"]',      '刀法基础篇，以迅捷之势破开罡风的一斩。'),
+  ('清风剑法·玉简', '清风剑法', '["skill_jade","sword","damage"]',     '入门剑法，飘逸灵动如清风拂面，实则剑气暗藏。'),
+  ('万剑归宗·玉简', '万剑归宗', '["skill_jade","sword","aoe"]',        '御剑生万千，归宗化归一。剑修梦寐以求的群杀绝学。'),
+  ('金刚体·玉简',   '金刚体',   '["skill_jade","passive","defense"]',  '金刚体法决的玉简，提升防御力，简单粗暴。'),
+  ('轻身术·玉简',   '轻身术',   '["skill_jade","passive","agi"]',      '让身体变轻的法术，跑得快跳得高，实战逃命两不误。'),
+  ('蛮牛劲·玉简',   '蛮牛劲',   '["skill_jade","passive","str"]',      '模仿蛮牛之力的体术，力大无穷但不是变成牛。'),
+  ('静心诀·玉简',   '静心诀',   '["skill_jade","passive","wis"]',      '静中见真境，淡中识本然。增加悟性的基础心法。'),
+  ('烈火掌·玉简',   '烈火掌',   '["skill_jade","fire","damage"]',      '聚火气于掌间，催发炽热掌力。火属性法决入门。'),
+  ('寒冰掌·玉简',   '寒冰掌',   '["skill_jade","water","ice","damage"]','寒气凝于手，触之冻三尺。水属性入门法决。'),
+  ('青木诀·玉简',   '青木诀',   '["skill_jade","wood","heal"]',        '引木行生气滋养自身，可恢复伤势。长途历练必备。'),
+  ('金灵剑气·玉简', '金灵剑气', '["skill_jade","metal","damage"]',     '以金行道韵化为剑气，锋锐不可挡。'),
+  ('霸刀诀·玉简',   '霸刀诀',   '["skill_jade","blade","damage","armor_break"]', '霸道无我的刀法，一刀之下，管你什么甲胄统统劈开。'),
+  ('诛仙剑诀·玉简', '诛仙剑诀', '["skill_jade","sword","execute"]',     '传闻中可屠仙的剑诀——但也得你修炼到那个境界。'),
+  ('焚天诀·玉简',   '焚天诀',   '["skill_jade","fire","aoe","dot"]',    '焚天之火，燎原之势，持续灼烧敌人。'),
+  ('轩辕剑法·玉简', '轩辕剑法', '["skill_jade","sword","legendary"]',   '相传是黄帝轩辕氏的战剑之法，剑出则万灵俱灭。'),
+  ('霸下真身·玉简', '霸下真身', '["skill_jade","passive","con","legendary"]', '龙九子之首霸下的不灭真身，修炼到顶无人能破防。'),
+  ('蟠桃仙术·玉简', '蟠桃仙术', '["skill_jade","heal","legendary"]',    '以西王母蟠桃仙根所化的疗愈术，生死人肉白骨。'),
+  ('射日弓·玉简',   '射日弓',   '["skill_jade","bow","execute"]',       '后羿射日遗留下的箭法奥义，一箭穿九日。'),
+  ('莲华涅槃·玉简', '莲华涅槃', '["skill_jade","heal","defense","legendary"]', '莲台涅槃之法，濒死之际可浴火重生一次。'),
+  ('万劫不磨·玉简', '万劫不磨', '["skill_jade","passive","defense","epic"]', '千劫万磨身不损，道心坚定方成圣。'),
+  ('横刀断岳·玉简', '横刀断岳', '["skill_jade","blade","damage"]',      '一刀劈出可断山岳之势，刀法之中正大道的体现。'),
+  ('剑心通明·玉简', '剑心通明', '["skill_jade","sword","damage","defense_buff"]', '剑心透彻则万法不惑，攻守兼备的中阶剑法。'),
+  ('开山斧·玉简',   '开山斧',   '["skill_jade","axe","damage"]',        '以破竹之势劈山开石的斧法，力大者尤爱。'),
+  ('穿云枪·玉简',   '穿云枪',   '["skill_jade","spear","damage"]',      '枪尖破云而出，迅猛无匹的枪法。'),
+  ('伏魔棍·玉简',   '伏魔棍',   '["skill_jade","staff","damage"]',      '降妖伏魔的基础棍法，简单实用。'),
+  ('穿杨箭·玉简',   '穿杨箭',   '["skill_jade","bow","damage"]',        '百步穿杨的精准箭术，弓手入门必学。'),
+  ('灵蛇鞭·玉简',   '灵蛇鞭',   '["skill_jade","whip","damage","slow"]','如灵蛇吐信的鞭法，可减缓敌速。'),
+  ('方天画戟·玉简', '方天画戟', '["skill_jade","halberd","damage"]',    '方天画戟的基础用法，威风凛凛。'),
+  ('震地锤·玉简',   '震地锤',   '["skill_jade","hammer","damage","stun"]','一锤震地的蛮横锤法，运气好能砸晕对手。'),
+  ('影刺·玉简',     '影刺',     '["skill_jade","dagger","damage"]',     '从暗影中发起的致命一击，刺客入门。'),
+  ('清风拂柳·玉简', '清风拂柳', '["skill_jade","fan","heal"]',          '以扇引生机，疗愈自身或友方的风雅之术。'),
+  ('拂尘净心·玉简', '拂尘净心', '["skill_jade","flywhisk","heal","speed_buff"]', '拂尘轻扫，净心凝神，增加速度。'),
+  ('金刚圈·玉简',   '金刚圈',   '["skill_jade","ring","damage","stun"]','乾坤圈之术的筑基版，专敲脑门。'),
+  ('伏魔钟·玉简',   '伏魔钟',   '["skill_jade","bell","damage","silence"]', '钟声震荡，魔音贯耳，可封人法决。')
+) AS v(name, skill_name, tags, description);

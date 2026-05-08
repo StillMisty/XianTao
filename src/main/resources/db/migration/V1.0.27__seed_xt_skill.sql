@@ -1,8 +1,4 @@
--- =====================================================
 -- 法决种子数据 (xt_skill)
--- 无显式ID，BIGSERIAL自动生成
--- 分类: 被动16 + 刀兵15 + 长兵8 + 远兵5 + 奇兵32 + 大类12 + 元素15 + 通用17 = 120
--- =====================================================
 
 -- ============ PASSIVE SKILLS (被动 — 属性增益) ============
 INSERT INTO xt_skill (name, description, skill_type, effects, binding_type, cooldown_seconds, require_wis, level_requirement, tags) VALUES
