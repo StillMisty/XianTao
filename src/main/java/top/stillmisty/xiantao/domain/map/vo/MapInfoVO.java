@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import top.stillmisty.xiantao.domain.map.entity.NeighborEntry;
 import top.stillmisty.xiantao.domain.map.entity.SpecialtyEntry;
-import top.stillmisty.xiantao.domain.map.entity.TravelEventEntry;
 import top.stillmisty.xiantao.domain.map.enums.MapType;
 
 /** 地图信息 VO */
@@ -38,9 +37,6 @@ public class MapInfoVO {
 
   /** 历练掉落池/特产 (JSONB) */
   private List<SpecialtyEntry> specialties;
-
-  /** 旅行事件权重 (JSONB) 格式: [{"eventType": "ambush", "weight": 40}] */
-  private List<TravelEventEntry> travelEvents;
 
   /** 遇怪列表（已解析怪物名称） */
   private List<MonsterInfoVO> monsters;

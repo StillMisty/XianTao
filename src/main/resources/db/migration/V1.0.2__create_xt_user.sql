@@ -20,9 +20,8 @@ CREATE TABLE xt_user
     activity_start_time      TIMESTAMP,
     activity_target_id       BIGINT,
     breakthrough_fail_count  INT         NOT NULL DEFAULT 0,
-
-    -- 扩展数据
-    extra_data               JSONB                DEFAULT '{}'::jsonb,
+    last_hp_recovery_time   TIMESTAMP,
+    dying_start_time        TIMESTAMP,
     -- 时间戳
     create_time              TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     update_time              TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,

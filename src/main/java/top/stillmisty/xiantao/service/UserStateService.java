@@ -2,7 +2,6 @@ package top.stillmisty.xiantao.service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,8 +22,6 @@ public class UserStateService {
 
   private static final long HP_RECOVERY_INTERVAL_MINUTES = 5;
   private static final long DYING_RECOVERY_TIMEOUT_MINUTES = 30;
-  private static final String EXTRA_LAST_HP_RECOVERY = "lastHpRecovery";
-  private static final String EXTRA_DYING_SINCE = "dyingSince";
 
   private final UserRepository userRepository;
   private final MapNodeRepository mapNodeRepository;
@@ -109,9 +106,9 @@ public class UserStateService {
     if (user.getHpCurrent() >= maxHp) return false;
 
     LocalDateTime now = LocalDateTime.now();
-    LocalDateTime lastRecovery = readLastHpRecovery(user);
+    LocalDateTime lastRecovery = user.getLastHpRecoveryTime();
     if (lastRecovery == null) {
-      writeLastHpRecovery(user, now);
+      user.setLastHpRecoveryTime(now);
       return true;
     }
 
@@ -123,7 +120,7 @@ public class UserStateService {
       user.naturalHpRecovery();
     }
 
-    writeLastHpRecovery(user, lastRecovery.plusMinutes(ticks * HP_RECOVERY_INTERVAL_MINUTES));
+    user.setLastHpRecoveryTime(lastRecovery.plusMinutes(ticks * HP_RECOVERY_INTERVAL_MINUTES));
 
     // If HP is now full, produce event
     if (user.getHpCurrent() >= maxHp) {
@@ -146,9 +143,9 @@ public class UserStateService {
     if (user.getStatus() != UserStatus.DYING) return false;
 
     LocalDateTime now = LocalDateTime.now();
-    LocalDateTime dyingSince = readDyingSince(user);
+    LocalDateTime dyingSince = user.getDyingStartTime();
     if (dyingSince == null) {
-      writeDyingSince(user, now);
+      user.setDyingStartTime(now);
       return true;
     }
 
@@ -159,7 +156,7 @@ public class UserStateService {
     user.setHpCurrent(recoveryHp);
     user.setStatus(UserStatus.IDLE);
     user.clearActivity();
-    clearDyingSince(user);
+    user.setDyingStartTime(null);
 
     gameEventService.createEvent(
         user.getId(),
@@ -169,51 +166,5 @@ public class UserStateService {
 
     log.info("玩家 {} 濒死超时自动恢复，HP 恢复到 {}", user.getId(), recoveryHp);
     return true;
-  }
-
-  // ===================== extraData 读写 =====================
-
-  private LocalDateTime readLastHpRecovery(User user) {
-    var extra = user.getExtraData();
-    if (extra == null || !extra.containsKey(EXTRA_LAST_HP_RECOVERY)) return null;
-    try {
-      return LocalDateTime.parse(extra.get(EXTRA_LAST_HP_RECOVERY).toString());
-    } catch (Exception e) {
-      return null;
-    }
-  }
-
-  private void writeLastHpRecovery(User user, LocalDateTime time) {
-    var extra = user.getExtraData();
-    if (extra == null) extra = new HashMap<>();
-    else extra = new HashMap<>(extra);
-    extra.put(EXTRA_LAST_HP_RECOVERY, time.toString());
-    user.setExtraData(extra);
-  }
-
-  private LocalDateTime readDyingSince(User user) {
-    var extra = user.getExtraData();
-    if (extra == null || !extra.containsKey(EXTRA_DYING_SINCE)) return null;
-    try {
-      return LocalDateTime.parse(extra.get(EXTRA_DYING_SINCE).toString());
-    } catch (Exception e) {
-      return null;
-    }
-  }
-
-  private void writeDyingSince(User user, LocalDateTime time) {
-    var extra = user.getExtraData();
-    if (extra == null) extra = new HashMap<>();
-    else extra = new HashMap<>(extra);
-    extra.put(EXTRA_DYING_SINCE, time.toString());
-    user.setExtraData(extra);
-  }
-
-  private void clearDyingSince(User user) {
-    var extra = user.getExtraData();
-    if (extra == null || !extra.containsKey(EXTRA_DYING_SINCE)) return;
-    extra = new HashMap<>(extra);
-    extra.remove(EXTRA_DYING_SINCE);
-    user.setExtraData(extra);
   }
 }

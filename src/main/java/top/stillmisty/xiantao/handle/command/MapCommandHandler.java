@@ -121,21 +121,10 @@ public class MapCommandHandler implements CommandGroup {
   private String formatTravelResult(TravelResultVO result) {
     StringBuilder sb = new StringBuilder();
     sb.append(result.getMessage()).append("\n");
-    if (result.isArrived()) {
-      if (result.getEventType() != null) {
-        sb.append("\n【路途事件】\n");
-        sb.append(String.format("  骰点: %d/20\n", result.getD20Roll()));
-        sb.append(String.format("  事件: %s\n", result.getEventType().getName()));
-        if (result.getEventDescription() != null) {
-          sb.append(String.format("  描述: %s\n", result.getEventDescription()));
-        }
-      }
-    } else {
-      if (result.getEstimatedArrivalTime() != null) {
-        sb.append(
-            String.format(
-                "\n预计到达时间: %s", FormatUtils.formatDateTime(result.getEstimatedArrivalTime())));
-      }
+    if (result.getEstimatedArrivalTime() != null) {
+      sb.append(
+          String.format(
+              "\n预计到达时间: %s", FormatUtils.formatDateTime(result.getEstimatedArrivalTime())));
     }
     return sb.toString();
   }

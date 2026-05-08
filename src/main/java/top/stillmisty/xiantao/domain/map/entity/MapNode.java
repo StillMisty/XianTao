@@ -48,10 +48,6 @@ public class MapNode extends Model<MapNode> {
   @Column(typeHandler = JsonbCollectionTypeHandler.class)
   private List<SpecialtyEntry> specialties;
 
-  /** 旅行事件权重 (JSONB) 格式: [{"eventType": "ambush", "weight": 40}] */
-  @Column(typeHandler = JsonbCollectionTypeHandler.class)
-  private List<TravelEventEntry> travelEvents;
-
   /** 遇怪池 (JSONB) 格式: [{"templateId": 1, "weight": 50, "min": 1, "max": 3}] */
   @Column(typeHandler = JsonbCollectionTypeHandler.class)
   private List<MonsterEncounterEntry> monsterEncounters;

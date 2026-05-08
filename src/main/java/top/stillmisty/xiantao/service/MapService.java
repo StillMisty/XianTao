@@ -89,7 +89,6 @@ public class MapService {
         .neighbors(mapNode.getNeighbors())
         .adjacentMapNames(adjacentMapNames)
         .specialties(mapNode.getSpecialties())
-        .travelEvents(mapNode.getTravelEvents())
         .monsters(monsters)
         .build();
   }

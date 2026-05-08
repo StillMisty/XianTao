@@ -8,14 +8,12 @@ import com.mybatisflex.core.activerecord.Model;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import top.stillmisty.xiantao.domain.event.enums.ActivityType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
-import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
 
 /** 游戏角色核心表实体 */
 @EqualsAndHashCode(callSuper = true)
@@ -75,9 +73,11 @@ public class User extends Model<User> {
   /** 活动目标 ID (根据 activity_type 引用不同表: TRAVEL/TRAINING→map_id, BOUNTY→bounty_record_id) */
   private Long activityTargetId;
 
-  /** JSONB 扩展字段 (存储称号、成就、小规模系统数据) */
-  @Column(typeHandler = JsonbTypeHandler.class)
-  private Map<String, Object> extraData;
+  /** 上次 HP 自然恢复时间 */
+  private LocalDateTime lastHpRecoveryTime;
+
+  /** 濒死开始时间 */
+  private LocalDateTime dyingStartTime;
 
   /** 突破失败次数 (影响下一次突破成功率) */
   private Integer breakthroughFailCount;

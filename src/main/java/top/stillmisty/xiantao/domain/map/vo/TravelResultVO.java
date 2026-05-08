@@ -2,7 +2,6 @@ package top.stillmisty.xiantao.domain.map.vo;
 
 import lombok.Builder;
 import lombok.Data;
-import top.stillmisty.xiantao.domain.map.enums.TravelEventType;
 
 /** 旅行结果 VO */
 @Data
@@ -26,23 +25,8 @@ public class TravelResultVO {
   /** 目的地地图名称 */
   private String toMapName;
 
-  /** 是否使用体力模式 */
-  private boolean useStamina;
-
-  /** 消耗的体力 */
-  private Integer staminaCost;
-
   /** 旅行耗时（分钟） */
   private Integer travelTimeMinutes;
-
-  /** D20 骰点结果 */
-  private Integer d20Roll;
-
-  /** 触发的事件类型 */
-  private TravelEventType eventType;
-
-  /** 事件描述 */
-  private String eventDescription;
 
   /** 是否已到达 */
   private boolean arrived;
