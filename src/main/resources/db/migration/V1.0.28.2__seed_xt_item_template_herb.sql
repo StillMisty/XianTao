@@ -31,4 +31,6 @@ INSERT INTO xt_item_template (name, type, properties, tags, description) VALUES
 ('忘忧草',     'HERB', '{"elements":{"wood":3,"water":2}}', '["herb","mind","rare"]', '淡蓝色的柔嫩小草，咀嚼后暂时忘却烦忧。小心别吃多了。'),
 ('琉璃仙菇',   'HERB', '{"elements":{"wood":4,"water":3,"fire":2}}', '["herb","crystalline","epic"]', '通体透明的仙菇，如琉璃般映照七色光芒，只在秘境出没。'),
 ('天蚕',       'HERB', '{"elements":{"wood":4}}', '["herb","silk","rare"]', '一种会吐丝结茧的灵虫，丝可织甲，茧可入药固本。'),
-('蛇涎果',     'HERB', '{"elements":{"wood":2,"water":2}}', '["herb","poison","uncommon"]', '蛇妖唾液浇灌而生的果子，有毒但微量入药可治风痹。');
+('蛇涎果',     'HERB', '{"elements":{"wood":2,"water":2}}', '["herb","poison","uncommon"]', '蛇妖唾液浇灌而生的果子，有毒但微量入药可治风痹。'),
+('星月花',     'HERB', '{"elements":{"water":2,"metal":2}}', '["herb","star","uncommon"]', '花瓣如碎星般闪烁的奇花，只在月圆之夜开放，蕴含星月精华。'),
+('九穗禾',     'HERB', '{"elements":{"earth":3}}', '["herb","grain","uncommon"]', '一茎九穗的灵禾，每一穗都饱满晶莹，蕴含大地精华。');
