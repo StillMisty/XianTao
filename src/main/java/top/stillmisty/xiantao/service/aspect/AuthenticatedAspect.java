@@ -24,11 +24,7 @@ public class AuthenticatedAspect {
 
   private final AuthenticationService authService;
 
-  /**
-   * 匹配 Service 包下所有返回 ServiceResult、前两个参数为 (PlatformType, String, [可选 UserStatus], ...) 的方法 已移除
-   * authService.authenticateAndValidateUser 和 authenticateAndValidateStatus 现在
-   * authenticate(platform, openId, requiredStatus) 支持 null requiredStatus 表示不校验状态
-   */
+  /** authenticate(platform, openId, requiredStatus) 支持 null requiredStatus 表示不校验状态 */
   @Around("@annotation(top.stillmisty.xiantao.service.annotation.Authenticated)")
   public Object authenticate(ProceedingJoinPoint pjp) throws Throwable {
     Object[] args = pjp.getArgs();

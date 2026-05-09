@@ -10,7 +10,7 @@ spring:
     cache:
         type: caffeine
         caffeine:
-            spec: maximumSize=1000,expireAfterWrite=10m
+            spec: maximumSize=5000,expireAfterWrite=10m
 
     datasource:
         url: ${DB_URL:jdbc:postgresql://localhost:5432/xiantao}
