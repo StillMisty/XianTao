@@ -224,7 +224,7 @@ public class BountyService {
         int count = minCount + rng.nextInt(maxCount - minCount + 1);
         yield findRareItems(mapNode, count, rng);
       }
-      case BountyRewardPool.SpiritStones(_, var minAmount, var maxAmount, _) -> {
+      case BountyRewardPool.SpiritStones(_, var minAmount, var maxAmount) -> {
         long amount =
             minAmount + (minAmount == maxAmount ? 0 : (rng.nextLong(maxAmount - minAmount + 1)));
         yield List.of(new BountyRewardItem.SpiritStonesReward(amount));
@@ -238,11 +238,12 @@ public class BountyService {
         }
         yield List.of();
       }
-      case BountyRewardPool.EquipmentReward(_, var templateId, var name) -> {
+      case BountyRewardPool.EquipmentReward(_, var templateId) -> {
         EquipmentTemplate equipmentTemplate =
             equipmentTemplateRepository.findById(templateId).orElse(null);
         yield equipmentTemplate != null
-            ? List.of(new BountyRewardItem.EquipmentRewardItem(templateId, name))
+            ? List.of(
+                new BountyRewardItem.EquipmentRewardItem(templateId, equipmentTemplate.getName()))
             : List.of();
       }
     };

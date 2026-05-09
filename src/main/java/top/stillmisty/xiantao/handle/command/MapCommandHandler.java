@@ -1,8 +1,16 @@
 package top.stillmisty.xiantao.handle.command;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -13,6 +21,8 @@ import top.stillmisty.xiantao.domain.bounty.vo.BountyStatusVO;
 import top.stillmisty.xiantao.domain.bounty.vo.BountyVO;
 import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
+import top.stillmisty.xiantao.domain.item.repository.EquipmentTemplateRepository;
+import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.map.vo.MapInfoVO;
 import top.stillmisty.xiantao.domain.map.vo.TrainingRewardVO;
 import top.stillmisty.xiantao.domain.map.vo.TravelResultVO;
@@ -29,6 +39,8 @@ public class MapCommandHandler implements CommandGroup {
   private final TravelService travelService;
   private final TrainingService trainingService;
   private final BountyService bountyService;
+  private final ItemTemplateRepository itemTemplateRepository;
+  private final EquipmentTemplateRepository equipmentTemplateRepository;
 
   public String handleGoTo(PlatformType platform, String openId, String mapName) {
     log.debug("处理前往请求 - Platform: {}, OpenId: {}, MapName: {}", platform, openId, mapName);
@@ -172,10 +184,64 @@ public class MapCommandHandler implements CommandGroup {
     return sb.toString();
   }
 
+  private record TemplateResolvers(
+      Function<Long, String> itemResolver, Function<Long, String> equipResolver) {}
+
+  private TemplateResolvers resolveTemplates(List<BountyVO> bounties) {
+    var allRewards =
+        bounties.stream()
+            .flatMap(b -> b.rewards() != null ? b.rewards().stream() : Stream.of())
+            .toList();
+
+    Set<Long> itemIds = new HashSet<>();
+    Set<Long> equipIds = new HashSet<>();
+    for (BountyRewardPool reward : allRewards) {
+      switch (reward) {
+        case BountyRewardPool.RareItem(_, _, _, var tid) -> itemIds.add(tid);
+        case BountyRewardPool.EquipmentReward(_, var tid) -> equipIds.add(tid);
+        default -> {}
+      }
+    }
+
+    Map<Long, String> itemNames = new ConcurrentHashMap<>();
+    Map<Long, String> equipNames = new ConcurrentHashMap<>();
+
+    try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+      Future<?> itemFuture =
+          executor.submit(
+              () -> {
+                if (!itemIds.isEmpty()) {
+                  itemTemplateRepository
+                      .findByIds(new ArrayList<>(itemIds))
+                      .forEach(t -> itemNames.put(t.getId(), t.getName()));
+                }
+              });
+      Future<?> equipFuture =
+          executor.submit(
+              () -> {
+                if (!equipIds.isEmpty()) {
+                  equipmentTemplateRepository
+                      .findByIds(new ArrayList<>(equipIds))
+                      .forEach(t -> equipNames.put(t.getId(), t.getName()));
+                }
+              });
+      try {
+        itemFuture.get();
+        equipFuture.get();
+      } catch (Exception e) {
+        log.warn("Failed to resolve template names", e);
+      }
+    }
+
+    return new TemplateResolvers(
+        id -> itemNames.getOrDefault(id, "稀有物品"), id -> equipNames.getOrDefault(id, "装备"));
+  }
+
   private String formatBountyList(List<BountyVO> bounties) {
     if (bounties == null || bounties.isEmpty()) {
       return "当前地图没有可接取的悬赏。";
     }
+    var resolvers = resolveTemplates(bounties);
     StringBuilder sb = new StringBuilder();
     for (BountyVO b : bounties) {
       sb.append(
@@ -190,7 +256,7 @@ public class MapCommandHandler implements CommandGroup {
         sb.append("  奖励: ");
         sb.append(
             b.rewards().stream()
-                .map(BountyRewardPool::displayText)
+                .map(r -> r.displayText(resolvers.itemResolver(), resolvers.equipResolver()))
                 .collect(Collectors.joining("、")));
         sb.append("\n");
       }
@@ -488,6 +554,7 @@ public class MapCommandHandler implements CommandGroup {
     if (bounties == null || bounties.isEmpty()) {
       return "当前地图没有可接取的悬赏。";
     }
+    var resolvers = resolveTemplates(bounties);
     StringBuilder sb = new StringBuilder();
     for (BountyVO b : bounties) {
       sb.append(
@@ -502,7 +569,7 @@ public class MapCommandHandler implements CommandGroup {
         sb.append("  - 奖励: ");
         sb.append(
             b.rewards().stream()
-                .map(BountyRewardPool::displayText)
+                .map(r -> r.displayText(resolvers.itemResolver(), resolvers.equipResolver()))
                 .collect(Collectors.joining("、")));
         sb.append("\n");
       }

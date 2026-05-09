@@ -69,7 +69,7 @@ class BountyServiceTest {
     bounty.setDurationMinutes(durationMinutes);
     bounty.setRequireLevel(requireLevel);
     bounty.setEventWeight(100);
-    bounty.setRewards(List.of(new BountyRewardPool.RareItem(100, 1, 1, "培元丹")));
+    bounty.setRewards(List.of(new BountyRewardPool.RareItem(100, 1, 1, 1L)));
     return bounty;
   }
 
@@ -258,7 +258,7 @@ class BountyServiceTest {
     MapNode mapNode = createMapNode();
     mapNode.setSpecialties(List.of(new SpecialtyEntry(1L, 100)));
     Bounty bounty = createBounty(3, 5);
-    bounty.setRewards(List.of(new BountyRewardPool.RareItem(100, 2, 5, "培元丹")));
+    bounty.setRewards(List.of(new BountyRewardPool.RareItem(100, 2, 5, 1L)));
 
     ItemTemplate template = new ItemTemplate();
     template.setId(1L);
