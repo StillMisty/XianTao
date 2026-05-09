@@ -182,13 +182,17 @@ public class FudiService {
 
   private void autoExpandCells(Fudi fudi) {
     int maxCells = 3 + fudi.getTribulationStage() / 3;
-    int currentCount = fudiCellRepository.countByFudiId(fudi.getId());
+    List<FudiCell> existingCells = fudiCellRepository.findByFudiId(fudi.getId());
+    var existingCellIds =
+        existingCells.stream()
+            .map(FudiCell::getCellId)
+            .collect(java.util.stream.Collectors.toSet());
 
-    if (currentCount >= maxCells) return;
-
-    for (int i = currentCount + 1; i <= maxCells; i++) {
-      FudiCell cell = FudiCell.createEmpty(fudi.getId(), i);
-      fudiCellRepository.save(cell);
+    for (int i = 1; i <= maxCells; i++) {
+      if (!existingCellIds.contains(i)) {
+        FudiCell cell = FudiCell.createEmpty(fudi.getId(), i);
+        fudiCellRepository.save(cell);
+      }
     }
   }
 

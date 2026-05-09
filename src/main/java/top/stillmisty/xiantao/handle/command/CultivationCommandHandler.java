@@ -232,20 +232,10 @@ public class CultivationCommandHandler implements CommandGroup {
             "HP：%d/%d (%.1f%%)\n", status.hpCurrent(), status.hpMax(), status.hpPercentage()));
     sb.append("\n");
     sb.append("【基础属性】\n");
-    sb.append(String.format("  力道：%d\n", status.statStr()));
-    sb.append(String.format("  根骨：%d\n", status.statCon()));
-    sb.append(String.format("  身法：%d\n", status.statAgi()));
-    sb.append(String.format("  悟性：%d\n", status.statWis()));
-    if (status.equipStr() != 0
-        || status.equipCon() != 0
-        || status.equipAgi() != 0
-        || status.equipWis() != 0) {
-      sb.append("\n【装备加成】\n");
-      if (status.equipStr() != 0) sb.append(String.format("  力道：+%d\n", status.equipStr()));
-      if (status.equipCon() != 0) sb.append(String.format("  根骨：+%d\n", status.equipCon()));
-      if (status.equipAgi() != 0) sb.append(String.format("  身法：+%d\n", status.equipAgi()));
-      if (status.equipWis() != 0) sb.append(String.format("  悟性：+%d\n", status.equipWis()));
-    }
+    sb.append(String.format("  力道：%s\n", formatAttrWithBonus(status.statStr(), status.equipStr())));
+    sb.append(String.format("  根骨：%s\n", formatAttrWithBonus(status.statCon(), status.equipCon())));
+    sb.append(String.format("  身法：%s\n", formatAttrWithBonus(status.statAgi(), status.equipAgi())));
+    sb.append(String.format("  悟性：%s\n", formatAttrWithBonus(status.statWis(), status.equipWis())));
     sb.append("\n【战斗属性】\n");
     sb.append(String.format("  攻击：%d\n", status.attack()));
     sb.append(String.format("  防御：%d\n", status.defense()));
@@ -382,6 +372,14 @@ public class CultivationCommandHandler implements CommandGroup {
       if (change.maxHpChange() != 0) sb.append(formatAttrChange("HP上限", change.maxHpChange()));
     }
     return sb.toString();
+  }
+
+  private String formatAttrWithBonus(int base, int bonus) {
+    if (bonus == 0) {
+      return String.valueOf(base);
+    }
+    String sign = bonus > 0 ? "+" : "";
+    return String.format("%d（%s%d）", base, sign, bonus);
   }
 
   private String formatAttrChange(String attrName, int change) {
@@ -666,20 +664,10 @@ public class CultivationCommandHandler implements CommandGroup {
         String.format(
             "- HP：%d/%d (%.1f%%)\n", status.hpCurrent(), status.hpMax(), status.hpPercentage()));
     sb.append("\n### 基础属性\n");
-    sb.append(String.format("- 力道：%d\n", status.statStr()));
-    sb.append(String.format("- 根骨：%d\n", status.statCon()));
-    sb.append(String.format("- 身法：%d\n", status.statAgi()));
-    sb.append(String.format("- 悟性：%d\n", status.statWis()));
-    if (status.equipStr() != 0
-        || status.equipCon() != 0
-        || status.equipAgi() != 0
-        || status.equipWis() != 0) {
-      sb.append("\n### 装备加成\n");
-      if (status.equipStr() != 0) sb.append(String.format("- 力道：+%d\n", status.equipStr()));
-      if (status.equipCon() != 0) sb.append(String.format("- 根骨：+%d\n", status.equipCon()));
-      if (status.equipAgi() != 0) sb.append(String.format("- 身法：+%d\n", status.equipAgi()));
-      if (status.equipWis() != 0) sb.append(String.format("- 悟性：+%d\n", status.equipWis()));
-    }
+    sb.append(String.format("- 力道：%s\n", formatAttrWithBonus(status.statStr(), status.equipStr())));
+    sb.append(String.format("- 根骨：%s\n", formatAttrWithBonus(status.statCon(), status.equipCon())));
+    sb.append(String.format("- 身法：%s\n", formatAttrWithBonus(status.statAgi(), status.equipAgi())));
+    sb.append(String.format("- 悟性：%s\n", formatAttrWithBonus(status.statWis(), status.equipWis())));
     sb.append("\n### 战斗属性\n");
     sb.append(String.format("- 攻击：%d\n", status.attack()));
     sb.append(String.format("- 防御：%d\n", status.defense()));

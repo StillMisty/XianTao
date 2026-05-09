@@ -52,7 +52,7 @@ public class CellConfigTypeHandler extends BaseTypeHandler<CellConfig> {
   }
 
   private CellConfig deserialize(String jsonString, String cellType) throws SQLException {
-    if (jsonString == null || jsonString.trim().isEmpty()) {
+    if (jsonString == null || jsonString.trim().isEmpty() || "{}".equals(jsonString.trim())) {
       return null;
     }
     try {
