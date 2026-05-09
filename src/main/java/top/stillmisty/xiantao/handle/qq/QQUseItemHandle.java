@@ -1,0 +1,57 @@
+package top.stillmisty.xiantao.handle.qq;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import love.forte.simbot.component.qguild.event.QGGroupAtMessageCreateEvent;
+import love.forte.simbot.component.qguild.message.QGMarkdown;
+import love.forte.simbot.quantcat.common.annotations.ContentTrim;
+import love.forte.simbot.quantcat.common.annotations.Filter;
+import love.forte.simbot.quantcat.common.annotations.FilterValue;
+import love.forte.simbot.quantcat.common.annotations.Listener;
+import org.springframework.stereotype.Component;
+import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.handle.command.UseItemCommandHandler;
+import top.stillmisty.xiantao.service.NotificationAppender;
+
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class QQUseItemHandle {
+
+  private final UseItemCommandHandler useItemCommandHandler;
+  private final NotificationAppender notificationAppender;
+
+  @Listener
+  @ContentTrim
+  @Filter("使用 {{itemName}} {{args}}")
+  public void useItemWithArgs(
+      QGGroupAtMessageCreateEvent event,
+      @FilterValue("itemName") String itemName,
+      @FilterValue("args") String args) {
+    log.debug(
+        "收到使用物品请求 - AuthorId: {}, ItemName: {}, Args: {}", event.getAuthorId(), itemName, args);
+    String response =
+        useItemCommandHandler.handleUseItemMarkdown(
+            PlatformType.QQ, event.getAuthorId().toString(), itemName, args);
+    sendWithNotifications(event, response);
+  }
+
+  @Listener
+  @ContentTrim
+  @Filter("使用 {{itemName}}")
+  public void useItem(QGGroupAtMessageCreateEvent event, @FilterValue("itemName") String itemName) {
+    log.debug("收到使用物品请求 - AuthorId: {}, ItemName: {}", event.getAuthorId(), itemName);
+    String response =
+        useItemCommandHandler.handleUseItemMarkdown(
+            PlatformType.QQ, event.getAuthorId().toString(), itemName, null);
+    sendWithNotifications(event, response);
+  }
+
+  private void sendWithNotifications(QGGroupAtMessageCreateEvent event, String response) {
+    var result =
+        notificationAppender.prepareAppend(
+            PlatformType.QQ, event.getAuthorId().toString(), response);
+    event.replyBlocking(QGMarkdown.create(result.text()));
+    notificationAppender.markDelivered(result.eventIds());
+  }
+}
