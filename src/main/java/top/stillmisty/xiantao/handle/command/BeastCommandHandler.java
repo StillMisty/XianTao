@@ -317,6 +317,7 @@ public class BeastCommandHandler implements CommandGroup {
       if (beast.skills() != null && !beast.skills().isEmpty()) {
         sb.append(String.format("   - 技能：%d个\n", beast.skills().size()));
       }
+      if (i < beasts.size() - 1) sb.append("\n---\n");
     }
     return sb.toString();
   }

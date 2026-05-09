@@ -177,7 +177,6 @@ public class MapCommandHandler implements CommandGroup {
       return "当前地图没有可接取的悬赏。";
     }
     StringBuilder sb = new StringBuilder();
-    sb.append("【悬赏列表】\n\n");
     for (BountyVO b : bounties) {
       sb.append(
           String.format(
@@ -490,7 +489,6 @@ public class MapCommandHandler implements CommandGroup {
       return "当前地图没有可接取的悬赏。";
     }
     StringBuilder sb = new StringBuilder();
-    sb.append("### 悬赏列表\n\n");
     for (BountyVO b : bounties) {
       sb.append(
           String.format(
@@ -508,7 +506,7 @@ public class MapCommandHandler implements CommandGroup {
                 .collect(Collectors.joining("、")));
         sb.append("\n");
       }
-      sb.append("\n");
+      sb.append("\n---\n");
     }
     sb.append("「悬赏接取 [ID]」接取，完成后「悬赏结算」。");
     return sb.toString();
@@ -603,7 +601,7 @@ public class MapCommandHandler implements CommandGroup {
         sb.append(String.join(", ", map.getAdjacentMapNames()));
         sb.append("\n");
       }
-      sb.append("\n");
+      sb.append("\n---\n");
     }
     sb.append("使用「前往 [地图名]」开始旅行。");
     return sb.toString();
