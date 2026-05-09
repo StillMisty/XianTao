@@ -64,7 +64,12 @@ public class SpiritChatService {
               .orElseThrow(() -> new IllegalStateException("地灵不存在"));
 
       fudi.touchOnlineTime();
-      spirit.updateEmotionState();
+      // 天劫设置的特殊情绪（EXCITED/ANGRY/EXHAUSTED）不应被自动覆盖
+      if (spirit.getEmotionState() != EmotionState.EXCITED
+          && spirit.getEmotionState() != EmotionState.ANGRY
+          && spirit.getEmotionState() != EmotionState.EXHAUSTED) {
+        spirit.updateEmotionState();
+      }
       spiritRepository.save(spirit);
 
       List<FudiEvent> events = fudiEventGenerator.generateEvents(spirit.getLastEventTime());
@@ -110,10 +115,7 @@ public class SpiritChatService {
     String formName = null;
     if (spirit.getFormId() != null) {
       formName =
-          spiritFormRepository
-              .findById(spirit.getFormId().longValue())
-              .map(SpiritForm::getName)
-              .orElse(null);
+          spiritFormRepository.findById(spirit.getFormId()).map(SpiritForm::getName).orElse(null);
     }
 
     // 构建事件描述

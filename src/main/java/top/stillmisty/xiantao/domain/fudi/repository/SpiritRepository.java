@@ -12,4 +12,6 @@ public interface SpiritRepository {
   Spirit save(Spirit spirit);
 
   void deleteById(Long id);
+
+  int tryClaimDailyGift(Long spiritId);
 }

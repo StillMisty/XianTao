@@ -29,7 +29,7 @@ public class Spirit extends Model<Spirit> {
 
   private Long fudiId;
 
-  private Integer formId;
+  private Long formId;
 
   private Integer affection;
 

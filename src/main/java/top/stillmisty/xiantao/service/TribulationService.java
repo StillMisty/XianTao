@@ -35,6 +35,16 @@ public class TribulationService {
   private final FudiHelper fudiHelper;
   private final CombatService combatService;
 
+  /** 判断天劫是否已到触发时间（冷却已过）。 */
+  public boolean isTribulationDue(Fudi fudi) {
+    LocalDateTime referenceTime =
+        fudi.getLastTribulationTime() != null
+            ? fudi.getLastTribulationTime()
+            : fudi.getCreateTime();
+    return java.time.Duration.between(referenceTime, LocalDateTime.now()).toDays()
+        >= TRIBULATION_COOLDOWN_DAYS;
+  }
+
   /**
    * 触发天劫 — 使用战斗引擎进行回合制战斗
    *

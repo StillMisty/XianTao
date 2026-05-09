@@ -12,7 +12,9 @@ import top.stillmisty.xiantao.domain.fudi.entity.FudiCell;
 import top.stillmisty.xiantao.domain.fudi.enums.CellType;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiCellRepository;
 import top.stillmisty.xiantao.domain.fudi.vo.CollectAllVO;
+import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
+import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +26,7 @@ public class FudiCollectService {
   private final FarmService farmService;
   private final BeastService beastService;
   private final StackableItemService stackableItemService;
+  private final ItemTemplateRepository itemTemplateRepository;
 
   @Transactional
   public CollectAllVO collectAll(Long userId) {
@@ -107,8 +110,13 @@ public class FudiCollectService {
       int cellTotalItems = 0;
       for (CellConfig.ProductionItem item : productionStored) {
         if (item.quantity() > 0) {
+          ItemType itemType =
+              itemTemplateRepository
+                  .findById(item.templateId())
+                  .map(ItemTemplate::getType)
+                  .orElse(ItemType.HERB);
           stackableItemService.addStackableItem(
-              fudi.getUserId(), item.templateId(), ItemType.HERB, item.name(), item.quantity());
+              fudi.getUserId(), item.templateId(), itemType, item.name(), item.quantity());
           cellTotalItems += item.quantity();
         }
       }

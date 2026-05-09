@@ -6,7 +6,7 @@ import io.micrometer.observation.ObservationRegistry;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.model.openai.autoconfigure.OpenAiAutoConfigurationUtil;
 import org.springframework.ai.model.openai.autoconfigure.OpenAiChatProperties;
-import org.springframework.ai.model.openai.autoconfigure.OpenAiConnectionProperties;
+import org.springframework.ai.model.openai.autoconfigure.OpenAiCommonProperties;
 import org.springframework.ai.model.tool.DefaultToolExecutionEligibilityPredicate;
 import org.springframework.ai.model.tool.ToolCallingManager;
 import org.springframework.ai.model.tool.ToolExecutionEligibilityPredicate;
@@ -26,14 +26,14 @@ public class SpringAiConfig {
   /** 创建地灵专用 ChatClient（支持 reasoning_content 传递） */
   @Bean
   public ChatClient spiritChatClient(
-      OpenAiConnectionProperties commonProperties,
+      OpenAiCommonProperties commonProperties,
       OpenAiChatProperties chatProperties,
       ToolCallingManager toolCallingManager,
       ObjectProvider<ObservationRegistry> observationRegistry,
       ObjectProvider<ToolExecutionEligibilityPredicate> predicate) {
 
     var resolved =
-        OpenAiAutoConfigurationUtil.resolveConnectionProperties(commonProperties, chatProperties);
+        OpenAiAutoConfigurationUtil.resolveCommonProperties(commonProperties, chatProperties);
 
     OpenAIClient baseClient =
         OpenAiSetup.setupSyncClient(
@@ -73,7 +73,7 @@ public class SpringAiConfig {
         OpenAiChatModel.builder()
             .openAiClient(reasoningClient)
             .openAiClientAsync(baseAsyncClient)
-            .options(chatProperties.getOptions())
+            .options(chatProperties.toOptions())
             .toolCallingManager(toolCallingManager)
             .observationRegistry(observationRegistry.getIfUnique(() -> ObservationRegistry.NOOP))
             .toolExecutionEligibilityPredicate(

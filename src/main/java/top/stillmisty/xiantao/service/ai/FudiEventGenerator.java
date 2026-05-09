@@ -3,6 +3,7 @@ package top.stillmisty.xiantao.service.ai;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +24,7 @@ public class FudiEventGenerator {
    * 生成福地事件列表
    *
    * @param lastEventTime 上次事件时间
-   * @return 事件列表（最多6条）
+   * @return 事件列表（最多6条，无重复）
    */
   public List<FudiEvent> generateEvents(LocalDateTime lastEventTime) {
     LocalDateTime now = LocalDateTime.now();
@@ -38,17 +39,11 @@ public class FudiEventGenerator {
     // 计算应该生成的事件数量
     int eventCount = calculateEventCount(lastEventTime, now);
 
-    // 随机选择事件
-    List<FudiEvent> allEvents = List.of(FudiEvent.values());
-    List<FudiEvent> selectedEvents = new ArrayList<>();
-
-    for (int i = 0; i < eventCount && i < MAX_EVENTS; i++) {
-      FudiEvent event = allEvents.get(ThreadLocalRandom.current().nextInt(allEvents.size()));
-      // 避免重复事件
-      if (!selectedEvents.contains(event)) {
-        selectedEvents.add(event);
-      }
-    }
+    // 随机选择不重复的事件
+    List<FudiEvent> allEvents = new ArrayList<>(List.of(FudiEvent.values()));
+    Collections.shuffle(allEvents);
+    int limit = Math.min(eventCount, allEvents.size());
+    List<FudiEvent> selectedEvents = allEvents.subList(0, limit);
 
     log.debug("生成福地事件 {} 条", selectedEvents.size());
     return selectedEvents;

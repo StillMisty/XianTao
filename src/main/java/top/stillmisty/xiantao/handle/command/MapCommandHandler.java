@@ -294,7 +294,7 @@ public class MapCommandHandler implements CommandGroup {
           case BountyRewardItem.SpiritStonesReward(var amount) ->
               sb.append(String.format("  %d 灵石\n", amount));
           case BountyRewardItem.BeastEggReward(_, var name) ->
-              sb.append(String.format("  %s（灵兽卵）\n", name));
+              sb.append(String.format("  %s（兽卵）\n", name));
           case BountyRewardItem.EquipmentRewardItem(_, var name) ->
               sb.append(String.format("  %s（装备）\n", name));
         }
@@ -606,7 +606,7 @@ public class MapCommandHandler implements CommandGroup {
           case BountyRewardItem.SpiritStonesReward(var amount) ->
               sb.append(String.format("- %d 灵石\n", amount));
           case BountyRewardItem.BeastEggReward(_, var name) ->
-              sb.append(String.format("- %s（灵兽卵）\n", name));
+              sb.append(String.format("- %s（兽卵）\n", name));
           case BountyRewardItem.EquipmentRewardItem(_, var name) ->
               sb.append(String.format("- %s（装备）\n", name));
         }

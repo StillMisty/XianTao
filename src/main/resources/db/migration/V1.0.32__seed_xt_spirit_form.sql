@@ -30,7 +30,7 @@ INSERT INTO xt_spirit_form (name, description, liked_tags, disliked_tags) VALUES
  '["metal","beast","attack","warrior","blade"]', '["plant","herb","water","healing","silk"]'),
 ('麒麟', '祥瑞之兽麒麟的分灵，不愿看到杀戮，喜欢和平。',
  '["auspicious","healing","wisdom","herb","defense"]', '["warrior","evil","chaos","demon","attack"]'),
-('饕餮', '什么都想吃的吃货灵体，特别喜欢灵兽卵和丹药——但别给它真货否则会胖。',
+('饕餮', '什么都想吃的吃货灵体，特别喜欢兽卵和丹药——但别给它真货否则会胖。',
  '["beast_egg","pill","potion","food","sweet"]', '["poison","bitter","soul","evil","undead"]'),
 ('白泽', '博学多闻的白泽之灵，有什么问题都可以问它。',
  '["wisdom","knowledge","star","skill_jade","water"]', '["ignorance","chaos","evil","poison","warrior"]'),

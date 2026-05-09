@@ -1,6 +1,5 @@
 package top.stillmisty.xiantao.service;
 
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
@@ -48,8 +47,9 @@ public class FudiGiftService {
             .findByFudiId(fudi.getId())
             .orElseThrow(() -> new IllegalStateException("地灵不存在"));
 
-    if (spirit.getLastGiftTime() != null
-        && spirit.getLastGiftTime().toLocalDate().equals(LocalDateTime.now().toLocalDate())) {
+    // 原子检查并占用今日送礼机会，避免并发竞态
+    int claimed = spiritRepository.tryClaimDailyGift(spirit.getId());
+    if (claimed == 0) {
       throw new IllegalStateException("今日已送过礼物，明天再来吧");
     }
 
@@ -61,7 +61,6 @@ public class FudiGiftService {
     GiftReaction reaction = calculateAffectionChange(itemTags, likedTags, dislikedTags);
 
     spirit.addAffection(reaction.change);
-    spirit.setLastGiftTime(LocalDateTime.now());
 
     consumeGiftItem(gift);
 
@@ -94,7 +93,7 @@ public class FudiGiftService {
 
   private SpiritForm resolveSpiritForm(Spirit spirit) {
     if (spirit.getFormId() != null) {
-      return spiritFormRepository.findById(spirit.getFormId().longValue()).orElse(null);
+      return spiritFormRepository.findById(spirit.getFormId()).orElse(null);
     }
     return null;
   }

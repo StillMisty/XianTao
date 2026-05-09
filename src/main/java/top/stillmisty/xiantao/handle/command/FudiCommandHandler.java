@@ -168,12 +168,16 @@ public class FudiCommandHandler implements CommandGroup {
     sb.append("🧚 地灵形态：")
         .append(status.getSpiritFormName() != null ? status.getSpiritFormName() : "未知形态")
         .append("\n");
-    sb.append("🎭 地灵人格：").append(status.getMbtiType().getCode()).append("\n");
-    sb.append("😊 地灵情绪：")
-        .append(status.getEmotionState().getEmoji())
-        .append(" ")
-        .append(status.getEmotionState().getDescription())
-        .append("\n");
+    if (status.getMbtiType() != null) {
+      sb.append("🎭 地灵人格：").append(status.getMbtiType().getCode()).append("\n");
+    }
+    if (status.getEmotionState() != null) {
+      sb.append("😊 地灵情绪：")
+          .append(status.getEmotionState().getEmoji())
+          .append(" ")
+          .append(status.getEmotionState().getDescription())
+          .append("\n");
+    }
     sb.append("🏗️ 已占地块：")
         .append(status.getOccupiedCells())
         .append("/")
@@ -222,19 +226,25 @@ public class FudiCommandHandler implements CommandGroup {
     sb.append("形态：")
         .append(status.getSpiritFormName() != null ? status.getSpiritFormName() : "未知形态")
         .append("\n");
-    sb.append("MBTI人格：").append(status.getMbtiType().getCode()).append("\n");
-    sb.append("语气风格：").append(status.getMbtiType().getToneStyle()).append("\n");
+    sb.append("MBTI人格：")
+        .append(status.getMbtiType() != null ? status.getMbtiType().getCode() : "未知")
+        .append("\n");
+    sb.append("语气风格：")
+        .append(status.getMbtiType() != null ? status.getMbtiType().getToneStyle() : "")
+        .append("\n");
     sb.append("劫数：").append(status.getTribulationStage()).append("\n");
     sb.append("好感度：")
         .append(status.getSpiritAffection())
         .append("/")
         .append(status.getAffectionMax())
         .append(" 点\n");
-    sb.append("当前情绪：")
-        .append(status.getEmotionState().getEmoji())
-        .append(" ")
-        .append(status.getEmotionState().getDescription())
-        .append("\n");
+    if (status.getEmotionState() != null) {
+      sb.append("当前情绪：")
+          .append(status.getEmotionState().getEmoji())
+          .append(" ")
+          .append(status.getEmotionState().getDescription())
+          .append("\n");
+    }
     if (status.getLikedTags() != null && !status.getLikedTags().isEmpty()) {
       sb.append("喜爱：").append(String.join("、", status.getLikedTags())).append("\n");
     }
@@ -433,9 +443,9 @@ public class FudiCommandHandler implements CommandGroup {
         status.getTribulationStage(),
         status.getTribulationWinStreak(),
         status.getSpiritFormName() != null ? status.getSpiritFormName() : "未知形态",
-        status.getMbtiType().getCode(),
-        status.getEmotionState().getEmoji(),
-        status.getEmotionState().getDescription(),
+        status.getMbtiType() != null ? status.getMbtiType().getCode() : "未知",
+        status.getEmotionState() != null ? status.getEmotionState().getEmoji() : "",
+        status.getEmotionState() != null ? status.getEmotionState().getDescription() : "",
         status.getOccupiedCells(),
         status.getTotalCells());
   }
@@ -475,16 +485,22 @@ public class FudiCommandHandler implements CommandGroup {
     sb.append("- 形态：")
         .append(status.getSpiritFormName() != null ? status.getSpiritFormName() : "未知形态")
         .append("\n");
-    sb.append("- MBTI人格：").append(status.getMbtiType().getCode()).append("\n");
-    sb.append("- 语气风格：").append(status.getMbtiType().getToneStyle()).append("\n");
+    sb.append("- MBTI人格：")
+        .append(status.getMbtiType() != null ? status.getMbtiType().getCode() : "未知")
+        .append("\n");
+    sb.append("- 语气风格：")
+        .append(status.getMbtiType() != null ? status.getMbtiType().getToneStyle() : "")
+        .append("\n");
     sb.append("- 劫数：").append(status.getTribulationStage()).append("\n");
     sb.append(
         String.format("- 好感度：%d/%d 点\n", status.getSpiritAffection(), status.getAffectionMax()));
-    sb.append("- 当前情绪：")
-        .append(status.getEmotionState().getEmoji())
-        .append(" ")
-        .append(status.getEmotionState().getDescription())
-        .append("\n");
+    if (status.getEmotionState() != null) {
+      sb.append("- 当前情绪：")
+          .append(status.getEmotionState().getEmoji())
+          .append(" ")
+          .append(status.getEmotionState().getDescription())
+          .append("\n");
+    }
     if (status.getLikedTags() != null && !status.getLikedTags().isEmpty()) {
       sb.append("- 喜爱：").append(String.join("、", status.getLikedTags())).append("\n");
     }

@@ -39,4 +39,9 @@ public class SpiritRepositoryImpl implements SpiritRepository {
   public void deleteById(Long id) {
     spiritMapper.deleteById(id);
   }
+
+  @Override
+  public int tryClaimDailyGift(Long spiritId) {
+    return spiritMapper.tryClaimDailyGift(spiritId);
+  }
 }

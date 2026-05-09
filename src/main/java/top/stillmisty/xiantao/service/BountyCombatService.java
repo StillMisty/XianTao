@@ -216,7 +216,7 @@ public class BountyCombatService {
     }
     if (hasBeastEgg) {
       if (!sb.isEmpty()) sb.append(" ");
-      sb.append("获得灵兽卵。");
+      sb.append("获得兽卵。");
     }
     if (hasEquipment) {
       if (!sb.isEmpty()) sb.append(" ");

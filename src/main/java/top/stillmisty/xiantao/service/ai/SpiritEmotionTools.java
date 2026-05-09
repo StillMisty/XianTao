@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.fudi.entity.Spirit;
 import top.stillmisty.xiantao.domain.fudi.entity.SpiritHistory;
 import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
@@ -25,6 +26,7 @@ public class SpiritEmotionTools {
 
   /** 更新地灵情绪状态 */
   @Tool(description = "更新地灵的情绪状态")
+  @Transactional
   public String updateEmotion(@ToolParam(description = "新的情绪状态") EmotionState emotionState) {
     Long userId = UserContext.getCurrentUserId();
     if (userId == null) {
@@ -50,6 +52,7 @@ public class SpiritEmotionTools {
 
   /** 添加地灵想法/记忆 */
   @Tool(description = "记录地灵的想法或重要事件到记忆中")
+  @Transactional
   public String addThought(@ToolParam(description = "要记录的想法或事件内容") String thought) {
     Long userId = UserContext.getCurrentUserId();
     if (userId == null) {

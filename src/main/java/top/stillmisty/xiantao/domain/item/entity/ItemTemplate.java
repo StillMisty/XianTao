@@ -35,7 +35,7 @@ public class ItemTemplate {
   private ItemType type;
 
   /**
-   * 类型特有属性 JSONB 种子/灵兽卵: {"grow_time":24} 法决玉简: {"skill_id":1} 丹方卷轴:
+   * 类型特有属性 JSONB 种子/兽卵: {"grow_time":24} 法决玉简: {"skill_id":1} 丹方卷轴:
    * {"grade":3,"product":{"item_id":1,"quantity":1},"requirements":[{"element":"metal","min":1,"max":5}]}
    * 丹药: {"effects":[{"type":"exp","amount":100}]} 灵兽: {"production_items":[...],"skill_pool":{...}}
    */

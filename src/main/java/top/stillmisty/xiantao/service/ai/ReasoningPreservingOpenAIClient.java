@@ -2,6 +2,7 @@ package top.stillmisty.xiantao.service.ai;
 
 import com.openai.client.OpenAIClient;
 import com.openai.client.OpenAIClientAsync;
+import com.openai.services.blocking.AdminService;
 import com.openai.services.blocking.AudioService;
 import com.openai.services.blocking.BatchService;
 import com.openai.services.blocking.BetaService;
@@ -67,6 +68,11 @@ public class ReasoningPreservingOpenAIClient implements OpenAIClient {
   @Override
   public AudioService audio() {
     return delegate.audio();
+  }
+
+  @Override
+  public AdminService admin() {
+    return delegate.admin();
   }
 
   @Override

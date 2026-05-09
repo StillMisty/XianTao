@@ -1,4 +1,4 @@
--- 灵兽卵种子数据 (xt_item_template, type=BEAST_EGG)
+-- 兽卵种子数据 (xt_item_template, type=BEAST_EGG)
 INSERT INTO xt_item_template (name, type, properties, tags, description)
 VALUES
 ('灵猫卵', 'BEAST_EGG', jsonb_build_object('grow_time', 24, 'production_items', jsonb_build_array(jsonb_build_object('weight', 70, 'template_id', (SELECT id FROM xt_item_template WHERE name='灵芝')), jsonb_build_object('weight', 30, 'template_id', (SELECT id FROM xt_item_template WHERE name='何首乌'))), 'skill_pool', jsonb_build_object('innate_skills', jsonb_build_array(jsonb_build_object('skill_id', (SELECT id FROM xt_skill WHERE name='金刚体'), 'unlock', 'tier_1')), 'awakening_skills', jsonb_build_array(jsonb_build_object('skill_id', (SELECT id FROM xt_skill WHERE name='轻身术'), 'weight', 50)))), '["beast_egg","common","beast"]'::jsonb, '一只黏人的灵猫，会找药草和在你打坐时蹭你。'),

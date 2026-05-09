@@ -53,8 +53,13 @@ public class BeastProductionService {
     int totalItems = 0;
     for (CellConfig.ProductionItem item : productionStored) {
       if (item.quantity() > 0) {
+        ItemType itemType =
+            itemTemplateRepository
+                .findById(item.templateId())
+                .map(ItemTemplate::getType)
+                .orElse(ItemType.HERB);
         stackableItemService.addStackableItem(
-            fudi.getUserId(), item.templateId(), ItemType.HERB, item.name(), item.quantity());
+            fudi.getUserId(), item.templateId(), itemType, item.name(), item.quantity());
         totalItems += item.quantity();
         log.info(
             "用户 {} 收取地块 {} 的灵兽产出: {} x{}", fudi.getUserId(), cellId, item.name(), item.quantity());

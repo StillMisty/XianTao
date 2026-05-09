@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.fudi.enums.CellType;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
 import top.stillmisty.xiantao.domain.fudi.vo.CellStatusVO;
@@ -235,6 +236,7 @@ public class SpiritTools {
 
   /** 冒犯上报工具（由 LLM 主动调用） */
   @Tool(description = "当玩家说了不礼貌、冒犯、或让地灵不开心的话时调用此工具。由地灵自主判断是否需要调用。")
+  @Transactional
   public ReportOffenseResponse reportPlayerOffense(
       @ToolParam(description = "玩家说了什么") String reason,
       @ToolParam(description = "冒犯程度 1~5（1=轻微冒犯，5=严重冒犯）") int severity) {

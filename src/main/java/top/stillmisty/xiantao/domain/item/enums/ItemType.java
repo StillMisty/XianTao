@@ -10,7 +10,7 @@ public enum ItemType {
 
   SEED("SEED", "种子"),
 
-  BEAST_EGG("BEAST_EGG", "灵兽卵"),
+  BEAST_EGG("BEAST_EGG", "兽卵"),
 
   POTION("POTION", "丹药"),
 
@@ -23,6 +23,7 @@ public enum ItemType {
   HERB("HERB", "药材");
 
   @EnumValue private final String code;
+
   private final String name;
 
   ItemType(String code, String name) {

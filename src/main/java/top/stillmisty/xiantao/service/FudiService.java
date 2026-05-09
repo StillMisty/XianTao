@@ -117,17 +117,17 @@ public class FudiService {
 
   @Transactional
   public void createFudi(Long userId, MBTIPersonality mbtiType) {
-    if (fudiRepository.existsByUserId(userId)) {
-      throw new IllegalStateException("用户已拥有福地");
-    }
-
     Fudi fudi = Fudi.create();
     fudi.setUserId(userId);
     fudi.setTribulationStage(0);
     fudi.setTribulationWinStreak(0);
     fudi.setLastOnlineTime(LocalDateTime.now());
 
-    fudi = fudiRepository.save(fudi);
+    try {
+      fudi = fudiRepository.save(fudi);
+    } catch (org.springframework.dao.DuplicateKeyException e) {
+      throw new IllegalStateException("用户已拥有福地");
+    }
 
     Spirit spirit = createSpiritForFudi(fudi, mbtiType);
     spiritRepository.save(spirit);
@@ -147,7 +147,7 @@ public class FudiService {
 
     if (allForms != null && !allForms.isEmpty()) {
       SpiritForm randomForm = allForms.get(ThreadLocalRandom.current().nextInt(allForms.size()));
-      spirit.setFormId(randomForm.getId().intValue());
+      spirit.setFormId(randomForm.getId());
     }
 
     return spirit;
@@ -207,18 +207,11 @@ public class FudiService {
     Fudi fudi = getFudiOrThrow(userId);
     autoExpandCells(fudi);
 
-    var user = fudiHelper.getUserOrThrow(userId);
-    String tribulationResult = tribulationService.resolveTribulation(fudi, user, false);
-
-    spiritRepository
-        .findByFudiId(fudi.getId())
-        .ifPresent(
-            spirit -> {
-              if (tribulationResult == null) {
-                spirit.updateEmotionState();
-              }
-              spiritRepository.save(spirit);
-            });
+    String tribulationResult = null;
+    if (tribulationService.isTribulationDue(fudi)) {
+      var user = fudiHelper.getUserOrThrow(userId);
+      tribulationResult = tribulationService.resolveTribulation(fudi, user, false);
+    }
 
     fudiRepository.save(fudi);
     return buildFudiStatusVO(fudi, tribulationResult);
@@ -239,7 +232,7 @@ public class FudiService {
     List<String> likedTags = null;
     List<String> dislikedTags = null;
     if (spirit != null && spirit.getFormId() != null) {
-      SpiritForm form = spiritFormRepository.findById(spirit.getFormId().longValue()).orElse(null);
+      SpiritForm form = spiritFormRepository.findById(spirit.getFormId()).orElse(null);
       if (form != null) {
         formName = form.getName();
         likedTags = new ArrayList<>(form.getLikedTags());
@@ -353,6 +346,12 @@ public class FudiService {
   public CellOperationVO buildCell(Long userId, String position, CellType type) {
     Integer cellId = fudiHelper.parseCellId(position);
     Fudi fudi = getFudiOrThrow(userId);
+
+    int maxCells = 3 + fudi.getTribulationStage() / 3;
+    if (cellId < 1 || cellId > maxCells) {
+      throw new IllegalStateException(
+          "地块编号超出范围（1-%d），当前劫数仅开放到 %d 号地块".formatted(maxCells, maxCells));
+    }
 
     FudiCell existingCell =
         fudiCellRepository.findByFudiIdAndCellId(fudi.getId(), cellId).orElse(null);
