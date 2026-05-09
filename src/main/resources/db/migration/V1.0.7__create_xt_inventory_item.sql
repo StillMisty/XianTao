@@ -28,7 +28,7 @@ COMMENT ON TABLE xt_inventory_item IS '物品实例表 (堆叠类物品)';
 COMMENT ON COLUMN xt_inventory_item.id IS '物品实例ID';
 COMMENT ON COLUMN xt_inventory_item.user_id IS '持有者用户ID';
 COMMENT ON COLUMN xt_inventory_item.template_id IS '物品模板ID';
-COMMENT ON COLUMN xt_inventory_item.item_type IS '物品类型 (MATERIAL, SEED, BEAST_EGG, POTION, EVOLUTION_STONE)';
+COMMENT ON COLUMN xt_inventory_item.item_type IS '物品类型 (MATERIAL, SEED, BEAST_EGG, POTION, EVOLUTION_STONE, SKILL_JADE, RECIPE_SCROLL, HERB)';
 COMMENT ON COLUMN xt_inventory_item.name IS '物品名称 (从模板复制)';
 COMMENT ON COLUMN xt_inventory_item.quantity IS '数量';
 COMMENT ON COLUMN xt_inventory_item.tags IS '物品标签 JSONB，用于AI检索和NPC交互';
@@ -43,3 +43,4 @@ COMMENT ON COLUMN xt_inventory_item.update_time IS '更新时间';
 -- 索引
 CREATE INDEX idx_inventory_item_user_id ON xt_inventory_item (user_id);
 CREATE INDEX idx_inventory_item_user_type ON xt_inventory_item (user_id, item_type);
+CREATE INDEX idx_inventory_item_name ON xt_inventory_item (name);

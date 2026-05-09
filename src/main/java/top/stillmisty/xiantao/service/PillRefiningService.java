@@ -81,7 +81,7 @@ public class PillRefiningService {
             .toList();
 
     if (herbs.isEmpty()) {
-      return new PillRefiningResultVO(false, "背包中没有药材", null, null, 0, null, null, List.of("所有药材"));
+      return new PillRefiningResultVO(false, "背包中没有药材", null, null, 0, null, null, List.of());
     }
 
     return combinationFinder.findBestCombination(userId, herbs, requirements, recipeTemplate);

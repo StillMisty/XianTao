@@ -1,11 +1,13 @@
 package top.stillmisty.xiantao.handle.command;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
+import top.stillmisty.xiantao.domain.item.enums.InventoryCategory;
 import top.stillmisty.xiantao.domain.item.vo.AttributeChange;
 import top.stillmisty.xiantao.domain.item.vo.CharacterStatusResult;
 import top.stillmisty.xiantao.domain.item.vo.InventorySummaryVO;
@@ -92,12 +94,20 @@ public class CultivationCommandHandler implements CommandGroup {
   }
 
   public String handleInventoryByCategory(PlatformType platform, String openId, String category) {
-    return switch (category) {
-      case "种子" -> handleSeedInventory(platform, openId);
-      case "装备" -> handleEquipmentInventory(platform, openId);
-      case "兽卵" -> handleEggInventory(platform, openId);
-      default -> "未知分类，可选：种子、装备、兽卵";
-    };
+    for (var cat : InventoryCategory.values()) {
+      if (cat.getChineseName().equals(category)) {
+        return switch (cat) {
+          case SEED -> handleSeedInventory(platform, openId);
+          case EQUIPMENT -> handleEquipmentInventory(platform, openId);
+          case BEAST_EGG -> handleEggInventory(platform, openId);
+        };
+      }
+    }
+    var validCategories =
+        java.util.Arrays.stream(InventoryCategory.values())
+            .map(InventoryCategory::getChineseName)
+            .collect(Collectors.joining("、"));
+    return "未知分类，可选：" + validCategories;
   }
 
   public String handleEquip(PlatformType platform, String openId, String itemName) {
@@ -320,19 +330,19 @@ public class CultivationCommandHandler implements CommandGroup {
   private String formatInventorySummary(InventorySummaryVO inventory) {
     StringBuilder sb = new StringBuilder();
     sb.append("【背包】\n");
-    if (inventory.getEquipmentByQuality() != null && !inventory.getEquipmentByQuality().isEmpty()) {
+    if (inventory.equipmentByQuality() != null && !inventory.equipmentByQuality().isEmpty()) {
       sb.append("\n【装备】\n");
       inventory
-          .getEquipmentByQuality()
+          .equipmentByQuality()
           .forEach((quality, count) -> sb.append(String.format("  %s x%d\n", quality, count)));
     }
-    if (inventory.getStackableItemCount() != null && !inventory.getStackableItemCount().isEmpty()) {
+    if (inventory.stackableItemCount() != null && !inventory.stackableItemCount().isEmpty()) {
       sb.append("\n【物品】\n");
       inventory
-          .getStackableItemCount()
+          .stackableItemCount()
           .forEach((type, count) -> sb.append(String.format("  %s x%d种\n", type.getName(), count)));
     }
-    sb.append(String.format("\n灵石：%d\n", inventory.getSpiritStones()));
+    sb.append(String.format("\n灵石：%d\n", inventory.spiritStones()));
     return sb.toString();
   }
 
@@ -531,12 +541,20 @@ public class CultivationCommandHandler implements CommandGroup {
 
   public String handleInventoryByCategoryMarkdown(
       PlatformType platform, String openId, String category) {
-    return switch (category) {
-      case "种子" -> handleSeedInventoryMarkdown(platform, openId);
-      case "装备" -> handleEquipmentInventoryMarkdown(platform, openId);
-      case "兽卵" -> handleEggInventoryMarkdown(platform, openId);
-      default -> "未知分类，可选：种子、装备、兽卵";
-    };
+    for (var cat : InventoryCategory.values()) {
+      if (cat.getChineseName().equals(category)) {
+        return switch (cat) {
+          case SEED -> handleSeedInventoryMarkdown(platform, openId);
+          case EQUIPMENT -> handleEquipmentInventoryMarkdown(platform, openId);
+          case BEAST_EGG -> handleEggInventoryMarkdown(platform, openId);
+        };
+      }
+    }
+    var validCategories =
+        java.util.Arrays.stream(InventoryCategory.values())
+            .map(InventoryCategory::getChineseName)
+            .collect(Collectors.joining("、"));
+    return "未知分类，可选：" + validCategories;
   }
 
   public String handleEquipMarkdown(PlatformType platform, String openId, String itemName) {
@@ -740,19 +758,19 @@ public class CultivationCommandHandler implements CommandGroup {
   private String formatInventorySummaryMarkdown(InventorySummaryVO inventory) {
     StringBuilder sb = new StringBuilder();
     sb.append("### 背包\n");
-    if (inventory.getEquipmentByQuality() != null && !inventory.getEquipmentByQuality().isEmpty()) {
+    if (inventory.equipmentByQuality() != null && !inventory.equipmentByQuality().isEmpty()) {
       sb.append("\n### 装备\n");
       inventory
-          .getEquipmentByQuality()
+          .equipmentByQuality()
           .forEach((quality, count) -> sb.append(String.format("- %s x%d\n", quality, count)));
     }
-    if (inventory.getStackableItemCount() != null && !inventory.getStackableItemCount().isEmpty()) {
+    if (inventory.stackableItemCount() != null && !inventory.stackableItemCount().isEmpty()) {
       sb.append("\n### 物品\n");
       inventory
-          .getStackableItemCount()
+          .stackableItemCount()
           .forEach((type, count) -> sb.append(String.format("- %s x%d种\n", type.getName(), count)));
     }
-    sb.append(String.format("\n- 灵石：%d\n", inventory.getSpiritStones()));
+    sb.append(String.format("\n- 灵石：%d\n", inventory.spiritStones()));
     return sb.toString();
   }
 

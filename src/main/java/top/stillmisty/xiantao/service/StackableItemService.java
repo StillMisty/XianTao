@@ -5,6 +5,7 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
@@ -19,6 +20,7 @@ public class StackableItemService {
   private final StackableItemRepository stackableItemRepository;
 
   /** 添加堆叠物品到背包 */
+  @Transactional
   public void addStackableItem(
       Long userId, Long templateId, ItemType itemType, String name, int quantity) {
     addStackableItem(userId, templateId, itemType, name, quantity, null);
@@ -54,20 +56,23 @@ public class StackableItemService {
   }
 
   /** 按物品ID减少堆叠物品数量 */
+  @Transactional
   public void reduceStackableItem(Long userId, Long itemId, int quantity) {
     var existingItem = stackableItemRepository.findById(itemId);
     if (existingItem.isEmpty()) {
-      return;
+      log.warn("物品不存在: itemId={}", itemId);
+      throw new IllegalStateException("物品不存在");
     }
 
     StackableItem item = existingItem.get();
     if (!item.getUserId().equals(userId)) {
       log.warn("物品所有权不匹配: userId={}, itemOwnerId={}", userId, item.getUserId());
-      return;
+      throw new IllegalStateException("物品所有权不匹配");
     }
 
     if (!item.hasEnoughQuantity(quantity)) {
-      return;
+      throw new IllegalStateException(
+          "物品数量不足: 需要 %d，当前 %d".formatted(quantity, item.getQuantity()));
     }
 
     if (item.reduceQuantity(quantity)) {

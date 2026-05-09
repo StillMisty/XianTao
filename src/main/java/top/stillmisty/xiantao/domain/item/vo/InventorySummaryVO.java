@@ -2,24 +2,10 @@ package top.stillmisty.xiantao.domain.item.vo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Map;
-import lombok.Builder;
-import lombok.Data;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 
 /** 背包摘要 VO 用于简化展示，防止刷屏 */
-@Data
-@Builder
-public class InventorySummaryVO {
-
-  /** 装备按品质分组统计 格式: {"破旧": 5, "普通": 10, "稀有": 3, "史诗": 1, "传说": 0} */
-  @JsonProperty("equipment_by_quality")
-  private Map<String, Integer> equipmentByQuality;
-
-  /** 可堆叠物品按类型统计 */
-  @JsonProperty("stackable_item_count")
-  private Map<ItemType, Integer> stackableItemCount;
-
-  /** 灵石数量 */
-  @JsonProperty("spirit_stones")
-  private Long spiritStones;
-}
+public record InventorySummaryVO(
+    @JsonProperty("equipment_by_quality") Map<String, Integer> equipmentByQuality,
+    @JsonProperty("stackable_item_count") Map<ItemType, Integer> stackableItemCount,
+    @JsonProperty("spirit_stones") Long spiritStones) {}

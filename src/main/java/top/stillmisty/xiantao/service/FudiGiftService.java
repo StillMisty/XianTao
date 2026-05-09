@@ -29,6 +29,7 @@ public class FudiGiftService {
   private final SpiritRepository spiritRepository;
   private final SpiritFormRepository spiritFormRepository;
   private final StackableItemRepository stackableItemRepository;
+  private final StackableItemService stackableItemService;
   private final ItemTemplateRepository itemTemplateRepository;
 
   @Transactional
@@ -137,12 +138,7 @@ public class FudiGiftService {
   }
 
   private void consumeGiftItem(StackableItem gift) {
-    if (gift.getQuantity() != null && gift.getQuantity() > 1) {
-      gift.setQuantity(gift.getQuantity() - 1);
-      stackableItemRepository.save(gift);
-    } else {
-      stackableItemRepository.deleteById(gift.getId());
-    }
+    stackableItemService.reduceStackableItem(gift.getUserId(), gift.getId(), 1);
   }
 
   private record GiftReaction(int change, String reaction, boolean isLiked, boolean isDisliked) {}

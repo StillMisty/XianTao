@@ -55,9 +55,9 @@ class InventoryServiceTest {
     InventorySummaryVO result = inventoryService.getInventorySummary(userId);
 
     assertNotNull(result);
-    assertEquals(500L, result.getSpiritStones());
-    assertTrue(result.getEquipmentByQuality().isEmpty());
-    assertTrue(result.getStackableItemCount().isEmpty());
+    assertEquals(500L, result.spiritStones());
+    assertTrue(result.equipmentByQuality().isEmpty());
+    assertTrue(result.stackableItemCount().isEmpty());
   }
 
   @Test
@@ -77,8 +77,8 @@ class InventoryServiceTest {
 
     InventorySummaryVO result = inventoryService.getInventorySummary(userId);
 
-    assertEquals(2, result.getEquipmentByQuality().get("普通"));
-    assertEquals(1, result.getEquipmentByQuality().get("史诗"));
+    assertEquals(2, result.equipmentByQuality().get("普通"));
+    assertEquals(1, result.equipmentByQuality().get("史诗"));
   }
 
   @Test
@@ -98,8 +98,8 @@ class InventoryServiceTest {
 
     InventorySummaryVO result = inventoryService.getInventorySummary(userId);
 
-    assertEquals(2, result.getStackableItemCount().get(ItemType.SEED));
-    assertEquals(1, result.getStackableItemCount().get(ItemType.HERB));
+    assertEquals(2, result.stackableItemCount().get(ItemType.SEED));
+    assertEquals(1, result.stackableItemCount().get(ItemType.HERB));
   }
 
   @Test

@@ -31,6 +31,7 @@ public class SkillService {
   private final SkillRepository skillRepository;
   private final PlayerSkillRepository playerSkillRepository;
   private final StackableItemRepository stackableItemRepository;
+  private final StackableItemService stackableItemService;
   private final ItemTemplateRepository itemTemplateRepository;
 
   // ===================== 公开 API（含认证） =====================
@@ -157,11 +158,7 @@ public class SkillService {
   }
 
   private void consumeJade(StackableItem matchedJade, Long userId, Long skillId) {
-    if (matchedJade.reduceQuantity(1)) {
-      stackableItemRepository.deleteById(matchedJade.getId());
-    } else {
-      stackableItemRepository.save(matchedJade);
-    }
+    stackableItemService.reduceStackableItem(userId, matchedJade.getId(), 1);
     log.info(
         "消耗法决玉简: userId={}, templateId={}, skillId={}",
         userId,

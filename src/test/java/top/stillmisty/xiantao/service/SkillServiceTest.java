@@ -33,6 +33,7 @@ class SkillServiceTest {
   @Mock private SkillRepository skillRepository;
   @Mock private PlayerSkillRepository playerSkillRepository;
   @Mock private StackableItemRepository stackableItemRepository;
+  @Mock private StackableItemService stackableItemService;
   @Mock private ItemTemplateRepository itemTemplateRepository;
 
   @InjectMocks private SkillService skillService;
@@ -131,7 +132,7 @@ class SkillServiceTest {
     when(playerSkillRepository.findByUserIdAndSkillId(userId, skillId))
         .thenReturn(Optional.empty());
     when(userStateService.loadUser(userId)).thenReturn(createUser(5));
-    when(stackableItemRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+    doNothing().when(stackableItemService).reduceStackableItem(anyLong(), anyLong(), anyInt());
     when(playerSkillRepository.save(any()))
         .thenAnswer(
             inv -> {
