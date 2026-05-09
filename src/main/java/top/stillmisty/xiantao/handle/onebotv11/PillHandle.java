@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import love.forte.simbot.event.MessageEvent;
+import love.forte.simbot.component.onebot.v11.core.event.message.OneBotMessageEvent;
 import love.forte.simbot.quantcat.common.annotations.ContentTrim;
 import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.FilterValue;
@@ -25,7 +25,7 @@ public class PillHandle {
   @Listener
   @ContentTrim
   @Filter("丹方")
-  public void recipeList(MessageEvent event) {
+  public void recipeList(OneBotMessageEvent event) {
     log.debug("收到丹方列表查询请求 - AuthorId: {}", event.getAuthorId());
     String response =
         pillCommandHandler.handleRecipeList(
@@ -36,7 +36,7 @@ public class PillHandle {
   @Listener
   @ContentTrim
   @Filter("丹方 {{recipeName}}")
-  public void recipeDetail(MessageEvent event, @FilterValue("recipeName") String recipeName) {
+  public void recipeDetail(OneBotMessageEvent event, @FilterValue("recipeName") String recipeName) {
     log.debug("收到丹方详情查询请求 - AuthorId: {}, RecipeName: {}", event.getAuthorId(), recipeName);
     String response =
         pillCommandHandler.handleRecipeDetail(
@@ -47,7 +47,7 @@ public class PillHandle {
   @Listener
   @ContentTrim
   @Filter("炼方 {{recipeName}}")
-  public void refineAuto(MessageEvent event, @FilterValue("recipeName") String recipeName) {
+  public void refineAuto(OneBotMessageEvent event, @FilterValue("recipeName") String recipeName) {
     log.debug("收到自动炼丹请求 - AuthorId: {}, RecipeName: {}", event.getAuthorId(), recipeName);
     String response =
         pillCommandHandler.handleRefineAuto(
@@ -58,7 +58,7 @@ public class PillHandle {
   @Listener
   @ContentTrim
   @Filter("炼 {{herbInput}}")
-  public void refineManual(MessageEvent event, @FilterValue("herbInput") String herbInput) {
+  public void refineManual(OneBotMessageEvent event, @FilterValue("herbInput") String herbInput) {
     log.debug("收到手动炼丹请求 - AuthorId: {}, HerbInput: {}", event.getAuthorId(), herbInput);
     List<String> herbInputs = Arrays.asList(herbInput.split("\\s+"));
     String response =
@@ -67,7 +67,7 @@ public class PillHandle {
     sendWithNotifications(event, response);
   }
 
-  private void sendWithNotifications(MessageEvent event, String response) {
+  private void sendWithNotifications(OneBotMessageEvent event, String response) {
     var result =
         notificationAppender.prepareAppend(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), response);

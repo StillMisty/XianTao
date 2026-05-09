@@ -37,7 +37,7 @@ public class MapNode extends Model<MapNode> {
   /** 地图类型 */
   private MapType mapType;
 
-  /** 要求等级 */
+  /** 推荐等级 */
   private Integer levelRequirement;
 
   /** 相邻地图 (JSONB) 格式: [{"targetId": 1, "cost": 5}] */

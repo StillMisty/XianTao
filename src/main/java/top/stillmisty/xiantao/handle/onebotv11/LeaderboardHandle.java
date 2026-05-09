@@ -2,7 +2,7 @@ package top.stillmisty.xiantao.handle.onebotv11;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import love.forte.simbot.event.MessageEvent;
+import love.forte.simbot.component.onebot.v11.core.event.message.OneBotMessageEvent;
 import love.forte.simbot.quantcat.common.annotations.ContentTrim;
 import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.Listener;
@@ -22,7 +22,7 @@ public class LeaderboardHandle {
   @Listener
   @ContentTrim
   @Filter("排行榜")
-  public void levelLeaderboard(MessageEvent event) {
+  public void levelLeaderboard(OneBotMessageEvent event) {
     log.debug("收到排行榜请求 - AuthorId: {}", event.getAuthorId());
     String response =
         leaderboardCommandHandler.handleLevelLeaderboard(
@@ -33,7 +33,7 @@ public class LeaderboardHandle {
   @Listener
   @ContentTrim
   @Filter("排行榜 灵石")
-  public void spiritStoneLeaderboard(MessageEvent event) {
+  public void spiritStoneLeaderboard(OneBotMessageEvent event) {
     log.debug("收到灵石排行榜请求 - AuthorId: {}", event.getAuthorId());
     String response =
         leaderboardCommandHandler.handleSpiritStoneLeaderboard(
@@ -41,7 +41,7 @@ public class LeaderboardHandle {
     sendWithNotifications(event, response);
   }
 
-  private void sendWithNotifications(MessageEvent event, String response) {
+  private void sendWithNotifications(OneBotMessageEvent event, String response) {
     var result =
         notificationAppender.prepareAppend(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), response);

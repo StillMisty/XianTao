@@ -65,4 +65,8 @@ public class HelpCommandHandler {
     }
     return sb.toString();
   }
+
+  public String handleHelpMarkdown(PlatformType platform, String openId, String command) {
+    return handleHelp(platform, openId, command);
+  }
 }

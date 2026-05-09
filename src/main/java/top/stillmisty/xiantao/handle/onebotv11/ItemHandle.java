@@ -2,7 +2,7 @@ package top.stillmisty.xiantao.handle.onebotv11;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import love.forte.simbot.event.MessageEvent;
+import love.forte.simbot.component.onebot.v11.core.event.message.OneBotMessageEvent;
 import love.forte.simbot.quantcat.common.annotations.ContentTrim;
 import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.FilterValue;
@@ -23,7 +23,7 @@ public class ItemHandle {
   @Listener
   @ContentTrim
   @Filter("背包")
-  public void inventory(MessageEvent event) {
+  public void inventory(OneBotMessageEvent event) {
     log.debug("收到背包查询请求 - AuthorId: {}", event.getAuthorId());
     String response =
         commandHandler.handleInventory(PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
@@ -33,7 +33,8 @@ public class ItemHandle {
   @Listener
   @ContentTrim
   @Filter("背包 {{category}}")
-  public void inventoryByCategory(MessageEvent event, @FilterValue("category") String category) {
+  public void inventoryByCategory(
+      OneBotMessageEvent event, @FilterValue("category") String category) {
     String response =
         commandHandler.handleInventoryByCategory(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), category);
@@ -43,7 +44,7 @@ public class ItemHandle {
   @Listener
   @ContentTrim
   @Filter("装备 {{itemName}}")
-  public void equip(MessageEvent event, @FilterValue("itemName") String itemName) {
+  public void equip(OneBotMessageEvent event, @FilterValue("itemName") String itemName) {
     log.debug("收到装备穿戴请求 - AuthorId: {}, ItemName: {}", event.getAuthorId(), itemName);
     String response =
         commandHandler.handleEquip(
@@ -54,7 +55,7 @@ public class ItemHandle {
   @Listener
   @ContentTrim
   @Filter("卸下 {{slotName}}")
-  public void unequip(MessageEvent event, @FilterValue("slotName") String slotName) {
+  public void unequip(OneBotMessageEvent event, @FilterValue("slotName") String slotName) {
     log.debug("收到装备卸下请求 - AuthorId: {}, SlotName: {}", event.getAuthorId(), slotName);
     String response =
         commandHandler.handleUnequip(
@@ -65,7 +66,7 @@ public class ItemHandle {
   @Listener
   @ContentTrim
   @Filter("丢弃 {{itemName}}")
-  public void discard(MessageEvent event, @FilterValue("itemName") String itemName) {
+  public void discard(OneBotMessageEvent event, @FilterValue("itemName") String itemName) {
     log.debug("收到丢弃请求 - AuthorId: {}, ItemName: {}", event.getAuthorId(), itemName);
     String response =
         commandHandler.handleDiscard(
@@ -73,7 +74,7 @@ public class ItemHandle {
     sendWithNotifications(event, response);
   }
 
-  private void sendWithNotifications(MessageEvent event, String response) {
+  private void sendWithNotifications(OneBotMessageEvent event, String response) {
     var result =
         notificationAppender.prepareAppend(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), response);

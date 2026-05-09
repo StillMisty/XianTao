@@ -302,4 +302,226 @@ public class FudiCommandHandler implements CommandGroup {
         new CommandEntry("地灵 {{内容}}", "与地灵自然语言聊天", "地灵 你好呀"),
         new CommandEntry("地灵送礼 {{物品}}", "赠送礼物给地灵", "地灵送礼 灵果"));
   }
+
+  // ===================== Markdown 格式化方法（QQ平台） =====================
+
+  public String handleFudiStatusMarkdown(PlatformType platform, String openId) {
+    return switch (fudiService.getFudiStatus(platform, openId)) {
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Success(var status) -> formatFudiStatusMarkdown(status);
+    };
+  }
+
+  public String handleFudiGridMarkdown(PlatformType platform, String openId) {
+    return switch (fudiService.getFudiStatus(platform, openId)) {
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Success(var status) -> formatCellLayoutMarkdown(status);
+    };
+  }
+
+  public String handleSpiritChatMarkdown(PlatformType platform, String openId, String content) {
+    return handleSpiritChat(platform, openId, content);
+  }
+
+  public String handlePlantMarkdown(
+      PlatformType platform, String openId, String position, String cropName) {
+    return switch (farmService.plantCropByInput(platform, openId, position, cropName)) {
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Success(var result) -> formatPlantResultMarkdown(result);
+    };
+  }
+
+  public String handleCollectMarkdown(PlatformType platform, String openId, String position) {
+    if ("all".equalsIgnoreCase(position)) {
+      return switch (fudiService.collectAll(platform, openId)) {
+        case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+        case ServiceResult.Success(var result) -> {
+          if (result.totalItems() == 0) {
+            yield "没有可收取的内容。";
+          }
+          var parts = new java.util.ArrayList<String>();
+          if (result.harvested() > 0) parts.add("收获 %d 块灵田".formatted(result.harvested()));
+          if (result.collected() > 0) parts.add("收取 %d 个兽栏".formatted(result.collected()));
+          yield "✅ 已" + String.join("、", parts) + "，共获得 " + result.totalItems() + " 份物资。";
+        }
+      };
+    }
+    return switch (fudiService.collect(platform, openId, position)) {
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Success(var result) -> {
+        if ("FARM".equals(result.type())) {
+          yield "✅ 已收获地块 %s 的%s，获得 %d 份。".formatted(position, result.cropName(), result.yield());
+        } else {
+          yield "✅ 从地块 %s 收取了 %d 件%s产出。"
+              .formatted(position, result.totalItems(), result.beastName());
+        }
+      }
+    };
+  }
+
+  public String handleBuildMarkdown(
+      PlatformType platform, String openId, String position, String cellType) {
+    return switch (fudiService.buildCell(platform, openId, position, cellType)) {
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Success(_) -> "✅ 已在地块 %s 建造%s。".formatted(position, cellType);
+    };
+  }
+
+  public String handleRemoveMarkdown(PlatformType platform, String openId, String position) {
+    return switch (fudiService.removeCell(platform, openId, position)) {
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Success(var result) ->
+          "✅ 已拆除地块 %s 的%s。".formatted(position, result.type());
+    };
+  }
+
+  public String handleUpgradeCellMarkdown(PlatformType platform, String openId, String position) {
+    return switch (fudiService.upgradeCell(platform, openId, position)) {
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Success(var result) ->
+          "✅ 已将地块 %s 的%s从 Lv%d 升级至 Lv%d"
+              .formatted(position, result.type(), result.oldLevel(), result.newLevel());
+    };
+  }
+
+  public String handleHatchMarkdown(
+      PlatformType platform, String openId, String position, String eggName) {
+    return switch (beastService.hatchBeastByInput(platform, openId, position, eggName)) {
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Success(var result) -> formatHatchResultMarkdown(result);
+    };
+  }
+
+  public String handleReleaseMarkdown(PlatformType platform, String openId, String position) {
+    return switch (beastService.releaseBeast(platform, openId, position)) {
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Success(var result) -> "✅ 已放生%s。".formatted(result.beastName());
+    };
+  }
+
+  public String handleEvolveMarkdown(
+      PlatformType platform, String openId, String position, String mode) {
+    return switch (beastService.evolveBeast(platform, openId, position, mode)) {
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Success(var vo) -> formatEvolveResultMarkdown(vo, mode);
+    };
+  }
+
+  public String handleGiveGiftMarkdown(PlatformType platform, String openId, String itemName) {
+    return switch (fudiService.giveGift(platform, openId, itemName)) {
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Success(var result) -> {
+        String prefix = result.change() > 0 ? "✅" : "😅";
+        yield "%s 地灵收到了%s（%s），好感度 %+d"
+            .formatted(prefix, result.itemName(), result.reaction(), result.change());
+      }
+    };
+  }
+
+  private String formatFudiStatusMarkdown(FudiStatusVO status) {
+    return String.format(
+        """
+        ### 🏔️ 福地状态
+        ---
+        ⛈️ 劫数：%s  连胜×%d
+        🧚 地灵形态：%s
+        🎭 地灵人格：%s
+        😊 地灵情绪：%s %s
+        🏗️ 已占地块：%d/%d
+        ---
+        💡 输入「福地地块」查看详细布局""",
+        status.getTribulationStage(),
+        status.getTribulationWinStreak(),
+        status.getSpiritFormName() != null ? status.getSpiritFormName() : "未知形态",
+        status.getMbtiType().getCode(),
+        status.getEmotionState().getEmoji(),
+        status.getEmotionState().getDescription(),
+        status.getOccupiedCells(),
+        status.getTotalCells());
+  }
+
+  private String formatCellLayoutMarkdown(FudiStatusVO status) {
+    StringBuilder sb = new StringBuilder();
+    sb.append("### 🗺️ 福地地块布局\n---\n");
+    if (status.getCellDetails() == null || status.getCellDetails().isEmpty()) {
+      sb.append("（空地，尚未建造任何地块）\n");
+    } else {
+      for (var cell : status.getCellDetails()) {
+        sb.append("📍 #").append(cell.getCellId()).append(" ");
+        sb.append(cell.getType().getChineseName());
+        if (cell.getCellLevel() != null && cell.getCellLevel() > 1) {
+          sb.append(" Lv").append(cell.getCellLevel());
+        }
+        if (cell.getName() != null) sb.append(" - ").append(cell.getName());
+        if (cell.getGrowthProgress() != null) {
+          int percent = (int) (cell.getGrowthProgress() * 100);
+          sb.append(" [").append(percent).append("%]");
+          if (Boolean.TRUE.equals(cell.getIsMature())) sb.append(" ✅ 可收取");
+        }
+        if (cell.getQuality() != null) sb.append(" ").append(cell.getQuality());
+        if (cell.getProductionStored() != null && cell.getProductionStored() > 0)
+          sb.append(" 📦x").append(cell.getProductionStored());
+        if (Boolean.TRUE.equals(cell.getIsIncubating())) sb.append(" 🥚孵化中");
+        sb.append("\n");
+      }
+    }
+    sb.append("---\n💡 输入「福地种植」「福地建造」「福地收取」等指令进行操作");
+    return sb.toString();
+  }
+
+  private String formatSpiritInfoMarkdown(FudiStatusVO status) {
+    StringBuilder sb = new StringBuilder();
+    sb.append("### 🧚 地灵信息\n---\n");
+    sb.append("- 形态：")
+        .append(status.getSpiritFormName() != null ? status.getSpiritFormName() : "未知形态")
+        .append("\n");
+    sb.append("- MBTI人格：").append(status.getMbtiType().getCode()).append("\n");
+    sb.append("- 语气风格：").append(status.getMbtiType().getToneStyle()).append("\n");
+    sb.append("- 劫数：").append(status.getTribulationStage()).append("\n");
+    sb.append(
+        String.format("- 好感度：%d/%d 点\n", status.getSpiritAffection(), status.getAffectionMax()));
+    sb.append("- 当前情绪：")
+        .append(status.getEmotionState().getEmoji())
+        .append(" ")
+        .append(status.getEmotionState().getDescription())
+        .append("\n");
+    if (status.getLikedTags() != null && !status.getLikedTags().isEmpty()) {
+      sb.append("- 喜爱：").append(String.join("、", status.getLikedTags())).append("\n");
+    }
+    if (status.getDislikedTags() != null && !status.getDislikedTags().isEmpty()) {
+      sb.append("- 厌恶：").append(String.join("、", status.getDislikedTags())).append("\n");
+    }
+    sb.append("---\n💡 与地灵互动可提升好感度 ｜ 输入「地灵送礼 [物品名]」赠送礼物");
+    return sb.toString();
+  }
+
+  private String formatPlantResultMarkdown(FarmCellVO result) {
+    return "✅ 已在地块 %s 种植%s，预计 %.1f 小时后成熟。"
+        .formatted(result.getCellId(), result.getCropName(), result.getActualGrowthHours());
+  }
+
+  private String formatHatchResultMarkdown(PenCellVO result) {
+    StringBuilder sb = new StringBuilder();
+    sb.append("✅ 已开始在地块 %s 孵化%s！\n".formatted(result.getCellId(), result.getBeastName()));
+    sb.append("- 品质：%s | 等阶：T%d\n".formatted(result.getQuality(), result.getTier()));
+    if (result.isMutant()) {
+      sb.append("✨ 变异灵兽！特性：").append(String.join(",", result.getMutationTraits())).append("\n");
+    }
+    long hours =
+        java.time.Duration.between(java.time.LocalDateTime.now(), result.getMatureTime()).toHours();
+    sb.append("- 预计 %d 小时后孵化完成。".formatted(hours));
+    return sb.toString();
+  }
+
+  private String formatEvolveResultMarkdown(PenCellVO result, String mode) {
+    StringBuilder sb = new StringBuilder();
+    sb.append("✅ %s成功！\n".formatted(mode));
+    sb.append(
+        "- 灵兽：%s | 等阶：T%d | 品质：%s\n"
+            .formatted(result.getBeastName(), result.getTier(), result.getQuality()));
+    if (result.isMutant()) {
+      sb.append("- 能力：").append(String.join(",", result.getMutationTraits())).append("\n");
+    }
+    return sb.toString();
+  }
 }

@@ -2,7 +2,7 @@ package top.stillmisty.xiantao.handle.onebotv11;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import love.forte.simbot.event.MessageEvent;
+import love.forte.simbot.component.onebot.v11.core.event.message.OneBotMessageEvent;
 import love.forte.simbot.quantcat.common.annotations.ContentTrim;
 import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.FilterValue;
@@ -23,7 +23,7 @@ public class CultivationHandle {
   @Listener
   @ContentTrim
   @Filter("突破")
-  public void breakthrough(MessageEvent event) {
+  public void breakthrough(OneBotMessageEvent event) {
     log.debug("收到突破请求 - AuthorId: {}", event.getAuthorId());
     String response =
         cultivationCommandHandler.handleBreakthrough(
@@ -34,7 +34,8 @@ public class CultivationHandle {
   @Listener
   @ContentTrim
   @Filter("护道 {{nickname}}")
-  public void establishProtection(MessageEvent event, @FilterValue("nickname") String nickname) {
+  public void establishProtection(
+      OneBotMessageEvent event, @FilterValue("nickname") String nickname) {
     log.debug("收到护道请求 - AuthorId: {}, Content: {}", event.getAuthorId(), nickname);
     String response =
         cultivationCommandHandler.handleEstablishProtection(
@@ -45,7 +46,7 @@ public class CultivationHandle {
   @Listener
   @ContentTrim
   @Filter("护道解除 {{nickname}}")
-  public void removeProtection(MessageEvent event, @FilterValue("nickname") String nickname) {
+  public void removeProtection(OneBotMessageEvent event, @FilterValue("nickname") String nickname) {
     log.debug("收到护道解除请求 - AuthorId: {}, Content: {}", event.getAuthorId(), nickname);
     String response =
         cultivationCommandHandler.handleRemoveProtection(
@@ -56,7 +57,7 @@ public class CultivationHandle {
   @Listener
   @ContentTrim
   @Filter("护道查询")
-  public void queryProtection(MessageEvent event) {
+  public void queryProtection(OneBotMessageEvent event) {
     log.debug("收到护道查询请求 - AuthorId: {}", event.getAuthorId());
     String response =
         cultivationCommandHandler.handleQueryProtection(
@@ -64,7 +65,7 @@ public class CultivationHandle {
     sendWithNotifications(event, response);
   }
 
-  private void sendWithNotifications(MessageEvent event, String response) {
+  private void sendWithNotifications(OneBotMessageEvent event, String response) {
     var result =
         notificationAppender.prepareAppend(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), response);

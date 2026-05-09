@@ -2,7 +2,7 @@ package top.stillmisty.xiantao.handle.onebotv11;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import love.forte.simbot.event.MessageEvent;
+import love.forte.simbot.component.onebot.v11.core.event.message.OneBotMessageEvent;
 import love.forte.simbot.quantcat.common.annotations.ContentTrim;
 import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.FilterValue;
@@ -23,7 +23,7 @@ public class HelpHandle {
   @Listener
   @ContentTrim
   @Filter("帮助")
-  public void help(MessageEvent event) {
+  public void help(OneBotMessageEvent event) {
     log.debug("收到帮助请求 - AuthorId: {}", event.getAuthorId());
     String response =
         helpCommandHandler.handleHelp(
@@ -34,7 +34,7 @@ public class HelpHandle {
   @Listener
   @ContentTrim
   @Filter("帮助 {{command}}")
-  public void helpDetail(MessageEvent event, @FilterValue("command") String command) {
+  public void helpDetail(OneBotMessageEvent event, @FilterValue("command") String command) {
     log.debug("收到命令详情请求 - AuthorId: {}, Command: {}", event.getAuthorId(), command);
     String response =
         helpCommandHandler.handleHelp(
@@ -42,7 +42,7 @@ public class HelpHandle {
     sendWithNotifications(event, response);
   }
 
-  private void sendWithNotifications(MessageEvent event, String response) {
+  private void sendWithNotifications(OneBotMessageEvent event, String response) {
     var result =
         notificationAppender.prepareAppend(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), response);

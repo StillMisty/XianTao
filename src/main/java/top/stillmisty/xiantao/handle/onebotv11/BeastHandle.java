@@ -2,7 +2,7 @@ package top.stillmisty.xiantao.handle.onebotv11;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import love.forte.simbot.event.MessageEvent;
+import love.forte.simbot.component.onebot.v11.core.event.message.OneBotMessageEvent;
 import love.forte.simbot.quantcat.common.annotations.ContentTrim;
 import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.FilterValue;
@@ -23,7 +23,7 @@ public class BeastHandle {
   @Listener
   @ContentTrim
   @Filter("灵兽出战 {{position}}")
-  public void deployBeast(MessageEvent event, @FilterValue("position") String position) {
+  public void deployBeast(OneBotMessageEvent event, @FilterValue("position") String position) {
     log.debug("收到灵兽出战请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
     String response =
         beastCommandHandler.handleDeployBeast(
@@ -34,7 +34,7 @@ public class BeastHandle {
   @Listener
   @ContentTrim
   @Filter("灵兽召回 {{position}}")
-  public void undeployBeast(MessageEvent event, @FilterValue("position") String position) {
+  public void undeployBeast(OneBotMessageEvent event, @FilterValue("position") String position) {
     log.debug("收到灵兽召回请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
     String response =
         beastCommandHandler.handleUndeployBeast(
@@ -45,7 +45,7 @@ public class BeastHandle {
   @Listener
   @ContentTrim
   @Filter("灵兽恢复 {{position}}")
-  public void recoverBeast(MessageEvent event, @FilterValue("position") String position) {
+  public void recoverBeast(OneBotMessageEvent event, @FilterValue("position") String position) {
     log.debug("收到灵兽恢复请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
     String response =
         beastCommandHandler.handleRecoverBeast(
@@ -57,7 +57,7 @@ public class BeastHandle {
   @ContentTrim
   @Filter("灵兽进化 {{position}} {{mode}}")
   public void evolveBeast(
-      MessageEvent event,
+      OneBotMessageEvent event,
       @FilterValue("position") String position,
       @FilterValue("mode") String mode) {
     log.debug(
@@ -71,7 +71,7 @@ public class BeastHandle {
   @Listener
   @ContentTrim
   @Filter("灵兽放生 {{position}}")
-  public void releaseBeast(MessageEvent event, @FilterValue("position") String position) {
+  public void releaseBeast(OneBotMessageEvent event, @FilterValue("position") String position) {
     log.debug("收到灵兽放生请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
     String response =
         beastCommandHandler.handleReleaseBeast(
@@ -82,7 +82,7 @@ public class BeastHandle {
   @Listener
   @ContentTrim
   @Filter("出战灵兽")
-  public void getDeployedBeasts(MessageEvent event) {
+  public void getDeployedBeasts(OneBotMessageEvent event) {
     log.debug("收到查看出战灵兽请求 - AuthorId: {}", event.getAuthorId());
     String response =
         beastCommandHandler.handleGetDeployedBeasts(
@@ -90,7 +90,7 @@ public class BeastHandle {
     sendWithNotifications(event, response);
   }
 
-  private void sendWithNotifications(MessageEvent event, String response) {
+  private void sendWithNotifications(OneBotMessageEvent event, String response) {
     var result =
         notificationAppender.prepareAppend(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), response);

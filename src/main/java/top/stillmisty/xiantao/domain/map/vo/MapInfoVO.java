@@ -26,7 +26,7 @@ public class MapInfoVO {
   /** 地图类型名称 */
   private String mapTypeName;
 
-  /** 要求等级 */
+  /** 推荐等级 */
   private Integer levelRequirement;
 
   /** 相邻地图列表 (JSONB 反序列化后处理) 格式: [{"targetId": 1, "cost": 5}] */

@@ -53,4 +53,9 @@ public class UseItemCommandHandler implements CommandGroup {
         new CommandEntry("使用 {{物品}}", "使用物品（丹药、玉简、卷轴等）", "使用 天元丹"),
         new CommandEntry("使用 {{物品}} {{参数}}", "使用物品并指定参数", "使用 进化石 1"));
   }
+
+  public String handleUseItemMarkdown(
+      PlatformType platform, String openId, String itemName, String args) {
+    return handleUseItem(platform, openId, itemName, args);
+  }
 }

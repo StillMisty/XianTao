@@ -69,4 +69,12 @@ public class LeaderboardCommandHandler implements CommandGroup {
     return List.of(
         new CommandEntry("排行榜", "查看修为排行榜", "排行榜"), new CommandEntry("排行榜 灵石", "查看灵石排行榜", "排行榜 灵石"));
   }
+
+  public String handleLevelLeaderboardMarkdown(PlatformType platform, String openId) {
+    return handleLevelLeaderboard(platform, openId);
+  }
+
+  public String handleSpiritStoneLeaderboardMarkdown(PlatformType platform, String openId) {
+    return handleSpiritStoneLeaderboard(platform, openId);
+  }
 }

@@ -484,4 +484,393 @@ public class CultivationCommandHandler implements CommandGroup {
     }
     return sb.toString();
   }
+
+  // ===================== Markdown 格式化方法（QQ平台） =====================
+
+  /** QQ平台注册 — 直接返回文本即可 */
+  public String handleRegisterMarkdown(PlatformType platform, String openId, String nickname) {
+    return handleRegister(platform, openId, nickname);
+  }
+
+  public String handleStatusMarkdown(PlatformType platform, String openId) {
+    log.debug("处理状态查询(QQ) - Platform: {}, OpenId: {}", platform, openId);
+    var status = characterStatusService.getCharacterStatus(platform, openId);
+    return switch (status) {
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Success(var vo) -> formatCharacterStatusMarkdown(vo);
+    };
+  }
+
+  public String handleInventoryMarkdown(PlatformType platform, String openId) {
+    return switch (inventoryService.getInventorySummary(platform, openId)) {
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Success(var vo) -> formatInventorySummaryMarkdown(vo);
+    };
+  }
+
+  public String handleSeedInventoryMarkdown(PlatformType platform, String openId) {
+    return switch (inventoryService.getSeedInventory(platform, openId)) {
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Success(var entries) -> formatItemListMarkdown("种子", entries);
+    };
+  }
+
+  public String handleEquipmentInventoryMarkdown(PlatformType platform, String openId) {
+    return switch (inventoryService.getEquipmentInventory(platform, openId)) {
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Success(var entries) -> formatItemListMarkdown("装备", entries);
+    };
+  }
+
+  public String handleEggInventoryMarkdown(PlatformType platform, String openId) {
+    return switch (inventoryService.getEggInventory(platform, openId)) {
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Success(var entries) -> formatItemListMarkdown("兽卵", entries);
+    };
+  }
+
+  public String handleInventoryByCategoryMarkdown(
+      PlatformType platform, String openId, String category) {
+    return switch (category) {
+      case "种子" -> handleSeedInventoryMarkdown(platform, openId);
+      case "装备" -> handleEquipmentInventoryMarkdown(platform, openId);
+      case "兽卵" -> handleEggInventoryMarkdown(platform, openId);
+      default -> "未知分类，可选：种子、装备、兽卵";
+    };
+  }
+
+  public String handleEquipMarkdown(PlatformType platform, String openId, String itemName) {
+    return switch (equipmentService.equipItem(platform, openId, itemName)) {
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Success(var vo) ->
+          vo.success() ? formatEquipResultMarkdown(vo) : vo.message();
+    };
+  }
+
+  public String handleUnequipMarkdown(PlatformType platform, String openId, String slotName) {
+    return switch (equipmentService.unequipItem(platform, openId, slotName)) {
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Success(var vo) ->
+          vo.isSuccess() ? formatUnequipResultMarkdown(vo) : vo.getMessage();
+    };
+  }
+
+  public String handleBreakthroughMarkdown(PlatformType platform, String openId) {
+    return switch (cultivationService.attemptBreakthrough(platform, openId)) {
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Success(var vo) -> formatBreakthroughResultMarkdown(vo);
+    };
+  }
+
+  public String handleEstablishProtectionMarkdown(
+      PlatformType platform, String openId, String protegeNickname) {
+    return switch (cultivationService.establishProtection(platform, openId, protegeNickname)) {
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Success(var vo) ->
+          vo.success() ? formatProtectionResultMarkdown(vo) : vo.message();
+    };
+  }
+
+  public String handleRemoveProtectionMarkdown(
+      PlatformType platform, String openId, String protegeNickname) {
+    return handleRemoveProtection(platform, openId, protegeNickname);
+  }
+
+  public String handleDiscardMarkdown(PlatformType platform, String openId, String itemName) {
+    return handleDiscard(platform, openId, itemName);
+  }
+
+  public String handleViewPlayerMarkdown(
+      PlatformType platform, String openId, String targetNickname) {
+    return switch (playerViewService.viewPlayer(platform, openId, targetNickname)) {
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Success(var vo) -> formatPlayerViewMarkdown(vo);
+    };
+  }
+
+  public String handleQueryProtectionMarkdown(PlatformType platform, String openId) {
+    return switch (cultivationService.queryProtectionInfo(platform, openId)) {
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Success(var vo) ->
+          vo.isSuccess() ? formatProtectionQueryResultMarkdown(vo) : vo.getMessage();
+    };
+  }
+
+  private String formatCharacterStatusMarkdown(CharacterStatusResult status) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(String.format("## %s\n", status.nickname()));
+    if (status.locationName() != null) {
+      sb.append(String.format("- 所在地：%s\n", status.locationName()));
+    }
+    if (status.status() == UserStatus.TRAVELING && status.travelDestinationName() != null) {
+      sb.append(
+          String.format(
+              "- 状态：赶路中 (%s → %s)\n", status.locationName(), status.travelDestinationName()));
+      if (status.travelTimeMinutes() != null
+          && status.travelMinutesElapsed() != null
+          && status.travelMinutesRemaining() != null) {
+        sb.append(
+            String.format(
+                "- 旅途进度：%s/%s",
+                FormatUtils.formatMinutes(status.travelMinutesElapsed()),
+                FormatUtils.formatMinutes(status.travelTimeMinutes().longValue())));
+        if (status.travelMinutesRemaining() > 0) {
+          sb.append(
+              String.format("（剩余 %s）", FormatUtils.formatMinutes(status.travelMinutesRemaining())));
+        } else {
+          sb.append("（即将到达）");
+        }
+        sb.append("\n");
+      } else if (status.estimatedArrivalTime() != null) {
+        sb.append(
+            String.format(
+                "- 预计到达：%s\n", FormatUtils.formatDateTime(status.estimatedArrivalTime())));
+      }
+    } else if (status.status() != null && status.statusName() != null) {
+      sb.append(String.format("- 状态：%s\n", status.statusName()));
+    }
+    sb.append(String.format("- 境界：第%d层 (%.1f%%)\n", status.level(), status.expPercentage()));
+    sb.append(
+        String.format(
+            "- HP：%d/%d (%.1f%%)\n", status.hpCurrent(), status.hpMax(), status.hpPercentage()));
+    sb.append("\n### 基础属性\n");
+    sb.append(String.format("- 力道：%d\n", status.statStr()));
+    sb.append(String.format("- 根骨：%d\n", status.statCon()));
+    sb.append(String.format("- 身法：%d\n", status.statAgi()));
+    sb.append(String.format("- 悟性：%d\n", status.statWis()));
+    if (status.equipStr() != 0
+        || status.equipCon() != 0
+        || status.equipAgi() != 0
+        || status.equipWis() != 0) {
+      sb.append("\n### 装备加成\n");
+      if (status.equipStr() != 0) sb.append(String.format("- 力道：+%d\n", status.equipStr()));
+      if (status.equipCon() != 0) sb.append(String.format("- 根骨：+%d\n", status.equipCon()));
+      if (status.equipAgi() != 0) sb.append(String.format("- 身法：+%d\n", status.equipAgi()));
+      if (status.equipWis() != 0) sb.append(String.format("- 悟性：+%d\n", status.equipWis()));
+    }
+    sb.append("\n### 战斗属性\n");
+    sb.append(String.format("- 攻击：%d\n", status.attack()));
+    sb.append(String.format("- 防御：%d\n", status.defense()));
+    if (status.breakthroughSuccessRate() != null) {
+      sb.append("\n### 突破信息\n");
+      sb.append(String.format("- 突破成功率：%.1f%%\n", status.breakthroughSuccessRate()));
+      if (status.breakthroughFailCount() != null && status.breakthroughFailCount() > 0) {
+        sb.append(String.format("- 失败次数：%d（已累积补偿）\n", status.breakthroughFailCount()));
+      }
+    }
+    if (status.protectorCount() != null
+        || (status.protectedByList() != null && !status.protectedByList().isEmpty())) {
+      sb.append("\n### 护道信息\n");
+      if (status.protectingList() != null && !status.protectingList().isEmpty()) {
+        sb.append(
+            String.format(
+                "- 你正在为 %d/%d 位道友护道\n", status.protectorCount(), status.maxProtectorCount()));
+        for (var info : status.protectingList()) {
+          String locationStatus = Boolean.TRUE.equals(info.isInSameLocation()) ? "📍 同地点" : "📌 异地";
+          sb.append(
+              String.format(
+                  "  - %s（第%d层）- %s %s - 加成%.1f%%\n",
+                  info.userName(),
+                  info.userLevel(),
+                  info.locationName(),
+                  locationStatus,
+                  info.bonusPercentage()));
+        }
+      } else {
+        sb.append(
+            String.format(
+                "- 你正在为 %d/%d 位道友护道\n",
+                status.protectorCount() != null ? status.protectorCount() : 0,
+                status.maxProtectorCount() != null ? status.maxProtectorCount() : 3));
+      }
+      if (status.protectedByList() != null && !status.protectedByList().isEmpty()) {
+        sb.append(
+            String.format(
+                "- 有 %d 位道友为你护道，总加成：%.1f%%\n",
+                status.protectedByList().size(),
+                status.totalProtectionBonus() != null ? status.totalProtectionBonus() : 0.0));
+        for (var info : status.protectedByList()) {
+          String locationStatus = Boolean.TRUE.equals(info.isInSameLocation()) ? "📍 同地点" : "📌 异地";
+          String bonusText =
+              Boolean.TRUE.equals(info.isInSameLocation())
+                  ? String.format("加成%.1f%%", info.bonusPercentage())
+                  : "无法提供加成";
+          sb.append(
+              String.format(
+                  "  - %s（第%d层）- %s %s - %s\n",
+                  info.userName(),
+                  info.userLevel(),
+                  info.locationName(),
+                  locationStatus,
+                  bonusText));
+        }
+      } else {
+        sb.append("- 无道友为你护道\n");
+      }
+    }
+    sb.append(String.format("\n- 灵石：%d\n", status.spiritStones()));
+    if (status.equipment() != null && !status.equipment().items().isEmpty()) {
+      sb.append("\n### 已穿戴装备\n");
+      status
+          .equipment()
+          .items()
+          .forEach(
+              item ->
+                  sb.append(
+                      String.format(
+                          "- %s：%s [%s]\n", item.slotName(), item.name(), item.rarityName())));
+    }
+    return sb.toString();
+  }
+
+  private String formatItemListMarkdown(String title, List<ItemEntry> entries) {
+    if (entries.isEmpty()) {
+      return "### " + title + "列表（空）";
+    }
+    var sb = new StringBuilder("### " + title + "列表\n");
+    for (var e : entries) {
+      sb.append(e.index()).append(". ").append(e.name());
+      if (e.quantity() > 1) sb.append(" x").append(e.quantity());
+      if (!e.metadata().isBlank()) sb.append(" [").append(e.metadata()).append("]");
+      sb.append("\n");
+    }
+    return sb.toString().strip();
+  }
+
+  private String formatInventorySummaryMarkdown(InventorySummaryVO inventory) {
+    StringBuilder sb = new StringBuilder();
+    sb.append("### 背包\n");
+    if (inventory.getEquipmentByQuality() != null && !inventory.getEquipmentByQuality().isEmpty()) {
+      sb.append("\n### 装备\n");
+      inventory
+          .getEquipmentByQuality()
+          .forEach((quality, count) -> sb.append(String.format("- %s x%d\n", quality, count)));
+    }
+    if (inventory.getStackableItemCount() != null && !inventory.getStackableItemCount().isEmpty()) {
+      sb.append("\n### 物品\n");
+      inventory
+          .getStackableItemCount()
+          .forEach((type, count) -> sb.append(String.format("- %s x%d种\n", type.getName(), count)));
+    }
+    sb.append(String.format("\n- 灵石：%d\n", inventory.getSpiritStones()));
+    return sb.toString();
+  }
+
+  private String formatEquipResultMarkdown(
+      top.stillmisty.xiantao.domain.item.vo.EquipResult result) {
+    return formatAttributeChangeResultMarkdown(result.message(), result.attributeChange());
+  }
+
+  private String formatUnequipResultMarkdown(
+      top.stillmisty.xiantao.domain.item.vo.UnequipResult result) {
+    return formatAttributeChangeResultMarkdown(result.getMessage(), result.getAttributeChange());
+  }
+
+  private String formatAttributeChangeResultMarkdown(String message, AttributeChange change) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(message).append("\n");
+    if (change != null) {
+      sb.append("\n### 属性变化\n");
+      if (change.strChange() != 0)
+        sb.append(formatAttrChange("力道", change.strChange())).append("\n");
+      if (change.conChange() != 0)
+        sb.append(formatAttrChange("根骨", change.conChange())).append("\n");
+      if (change.agiChange() != 0)
+        sb.append(formatAttrChange("身法", change.agiChange())).append("\n");
+      if (change.wisChange() != 0)
+        sb.append(formatAttrChange("悟性", change.wisChange())).append("\n");
+      if (change.attackChange() != 0)
+        sb.append(formatAttrChange("攻击", change.attackChange())).append("\n");
+      if (change.defenseChange() != 0)
+        sb.append(formatAttrChange("防御", change.defenseChange())).append("\n");
+      if (change.maxHpChange() != 0) sb.append(formatAttrChange("HP上限", change.maxHpChange()));
+    }
+    return sb.toString();
+  }
+
+  private String formatPlayerViewMarkdown(PlayerViewVO vo) {
+    StringBuilder sb = new StringBuilder();
+    sb.append("## ").append(vo.nickname()).append("\n");
+    sb.append("- 境界：第").append(vo.level()).append("层\n");
+    sb.append("- 状态：").append(vo.statusName()).append("\n");
+    sb.append("- HP：").append(vo.hpCurrent()).append("/").append(vo.hpMax()).append("\n");
+    sb.append("- 攻击：").append(vo.attack()).append(" | 防御：").append(vo.defense()).append("\n");
+    sb.append("- 力道：").append(vo.statStr()).append(" | 根骨：").append(vo.statCon());
+    sb.append(" | 身法：").append(vo.statAgi()).append(" | 悟性：").append(vo.statWis()).append("\n");
+    if (vo.locationName() != null) {
+      sb.append("- 所在地：").append(vo.locationName()).append("\n");
+    }
+    if (vo.equippedItems() != null && !vo.equippedItems().isEmpty()) {
+      sb.append("\n### 已穿戴装备\n");
+      for (String item : vo.equippedItems()) {
+        sb.append("- ").append(item).append("\n");
+      }
+    }
+    return sb.toString();
+  }
+
+  private String formatBreakthroughResultMarkdown(BreakthroughResult result) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(result.message()).append("\n\n");
+    if (result.successRate() != null)
+      sb.append(String.format("- 突破成功率：%.1f%%\n", result.successRate()));
+    if (result.newLevel() != null) sb.append(String.format("- 当前境界：第%d层\n", result.newLevel()));
+    if (result.nextBreakthroughRate() != null)
+      sb.append(String.format("- 下次突破成功率：%.1f%%", result.nextBreakthroughRate()));
+    return sb.toString();
+  }
+
+  private String formatProtectionResultMarkdown(DaoProtectionResult result) {
+    return result.message()
+        + "\n\n### 护道详情\n"
+        + String.format("- 护道者：%s（第%d层）\n", result.protectorName(), result.protectorLevel())
+        + String.format("- 被护道者：%s（第%d层）\n", result.protegeName(), result.protegeLevel())
+        + String.format("- 单人加成：%.1f%%\n", result.singleProtectorBonus())
+        + String.format("- 是否同地点：%s", result.isInSameLocation() ? "是" : "否");
+  }
+
+  private String formatProtectionQueryResultMarkdown(DaoProtectionQueryResult result) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(result.getMessage()).append("\n");
+    if (result.getProtectingList() != null && !result.getProtectingList().isEmpty()) {
+      sb.append(
+          String.format(
+              "\n### 你正在为以下道友护道 (%d/%d)\n",
+              result.getProtectingCount(), result.getMaxProtectingCount()));
+      for (var info : result.getProtectingList()) {
+        String locationStatus = info.getIsInSameLocation() ? "📍 同地点" : "📌 异地";
+        sb.append(
+            String.format(
+                "- %s（第%d层）- %s %s - 加成%.1f%%\n",
+                info.getUserName(),
+                info.getUserLevel(),
+                info.getLocationName(),
+                locationStatus,
+                info.getBonusPercentage()));
+      }
+    } else {
+      sb.append("\n### 你正在为以下道友护道\n无\n");
+    }
+    if (result.getProtectedByList() != null && !result.getProtectedByList().isEmpty()) {
+      sb.append(String.format("\n### 以下道友正在为你护道（总加成：%.1f%%）\n", result.getTotalBonusPercentage()));
+      for (var info : result.getProtectedByList()) {
+        String locationStatus = info.getIsInSameLocation() ? "📍 同地点" : "📌 异地";
+        String bonusText =
+            info.getIsInSameLocation()
+                ? String.format("加成%.1f%%", info.getBonusPercentage())
+                : "无法提供加成";
+        sb.append(
+            String.format(
+                "- %s（第%d层）- %s %s - %s\n",
+                info.getUserName(),
+                info.getUserLevel(),
+                info.getLocationName(),
+                locationStatus,
+                bonusText));
+      }
+    } else {
+      sb.append("\n### 以下道友正在为你护道\n无\n");
+    }
+    return sb.toString();
+  }
 }

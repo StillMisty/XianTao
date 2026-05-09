@@ -2,7 +2,7 @@ package top.stillmisty.xiantao.handle.onebotv11;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import love.forte.simbot.event.MessageEvent;
+import love.forte.simbot.component.onebot.v11.core.event.message.OneBotMessageEvent;
 import love.forte.simbot.quantcat.common.annotations.ContentTrim;
 import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.FilterValue;
@@ -23,7 +23,8 @@ public class ViewHandle {
   @Listener
   @ContentTrim
   @Filter("查看 {{targetNickname}}")
-  public void viewPlayer(MessageEvent event, @FilterValue("targetNickname") String targetNickname) {
+  public void viewPlayer(
+      OneBotMessageEvent event, @FilterValue("targetNickname") String targetNickname) {
     log.debug("收到查看请求 - AuthorId: {}, Target: {}", event.getAuthorId(), targetNickname);
     String response =
         commandHandler.handleViewPlayer(
@@ -31,7 +32,7 @@ public class ViewHandle {
     sendWithNotifications(event, response);
   }
 
-  private void sendWithNotifications(MessageEvent event, String response) {
+  private void sendWithNotifications(OneBotMessageEvent event, String response) {
     var result =
         notificationAppender.prepareAppend(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), response);

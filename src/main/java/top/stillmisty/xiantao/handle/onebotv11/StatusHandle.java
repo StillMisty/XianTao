@@ -2,7 +2,7 @@ package top.stillmisty.xiantao.handle.onebotv11;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import love.forte.simbot.event.MessageEvent;
+import love.forte.simbot.component.onebot.v11.core.event.message.OneBotMessageEvent;
 import love.forte.simbot.quantcat.common.annotations.ContentTrim;
 import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.Listener;
@@ -22,14 +22,14 @@ public class StatusHandle {
   @Listener
   @ContentTrim
   @Filter("状态")
-  public void status(MessageEvent event) {
+  public void status(OneBotMessageEvent event) {
     log.debug("收到状态查询请求 - AuthorId: {}", event.getAuthorId());
     String response =
         commandHandler.handleStatus(PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
     sendWithNotifications(event, response);
   }
 
-  private void sendWithNotifications(MessageEvent event, String response) {
+  private void sendWithNotifications(OneBotMessageEvent event, String response) {
     var result =
         notificationAppender.prepareAppend(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), response);

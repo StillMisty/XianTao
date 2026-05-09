@@ -159,4 +159,100 @@ public class PillCommandHandler implements CommandGroup {
         new CommandEntry("炼 {{药材输入}}", "手动炼丹（指定药材配比）", "炼 灵草×3 火灵花×2"),
         new CommandEntry("炼方 {{丹方名}}", "根据丹方自动炼丹", "炼方 天元丹"));
   }
+
+  // ===================== Markdown 格式化方法（QQ平台） =====================
+
+  public String handleRecipeListMarkdown(PlatformType platform, String openId) {
+    return switch (pillRecipeService.getLearnedRecipes(platform, openId)) {
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Success(var recipes) -> formatRecipeListMarkdown(recipes);
+    };
+  }
+
+  public String handleRecipeDetailMarkdown(
+      PlatformType platform, String openId, String recipeName) {
+    return switch (pillRecipeService.getRecipeDetail(platform, openId, recipeName)) {
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Success(var recipe) -> formatRecipeDetailMarkdown(recipe);
+    };
+  }
+
+  public String handleRefineAutoMarkdown(PlatformType platform, String openId, String recipeName) {
+    return switch (pillRefiningService.refinePillAuto(platform, openId, recipeName)) {
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Success(var result) -> formatRefiningResultMarkdown(result);
+    };
+  }
+
+  public String handleRefineManualMarkdown(
+      PlatformType platform, String openId, List<String> herbInputs) {
+    return switch (pillRefiningService.refinePillManual(platform, openId, herbInputs)) {
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Success(var result) -> formatRefiningResultMarkdown(result);
+    };
+  }
+
+  private String formatRecipeListMarkdown(List<PillRecipeVO> recipes) {
+    if (recipes.isEmpty()) {
+      return "### 📜 丹方列表（空）\n你还没有学会任何丹方。";
+    }
+    StringBuilder sb = new StringBuilder("### 📜 丹方列表\n");
+    for (int i = 0; i < recipes.size(); i++) {
+      PillRecipeVO recipe = recipes.get(i);
+      sb.append(String.format("%d. %s（%d品）\n", i + 1, recipe.recipeName(), recipe.grade()));
+    }
+    sb.append("\n输入「丹方 [名称]」查看详情");
+    return sb.toString();
+  }
+
+  private String formatRecipeDetailMarkdown(PillRecipeVO recipe) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(String.format("### %s\n", recipe.recipeName()));
+    sb.append(String.format("- 品阶：%d品\n", recipe.grade()));
+    sb.append(String.format("- 成品：%s x%d\n", recipe.resultItemName(), recipe.resultQuantity()));
+    sb.append("\n五行要求：\n");
+    var requirements = recipe.requirements();
+    for (Map.Entry<String, ElementRange> entry : requirements.entrySet()) {
+      String elementName = getElementName(entry.getKey());
+      sb.append(
+          String.format(
+              "  - %s：%d~%d\n", elementName, entry.getValue().min(), entry.getValue().max()));
+    }
+    sb.append("\n输入「炼 [丹方名]」自动炼丹");
+    return sb.toString();
+  }
+
+  private String formatRefiningResultMarkdown(PillRefiningResultVO result) {
+    StringBuilder sb = new StringBuilder();
+    if (result.success()) {
+      sb.append("### ⚗️✨ 炼丹成功\n");
+      sb.append(String.format("- 成丹：%s x%d\n", result.pillName(), result.quantity()));
+      sb.append(
+          String.format("- 成色：%s\n", PillQuality.fromCode(result.quality()).getChineseName()));
+      sb.append(
+          String.format("- 效果倍率：%.1f\n", PillQuality.fromCode(result.quality()).getMultiplier()));
+      if (result.usedHerbs() != null && !result.usedHerbs().isEmpty()) {
+        sb.append("\n消耗药材：\n");
+        for (Map.Entry<String, Integer> entry : result.usedHerbs().entrySet()) {
+          sb.append(String.format("  - %s x%d\n", entry.getKey(), entry.getValue()));
+        }
+      }
+    } else {
+      sb.append("### 💥 炼丹失败\n");
+      sb.append(result.message());
+      if (result.missingElements() != null && !result.missingElements().isEmpty()) {
+        sb.append("\n缺少属性：\n");
+        for (String element : result.missingElements()) {
+          sb.append(String.format("  - %s\n", getElementName(element)));
+        }
+      }
+      if (result.usedHerbs() != null && !result.usedHerbs().isEmpty()) {
+        sb.append("\n已使用药材：\n");
+        for (Map.Entry<String, Integer> entry : result.usedHerbs().entrySet()) {
+          sb.append(String.format("  - %s x%d\n", entry.getKey(), entry.getValue()));
+        }
+      }
+    }
+    return sb.toString();
+  }
 }

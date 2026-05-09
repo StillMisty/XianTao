@@ -36,4 +36,8 @@ public class PvpCommandHandler implements CommandGroup {
   public List<CommandEntry> commands() {
     return List.of(new CommandEntry("切磋 {{道号}}", "与其他玩家切磋对战", "切磋 张三"));
   }
+
+  public String handleSparMarkdown(PlatformType platform, String openId, String targetNickname) {
+    return handleSpar(platform, openId, targetNickname);
+  }
 }

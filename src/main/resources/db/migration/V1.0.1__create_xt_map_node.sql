@@ -15,7 +15,7 @@ CREATE TABLE xt_map_node
     CONSTRAINT chk_map_node_type CHECK (map_type IN ('SAFE_TOWN', 'TRAINING_ZONE', 'HIDDEN_ZONE'))
 );
 COMMENT ON COLUMN xt_map_node.map_type IS '地图类型 (SAFE_TOWN, TRAINING_ZONE, HIDDEN_ZONE)';
-COMMENT ON COLUMN xt_map_node.level_requirement IS '要求等级';
+COMMENT ON COLUMN xt_map_node.level_requirement IS '推荐等级';
 COMMENT ON COLUMN xt_map_node.neighbors IS '相邻地图及耗时 JSONB，格式: [{"targetId": 1, "cost": 5}]';
 COMMENT ON COLUMN xt_map_node.specialties IS '历练掉落池 JSONB，格式: [{"templateId": 1, "weight": 30}]';
 COMMENT ON COLUMN xt_map_node.monster_encounters IS '遇怪池 JSONB: [{"templateId": 1, "weight": 50, "min": 1, "max": 3}]';
