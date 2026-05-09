@@ -162,6 +162,14 @@ public class CultivationCommandHandler implements CommandGroup {
     };
   }
 
+  public String handleChangeNickname(PlatformType platform, String openId, String newNickname) {
+    log.debug("处理改号 - Platform: {}, OpenId: {}, NewNickname: {}", platform, openId, newNickname);
+    return switch (userService.changeNickname(platform, openId, newNickname)) {
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Success(var msg) -> msg;
+    };
+  }
+
   public String handleViewPlayer(PlatformType platform, String openId, String targetNickname) {
     log.debug("处理查看 - Platform: {}, OpenId: {}, Target: {}", platform, openId, targetNickname);
     return switch (playerViewService.viewPlayer(platform, openId, targetNickname)) {
@@ -415,6 +423,7 @@ public class CultivationCommandHandler implements CommandGroup {
   @Override
   public List<CommandEntry> commands() {
     return List.of(
+        new CommandEntry("改号 {{新道号}}", "更改道号（道号不可与其他玩家重复）", "改号 李四"),
         new CommandEntry("我要修仙 {{道号}}", "注册新角色", "我要修仙 张三"),
         new CommandEntry("状态", "查看角色完整信息", "状态"),
         new CommandEntry("背包", "查看背包汇总", "背包"),
@@ -596,6 +605,11 @@ public class CultivationCommandHandler implements CommandGroup {
 
   public String handleDiscardMarkdown(PlatformType platform, String openId, String itemName) {
     return handleDiscard(platform, openId, itemName);
+  }
+
+  public String handleChangeNicknameMarkdown(
+      PlatformType platform, String openId, String newNickname) {
+    return handleChangeNickname(platform, openId, newNickname);
   }
 
   public String handleViewPlayerMarkdown(

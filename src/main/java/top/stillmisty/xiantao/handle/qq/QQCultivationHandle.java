@@ -23,6 +23,18 @@ public class QQCultivationHandle {
 
   @Listener
   @ContentTrim
+  @Filter("改号 {{newNickname}}")
+  public void changeNickname(
+      QGGroupAtMessageCreateEvent event, @FilterValue("newNickname") String newNickname) {
+    log.debug("收到改号请求 - AuthorId: {}, NewNickname: {}", event.getAuthorId(), newNickname);
+    String response =
+        cultivationCommandHandler.handleChangeNicknameMarkdown(
+            PlatformType.QQ, event.getAuthorId().toString(), newNickname);
+    sendWithNotifications(event, response);
+  }
+
+  @Listener
+  @ContentTrim
   @Filter("突破")
   public void breakthrough(QGGroupAtMessageCreateEvent event) {
     log.debug("收到突破请求 - AuthorId: {}", event.getAuthorId());

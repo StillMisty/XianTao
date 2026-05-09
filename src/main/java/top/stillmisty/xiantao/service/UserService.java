@@ -12,6 +12,7 @@ import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.repository.UserAuthRepository;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 import top.stillmisty.xiantao.domain.user.vo.RegisterResult;
+import top.stillmisty.xiantao.service.annotation.Authenticated;
 
 /** 用户服务 处理用户相关的业务逻辑 */
 @Slf4j
@@ -32,6 +33,27 @@ public class UserService {
    * @param nickname 玩家道号
    * @return 注册结果
    */
+  @Authenticated
+  @Transactional
+  public ServiceResult<String> changeNickname(
+      PlatformType platform, String openId, String newNickname) {
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(changeNickname(userId, newNickname));
+  }
+
+  @Transactional
+  public String changeNickname(Long userId, String newNickname) {
+    if (userRepository.existsByNickname(newNickname)) {
+      throw new IllegalStateException("此道号已被他人使用，请另择佳名~");
+    }
+    var user =
+        userRepository.findById(userId).orElseThrow(() -> new IllegalStateException("角色不存在"));
+    user.setNickname(newNickname);
+    userRepository.save(user);
+    log.info("改号成功 - UserId: {}, NewNickname: {}", userId, newNickname);
+    return "道号已改为【" + newNickname + "】";
+  }
+
   @Transactional
   public ServiceResult<RegisterResult> createUser(
       PlatformType platform, String openId, String nickname) {

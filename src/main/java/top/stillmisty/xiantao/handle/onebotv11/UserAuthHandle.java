@@ -22,6 +22,18 @@ public class UserAuthHandle {
 
   @Listener
   @ContentTrim
+  @Filter(value = "改号 {{newNickname}}")
+  public void changeNickname(
+      OneBotMessageEvent event, @FilterValue("newNickname") String newNickname) {
+    log.info("收到改号请求 - AuthorId: {}, NewNickname: {}", event.getAuthorId(), newNickname);
+    String response =
+        commandHandler.handleChangeNickname(
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), newNickname);
+    sendWithNotifications(event, response);
+  }
+
+  @Listener
+  @ContentTrim
   @Filter(value = "我要修仙 {{nickname}}")
   public void register(OneBotMessageEvent event, @FilterValue("nickname") String nickname) {
     log.info("收到注册请求 - AuthorId: {}, Nickname: {}", event.getAuthorId(), nickname);
