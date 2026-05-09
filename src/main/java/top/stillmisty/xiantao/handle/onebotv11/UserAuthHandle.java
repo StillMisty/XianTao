@@ -2,7 +2,7 @@ package top.stillmisty.xiantao.handle.onebotv11;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import love.forte.simbot.component.onebot.v11.core.event.message.OneBotMessageEvent;
+import love.forte.simbot.event.MessageEvent;
 import love.forte.simbot.quantcat.common.annotations.ContentTrim;
 import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.FilterValue;
@@ -22,8 +22,8 @@ public class UserAuthHandle {
 
   @Listener
   @ContentTrim
-  @Filter("我要修仙 {{nickname}}")
-  public void register(OneBotMessageEvent event, @FilterValue("nickname") String nickname) {
+  @Filter(value = "我要修仙 {{nickname}}")
+  public void register(MessageEvent event, @FilterValue("nickname") String nickname) {
     log.info("收到注册请求 - AuthorId: {}, Nickname: {}", event.getAuthorId(), nickname);
     String response =
         commandHandler.handleRegister(
@@ -31,9 +31,7 @@ public class UserAuthHandle {
     sendWithNotifications(event, response);
   }
 
-  // Note: Registration is a special case - no user exists yet,
-  // so notifications won't be resolved (auth will fail in appender).
-  private void sendWithNotifications(OneBotMessageEvent event, String response) {
+  private void sendWithNotifications(MessageEvent event, String response) {
     var result =
         notificationAppender.prepareAppend(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), response);
