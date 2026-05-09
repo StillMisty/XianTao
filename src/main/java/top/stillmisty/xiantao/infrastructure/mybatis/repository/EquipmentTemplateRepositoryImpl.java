@@ -21,6 +21,11 @@ public class EquipmentTemplateRepositoryImpl implements EquipmentTemplateReposit
   }
 
   @Override
+  public Optional<EquipmentTemplate> findByName(String name) {
+    return Optional.ofNullable(mapper.selectByName(name));
+  }
+
+  @Override
   public List<EquipmentTemplate> findByIds(List<Long> ids) {
     if (ids == null || ids.isEmpty()) return List.of();
     return mapper.selectListByQuery(QueryWrapper.create().in("id", ids));

@@ -22,9 +22,9 @@ Java 25 · Spring Boot 4 · Spring AI 2 · MyBatis-Flex · PostgreSQL 18 (JSONB)
 src/main/java/top/stillmisty/xiantao/
 ├── config/                          # Spring beans, ChatClient config
 ├── handle/                          # I/O parse + text format, no business logic
-│   ├── command/                     # VO → text formatters)
-│   ├── onebotv11/                   # QQ listeners
-│   └── web/                         # REST controllers (TBD)
+│   ├── command/                     # VO → text formatters
+│   ├── onebotv11/                   # OneBotV11 listeners
+│   └── qq/                          # qq listeners
 ├── domain/                          # Entities, enums, repository interfaces, VOs
 │   ├── user/ item/ beast/ bounty/ fudi/ map/ monster/ pill/ skill/ command/
 │   └── item/handler/                # ItemUseHandler strategy implementations (5 handlers)

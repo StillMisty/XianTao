@@ -22,6 +22,8 @@ CREATE TABLE xt_user
     breakthrough_fail_count  INT         NOT NULL DEFAULT 0,
     last_hp_recovery_time   TIMESTAMP,
     dying_start_time        TIMESTAMP,
+    -- GM
+    gm                       BOOLEAN     NOT NULL DEFAULT FALSE,
     -- 时间戳
     create_time              TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     update_time              TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,

@@ -82,6 +82,9 @@ public class User extends Model<User> {
   /** 突破失败次数 (影响下一次突破成功率) */
   private Integer breakthroughFailCount;
 
+  /** 是否为GM（游戏管理员） */
+  private Boolean gm;
+
   /** 创建时间 */
   @Column(onInsertValue = "now()")
   private LocalDateTime createTime;

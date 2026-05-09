@@ -450,13 +450,13 @@ public class CultivationCommandHandler implements CommandGroup {
   }
 
   private String formatProtectionResult(DaoProtectionResult result) {
-    return result.message()
+    return (result.message()
         + "\n\n"
         + "【护道详情】\n"
         + String.format("  护道者：%s（第%d层）\n", result.protectorName(), result.protectorLevel())
         + String.format("  被护道者：%s（第%d层）\n", result.protegeName(), result.protegeLevel())
         + String.format("  单人加成：%.1f%%\n", result.singleProtectorBonus())
-        + String.format("  是否同地点：%s", result.isInSameLocation() ? "是" : "否");
+        + String.format("  是否同地点：%s", result.isInSameLocation() ? "是" : "否"));
   }
 
   private String formatProtectionQueryResult(DaoProtectionQueryResult result) {
@@ -740,7 +740,7 @@ public class CultivationCommandHandler implements CommandGroup {
         sb.append("- 无道友为你护道\n");
       }
     }
-    sb.append(String.format("\n- 灵石：%d\n", status.spiritStones()));
+    sb.append(String.format("\n### 灵石：%d\n", status.spiritStones()));
     if (status.equipment() != null && !status.equipment().items().isEmpty()) {
       sb.append("\n### 已穿戴装备\n");
       status
@@ -853,12 +853,12 @@ public class CultivationCommandHandler implements CommandGroup {
   }
 
   private String formatProtectionResultMarkdown(DaoProtectionResult result) {
-    return result.message()
+    return (result.message()
         + "\n\n### 护道详情\n"
         + String.format("- 护道者：%s（第%d层）\n", result.protectorName(), result.protectorLevel())
         + String.format("- 被护道者：%s（第%d层）\n", result.protegeName(), result.protegeLevel())
         + String.format("- 单人加成：%.1f%%\n", result.singleProtectorBonus())
-        + String.format("- 是否同地点：%s", result.isInSameLocation() ? "是" : "否");
+        + String.format("- 是否同地点：%s", result.isInSameLocation() ? "是" : "否"));
   }
 
   private String formatProtectionQueryResultMarkdown(DaoProtectionQueryResult result) {

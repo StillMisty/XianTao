@@ -9,6 +9,8 @@ public interface EquipmentTemplateRepository {
 
   Optional<EquipmentTemplate> findById(Long id);
 
+  Optional<EquipmentTemplate> findByName(String name);
+
   List<EquipmentTemplate> findByIds(List<Long> ids);
 
   List<EquipmentTemplate> findAll();
