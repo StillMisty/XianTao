@@ -61,6 +61,7 @@ dependencies {
     implementation(libs.spring.ai.starter.model.openai)
     implementation(libs.simbot.core.spring.boot.starter)
     implementation(libs.simbot.component.onebot.v11.core)
+    implementation(libs.simbot.component.qq.guild.core)
     implementation(libs.ktor.client.cio)
 }
 

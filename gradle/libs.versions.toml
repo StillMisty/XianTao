@@ -3,9 +3,10 @@ springBoot = "4.+"
 springAi = "2.+"
 # SimBot 相关版本
 simbotCore = "4.+"
-simbotComponent = "1.+"
+simbotComponentOnebotV11 = "1.+"
+simbotComponentQqGuild = "4+"
 # Ktor 客户端版本
-ktor = "3.+"
+ktor = "2.+"
 # 数据库相关版本
 mybatisFlex = "1.+"
 flyway = "12.+"
@@ -47,7 +48,8 @@ spring-ai-starter-model-openai = { group = "org.springframework.ai", name = "spr
 
 # SimBot 库
 simbot-core-spring-boot-starter = { group = "love.forte.simbot", name = "simbot-core-spring-boot-starter", version.ref = "simbotCore" }
-simbot-component-onebot-v11-core = { group = "love.forte.simbot.component", name = "simbot-component-onebot-v11-core", version.ref = "simbotComponent" }
+simbot-component-onebot-v11-core = { group = "love.forte.simbot.component", name = "simbot-component-onebot-v11-core", version.ref = "simbotComponentOnebotV11" }
+simbot-component-qq-guild-core = { group = "love.forte.simbot.component", name = "simbot-component-qq-guild-core", version.ref = "simbotComponentQqGuild" }
 
 # Ktor 客户端库
 ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio", version.ref = "ktor" }

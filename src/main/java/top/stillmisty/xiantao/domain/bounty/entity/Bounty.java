@@ -9,7 +9,7 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import top.stillmisty.xiantao.domain.bounty.BountyRewardPool;
-import top.stillmisty.xiantao.infrastructure.mybatis.handler.BountyRewardListTypeHandler;
+import top.stillmisty.xiantao.infrastructure.mybatis.handler.BountyRewardPoolListTypeHandler;
 
 /** 悬赏任务实体 */
 @Data
@@ -29,7 +29,7 @@ public class Bounty {
 
   private Integer durationMinutes;
 
-  @Column(typeHandler = BountyRewardListTypeHandler.class)
+  @Column(typeHandler = BountyRewardPoolListTypeHandler.class)
   private List<BountyRewardPool> rewards;
 
   private Integer requireLevel;

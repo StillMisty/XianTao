@@ -41,3 +41,4 @@ out/
 
 # 本地配置文件（包含敏感信息）
 src/main/resources/application-local.yml
+src/main/resources/simbot-bots/
