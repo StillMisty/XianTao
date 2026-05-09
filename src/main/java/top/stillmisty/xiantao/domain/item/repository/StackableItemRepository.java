@@ -23,6 +23,10 @@ public interface StackableItemRepository {
   /** 根据用户ID和模板ID查找物品 */
   Optional<StackableItem> findByUserIdAndTemplateId(Long userId, Long templateId);
 
+  /** 根据用户ID、模板ID和属性哈希值查找物品 */
+  Optional<StackableItem> findByUserIdAndTemplateIdAndPropertiesHash(
+      Long userId, Long templateId, int propertiesHash);
+
   /** 根据用户ID和名称模糊匹配查找物品 */
   List<StackableItem> findByUserIdAndNameContaining(Long userId, String name);
 

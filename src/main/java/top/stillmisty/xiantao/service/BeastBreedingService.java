@@ -55,7 +55,7 @@ public class BeastBreedingService {
         stackableItemRepository
             .findByUserIdAndTemplateId(userId, eggTemplate.getId())
             .orElseThrow(() -> new IllegalStateException("背包中没有 [%s]".formatted(eggName)));
-    stackableItemService.reduceStackableItem(userId, eggTemplate.getId(), 1);
+    stackableItemService.reduceStackableItem(userId, stackableItem.getId(), 1);
 
     return hatchBeastWithTemplate(userId, cellId, eggTemplate);
   }
@@ -70,7 +70,7 @@ public class BeastBreedingService {
             stackableItemRepository
                 .findByUserIdAndTemplateId(userId, template.getId())
                 .orElseThrow(() -> new IllegalStateException("背包中没有 [" + template.getName() + "]"));
-        stackableItemService.reduceStackableItem(userId, template.getId(), 1);
+        stackableItemService.reduceStackableItem(userId, stackableItem.getId(), 1);
         yield hatchBeastWithTemplate(userId, cellId, template);
       }
       case ItemResolver.NotFound(var name) ->
@@ -290,7 +290,7 @@ public class BeastBreedingService {
       throw new IllegalStateException(
           "需要 %d 个进化石（当前%d）".formatted(stoneCount, stoneItem.getQuantity()));
     }
-    stackableItemService.reduceStackableItem(userId, stoneTemplate.getId(), stoneCount);
+    stackableItemService.reduceStackableItem(userId, stoneItem.getId(), stoneCount);
 
     if ("升品".equals(mode)) {
       return beastEvolutionService.breakthroughBeastQuality(fudi, cell, userId, cellId);

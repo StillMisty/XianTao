@@ -55,7 +55,7 @@ public class DiscardService {
       throw new IllegalStateException("背包中未找到【" + input + "】");
     }
     StackableItem item = items.getFirst();
-    stackableItemService.reduceStackableItem(userId, item.getTemplateId(), 1);
+    stackableItemService.reduceStackableItem(userId, item.getId(), 1);
     log.info(
         "丢弃物品: userId={}, item={}, templateId={}", userId, item.getName(), item.getTemplateId());
     return "已丢弃【" + item.getName() + "】";

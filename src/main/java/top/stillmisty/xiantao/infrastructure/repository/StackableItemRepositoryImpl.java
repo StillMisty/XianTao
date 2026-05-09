@@ -43,6 +43,17 @@ public class StackableItemRepositoryImpl implements StackableItemRepository {
   }
 
   @Override
+  public Optional<StackableItem> findByUserIdAndTemplateIdAndPropertiesHash(
+      Long userId, Long templateId, int propertiesHash) {
+    QueryWrapper query =
+        new QueryWrapper()
+            .eq(StackableItem::getUserId, userId)
+            .eq(StackableItem::getTemplateId, templateId)
+            .eq(StackableItem::getPropertiesHash, propertiesHash);
+    return Optional.ofNullable(stackableItemMapper.selectOneByQuery(query));
+  }
+
+  @Override
   public List<StackableItem> findByUserIdAndType(Long userId, ItemType type) {
     QueryWrapper query =
         new QueryWrapper()

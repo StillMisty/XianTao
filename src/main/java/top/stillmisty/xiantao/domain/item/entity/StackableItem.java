@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
@@ -50,6 +51,9 @@ public class StackableItem {
   @Column(typeHandler = JsonbTypeHandler.class)
   private Map<String, Object> properties;
 
+  /** properties 的确定性哈希值，用于按属性拆分堆叠行 */
+  private Integer propertiesHash;
+
   /** 创建时间 */
   @Column(onInsertValue = "now()")
   private LocalDateTime createTime;
@@ -70,6 +74,7 @@ public class StackableItem {
     item.name = name;
     item.quantity = quantity;
     item.createTime = LocalDateTime.now();
+    item.propertiesHash = computeHash(item.properties);
     return item;
   }
 
@@ -148,5 +153,15 @@ public class StackableItem {
       return val instanceof Number n ? n.intValue() : 0;
     }
     return 0;
+  }
+
+  /**
+   * 对 properties 计算确定性哈希值
+   *
+   * <p>先按键排序再哈希，保证相同内容的 Map 产生相同哈希值。properties 为 null 或空时返回 0。
+   */
+  public static int computeHash(Map<String, Object> properties) {
+    if (properties == null || properties.isEmpty()) return 0;
+    return new TreeMap<>(properties).hashCode();
   }
 }

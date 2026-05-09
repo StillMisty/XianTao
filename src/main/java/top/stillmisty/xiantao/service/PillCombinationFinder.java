@@ -157,7 +157,7 @@ public class PillCombinationFinder {
     for (Map.Entry<String, Integer> entry : usedHerbs.entrySet()) {
       for (StackableItem herb : herbs) {
         if (herb.getName().equals(entry.getKey())) {
-          stackableItemService.reduceStackableItem(userId, herb.getTemplateId(), entry.getValue());
+          stackableItemService.reduceStackableItem(userId, herb.getId(), entry.getValue());
           break;
         }
       }
@@ -260,13 +260,14 @@ public class PillCombinationFinder {
     Map<String, Object> properties = new HashMap<>();
     properties.put("grade", grade);
     properties.put("quality", quality.getCode());
+    int hash = StackableItem.computeHash(properties);
 
     Optional<StackableItem> existingItem =
-        stackableItemRepository.findByUserIdAndTemplateId(userId, resultTemplate.getId());
+        stackableItemRepository.findByUserIdAndTemplateIdAndPropertiesHash(
+            userId, resultTemplate.getId(), hash);
     if (existingItem.isPresent()) {
       StackableItem item = existingItem.get();
       item.addQuantity(quantity);
-      item.setProperties(properties);
       stackableItemRepository.save(item);
     } else {
       StackableItem newItem =
@@ -277,6 +278,7 @@ public class PillCombinationFinder {
               resultTemplate.getName(),
               quantity);
       newItem.setProperties(properties);
+      newItem.setPropertiesHash(hash);
       stackableItemRepository.save(newItem);
     }
   }

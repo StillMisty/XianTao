@@ -123,7 +123,7 @@ public class FarmService {
             .findByUserIdAndTemplateId(userId, seedTemplate.getId())
             .orElseThrow(() -> new IllegalStateException("背包中没有 [%s]".formatted(cropName)));
 
-    stackableItemService.reduceStackableItem(userId, seedTemplate.getId(), 1);
+    stackableItemService.reduceStackableItem(userId, stackableItem.getId(), 1);
 
     int growTime = seedTemplate.getGrowTime() != null ? seedTemplate.getGrowTime() : 24;
     int cropTier = fudiHelper.getCropTier(growTime);
@@ -143,7 +143,7 @@ public class FarmService {
                 .findByUserIdAndTemplateId(userId, template.getId())
                 .orElseThrow(() -> new IllegalStateException("背包中没有 [" + template.getName() + "]"));
 
-        stackableItemService.reduceStackableItem(userId, template.getId(), 1);
+        stackableItemService.reduceStackableItem(userId, stackableItem.getId(), 1);
 
         int growTime = template.getGrowTime() != null ? template.getGrowTime() : 24;
         int cropTier = fudiHelper.getCropTier(growTime);

@@ -1,6 +1,7 @@
 package top.stillmisty.xiantao.service;
 
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,9 +21,23 @@ public class StackableItemService {
   /** 添加堆叠物品到背包 */
   public void addStackableItem(
       Long userId, Long templateId, ItemType itemType, String name, int quantity) {
+    addStackableItem(userId, templateId, itemType, name, quantity, null);
+  }
+
+  /** 添加堆叠物品到背包（含属性） */
+  public void addStackableItem(
+      Long userId,
+      Long templateId,
+      ItemType itemType,
+      String name,
+      int quantity,
+      Map<String, Object> properties) {
     userStateService.loadUser(userId);
 
-    var existingItem = stackableItemRepository.findByUserIdAndTemplateId(userId, templateId);
+    int hash = StackableItem.computeHash(properties);
+    var existingItem =
+        stackableItemRepository.findByUserIdAndTemplateIdAndPropertiesHash(
+            userId, templateId, hash);
 
     if (existingItem.isPresent()) {
       StackableItem item = existingItem.get();
@@ -31,20 +46,25 @@ public class StackableItemService {
       log.info("增加堆叠物品数量: userId={}, templateId={}, quantity={}", userId, templateId, quantity);
     } else {
       StackableItem newItem = StackableItem.create(userId, templateId, itemType, name, quantity);
+      newItem.setProperties(properties);
+      newItem.setPropertiesHash(hash);
       stackableItemRepository.save(newItem);
       log.info("添加新堆叠物品: userId={}, templateId={}, quantity={}", userId, templateId, quantity);
     }
   }
 
-  /** 减少堆叠物品数量 */
-  public void reduceStackableItem(Long userId, Long templateId, int quantity) {
-    var existingItem = stackableItemRepository.findByUserIdAndTemplateId(userId, templateId);
-
+  /** 按物品ID减少堆叠物品数量 */
+  public void reduceStackableItem(Long userId, Long itemId, int quantity) {
+    var existingItem = stackableItemRepository.findById(itemId);
     if (existingItem.isEmpty()) {
       return;
     }
 
     StackableItem item = existingItem.get();
+    if (!item.getUserId().equals(userId)) {
+      log.warn("物品所有权不匹配: userId={}, itemOwnerId={}", userId, item.getUserId());
+      return;
+    }
 
     if (!item.hasEnoughQuantity(quantity)) {
       return;
@@ -52,10 +72,10 @@ public class StackableItemService {
 
     if (item.reduceQuantity(quantity)) {
       stackableItemRepository.deleteById(item.getId());
-      log.info("删除堆叠物品（数量为0）: userId={}, templateId={}", userId, templateId);
+      log.info("删除堆叠物品（数量为0）: userId={}, itemId={}", userId, itemId);
     } else {
       stackableItemRepository.save(item);
-      log.info("减少堆叠物品数量: userId={}, templateId={}, quantity={}", userId, templateId, quantity);
+      log.info("减少堆叠物品数量: userId={}, itemId={}, quantity={}", userId, itemId, quantity);
     }
   }
 

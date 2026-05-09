@@ -126,8 +126,7 @@ public class PillRefiningService {
         PillQuality quality = combinationFinder.determineQuality(qualityScore);
 
         for (HerbInput input : parsedInputs) {
-          stackableItemService.reduceStackableItem(
-              userId, input.herb().getTemplateId(), input.quantity());
+          stackableItemService.reduceStackableItem(userId, input.herb().getId(), input.quantity());
         }
 
         long resultItemId = recipeScroll.resultItemId();
