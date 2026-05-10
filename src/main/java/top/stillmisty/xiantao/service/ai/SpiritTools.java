@@ -15,6 +15,7 @@ import top.stillmisty.xiantao.domain.fudi.vo.CollectAllVO;
 import top.stillmisty.xiantao.domain.fudi.vo.CollectVO;
 import top.stillmisty.xiantao.domain.fudi.vo.FarmCellVO;
 import top.stillmisty.xiantao.domain.fudi.vo.GiveGiftVO;
+import top.stillmisty.xiantao.domain.fudi.vo.PenCellVO;
 import top.stillmisty.xiantao.domain.item.enums.InventoryCategory;
 import top.stillmisty.xiantao.domain.item.vo.ItemEntry;
 import top.stillmisty.xiantao.service.*;
@@ -27,6 +28,7 @@ public class SpiritTools {
 
   private final FudiService fudiService;
   private final FarmService farmService;
+  private final BeastService beastService;
   private final InventoryService inventoryService;
   private final SpiritRepository spiritRepository;
 
@@ -151,6 +153,33 @@ public class SpiritTools {
       log.error("建造地块失败: position={}, cellType={}", position, cellType, e);
       return new BuildCellResponse(
           false, "建造失败：" + e.getMessage(), position, cellType.getChineseName());
+    }
+  }
+
+  /** 孵化兽卵工具 */
+  @Tool(description = "在福地的指定兽栏地块孵化兽卵。需要先建造兽栏，再调用queryBag('兽卵')查看可用兽卵。提供地块编号和兽卵名称或编号。")
+  public HatchBeastResponse hatchBeast(
+      @ToolParam(description = "孵化地块编号，如'1'、'2'等") String position,
+      @ToolParam(description = "兽卵编号或名称。先调用queryBag('兽卵')查看编号，例如'1'、'2'，或直接使用名称如'火凤卵'")
+          String eggName) {
+    try {
+      Long userId = getCurrentUserId();
+
+      PenCellVO result = beastService.hatchBeastByInput(userId, position, eggName);
+
+      long hours =
+          java.time.Duration.between(java.time.LocalDateTime.now(), result.getMatureTime())
+              .toHours();
+      return new HatchBeastResponse(
+          true,
+          String.format(
+              "已在地块 %s 孵化%s（%s/T%d），预计 %d 小时后成熟。",
+              position, result.getBeastName(), result.getQuality(), result.getTier(), hours),
+          position,
+          result.getBeastName());
+    } catch (Exception e) {
+      log.error("孵化兽卵失败: position={}, eggName={}", position, eggName, e);
+      return new HatchBeastResponse(false, "孵化失败：" + e.getMessage(), position, eggName);
     }
   }
 
@@ -302,6 +331,12 @@ public class SpiritTools {
       @JsonPropertyDescription("结果消息") String message,
       @JsonPropertyDescription("建造地块编号") String position,
       @JsonPropertyDescription("地块类型") String cellType) {}
+
+  public record HatchBeastResponse(
+      @JsonPropertyDescription("是否成功") boolean success,
+      @JsonPropertyDescription("结果消息") String message,
+      @JsonPropertyDescription("孵化地块编号") String position,
+      @JsonPropertyDescription("灵兽名称") String beastName) {}
 
   public record RemoveCellResponse(
       @JsonPropertyDescription("是否成功") boolean success,
