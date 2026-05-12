@@ -62,8 +62,7 @@ public class TrainingService {
     User user = userStateService.loadUser(userId);
 
     if (user.getStatus() != UserStatus.IDLE) {
-      throw new IllegalStateException(
-          "您当前处于 " + user.getStatus().getName() + " 状态，无法开始历练（需要 空闲 状态）");
+      throw new BusinessException(ErrorCode.STATUS_BLOCKED, user.getStatus().getName(), "空闲");
     }
 
     if (user.getLocationId() == null) {
@@ -100,8 +99,7 @@ public class TrainingService {
     User user = userStateService.loadUser(userId);
 
     if (user.getStatus() != UserStatus.TRAINING && user.getStatus() != UserStatus.DYING) {
-      throw new IllegalStateException(
-          "您当前处于 " + user.getStatus().getName() + " 状态，无法结束历练（需要 历练 状态）");
+      throw new BusinessException(ErrorCode.STATUS_BLOCKED, user.getStatus().getName(), "历练");
     }
 
     TrainingRewardVO earlyResult = checkEndTrainingEarlyExit(userId, user);

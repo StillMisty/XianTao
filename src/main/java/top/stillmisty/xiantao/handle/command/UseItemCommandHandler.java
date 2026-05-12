@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.service.ItemUseService;
 import top.stillmisty.xiantao.service.ServiceResult;
 
@@ -18,13 +19,17 @@ public class UseItemCommandHandler implements CommandGroup {
 
   private final ItemUseService itemUseService;
 
-  /**
-   * 处理使用物品命令
-   *
-   * @param itemName 物品名称或编号
-   * @param args 额外参数（如进化石需要位置）
-   */
   public String handleUseItem(PlatformType platform, String openId, String itemName, String args) {
+    return handleUseItem(platform, openId, itemName, args, TextFormat.PLAIN);
+  }
+
+  public String handleUseItemMarkdown(
+      PlatformType platform, String openId, String itemName, String args) {
+    return handleUseItem(platform, openId, itemName, args, TextFormat.MARKDOWN);
+  }
+
+  public String handleUseItem(
+      PlatformType platform, String openId, String itemName, String args, TextFormat fmt) {
     log.debug(
         "处理使用物品 - Platform: {}, OpenId: {}, ItemName: {}, Args: {}",
         platform,
@@ -52,10 +57,5 @@ public class UseItemCommandHandler implements CommandGroup {
     return List.of(
         new CommandEntry("使用 {{物品}}", "使用物品（丹药、玉简、卷轴等）", "使用 天元丹"),
         new CommandEntry("使用 {{物品}} {{参数}}", "使用物品并指定参数", "使用 进化石 1"));
-  }
-
-  public String handleUseItemMarkdown(
-      PlatformType platform, String openId, String itemName, String args) {
-    return handleUseItem(platform, openId, itemName, args);
   }
 }

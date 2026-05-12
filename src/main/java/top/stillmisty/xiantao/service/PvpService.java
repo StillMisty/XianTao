@@ -32,10 +32,10 @@ public class PvpService {
     User defender =
         userRepository
             .findByNickname(targetNickname)
-            .orElseThrow(() -> new IllegalStateException("未找到玩家【" + targetNickname + "】"));
+            .orElseThrow(() -> new BusinessException(ErrorCode.PLAYER_NOT_FOUND, targetNickname));
 
     if (attacker.getId().equals(defender.getId())) {
-      throw new IllegalStateException("不能和自己切磋！");
+      throw new BusinessException(ErrorCode.PLAYER_CANNOT_SELF);
     }
 
     var teamA = combatService.buildPlayerTeam(attacker);

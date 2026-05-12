@@ -56,21 +56,22 @@ public class FarmService {
 
   FarmCellVO plantCrop(Long userId, Integer cellId, Integer cropId, String cropName, int cropTier) {
     Fudi fudi =
-        fudiHelper.findAndTouchFudi(userId).orElseThrow(() -> new IllegalStateException("未找到福地"));
+        fudiHelper
+            .findAndTouchFudi(userId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.FUDI_NOT_FOUND));
 
     FudiCell existingCell =
         fudiCellRepository.findByFudiIdAndCellId(fudi.getId(), cellId).orElse(null);
     if (existingCell != null
         && existingCell.getCellType() != CellType.EMPTY
         && existingCell.getCellType() != CellType.FARM) {
-      throw new IllegalStateException("地块 " + cellId + " 已有其他类型建筑");
+      throw new BusinessException(ErrorCode.CELL_TYPE_MISMATCH, cellId);
     }
 
     int cellLevel = existingCell != null ? existingCell.getCellLevel() : 1;
     int minLevel = Math.max(1, cropTier);
     if (cellLevel < minLevel) {
-      throw new IllegalStateException(
-          "作物等阶(T%d)需要至少Lv%d灵田，当前灵田Lv%d".formatted(cropTier, minLevel, cellLevel));
+      throw new BusinessException(ErrorCode.CROP_TIER_REQUIRES_FARM, cropTier, minLevel, cellLevel);
     }
 
     int stoneCost = cropTier * 5;
@@ -121,7 +122,7 @@ public class FarmService {
     var stackableItem =
         stackableItemRepository
             .findByUserIdAndTemplateId(userId, seedTemplate.getId())
-            .orElseThrow(() -> new IllegalStateException("背包中没有 [%s]".formatted(cropName)));
+            .orElseThrow(() -> new BusinessException(ErrorCode.SEED_NOT_IN_INVENTORY, cropName));
 
     stackableItemService.reduceStackableItem(userId, stackableItem.getId(), 1);
 
@@ -141,7 +142,9 @@ public class FarmService {
         var stackableItem =
             stackableItemRepository
                 .findByUserIdAndTemplateId(userId, template.getId())
-                .orElseThrow(() -> new IllegalStateException("背包中没有 [" + template.getName() + "]"));
+                .orElseThrow(
+                    () ->
+                        new BusinessException(ErrorCode.SEED_NOT_IN_INVENTORY, template.getName()));
 
         stackableItemService.reduceStackableItem(userId, stackableItem.getId(), 1);
 
@@ -153,21 +156,9 @@ public class FarmService {
         yield plantCrop(userId, cellId, cropId, cropName, cropTier);
       }
       case ItemResolver.NotFound(var name) ->
-          throw new IllegalStateException("背包中未找到种子 [" + name + "]");
-      case ItemResolver.Ambiguous(var name, var candidates) -> {
-        var sb = new StringBuilder("找到多个种子，请使用编号：\n");
-        for (var e : candidates) {
-          sb.append(e.index())
-              .append(". ")
-              .append(e.name())
-              .append(" x")
-              .append(e.quantity())
-              .append(" (")
-              .append(e.metadata())
-              .append(")\n");
-        }
-        throw new IllegalStateException(sb.toString().strip());
-      }
+          throw new BusinessException(ErrorCode.SEED_NOT_IN_INVENTORY, name);
+      case ItemResolver.Ambiguous(var name, var candidates) ->
+          throw new BusinessException(ErrorCode.ITEM_MULTIPLE_MATCH, name);
     };
   }
 
@@ -177,7 +168,7 @@ public class FarmService {
     updateGrowthProgress(cell);
 
     if (!(cell.getConfig() instanceof CellConfig.FarmConfig farm)) {
-      throw new IllegalStateException("地块不是灵田");
+      throw new BusinessException(ErrorCode.CELL_NOT_FARM);
     }
 
     Double progress = calculateGrowthProgress(cell);
@@ -185,11 +176,11 @@ public class FarmService {
 
     if (!isPerennial && progress != null && progress > 1.0 && isWilted(cell)) {
       fudiCellRepository.deleteById(cell.getId());
-      throw new IllegalStateException("%s 已枯萎（超过成熟时间两倍未收获）".formatted(getCropName(farm.cropId())));
+      throw new BusinessException(ErrorCode.CROP_WITHERED, getCropName(farm.cropId()));
     }
 
     if (progress == null || progress < 1.0) {
-      throw new IllegalStateException("灵药尚未成熟");
+      throw new BusinessException(ErrorCode.CROP_NOT_READY);
     }
 
     String cropName = getCropName(farm.cropId());
@@ -336,6 +327,6 @@ public class FarmService {
     return itemTemplateRepository.findByType(ItemType.SEED).stream()
         .filter(t -> t.getName().equals(name) || t.getName().contains(name))
         .findFirst()
-        .orElseThrow(() -> new IllegalStateException("未找到种子: %s".formatted(name)));
+        .orElseThrow(() -> new BusinessException(ErrorCode.SEED_TEMPLATE_NOT_FOUND, name));
   }
 }

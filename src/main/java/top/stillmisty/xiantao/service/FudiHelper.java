@@ -48,7 +48,8 @@ public class FudiHelper {
   public void checkSpiritStones(Long userId, int cost) {
     User user = userStateService.loadUser(userId);
     if (user.getSpiritStones() < cost) {
-      throw new IllegalStateException("灵石不足（需要 %d，当前 %d）".formatted(cost, user.getSpiritStones()));
+      throw new BusinessException(
+          ErrorCode.SPIRIT_STONES_INSUFFICIENT, cost, user.getSpiritStones());
     }
   }
 
@@ -57,7 +58,8 @@ public class FudiHelper {
     int affected = userRepository.deductSpiritStonesIfEnough(userId, cost);
     if (affected == 0) {
       User user = userStateService.loadUser(userId);
-      throw new IllegalStateException("灵石不足（需要 %d，当前 %d）".formatted(cost, user.getSpiritStones()));
+      throw new BusinessException(
+          ErrorCode.SPIRIT_STONES_INSUFFICIENT, cost, user.getSpiritStones());
     }
   }
 
@@ -78,7 +80,7 @@ public class FudiHelper {
     try {
       return Integer.valueOf(position);
     } catch (NumberFormatException e) {
-      throw new IllegalStateException("地块编号格式错误，请输入数字编号");
+      throw new BusinessException(ErrorCode.CELL_ID_INVALID);
     }
   }
 

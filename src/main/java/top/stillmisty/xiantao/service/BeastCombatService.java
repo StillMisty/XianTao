@@ -1,5 +1,7 @@
 package top.stillmisty.xiantao.service;
 
+import static top.stillmisty.xiantao.service.ErrorCode.*;
+
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -53,7 +55,7 @@ public class BeastCombatService {
     }
 
     if (beast.getHpCurrent() <= 0) {
-      throw new IllegalStateException("灵兽HP为0，请先恢复");
+      throw new BusinessException(BEAST_DEAD);
     }
 
     List<Beast> allBeasts = beastRepository.findByFudiId(pcb.fudi().getId());
@@ -62,7 +64,7 @@ public class BeastCombatService {
             .filter(b -> Boolean.TRUE.equals(b.getIsDeployed()) && b.canFight())
             .count();
     if (deployedCount >= 2) {
-      throw new IllegalStateException("出战灵兽已达上限 (2只)，请先召回其他灵兽");
+      throw new BusinessException(BEAST_DEPLOY_FULL);
     }
 
     beast.setIsDeployed(true);
@@ -97,7 +99,9 @@ public class BeastCombatService {
 
   BatchCountVO undeployAllBeasts(Long userId) {
     Fudi fudi =
-        fudiHelper.findAndTouchFudi(userId).orElseThrow(() -> new IllegalStateException("未找到福地"));
+        fudiHelper
+            .findAndTouchFudi(userId)
+            .orElseThrow(() -> new BusinessException(FUDI_NOT_FOUND));
 
     List<Beast> beasts = beastRepository.findByFudiId(fudi.getId());
     int count = 0;
@@ -144,7 +148,9 @@ public class BeastCombatService {
 
   BeastRecoverResult recoverAllBeasts(Long userId) {
     Fudi fudi =
-        fudiHelper.findAndTouchFudi(userId).orElseThrow(() -> new IllegalStateException("未找到福地"));
+        fudiHelper
+            .findAndTouchFudi(userId)
+            .orElseThrow(() -> new BusinessException(FUDI_NOT_FOUND));
 
     int totalCost = 0;
     int recoverCount = 0;
@@ -174,7 +180,9 @@ public class BeastCombatService {
 
   List<BeastStatusVO> getDeployedBeasts(Long userId) {
     Fudi fudi =
-        fudiHelper.findAndTouchFudi(userId).orElseThrow(() -> new IllegalStateException("未找到福地"));
+        fudiHelper
+            .findAndTouchFudi(userId)
+            .orElseThrow(() -> new BusinessException(FUDI_NOT_FOUND));
     List<Beast> allBeasts = beastRepository.findByFudiId(fudi.getId());
     return allBeasts.stream()
         .filter(b -> Boolean.TRUE.equals(b.getIsDeployed()))

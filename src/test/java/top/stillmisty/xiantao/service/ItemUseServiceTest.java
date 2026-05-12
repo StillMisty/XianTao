@@ -39,7 +39,7 @@ class ItemUseServiceTest {
   void useItem_whenItemNotFound_shouldThrow() {
     when(stackableItemRepository.findByUserIdAndNameContaining(userId, "丹药")).thenReturn(List.of());
 
-    assertThrows(IllegalStateException.class, () -> itemUseService.useItem(userId, "丹药", ""));
+    assertThrows(BusinessException.class, () -> itemUseService.useItem(userId, "丹药", ""));
   }
 
   @Test
@@ -60,7 +60,7 @@ class ItemUseServiceTest {
     when(itemTemplateRepository.findById(10L)).thenReturn(Optional.of(template));
     when(handlers.stream()).thenReturn(List.<ItemUseHandler>of().stream());
 
-    assertThrows(IllegalStateException.class, () -> itemUseService.useItem(userId, "未知丹", ""));
+    assertThrows(BusinessException.class, () -> itemUseService.useItem(userId, "未知丹", ""));
   }
 
   @Test

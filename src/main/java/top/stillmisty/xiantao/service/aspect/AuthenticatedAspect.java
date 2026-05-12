@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.service.AuthenticationService;
+import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
 
@@ -65,7 +66,9 @@ public class AuthenticatedAspect {
     } catch (RuntimeException e) {
       log.error("Service exception for userId={}: {}", userId, e.getMessage(), e);
       String message =
-          e instanceof IllegalStateException || e instanceof IllegalArgumentException
+          e instanceof IllegalStateException
+                  || e instanceof IllegalArgumentException
+                  || e instanceof BusinessException
               ? e.getMessage()
               : "系统繁忙，请稍后再试";
       return ServiceResult.businessFailure(message);

@@ -1,5 +1,7 @@
 package top.stillmisty.xiantao.service;
 
+import static top.stillmisty.xiantao.service.ErrorCode.*;
+
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -112,7 +114,7 @@ public class BountyService {
     UserBounty record =
         userBountyRepository
             .findActiveByUserId(userId)
-            .orElseThrow(() -> new IllegalStateException("当前没有进行中的悬赏"));
+            .orElseThrow(() -> new BusinessException(BOUNTY_NO_ACTIVE));
 
     long minutesElapsed = Duration.between(record.getStartTime(), LocalDateTime.now()).toMinutes();
     long minutesRemaining = Math.max(0, record.getDurationMinutes() - minutesElapsed);
@@ -134,21 +136,20 @@ public class BountyService {
     User user = userStateService.loadUser(userId);
 
     if (user.getStatus() != UserStatus.IDLE) {
-      throw new IllegalStateException(
-          "您当前处于 " + user.getStatus().getName() + " 状态，无法接取悬赏（需要 空闲 状态）");
+      throw new BusinessException(STATUS_BLOCKED, user.getStatus().getName(), "空闲");
     }
 
     Bounty bounty =
         bountyRepository
             .findById(bountyId)
-            .orElseThrow(() -> new IllegalArgumentException("悬赏不存在"));
+            .orElseThrow(() -> new BusinessException(BOUNTY_NOT_FOUND));
 
     MapNode mapNode = mapNodeRepository.findById(user.getLocationId()).orElseThrow();
     if (!bounty.getMapId().equals(mapNode.getId())) {
-      throw new IllegalArgumentException("该悬赏不属于当前地图");
+      throw new BusinessException(BOUNTY_WRONG_MAP);
     }
     if (!bounty.requiresLevel(user.getLevel())) {
-      throw new IllegalArgumentException("等级不足，无法接取该悬赏");
+      throw new BusinessException(BOUNTY_LEVEL_INSUFFICIENT);
     }
 
     long seed = userId * 31 + LocalDate.now().toEpochDay();
@@ -191,13 +192,12 @@ public class BountyService {
   public String abandonBounty(Long userId) {
     User user = userStateService.loadUser(userId);
     if (user.getStatus() != UserStatus.BOUNTY) {
-      throw new IllegalStateException(
-          "您当前处于 " + user.getStatus().getName() + " 状态，无法放弃悬赏（需要 悬赏 状态）");
+      throw new BusinessException(STATUS_BLOCKED, user.getStatus().getName(), "悬赏");
     }
     UserBounty record =
         userBountyRepository
             .findActiveByUserId(userId)
-            .orElseThrow(() -> new IllegalArgumentException("当前没有进行中的悬赏"));
+            .orElseThrow(() -> new BusinessException(BOUNTY_NO_ACTIVE));
 
     record.setStatus(BountyStatus.ABANDONED);
     userBountyRepository.save(record);

@@ -1,5 +1,7 @@
 package top.stillmisty.xiantao.service;
 
+import static top.stillmisty.xiantao.service.ErrorCode.*;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -41,21 +43,18 @@ public class BountyCombatService {
   public BountyRewardVO completeBounty(Long userId) {
     User user = userStateService.loadUser(userId);
     if (user.getStatus() != UserStatus.BOUNTY) {
-      throw new IllegalStateException(
-          "您当前处于 " + user.getStatus().getName() + " 状态，无法完成悬赏（需要 悬赏 状态）");
+      throw new BusinessException(STATUS_BLOCKED, user.getStatus().getName(), "悬赏");
     }
     UserBounty record =
         userBountyRepository
             .findActiveByUserId(userId)
-            .orElseThrow(() -> new IllegalArgumentException("当前没有进行中的悬赏"));
+            .orElseThrow(() -> new BusinessException(BOUNTY_NO_ACTIVE));
 
     long minutesElapsed = Duration.between(record.getStartTime(), LocalDateTime.now()).toMinutes();
     if (minutesElapsed < record.getDurationMinutes()) {
       long remaining = record.getDurationMinutes() - minutesElapsed;
-      throw new IllegalArgumentException(
-          String.format(
-              "悬赏「%s」还需 %d 分钟（共需 %d 分）",
-              record.getBountyName(), remaining, record.getDurationMinutes()));
+      throw new BusinessException(
+          BOUNTY_TIME_REMAINING, record.getBountyName(), remaining, record.getDurationMinutes());
     }
 
     MapNode mapNode = mapNodeRepository.findById(user.getLocationId()).orElseThrow();

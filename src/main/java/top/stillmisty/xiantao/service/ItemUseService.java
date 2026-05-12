@@ -49,7 +49,7 @@ public class ItemUseService {
     }
 
     if (matchedItem == null) {
-      throw new IllegalStateException("背包中未找到物品：" + itemName);
+      throw new BusinessException(ErrorCode.ITEM_NOT_FOUND, itemName);
     }
 
     final StackableItem finalItem = matchedItem;
@@ -63,7 +63,7 @@ public class ItemUseService {
             .orElse(null);
 
     if (handler == null) {
-      throw new IllegalStateException("该物品无法使用");
+      throw new BusinessException(ErrorCode.ITEM_CANNOT_USE);
     }
 
     // 3. 统一扣减物品（除非 handler 自行管理消耗）

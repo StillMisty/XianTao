@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
+import top.stillmisty.xiantao.domain.user.repository.UserAuthRepository;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 
 /** 统一身份认证服务 负责平台身份凭证解析、用户存在性验证、状态校验 统一返回 ServiceResult&lt;Long&gt; 替代原来的 AuthResult */
@@ -11,7 +12,7 @@ import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 @RequiredArgsConstructor
 public class AuthenticationService {
 
-  private final UserAuthService userAuthService;
+  private final UserAuthRepository userAuthRepository;
   private final UserRepository userRepository;
 
   /**
@@ -20,7 +21,7 @@ public class AuthenticationService {
    * @return 成功时 ServiceResult.Success 携带 userId
    */
   public ServiceResult<Long> authenticate(PlatformType platform, String openId) {
-    var userAuth = userAuthService.findUserIdByOpenId(platform, openId);
+    var userAuth = userAuthRepository.findByPlatformAndOpenId(platform, openId);
     return userAuth
         .<ServiceResult<Long>>map(auth -> new ServiceResult.Success<>(auth.getUserId()))
         .orElseGet(() -> ServiceResult.authFailure("输入「我要修仙 [道号]」进入仙途吧！"));

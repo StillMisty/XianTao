@@ -52,7 +52,7 @@ public class MapService {
     MapNode mapNode =
         mapNodeRepository
             .findById(user.getLocationId())
-            .orElseThrow(() -> new IllegalStateException("当前所在地图不存在"));
+            .orElseThrow(() -> new BusinessException(ErrorCode.MAP_CURRENT_NOT_FOUND));
     return convertToMapInfoVO(mapNode);
   }
 

@@ -38,7 +38,7 @@ public class DiscardService {
     if (equipResult instanceof ItemResolver.Found<Equipment> found) {
       Equipment equipment = found.item();
       if (equipment.getEquipped()) {
-        throw new IllegalStateException("【" + equipment.getName() + "】已装备，请先卸下再丢弃");
+        throw new BusinessException(ErrorCode.ITEM_EQUIPPED, equipment.getName());
       }
       equipmentRepository.deleteById(equipment.getId());
       log.info(
@@ -52,7 +52,7 @@ public class DiscardService {
     List<StackableItem> items =
         stackableItemRepository.findByUserIdAndNameContaining(userId, input);
     if (items.isEmpty()) {
-      throw new IllegalStateException("背包中未找到【" + input + "】");
+      throw new BusinessException(ErrorCode.ITEM_NOT_FOUND, input);
     }
     StackableItem item = items.getFirst();
     stackableItemService.reduceStackableItem(userId, item.getId(), 1);

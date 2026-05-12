@@ -36,7 +36,7 @@ public class TravelService {
     User user = userStateService.loadUser(userId);
 
     if (user.getStatus() != UserStatus.IDLE) {
-      throw new IllegalStateException("您当前处于 " + user.getStatus().getName() + " 状态，无法旅行（需要 空闲 状态）");
+      throw new BusinessException(ErrorCode.STATUS_BLOCKED, user.getStatus().getName(), "空闲");
     }
 
     Optional<MapNode> currentMapOpt = mapNodeRepository.findById(user.getLocationId());

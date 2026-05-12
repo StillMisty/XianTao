@@ -59,7 +59,7 @@ class DiscardServiceTest {
     when(itemResolver.resolveEquipment(userId, "玄铁剑"))
         .thenReturn(new ItemResolver.Found<>(equipment, 1));
 
-    assertThrows(IllegalStateException.class, () -> discardService.discardItem(userId, "玄铁剑"));
+    assertThrows(BusinessException.class, () -> discardService.discardItem(userId, "玄铁剑"));
   }
 
   @Test
@@ -91,6 +91,6 @@ class DiscardServiceTest {
     when(stackableItemRepository.findByUserIdAndNameContaining(userId, "不存在"))
         .thenReturn(List.of());
 
-    assertThrows(IllegalStateException.class, () -> discardService.discardItem(userId, "不存在"));
+    assertThrows(BusinessException.class, () -> discardService.discardItem(userId, "不存在"));
   }
 }

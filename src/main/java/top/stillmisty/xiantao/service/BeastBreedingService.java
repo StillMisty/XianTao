@@ -1,5 +1,7 @@
 package top.stillmisty.xiantao.service;
 
+import static top.stillmisty.xiantao.service.ErrorCode.*;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,12 +51,12 @@ public class BeastBreedingService {
         itemTemplateRepository.findByType(ItemType.BEAST_EGG).stream()
             .filter(t -> t.getName().equals(eggName) || t.getName().contains(eggName))
             .findFirst()
-            .orElseThrow(() -> new IllegalStateException("未找到兽卵: %s".formatted(eggName)));
+            .orElseThrow(() -> new BusinessException(BEAST_EGG_NOT_FOUND, eggName));
 
     var stackableItem =
         stackableItemRepository
             .findByUserIdAndTemplateId(userId, eggTemplate.getId())
-            .orElseThrow(() -> new IllegalStateException("背包中没有 [%s]".formatted(eggName)));
+            .orElseThrow(() -> new BusinessException(BEAST_EGG_NOT_IN_INVENTORY, eggName));
     stackableItemService.reduceStackableItem(userId, stackableItem.getId(), 1);
 
     return hatchBeastWithTemplate(userId, cellId, eggTemplate);
@@ -69,12 +71,13 @@ public class BeastBreedingService {
         var stackableItem =
             stackableItemRepository
                 .findByUserIdAndTemplateId(userId, template.getId())
-                .orElseThrow(() -> new IllegalStateException("背包中没有 [" + template.getName() + "]"));
+                .orElseThrow(
+                    () -> new BusinessException(BEAST_EGG_NOT_IN_INVENTORY, template.getName()));
         stackableItemService.reduceStackableItem(userId, stackableItem.getId(), 1);
         yield hatchBeastWithTemplate(userId, cellId, template);
       }
       case ItemResolver.NotFound(var name) ->
-          throw new IllegalStateException("背包中未找到兽卵 [" + name + "]");
+          throw new BusinessException(BEAST_EGG_NOT_IN_INVENTORY, name);
       case ItemResolver.Ambiguous(var name, var candidates) -> {
         var sb = new StringBuilder("找到多个兽卵，请使用编号：\n");
         for (var e : candidates) {
@@ -87,7 +90,7 @@ public class BeastBreedingService {
               .append(e.metadata())
               .append(")\n");
         }
-        throw new IllegalStateException(sb.toString().strip());
+        throw new BusinessException(ITEM_MULTIPLE_MATCH, name);
       }
     };
   }
@@ -95,12 +98,14 @@ public class BeastBreedingService {
   @Transactional
   PenCellVO hatchBeastWithTemplate(Long userId, Integer cellId, ItemTemplate eggTemplate) {
     Fudi fudi =
-        fudiHelper.findAndTouchFudi(userId).orElseThrow(() -> new IllegalStateException("未找到福地"));
+        fudiHelper
+            .findAndTouchFudi(userId)
+            .orElseThrow(() -> new BusinessException(FUDI_NOT_FOUND));
 
     FudiCell cell =
         fudiCellRepository
             .findByFudiIdAndCellId(fudi.getId(), cellId)
-            .orElseThrow(() -> new IllegalStateException("地块 " + cellId + " 不存在"));
+            .orElseThrow(() -> new BusinessException(CELL_NOT_FOUND, cellId));
 
     validateCellForHatch(cell, cellId);
 
@@ -149,7 +154,7 @@ public class BeastBreedingService {
     int tier =
         fudiHelper.getCropTier(eggTemplate.getGrowTime() != null ? eggTemplate.getGrowTime() : 72);
     if (cellLevel < tier) {
-      throw new IllegalStateException("灵兽等阶(T%d)需要至少Lv%d兽栏".formatted(tier, tier));
+      throw new BusinessException(BEAST_TIER_REQUIRES_PEN, tier, tier);
     }
 
     int stoneCost = tier * 200 + 200;
@@ -171,10 +176,10 @@ public class BeastBreedingService {
 
   private void validateCellForHatch(FudiCell cell, Integer cellId) {
     if (cell.getCellType() != CellType.PEN) {
-      throw new IllegalStateException("地块 " + cellId + " 不是兽栏");
+      throw new BusinessException(CELL_NOT_PEN, cellId);
     }
     if (cell.getConfig() instanceof CellConfig.PenConfig pen && pen.beastId() != null) {
-      throw new IllegalStateException("该兽栏已有灵兽，请先放生");
+      throw new BusinessException(BEAST_PEN_OCCUPIED);
     }
   }
 
@@ -232,15 +237,17 @@ public class BeastBreedingService {
   public ReleaseBeastVO releaseBeast(Long userId, String position) {
     Integer cellId = fudiHelper.parseCellId(position);
     Fudi fudi =
-        fudiHelper.findAndTouchFudi(userId).orElseThrow(() -> new IllegalStateException("未找到福地"));
+        fudiHelper
+            .findAndTouchFudi(userId)
+            .orElseThrow(() -> new BusinessException(FUDI_NOT_FOUND));
 
     FudiCell cell =
         fudiCellRepository
             .findByFudiIdAndCellId(fudi.getId(), cellId)
-            .orElseThrow(() -> new IllegalStateException("地块 " + cellId + " 不存在"));
+            .orElseThrow(() -> new BusinessException(CELL_NOT_FOUND, cellId));
 
     if (cell.getCellType() != CellType.PEN) {
-      throw new IllegalStateException("地块 " + cellId + " 不是兽栏");
+      throw new BusinessException(CELL_NOT_PEN, cellId);
     }
 
     Beast beast = beastDisplayHelper.findBeastByCell(cell);
@@ -263,32 +270,34 @@ public class BeastBreedingService {
   public PenCellVO evolveBeast(Long userId, String position, String mode) {
     Integer cellId = fudiHelper.parseCellId(position);
     Fudi fudi =
-        fudiHelper.findAndTouchFudi(userId).orElseThrow(() -> new IllegalStateException("未找到福地"));
+        fudiHelper
+            .findAndTouchFudi(userId)
+            .orElseThrow(() -> new BusinessException(FUDI_NOT_FOUND));
 
     FudiCell cell =
         fudiCellRepository
             .findByFudiIdAndCellId(fudi.getId(), cellId)
-            .orElseThrow(() -> new IllegalStateException("地块 " + cellId + " 不存在"));
+            .orElseThrow(() -> new BusinessException(CELL_NOT_FOUND, cellId));
 
     if (cell.getCellType() != CellType.PEN) {
-      throw new IllegalStateException("地块 " + cellId + " 不是兽栏");
+      throw new BusinessException(CELL_NOT_PEN, cellId);
     }
     if (beastDisplayHelper.isIncubating(cell)) {
-      throw new IllegalStateException("灵兽尚在孵化中");
+      throw new BusinessException(BEAST_HATCHING);
     }
 
     int stoneCount = "升品".equals(mode) ? 2 : 1;
     ItemTemplate stoneTemplate =
         itemTemplateRepository.findByType(ItemType.EVOLUTION_STONE).stream()
             .findFirst()
-            .orElseThrow(() -> new IllegalStateException("进化石模板未找到"));
+            .orElseThrow(() -> new BusinessException(BEAST_EVOLVE_STONE_NOT_FOUND));
     var stoneItem =
         stackableItemRepository
             .findByUserIdAndTemplateId(userId, stoneTemplate.getId())
-            .orElseThrow(() -> new IllegalStateException("背包中没有进化石"));
+            .orElseThrow(() -> new BusinessException(BEAST_EVOLVE_STONE_INVENTORY_EMPTY));
     if (stoneItem.getQuantity() < stoneCount) {
-      throw new IllegalStateException(
-          "需要 %d 个进化石（当前%d）".formatted(stoneCount, stoneItem.getQuantity()));
+      throw new BusinessException(
+          BEAST_EVOLVE_STONE_INSUFFICIENT, stoneCount, stoneItem.getQuantity());
     }
     stackableItemService.reduceStackableItem(userId, stoneItem.getId(), stoneCount);
 

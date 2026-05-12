@@ -64,7 +64,7 @@ class TrainingServiceTest {
     User user = createUser(UserStatus.IDLE, LocalDateTime.now().minusMinutes(10));
     when(userStateService.loadUser(userId)).thenReturn(user);
 
-    assertThrows(IllegalStateException.class, () -> trainingService.endTraining(userId));
+    assertThrows(BusinessException.class, () -> trainingService.endTraining(userId));
   }
 
   @Test
@@ -73,7 +73,7 @@ class TrainingServiceTest {
     User user = createUser(UserStatus.TRAINING, null);
     when(userStateService.loadUser(userId)).thenReturn(user);
 
-    assertThrows(IllegalStateException.class, () -> trainingService.startTraining(userId));
+    assertThrows(BusinessException.class, () -> trainingService.startTraining(userId));
   }
 
   @Test

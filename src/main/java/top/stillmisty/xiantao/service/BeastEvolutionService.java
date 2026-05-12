@@ -1,5 +1,7 @@
 package top.stillmisty.xiantao.service;
 
+import static top.stillmisty.xiantao.service.ErrorCode.*;
+
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,15 +32,15 @@ public class BeastEvolutionService {
   public PenCellVO evolveBeastTier(Fudi fudi, FudiCell cell, Long userId, Integer cellId) {
     Beast beast = beastDisplayHelper.findBeastByCell(cell);
     if (beast == null) {
-      throw new IllegalStateException("未找到灵兽");
+      throw new BusinessException(BEAST_NOT_FOUND);
     }
 
     if (beast.getTier() >= 5) {
-      throw new IllegalStateException("已是最高等阶 T5");
+      throw new BusinessException(BEAST_MAX_TIER);
     }
 
     if (beast.needsMoreLevels()) {
-      throw new IllegalStateException("灵兽需要先达到等级上限才能进化");
+      throw new BusinessException(BEAST_NEED_MAX_LEVEL);
     }
 
     int currentTier = beast.getTier();
@@ -54,7 +56,7 @@ public class BeastEvolutionService {
     boolean success = ThreadLocalRandom.current().nextInt(100) < successRate;
 
     if (!success) {
-      throw new IllegalStateException("进化失败！进化石和灵石已消耗");
+      throw new BusinessException(BEAST_EVOLVE_FAILED);
     }
 
     beast.evolve();
@@ -92,15 +94,15 @@ public class BeastEvolutionService {
   public PenCellVO breakthroughBeastQuality(Fudi fudi, FudiCell cell, Long userId, Integer cellId) {
     Beast beast = beastDisplayHelper.findBeastByCell(cell);
     if (beast == null) {
-      throw new IllegalStateException("未找到灵兽");
+      throw new BusinessException(BEAST_NOT_FOUND);
     }
 
     if (beast.getQuality() == BeastQuality.DIVINE) {
-      throw new IllegalStateException("已是最高品质神品");
+      throw new BusinessException(BEAST_MAX_QUALITY);
     }
 
     if (beast.needsMoreLevels()) {
-      throw new IllegalStateException("灵兽需要先达到等级上限才能突破");
+      throw new BusinessException(BEAST_NEED_MAX_LEVEL_BREAK);
     }
 
     BeastQuality currentQuality = beast.getQuality();
@@ -123,7 +125,7 @@ public class BeastEvolutionService {
     boolean success = ThreadLocalRandom.current().nextInt(100) < successRate;
 
     if (!success) {
-      throw new IllegalStateException("品质突破失败！进化石和灵石已消耗");
+      throw new BusinessException(BEAST_QUALITY_FAILED);
     }
 
     beast.qualityBreak();

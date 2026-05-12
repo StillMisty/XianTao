@@ -12,6 +12,8 @@ import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritHistoryRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
+import top.stillmisty.xiantao.service.BusinessException;
+import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.UserContext;
 
 /** 地灵情绪工具 供 LLM 通过 Function Calling 自主判断和更新情绪状态 */
@@ -37,7 +39,7 @@ public class SpiritEmotionTools {
       Spirit spirit =
           spiritRepository
               .findByFudiId(getFudiId(userId))
-              .orElseThrow(() -> new IllegalStateException("地灵不存在"));
+              .orElseThrow(() -> new BusinessException(ErrorCode.SPIRIT_NOT_FOUND));
 
       spirit.setEmotionState(emotionState);
       spiritRepository.save(spirit);
@@ -78,7 +80,7 @@ public class SpiritEmotionTools {
   private Long getFudiId(Long userId) {
     return fudiRepository
         .findByUserId(userId)
-        .orElseThrow(() -> new IllegalStateException("未找到福地"))
+        .orElseThrow(() -> new BusinessException(ErrorCode.FUDI_NOT_FOUND))
         .getId();
   }
 }

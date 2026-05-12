@@ -1,8 +1,9 @@
-package top.stillmisty.xiantao.handle.onebotv11;
+package top.stillmisty.xiantao.handle.listener;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import love.forte.simbot.component.onebot.v11.core.event.message.OneBotMessageEvent;
+import love.forte.simbot.component.qguild.event.QGGroupAtMessageCreateEvent;
 import love.forte.simbot.quantcat.common.annotations.ContentTrim;
 import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.FilterValue;
@@ -10,15 +11,15 @@ import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.command.PvpCommandHandler;
-import top.stillmisty.xiantao.service.NotificationAppender;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class PvpHandle {
-
+public class PvpListener {
   private final PvpCommandHandler pvpCommandHandler;
-  private final NotificationAppender notificationAppender;
+  private final ReplyHelper replyHelper;
+
+  // === OneBotV11 ===
 
   @Listener
   @ContentTrim
@@ -28,14 +29,20 @@ public class PvpHandle {
     String response =
         pvpCommandHandler.handleSpar(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), targetNickname);
-    sendWithNotifications(event, response);
+    replyHelper.replyOneBot(event, response);
   }
 
-  private void sendWithNotifications(OneBotMessageEvent event, String response) {
-    var result =
-        notificationAppender.prepareAppend(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), response);
-    event.replyBlocking(result.text());
-    notificationAppender.markDelivered(result.eventIds());
+  // === QQ ===
+
+  @Listener
+  @ContentTrim
+  @Filter("切磋 {{targetNickname}}")
+  public void sparQq(
+      QGGroupAtMessageCreateEvent event, @FilterValue("targetNickname") String targetNickname) {
+    log.debug("收到切磋请求 - AuthorId: {}, Target: {}", event.getAuthorId(), targetNickname);
+    String response =
+        pvpCommandHandler.handleSparMarkdown(
+            PlatformType.QQ, event.getAuthorId().toString(), targetNickname);
+    replyHelper.replyQQ(event, response);
   }
 }

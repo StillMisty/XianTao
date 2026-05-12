@@ -143,7 +143,7 @@ class BountyServiceTest {
   void getBountyStatus_whenNoActiveBounty_shouldThrow() {
     when(userBountyRepository.findActiveByUserId(userId)).thenReturn(Optional.empty());
 
-    assertThrows(IllegalStateException.class, () -> bountyService.getBountyStatus(userId));
+    assertThrows(BusinessException.class, () -> bountyService.getBountyStatus(userId));
   }
 
   @Test
@@ -168,7 +168,7 @@ class BountyServiceTest {
     User user = createUser(UserStatus.BOUNTY);
     when(userStateService.loadUser(userId)).thenReturn(user);
 
-    assertThrows(IllegalStateException.class, () -> bountyService.startBounty(userId, bountyId));
+    assertThrows(BusinessException.class, () -> bountyService.startBounty(userId, bountyId));
   }
 
   @Test
@@ -184,7 +184,7 @@ class BountyServiceTest {
     when(bountyRepository.findById(bountyId)).thenReturn(Optional.of(bounty));
     when(mapNodeRepository.findById(999L)).thenReturn(Optional.of(otherMap));
 
-    assertThrows(IllegalArgumentException.class, () -> bountyService.startBounty(userId, bountyId));
+    assertThrows(BusinessException.class, () -> bountyService.startBounty(userId, bountyId));
   }
 
   @Test
@@ -198,7 +198,7 @@ class BountyServiceTest {
     when(bountyRepository.findById(bountyId)).thenReturn(Optional.of(bounty));
     when(mapNodeRepository.findById(mapId)).thenReturn(Optional.of(mapNode));
 
-    assertThrows(IllegalArgumentException.class, () -> bountyService.startBounty(userId, bountyId));
+    assertThrows(BusinessException.class, () -> bountyService.startBounty(userId, bountyId));
   }
 
   // ===================== completeBounty =====================
@@ -231,7 +231,7 @@ class BountyServiceTest {
     User user = createUser(UserStatus.IDLE);
     when(userStateService.loadUser(userId)).thenReturn(user);
 
-    assertThrows(IllegalStateException.class, () -> bountyService.abandonBounty(userId));
+    assertThrows(BusinessException.class, () -> bountyService.abandonBounty(userId));
   }
 
   @Test

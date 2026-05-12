@@ -94,8 +94,7 @@ class FarmServiceTest {
     when(fudiHelper.parseCellId("1")).thenReturn(1);
     when(itemTemplateRepository.findByType(ItemType.SEED)).thenReturn(List.of());
 
-    assertThrows(
-        IllegalStateException.class, () -> farmService.plantCropByName(userId, "1", "不存在种子"));
+    assertThrows(BusinessException.class, () -> farmService.plantCropByName(userId, "1", "不存在种子"));
   }
 
   @Test
@@ -109,8 +108,7 @@ class FarmServiceTest {
     when(stackableItemRepository.findByUserIdAndTemplateId(userId, 1L))
         .thenReturn(Optional.of(createStackableItem(1L, 5)));
 
-    assertThrows(
-        IllegalStateException.class, () -> farmService.plantCropByName(userId, "1", "种子名"));
+    assertThrows(BusinessException.class, () -> farmService.plantCropByName(userId, "1", "种子名"));
   }
 
   @Test
@@ -131,8 +129,7 @@ class FarmServiceTest {
     occupiedCell.setCellType(CellType.PEN);
     when(fudiCellRepository.findByFudiIdAndCellId(fudiId, 5)).thenReturn(Optional.of(occupiedCell));
 
-    assertThrows(
-        IllegalStateException.class, () -> farmService.plantCropByName(userId, "5", "灵芝种子"));
+    assertThrows(BusinessException.class, () -> farmService.plantCropByName(userId, "5", "灵芝种子"));
   }
 
   // ===================== 辅助方法 =====================
@@ -209,6 +206,6 @@ class FarmServiceTest {
   void findSeedTemplateByName_whenNotFound_shouldThrow() {
     when(itemTemplateRepository.findByType(ItemType.SEED)).thenReturn(List.of());
 
-    assertThrows(IllegalStateException.class, () -> farmService.findSeedTemplateByName("不存在"));
+    assertThrows(BusinessException.class, () -> farmService.findSeedTemplateByName("不存在"));
   }
 }

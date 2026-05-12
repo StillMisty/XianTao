@@ -61,18 +61,18 @@ public class StackableItemService {
     var existingItem = stackableItemRepository.findById(itemId);
     if (existingItem.isEmpty()) {
       log.warn("物品不存在: itemId={}", itemId);
-      throw new IllegalStateException("物品不存在");
+      throw new BusinessException(ErrorCode.ITEM_NOT_EXISTS);
     }
 
     StackableItem item = existingItem.get();
     if (!item.getUserId().equals(userId)) {
       log.warn("物品所有权不匹配: userId={}, itemOwnerId={}", userId, item.getUserId());
-      throw new IllegalStateException("物品所有权不匹配");
+      throw new BusinessException(ErrorCode.ITEM_OWNERSHIP_MISMATCH);
     }
 
     if (!item.hasEnoughQuantity(quantity)) {
-      throw new IllegalStateException(
-          "物品数量不足: 需要 %d，当前 %d".formatted(quantity, item.getQuantity()));
+      throw new BusinessException(
+          ErrorCode.ITEM_QUANTITY_INSUFFICIENT, quantity, item.getQuantity());
     }
 
     if (item.reduceQuantity(quantity)) {

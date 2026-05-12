@@ -1,5 +1,7 @@
 package top.stillmisty.xiantao.service;
 
+import static top.stillmisty.xiantao.service.ErrorCode.*;
+
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -33,7 +35,7 @@ public class BeastProductionService {
 
   CollectVO collectBeastProduce(Fudi fudi, FudiCell cell, Integer cellId) {
     if (beastDisplayHelper.isIncubating(cell)) {
-      throw new IllegalStateException("灵兽尚在孵化中");
+      throw new BusinessException(BEAST_HATCHING);
     }
 
     updateBeastProduction(cell, fudi);
@@ -41,7 +43,7 @@ public class BeastProductionService {
     List<CellConfig.ProductionItem> productionStored = getProductionStoredList(cell);
 
     if (productionStored.isEmpty()) {
-      throw new IllegalStateException("暂无产出可收取");
+      throw new BusinessException(BEAST_PRODUCE_NOTHING);
     }
 
     String beastName = "灵兽";

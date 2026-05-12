@@ -9,10 +9,10 @@ import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.fudi.vo.PenCellVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.service.BeastService;
 import top.stillmisty.xiantao.service.ServiceResult;
 
-/** 灵兽命令处理器（纯 View 层） 调用 Service 层获取结构化数据，格式化为纯文本返回 */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -20,36 +20,87 @@ public class BeastCommandHandler implements CommandGroup {
 
   private final BeastService beastService;
 
-  /** 处理灵兽出战命令 */
   public String handleDeployBeast(PlatformType platform, String openId, String position) {
+    return handleDeployBeast(platform, openId, position, TextFormat.PLAIN);
+  }
+
+  public String handleUndeployBeast(PlatformType platform, String openId, String position) {
+    return handleUndeployBeast(platform, openId, position, TextFormat.PLAIN);
+  }
+
+  public String handleRecoverBeast(PlatformType platform, String openId, String position) {
+    return handleRecoverBeast(platform, openId, position, TextFormat.PLAIN);
+  }
+
+  public String handleEvolveBeast(
+      PlatformType platform, String openId, String position, String mode) {
+    return handleEvolveBeast(platform, openId, position, mode, TextFormat.PLAIN);
+  }
+
+  public String handleReleaseBeast(PlatformType platform, String openId, String position) {
+    return handleReleaseBeast(platform, openId, position, TextFormat.PLAIN);
+  }
+
+  public String handleGetDeployedBeasts(PlatformType platform, String openId) {
+    return handleGetDeployedBeasts(platform, openId, TextFormat.PLAIN);
+  }
+
+  public String handleDeployBeastMarkdown(PlatformType platform, String openId, String position) {
+    return handleDeployBeast(platform, openId, position, TextFormat.MARKDOWN);
+  }
+
+  public String handleUndeployBeastMarkdown(PlatformType platform, String openId, String position) {
+    return handleUndeployBeast(platform, openId, position, TextFormat.MARKDOWN);
+  }
+
+  public String handleRecoverBeastMarkdown(PlatformType platform, String openId, String position) {
+    return handleRecoverBeast(platform, openId, position, TextFormat.MARKDOWN);
+  }
+
+  public String handleEvolveBeastMarkdown(
+      PlatformType platform, String openId, String position, String mode) {
+    return handleEvolveBeast(platform, openId, position, mode, TextFormat.MARKDOWN);
+  }
+
+  public String handleReleaseBeastMarkdown(PlatformType platform, String openId, String position) {
+    return handleReleaseBeast(platform, openId, position, TextFormat.MARKDOWN);
+  }
+
+  public String handleGetDeployedBeastsMarkdown(PlatformType platform, String openId) {
+    return handleGetDeployedBeasts(platform, openId, TextFormat.MARKDOWN);
+  }
+
+  // ===================== 统一处理方法（含 TextFormat 参数） =====================
+
+  public String handleDeployBeast(
+      PlatformType platform, String openId, String position, TextFormat fmt) {
     log.debug("处理灵兽出战 - Platform: {}, OpenId: {}, Position: {}", platform, openId, position);
     return switch (beastService.deployBeast(platform, openId, position)) {
       case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
-      case ServiceResult.Success(var result) -> formatDeployResult(result);
+      case ServiceResult.Success(var result) -> formatDeployResult(result, fmt);
     };
   }
 
-  /** 处理灵兽召回命令 */
-  public String handleUndeployBeast(PlatformType platform, String openId, String position) {
+  public String handleUndeployBeast(
+      PlatformType platform, String openId, String position, TextFormat fmt) {
     log.debug("处理灵兽召回 - Platform: {}, OpenId: {}, Position: {}", platform, openId, position);
     return switch (beastService.undeployBeast(platform, openId, position)) {
       case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
-      case ServiceResult.Success(var result) -> formatUndeployResult(result);
+      case ServiceResult.Success(var result) -> formatUndeployResult(result, fmt);
     };
   }
 
-  /** 处理灵兽恢复命令 */
-  public String handleRecoverBeast(PlatformType platform, String openId, String position) {
+  public String handleRecoverBeast(
+      PlatformType platform, String openId, String position, TextFormat fmt) {
     log.debug("处理灵兽恢复 - Platform: {}, OpenId: {}, Position: {}", platform, openId, position);
     return switch (beastService.recoverBeast(platform, openId, position)) {
       case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
-      case ServiceResult.Success(var result) -> formatRecoverResult(result);
+      case ServiceResult.Success(var result) -> formatRecoverResult(result, fmt);
     };
   }
 
-  /** 处理灵兽进化命令 */
   public String handleEvolveBeast(
-      PlatformType platform, String openId, String position, String mode) {
+      PlatformType platform, String openId, String position, String mode, TextFormat fmt) {
     log.debug(
         "处理灵兽进化 - Platform: {}, OpenId: {}, Position: {}, Mode: {}",
         platform,
@@ -58,112 +109,113 @@ public class BeastCommandHandler implements CommandGroup {
         mode);
     return switch (beastService.evolveBeast(platform, openId, position, mode)) {
       case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
-      case ServiceResult.Success(var result) -> formatEvolveResult(result);
+      case ServiceResult.Success(var result) -> formatEvolveResult(result, fmt);
     };
   }
 
-  /** 处理灵兽放生命令 */
-  public String handleReleaseBeast(PlatformType platform, String openId, String position) {
+  public String handleReleaseBeast(
+      PlatformType platform, String openId, String position, TextFormat fmt) {
     log.debug("处理灵兽放生 - Platform: {}, OpenId: {}, Position: {}", platform, openId, position);
     return switch (beastService.releaseBeast(platform, openId, position)) {
       case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
-      case ServiceResult.Success(var result) -> formatReleaseResult(result);
+      case ServiceResult.Success(var result) -> formatReleaseResult(result, fmt);
     };
   }
 
-  /** 处理查看出战灵兽命令 */
-  public String handleGetDeployedBeasts(PlatformType platform, String openId) {
+  public String handleGetDeployedBeasts(PlatformType platform, String openId, TextFormat fmt) {
     log.debug("处理查看出战灵兽 - Platform: {}, OpenId: {}", platform, openId);
     return switch (beastService.getDeployedBeasts(platform, openId)) {
       case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
-      case ServiceResult.Success(var beasts) -> formatDeployedBeasts(beasts);
+      case ServiceResult.Success(var beasts) -> formatDeployedBeasts(beasts, fmt);
     };
   }
 
-  // ===================== 文本格式化方法 =====================
+  // ===================== 格式化方法 =====================
 
-  private String formatDeployResult(ActionResultVO result) {
+  private String formatDeployResult(ActionResultVO result, TextFormat fmt) {
     if (result.success()) {
-      return "【灵兽出战】\n" + result.message();
+      return fmt.heading("灵兽出战", "🐾") + result.message();
     } else {
-      return "【出战失败】\n" + result.message();
+      return fmt.heading("出战失败", "❌") + result.message();
     }
   }
 
-  private String formatUndeployResult(BeastUndeployResult result) {
-    if (result instanceof ActionResultVO vo) return formatUndeploySingle(vo);
-    if (result instanceof BatchCountVO vo) return formatUndeployBatch(vo);
+  private String formatUndeployResult(BeastUndeployResult result, TextFormat fmt) {
+    if (result instanceof ActionResultVO vo) return formatUndeploySingle(vo, fmt);
+    if (result instanceof BatchCountVO vo) return formatUndeployBatch(vo, fmt);
     return "召回完成";
   }
 
-  private String formatUndeploySingle(ActionResultVO vo) {
+  private String formatUndeploySingle(ActionResultVO vo, TextFormat fmt) {
     if (vo.success()) {
-      return "【灵兽召回】\n" + vo.message();
+      return fmt.heading("灵兽召回", "🐾") + vo.message();
     } else {
-      return "【召回失败】\n" + vo.message();
+      return fmt.heading("召回失败", "❌") + vo.message();
     }
   }
 
-  private String formatUndeployBatch(BatchCountVO vo) {
-    return "【灵兽召回】\n已召回 %d 只灵兽。".formatted(vo.count());
+  private String formatUndeployBatch(BatchCountVO vo, TextFormat fmt) {
+    return fmt.heading("灵兽召回", "🐾") + "已召回 %d 只灵兽。".formatted(vo.count());
   }
 
-  private String formatRecoverResult(BeastRecoverResult result) {
-    if (result instanceof ActionResultVO vo) return formatRecoverSingle(vo);
-    if (result instanceof RecoverResultVO vo) return formatRecoverDetailed(vo);
-    if (result instanceof BatchRecoverVO vo) return formatRecoverBatch(vo);
+  private String formatRecoverResult(BeastRecoverResult result, TextFormat fmt) {
+    if (result instanceof ActionResultVO vo) return formatRecoverSingle(vo, fmt);
+    if (result instanceof RecoverResultVO vo) return formatRecoverDetailed(vo, fmt);
+    if (result instanceof BatchRecoverVO vo) return formatRecoverBatch(vo, fmt);
     return "恢复完成";
   }
 
-  private String formatRecoverSingle(ActionResultVO vo) {
+  private String formatRecoverSingle(ActionResultVO vo, TextFormat fmt) {
     if (vo.success()) {
-      return "【灵兽恢复】\n" + vo.message();
+      return fmt.heading("灵兽恢复", "💚") + vo.message();
     } else {
-      return "【恢复失败】\n" + vo.message();
+      return fmt.heading("恢复失败", "❌") + vo.message();
     }
   }
 
-  private String formatRecoverDetailed(RecoverResultVO vo) {
+  private String formatRecoverDetailed(RecoverResultVO vo, TextFormat fmt) {
     if (vo.success()) {
-      return "【灵兽恢复】\n" + vo.message();
+      return fmt.heading("灵兽恢复", "💚") + vo.message();
     } else {
-      return "【恢复失败】\n" + vo.message();
+      return fmt.heading("恢复失败", "❌") + vo.message();
     }
   }
 
-  private String formatRecoverBatch(BatchRecoverVO vo) {
-    return "【灵兽恢复】\n已恢复 %d 只灵兽，消耗 %d 灵石。".formatted(vo.count(), vo.cost());
+  private String formatRecoverBatch(BatchRecoverVO vo, TextFormat fmt) {
+    return fmt.heading("灵兽恢复", "💚") + "已恢复 %d 只灵兽，消耗 %d 灵石。".formatted(vo.count(), vo.cost());
   }
 
-  private String formatEvolveResult(PenCellVO beast) {
-    return "【灵兽进化成功】\n"
-        + String.format("名称：%s\n", beast.getBeastName())
-        + String.format("等阶：T%d\n", beast.getTier())
-        + String.format("品质：%s\n", beast.getQuality())
-        + String.format("战力：%d\n", beast.getPowerScore());
+  private String formatEvolveResult(PenCellVO beast, TextFormat fmt) {
+    return fmt.heading("灵兽进化成功", "⬆️")
+        + fmt.listItem("名称：" + beast.getBeastName())
+        + fmt.listItem("等阶：T" + beast.getTier())
+        + fmt.listItem("品质：" + beast.getQuality())
+        + fmt.listItem("战力：" + beast.getPowerScore());
   }
 
-  private String formatReleaseResult(ReleaseBeastVO result) {
-    return String.format(
-        "【灵兽放生成功】\n放生了 %s（T%d %s）\n获得灵兽精华", result.beastName(), result.tier(), result.quality());
+  private String formatReleaseResult(ReleaseBeastVO result, TextFormat fmt) {
+    return fmt.heading("灵兽放生成功", "🕊️")
+        + String.format(
+            "放生了 %s（T%d %s）\n获得灵兽精华", result.beastName(), result.tier(), result.quality());
   }
 
-  private String formatDeployedBeasts(List<BeastStatusVO> beasts) {
+  private String formatDeployedBeasts(List<BeastStatusVO> beasts, TextFormat fmt) {
     if (beasts.isEmpty()) {
-      return "【出战灵兽】（空）\n没有出战的灵兽。";
+      return fmt.heading("出战灵兽（空）", "🐾") + "没有出战的灵兽。";
     }
-    StringBuilder sb = new StringBuilder("【出战灵兽】\n");
+    StringBuilder sb = new StringBuilder(fmt.heading("出战灵兽", "🐾"));
     for (int i = 0; i < beasts.size(); i++) {
       BeastStatusVO beast = beasts.get(i);
       sb.append(
           String.format(
               "%d. %s（T%d %s）\n", i + 1, beast.beastName(), beast.tier(), beast.quality()));
-      sb.append(String.format("   等级：%d\n", beast.level()));
-      sb.append(String.format("   HP：%d/%d\n", beast.hpCurrent(), beast.maxHp()));
-      sb.append(String.format("   攻击：%d 防御：%d\n", beast.attack(), beast.defense()));
+      sb.append(fmt.listItem("等级：" + beast.level()));
+      sb.append(fmt.listItem("HP：" + beast.hpCurrent() + "/" + beast.maxHp()));
+      sb.append(fmt.listItem("攻击：" + beast.attack() + " 防御：" + beast.defense()));
       if (beast.skills() != null && !beast.skills().isEmpty()) {
-        sb.append(String.format("   技能：%d个\n", beast.skills().size()));
+        sb.append(fmt.listItem("技能：" + beast.skills().size() + "个"));
       }
+      if (i < beasts.size() - 1) sb.append(fmt.separator());
     }
     return sb.toString();
   }
@@ -187,138 +239,5 @@ public class BeastCommandHandler implements CommandGroup {
         new CommandEntry("灵兽进化 {{编号}} {{升阶/升品}}", "进化灵兽", "灵兽进化 1 升阶"),
         new CommandEntry("灵兽放生 {{编号}}", "放生灵兽", "灵兽放生 1"),
         new CommandEntry("出战灵兽", "查看当前出战的灵兽", "出战灵兽"));
-  }
-
-  // ===================== Markdown 格式化方法（QQ平台） =====================
-
-  public String handleDeployBeastMarkdown(PlatformType platform, String openId, String position) {
-    return switch (beastService.deployBeast(platform, openId, position)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
-      case ServiceResult.Success(var result) -> formatDeployResultMarkdown(result);
-    };
-  }
-
-  public String handleUndeployBeastMarkdown(PlatformType platform, String openId, String position) {
-    return switch (beastService.undeployBeast(platform, openId, position)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
-      case ServiceResult.Success(var result) -> formatUndeployResultMarkdown(result);
-    };
-  }
-
-  public String handleRecoverBeastMarkdown(PlatformType platform, String openId, String position) {
-    return switch (beastService.recoverBeast(platform, openId, position)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
-      case ServiceResult.Success(var result) -> formatRecoverResultMarkdown(result);
-    };
-  }
-
-  public String handleEvolveBeastMarkdown(
-      PlatformType platform, String openId, String position, String mode) {
-    return switch (beastService.evolveBeast(platform, openId, position, mode)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
-      case ServiceResult.Success(var result) -> formatEvolveResultMarkdown(result);
-    };
-  }
-
-  public String handleReleaseBeastMarkdown(PlatformType platform, String openId, String position) {
-    return switch (beastService.releaseBeast(platform, openId, position)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
-      case ServiceResult.Success(var result) -> formatReleaseResultMarkdown(result);
-    };
-  }
-
-  public String handleGetDeployedBeastsMarkdown(PlatformType platform, String openId) {
-    return switch (beastService.getDeployedBeasts(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
-      case ServiceResult.Success(var beasts) -> formatDeployedBeastsMarkdown(beasts);
-    };
-  }
-
-  private String formatDeployResultMarkdown(ActionResultVO result) {
-    if (result.success()) {
-      return "### 🐾 灵兽出战\n" + result.message();
-    } else {
-      return "### ❌ 出战失败\n" + result.message();
-    }
-  }
-
-  private String formatUndeployResultMarkdown(BeastUndeployResult result) {
-    if (result instanceof ActionResultVO vo) return formatUndeploySingleMarkdown(vo);
-    if (result instanceof BatchCountVO vo) return formatUndeployBatchMarkdown(vo);
-    return "召回完成";
-  }
-
-  private String formatUndeploySingleMarkdown(ActionResultVO vo) {
-    if (vo.success()) {
-      return "### 🐾 灵兽召回\n" + vo.message();
-    } else {
-      return "### ❌ 召回失败\n" + vo.message();
-    }
-  }
-
-  private String formatUndeployBatchMarkdown(BatchCountVO vo) {
-    return "### 🐾 灵兽召回\n已召回 %d 只灵兽。".formatted(vo.count());
-  }
-
-  private String formatRecoverResultMarkdown(BeastRecoverResult result) {
-    if (result instanceof ActionResultVO vo) return formatRecoverSingleMarkdown(vo);
-    if (result instanceof RecoverResultVO vo) return formatRecoverDetailedMarkdown(vo);
-    if (result instanceof BatchRecoverVO vo) return formatRecoverBatchMarkdown(vo);
-    return "恢复完成";
-  }
-
-  private String formatRecoverSingleMarkdown(ActionResultVO vo) {
-    if (vo.success()) {
-      return "### 💚 灵兽恢复\n" + vo.message();
-    } else {
-      return "### ❌ 恢复失败\n" + vo.message();
-    }
-  }
-
-  private String formatRecoverDetailedMarkdown(RecoverResultVO vo) {
-    if (vo.success()) {
-      return "### 💚 灵兽恢复\n" + vo.message();
-    } else {
-      return "### ❌ 恢复失败\n" + vo.message();
-    }
-  }
-
-  private String formatRecoverBatchMarkdown(BatchRecoverVO vo) {
-    return "### 💚 灵兽恢复\n已恢复 %d 只灵兽，消耗 %d 灵石。".formatted(vo.count(), vo.cost());
-  }
-
-  private String formatEvolveResultMarkdown(PenCellVO beast) {
-    return "### ⬆️ 灵兽进化成功\n"
-        + String.format("- 名称：%s\n", beast.getBeastName())
-        + String.format("- 等阶：T%d\n", beast.getTier())
-        + String.format("- 品质：%s\n", beast.getQuality())
-        + String.format("- 战力：%d\n", beast.getPowerScore());
-  }
-
-  private String formatReleaseResultMarkdown(ReleaseBeastVO result) {
-    return String.format(
-        "### 🕊️ 灵兽放生成功\n放生了 %s（T%d %s）\n获得灵兽精华",
-        result.beastName(), result.tier(), result.quality());
-  }
-
-  private String formatDeployedBeastsMarkdown(List<BeastStatusVO> beasts) {
-    if (beasts.isEmpty()) {
-      return "### 🐾 出战灵兽（空）\n没有出战的灵兽。";
-    }
-    StringBuilder sb = new StringBuilder("### 🐾 出战灵兽\n");
-    for (int i = 0; i < beasts.size(); i++) {
-      BeastStatusVO beast = beasts.get(i);
-      sb.append(
-          String.format(
-              "%d. %s（T%d %s）\n", i + 1, beast.beastName(), beast.tier(), beast.quality()));
-      sb.append(String.format("   - 等级：%d\n", beast.level()));
-      sb.append(String.format("   - HP：%d/%d\n", beast.hpCurrent(), beast.maxHp()));
-      sb.append(String.format("   - 攻击：%d 防御：%d\n", beast.attack(), beast.defense()));
-      if (beast.skills() != null && !beast.skills().isEmpty()) {
-        sb.append(String.format("   - 技能：%d个\n", beast.skills().size()));
-      }
-      if (i < beasts.size() - 1) sb.append("\n---\n");
-    }
-    return sb.toString();
   }
 }

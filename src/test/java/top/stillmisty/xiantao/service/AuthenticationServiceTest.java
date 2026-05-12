@@ -15,13 +15,14 @@ import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.entity.UserAuth;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
+import top.stillmisty.xiantao.domain.user.repository.UserAuthRepository;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 
 @DisplayName("AuthenticationService 测试")
 @ExtendWith(MockitoExtension.class)
 class AuthenticationServiceTest {
 
-  @Mock private UserAuthService userAuthService;
+  @Mock private UserAuthRepository userAuthRepository;
   @Mock private UserRepository userRepository;
 
   @InjectMocks private AuthenticationService authenticationService;
@@ -42,7 +43,8 @@ class AuthenticationServiceTest {
   void authenticate_withoutStatus_whenUserExists_shouldReturnSuccess() {
     UserAuth userAuth = new UserAuth();
     userAuth.setUserId(userId);
-    when(userAuthService.findUserIdByOpenId(platform, openId)).thenReturn(Optional.of(userAuth));
+    when(userAuthRepository.findByPlatformAndOpenId(platform, openId))
+        .thenReturn(Optional.of(userAuth));
 
     ServiceResult<Long> result = authenticationService.authenticate(platform, openId);
 
@@ -53,7 +55,7 @@ class AuthenticationServiceTest {
   @Test
   @DisplayName("authenticate(platform, openId) — 用户不存在返回 AUTH_FAILED")
   void authenticate_withoutStatus_whenUserNotExists_shouldReturnAuthFailure() {
-    when(userAuthService.findUserIdByOpenId(platform, openId)).thenReturn(Optional.empty());
+    when(userAuthRepository.findByPlatformAndOpenId(platform, openId)).thenReturn(Optional.empty());
 
     ServiceResult<Long> result = authenticationService.authenticate(platform, openId);
 
@@ -69,7 +71,8 @@ class AuthenticationServiceTest {
   void authenticate_withStatus_whenUserAndStatusMatch_shouldReturnSuccess() {
     UserAuth userAuth = new UserAuth();
     userAuth.setUserId(userId);
-    when(userAuthService.findUserIdByOpenId(platform, openId)).thenReturn(Optional.of(userAuth));
+    when(userAuthRepository.findByPlatformAndOpenId(platform, openId))
+        .thenReturn(Optional.of(userAuth));
 
     User user = User.create().setId(userId).setStatus(UserStatus.IDLE);
     when(userRepository.findById(userId)).thenReturn(Optional.of(user));
@@ -85,7 +88,8 @@ class AuthenticationServiceTest {
   void authenticate_withStatus_whenUserEntityNotFound_shouldReturnAuthFailure() {
     UserAuth userAuth = new UserAuth();
     userAuth.setUserId(userId);
-    when(userAuthService.findUserIdByOpenId(platform, openId)).thenReturn(Optional.of(userAuth));
+    when(userAuthRepository.findByPlatformAndOpenId(platform, openId))
+        .thenReturn(Optional.of(userAuth));
     when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
     ServiceResult<Long> result =
@@ -100,7 +104,8 @@ class AuthenticationServiceTest {
   void authenticate_withStatus_whenStatusMismatch_shouldReturnAuthFailure() {
     UserAuth userAuth = new UserAuth();
     userAuth.setUserId(userId);
-    when(userAuthService.findUserIdByOpenId(platform, openId)).thenReturn(Optional.of(userAuth));
+    when(userAuthRepository.findByPlatformAndOpenId(platform, openId))
+        .thenReturn(Optional.of(userAuth));
 
     User user = User.create().setId(userId).setStatus(UserStatus.TRAINING);
     when(userRepository.findById(userId)).thenReturn(Optional.of(user));
@@ -118,7 +123,8 @@ class AuthenticationServiceTest {
   void authenticate_withNullStatus_shouldSkipStatusCheck() {
     UserAuth userAuth = new UserAuth();
     userAuth.setUserId(userId);
-    when(userAuthService.findUserIdByOpenId(platform, openId)).thenReturn(Optional.of(userAuth));
+    when(userAuthRepository.findByPlatformAndOpenId(platform, openId))
+        .thenReturn(Optional.of(userAuth));
 
     User user = User.create().setId(userId).setStatus(UserStatus.DYING);
     when(userRepository.findById(userId)).thenReturn(Optional.of(user));
@@ -131,7 +137,7 @@ class AuthenticationServiceTest {
   @Test
   @DisplayName("authenticate — 平台认证失败时，三参数版本不查 User")
   void authenticate_withStatus_whenAuthFails_shouldNotQueryUser() {
-    when(userAuthService.findUserIdByOpenId(platform, openId)).thenReturn(Optional.empty());
+    when(userAuthRepository.findByPlatformAndOpenId(platform, openId)).thenReturn(Optional.empty());
 
     ServiceResult<Long> result =
         authenticationService.authenticate(platform, openId, UserStatus.IDLE);

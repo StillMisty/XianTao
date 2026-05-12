@@ -123,7 +123,7 @@ public class DefaultCombatEngine implements CombatEngine {
 
   // ===================== 回合处理 =====================
 
-  private void processOverTimeEffects(Team team, BuffManager buffManager) {
+  void processOverTimeEffects(Team team, BuffManager buffManager) {
     for (Combatant c : team.aliveMembers()) {
       int effect = buffManager.processOverTimeEffects(c.getId());
       if (effect > 0) {
@@ -136,7 +136,7 @@ public class DefaultCombatEngine implements CombatEngine {
 
   // ===================== 技能选择 =====================
 
-  private List<Combatant> buildTurnOrder(Team teamA, Team teamB, BuffManager buffManager) {
+  List<Combatant> buildTurnOrder(Team teamA, Team teamB, BuffManager buffManager) {
     List<Combatant> all = new ArrayList<>();
     all.addAll(teamA.aliveMembers());
     all.addAll(teamB.aliveMembers());
@@ -151,8 +151,7 @@ public class DefaultCombatEngine implements CombatEngine {
 
   // ===================== 行动处理 =====================
 
-  private Skill selectSkill(
-      Combatant attacker, Map<String, Integer> cooldowns, BuffManager buffManager) {
+  Skill selectSkill(Combatant attacker, Map<String, Integer> cooldowns, BuffManager buffManager) {
     boolean silenced = buffManager.hasSilence(attacker.getId());
     if (silenced) return null;
 
@@ -169,7 +168,7 @@ public class DefaultCombatEngine implements CombatEngine {
 
   // ===================== Buff 应用 =====================
 
-  private CombatLogEntry resolveAction(
+  CombatLogEntry resolveAction(
       Combatant attacker,
       Combatant defender,
       Skill selectedSkill,
@@ -376,7 +375,7 @@ public class DefaultCombatEngine implements CombatEngine {
     return defenderTeam.selectTargetForPVE();
   }
 
-  private void tickCooldowns(Map<String, Integer> skillCooldowns) {
+  void tickCooldowns(Map<String, Integer> skillCooldowns) {
     var it = skillCooldowns.entrySet().iterator();
     while (it.hasNext()) {
       var entry = it.next();
@@ -389,7 +388,7 @@ public class DefaultCombatEngine implements CombatEngine {
     }
   }
 
-  private Map<String, Integer> captureHp(Team team) {
+  Map<String, Integer> captureHp(Team team) {
     Map<String, Integer> hpMap = new LinkedHashMap<>();
     for (Combatant c : team.members()) {
       hpMap.put("member_" + c.getId(), c.getHp());

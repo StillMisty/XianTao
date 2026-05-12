@@ -7,6 +7,7 @@ import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.vo.LeaderboardVO;
+import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.service.LeaderboardService;
 import top.stillmisty.xiantao.service.ServiceResult;
 
@@ -16,14 +17,36 @@ public class LeaderboardCommandHandler implements CommandGroup {
 
   private final LeaderboardService leaderboardService;
 
+  // ===================== 委托方法（纯文本） =====================
+
   public String handleLevelLeaderboard(PlatformType platform, String openId) {
+    return handleLevelLeaderboard(platform, openId, TextFormat.PLAIN);
+  }
+
+  public String handleSpiritStoneLeaderboard(PlatformType platform, String openId) {
+    return handleSpiritStoneLeaderboard(platform, openId, TextFormat.PLAIN);
+  }
+
+  // ===================== 委托方法（Markdown） =====================
+
+  public String handleLevelLeaderboardMarkdown(PlatformType platform, String openId) {
+    return handleLevelLeaderboard(platform, openId, TextFormat.MARKDOWN);
+  }
+
+  public String handleSpiritStoneLeaderboardMarkdown(PlatformType platform, String openId) {
+    return handleSpiritStoneLeaderboard(platform, openId, TextFormat.MARKDOWN);
+  }
+
+  // ===================== 统一处理方法（含 TextFormat 参数） =====================
+
+  public String handleLevelLeaderboard(PlatformType platform, String openId, TextFormat fmt) {
     return switch (leaderboardService.getLevelLeaderboard(platform, openId)) {
       case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var vo) -> formatLeaderboard(vo);
     };
   }
 
-  public String handleSpiritStoneLeaderboard(PlatformType platform, String openId) {
+  public String handleSpiritStoneLeaderboard(PlatformType platform, String openId, TextFormat fmt) {
     return switch (leaderboardService.getSpiritStoneLeaderboard(platform, openId)) {
       case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var vo) -> formatLeaderboard(vo);
@@ -68,13 +91,5 @@ public class LeaderboardCommandHandler implements CommandGroup {
   public List<CommandEntry> commands() {
     return List.of(
         new CommandEntry("排行榜", "查看修为排行榜", "排行榜"), new CommandEntry("排行榜 灵石", "查看灵石排行榜", "排行榜 灵石"));
-  }
-
-  public String handleLevelLeaderboardMarkdown(PlatformType platform, String openId) {
-    return handleLevelLeaderboard(platform, openId);
-  }
-
-  public String handleSpiritStoneLeaderboardMarkdown(PlatformType platform, String openId) {
-    return handleSpiritStoneLeaderboard(platform, openId);
   }
 }

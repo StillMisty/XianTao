@@ -31,7 +31,9 @@ public class FudiCollectService {
   @Transactional
   public CollectAllVO collectAll(Long userId) {
     Fudi fudi =
-        fudiHelper.findAndTouchFudi(userId).orElseThrow(() -> new IllegalStateException("未找到福地"));
+        fudiHelper
+            .findAndTouchFudi(userId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.FUDI_NOT_FOUND));
     List<FudiCell> cells = fudiCellRepository.findByFudiId(fudi.getId());
     if (cells.isEmpty()) {
       return new CollectAllVO(0, 0, 0);

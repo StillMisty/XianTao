@@ -106,8 +106,7 @@ class StackableItemServiceTest {
     when(stackableItemRepository.findById(99L)).thenReturn(Optional.empty());
 
     assertThrows(
-        IllegalStateException.class,
-        () -> stackableItemService.reduceStackableItem(userId, 99L, 1));
+        BusinessException.class, () -> stackableItemService.reduceStackableItem(userId, 99L, 1));
   }
 
   @Test
@@ -118,7 +117,7 @@ class StackableItemServiceTest {
     when(stackableItemRepository.findById(1L)).thenReturn(Optional.of(item));
 
     assertThrows(
-        IllegalStateException.class, () -> stackableItemService.reduceStackableItem(userId, 1L, 1));
+        BusinessException.class, () -> stackableItemService.reduceStackableItem(userId, 1L, 1));
   }
 
   @Test
@@ -128,6 +127,6 @@ class StackableItemServiceTest {
     when(stackableItemRepository.findById(1L)).thenReturn(Optional.of(item));
 
     assertThrows(
-        IllegalStateException.class, () -> stackableItemService.reduceStackableItem(userId, 1L, 5));
+        BusinessException.class, () -> stackableItemService.reduceStackableItem(userId, 1L, 5));
   }
 }

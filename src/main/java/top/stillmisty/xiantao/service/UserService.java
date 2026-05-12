@@ -44,10 +44,12 @@ public class UserService {
   @Transactional
   public String changeNickname(Long userId, String newNickname) {
     if (userRepository.existsByNickname(newNickname)) {
-      throw new IllegalStateException("此道号已被他人使用，请另择佳名~");
+      throw new BusinessException(ErrorCode.NICKNAME_TAKEN);
     }
     var user =
-        userRepository.findById(userId).orElseThrow(() -> new IllegalStateException("角色不存在"));
+        userRepository
+            .findById(userId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.CHARACTER_NOT_FOUND));
     user.setNickname(newNickname);
     userRepository.save(user);
     log.info("改号成功 - UserId: {}, NewNickname: {}", userId, newNickname);

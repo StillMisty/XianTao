@@ -126,7 +126,7 @@ public class FudiService {
     try {
       fudi = fudiRepository.save(fudi);
     } catch (org.springframework.dao.DuplicateKeyException e) {
-      throw new IllegalStateException("用户已拥有福地");
+      throw new BusinessException(ErrorCode.FUDI_ALREADY_EXISTS);
     }
 
     Spirit spirit = createSpiritForFudi(fudi, mbtiType);
@@ -159,7 +159,8 @@ public class FudiService {
   }
 
   private Fudi getFudiOrThrow(Long userId) {
-    return findAndTouchFudi(userId).orElseThrow(() -> new IllegalStateException("未找到福地"));
+    return findAndTouchFudi(userId)
+        .orElseThrow(() -> new BusinessException(ErrorCode.FUDI_NOT_FOUND));
   }
 
   private record CellContext(Fudi fudi, FudiCell cell, Integer cellId) {}
@@ -170,7 +171,7 @@ public class FudiService {
     FudiCell cell =
         fudiCellRepository
             .findByFudiIdAndCellId(fudi.getId(), cellId)
-            .orElseThrow(() -> new IllegalStateException("地块 " + cellId + " 不存在"));
+            .orElseThrow(() -> new BusinessException(ErrorCode.CELL_NOT_FOUND, cellId));
     return new CellContext(fudi, cell, cellId);
   }
 
@@ -322,7 +323,7 @@ public class FudiService {
     Fudi fudi = ctx.fudi();
 
     if (cell.isEmpty()) {
-      throw new IllegalStateException("地块 " + cellId + " 为空");
+      throw new BusinessException(ErrorCode.CELL_EMPTY, cellId);
     }
 
     if (cell.getCellType() == CellType.FARM) {
@@ -330,7 +331,7 @@ public class FudiService {
     } else if (cell.getCellType() == CellType.PEN) {
       return beastService.collectBeastProduce(fudi, cell, cellId);
     } else {
-      throw new IllegalStateException("地块 " + cellId + " 无可收取内容");
+      throw new BusinessException(ErrorCode.CELL_NO_COLLECTIBLE, cellId);
     }
   }
 
@@ -349,14 +350,13 @@ public class FudiService {
 
     int maxCells = 3 + fudi.getTribulationStage() / 3;
     if (cellId < 1 || cellId > maxCells) {
-      throw new IllegalStateException(
-          "地块编号超出范围（1-%d），当前劫数仅开放到 %d 号地块".formatted(maxCells, maxCells));
+      throw new BusinessException(ErrorCode.CELL_OUT_OF_RANGE, maxCells, maxCells);
     }
 
     FudiCell existingCell =
         fudiCellRepository.findByFudiIdAndCellId(fudi.getId(), cellId).orElse(null);
     if (existingCell != null && existingCell.getCellType() != CellType.EMPTY) {
-      throw new IllegalStateException("地块 " + cellId + " 已被占用");
+      throw new BusinessException(ErrorCode.CELL_OCCUPIED, cellId);
     }
 
     FudiCell cell = existingCell != null ? existingCell : new FudiCell();
@@ -381,10 +381,10 @@ public class FudiService {
     FudiCell cell =
         fudiCellRepository
             .findByFudiIdAndCellId(fudi.getId(), cellId)
-            .orElseThrow(() -> new IllegalStateException("地块 " + cellId + " 不存在"));
+            .orElseThrow(() -> new BusinessException(ErrorCode.CELL_NOT_FOUND, cellId));
 
     if (cell.isEmpty()) {
-      throw new IllegalStateException("地块 " + cellId + " 为空");
+      throw new BusinessException(ErrorCode.CELL_EMPTY, cellId);
     }
 
     if (cell.getCellType() == CellType.PEN) {
@@ -409,12 +409,12 @@ public class FudiService {
     Integer cellId = ctx.cellId();
 
     if (cell.isEmpty()) {
-      throw new IllegalStateException("地块 " + cellId + " 为空");
+      throw new BusinessException(ErrorCode.CELL_EMPTY, cellId);
     }
 
     int currentLevel = cell.getCellLevel();
     if (currentLevel >= 5) {
-      throw new IllegalStateException("已是最高等级 Lv5");
+      throw new BusinessException(ErrorCode.CELL_MAX_LEVEL);
     }
 
     int cost = currentLevel == 1 ? 200 : currentLevel == 2 ? 400 : currentLevel == 3 ? 800 : 1600;

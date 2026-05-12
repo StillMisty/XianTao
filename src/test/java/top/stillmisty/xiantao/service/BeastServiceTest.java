@@ -122,7 +122,7 @@ class BeastServiceTest {
     when(fudiHelper.parseCellId("1")).thenReturn(1);
     when(fudiHelper.findAndTouchFudi(anyLong())).thenReturn(Optional.empty());
 
-    assertThrows(IllegalStateException.class, () -> breedingService.releaseBeast(1L, "1"));
+    assertThrows(BusinessException.class, () -> breedingService.releaseBeast(1L, "1"));
   }
 
   @Test
@@ -137,7 +137,7 @@ class BeastServiceTest {
     farmCell.setCellType(CellType.FARM);
     when(fudiCellRepository.findByFudiIdAndCellId(100L, 1)).thenReturn(Optional.of(farmCell));
 
-    assertThrows(IllegalStateException.class, () -> breedingService.releaseBeast(1L, "1"));
+    assertThrows(BusinessException.class, () -> breedingService.releaseBeast(1L, "1"));
   }
 
   @Test

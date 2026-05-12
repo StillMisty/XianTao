@@ -274,12 +274,12 @@ public class SpiritTools {
       var fudi =
           fudiService
               .findAndTouchFudi(userId)
-              .orElseThrow(() -> new IllegalStateException("未找到福地"));
+              .orElseThrow(() -> new BusinessException(ErrorCode.FUDI_NOT_FOUND));
 
       var spirit =
           spiritRepository
               .findByFudiId(fudi.getId())
-              .orElseThrow(() -> new IllegalStateException("地灵不存在"));
+              .orElseThrow(() -> new BusinessException(ErrorCode.SPIRIT_NOT_FOUND));
 
       int clampedSeverity = Math.clamp(severity, 1, 5);
       int oldAffection = spirit.getAffection();
@@ -305,7 +305,7 @@ public class SpiritTools {
   private Long getCurrentUserId() {
     Long userId = UserContext.getCurrentUserId();
     if (userId == null) {
-      throw new IllegalStateException("未找到用户上下文，请先设置 UserContext");
+      throw new BusinessException(ErrorCode.USER_CONTEXT_MISSING);
     }
     return userId;
   }

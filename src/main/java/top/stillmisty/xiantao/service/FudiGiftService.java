@@ -34,7 +34,9 @@ public class FudiGiftService {
   @Transactional
   public GiveGiftVO giveGift(Long userId, String itemName) {
     Fudi fudi =
-        fudiHelper.findAndTouchFudi(userId).orElseThrow(() -> new IllegalStateException("未找到福地"));
+        fudiHelper
+            .findAndTouchFudi(userId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.FUDI_NOT_FOUND));
 
     StackableItem gift = resolveGiftItem(userId, itemName);
     ItemTemplate template =
@@ -45,12 +47,12 @@ public class FudiGiftService {
     Spirit spirit =
         spiritRepository
             .findByFudiId(fudi.getId())
-            .orElseThrow(() -> new IllegalStateException("地灵不存在"));
+            .orElseThrow(() -> new BusinessException(ErrorCode.SPIRIT_NOT_FOUND));
 
     // 原子检查并占用今日送礼机会，避免并发竞态
     int claimed = spiritRepository.tryClaimDailyGift(spirit.getId());
     if (claimed == 0) {
-      throw new IllegalStateException("今日已送过礼物，明天再来吧");
+      throw new BusinessException(ErrorCode.GIFT_ALREADY_TODAY);
     }
 
     SpiritForm spiritForm = resolveSpiritForm(spirit);
@@ -83,10 +85,10 @@ public class FudiGiftService {
             .filter(e -> e.getName().contains(itemName))
             .toList();
     if (items.isEmpty()) {
-      throw new IllegalStateException("背包中未找到 [" + itemName + "]");
+      throw new BusinessException(ErrorCode.ITEM_NOT_FOUND, itemName);
     }
     if (items.size() > 1) {
-      throw new IllegalStateException("找到多个 [" + itemName + "]，请使用更精确的名称");
+      throw new BusinessException(ErrorCode.ITEM_MULTIPLE_MATCH, itemName);
     }
     return items.getFirst();
   }

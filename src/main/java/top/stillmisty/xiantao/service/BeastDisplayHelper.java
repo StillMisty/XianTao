@@ -1,5 +1,7 @@
 package top.stillmisty.xiantao.service;
 
+import static top.stillmisty.xiantao.service.ErrorCode.*;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -30,23 +32,25 @@ public class BeastDisplayHelper {
   PenCellBeast getBeastFromPenCell(Long userId, String position, boolean checkIncubating) {
     Integer cellId = fudiHelper.parseCellId(position);
     Fudi fudi =
-        fudiHelper.findAndTouchFudi(userId).orElseThrow(() -> new IllegalStateException("未找到福地"));
+        fudiHelper
+            .findAndTouchFudi(userId)
+            .orElseThrow(() -> new BusinessException(FUDI_NOT_FOUND));
 
     FudiCell cell =
         fudiCellRepository
             .findByFudiIdAndCellId(fudi.getId(), cellId)
-            .orElseThrow(() -> new IllegalStateException("地块 " + cellId + " 不存在"));
+            .orElseThrow(() -> new BusinessException(CELL_NOT_FOUND, cellId));
 
     if (cell.getCellType() != CellType.PEN) {
-      throw new IllegalStateException("地块 " + cellId + " 不是兽栏");
+      throw new BusinessException(CELL_NOT_PEN, cellId);
     }
     if (checkIncubating && isIncubating(cell)) {
-      throw new IllegalStateException("灵兽尚在孵化中");
+      throw new BusinessException(BEAST_HATCHING);
     }
 
     Beast beast = findBeastByCell(cell);
     if (beast == null) {
-      throw new IllegalStateException("未找到灵兽");
+      throw new BusinessException(BEAST_NOT_FOUND);
     }
     return new PenCellBeast(fudi, cell, cellId, beast);
   }

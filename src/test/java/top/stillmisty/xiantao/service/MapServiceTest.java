@@ -115,7 +115,7 @@ class MapServiceTest {
       when(userStateService.loadUser(userId)).thenReturn(user);
       when(mapNodeRepository.findById(mapId)).thenReturn(Optional.empty());
 
-      assertThrows(IllegalStateException.class, () -> mapService.getCurrentMapInfo(userId));
+      assertThrows(BusinessException.class, () -> mapService.getCurrentMapInfo(userId));
     }
 
     @Test

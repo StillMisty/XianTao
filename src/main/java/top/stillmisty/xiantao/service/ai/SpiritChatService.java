@@ -18,6 +18,8 @@ import top.stillmisty.xiantao.domain.fudi.repository.SpiritHistoryRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.service.BusinessException;
+import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.FarmService;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
@@ -57,11 +59,13 @@ public class SpiritChatService {
   public String chatWithSpirit(Long userId, String userInput) {
     try {
       Fudi fudi =
-          fudiRepository.findByUserId(userId).orElseThrow(() -> new IllegalStateException("未找到福地"));
+          fudiRepository
+              .findByUserId(userId)
+              .orElseThrow(() -> new BusinessException(ErrorCode.FUDI_NOT_FOUND));
       Spirit spirit =
           spiritRepository
               .findByFudiId(fudi.getId())
-              .orElseThrow(() -> new IllegalStateException("地灵不存在"));
+              .orElseThrow(() -> new BusinessException(ErrorCode.SPIRIT_NOT_FOUND));
 
       fudi.touchOnlineTime();
       // 天劫设置的特殊情绪（EXCITED/ANGRY/EXHAUSTED）不应被自动覆盖
