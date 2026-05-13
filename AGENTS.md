@@ -11,7 +11,7 @@ A text-based idle Cultivation MUD with minimal interaction
 
 ## Tech Stack
 
-Java 25 · Spring Boot 4 · Spring AI 2 · MyBatis-Flex · PostgreSQL 18 (JSONB) · Flyway 12 · SimBot 4 · Lombok · Gradle (KTS)
+Java 25、SpringBoot 4、Spring AI 2、MyBatis-Flex、PostgreSQL 18、Flyway 12、SimBot 4、Gradle (KTS)
 
 ## Architecture
 
