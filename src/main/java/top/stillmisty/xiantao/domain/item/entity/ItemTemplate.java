@@ -46,6 +46,9 @@ public class ItemTemplate {
   @Column(typeHandler = JsonbCollectionTypeHandler.class)
   private Set<String> tags;
 
+  /** 物品基准价（灵石），系统配置，用于计算收购/售价 */
+  private Long baseValue;
+
   /** 物品描述 */
   private String description;
 

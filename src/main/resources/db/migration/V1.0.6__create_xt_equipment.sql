@@ -12,6 +12,7 @@ CREATE TABLE xt_equipment
     attack_bonus       INT          NOT NULL DEFAULT 0,
     defense_bonus      INT          NOT NULL DEFAULT 0,
     equipped           BOOLEAN      NOT NULL DEFAULT FALSE,
+    tradable           BOOLEAN      NOT NULL DEFAULT TRUE,
     quality_multiplier DOUBLE PRECISION,
     affixes            JSONB                 DEFAULT '{}'::jsonb,
     forge_level        INT          NOT NULL DEFAULT 0,
@@ -42,6 +43,7 @@ COMMENT ON COLUMN xt_equipment.stat_bonus IS '属性加成 JSONB: {"str":5,"con"
 COMMENT ON COLUMN xt_equipment.attack_bonus IS '攻击力加成';
 COMMENT ON COLUMN xt_equipment.defense_bonus IS '防御力加成';
 COMMENT ON COLUMN xt_equipment.equipped IS '是否已穿戴';
+COMMENT ON COLUMN xt_equipment.tradable IS '是否可出售给商铺掌柜，已装备过的设为 FALSE';
 COMMENT ON COLUMN xt_equipment.quality_multiplier IS '品质系数（实际波动值，如1.35）';
 COMMENT ON COLUMN xt_equipment.affixes IS '随机词条 JSONB，示例: {"STR": 3, "AGI": 2, "LIFE_STEAL": 5}';
 COMMENT ON COLUMN xt_equipment.forge_level IS '锻造强化等级';

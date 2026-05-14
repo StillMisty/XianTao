@@ -64,6 +64,9 @@ public class Equipment {
   /** 是否已穿戴 */
   private Boolean equipped;
 
+  /** 是否可出售给商铺掌柜（已装备过的会设为 FALSE） */
+  private Boolean tradable;
+
   /** 创建时间 */
   @Column(onInsertValue = "now()")
   private LocalDateTime createTime;

@@ -54,6 +54,9 @@ public class StackableItem {
   /** properties 的确定性哈希值，用于按属性拆分堆叠行 */
   private Integer propertiesHash;
 
+  /** 是否可出售给商铺掌柜 */
+  private Boolean tradable;
+
   /** 创建时间 */
   @Column(onInsertValue = "now()")
   private LocalDateTime createTime;

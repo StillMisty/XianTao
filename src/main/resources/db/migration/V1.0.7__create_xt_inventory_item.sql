@@ -10,6 +10,7 @@ CREATE TABLE xt_inventory_item
     tags            JSONB                 DEFAULT '[]'::jsonb,
     properties      JSONB                 DEFAULT '{}'::jsonb,
     properties_hash INT          NOT NULL DEFAULT 0,
+    tradable        BOOLEAN      NOT NULL DEFAULT TRUE,
     create_time     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     update_time     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -37,6 +38,7 @@ COMMENT ON COLUMN xt_inventory_item.properties IS '类型特有属性 JSONB：
    药材: {"elements": {"wood": 3, "fire": 1, "water": 2}}
    其他: {}';
 COMMENT ON COLUMN xt_inventory_item.properties_hash IS 'properties 的确定性哈希值，用于唯一约束拆分不同属性的堆叠物品';
+COMMENT ON COLUMN xt_inventory_item.tradable IS '是否可出售给商铺掌柜，默认 TRUE';
 COMMENT ON COLUMN xt_inventory_item.create_time IS '创建时间';
 COMMENT ON COLUMN xt_inventory_item.update_time IS '更新时间';
 

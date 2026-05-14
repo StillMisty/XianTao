@@ -85,6 +85,26 @@ public enum ErrorCode {
   // ===== Map =====
   MAP_CURRENT_NOT_FOUND("当前所在地图不存在"),
 
+  // ===== Shop / Trade =====
+  SHOP_NOT_FOUND("此地没有商铺掌柜"),
+  SHOP_PRODUCT_NOT_FOUND("商铺中没有该商品"),
+  SHOP_PRODUCT_OUT_OF_STOCK("商品已售罄"),
+  SHOP_PRODUCT_PRICE_CHANGED("商品价格已变动，请重新查看"),
+  SHOP_SPECIAL_ORDER_NOT_FOUND("未找到调货订单"),
+  SHOP_SPECIAL_ORDER_NOT_READY("调货尚未到货（还需等待）"),
+  SHOP_SPECIAL_ORDER_ALREADY_COLLECTED("该调货订单已取货"),
+  SHOP_SPIRIT_STONES_INSUFFICIENT("灵石不足（需要 %d，当前 %d）"),
+  EQUIPMENT_NOT_FOUND("未找到该装备"),
+  EQUIPMENT_NOT_OWNED("该装备不属于您"),
+  EQUIPMENT_ALREADY_EQUIPPED("请先卸下装备再出售"),
+  EQUIPMENT_NOT_TRADABLE("此装备已绑定，不可出售"),
+  ITEM_NOT_TRADABLE("此物品不可出售"),
+  ITEM_NOT_IN_BAG("背包中没有该物品"),
+  APPRAISE_ITEM_NOT_FOUND("未找到物品：%s"),
+  HAGGLE_LIMIT_REACHED("此交易已经砍过一次价了，老朽不能再让了"),
+  SELL_PRICE_MISMATCH("价格不匹配，请重新报价"),
+  WORLD_EVENT_NOT_FOUND("世界事件不存在"),
+
   // ===== Context =====
   USER_CONTEXT_MISSING("未找到用户上下文，请先设置 UserContext");
 
