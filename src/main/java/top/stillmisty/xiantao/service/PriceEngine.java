@@ -46,8 +46,7 @@ public class PriceEngine {
     applyLazyRestock(product);
     double basePrice = product.getCurrentPrice().doubleValue();
     double worldMultiplier = getWorldEventMultiplier(null);
-    double categoryMultiplier = 1.0;
-    return (long) Math.max(1, basePrice * worldMultiplier * categoryMultiplier);
+    return (long) Math.max(1, basePrice * worldMultiplier);
   }
 
   private long calculateBuybackPrice(double baseValue, Set<String> tags, ShopNpc npc) {

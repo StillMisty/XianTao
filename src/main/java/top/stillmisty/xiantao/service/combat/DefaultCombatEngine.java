@@ -185,7 +185,9 @@ public class DefaultCombatEngine implements CombatEngine {
     String skillName = null;
 
     if (selectedSkill != null) {
-      skillCooldowns.put(skillKey(attacker, selectedSkill), selectedSkill.getCooldownSeconds());
+      double attackSpeed = attacker.getAttackSpeed();
+      int cooldownTicks = (int) Math.max(1, selectedSkill.getCooldownSeconds() / attackSpeed);
+      skillCooldowns.put(skillKey(attacker, selectedSkill), cooldownTicks);
       skillProcs.merge(attacker.getName() + ":" + selectedSkill.getName(), 1, Integer::sum);
       skillName = selectedSkill.getName();
 

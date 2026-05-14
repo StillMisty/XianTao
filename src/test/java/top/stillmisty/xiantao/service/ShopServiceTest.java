@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -98,7 +97,7 @@ class ShopServiceTest {
     @Test
     @DisplayName("库存充足时成功购买")
     void purchaseItem_success() {
-      when(userRepository.deductSpiritStonesIfEnough(eq(userId), anyInt())).thenReturn(1);
+      when(userRepository.deductSpiritStonesIfEnough(eq(userId), anyLong())).thenReturn(1);
 
       ItemTemplate template = createTemplate("聚灵丹", ItemType.POTION);
       when(itemTemplateRepository.findById(1L)).thenReturn(Optional.of(template));
@@ -140,7 +139,7 @@ class ShopServiceTest {
     @DisplayName("灵石不足时抛异常")
     void purchaseItem_insufficientStones() {
       when(userStateService.loadUser(userId)).thenReturn(user);
-      when(userRepository.deductSpiritStonesIfEnough(eq(userId), anyInt())).thenReturn(0);
+      when(userRepository.deductSpiritStonesIfEnough(eq(userId), anyLong())).thenReturn(0);
 
       ItemTemplate template = createTemplate("聚灵丹", ItemType.POTION);
       when(itemTemplateRepository.findById(1L)).thenReturn(Optional.of(template));

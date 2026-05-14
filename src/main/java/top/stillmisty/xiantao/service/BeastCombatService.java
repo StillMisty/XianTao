@@ -97,9 +97,7 @@ public class BeastCombatService {
 
     List<Beast> allBeasts = beastRepository.findByFudiId(pcb.fudi().getId());
     long deployedCount =
-        allBeasts.stream()
-            .filter(b -> Boolean.TRUE.equals(b.getIsDeployed()) && b.canFight())
-            .count();
+        allBeasts.stream().filter(b -> Boolean.TRUE.equals(b.getIsDeployed())).count();
     if (deployedCount >= 2) {
       throw new BusinessException(BEAST_DEPLOY_FULL);
     }

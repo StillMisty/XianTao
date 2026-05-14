@@ -285,7 +285,7 @@ public class TrainingService {
   }
 
   private double calculateEfficiencyMultiplier(int agility) {
-    return 1.0 + (agility * 0.01);
+    return 1.0 + Math.min(agility * 0.01, 2.0);
   }
 
   private double calculateLevelDecayMultiplier(int playerLevel, int mapLevel) {
@@ -307,7 +307,7 @@ public class TrainingService {
             .stream()
             .collect(Collectors.toMap(ItemTemplate::getId, t -> t));
 
-    int dropChances = (int) (minutesTraining / 10.0 * efficiencyMultiplier);
+    int dropChances = Math.max(1, (int) (minutesTraining / 10.0 * efficiencyMultiplier));
 
     for (int i = 0; i < dropChances; i++) {
       SpecialtyEntry selectedEntry =

@@ -80,10 +80,6 @@ public class Beast {
     if (!Boolean.TRUE.equals(isDeployed)) return false;
     if (hpCurrent == null || hpCurrent <= 0) return false;
     if (recoveryUntil != null && recoveryUntil.isAfter(LocalDateTime.now())) return false;
-    // recoveryUntil已过期，清除恢复状态
-    if (recoveryUntil != null && !recoveryUntil.isAfter(LocalDateTime.now())) {
-      recoveryUntil = null;
-    }
     return true;
   }
 
@@ -115,7 +111,6 @@ public class Beast {
    */
   public long addExp(long expToAdd) {
     long actualAdd = expToAdd;
-    // 如果升级后还会继续升级，需要计算实际能添加的经验
     while (actualAdd > 0 && canLevelUp()) {
       long needed = (int) calculateExpToNextLevel() - exp;
       if (actualAdd >= needed) {
@@ -127,13 +122,13 @@ public class Beast {
         actualAdd = 0;
       }
     }
-    // 如果不能继续升级，经验存到上限
     if (levelCap != null && level >= levelCap) {
       long maxExp = calculateExpToNextLevel();
-      exp = (int) Math.min(exp + actualAdd, maxExp);
-      actualAdd = 0;
+      exp = (int) Math.min(exp, maxExp);
+    } else if (actualAdd > 0) {
+      exp += (int) actualAdd;
     }
-    return expToAdd - actualAdd;
+    return expToAdd;
   }
 
   /** 重新计算属性（升级、进化后调用） 使用与 FudiService.calculateBeastAttack/Defense 一致的公式 */

@@ -116,7 +116,7 @@ public class ShopService {
     long unitPrice = product.getCurrentPrice();
     long totalPrice = unitPrice * quantity;
 
-    int rows = userRepository.deductSpiritStonesIfEnough(userId, (int) totalPrice);
+    int rows = userRepository.deductSpiritStonesIfEnough(userId, totalPrice);
     if (rows == 0) {
       User user = userStateService.loadUser(userId);
       throw new BusinessException(
@@ -159,7 +159,7 @@ public class ShopService {
 
     long price = product.getCurrentPrice();
 
-    int rows = userRepository.deductSpiritStonesIfEnough(userId, (int) price);
+    int rows = userRepository.deductSpiritStonesIfEnough(userId, price);
     if (rows == 0) {
       User user = userStateService.loadUser(userId);
       throw new BusinessException(
@@ -246,8 +246,7 @@ public class ShopService {
     }
 
     User user = userStateService.loadUser(userId);
-    user.setSpiritStones(user.getSpiritStones() + confirmedPrice);
-    userRepository.save(user);
+    userRepository.addSpiritStonesAtomically(userId, confirmedPrice);
 
     return new SellResult(
         true,
@@ -294,8 +293,7 @@ public class ShopService {
     equipmentRepository.deleteById(equipment.getId());
 
     User user = userStateService.loadUser(userId);
-    user.setSpiritStones(user.getSpiritStones() + confirmedPrice);
-    userRepository.save(user);
+    userRepository.addSpiritStonesAtomically(userId, confirmedPrice);
 
     return new SellResult(
         true,
@@ -361,14 +359,14 @@ public class ShopService {
 
   public HaggleResult haggleItem(Long userId, ShopNpc npc, long currentPrice) {
     User user = userStateService.loadUser(userId);
-    double charmFactor = Math.min(0.3, (user.getEffectiveStatWis() - 10) / 20.0);
+    double charmFactor = Math.max(0, Math.min(0.3, (user.getEffectiveStatWis() - 10) / 20.0));
     double personalityFactor = 0.1;
-    if (npc.getPersonality() != null && npc.getPersonality().contains("T")) {
+    if (npc.getPersonality() != null && npc.getPersonality().toUpperCase().contains("TOUGH")) {
       personalityFactor = 0.2;
     }
 
     double successRate = 0.3 + charmFactor * 0.3 - personalityFactor;
-    successRate = Math.max(0.1, Math.min(0.7, successRate));
+    successRate = Math.max(0.05, Math.min(0.7, successRate));
 
     boolean success = ThreadLocalRandom.current().nextDouble() < successRate;
 
@@ -378,6 +376,11 @@ public class ShopService {
 
     long discount = (long) Math.ceil(currentPrice * 0.05);
     long newPrice = currentPrice - discount;
+    long minPrice = (long) (currentPrice * 0.5);
+
+    if (newPrice < minPrice) {
+      return new HaggleResult(false, currentPrice, 0, "客官，再降老朽只能喝西北风了！");
+    }
 
     return new HaggleResult(
         true, newPrice, discount, "罢了罢了，看你诚心，让利 " + discount + " 灵石，算你 " + newPrice + " 灵石吧");

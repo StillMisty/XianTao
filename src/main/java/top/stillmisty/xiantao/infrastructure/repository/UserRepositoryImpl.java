@@ -61,12 +61,12 @@ public class UserRepositoryImpl implements UserRepository {
   }
 
   @Override
-  public int deductSpiritStonesIfEnough(Long userId, int cost) {
+  public int deductSpiritStonesIfEnough(Long userId, long cost) {
     return userMapper.deductSpiritStonesIfEnough(userId, cost);
   }
 
   @Override
-  public int addSpiritStonesAtomically(Long userId, int amount) {
+  public int addSpiritStonesAtomically(Long userId, long amount) {
     return userMapper.addSpiritStonesAtomically(userId, amount);
   }
 }

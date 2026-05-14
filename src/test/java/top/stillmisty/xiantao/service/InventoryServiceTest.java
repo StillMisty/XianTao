@@ -89,17 +89,20 @@ class InventoryServiceTest {
 
     StackableItem seed1 = new StackableItem();
     seed1.setItemType(ItemType.SEED);
+    seed1.setQuantity(5);
     StackableItem seed2 = new StackableItem();
     seed2.setItemType(ItemType.SEED);
+    seed2.setQuantity(3);
     StackableItem herb = new StackableItem();
     herb.setItemType(ItemType.HERB);
+    herb.setQuantity(10);
 
     when(stackableItemRepository.findByUserId(userId)).thenReturn(List.of(seed1, seed2, herb));
 
     InventorySummaryVO result = inventoryService.getInventorySummary(userId);
 
-    assertEquals(2, result.stackableItemCount().get(ItemType.SEED));
-    assertEquals(1, result.stackableItemCount().get(ItemType.HERB));
+    assertEquals(8, result.stackableItemCount().get(ItemType.SEED));
+    assertEquals(10, result.stackableItemCount().get(ItemType.HERB));
   }
 
   @Test

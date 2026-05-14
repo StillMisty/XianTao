@@ -4,6 +4,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
@@ -32,6 +33,7 @@ public class ItemUseService {
   }
 
   /** 使用物品（内部API） */
+  @Transactional
   public String useItem(Long userId, String itemName, String args) {
     // 1. 查找物品 - 使用数据库模糊匹配
     List<StackableItem> items =

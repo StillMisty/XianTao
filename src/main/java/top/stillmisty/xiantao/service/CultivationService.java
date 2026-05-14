@@ -25,6 +25,7 @@ public class CultivationService {
   private final PlayerBuffRepository playerBuffRepository;
   private final ProtectionHelper protectionHelper;
   private final DaoProtectionService daoProtectionService;
+  private final FudiHelper fudiHelper;
   private final ChatClient chatClient;
 
   // ===================== 公开 API（含认证） =====================
@@ -206,7 +207,7 @@ public class CultivationService {
 
     CultivationRealm realm = CultivationRealm.fromLevel(user.getLevel());
     long spiritStones = CultivationRealm.breakthroughSpiritStonesReward(realm);
-    user.setSpiritStones(user.getSpiritStones() + spiritStones);
+    fudiHelper.addSpiritStones(user.getId(), (int) spiritStones);
   }
 
   /** 使用 LLM 生成跨大境界突破贺词 */

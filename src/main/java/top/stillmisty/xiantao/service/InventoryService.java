@@ -75,7 +75,8 @@ public class InventoryService {
 
     Map<ItemType, Integer> stackableItemCount = new HashMap<>();
     for (StackableItem item : stackableItems) {
-      stackableItemCount.merge(item.getItemType(), 1, Integer::sum);
+      int qty = item.getQuantity() != null ? item.getQuantity() : 0;
+      stackableItemCount.merge(item.getItemType(), qty, Integer::sum);
     }
 
     return new InventorySummaryVO(equipmentByQuality, stackableItemCount, user.getSpiritStones());

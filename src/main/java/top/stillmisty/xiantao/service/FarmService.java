@@ -204,7 +204,10 @@ public class FarmService {
 
   void grantHarvestItems(Long userId, Integer cropId, int yield) {
     ItemTemplate seedTemplate = itemTemplateRepository.findById(cropId.longValue()).orElse(null);
-    if (seedTemplate == null) return;
+    if (seedTemplate == null) {
+      log.warn("收获作物时种子模板缺失: cropId={}, userId={}", cropId, userId);
+      return;
+    }
     var props = seedTemplate.typedProperties();
     if (props instanceof ItemProperties.Growth g) {
       for (var item : g.productionItems()) {
@@ -216,6 +219,8 @@ public class FarmService {
         stackableItemService.addStackableItem(
             userId, item.templateId(), ItemType.HERB, name, yield);
       }
+    } else {
+      log.warn("收获作物时模板缺少Growth属性: cropId={}, userId={}", cropId, userId);
     }
   }
 

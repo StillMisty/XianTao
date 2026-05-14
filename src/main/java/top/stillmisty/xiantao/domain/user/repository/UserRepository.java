@@ -28,8 +28,8 @@ public interface UserRepository {
   List<User> findTopBySpiritStones(int limit);
 
   /** 原子扣除灵石（灵石不足时返回0，成功返回1） */
-  int deductSpiritStonesIfEnough(Long userId, int cost);
+  int deductSpiritStonesIfEnough(Long userId, long cost);
 
   /** 原子增加灵石 */
-  int addSpiritStonesAtomically(Long userId, int amount);
+  int addSpiritStonesAtomically(Long userId, long amount);
 }

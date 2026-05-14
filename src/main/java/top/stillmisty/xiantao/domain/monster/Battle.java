@@ -53,6 +53,7 @@ public class Battle {
 
   /** 执行战斗，返回结果 */
   public BattleResultVO execute() {
+    if (executed) return result;
     BattleContext context =
         BattleContext.builder().teamA(teamA).teamB(teamB).maxRounds(maxRounds).scene(scene).build();
     result = combatEngine.simulate(context);

@@ -36,7 +36,7 @@ public class PlayerBuff {
   private LocalDateTime createdAt;
 
   public boolean isExpired() {
-    return expiresAt != null && expiresAt.isBefore(LocalDateTime.now());
+    return expiresAt == null || expiresAt.isBefore(LocalDateTime.now());
   }
 
   public boolean isActive() {

@@ -51,9 +51,7 @@ public class CombatService {
         case ATTACK -> attackBuff += buff.getValue();
         case DEFENSE -> defenseBuff += buff.getValue();
         case SPEED -> speedBuff += buff.getValue();
-        case BREAKTHROUGH -> {
-          /* 突破buff不参与战斗 */
-        }
+        case BREAKTHROUGH -> {}
       }
     }
 
@@ -103,9 +101,7 @@ public class CombatService {
         case ATTACK -> attackBuff += buff.getValue();
         case DEFENSE -> defenseBuff += buff.getValue();
         case SPEED -> speedBuff += buff.getValue();
-        case BREAKTHROUGH -> {
-          /* 突破buff不参与战斗 */
-        }
+        case BREAKTHROUGH -> {}
       }
     }
 

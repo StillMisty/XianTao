@@ -7,6 +7,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonInstance;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonPoiConfig;
@@ -288,10 +289,21 @@ public class DungeonService {
 
   private void checkExpired(DungeonInstance instance) {
     if (instance.isExpired()) {
-      instance.setStatus(DungeonStatus.ABANDONED);
-      instanceRepository.save(instance);
+      markInstanceAbandoned(instance);
       throw new BusinessException(ErrorCode.DUNGEON_INSTANCE_EXPIRED);
     }
+  }
+
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void markInstanceFailed(DungeonInstance instance) {
+    instance.markFailed();
+    instanceRepository.save(instance);
+  }
+
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void markInstanceAbandoned(DungeonInstance instance) {
+    instance.setStatus(DungeonStatus.ABANDONED);
+    instanceRepository.save(instance);
   }
 
   private DungeonArea getNextArea(DungeonArea current) {
@@ -319,8 +331,7 @@ public class DungeonService {
         combatHelper.executeCombat(user, instance, poi, isBoss);
 
     if (!outcome.playerWon()) {
-      instance.markFailed();
-      instanceRepository.save(instance);
+      markInstanceFailed(instance);
       userStateService.save(user);
       throw new BusinessException(ErrorCode.DUNGEON_COMBAT_LOST);
     }

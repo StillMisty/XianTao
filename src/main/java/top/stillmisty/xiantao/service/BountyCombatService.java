@@ -38,6 +38,7 @@ public class BountyCombatService {
   private final StackableItemService stackableItemService;
   private final EquipmentService equipmentService;
   private final BountyCompleter bountyCompleter;
+  private final FudiHelper fudiHelper;
 
   @Transactional
   public BountyRewardVO completeBounty(Long userId) {
@@ -75,7 +76,7 @@ public class BountyCombatService {
             userId, record.getBountyId(), record.getBountyName(), items, stats.spiritStones);
 
     if (finalSpiritStones > 0) {
-      user.setSpiritStones(user.getSpiritStones() + finalSpiritStones);
+      fudiHelper.addSpiritStones(userId, (int) finalSpiritStones);
     }
 
     // Bounty completion event

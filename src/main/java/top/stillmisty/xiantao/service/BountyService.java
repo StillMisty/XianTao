@@ -2,10 +2,9 @@ package top.stillmisty.xiantao.service;
 
 import static top.stillmisty.xiantao.service.ErrorCode.*;
 
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -152,7 +151,7 @@ public class BountyService {
       throw new BusinessException(BOUNTY_LEVEL_INSUFFICIENT);
     }
 
-    long seed = userId * 31 + LocalDate.now().toEpochDay();
+    long seed = userId * 31 + LocalDate.now().toEpochDay() + ThreadLocalRandom.current().nextLong();
     Random rng = new Random(seed);
     List<BountyRewardItem> predeterminedRewards = determineRewards(bounty, mapNode, rng);
 
