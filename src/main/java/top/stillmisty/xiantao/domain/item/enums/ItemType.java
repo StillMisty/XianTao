@@ -20,6 +20,8 @@ public enum ItemType {
 
   RECIPE_SCROLL("RECIPE_SCROLL", "丹方卷轴"),
 
+  FORGING_BLUEPRINT("FORGING_BLUEPRINT", "锻造图纸"),
+
   HERB("HERB", "药材");
 
   @EnumValue private final String code;

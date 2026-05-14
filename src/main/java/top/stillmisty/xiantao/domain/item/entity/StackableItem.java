@@ -159,6 +159,18 @@ public class StackableItem {
   }
 
   /**
+   * 获取锻材三性属性值（仅材料类：RIGIDITY、TOUGHNESS、SPIRIT）
+   *
+   * @param attribute 属性代码（RIGIDITY, TOUGHNESS, SPIRIT）
+   * @return 属性值，不存在返回0
+   */
+  public int getMaterialValue(String attribute) {
+    if (properties == null || attribute == null) return 0;
+    Object val = properties.get(attribute);
+    return val instanceof Number n ? n.intValue() : 0;
+  }
+
+  /**
    * 对 properties 计算确定性哈希值
    *
    * <p>先按键排序再哈希，保证相同内容的 Map 产生相同哈希值。properties 为 null 或空时返回 0。

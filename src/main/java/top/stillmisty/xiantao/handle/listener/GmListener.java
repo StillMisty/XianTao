@@ -86,13 +86,13 @@ public class GmListener {
 
   @Listener
   @ContentTrim
-  @Filter("GM设置等级 {{nickname}} {{level}}")
+  @Filter("GM等级 {{nickname}} {{level}}")
   public void setLevel(
       OneBotMessageEvent event,
       @FilterValue("nickname") String nickname,
       @FilterValue("level") String level) {
     log.debug(
-        "收到GM设置等级请求 - AuthorId: {}, Target: {}, Level: {}", event.getAuthorId(), nickname, level);
+        "收到GM等级请求 - AuthorId: {}, Target: {}, Level: {}", event.getAuthorId(), nickname, level);
     String response =
         gmCommandHandler.handleSetLevel(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), nickname, level);
@@ -101,13 +101,13 @@ public class GmListener {
 
   @Listener
   @ContentTrim
-  @Filter("GM设置所在地点 {{nickname}} {{locationName}}")
+  @Filter("GM传送 {{nickname}} {{locationName}}")
   public void setLocation(
       OneBotMessageEvent event,
       @FilterValue("nickname") String nickname,
       @FilterValue("locationName") String locationName) {
     log.debug(
-        "收到GM设置所在地点请求 - AuthorId: {}, Target: {}, Location: {}",
+        "收到GM传送请求 - AuthorId: {}, Target: {}, Location: {}",
         event.getAuthorId(),
         nickname,
         locationName);
@@ -119,14 +119,14 @@ public class GmListener {
 
   @Listener
   @ContentTrim
-  @Filter("GM给物品和装备 {{nickname}} {{itemName}} {{quantity}}")
+  @Filter("GM给物品 {{nickname}} {{itemName}} {{quantity}}")
   public void giveItem(
       OneBotMessageEvent event,
       @FilterValue("nickname") String nickname,
       @FilterValue("itemName") String itemName,
       @FilterValue("quantity") String quantity) {
     log.debug(
-        "收到GM给物品和装备请求 - AuthorId: {}, Target: {}, Item: {}, Quantity: {}",
+        "收到GM给物品请求 - AuthorId: {}, Target: {}, Item: {}, Quantity: {}",
         event.getAuthorId(),
         nickname,
         itemName,
@@ -205,13 +205,13 @@ public class GmListener {
 
   @Listener
   @ContentTrim
-  @Filter("GM设置等级 {{nickname}} {{level}}")
+  @Filter("GM等级 {{nickname}} {{level}}")
   public void setLevelQq(
       QGGroupAtMessageCreateEvent event,
       @FilterValue("nickname") String nickname,
       @FilterValue("level") String level) {
     log.debug(
-        "收到GM设置等级请求 - AuthorId: {}, Target: {}, Level: {}", event.getAuthorId(), nickname, level);
+        "收到GM等级请求 - AuthorId: {}, Target: {}, Level: {}", event.getAuthorId(), nickname, level);
     String response =
         gmCommandHandler.handleSetLevelMarkdown(
             PlatformType.QQ, event.getAuthorId().toString(), nickname, level);
@@ -220,13 +220,13 @@ public class GmListener {
 
   @Listener
   @ContentTrim
-  @Filter("GM设置所在地点 {{nickname}} {{locationName}}")
+  @Filter("GM传送 {{nickname}} {{locationName}}")
   public void setLocationQq(
       QGGroupAtMessageCreateEvent event,
       @FilterValue("nickname") String nickname,
       @FilterValue("locationName") String locationName) {
     log.debug(
-        "收到GM设置所在地点请求 - AuthorId: {}, Target: {}, Location: {}",
+        "收到GM传送请求 - AuthorId: {}, Target: {}, Location: {}",
         event.getAuthorId(),
         nickname,
         locationName);
@@ -238,14 +238,14 @@ public class GmListener {
 
   @Listener
   @ContentTrim
-  @Filter("GM给物品和装备 {{nickname}} {{itemName}} {{quantity}}")
+  @Filter("GM给物品 {{nickname}} {{itemName}} {{quantity}}")
   public void giveItemQq(
       QGGroupAtMessageCreateEvent event,
       @FilterValue("nickname") String nickname,
       @FilterValue("itemName") String itemName,
       @FilterValue("quantity") String quantity) {
     log.debug(
-        "收到GM给物品和装备请求 - AuthorId: {}, Target: {}, Item: {}, Quantity: {}",
+        "收到GM给物品请求 - AuthorId: {}, Target: {}, Item: {}, Quantity: {}",
         event.getAuthorId(),
         nickname,
         itemName,

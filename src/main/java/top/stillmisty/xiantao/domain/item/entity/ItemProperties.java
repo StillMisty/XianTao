@@ -54,6 +54,12 @@ public sealed interface ItemProperties {
 
   record Potion(@JsonProperty("effects") List<Effect> effects) implements ItemProperties {}
 
+  record ForgingBlueprint(
+      @JsonProperty("equipment_template_id") long equipmentTemplateId,
+      int grade,
+      Map<String, ElementRange> requirements)
+      implements ItemProperties {}
+
   record Scroll(@JsonProperty("recipe") Recipe recipe) implements ItemProperties {
     public int grade() {
       return recipe.grade();

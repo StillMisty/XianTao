@@ -84,6 +84,8 @@ public class ItemTemplate {
       case SKILL_JADE -> OBJECT_MAPPER.convertValue(properties, ItemProperties.SkillJade.class);
       case POTION -> OBJECT_MAPPER.convertValue(properties, ItemProperties.Potion.class);
       case RECIPE_SCROLL -> OBJECT_MAPPER.convertValue(properties, ItemProperties.Scroll.class);
+      case FORGING_BLUEPRINT ->
+          OBJECT_MAPPER.convertValue(properties, ItemProperties.ForgingBlueprint.class);
       default -> null;
     };
   }

@@ -66,6 +66,22 @@ public enum ErrorCode {
   RECIPE_SCROLL_WRONG_TYPE("该物品不是丹方卷轴"),
   RECIPE_PILL_DATA_ERROR("丹药产物数据异常"),
 
+  // ===== Forging =====
+  BLUEPRINT_SCROLL_NOT_FOUND("未找到名为「%s」的锻造图纸"),
+  BLUEPRINT_ALREADY_LEARNED("已学会该锻造图纸"),
+  BLUEPRINT_SCROLL_WRONG_TYPE("该物品不是锻造图纸"),
+  BLUEPRINT_DATA_ERROR("锻造图纸数据异常"),
+  BLUEPRINT_NOT_LEARNED("未学会该锻造图纸：%s"),
+  FORGING_MATERIAL_INSUFFICIENT("锻材不足，无法锻造"),
+  FORGING_ATTRIBUTE_MISSING("缺少锻材属性：%s"),
+  FORGING_ATTRIBUTE_EXCEED("锻材属性超过上限：%s"),
+  FORGING_NO_MATCHING_BLUEPRINT("锻材三性不匹配任何锻造图纸"),
+  EQUIPMENT_NOT_FORGEABLE("该装备不可锻造"),
+  EQUIPMENT_FORGE_LEVEL_MAX("装备强化等级已达上限"),
+  EQUIPMENT_BLUEPRINT_REQUIRED("强化+10及以上需要持有对应锻造图纸"),
+  EQUIPMENT_FORGE_LEVEL_CAP("掉落装备强化上限为+9"),
+  ENHANCE_MATERIAL_NOT_MATCH("锻材不满足强化约束"),
+
   // ===== Bounty =====
   BOUNTY_NO_ACTIVE("当前没有进行中的悬赏"),
   BOUNTY_NOT_FOUND("悬赏不存在"),
