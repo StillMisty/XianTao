@@ -5,6 +5,7 @@ import java.util.List;
 public record PlayerViewVO(
     String nickname,
     int level,
+    String realmDisplay,
     int hpCurrent,
     int hpMax,
     int attack,

@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.shared.SharedKernel;
 import top.stillmisty.xiantao.domain.user.entity.DaoProtection;
 import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
 import top.stillmisty.xiantao.domain.user.repository.DaoProtectionRepository;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 import top.stillmisty.xiantao.domain.user.vo.DaoProtectionQueryResult;
@@ -53,8 +54,10 @@ public class DaoProtectionService {
       return new DaoProtectionResult(
           false,
           String.format(
-              "你的境界（第%d层）低于%s（第%d层），无法为其护道",
-              protector.getLevel(), protege.getNickname(), protege.getLevel()),
+              "你的境界（%s）低于%s（%s），无法为其护道",
+              CultivationRealm.realmDisplay(protector.getLevel()),
+              protege.getNickname(),
+              CultivationRealm.realmDisplay(protege.getLevel())),
           null,
           null,
           null,

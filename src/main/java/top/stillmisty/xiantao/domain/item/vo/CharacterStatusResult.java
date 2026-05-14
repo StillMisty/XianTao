@@ -12,6 +12,7 @@ public record CharacterStatusResult(
     Long userId,
     String nickname,
     Integer level,
+    String realmDisplay,
     Long exp,
     Long expToNextLevel,
     Double expPercentage,

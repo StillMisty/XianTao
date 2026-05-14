@@ -12,6 +12,7 @@ import top.stillmisty.xiantao.domain.item.vo.AttributeChange;
 import top.stillmisty.xiantao.domain.item.vo.CharacterStatusResult;
 import top.stillmisty.xiantao.domain.item.vo.InventorySummaryVO;
 import top.stillmisty.xiantao.domain.item.vo.ItemEntry;
+import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.domain.user.vo.*;
@@ -371,7 +372,8 @@ public class CultivationCommandHandler implements CommandGroup {
     }
 
     sb.append(
-        fmt.listItem(String.format("境界：第%d层 (%.1f%%)", status.level(), status.expPercentage())));
+        fmt.listItem(
+            String.format("境界：%s (%.1f%%)", status.realmDisplay(), status.expPercentage())));
     sb.append(
         fmt.listItem(
             String.format(
@@ -408,9 +410,9 @@ public class CultivationCommandHandler implements CommandGroup {
           sb.append(
               subListItem(
                   String.format(
-                      "%s（第%d层）- %s %s - 加成%.1f%%",
+                      "%s（%s）- %s %s - 加成%.1f%%",
                       info.userName(),
-                      info.userLevel(),
+                      CultivationRealm.realmDisplay(info.userLevel()),
                       info.locationName(),
                       locationStatus,
                       info.bonusPercentage()),
@@ -440,9 +442,9 @@ public class CultivationCommandHandler implements CommandGroup {
           sb.append(
               subListItem(
                   String.format(
-                      "%s（第%d层）- %s %s - %s",
+                      "%s（%s）- %s %s - %s",
                       info.userName(),
-                      info.userLevel(),
+                      CultivationRealm.realmDisplay(info.userLevel()),
                       info.locationName(),
                       locationStatus,
                       bonusText),
@@ -541,7 +543,7 @@ public class CultivationCommandHandler implements CommandGroup {
   private String formatPlayerView(PlayerViewVO vo, TextFormat fmt) {
     StringBuilder sb = new StringBuilder();
     sb.append(fmt.subHeading(vo.nickname()));
-    sb.append(fmt.listItem("境界：第" + vo.level() + "层"));
+    sb.append(fmt.listItem("境界：" + vo.realmDisplay()));
     sb.append(fmt.listItem("状态：" + vo.statusName()));
     sb.append(fmt.listItem("HP：" + vo.hpCurrent() + "/" + vo.hpMax()));
     sb.append(fmt.listItem("攻击：" + vo.attack() + " | 防御：" + vo.defense()));
@@ -574,7 +576,7 @@ public class CultivationCommandHandler implements CommandGroup {
     if (result.successRate() != null)
       sb.append(fmt.listItem(String.format("突破成功率：%.1f%%", result.successRate())));
     if (result.newLevel() != null)
-      sb.append(fmt.listItem(String.format("当前境界：第%d层", result.newLevel())));
+      sb.append(fmt.listItem(String.format("当前境界：%s", result.realmDisplay())));
     if (result.nextBreakthroughRate() != null)
       sb.append(fmt.listItem(String.format("下次突破成功率：%.1f%%", result.nextBreakthroughRate())));
     return sb.toString();
@@ -584,8 +586,18 @@ public class CultivationCommandHandler implements CommandGroup {
     return (result.message()
         + "\n\n"
         + fmt.heading("护道详情")
-        + fmt.listItem("护道者：" + result.protectorName() + "（第" + result.protectorLevel() + "层）")
-        + fmt.listItem("被护道者：" + result.protegeName() + "（第" + result.protegeLevel() + "层）")
+        + fmt.listItem(
+            "护道者："
+                + result.protectorName()
+                + "（"
+                + CultivationRealm.realmDisplay(result.protectorLevel())
+                + "）")
+        + fmt.listItem(
+            "被护道者："
+                + result.protegeName()
+                + "（"
+                + CultivationRealm.realmDisplay(result.protegeLevel())
+                + "）")
         + fmt.listItem(String.format("单人加成：%.1f%%", result.singleProtectorBonus()))
         + fmt.listItem("是否同地点：" + (result.isInSameLocation() ? "是" : "否")));
   }
@@ -605,9 +617,9 @@ public class CultivationCommandHandler implements CommandGroup {
         sb.append(
             subListItem(
                 String.format(
-                    "%s（第%d层）- %s %s - 加成%.1f%%",
+                    "%s（%s）- %s %s - 加成%.1f%%",
                     info.getUserName(),
-                    info.getUserLevel(),
+                    CultivationRealm.realmDisplay(info.getUserLevel()),
                     info.getLocationName(),
                     locationStatus,
                     info.getBonusPercentage()),
@@ -631,9 +643,9 @@ public class CultivationCommandHandler implements CommandGroup {
         sb.append(
             subListItem(
                 String.format(
-                    "%s（第%d层）- %s %s - %s",
+                    "%s（%s）- %s %s - %s",
                     info.getUserName(),
-                    info.getUserLevel(),
+                    CultivationRealm.realmDisplay(info.getUserLevel()),
                     info.getLocationName(),
                     locationStatus,
                     bonusText),

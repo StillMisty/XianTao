@@ -13,6 +13,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import top.stillmisty.xiantao.domain.event.enums.ActivityType;
+import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 
 /** 游戏角色核心表实体 */
@@ -81,6 +82,18 @@ public class User extends Model<User> {
 
   /** 突破失败次数 (影响下一次突破成功率) */
   private Integer breakthroughFailCount;
+
+  // ===================== 境界显示方法 =====================
+
+  /** 获取境界显示名（如 "筑基 · 融合"） */
+  public String realmDisplay() {
+    return CultivationRealm.realmDisplay(level);
+  }
+
+  /** 获取当前大境界 */
+  public CultivationRealm currentRealm() {
+    return CultivationRealm.fromLevel(level);
+  }
 
   /** 是否为GM（游戏管理员） */
   private Boolean gm;

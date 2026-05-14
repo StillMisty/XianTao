@@ -16,6 +16,7 @@ import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
 import top.stillmisty.xiantao.domain.shared.SharedKernel;
 import top.stillmisty.xiantao.domain.user.entity.DaoProtection;
 import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.domain.user.repository.DaoProtectionRepository;
@@ -67,6 +68,7 @@ public class CharacterStatusService {
         user.getId(),
         user.getNickname(),
         user.getLevel(),
+        CultivationRealm.realmDisplay(user.getLevel()),
         user.getExp(),
         user.calculateExpToNextLevel(),
         user.getExp() * 100.0 / user.calculateExpToNextLevel(),

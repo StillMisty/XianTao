@@ -6,6 +6,8 @@ public record BreakthroughResult(
     String message,
     Double successRate,
     Integer newLevel,
+    String realmDisplay,
+    boolean isMajorBreakthrough,
     Integer failCount,
     Double nextBreakthroughRate,
     UserStatusVO userStatus) {}

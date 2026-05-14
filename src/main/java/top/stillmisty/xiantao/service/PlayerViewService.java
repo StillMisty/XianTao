@@ -8,6 +8,7 @@ import top.stillmisty.xiantao.domain.item.entity.Equipment;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
 import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 import top.stillmisty.xiantao.domain.user.vo.PlayerViewVO;
@@ -58,6 +59,7 @@ public class PlayerViewService {
     return new PlayerViewVO(
         target.getNickname(),
         target.getLevel(),
+        CultivationRealm.realmDisplay(target.getLevel()),
         target.getHpCurrent(),
         target.calculateMaxHp(),
         attack,

@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
+import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.vo.LeaderboardVO;
 import top.stillmisty.xiantao.handle.TextFormat;
@@ -68,7 +69,7 @@ public class LeaderboardCommandHandler implements CommandGroup {
           };
       sb.append(medal).append(" ").append(e.nickname());
       if (vo.showLevel()) {
-        sb.append("  第").append(e.level()).append("层");
+        sb.append("  ").append(CultivationRealm.realmDisplay(e.level()));
       } else {
         sb.append("  灵石：").append(e.spiritStones());
       }
