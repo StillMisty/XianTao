@@ -122,11 +122,26 @@ public class TrainingCompleter {
         gameEventService.createEvent(
             userId, GameEventCategory.TRAINING_EVENT, "你偶然发现一片药园，采集了一些药材。", Map.of());
       }
+      case "training_meditation_epiphany" -> {
+        long expBoost = getLongParam(event.getParams(), "exp_boost", 100);
+        user.addExp(expBoost);
+        Map<String, Object> args = Map.of("exp", expBoost);
+        gameEventService.createEvent(
+            userId,
+            GameEventCategory.TRAINING_EVENT,
+            "你在历练中突有所感，就地打坐悟出些许天道碎片，获得 +{{exp}} exp。",
+            args);
+      }
       case "NOTHING" -> {
         // no event
       }
       default -> log.debug("Unknown training sub-event: {}", code);
     }
+  }
+
+  private long getLongParam(Map<String, Object> params, String key, long defaultValue) {
+    if (params == null || !params.containsKey(key)) return defaultValue;
+    return ((Number) params.get(key)).longValue();
   }
 
   private void dropSpecialtyItem(Long userId, MapNode mapNode) {

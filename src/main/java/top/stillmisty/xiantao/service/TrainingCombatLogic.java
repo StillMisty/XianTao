@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
+import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
@@ -21,6 +22,7 @@ import top.stillmisty.xiantao.domain.monster.repository.MonsterTemplateRepositor
 import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
 import top.stillmisty.xiantao.domain.monster.vo.CombatLogEntry;
 import top.stillmisty.xiantao.domain.monster.vo.DropItem;
+import top.stillmisty.xiantao.domain.skill.entity.PlayerSkill;
 import top.stillmisty.xiantao.domain.skill.entity.Skill;
 import top.stillmisty.xiantao.domain.skill.repository.PlayerSkillRepository;
 import top.stillmisty.xiantao.domain.skill.repository.SkillRepository;
@@ -46,6 +48,7 @@ public class TrainingCombatLogic {
   private final DropProcessor dropProcessor;
   private final SkillRepository skillRepository;
   private final PlayerSkillRepository playerSkillRepository;
+  private final GameEventService gameEventService;
 
   public BattleResultVO simulateTraining(
       Long userId, User user, int durationMinutes, MapNode mapNode) {
@@ -161,6 +164,7 @@ public class TrainingCombatLogic {
       double levelModifier = calculateCombatExpModifier(ctx.user.getLevel(), tmpl.getBaseLevel());
       ctx.expGained += (long) (tmpl.getExpReward() * count * levelModifier);
       ctx.allDrops.addAll(dropProcessor.processMonsterDrops(tmpl));
+      rollEnlightenment(ctx);
     } else {
       ctx.defeatCount++;
     }
@@ -233,6 +237,8 @@ public class TrainingCombatLogic {
     int totalEncounters = 0;
     int totalKills = 0;
     int defeatCount = 0;
+    int enlightenmentCount = 0;
+    Set<Long> learnedSkillIds = null;
     final Map<Long, Beast> beastCache = new LinkedHashMap<>();
     final Map<Long, BeastHpTrack> beastHpTracks = new LinkedHashMap<>();
 
@@ -382,6 +388,112 @@ public class TrainingCombatLogic {
         .skillProcs(allSkillProcs)
         .summary(summary.toString())
         .build();
+  }
+
+  private void rollEnlightenment(CombatContext ctx) {
+    int wis = ctx.user.getEffectiveStatWis();
+    double chance = 0.02 + wis * 0.0005;
+    if (ThreadLocalRandom.current().nextDouble() >= chance) return;
+
+    ctx.enlightenmentCount++;
+    long expToNextLevel = ctx.user.calculateExpToNextLevel();
+    double roll = ThreadLocalRandom.current().nextDouble();
+
+    if (roll < 0.50) {
+      long expBonus =
+          (long) (expToNextLevel * (0.03 + ThreadLocalRandom.current().nextDouble() * 0.05));
+      ctx.user.addExp(expBonus);
+      Map<String, Object> args = Map.of("exp", expBonus);
+      gameEventService.createEvent(
+          ctx.userId, GameEventCategory.TRAINING_EVENT, "历练中灵光一闪，顿悟天道至理，获得 +{{exp}} exp。", args);
+    } else if (roll < 0.80) {
+      Skill learned = tryLearnRandomSkill(ctx);
+      if (learned != null) {
+        Map<String, Object> args = Map.of("skillName", learned.getName());
+        gameEventService.createEvent(
+            ctx.userId, GameEventCategory.TRAINING_EVENT, "心有所感，悟得绝学「{{skillName}}」！", args);
+      } else {
+        long expBonus =
+            (long) (expToNextLevel * (0.01 + ThreadLocalRandom.current().nextDouble() * 0.02));
+        ctx.user.addExp(expBonus);
+        Map<String, Object> args = Map.of("exp", expBonus);
+        gameEventService.createEvent(
+            ctx.userId, GameEventCategory.TRAINING_EVENT, "似有所悟，但未得要领，仅获 +{{exp}} exp。", args);
+      }
+    } else if (roll < 0.95) {
+      long expBonus =
+          (long) (expToNextLevel * (0.08 + ThreadLocalRandom.current().nextDouble() * 0.12));
+      ctx.user.addExp(expBonus);
+      Skill learned = tryLearnRandomSkill(ctx);
+      Map<String, Object> args = new HashMap<>();
+      args.put("exp", expBonus);
+      if (learned != null) {
+        args.put("skillName", learned.getName());
+        gameEventService.createEvent(
+            ctx.userId,
+            GameEventCategory.TRAINING_EVENT,
+            "天机乍现，大彻大悟！获得 +{{exp}} exp，并悟得「{{skillName}}」！",
+            args);
+      } else {
+        gameEventService.createEvent(
+            ctx.userId, GameEventCategory.TRAINING_EVENT, "天机乍现，大彻大悟！获得 +{{exp}} exp。", args);
+      }
+    } else {
+      long maxStorage = ctx.user.calculateMaxExpStorage();
+      long current = ctx.user.getExp();
+      long currentInLevel =
+          current
+              - (ctx.user.getLevel() > 1
+                  ? 100L * (ctx.user.getLevel() - 1) * (ctx.user.getLevel() - 1)
+                  : 0);
+      long expNeededForCap = maxStorage - currentInLevel;
+      long expGiven = Math.max(expToNextLevel, expNeededForCap);
+      ctx.user.addExp(expGiven);
+      Skill learned = tryLearnRandomSkill(ctx);
+      Map<String, Object> args = new HashMap<>();
+      args.put("exp", expGiven);
+      if (learned != null) {
+        args.put("skillName", learned.getName());
+        gameEventService.createEvent(
+            ctx.userId,
+            GameEventCategory.TRAINING_EVENT,
+            "天人交感，道心通明！修为暴涨 +{{exp}} exp，悟得「{{skillName}}」！",
+            args);
+      } else {
+        gameEventService.createEvent(
+            ctx.userId, GameEventCategory.TRAINING_EVENT, "天人交感，道心通明！修为暴涨 +{{exp}} exp！", args);
+      }
+    }
+  }
+
+  private Skill tryLearnRandomSkill(CombatContext ctx) {
+    if (ctx.learnedSkillIds == null) {
+      ctx.learnedSkillIds =
+          playerSkillRepository.findByUserId(ctx.userId).stream()
+              .map(PlayerSkill::getSkillId)
+              .collect(Collectors.toSet());
+    }
+
+    int wis = ctx.user.getEffectiveStatWis();
+    int level = ctx.user.getLevel();
+
+    List<Skill> learnable =
+        skillRepository.findAll().stream()
+            .filter(s -> s.meetsWisRequirement(wis))
+            .filter(s -> s.meetsLevelRequirement(level))
+            .filter(s -> s.getRequireSkillId() == null)
+            .filter(s -> !ctx.learnedSkillIds.contains(s.getId()))
+            .toList();
+
+    if (learnable.isEmpty()) return null;
+
+    Skill chosen = learnable.get(ThreadLocalRandom.current().nextInt(learnable.size()));
+
+    PlayerSkill playerSkill = PlayerSkill.create(ctx.userId, chosen.getId(), false);
+    playerSkillRepository.save(playerSkill);
+    ctx.learnedSkillIds.add(chosen.getId());
+
+    return chosen;
   }
 
   private record EncounterParams(int encounterChances, double encounterChance) {}
