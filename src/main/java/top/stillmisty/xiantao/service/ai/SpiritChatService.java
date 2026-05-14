@@ -31,7 +31,7 @@ import top.stillmisty.xiantao.service.annotation.Authenticated;
 @Slf4j
 public class SpiritChatService {
 
-  private final ChatClient spiritChatClient;
+  private final ChatClient npcChatClient;
   private final FudiRepository fudiRepository;
   private final FudiCellRepository fudiCellRepository;
   private final SpiritRepository spiritRepository;
@@ -87,7 +87,7 @@ public class SpiritChatService {
       saveHistory(fudi.getId(), "user", userInput, spirit.getEmotionState());
 
       String response =
-          spiritChatClient
+          npcChatClient
               .prompt()
               .system(systemPrompt)
               .user(userInput)

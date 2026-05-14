@@ -23,9 +23,9 @@ import top.stillmisty.xiantao.service.ai.ReasoningScopeAdvisor;
 @Configuration
 public class SpringAiConfig {
 
-  /** 创建地灵专用 ChatClient（支持 reasoning_content 传递） */
+  /** 通用 NPC ChatClient（支持 reasoning_content 传递，max-tokens: 1000） */
   @Bean
-  public ChatClient spiritChatClient(
+  public ChatClient npcChatClient(
       OpenAiCommonProperties commonProperties,
       OpenAiChatProperties chatProperties,
       ToolCallingManager toolCallingManager,
@@ -69,7 +69,7 @@ public class SpringAiConfig {
 
     OpenAIClient reasoningClient = new ReasoningPreservingOpenAIClient(baseClient);
 
-    OpenAiChatModel spiritModel =
+    OpenAiChatModel npcChatModel =
         OpenAiChatModel.builder()
             .openAiClient(reasoningClient)
             .openAiClientAsync(baseAsyncClient)
@@ -80,7 +80,7 @@ public class SpringAiConfig {
                 predicate.getIfUnique(DefaultToolExecutionEligibilityPredicate::new))
             .build();
 
-    return ChatClient.builder(spiritModel).defaultAdvisors(new ReasoningScopeAdvisor()).build();
+    return ChatClient.builder(npcChatModel).defaultAdvisors(new ReasoningScopeAdvisor()).build();
   }
 
   /** 通用美化 ChatClient（控制token长度为150） */
