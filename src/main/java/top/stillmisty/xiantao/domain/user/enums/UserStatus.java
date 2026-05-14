@@ -19,6 +19,9 @@ public enum UserStatus {
   /** 悬赏 */
   BOUNTY("BOUNTY", "悬赏"),
 
+  /** 秘境 */
+  DUNGEON("DUNGEON", "秘境"),
+
   /** 濒死 */
   DYING("DYING", "濒死");
 

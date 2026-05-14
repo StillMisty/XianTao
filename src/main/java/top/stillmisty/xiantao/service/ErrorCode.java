@@ -121,6 +121,22 @@ public enum ErrorCode {
   SELL_PRICE_MISMATCH("价格不匹配，请重新报价"),
   WORLD_EVENT_NOT_FOUND("世界事件不存在"),
 
+  // ===== Dungeon =====
+  DUNGEON_NOT_FOUND("秘境【%s】不存在"),
+  DUNGEON_NOT_ACTIVE("秘境【%s】尚未开放"),
+  DUNGEON_LEVEL_INSUFFICIENT("境界不足，无法进入【%s】（需要等级 %d-%d）"),
+  DUNGEON_NOT_AT_ENTRANCE("你不在【%s】的入口处"),
+  DUNGEON_ALREADY_IN("你已在秘境【%s】中，输入「秘境探索」继续探索"),
+  DUNGEON_NO_ACTIVE_INSTANCE("当前不在任何秘境中"),
+  DUNGEON_NOT_LEADER("只有队长可以操作秘境"),
+  DUNGEON_PASSAGE_LOCKED("前方道路尚未开启，请先探索完当前区域"),
+  DUNGEON_AREA_NOT_FOUND("当前区域不存在可探索的建筑"),
+  DUNGEON_POI_NOT_FOUND("建筑不存在或已探索完毕"),
+  DUNGEON_STATUS_BLOCKED("你当前处于 %s 状态，无法进入秘境"),
+  DUNGEON_COMBAT_LOST("战斗失败！你的队伍被击败了"),
+  DUNGEON_INSTANCE_EXPIRED("秘境已超时关闭"),
+  DUNGEON_TEAM_SIZE_EXCEED("队伍人数超过秘境限制（最多 %d 人）"),
+
   // ===== Context =====
   USER_CONTEXT_MISSING("未找到用户上下文，请先设置 UserContext");
 
