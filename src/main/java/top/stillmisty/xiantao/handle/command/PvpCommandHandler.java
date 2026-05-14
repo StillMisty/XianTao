@@ -16,20 +16,6 @@ public class PvpCommandHandler implements CommandGroup {
 
   private final PvpService pvpService;
 
-  // ===================== 委托方法（纯文本） =====================
-
-  public String handleSpar(PlatformType platform, String openId, String targetNickname) {
-    return handleSpar(platform, openId, targetNickname, TextFormat.PLAIN);
-  }
-
-  // ===================== 委托方法（Markdown） =====================
-
-  public String handleSparMarkdown(PlatformType platform, String openId, String targetNickname) {
-    return handleSpar(platform, openId, targetNickname, TextFormat.MARKDOWN);
-  }
-
-  // ===================== 统一处理方法（含 TextFormat 参数） =====================
-
   public String handleSpar(
       PlatformType platform, String openId, String targetNickname, TextFormat fmt) {
     return switch (pvpService.spar(platform, openId, targetNickname)) {

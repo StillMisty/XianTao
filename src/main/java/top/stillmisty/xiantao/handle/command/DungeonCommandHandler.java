@@ -21,51 +21,6 @@ public class DungeonCommandHandler implements CommandGroup {
 
   private final DungeonService dungeonService;
 
-  // ===================== 委托方法（默认 PLAIN） =====================
-
-  public String handleDungeon(PlatformType platform, String openId) {
-    return handleDungeon(platform, openId, TextFormat.PLAIN);
-  }
-
-  public String handleDungeonEnter(PlatformType platform, String openId, String dungeonName) {
-    return handleDungeonEnter(platform, openId, dungeonName, TextFormat.PLAIN);
-  }
-
-  public String handleDungeonExplore(PlatformType platform, String openId) {
-    return handleDungeonExplore(platform, openId, TextFormat.PLAIN);
-  }
-
-  public String handleDungeonContinue(PlatformType platform, String openId) {
-    return handleDungeonContinue(platform, openId, TextFormat.PLAIN);
-  }
-
-  public String handleDungeonRetreat(PlatformType platform, String openId) {
-    return handleDungeonRetreat(platform, openId, TextFormat.PLAIN);
-  }
-
-  // ===================== Markdown 委托方法 =====================
-
-  public String handleDungeonMarkdown(PlatformType platform, String openId) {
-    return handleDungeon(platform, openId, TextFormat.MARKDOWN);
-  }
-
-  public String handleDungeonEnterMarkdown(
-      PlatformType platform, String openId, String dungeonName) {
-    return handleDungeonEnter(platform, openId, dungeonName, TextFormat.MARKDOWN);
-  }
-
-  public String handleDungeonExploreMarkdown(PlatformType platform, String openId) {
-    return handleDungeonExplore(platform, openId, TextFormat.MARKDOWN);
-  }
-
-  public String handleDungeonContinueMarkdown(PlatformType platform, String openId) {
-    return handleDungeonContinue(platform, openId, TextFormat.MARKDOWN);
-  }
-
-  public String handleDungeonRetreatMarkdown(PlatformType platform, String openId) {
-    return handleDungeonRetreat(platform, openId, TextFormat.MARKDOWN);
-  }
-
   // ===================== 统一处理方法 =====================
 
   public String handleDungeon(PlatformType platform, String openId, TextFormat fmt) {

@@ -25,57 +25,6 @@ public class ForgingCommandHandler implements CommandGroup {
   private final ForgingService forgingService;
   private final EnhancementService enhancementService;
 
-  // ===================== 委托方法（纯文本） =====================
-
-  public String handleForgingRecipeList(PlatformType platform, String openId) {
-    return handleForgingRecipeList(platform, openId, TextFormat.PLAIN);
-  }
-
-  public String handleForgeAuto(PlatformType platform, String openId, String blueprintName) {
-    return handleForgeAuto(platform, openId, blueprintName, TextFormat.PLAIN);
-  }
-
-  public String handleForgeManual(
-      PlatformType platform, String openId, List<String> materialInputs) {
-    return handleForgeManual(platform, openId, materialInputs, TextFormat.PLAIN);
-  }
-
-  public String handleEnhanceAuto(PlatformType platform, String openId, String equipmentInput) {
-    return handleEnhanceAuto(platform, openId, equipmentInput, TextFormat.PLAIN);
-  }
-
-  public String handleEnhanceManual(
-      PlatformType platform, String openId, String equipmentInput, List<String> materialInputs) {
-    return handleEnhanceManual(platform, openId, equipmentInput, materialInputs, TextFormat.PLAIN);
-  }
-
-  // ===================== 委托方法（Markdown） =====================
-
-  public String handleForgingRecipeListMarkdown(PlatformType platform, String openId) {
-    return handleForgingRecipeList(platform, openId, TextFormat.MARKDOWN);
-  }
-
-  public String handleForgeAutoMarkdown(
-      PlatformType platform, String openId, String blueprintName) {
-    return handleForgeAuto(platform, openId, blueprintName, TextFormat.MARKDOWN);
-  }
-
-  public String handleForgeManualMarkdown(
-      PlatformType platform, String openId, List<String> materialInputs) {
-    return handleForgeManual(platform, openId, materialInputs, TextFormat.MARKDOWN);
-  }
-
-  public String handleEnhanceAutoMarkdown(
-      PlatformType platform, String openId, String equipmentInput) {
-    return handleEnhanceAuto(platform, openId, equipmentInput, TextFormat.MARKDOWN);
-  }
-
-  public String handleEnhanceManualMarkdown(
-      PlatformType platform, String openId, String equipmentInput, List<String> materialInputs) {
-    return handleEnhanceManual(
-        platform, openId, equipmentInput, materialInputs, TextFormat.MARKDOWN);
-  }
-
   // ===================== 统一处理方法（含 TextFormat 参数） =====================
 
   public String handleForgingRecipeList(PlatformType platform, String openId, TextFormat fmt) {

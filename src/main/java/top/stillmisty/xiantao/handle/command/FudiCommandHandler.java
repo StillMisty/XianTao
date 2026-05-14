@@ -11,7 +11,7 @@ import top.stillmisty.xiantao.domain.fudi.vo.FudiStatusVO;
 import top.stillmisty.xiantao.domain.fudi.vo.PenCellVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.TextFormat;
-import top.stillmisty.xiantao.service.BeastService;
+import top.stillmisty.xiantao.service.BeastBreedingService;
 import top.stillmisty.xiantao.service.FarmService;
 import top.stillmisty.xiantao.service.FudiService;
 import top.stillmisty.xiantao.service.ServiceResult;
@@ -24,119 +24,9 @@ import top.stillmisty.xiantao.service.ai.SpiritChatService;
 public class FudiCommandHandler implements CommandGroup {
 
   private final FudiService fudiService;
-  private final BeastService beastService;
+  private final BeastBreedingService beastBreedingService;
   private final FarmService farmService;
   private final SpiritChatService spiritChatService;
-
-  // ===================== 纯文本委托方法 =====================
-
-  public String handleFudiStatus(PlatformType platform, String openId) {
-    return handleFudiStatus(platform, openId, TextFormat.PLAIN);
-  }
-
-  public String handleFudiGrid(PlatformType platform, String openId) {
-    return handleFudiGrid(platform, openId, TextFormat.PLAIN);
-  }
-
-  public String handleFudiSpirit(PlatformType platform, String openId) {
-    return handleFudiSpirit(platform, openId, TextFormat.PLAIN);
-  }
-
-  public String handlePlant(
-      PlatformType platform, String openId, String position, String cropName) {
-    return handlePlant(platform, openId, position, cropName, TextFormat.PLAIN);
-  }
-
-  public String handleCollect(PlatformType platform, String openId, String position) {
-    return handleCollect(platform, openId, position, TextFormat.PLAIN);
-  }
-
-  public String handleBuild(
-      PlatformType platform, String openId, String position, String cellTypeName) {
-    return handleBuild(platform, openId, position, cellTypeName, TextFormat.PLAIN);
-  }
-
-  public String handleRemove(PlatformType platform, String openId, String position) {
-    return handleRemove(platform, openId, position, TextFormat.PLAIN);
-  }
-
-  public String handleUpgradeCell(PlatformType platform, String openId, String position) {
-    return handleUpgradeCell(platform, openId, position, TextFormat.PLAIN);
-  }
-
-  public String handleHatch(PlatformType platform, String openId, String position, String eggName) {
-    return handleHatch(platform, openId, position, eggName, TextFormat.PLAIN);
-  }
-
-  public String handleRelease(PlatformType platform, String openId, String position) {
-    return handleRelease(platform, openId, position, TextFormat.PLAIN);
-  }
-
-  public String handleEvolve(PlatformType platform, String openId, String position, String mode) {
-    return handleEvolve(platform, openId, position, mode, TextFormat.PLAIN);
-  }
-
-  public String handleSpiritChat(PlatformType platform, String openId, String userInput) {
-    return handleSpiritChat(platform, openId, userInput, TextFormat.PLAIN);
-  }
-
-  public String handleGiveGift(PlatformType platform, String openId, String itemName) {
-    return handleGiveGift(platform, openId, itemName, TextFormat.PLAIN);
-  }
-
-  // ===================== Markdown 委托方法 =====================
-
-  public String handleFudiStatusMarkdown(PlatformType platform, String openId) {
-    return handleFudiStatus(platform, openId, TextFormat.MARKDOWN);
-  }
-
-  public String handleFudiGridMarkdown(PlatformType platform, String openId) {
-    return handleFudiGrid(platform, openId, TextFormat.MARKDOWN);
-  }
-
-  public String handleSpiritChatMarkdown(PlatformType platform, String openId, String content) {
-    return handleSpiritChat(platform, openId, content, TextFormat.MARKDOWN);
-  }
-
-  public String handlePlantMarkdown(
-      PlatformType platform, String openId, String position, String cropName) {
-    return handlePlant(platform, openId, position, cropName, TextFormat.MARKDOWN);
-  }
-
-  public String handleCollectMarkdown(PlatformType platform, String openId, String position) {
-    return handleCollect(platform, openId, position, TextFormat.MARKDOWN);
-  }
-
-  public String handleBuildMarkdown(
-      PlatformType platform, String openId, String position, String cellType) {
-    return handleBuild(platform, openId, position, cellType, TextFormat.MARKDOWN);
-  }
-
-  public String handleRemoveMarkdown(PlatformType platform, String openId, String position) {
-    return handleRemove(platform, openId, position, TextFormat.MARKDOWN);
-  }
-
-  public String handleUpgradeCellMarkdown(PlatformType platform, String openId, String position) {
-    return handleUpgradeCell(platform, openId, position, TextFormat.MARKDOWN);
-  }
-
-  public String handleHatchMarkdown(
-      PlatformType platform, String openId, String position, String eggName) {
-    return handleHatch(platform, openId, position, eggName, TextFormat.MARKDOWN);
-  }
-
-  public String handleReleaseMarkdown(PlatformType platform, String openId, String position) {
-    return handleRelease(platform, openId, position, TextFormat.MARKDOWN);
-  }
-
-  public String handleEvolveMarkdown(
-      PlatformType platform, String openId, String position, String mode) {
-    return handleEvolve(platform, openId, position, mode, TextFormat.MARKDOWN);
-  }
-
-  public String handleGiveGiftMarkdown(PlatformType platform, String openId, String itemName) {
-    return handleGiveGift(platform, openId, itemName, TextFormat.MARKDOWN);
-  }
 
   // ===================== 统一处理方法（含 TextFormat 参数） =====================
 
@@ -227,7 +117,7 @@ public class FudiCommandHandler implements CommandGroup {
 
   public String handleHatch(
       PlatformType platform, String openId, String position, String eggName, TextFormat fmt) {
-    return switch (beastService.hatchBeastByInput(platform, openId, position, eggName)) {
+    return switch (beastBreedingService.hatchBeastByInput(platform, openId, position, eggName)) {
       case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var vo) -> formatHatchResult(vo, fmt);
     };
@@ -235,7 +125,7 @@ public class FudiCommandHandler implements CommandGroup {
 
   public String handleRelease(
       PlatformType platform, String openId, String position, TextFormat fmt) {
-    return switch (beastService.releaseBeast(platform, openId, position)) {
+    return switch (beastBreedingService.releaseBeast(platform, openId, position)) {
       case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var result) -> "✅ 已放生%s。".formatted(result.beastName());
     };
@@ -243,7 +133,7 @@ public class FudiCommandHandler implements CommandGroup {
 
   public String handleEvolve(
       PlatformType platform, String openId, String position, String mode, TextFormat fmt) {
-    return switch (beastService.evolveBeast(platform, openId, position, mode)) {
+    return switch (beastBreedingService.evolveBeast(platform, openId, position, mode)) {
       case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var vo) -> formatEvolveResult(vo, mode, fmt);
     };

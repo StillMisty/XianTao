@@ -34,7 +34,7 @@ public class PlayerViewService {
     User target =
         userRepository
             .findByNickname(targetNickname)
-            .orElseThrow(() -> new IllegalStateException("未找到玩家【" + targetNickname + "】"));
+            .orElseThrow(() -> new BusinessException(ErrorCode.PLAYER_NOT_FOUND, targetNickname));
 
     String locationName = null;
     var mapNode = mapNodeRepository.findById(target.getLocationId());

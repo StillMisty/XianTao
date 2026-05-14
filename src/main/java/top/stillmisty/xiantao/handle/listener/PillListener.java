@@ -12,6 +12,7 @@ import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.handle.command.PillCommandHandler;
 
 @Slf4j
@@ -30,7 +31,7 @@ public class PillListener {
     log.debug("收到丹方列表查询请求 - AuthorId: {}", event.getAuthorId());
     String response =
         pillCommandHandler.handleRecipeList(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -41,7 +42,7 @@ public class PillListener {
     log.debug("收到丹方详情查询请求 - AuthorId: {}, RecipeName: {}", event.getAuthorId(), recipeName);
     String response =
         pillCommandHandler.handleRecipeDetail(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), recipeName);
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), recipeName, TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -52,7 +53,7 @@ public class PillListener {
     log.debug("收到自动炼丹请求 - AuthorId: {}, RecipeName: {}", event.getAuthorId(), recipeName);
     String response =
         pillCommandHandler.handleRefineAuto(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), recipeName);
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), recipeName, TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -64,7 +65,7 @@ public class PillListener {
     List<String> herbInputs = Arrays.asList(herbInput.split("\\s+"));
     String response =
         pillCommandHandler.handleRefineManual(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), herbInputs);
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), herbInputs, TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -76,8 +77,8 @@ public class PillListener {
   public void recipeListQq(QGGroupAtMessageCreateEvent event) {
     log.debug("收到丹方列表查询请求 - AuthorId: {}", event.getAuthorId());
     String response =
-        pillCommandHandler.handleRecipeListMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString());
+        pillCommandHandler.handleRecipeList(
+            PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -88,8 +89,8 @@ public class PillListener {
       QGGroupAtMessageCreateEvent event, @FilterValue("recipeName") String recipeName) {
     log.debug("收到丹方详情查询请求 - AuthorId: {}, RecipeName: {}", event.getAuthorId(), recipeName);
     String response =
-        pillCommandHandler.handleRecipeDetailMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString(), recipeName);
+        pillCommandHandler.handleRecipeDetail(
+            PlatformType.QQ, event.getAuthorId().toString(), recipeName, TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -100,8 +101,8 @@ public class PillListener {
       QGGroupAtMessageCreateEvent event, @FilterValue("recipeName") String recipeName) {
     log.debug("收到自动炼丹请求 - AuthorId: {}, RecipeName: {}", event.getAuthorId(), recipeName);
     String response =
-        pillCommandHandler.handleRefineAutoMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString(), recipeName);
+        pillCommandHandler.handleRefineAuto(
+            PlatformType.QQ, event.getAuthorId().toString(), recipeName, TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -113,8 +114,8 @@ public class PillListener {
     log.debug("收到手动炼丹请求 - AuthorId: {}, HerbInput: {}", event.getAuthorId(), herbInput);
     List<String> herbInputs = Arrays.asList(herbInput.split("\\s+"));
     String response =
-        pillCommandHandler.handleRefineManualMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString(), herbInputs);
+        pillCommandHandler.handleRefineManual(
+            PlatformType.QQ, event.getAuthorId().toString(), herbInputs, TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 }

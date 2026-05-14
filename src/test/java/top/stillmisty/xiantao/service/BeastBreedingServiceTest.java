@@ -21,9 +21,9 @@ import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 
-@DisplayName("BeastService 测试")
+@DisplayName("BeastBreedingService 测试")
 @ExtendWith(MockitoExtension.class)
-class BeastServiceTest {
+class BeastBreedingServiceTest {
 
   // BeastBreedingService 的 mock 依赖
   @Mock private FudiCellRepository fudiCellRepository;

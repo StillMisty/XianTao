@@ -10,6 +10,7 @@ import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.handle.command.FudiCommandHandler;
 
 @Slf4j
@@ -29,7 +30,7 @@ public class FudiListener {
     log.debug("收到福地请求 - AuthorId: {}", event.getAuthorId());
     String response =
         fudiCommandHandler.handleFudiStatus(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -39,7 +40,8 @@ public class FudiListener {
   public void handleFudiGrid(OneBotMessageEvent event) {
     log.debug("收到福地地块请求 - AuthorId: {}", event.getAuthorId());
     String response =
-        fudiCommandHandler.handleFudiGrid(PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
+        fudiCommandHandler.handleFudiGrid(
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -50,7 +52,7 @@ public class FudiListener {
     log.debug("收到地灵自然语言请求 - AuthorId: {}, Content: {}", event.getAuthorId(), content);
     String response =
         fudiCommandHandler.handleSpiritChat(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), content);
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), content, TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -68,7 +70,11 @@ public class FudiListener {
         cropName);
     String response =
         fudiCommandHandler.handlePlant(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), position, cropName);
+            PlatformType.ONE_BOT_V11,
+            event.getAuthorId().toString(),
+            position,
+            cropName,
+            TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -79,7 +85,7 @@ public class FudiListener {
     log.debug("收到收取请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
     String response =
         fudiCommandHandler.handleCollect(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), position);
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), position, TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -97,7 +103,11 @@ public class FudiListener {
         cellType);
     String response =
         fudiCommandHandler.handleBuild(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), position, cellType);
+            PlatformType.ONE_BOT_V11,
+            event.getAuthorId().toString(),
+            position,
+            cellType,
+            TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -108,7 +118,7 @@ public class FudiListener {
     log.debug("收到拆除请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
     String response =
         fudiCommandHandler.handleRemove(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), position);
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), position, TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -120,7 +130,7 @@ public class FudiListener {
     log.debug("收到升级请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
     String response =
         fudiCommandHandler.handleUpgradeCell(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), position);
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), position, TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -135,7 +145,11 @@ public class FudiListener {
         "收到孵化请求 - AuthorId: {}, Position: {}, EggName: {}", event.getAuthorId(), position, eggName);
     String response =
         fudiCommandHandler.handleHatch(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), position, eggName);
+            PlatformType.ONE_BOT_V11,
+            event.getAuthorId().toString(),
+            position,
+            eggName,
+            TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -146,7 +160,7 @@ public class FudiListener {
     log.debug("收到放生请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
     String response =
         fudiCommandHandler.handleRelease(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), position);
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), position, TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -160,7 +174,11 @@ public class FudiListener {
     log.debug("收到进化请求 - AuthorId: {}, Position: {}, Mode: {}", event.getAuthorId(), position, mode);
     String response =
         fudiCommandHandler.handleEvolve(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), position, mode);
+            PlatformType.ONE_BOT_V11,
+            event.getAuthorId().toString(),
+            position,
+            mode,
+            TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -171,7 +189,7 @@ public class FudiListener {
     log.debug("收到送礼请求 - AuthorId: {}, ItemName: {}", event.getAuthorId(), itemName);
     String response =
         fudiCommandHandler.handleGiveGift(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), itemName);
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), itemName, TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -183,8 +201,8 @@ public class FudiListener {
   public void handleFudiQq(QGGroupAtMessageCreateEvent event) {
     log.debug("收到福地请求 - AuthorId: {}", event.getAuthorId());
     String response =
-        fudiCommandHandler.handleFudiStatusMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString());
+        fudiCommandHandler.handleFudiStatus(
+            PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -194,7 +212,8 @@ public class FudiListener {
   public void handleFudiGridQq(QGGroupAtMessageCreateEvent event) {
     log.debug("收到福地地块请求 - AuthorId: {}", event.getAuthorId());
     String response =
-        fudiCommandHandler.handleFudiGridMarkdown(PlatformType.QQ, event.getAuthorId().toString());
+        fudiCommandHandler.handleFudiGrid(
+            PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -205,8 +224,8 @@ public class FudiListener {
       QGGroupAtMessageCreateEvent event, @FilterValue("content") String content) {
     log.debug("收到地灵自然语言请求 - AuthorId: {}, Content: {}", event.getAuthorId(), content);
     String response =
-        fudiCommandHandler.handleSpiritChatMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString(), content);
+        fudiCommandHandler.handleSpiritChat(
+            PlatformType.QQ, event.getAuthorId().toString(), content, TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -223,8 +242,12 @@ public class FudiListener {
         position,
         cropName);
     String response =
-        fudiCommandHandler.handlePlantMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString(), position, cropName);
+        fudiCommandHandler.handlePlant(
+            PlatformType.QQ,
+            event.getAuthorId().toString(),
+            position,
+            cropName,
+            TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -235,8 +258,8 @@ public class FudiListener {
       QGGroupAtMessageCreateEvent event, @FilterValue("position") String position) {
     log.debug("收到收取请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
     String response =
-        fudiCommandHandler.handleCollectMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString(), position);
+        fudiCommandHandler.handleCollect(
+            PlatformType.QQ, event.getAuthorId().toString(), position, TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -253,8 +276,12 @@ public class FudiListener {
         position,
         cellType);
     String response =
-        fudiCommandHandler.handleBuildMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString(), position, cellType);
+        fudiCommandHandler.handleBuild(
+            PlatformType.QQ,
+            event.getAuthorId().toString(),
+            position,
+            cellType,
+            TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -265,8 +292,8 @@ public class FudiListener {
       QGGroupAtMessageCreateEvent event, @FilterValue("position") String position) {
     log.debug("收到拆除请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
     String response =
-        fudiCommandHandler.handleRemoveMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString(), position);
+        fudiCommandHandler.handleRemove(
+            PlatformType.QQ, event.getAuthorId().toString(), position, TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -277,8 +304,8 @@ public class FudiListener {
       QGGroupAtMessageCreateEvent event, @FilterValue("position") String position) {
     log.debug("收到升级请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
     String response =
-        fudiCommandHandler.handleUpgradeCellMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString(), position);
+        fudiCommandHandler.handleUpgradeCell(
+            PlatformType.QQ, event.getAuthorId().toString(), position, TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -292,8 +319,12 @@ public class FudiListener {
     log.debug(
         "收到孵化请求 - AuthorId: {}, Position: {}, EggName: {}", event.getAuthorId(), position, eggName);
     String response =
-        fudiCommandHandler.handleHatchMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString(), position, eggName);
+        fudiCommandHandler.handleHatch(
+            PlatformType.QQ,
+            event.getAuthorId().toString(),
+            position,
+            eggName,
+            TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -304,8 +335,8 @@ public class FudiListener {
       QGGroupAtMessageCreateEvent event, @FilterValue("position") String position) {
     log.debug("收到放生请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
     String response =
-        fudiCommandHandler.handleReleaseMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString(), position);
+        fudiCommandHandler.handleRelease(
+            PlatformType.QQ, event.getAuthorId().toString(), position, TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -318,8 +349,8 @@ public class FudiListener {
       @FilterValue("mode") String mode) {
     log.debug("收到进化请求 - AuthorId: {}, Position: {}, Mode: {}", event.getAuthorId(), position, mode);
     String response =
-        fudiCommandHandler.handleEvolveMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString(), position, mode);
+        fudiCommandHandler.handleEvolve(
+            PlatformType.QQ, event.getAuthorId().toString(), position, mode, TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -330,8 +361,8 @@ public class FudiListener {
       QGGroupAtMessageCreateEvent event, @FilterValue("itemName") String itemName) {
     log.debug("收到送礼请求 - AuthorId: {}, ItemName: {}", event.getAuthorId(), itemName);
     String response =
-        fudiCommandHandler.handleGiveGiftMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString(), itemName);
+        fudiCommandHandler.handleGiveGift(
+            PlatformType.QQ, event.getAuthorId().toString(), itemName, TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 }

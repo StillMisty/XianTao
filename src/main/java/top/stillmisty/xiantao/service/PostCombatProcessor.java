@@ -19,7 +19,7 @@ import top.stillmisty.xiantao.domain.user.entity.User;
 public class PostCombatProcessor {
 
   private final BeastRepository beastRepository;
-  private final BeastService beastService;
+  private final BeastSkillService beastSkillService;
 
   public void applyHpToUser(User user, Team team) {
     for (Combatant c : team.members()) {
@@ -48,11 +48,11 @@ public class PostCombatProcessor {
           beast.setRecoveryUntil(LocalDateTime.now().plusMinutes(recoveryMinutes));
 
           if (playerWon) {
-            beastService.tryAwakeningSkill(beast);
+            beastSkillService.tryAwakeningSkill(beast);
           }
         } else {
           if (isHighlightBattle) {
-            beastService.tryAwakeningSkill(beast);
+            beastSkillService.tryAwakeningSkill(beast);
           }
         }
       }

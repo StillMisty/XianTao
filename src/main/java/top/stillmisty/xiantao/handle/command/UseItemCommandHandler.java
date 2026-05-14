@@ -19,15 +19,6 @@ public class UseItemCommandHandler implements CommandGroup {
 
   private final ItemUseService itemUseService;
 
-  public String handleUseItem(PlatformType platform, String openId, String itemName, String args) {
-    return handleUseItem(platform, openId, itemName, args, TextFormat.PLAIN);
-  }
-
-  public String handleUseItemMarkdown(
-      PlatformType platform, String openId, String itemName, String args) {
-    return handleUseItem(platform, openId, itemName, args, TextFormat.MARKDOWN);
-  }
-
   public String handleUseItem(
       PlatformType platform, String openId, String itemName, String args, TextFormat fmt) {
     log.debug(

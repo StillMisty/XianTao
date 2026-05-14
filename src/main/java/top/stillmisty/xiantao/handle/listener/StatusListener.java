@@ -9,6 +9,7 @@ import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.handle.command.CultivationCommandHandler;
 
 @Slf4j
@@ -28,7 +29,7 @@ public class StatusListener {
     log.debug("收到状态查询请求 - AuthorId: {}", event.getAuthorId());
     String response =
         cultivationCommandHandler.handleStatus(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -40,8 +41,8 @@ public class StatusListener {
   public void statusQq(QGGroupAtMessageCreateEvent event) {
     log.debug("收到状态查询请求 - AuthorId: {}", event.getAuthorId());
     String response =
-        cultivationCommandHandler.handleStatusMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString());
+        cultivationCommandHandler.handleStatus(
+            PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 }

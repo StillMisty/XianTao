@@ -10,6 +10,7 @@ import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.handle.command.PvpCommandHandler;
 
 @Slf4j
@@ -28,7 +29,10 @@ public class PvpListener {
     log.debug("收到切磋请求 - AuthorId: {}, Target: {}", event.getAuthorId(), targetNickname);
     String response =
         pvpCommandHandler.handleSpar(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), targetNickname);
+            PlatformType.ONE_BOT_V11,
+            event.getAuthorId().toString(),
+            targetNickname,
+            TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -41,8 +45,8 @@ public class PvpListener {
       QGGroupAtMessageCreateEvent event, @FilterValue("targetNickname") String targetNickname) {
     log.debug("收到切磋请求 - AuthorId: {}, Target: {}", event.getAuthorId(), targetNickname);
     String response =
-        pvpCommandHandler.handleSparMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString(), targetNickname);
+        pvpCommandHandler.handleSpar(
+            PlatformType.QQ, event.getAuthorId().toString(), targetNickname, TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 }

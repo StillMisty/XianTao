@@ -24,6 +24,15 @@ public sealed interface TextFormat {
   /** 分隔符 */
   String separator();
 
+  /** 子列表项（缩进更深一级） */
+  String subListItem(String text);
+
+  /** 表情符号（Markdown 显示 emoji，纯文本显示 fallback） */
+  String emoji(String code, String fallbackText);
+
+  /** 提示文本（平台差异化样式） */
+  String tip(String text);
+
   record PlainFormat() implements TextFormat {
     @Override
     public String heading(String text) {
@@ -53,6 +62,21 @@ public sealed interface TextFormat {
     @Override
     public String separator() {
       return "\n";
+    }
+
+    @Override
+    public String subListItem(String text) {
+      return "    " + text + "\n";
+    }
+
+    @Override
+    public String emoji(String code, String fallbackText) {
+      return "[" + fallbackText + "]";
+    }
+
+    @Override
+    public String tip(String text) {
+      return "💡 " + text + "\n";
     }
   }
 
@@ -85,6 +109,21 @@ public sealed interface TextFormat {
     @Override
     public String separator() {
       return "\n---\n";
+    }
+
+    @Override
+    public String subListItem(String text) {
+      return "  - " + text + "\n";
+    }
+
+    @Override
+    public String emoji(String code, String fallbackText) {
+      return code;
+    }
+
+    @Override
+    public String tip(String text) {
+      return "> 💡 " + text + "\n";
     }
   }
 }

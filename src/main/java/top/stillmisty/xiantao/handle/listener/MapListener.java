@@ -10,6 +10,7 @@ import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.handle.command.MapCommandHandler;
 
 @Slf4j
@@ -26,7 +27,8 @@ public class MapListener {
   @Filter("地图")
   public void currentMap(OneBotMessageEvent event) {
     String response =
-        mapCommandHandler.handleMap(PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
+        mapCommandHandler.handleMap(
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -36,7 +38,7 @@ public class MapListener {
   public void goTo(OneBotMessageEvent event, @FilterValue("mapName") String mapName) {
     String response =
         mapCommandHandler.handleGoTo(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), mapName);
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), mapName, TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -45,7 +47,8 @@ public class MapListener {
   @Filter("历练")
   public void training(OneBotMessageEvent event) {
     String response =
-        mapCommandHandler.handleTraining(PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
+        mapCommandHandler.handleTraining(
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -55,7 +58,7 @@ public class MapListener {
   public void endTraining(OneBotMessageEvent event) {
     String response =
         mapCommandHandler.handleEndTraining(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -64,7 +67,8 @@ public class MapListener {
   @Filter("悬赏")
   public void bounty(OneBotMessageEvent event) {
     String response =
-        mapCommandHandler.handleBounty(PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
+        mapCommandHandler.handleBounty(
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -74,7 +78,7 @@ public class MapListener {
   public void startBounty(OneBotMessageEvent event, @FilterValue("bountyId") String bountyId) {
     String response =
         mapCommandHandler.handleStartBounty(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), bountyId);
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), bountyId, TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -84,7 +88,7 @@ public class MapListener {
   public void completeBounty(OneBotMessageEvent event) {
     String response =
         mapCommandHandler.handleCompleteBounty(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -94,7 +98,7 @@ public class MapListener {
   public void abandonBounty(OneBotMessageEvent event) {
     String response =
         mapCommandHandler.handleAbandonBounty(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -105,7 +109,8 @@ public class MapListener {
   @Filter("地图")
   public void currentMapQq(QGGroupAtMessageCreateEvent event) {
     String response =
-        mapCommandHandler.handleMapMarkdown(PlatformType.QQ, event.getAuthorId().toString());
+        mapCommandHandler.handleMap(
+            PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -114,8 +119,8 @@ public class MapListener {
   @Filter("前往 {{mapName}}")
   public void goToQq(QGGroupAtMessageCreateEvent event, @FilterValue("mapName") String mapName) {
     String response =
-        mapCommandHandler.handleGoToMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString(), mapName);
+        mapCommandHandler.handleGoTo(
+            PlatformType.QQ, event.getAuthorId().toString(), mapName, TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -124,7 +129,8 @@ public class MapListener {
   @Filter("历练")
   public void trainingQq(QGGroupAtMessageCreateEvent event) {
     String response =
-        mapCommandHandler.handleTrainingMarkdown(PlatformType.QQ, event.getAuthorId().toString());
+        mapCommandHandler.handleTraining(
+            PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -133,8 +139,8 @@ public class MapListener {
   @Filter("历练结算")
   public void endTrainingQq(QGGroupAtMessageCreateEvent event) {
     String response =
-        mapCommandHandler.handleEndTrainingMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString());
+        mapCommandHandler.handleEndTraining(
+            PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -143,7 +149,8 @@ public class MapListener {
   @Filter("悬赏")
   public void bountyQq(QGGroupAtMessageCreateEvent event) {
     String response =
-        mapCommandHandler.handleBountyMarkdown(PlatformType.QQ, event.getAuthorId().toString());
+        mapCommandHandler.handleBounty(
+            PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -153,8 +160,8 @@ public class MapListener {
   public void startBountyQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("bountyId") String bountyId) {
     String response =
-        mapCommandHandler.handleStartBountyMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString(), bountyId);
+        mapCommandHandler.handleStartBounty(
+            PlatformType.QQ, event.getAuthorId().toString(), bountyId, TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -163,8 +170,8 @@ public class MapListener {
   @Filter("悬赏结算")
   public void completeBountyQq(QGGroupAtMessageCreateEvent event) {
     String response =
-        mapCommandHandler.handleCompleteBountyMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString());
+        mapCommandHandler.handleCompleteBounty(
+            PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -173,8 +180,8 @@ public class MapListener {
   @Filter("悬赏放弃")
   public void abandonBountyQq(QGGroupAtMessageCreateEvent event) {
     String response =
-        mapCommandHandler.handleAbandonBountyMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString());
+        mapCommandHandler.handleAbandonBounty(
+            PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 }

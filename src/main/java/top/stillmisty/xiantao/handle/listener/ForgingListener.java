@@ -12,6 +12,7 @@ import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.handle.command.ForgingCommandHandler;
 
 @Slf4j
@@ -29,7 +30,7 @@ public class ForgingListener {
   public void recipeList(OneBotMessageEvent event) {
     String response =
         forgingCommandHandler.handleForgingRecipeList(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -42,11 +43,14 @@ public class ForgingListener {
       List<String> materialInputs = Arrays.asList(input.split("\\s+"));
       response =
           forgingCommandHandler.handleForgeManual(
-              PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), materialInputs);
+              PlatformType.ONE_BOT_V11,
+              event.getAuthorId().toString(),
+              materialInputs,
+              TextFormat.PLAIN);
     } else {
       response =
           forgingCommandHandler.handleForgeAuto(
-              PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), input);
+              PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), input, TextFormat.PLAIN);
     }
     replyHelper.replyOneBot(event, response);
   }
@@ -66,11 +70,12 @@ public class ForgingListener {
               PlatformType.ONE_BOT_V11,
               event.getAuthorId().toString(),
               equipmentInput,
-              materialInputs);
+              materialInputs,
+              TextFormat.PLAIN);
     } else {
       response =
           forgingCommandHandler.handleEnhanceAuto(
-              PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), input);
+              PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), input, TextFormat.PLAIN);
     }
     replyHelper.replyOneBot(event, response);
   }
@@ -82,8 +87,8 @@ public class ForgingListener {
   @Filter("锻造列表")
   public void recipeListQq(QGGroupAtMessageCreateEvent event) {
     String response =
-        forgingCommandHandler.handleForgingRecipeListMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString());
+        forgingCommandHandler.handleForgingRecipeList(
+            PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -95,12 +100,12 @@ public class ForgingListener {
     if (input.contains("×") || input.contains("x") || input.contains("X")) {
       List<String> materialInputs = Arrays.asList(input.split("\\s+"));
       response =
-          forgingCommandHandler.handleForgeManualMarkdown(
-              PlatformType.QQ, event.getAuthorId().toString(), materialInputs);
+          forgingCommandHandler.handleForgeManual(
+              PlatformType.QQ, event.getAuthorId().toString(), materialInputs, TextFormat.MARKDOWN);
     } else {
       response =
-          forgingCommandHandler.handleForgeAutoMarkdown(
-              PlatformType.QQ, event.getAuthorId().toString(), input);
+          forgingCommandHandler.handleForgeAuto(
+              PlatformType.QQ, event.getAuthorId().toString(), input, TextFormat.MARKDOWN);
     }
     replyHelper.replyQQ(event, response);
   }
@@ -116,12 +121,16 @@ public class ForgingListener {
       String equipmentInput = parts[0];
       List<String> materialInputs = Arrays.asList(Arrays.copyOfRange(parts, 1, parts.length));
       response =
-          forgingCommandHandler.handleEnhanceManualMarkdown(
-              PlatformType.QQ, event.getAuthorId().toString(), equipmentInput, materialInputs);
+          forgingCommandHandler.handleEnhanceManual(
+              PlatformType.QQ,
+              event.getAuthorId().toString(),
+              equipmentInput,
+              materialInputs,
+              TextFormat.MARKDOWN);
     } else {
       response =
-          forgingCommandHandler.handleEnhanceAutoMarkdown(
-              PlatformType.QQ, event.getAuthorId().toString(), input);
+          forgingCommandHandler.handleEnhanceAuto(
+              PlatformType.QQ, event.getAuthorId().toString(), input, TextFormat.MARKDOWN);
     }
     replyHelper.replyQQ(event, response);
   }

@@ -10,6 +10,7 @@ import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.handle.command.CultivationCommandHandler;
 
 @Slf4j
@@ -28,7 +29,8 @@ public class ItemListener {
   public void inventory(OneBotMessageEvent event) {
     log.debug("收到背包查询请求 - AuthorId: {}", event.getAuthorId());
     String response =
-        commandHandler.handleInventory(PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
+        commandHandler.handleInventory(
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -39,7 +41,7 @@ public class ItemListener {
       OneBotMessageEvent event, @FilterValue("category") String category) {
     String response =
         commandHandler.handleInventoryByCategory(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), category);
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), category, TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -50,7 +52,7 @@ public class ItemListener {
     log.debug("收到装备穿戴请求 - AuthorId: {}, ItemName: {}", event.getAuthorId(), itemName);
     String response =
         commandHandler.handleEquip(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), itemName);
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), itemName, TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -61,7 +63,7 @@ public class ItemListener {
     log.debug("收到装备卸下请求 - AuthorId: {}, SlotName: {}", event.getAuthorId(), slotName);
     String response =
         commandHandler.handleUnequip(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), slotName);
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), slotName, TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -72,7 +74,7 @@ public class ItemListener {
     log.debug("收到丢弃请求 - AuthorId: {}, ItemName: {}", event.getAuthorId(), itemName);
     String response =
         commandHandler.handleDiscard(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), itemName);
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), itemName, TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -84,7 +86,8 @@ public class ItemListener {
   public void inventoryQq(QGGroupAtMessageCreateEvent event) {
     log.debug("收到背包查询请求 - AuthorId: {}", event.getAuthorId());
     String response =
-        commandHandler.handleInventoryMarkdown(PlatformType.QQ, event.getAuthorId().toString());
+        commandHandler.handleInventory(
+            PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -94,8 +97,8 @@ public class ItemListener {
   public void inventoryByCategoryQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("category") String category) {
     String response =
-        commandHandler.handleInventoryByCategoryMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString(), category);
+        commandHandler.handleInventoryByCategory(
+            PlatformType.QQ, event.getAuthorId().toString(), category, TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -105,8 +108,8 @@ public class ItemListener {
   public void equipQq(QGGroupAtMessageCreateEvent event, @FilterValue("itemName") String itemName) {
     log.debug("收到装备穿戴请求 - AuthorId: {}, ItemName: {}", event.getAuthorId(), itemName);
     String response =
-        commandHandler.handleEquipMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString(), itemName);
+        commandHandler.handleEquip(
+            PlatformType.QQ, event.getAuthorId().toString(), itemName, TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -117,8 +120,8 @@ public class ItemListener {
       QGGroupAtMessageCreateEvent event, @FilterValue("slotName") String slotName) {
     log.debug("收到装备卸下请求 - AuthorId: {}, SlotName: {}", event.getAuthorId(), slotName);
     String response =
-        commandHandler.handleUnequipMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString(), slotName);
+        commandHandler.handleUnequip(
+            PlatformType.QQ, event.getAuthorId().toString(), slotName, TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -129,8 +132,8 @@ public class ItemListener {
       QGGroupAtMessageCreateEvent event, @FilterValue("itemName") String itemName) {
     log.debug("收到丢弃请求 - AuthorId: {}, ItemName: {}", event.getAuthorId(), itemName);
     String response =
-        commandHandler.handleDiscardMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString(), itemName);
+        commandHandler.handleDiscard(
+            PlatformType.QQ, event.getAuthorId().toString(), itemName, TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 }

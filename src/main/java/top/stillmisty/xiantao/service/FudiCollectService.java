@@ -24,7 +24,8 @@ public class FudiCollectService {
   private final FudiHelper fudiHelper;
   private final FudiCellRepository fudiCellRepository;
   private final FarmService farmService;
-  private final BeastService beastService;
+  private final BeastDisplayHelper beastDisplayHelper;
+  private final BeastProductionService beastProductionService;
   private final StackableItemService stackableItemService;
   private final ItemTemplateRepository itemTemplateRepository;
 
@@ -102,11 +103,12 @@ public class FudiCollectService {
 
     for (FudiCell cell : cells) {
       if (cell.getCellType() != CellType.PEN) continue;
-      if (beastService.isIncubating(cell)) continue;
+      if (beastDisplayHelper.isIncubating(cell)) continue;
 
-      beastService.updateBeastProduction(cell, fudi);
+      beastProductionService.updateBeastProduction(cell, fudi);
 
-      List<CellConfig.ProductionItem> productionStored = beastService.getProductionStoredList(cell);
+      List<CellConfig.ProductionItem> productionStored =
+          beastProductionService.getProductionStoredList(cell);
       if (productionStored.isEmpty()) continue;
 
       int cellTotalItems = 0;

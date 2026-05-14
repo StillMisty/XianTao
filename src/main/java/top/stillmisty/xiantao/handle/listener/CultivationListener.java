@@ -10,6 +10,7 @@ import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.handle.command.CultivationCommandHandler;
 
 @Slf4j
@@ -29,7 +30,7 @@ public class CultivationListener {
     log.debug("收到突破请求 - AuthorId: {}", event.getAuthorId());
     String response =
         cultivationCommandHandler.handleBreakthrough(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -41,7 +42,7 @@ public class CultivationListener {
     log.debug("收到护道请求 - AuthorId: {}, Content: {}", event.getAuthorId(), nickname);
     String response =
         cultivationCommandHandler.handleEstablishProtection(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), nickname);
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), nickname, TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -52,7 +53,7 @@ public class CultivationListener {
     log.debug("收到护道解除请求 - AuthorId: {}, Content: {}", event.getAuthorId(), nickname);
     String response =
         cultivationCommandHandler.handleRemoveProtection(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), nickname);
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), nickname, TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -63,7 +64,7 @@ public class CultivationListener {
     log.debug("收到护道查询请求 - AuthorId: {}", event.getAuthorId());
     String response =
         cultivationCommandHandler.handleQueryProtection(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -75,8 +76,8 @@ public class CultivationListener {
   public void breakthroughQq(QGGroupAtMessageCreateEvent event) {
     log.debug("收到突破请求 - AuthorId: {}", event.getAuthorId());
     String response =
-        cultivationCommandHandler.handleBreakthroughMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString());
+        cultivationCommandHandler.handleBreakthrough(
+            PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -87,8 +88,8 @@ public class CultivationListener {
       QGGroupAtMessageCreateEvent event, @FilterValue("nickname") String nickname) {
     log.debug("收到护道请求 - AuthorId: {}, Content: {}", event.getAuthorId(), nickname);
     String response =
-        cultivationCommandHandler.handleEstablishProtectionMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString(), nickname);
+        cultivationCommandHandler.handleEstablishProtection(
+            PlatformType.QQ, event.getAuthorId().toString(), nickname, TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -99,8 +100,8 @@ public class CultivationListener {
       QGGroupAtMessageCreateEvent event, @FilterValue("nickname") String nickname) {
     log.debug("收到护道解除请求 - AuthorId: {}, Content: {}", event.getAuthorId(), nickname);
     String response =
-        cultivationCommandHandler.handleRemoveProtectionMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString(), nickname);
+        cultivationCommandHandler.handleRemoveProtection(
+            PlatformType.QQ, event.getAuthorId().toString(), nickname, TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -110,8 +111,8 @@ public class CultivationListener {
   public void queryProtectionQq(QGGroupAtMessageCreateEvent event) {
     log.debug("收到护道查询请求 - AuthorId: {}", event.getAuthorId());
     String response =
-        cultivationCommandHandler.handleQueryProtectionMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString());
+        cultivationCommandHandler.handleQueryProtection(
+            PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 }

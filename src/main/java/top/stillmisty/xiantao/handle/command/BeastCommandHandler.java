@@ -10,7 +10,8 @@ import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.fudi.vo.PenCellVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.TextFormat;
-import top.stillmisty.xiantao.service.BeastService;
+import top.stillmisty.xiantao.service.BeastBreedingService;
+import top.stillmisty.xiantao.service.BeastCombatService;
 import top.stillmisty.xiantao.service.ServiceResult;
 
 @Slf4j
@@ -18,64 +19,15 @@ import top.stillmisty.xiantao.service.ServiceResult;
 @RequiredArgsConstructor
 public class BeastCommandHandler implements CommandGroup {
 
-  private final BeastService beastService;
-
-  public String handleDeployBeast(PlatformType platform, String openId, String position) {
-    return handleDeployBeast(platform, openId, position, TextFormat.PLAIN);
-  }
-
-  public String handleUndeployBeast(PlatformType platform, String openId, String position) {
-    return handleUndeployBeast(platform, openId, position, TextFormat.PLAIN);
-  }
-
-  public String handleRecoverBeast(PlatformType platform, String openId, String position) {
-    return handleRecoverBeast(platform, openId, position, TextFormat.PLAIN);
-  }
-
-  public String handleEvolveBeast(
-      PlatformType platform, String openId, String position, String mode) {
-    return handleEvolveBeast(platform, openId, position, mode, TextFormat.PLAIN);
-  }
-
-  public String handleReleaseBeast(PlatformType platform, String openId, String position) {
-    return handleReleaseBeast(platform, openId, position, TextFormat.PLAIN);
-  }
-
-  public String handleGetDeployedBeasts(PlatformType platform, String openId) {
-    return handleGetDeployedBeasts(platform, openId, TextFormat.PLAIN);
-  }
-
-  public String handleDeployBeastMarkdown(PlatformType platform, String openId, String position) {
-    return handleDeployBeast(platform, openId, position, TextFormat.MARKDOWN);
-  }
-
-  public String handleUndeployBeastMarkdown(PlatformType platform, String openId, String position) {
-    return handleUndeployBeast(platform, openId, position, TextFormat.MARKDOWN);
-  }
-
-  public String handleRecoverBeastMarkdown(PlatformType platform, String openId, String position) {
-    return handleRecoverBeast(platform, openId, position, TextFormat.MARKDOWN);
-  }
-
-  public String handleEvolveBeastMarkdown(
-      PlatformType platform, String openId, String position, String mode) {
-    return handleEvolveBeast(platform, openId, position, mode, TextFormat.MARKDOWN);
-  }
-
-  public String handleReleaseBeastMarkdown(PlatformType platform, String openId, String position) {
-    return handleReleaseBeast(platform, openId, position, TextFormat.MARKDOWN);
-  }
-
-  public String handleGetDeployedBeastsMarkdown(PlatformType platform, String openId) {
-    return handleGetDeployedBeasts(platform, openId, TextFormat.MARKDOWN);
-  }
+  private final BeastCombatService beastCombatService;
+  private final BeastBreedingService beastBreedingService;
 
   // ===================== 统一处理方法（含 TextFormat 参数） =====================
 
   public String handleDeployBeast(
       PlatformType platform, String openId, String position, TextFormat fmt) {
     log.debug("处理灵兽出战 - Platform: {}, OpenId: {}, Position: {}", platform, openId, position);
-    return switch (beastService.deployBeast(platform, openId, position)) {
+    return switch (beastCombatService.deployBeast(platform, openId, position)) {
       case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var result) -> formatDeployResult(result, fmt);
     };
@@ -84,7 +36,7 @@ public class BeastCommandHandler implements CommandGroup {
   public String handleUndeployBeast(
       PlatformType platform, String openId, String position, TextFormat fmt) {
     log.debug("处理灵兽召回 - Platform: {}, OpenId: {}, Position: {}", platform, openId, position);
-    return switch (beastService.undeployBeast(platform, openId, position)) {
+    return switch (beastCombatService.undeployBeast(platform, openId, position)) {
       case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var result) -> formatUndeployResult(result, fmt);
     };
@@ -93,7 +45,7 @@ public class BeastCommandHandler implements CommandGroup {
   public String handleRecoverBeast(
       PlatformType platform, String openId, String position, TextFormat fmt) {
     log.debug("处理灵兽恢复 - Platform: {}, OpenId: {}, Position: {}", platform, openId, position);
-    return switch (beastService.recoverBeast(platform, openId, position)) {
+    return switch (beastCombatService.recoverBeast(platform, openId, position)) {
       case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var result) -> formatRecoverResult(result, fmt);
     };
@@ -107,7 +59,7 @@ public class BeastCommandHandler implements CommandGroup {
         openId,
         position,
         mode);
-    return switch (beastService.evolveBeast(platform, openId, position, mode)) {
+    return switch (beastBreedingService.evolveBeast(platform, openId, position, mode)) {
       case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var result) -> formatEvolveResult(result, fmt);
     };
@@ -116,7 +68,7 @@ public class BeastCommandHandler implements CommandGroup {
   public String handleReleaseBeast(
       PlatformType platform, String openId, String position, TextFormat fmt) {
     log.debug("处理灵兽放生 - Platform: {}, OpenId: {}, Position: {}", platform, openId, position);
-    return switch (beastService.releaseBeast(platform, openId, position)) {
+    return switch (beastBreedingService.releaseBeast(platform, openId, position)) {
       case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var result) -> formatReleaseResult(result, fmt);
     };
@@ -124,7 +76,7 @@ public class BeastCommandHandler implements CommandGroup {
 
   public String handleGetDeployedBeasts(PlatformType platform, String openId, TextFormat fmt) {
     log.debug("处理查看出战灵兽 - Platform: {}, OpenId: {}", platform, openId);
-    return switch (beastService.getDeployedBeasts(platform, openId)) {
+    return switch (beastCombatService.getDeployedBeasts(platform, openId)) {
       case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var beasts) -> formatDeployedBeasts(beasts, fmt);
     };

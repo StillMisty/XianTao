@@ -10,6 +10,7 @@ import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.handle.command.HelpCommandHandler;
 
 @Slf4j
@@ -29,7 +30,7 @@ public class HelpListener {
     log.debug("收到帮助请求 - AuthorId: {}", event.getAuthorId());
     String response =
         helpCommandHandler.handleHelp(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), null);
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), null, TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -40,7 +41,7 @@ public class HelpListener {
     log.debug("收到命令详情请求 - AuthorId: {}, Command: {}", event.getAuthorId(), command);
     String response =
         helpCommandHandler.handleHelp(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), command);
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), command, TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -52,8 +53,8 @@ public class HelpListener {
   public void helpQq(QGGroupAtMessageCreateEvent event) {
     log.debug("收到帮助请求 - AuthorId: {}", event.getAuthorId());
     String response =
-        helpCommandHandler.handleHelpMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString(), null);
+        helpCommandHandler.handleHelp(
+            PlatformType.QQ, event.getAuthorId().toString(), null, TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -64,8 +65,8 @@ public class HelpListener {
       QGGroupAtMessageCreateEvent event, @FilterValue("command") String command) {
     log.debug("收到命令详情请求 - AuthorId: {}, Command: {}", event.getAuthorId(), command);
     String response =
-        helpCommandHandler.handleHelpMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString(), command);
+        helpCommandHandler.handleHelp(
+            PlatformType.QQ, event.getAuthorId().toString(), command, TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 }

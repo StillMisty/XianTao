@@ -10,6 +10,7 @@ import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.handle.command.GmCommandHandler;
 
 @Slf4j
@@ -28,7 +29,8 @@ public class GmListener {
   public void gmHelp(OneBotMessageEvent event) {
     log.debug("收到GM帮助请求 - AuthorId: {}", event.getAuthorId());
     String response =
-        gmCommandHandler.handleGmHelp(PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
+        gmCommandHandler.handleGmHelp(
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -43,7 +45,11 @@ public class GmListener {
         "收到GM给灵石请求 - AuthorId: {}, Target: {}, Amount: {}", event.getAuthorId(), nickname, amount);
     String response =
         gmCommandHandler.handleGiveSpiritStones(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), nickname, amount);
+            PlatformType.ONE_BOT_V11,
+            event.getAuthorId().toString(),
+            nickname,
+            amount,
+            TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -58,7 +64,11 @@ public class GmListener {
         "收到GM给修为请求 - AuthorId: {}, Target: {}, Amount: {}", event.getAuthorId(), nickname, amount);
     String response =
         gmCommandHandler.handleGiveExp(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), nickname, amount);
+            PlatformType.ONE_BOT_V11,
+            event.getAuthorId().toString(),
+            nickname,
+            amount,
+            TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -69,7 +79,7 @@ public class GmListener {
     log.debug("收到GM治疗请求 - AuthorId: {}, Target: {}", event.getAuthorId(), nickname);
     String response =
         gmCommandHandler.handleHealUser(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), nickname);
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), nickname, TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -80,7 +90,7 @@ public class GmListener {
     log.debug("收到GM复活请求 - AuthorId: {}, Target: {}", event.getAuthorId(), nickname);
     String response =
         gmCommandHandler.handleReviveUser(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), nickname);
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), nickname, TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -95,7 +105,11 @@ public class GmListener {
         "收到GM等级请求 - AuthorId: {}, Target: {}, Level: {}", event.getAuthorId(), nickname, level);
     String response =
         gmCommandHandler.handleSetLevel(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), nickname, level);
+            PlatformType.ONE_BOT_V11,
+            event.getAuthorId().toString(),
+            nickname,
+            level,
+            TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -113,7 +127,11 @@ public class GmListener {
         locationName);
     String response =
         gmCommandHandler.handleSetLocation(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), nickname, locationName);
+            PlatformType.ONE_BOT_V11,
+            event.getAuthorId().toString(),
+            nickname,
+            locationName,
+            TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -133,7 +151,12 @@ public class GmListener {
         quantity);
     String response =
         gmCommandHandler.handleGiveItem(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), nickname, itemName, quantity);
+            PlatformType.ONE_BOT_V11,
+            event.getAuthorId().toString(),
+            nickname,
+            itemName,
+            quantity,
+            TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -145,7 +168,8 @@ public class GmListener {
   public void gmHelpQq(QGGroupAtMessageCreateEvent event) {
     log.debug("收到GM帮助请求 - AuthorId: {}", event.getAuthorId());
     String response =
-        gmCommandHandler.handleGmHelpMarkdown(PlatformType.QQ, event.getAuthorId().toString());
+        gmCommandHandler.handleGmHelp(
+            PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -159,8 +183,8 @@ public class GmListener {
     log.debug(
         "收到GM给灵石请求 - AuthorId: {}, Target: {}, Amount: {}", event.getAuthorId(), nickname, amount);
     String response =
-        gmCommandHandler.handleGiveSpiritStonesMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString(), nickname, amount);
+        gmCommandHandler.handleGiveSpiritStones(
+            PlatformType.QQ, event.getAuthorId().toString(), nickname, amount, TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -174,8 +198,8 @@ public class GmListener {
     log.debug(
         "收到GM给修为请求 - AuthorId: {}, Target: {}, Amount: {}", event.getAuthorId(), nickname, amount);
     String response =
-        gmCommandHandler.handleGiveExpMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString(), nickname, amount);
+        gmCommandHandler.handleGiveExp(
+            PlatformType.QQ, event.getAuthorId().toString(), nickname, amount, TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -186,8 +210,8 @@ public class GmListener {
       QGGroupAtMessageCreateEvent event, @FilterValue("nickname") String nickname) {
     log.debug("收到GM治疗请求 - AuthorId: {}, Target: {}", event.getAuthorId(), nickname);
     String response =
-        gmCommandHandler.handleHealUserMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString(), nickname);
+        gmCommandHandler.handleHealUser(
+            PlatformType.QQ, event.getAuthorId().toString(), nickname, TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -198,8 +222,8 @@ public class GmListener {
       QGGroupAtMessageCreateEvent event, @FilterValue("nickname") String nickname) {
     log.debug("收到GM复活请求 - AuthorId: {}, Target: {}", event.getAuthorId(), nickname);
     String response =
-        gmCommandHandler.handleReviveUserMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString(), nickname);
+        gmCommandHandler.handleReviveUser(
+            PlatformType.QQ, event.getAuthorId().toString(), nickname, TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -213,8 +237,8 @@ public class GmListener {
     log.debug(
         "收到GM等级请求 - AuthorId: {}, Target: {}, Level: {}", event.getAuthorId(), nickname, level);
     String response =
-        gmCommandHandler.handleSetLevelMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString(), nickname, level);
+        gmCommandHandler.handleSetLevel(
+            PlatformType.QQ, event.getAuthorId().toString(), nickname, level, TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -231,8 +255,12 @@ public class GmListener {
         nickname,
         locationName);
     String response =
-        gmCommandHandler.handleSetLocationMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString(), nickname, locationName);
+        gmCommandHandler.handleSetLocation(
+            PlatformType.QQ,
+            event.getAuthorId().toString(),
+            nickname,
+            locationName,
+            TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -251,8 +279,13 @@ public class GmListener {
         itemName,
         quantity);
     String response =
-        gmCommandHandler.handleGiveItemMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString(), nickname, itemName, quantity);
+        gmCommandHandler.handleGiveItem(
+            PlatformType.QQ,
+            event.getAuthorId().toString(),
+            nickname,
+            itemName,
+            quantity,
+            TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 }

@@ -41,145 +41,6 @@ public class CultivationCommandHandler implements CommandGroup {
   private final DiscardService discardService;
   private final PlayerViewService playerViewService;
 
-  // ===================== 旧版 handle（委托到统一版本 PLAIN） =====================
-
-  public String handleRegister(PlatformType platform, String openId, String nickname) {
-    return handleRegister(platform, openId, nickname, TextFormat.PLAIN);
-  }
-
-  public String handleStatus(PlatformType platform, String openId) {
-    return handleStatus(platform, openId, TextFormat.PLAIN);
-  }
-
-  public String handleInventory(PlatformType platform, String openId) {
-    return handleInventory(platform, openId, TextFormat.PLAIN);
-  }
-
-  public String handleSeedInventory(PlatformType platform, String openId) {
-    return handleSeedInventory(platform, openId, TextFormat.PLAIN);
-  }
-
-  public String handleEquipmentInventory(PlatformType platform, String openId) {
-    return handleEquipmentInventory(platform, openId, TextFormat.PLAIN);
-  }
-
-  public String handleEggInventory(PlatformType platform, String openId) {
-    return handleEggInventory(platform, openId, TextFormat.PLAIN);
-  }
-
-  public String handleInventoryByCategory(PlatformType platform, String openId, String category) {
-    return handleInventoryByCategory(platform, openId, category, TextFormat.PLAIN);
-  }
-
-  public String handleEquip(PlatformType platform, String openId, String itemName) {
-    return handleEquip(platform, openId, itemName, TextFormat.PLAIN);
-  }
-
-  public String handleUnequip(PlatformType platform, String openId, String slotName) {
-    return handleUnequip(platform, openId, slotName, TextFormat.PLAIN);
-  }
-
-  public String handleBreakthrough(PlatformType platform, String openId) {
-    return handleBreakthrough(platform, openId, TextFormat.PLAIN);
-  }
-
-  public String handleEstablishProtection(
-      PlatformType platform, String openId, String protegeNickname) {
-    return handleEstablishProtection(platform, openId, protegeNickname, TextFormat.PLAIN);
-  }
-
-  public String handleRemoveProtection(
-      PlatformType platform, String openId, String protegeNickname) {
-    return handleRemoveProtection(platform, openId, protegeNickname, TextFormat.PLAIN);
-  }
-
-  public String handleDiscard(PlatformType platform, String openId, String itemName) {
-    return handleDiscard(platform, openId, itemName, TextFormat.PLAIN);
-  }
-
-  public String handleChangeNickname(PlatformType platform, String openId, String newNickname) {
-    return handleChangeNickname(platform, openId, newNickname, TextFormat.PLAIN);
-  }
-
-  public String handleViewPlayer(PlatformType platform, String openId, String targetNickname) {
-    return handleViewPlayer(platform, openId, targetNickname, TextFormat.PLAIN);
-  }
-
-  public String handleQueryProtection(PlatformType platform, String openId) {
-    return handleQueryProtection(platform, openId, TextFormat.PLAIN);
-  }
-
-  // ===================== 旧版 Markdown handle（委托到统一版本 MARKDOWN） =====================
-
-  public String handleRegisterMarkdown(PlatformType platform, String openId, String nickname) {
-    return handleRegister(platform, openId, nickname, TextFormat.MARKDOWN);
-  }
-
-  public String handleStatusMarkdown(PlatformType platform, String openId) {
-    return handleStatus(platform, openId, TextFormat.MARKDOWN);
-  }
-
-  public String handleInventoryMarkdown(PlatformType platform, String openId) {
-    return handleInventory(platform, openId, TextFormat.MARKDOWN);
-  }
-
-  public String handleSeedInventoryMarkdown(PlatformType platform, String openId) {
-    return handleSeedInventory(platform, openId, TextFormat.MARKDOWN);
-  }
-
-  public String handleEquipmentInventoryMarkdown(PlatformType platform, String openId) {
-    return handleEquipmentInventory(platform, openId, TextFormat.MARKDOWN);
-  }
-
-  public String handleEggInventoryMarkdown(PlatformType platform, String openId) {
-    return handleEggInventory(platform, openId, TextFormat.MARKDOWN);
-  }
-
-  public String handleInventoryByCategoryMarkdown(
-      PlatformType platform, String openId, String category) {
-    return handleInventoryByCategory(platform, openId, category, TextFormat.MARKDOWN);
-  }
-
-  public String handleEquipMarkdown(PlatformType platform, String openId, String itemName) {
-    return handleEquip(platform, openId, itemName, TextFormat.MARKDOWN);
-  }
-
-  public String handleUnequipMarkdown(PlatformType platform, String openId, String slotName) {
-    return handleUnequip(platform, openId, slotName, TextFormat.MARKDOWN);
-  }
-
-  public String handleBreakthroughMarkdown(PlatformType platform, String openId) {
-    return handleBreakthrough(platform, openId, TextFormat.MARKDOWN);
-  }
-
-  public String handleEstablishProtectionMarkdown(
-      PlatformType platform, String openId, String protegeNickname) {
-    return handleEstablishProtection(platform, openId, protegeNickname, TextFormat.MARKDOWN);
-  }
-
-  public String handleRemoveProtectionMarkdown(
-      PlatformType platform, String openId, String protegeNickname) {
-    return handleRemoveProtection(platform, openId, protegeNickname, TextFormat.MARKDOWN);
-  }
-
-  public String handleDiscardMarkdown(PlatformType platform, String openId, String itemName) {
-    return handleDiscard(platform, openId, itemName, TextFormat.MARKDOWN);
-  }
-
-  public String handleChangeNicknameMarkdown(
-      PlatformType platform, String openId, String newNickname) {
-    return handleChangeNickname(platform, openId, newNickname, TextFormat.MARKDOWN);
-  }
-
-  public String handleViewPlayerMarkdown(
-      PlatformType platform, String openId, String targetNickname) {
-    return handleViewPlayer(platform, openId, targetNickname, TextFormat.MARKDOWN);
-  }
-
-  public String handleQueryProtectionMarkdown(PlatformType platform, String openId) {
-    return handleQueryProtection(platform, openId, TextFormat.MARKDOWN);
-  }
-
   // ===================== 统一处理方法（含 TextFormat 参数） =====================
 
   public String handleRegister(
@@ -408,15 +269,14 @@ public class CultivationCommandHandler implements CommandGroup {
         for (var info : status.protectingList()) {
           String locationStatus = locationStatusText(info.isInSameLocation(), fmt);
           sb.append(
-              subListItem(
+              fmt.subListItem(
                   String.format(
                       "%s（%s）- %s %s - 加成%.1f%%",
                       info.userName(),
                       CultivationRealm.realmDisplay(info.userLevel()),
                       info.locationName(),
                       locationStatus,
-                      info.bonusPercentage()),
-                  fmt));
+                      info.bonusPercentage())));
         }
       } else {
         sb.append(
@@ -440,15 +300,14 @@ public class CultivationCommandHandler implements CommandGroup {
                   ? String.format("加成%.1f%%", info.bonusPercentage())
                   : "无法提供加成";
           sb.append(
-              subListItem(
+              fmt.subListItem(
                   String.format(
                       "%s（%s）- %s %s - %s",
                       info.userName(),
                       CultivationRealm.realmDisplay(info.userLevel()),
                       info.locationName(),
                       locationStatus,
-                      bonusText),
-                  fmt));
+                      bonusText)));
         }
       } else {
         sb.append(fmt.listItem("无道友为你护道"));
@@ -615,15 +474,14 @@ public class CultivationCommandHandler implements CommandGroup {
       for (var info : result.getProtectingList()) {
         String locationStatus = locationStatusText(info.getIsInSameLocation(), fmt);
         sb.append(
-            subListItem(
+            fmt.subListItem(
                 String.format(
                     "%s（%s）- %s %s - 加成%.1f%%",
                     info.getUserName(),
                     CultivationRealm.realmDisplay(info.getUserLevel()),
                     info.getLocationName(),
                     locationStatus,
-                    info.getBonusPercentage()),
-                fmt));
+                    info.getBonusPercentage())));
       }
     } else {
       sb.append("\n");
@@ -641,15 +499,14 @@ public class CultivationCommandHandler implements CommandGroup {
                 ? String.format("加成%.1f%%", info.getBonusPercentage())
                 : "无法提供加成";
         sb.append(
-            subListItem(
+            fmt.subListItem(
                 String.format(
                     "%s（%s）- %s %s - %s",
                     info.getUserName(),
                     CultivationRealm.realmDisplay(info.getUserLevel()),
                     info.getLocationName(),
                     locationStatus,
-                    bonusText),
-                fmt));
+                    bonusText)));
       }
     } else {
       sb.append("\n");
@@ -674,19 +531,9 @@ public class CultivationCommandHandler implements CommandGroup {
     return String.format("  %s：%s%d", attrName, sign, change);
   }
 
-  private String subListItem(String text, TextFormat fmt) {
-    return switch (fmt) {
-      case TextFormat.PlainFormat __ -> "    " + text + "\n";
-      case TextFormat.MarkdownFormat __ -> "  - " + text + "\n";
-    };
-  }
-
   private String locationStatusText(Boolean isInSameLocation, TextFormat fmt) {
     boolean same = Boolean.TRUE.equals(isInSameLocation);
-    return switch (fmt) {
-      case TextFormat.PlainFormat __ -> same ? "[同地点]" : "[异地]";
-      case TextFormat.MarkdownFormat __ -> same ? "📍 同地点" : "📌 异地";
-    };
+    return same ? fmt.emoji("📍", "") + "同地点" : fmt.emoji("📌", "") + "异地";
   }
 
   // ===================== CommandGroup 实现 =====================

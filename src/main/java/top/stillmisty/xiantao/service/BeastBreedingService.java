@@ -24,6 +24,8 @@ import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
+import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.service.annotation.Authenticated;
 
 /** 灵兽孵化、放生、进化、品质突破、变异 */
 @Slf4j
@@ -42,6 +44,42 @@ public class BeastBreedingService {
   private final BeastDisplayHelper beastDisplayHelper;
   private final BeastEvolutionService beastEvolutionService;
   private final BeastMutationService beastMutationService;
+
+  // ===================== 公开 API（含认证） =====================
+
+  @Authenticated
+  @Transactional
+  public ServiceResult<PenCellVO> hatchBeast(
+      PlatformType platform, String openId, String position, String eggName) {
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(hatchBeast(userId, position, eggName));
+  }
+
+  @Authenticated
+  @Transactional
+  public ServiceResult<PenCellVO> hatchBeastByInput(
+      PlatformType platform, String openId, String position, String input) {
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(hatchBeastByInput(userId, position, input));
+  }
+
+  @Authenticated
+  @Transactional
+  public ServiceResult<ReleaseBeastVO> releaseBeast(
+      PlatformType platform, String openId, String position) {
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(releaseBeast(userId, position));
+  }
+
+  @Authenticated
+  @Transactional
+  public ServiceResult<PenCellVO> evolveBeast(
+      PlatformType platform, String openId, String position, String mode) {
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(evolveBeast(userId, position, mode));
+  }
+
+  // ===================== 内部 API =====================
 
   @Transactional
   public PenCellVO hatchBeast(Long userId, String position, String eggName) {

@@ -15,14 +15,6 @@ public class HelpCommandHandler {
 
   private final HelpService helpService;
 
-  public String handleHelp(PlatformType platform, String openId, String command) {
-    return handleHelp(platform, openId, command, TextFormat.PLAIN);
-  }
-
-  public String handleHelpMarkdown(PlatformType platform, String openId, String command) {
-    return handleHelp(platform, openId, command, TextFormat.MARKDOWN);
-  }
-
   public String handleHelp(PlatformType platform, String openId, String command, TextFormat fmt) {
     if (command == null || command.isBlank()) {
       return formatAllGroups(fmt);

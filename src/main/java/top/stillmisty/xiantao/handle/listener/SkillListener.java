@@ -11,6 +11,7 @@ import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.handle.command.SkillCommandHandler;
 
 @Slf4j
@@ -33,7 +34,7 @@ public class SkillListener {
     }
     String response =
         skillCommandHandler.handleEquipSkill(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), skill);
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), skill, TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -48,7 +49,7 @@ public class SkillListener {
     }
     String response =
         skillCommandHandler.handleUnequipSkill(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), skill);
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), skill, TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -58,7 +59,8 @@ public class SkillListener {
   public void skills(OneBotMessageEvent event) {
     log.debug("收到法决查询请求 - AuthorId: {}", event.getAuthorId());
     String response =
-        skillCommandHandler.handleSkills(PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
+        skillCommandHandler.handleSkills(
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -74,8 +76,8 @@ public class SkillListener {
       return;
     }
     String response =
-        skillCommandHandler.handleEquipSkillMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString(), skill);
+        skillCommandHandler.handleEquipSkill(
+            PlatformType.QQ, event.getAuthorId().toString(), skill, TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -90,8 +92,8 @@ public class SkillListener {
       return;
     }
     String response =
-        skillCommandHandler.handleUnequipSkillMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString(), skill);
+        skillCommandHandler.handleUnequipSkill(
+            PlatformType.QQ, event.getAuthorId().toString(), skill, TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -101,7 +103,8 @@ public class SkillListener {
   public void skillsQq(QGGroupAtMessageCreateEvent event) {
     log.debug("收到法决查询请求 - AuthorId: {}", event.getAuthorId());
     String response =
-        skillCommandHandler.handleSkillsMarkdown(PlatformType.QQ, event.getAuthorId().toString());
+        skillCommandHandler.handleSkills(
+            PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 }

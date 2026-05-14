@@ -27,44 +27,6 @@ public class PillCommandHandler implements CommandGroup {
   private final PillRecipeService pillRecipeService;
   private final PillRefiningService pillRefiningService;
 
-  // ===================== 委托方法（纯文本） =====================
-
-  public String handleRecipeList(PlatformType platform, String openId) {
-    return handleRecipeList(platform, openId, TextFormat.PLAIN);
-  }
-
-  public String handleRecipeDetail(PlatformType platform, String openId, String recipeName) {
-    return handleRecipeDetail(platform, openId, recipeName, TextFormat.PLAIN);
-  }
-
-  public String handleRefineAuto(PlatformType platform, String openId, String recipeName) {
-    return handleRefineAuto(platform, openId, recipeName, TextFormat.PLAIN);
-  }
-
-  public String handleRefineManual(PlatformType platform, String openId, List<String> herbInputs) {
-    return handleRefineManual(platform, openId, herbInputs, TextFormat.PLAIN);
-  }
-
-  // ===================== 委托方法（Markdown） =====================
-
-  public String handleRecipeListMarkdown(PlatformType platform, String openId) {
-    return handleRecipeList(platform, openId, TextFormat.MARKDOWN);
-  }
-
-  public String handleRecipeDetailMarkdown(
-      PlatformType platform, String openId, String recipeName) {
-    return handleRecipeDetail(platform, openId, recipeName, TextFormat.MARKDOWN);
-  }
-
-  public String handleRefineAutoMarkdown(PlatformType platform, String openId, String recipeName) {
-    return handleRefineAuto(platform, openId, recipeName, TextFormat.MARKDOWN);
-  }
-
-  public String handleRefineManualMarkdown(
-      PlatformType platform, String openId, List<String> herbInputs) {
-    return handleRefineManual(platform, openId, herbInputs, TextFormat.MARKDOWN);
-  }
-
   // ===================== 统一处理方法（含 TextFormat 参数） =====================
 
   public String handleRecipeList(PlatformType platform, String openId, TextFormat fmt) {

@@ -20,35 +20,6 @@ public class SkillCommandHandler implements CommandGroup {
 
   private final SkillService skillService;
 
-  // ===================== 委托方法（纯文本） =====================
-
-  public String handleSkills(PlatformType platform, String openId) {
-    return handleSkills(platform, openId, TextFormat.PLAIN);
-  }
-
-  public String handleEquipSkill(PlatformType platform, String openId, String skillInput) {
-    return handleEquipSkill(platform, openId, skillInput, TextFormat.PLAIN);
-  }
-
-  public String handleUnequipSkill(PlatformType platform, String openId, String skillInput) {
-    return handleUnequipSkill(platform, openId, skillInput, TextFormat.PLAIN);
-  }
-
-  // ===================== 委托方法（Markdown） =====================
-
-  public String handleSkillsMarkdown(PlatformType platform, String openId) {
-    return handleSkills(platform, openId, TextFormat.MARKDOWN);
-  }
-
-  public String handleEquipSkillMarkdown(PlatformType platform, String openId, String skillInput) {
-    return handleEquipSkill(platform, openId, skillInput, TextFormat.MARKDOWN);
-  }
-
-  public String handleUnequipSkillMarkdown(
-      PlatformType platform, String openId, String skillInput) {
-    return handleUnequipSkill(platform, openId, skillInput, TextFormat.MARKDOWN);
-  }
-
   // ===================== 统一处理方法（含 TextFormat 参数） =====================
 
   public String handleSkills(PlatformType platform, String openId, TextFormat fmt) {

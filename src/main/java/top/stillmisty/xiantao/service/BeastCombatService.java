@@ -13,6 +13,8 @@ import top.stillmisty.xiantao.domain.beast.vo.*;
 import top.stillmisty.xiantao.domain.beast.vo.ActionResultVO;
 import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
 import top.stillmisty.xiantao.domain.fudi.enums.BeastQuality;
+import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.service.annotation.Authenticated;
 
 /** 灵兽出战/召回、恢复、经验 */
 @Slf4j
@@ -23,6 +25,41 @@ public class BeastCombatService {
   private final BeastRepository beastRepository;
   private final FudiHelper fudiHelper;
   private final BeastDisplayHelper beastDisplayHelper;
+
+  // ===================== 公开 API（含认证） =====================
+
+  @Authenticated
+  @Transactional
+  public ServiceResult<ActionResultVO> deployBeast(
+      PlatformType platform, String openId, String position) {
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(deployBeast(userId, position));
+  }
+
+  @Authenticated
+  @Transactional
+  public ServiceResult<BeastUndeployResult> undeployBeast(
+      PlatformType platform, String openId, String position) {
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(undeployBeast(userId, position));
+  }
+
+  @Authenticated
+  @Transactional
+  public ServiceResult<BeastRecoverResult> recoverBeast(
+      PlatformType platform, String openId, String position) {
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(recoverBeast(userId, position));
+  }
+
+  @Authenticated
+  public ServiceResult<List<BeastStatusVO>> getDeployedBeasts(
+      PlatformType platform, String openId) {
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(getDeployedBeasts(userId));
+  }
+
+  // ===================== 静态公式 =====================
 
   public static int calculateBeastAttack(int level, BeastQuality quality) {
     double q = getCombatStatMultiplier(quality);

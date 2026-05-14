@@ -1,4 +1,4 @@
-package top.stillmisty.xiantao.domain.item.handler;
+package top.stillmisty.xiantao.service.item;
 
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;

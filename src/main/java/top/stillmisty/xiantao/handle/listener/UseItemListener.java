@@ -10,6 +10,7 @@ import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.handle.command.UseItemCommandHandler;
 
 @Slf4j
@@ -33,7 +34,11 @@ public class UseItemListener {
         "收到使用物品请求 - AuthorId: {}, ItemName: {}, Args: {}", event.getAuthorId(), itemName, args);
     String response =
         useItemCommandHandler.handleUseItem(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), itemName, args);
+            PlatformType.ONE_BOT_V11,
+            event.getAuthorId().toString(),
+            itemName,
+            args,
+            TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -44,7 +49,11 @@ public class UseItemListener {
     log.debug("收到使用物品请求 - AuthorId: {}, ItemName: {}", event.getAuthorId(), itemName);
     String response =
         useItemCommandHandler.handleUseItem(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), itemName, null);
+            PlatformType.ONE_BOT_V11,
+            event.getAuthorId().toString(),
+            itemName,
+            null,
+            TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -60,8 +69,8 @@ public class UseItemListener {
     log.debug(
         "收到使用物品请求 - AuthorId: {}, ItemName: {}, Args: {}", event.getAuthorId(), itemName, args);
     String response =
-        useItemCommandHandler.handleUseItemMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString(), itemName, args);
+        useItemCommandHandler.handleUseItem(
+            PlatformType.QQ, event.getAuthorId().toString(), itemName, args, TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -72,8 +81,8 @@ public class UseItemListener {
       QGGroupAtMessageCreateEvent event, @FilterValue("itemName") String itemName) {
     log.debug("收到使用物品请求 - AuthorId: {}, ItemName: {}", event.getAuthorId(), itemName);
     String response =
-        useItemCommandHandler.handleUseItemMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString(), itemName, null);
+        useItemCommandHandler.handleUseItem(
+            PlatformType.QQ, event.getAuthorId().toString(), itemName, null, TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 }

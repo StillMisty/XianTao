@@ -28,7 +28,7 @@ public class SpiritTools {
 
   private final FudiService fudiService;
   private final FarmService farmService;
-  private final BeastService beastService;
+  private final BeastBreedingService beastBreedingService;
   private final InventoryService inventoryService;
   private final SpiritRepository spiritRepository;
 
@@ -165,7 +165,7 @@ public class SpiritTools {
     try {
       Long userId = getCurrentUserId();
 
-      PenCellVO result = beastService.hatchBeastByInput(userId, position, eggName);
+      PenCellVO result = beastBreedingService.hatchBeastByInput(userId, position, eggName);
 
       long hours =
           java.time.Duration.between(java.time.LocalDateTime.now(), result.getMatureTime())

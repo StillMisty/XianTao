@@ -36,7 +36,8 @@ public class FudiService {
   private final SpiritRepository spiritRepository;
   private final SpiritFormRepository spiritFormRepository;
   private final BeastRepository beastRepository;
-  private final BeastService beastService;
+  private final BeastDisplayHelper beastDisplayHelper;
+  private final BeastProductionService beastProductionService;
   private final FarmService farmService;
   private final FudiHelper fudiHelper;
   private final TribulationService tribulationService;
@@ -303,7 +304,7 @@ public class FudiService {
 
       switch (cell.getCellType()) {
         case FARM -> farmService.buildFarmCellDetail(builder, cell);
-        case PEN -> beastService.buildPenCellDetail(builder, cell);
+        case PEN -> beastDisplayHelper.buildPenCellDetail(builder, cell);
         default -> {}
       }
 
@@ -329,7 +330,7 @@ public class FudiService {
     if (cell.getCellType() == CellType.FARM) {
       return farmService.harvestCrop(fudi, cell, cellId);
     } else if (cell.getCellType() == CellType.PEN) {
-      return beastService.collectBeastProduce(fudi, cell, cellId);
+      return beastProductionService.collectBeastProduce(fudi, cell, cellId);
     } else {
       throw new BusinessException(ErrorCode.CELL_NO_COLLECTIBLE, cellId);
     }
@@ -388,7 +389,7 @@ public class FudiService {
     }
 
     if (cell.getCellType() == CellType.PEN) {
-      Beast beast = beastService.findBeastByCell(cell);
+      Beast beast = beastDisplayHelper.findBeastByCell(cell);
       if (beast != null) {
         beast.setPennedCellId(null);
         beastRepository.save(beast);
@@ -476,12 +477,12 @@ public class FudiService {
           builder.isMature(progress != null && progress >= 1.0);
         }
         case PEN -> {
-          Beast beast = beastService.findBeastByCell(cell);
+          Beast beast = beastDisplayHelper.findBeastByCell(cell);
           builder.name(beast != null ? beast.getBeastName() : "空兽栏");
           builder.level(beast != null ? beast.getTier() : 0);
           builder.quality(beast != null ? beast.getQuality().getCode() : null);
           builder.productionStored(cell.getTotalProductionQuantity());
-          builder.isIncubating(beastService.isIncubating(cell));
+          builder.isIncubating(beastDisplayHelper.isIncubating(cell));
         }
       }
 

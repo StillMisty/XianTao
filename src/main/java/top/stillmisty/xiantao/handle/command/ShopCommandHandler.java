@@ -35,15 +35,7 @@ public class ShopCommandHandler implements CommandGroup {
         new CommandEntry("回收 {{物品名}}", "快速回收物品（直接估价出售）", "回收 玄铁剑"));
   }
 
-  public String handleShopkeeper(PlatformType platform, String openId, String userInput) {
-    return handleShopkeeper(platform, openId, userInput, TextFormat.PLAIN);
-  }
-
-  public String handleShopkeeperMarkdown(PlatformType platform, String openId, String userInput) {
-    return handleShopkeeper(platform, openId, userInput, TextFormat.MARKDOWN);
-  }
-
-  private String handleShopkeeper(
+  public String handleShopkeeper(
       PlatformType platform, String openId, String userInput, TextFormat fmt) {
     return switch (shopChatService.chatWithShopkeeper(platform, openId, userInput)) {
       case ServiceResult.Failure(var code, var msg) -> fmt.bold("掌柜") + " " + msg;
@@ -51,17 +43,8 @@ public class ShopCommandHandler implements CommandGroup {
     };
   }
 
-  public String handleQuickSell(PlatformType platform, String openId, String itemName) {
-    return handleQuickSell(platform, openId, itemName, TextFormat.PLAIN);
-  }
-
-  public String handleQuickSellMarkdown(PlatformType platform, String openId, String itemName) {
-    return handleQuickSell(platform, openId, itemName, TextFormat.MARKDOWN);
-  }
-
-  private String handleQuickSell(
+  public String handleQuickSell(
       PlatformType platform, String openId, String itemName, TextFormat fmt) {
-    // Quick sell is delegated to the LLM chat with a sell command
     String sellPrompt = "我想卖掉这个：" + itemName + "，按估价直接成交";
     return handleShopkeeper(platform, openId, sellPrompt, fmt);
   }

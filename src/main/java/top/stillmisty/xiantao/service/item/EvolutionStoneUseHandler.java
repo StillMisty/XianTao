@@ -1,4 +1,4 @@
-package top.stillmisty.xiantao.domain.item.handler;
+package top.stillmisty.xiantao.service.item;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -6,14 +6,14 @@ import top.stillmisty.xiantao.domain.fudi.vo.PenCellVO;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
-import top.stillmisty.xiantao.service.BeastService;
+import top.stillmisty.xiantao.service.BeastBreedingService;
 
 /** 进化石使用处理器 */
 @Component
 @RequiredArgsConstructor
 public class EvolutionStoneUseHandler implements ItemUseHandler {
 
-  private final BeastService beastService;
+  private final BeastBreedingService beastBreedingService;
 
   @Override
   public boolean supports(ItemType type, ItemTemplate template) {
@@ -30,7 +30,7 @@ public class EvolutionStoneUseHandler implements ItemUseHandler {
     String position = args.trim();
 
     try {
-      PenCellVO vo = beastService.evolveBeast(userId, position, "进化");
+      PenCellVO vo = beastBreedingService.evolveBeast(userId, position, "进化");
       return formatEvolveResult(vo);
     } catch (IllegalStateException e) {
       return e.getMessage();

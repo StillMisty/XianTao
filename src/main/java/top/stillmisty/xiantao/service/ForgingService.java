@@ -92,13 +92,12 @@ public class ForgingService {
     }
 
     if (targetRecipe == null) {
-      return new ForgingResultVO(
-          false, "未找到锻造图纸：" + blueprintName, null, null, null, 0.0, null, null);
+      throw new BusinessException(ErrorCode.BLUEPRINT_SCROLL_NOT_FOUND, blueprintName);
     }
 
     var blueprint = combinationFinder.getForgingBlueprint(blueprintTemplate);
     if (blueprint == null || blueprint.requirements().isEmpty()) {
-      return new ForgingResultVO(false, "锻造图纸数据错误", null, null, null, 0.0, null, null);
+      throw new BusinessException(ErrorCode.BLUEPRINT_DATA_ERROR);
     }
 
     List<StackableItem> materials =
@@ -107,7 +106,7 @@ public class ForgingService {
             .toList();
 
     if (materials.isEmpty()) {
-      return new ForgingResultVO(false, "背包中没有锻材", null, null, null, 0.0, null, null);
+      throw new BusinessException(ErrorCode.FORGING_MATERIAL_INSUFFICIENT);
     }
 
     return combinationFinder.forgeEquipment(
@@ -122,7 +121,7 @@ public class ForgingService {
   public ForgingResultVO forgeManual(Long userId, List<String> materialInputs) {
     List<MaterialInput> parsedInputs = parseMaterialInputs(userId, materialInputs);
     if (parsedInputs.isEmpty()) {
-      return new ForgingResultVO(false, "锻材输入格式错误", null, null, null, 0.0, null, null);
+      throw new BusinessException(ErrorCode.FORGING_MATERIAL_INPUT_FORMAT);
     }
 
     Map<String, Integer> attributeTotals = new HashMap<>();
@@ -131,8 +130,7 @@ public class ForgingService {
       StackableItem mat = input.material();
       int quantity = input.quantity();
       if (!mat.hasEnoughQuantity(quantity)) {
-        return new ForgingResultVO(
-            false, "锻材数量不足：" + mat.getName(), null, null, null, 0.0, null, null);
+        throw new BusinessException(ErrorCode.FORGING_MATERIAL_NOT_ENOUGH, mat.getName());
       }
       for (String attr : List.of("RIGIDITY", "TOUGHNESS", "SPIRIT")) {
         int value = mat.getMaterialValue(attr) * quantity;
@@ -224,8 +222,7 @@ public class ForgingService {
       }
     }
 
-    return new ForgingResultVO(
-        false, "锻材三性不匹配任何锻造图纸", null, null, null, 0.0, usedMaterials, attributeTotals);
+    throw new BusinessException(ErrorCode.FORGING_NO_MATCHING_BLUEPRINT);
   }
 
   public List<ForgingRecipeVO> getForgingRecipes(Long userId) {

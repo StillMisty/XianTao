@@ -10,6 +10,7 @@ import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.handle.command.CultivationCommandHandler;
 
 @Slf4j
@@ -30,7 +31,10 @@ public class ViewListener {
     log.debug("收到查看请求 - AuthorId: {}, Target: {}", event.getAuthorId(), targetNickname);
     String response =
         cultivationCommandHandler.handleViewPlayer(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), targetNickname);
+            PlatformType.ONE_BOT_V11,
+            event.getAuthorId().toString(),
+            targetNickname,
+            TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -43,8 +47,8 @@ public class ViewListener {
       QGGroupAtMessageCreateEvent event, @FilterValue("targetNickname") String targetNickname) {
     log.debug("收到查看请求 - AuthorId: {}, Target: {}", event.getAuthorId(), targetNickname);
     String response =
-        cultivationCommandHandler.handleViewPlayerMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString(), targetNickname);
+        cultivationCommandHandler.handleViewPlayer(
+            PlatformType.QQ, event.getAuthorId().toString(), targetNickname, TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 }

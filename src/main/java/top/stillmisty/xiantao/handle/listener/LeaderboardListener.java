@@ -9,6 +9,7 @@ import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.handle.command.LeaderboardCommandHandler;
 
 @Slf4j
@@ -27,7 +28,7 @@ public class LeaderboardListener {
     log.debug("收到排行榜请求 - AuthorId: {}", event.getAuthorId());
     String response =
         leaderboardCommandHandler.handleLevelLeaderboard(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -38,7 +39,7 @@ public class LeaderboardListener {
     log.debug("收到灵石排行榜请求 - AuthorId: {}", event.getAuthorId());
     String response =
         leaderboardCommandHandler.handleSpiritStoneLeaderboard(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -50,8 +51,8 @@ public class LeaderboardListener {
   public void levelLeaderboardQq(QGGroupAtMessageCreateEvent event) {
     log.debug("收到排行榜请求 - AuthorId: {}", event.getAuthorId());
     String response =
-        leaderboardCommandHandler.handleLevelLeaderboardMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString());
+        leaderboardCommandHandler.handleLevelLeaderboard(
+            PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 
@@ -61,8 +62,8 @@ public class LeaderboardListener {
   public void spiritStoneLeaderboardQq(QGGroupAtMessageCreateEvent event) {
     log.debug("收到灵石排行榜请求 - AuthorId: {}", event.getAuthorId());
     String response =
-        leaderboardCommandHandler.handleSpiritStoneLeaderboardMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString());
+        leaderboardCommandHandler.handleSpiritStoneLeaderboard(
+            PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 }

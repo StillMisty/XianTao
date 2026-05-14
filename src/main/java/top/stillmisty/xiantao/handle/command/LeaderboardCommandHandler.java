@@ -18,28 +18,6 @@ public class LeaderboardCommandHandler implements CommandGroup {
 
   private final LeaderboardService leaderboardService;
 
-  // ===================== 委托方法（纯文本） =====================
-
-  public String handleLevelLeaderboard(PlatformType platform, String openId) {
-    return handleLevelLeaderboard(platform, openId, TextFormat.PLAIN);
-  }
-
-  public String handleSpiritStoneLeaderboard(PlatformType platform, String openId) {
-    return handleSpiritStoneLeaderboard(platform, openId, TextFormat.PLAIN);
-  }
-
-  // ===================== 委托方法（Markdown） =====================
-
-  public String handleLevelLeaderboardMarkdown(PlatformType platform, String openId) {
-    return handleLevelLeaderboard(platform, openId, TextFormat.MARKDOWN);
-  }
-
-  public String handleSpiritStoneLeaderboardMarkdown(PlatformType platform, String openId) {
-    return handleSpiritStoneLeaderboard(platform, openId, TextFormat.MARKDOWN);
-  }
-
-  // ===================== 统一处理方法（含 TextFormat 参数） =====================
-
   public String handleLevelLeaderboard(PlatformType platform, String openId, TextFormat fmt) {
     return switch (leaderboardService.getLevelLeaderboard(platform, openId)) {
       case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
