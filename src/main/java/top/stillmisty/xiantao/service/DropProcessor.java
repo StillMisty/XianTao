@@ -84,8 +84,10 @@ public class DropProcessor {
       if (drop.type() == DropType.EQUIPMENT) {
         equipmentService.createEquipment(userId, drop.templateId());
       } else {
+        ItemTemplate tmpl = itemTemplateRepository.findById(drop.templateId()).orElse(null);
+        ItemType type = tmpl != null ? tmpl.getType() : ItemType.MATERIAL;
         stackableItemService.addStackableItem(
-            userId, drop.templateId(), ItemType.MATERIAL, drop.name(), drop.quantity());
+            userId, drop.templateId(), type, drop.name(), drop.quantity());
       }
     }
   }

@@ -32,4 +32,7 @@ public interface StackableItemRepository {
 
   /** 删除物品 */
   void deleteById(Long id);
+
+  /** 原子减少数量，返回受影响的记录数（0或1） */
+  int reduceQuantityById(Long id, Long userId, int qty);
 }

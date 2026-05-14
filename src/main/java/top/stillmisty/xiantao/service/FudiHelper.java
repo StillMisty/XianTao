@@ -63,11 +63,9 @@ public class FudiHelper {
     }
   }
 
-  /** 增加灵石 */
+  /** 原子增加灵石 */
   public void addSpiritStones(Long userId, int amount) {
-    User user = userStateService.loadUser(userId);
-    user.setSpiritStones(user.getSpiritStones() + amount);
-    userStateService.save(user);
+    userRepository.addSpiritStonesAtomically(userId, amount);
   }
 
   /** 获取用户信息，不存在则抛出异常 */

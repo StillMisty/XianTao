@@ -165,13 +165,13 @@ public class PillCombinationFinder {
 
     var recipeScroll = getRecipeScroll(recipeTemplate);
     if (recipeScroll == null) {
-      return new PillRefiningResultVO(false, "丹方数据错误", null, null, 0, null, null, null);
+      throw new BusinessException(ErrorCode.RECIPE_PILL_DATA_ERROR);
     }
     long resultItemId = recipeScroll.resultItemId();
     int resultQuantity = recipeScroll.resultQuantity();
     ItemTemplate resultTemplate = itemTemplateRepository.findById(resultItemId).orElse(null);
     if (resultTemplate == null) {
-      return new PillRefiningResultVO(false, "丹药模板不存在", null, null, 0, null, null, null);
+      throw new BusinessException(ErrorCode.RECIPE_PILL_DATA_ERROR);
     }
 
     createPillItem(userId, resultTemplate, recipeScroll.grade(), quality, resultQuantity);

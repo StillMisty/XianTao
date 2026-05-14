@@ -73,4 +73,9 @@ public class StackableItemRepositoryImpl implements StackableItemRepository {
   public void deleteById(Long id) {
     stackableItemMapper.deleteById(id);
   }
+
+  @Override
+  public int reduceQuantityById(Long id, Long userId, int qty) {
+    return stackableItemMapper.reduceQuantityById(id, userId, qty);
+  }
 }

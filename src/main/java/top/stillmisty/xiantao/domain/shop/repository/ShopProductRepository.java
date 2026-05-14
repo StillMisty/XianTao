@@ -15,4 +15,6 @@ public interface ShopProductRepository {
   Optional<ShopProduct> findByShopNpcIdAndTemplateId(Long shopNpcId, Long templateId);
 
   void deleteById(Long id);
+
+  int deductStockIfAvailable(Long id, int qty);
 }

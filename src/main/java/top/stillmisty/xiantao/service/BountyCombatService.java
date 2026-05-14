@@ -127,7 +127,7 @@ public class BountyCombatService {
     boolean hasEquipment = false;
     for (BountyRewardItem item : rewardItems) {
       switch (item) {
-        case BountyRewardItem.SpiritStonesReward(var amount) -> spiritStones = amount;
+        case BountyRewardItem.SpiritStonesReward(var amount) -> spiritStones += amount;
         case BountyRewardItem.BeastEggReward _ -> hasBeastEgg = true;
         case BountyRewardItem.EquipmentRewardItem _ -> hasEquipment = true;
         default -> {}
@@ -138,10 +138,7 @@ public class BountyCombatService {
 
   private List<BountyRewardItem> filterNonCurrencyRewards(List<BountyRewardItem> rewardItems) {
     return rewardItems.stream()
-        .filter(
-            i ->
-                !(i instanceof BountyRewardItem.SpiritStonesReward)
-                    && !(i instanceof BountyRewardItem.EquipmentRewardItem))
+        .filter(i -> !(i instanceof BountyRewardItem.SpiritStonesReward))
         .toList();
   }
 

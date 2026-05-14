@@ -46,14 +46,10 @@ public class PostCombatProcessor {
           beast.setIsDeployed(false);
           int recoveryMinutes = beast.getQuality().getRecoveryMinutes();
           beast.setRecoveryUntil(LocalDateTime.now().plusMinutes(recoveryMinutes));
+        }
 
-          if (playerWon) {
-            beastSkillService.tryAwakeningSkill(beast);
-          }
-        } else {
-          if (isHighlightBattle) {
-            beastSkillService.tryAwakeningSkill(beast);
-          }
+        if (playerWon) {
+          beastSkillService.tryAwakeningSkill(beast);
         }
       }
     }

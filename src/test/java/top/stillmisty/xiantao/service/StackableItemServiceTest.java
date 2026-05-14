@@ -80,29 +80,27 @@ class StackableItemServiceTest {
   @Test
   @DisplayName("reduceStackableItem — 正常扣减")
   void reduceStackableItem_shouldReduceQuantity() {
-    var item = createItem(1L, 5);
-    when(stackableItemRepository.findById(1L)).thenReturn(Optional.of(item));
+    when(stackableItemRepository.reduceQuantityById(1L, userId, 3)).thenReturn(1);
 
     stackableItemService.reduceStackableItem(userId, 1L, 3);
 
-    assertEquals(2, item.getQuantity());
-    verify(stackableItemRepository).save(item);
+    verify(stackableItemRepository).reduceQuantityById(1L, userId, 3);
   }
 
   @Test
   @DisplayName("reduceStackableItem — 扣减到零时删除")
   void reduceStackableItem_whenDepleted_shouldDelete() {
-    var item = createItem(1L, 3);
-    when(stackableItemRepository.findById(1L)).thenReturn(Optional.of(item));
+    when(stackableItemRepository.reduceQuantityById(1L, userId, 3)).thenReturn(1);
 
     stackableItemService.reduceStackableItem(userId, 1L, 3);
 
-    verify(stackableItemRepository).deleteById(1L);
+    verify(stackableItemRepository).reduceQuantityById(1L, userId, 3);
   }
 
   @Test
   @DisplayName("reduceStackableItem — 物品不存在抛异常")
   void reduceStackableItem_whenNotFound_shouldThrow() {
+    when(stackableItemRepository.reduceQuantityById(99L, userId, 1)).thenReturn(0);
     when(stackableItemRepository.findById(99L)).thenReturn(Optional.empty());
 
     assertThrows(
@@ -114,6 +112,7 @@ class StackableItemServiceTest {
   void reduceStackableItem_whenOwnershipMismatch_shouldThrow() {
     var item = createItem(1L, 5);
     item.setUserId(2L);
+    when(stackableItemRepository.reduceQuantityById(1L, userId, 1)).thenReturn(0);
     when(stackableItemRepository.findById(1L)).thenReturn(Optional.of(item));
 
     assertThrows(
@@ -124,6 +123,7 @@ class StackableItemServiceTest {
   @DisplayName("reduceStackableItem — 数量不足抛异常")
   void reduceStackableItem_whenInsufficientQuantity_shouldThrow() {
     var item = createItem(1L, 2);
+    when(stackableItemRepository.reduceQuantityById(1L, userId, 5)).thenReturn(0);
     when(stackableItemRepository.findById(1L)).thenReturn(Optional.of(item));
 
     assertThrows(

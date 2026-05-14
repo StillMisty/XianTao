@@ -5,6 +5,7 @@ import java.util.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
 import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
@@ -12,6 +13,7 @@ import top.stillmisty.xiantao.domain.fudi.entity.FudiCell;
 import top.stillmisty.xiantao.domain.fudi.enums.CellType;
 import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiCellRepository;
+import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
 import top.stillmisty.xiantao.domain.monster.Combatant;
 import top.stillmisty.xiantao.domain.monster.Team;
@@ -29,6 +31,7 @@ public class TribulationService {
   private static final int TRIBULATION_MAX_ROUNDS = 40;
 
   private final FudiCellRepository fudiCellRepository;
+  private final FudiRepository fudiRepository;
   private final SpiritRepository spiritRepository;
   private final BeastRepository beastRepository;
   private final UserRepository userRepository;
@@ -53,6 +56,7 @@ public class TribulationService {
    * @param forceTrigger 是否强制触发（忽略冷却）
    * @return 天劫结果文本，未触发返回 null
    */
+  @Transactional
   public String resolveTribulation(Fudi fudi, User user, boolean forceTrigger) {
     LocalDateTime referenceTime =
         fudi.getLastTribulationTime() != null
@@ -66,6 +70,12 @@ public class TribulationService {
     }
 
     fudi.setLastTribulationTime(LocalDateTime.now());
+    if (fudi.getTribulationStage() == null) {
+      fudi.setTribulationStage(0);
+    }
+    if (fudi.getTribulationWinStreak() == null) {
+      fudi.setTribulationWinStreak(0);
+    }
 
     // 构建防守方队伍（玩家 + 出战灵兽）
     Team defendingTeam = combatService.buildPlayerTeam(user);
@@ -107,13 +117,17 @@ public class TribulationService {
     applyHpToUser(user, defendingTeam);
     applyHpToBeasts(defendingTeam, user, playerWon);
 
+    String tribulationResult;
     if (playerWon) {
-      return applyTribulationWin(fudi, spirit, boss);
+      tribulationResult = applyTribulationWin(fudi, spirit, boss);
     } else if (compassionUsed) {
-      return applyTribulationCompassion(fudi, spirit, boss);
+      tribulationResult = applyTribulationCompassion(fudi, spirit, boss);
     } else {
-      return applyTribulationLoss(fudi, spirit, boss);
+      tribulationResult = applyTribulationLoss(fudi, spirit, boss);
     }
+
+    fudiRepository.save(fudi);
+    return tribulationResult;
   }
 
   // ===================== 防守方队伍属性统计 =====================

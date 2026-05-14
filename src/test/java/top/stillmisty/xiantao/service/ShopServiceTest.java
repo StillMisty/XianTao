@@ -106,6 +106,7 @@ class ShopServiceTest {
       ShopProduct product = createProduct(ProductType.ITEM, 1L, 80L, 10, 20);
       when(shopProductRepository.findByShopNpcIdAndTemplateId(shopNpcId, 1L))
           .thenReturn(Optional.of(product));
+      when(shopProductRepository.deductStockIfAvailable(eq(product.getId()), eq(2))).thenReturn(1);
 
       PurchaseResult result = shopService.purchaseItem(userId, npc, 1L, 2);
 
@@ -113,7 +114,7 @@ class ShopServiceTest {
       assertEquals("聚灵丹", result.itemName());
       assertEquals(2, result.quantity());
       assertEquals(160L, result.totalPrice());
-      verify(shopProductRepository).save(any());
+      verify(shopProductRepository).deductStockIfAvailable(product.getId(), 2);
     }
 
     @Test

@@ -29,4 +29,7 @@ public interface UserRepository {
 
   /** 原子扣除灵石（灵石不足时返回0，成功返回1） */
   int deductSpiritStonesIfEnough(Long userId, int cost);
+
+  /** 原子增加灵石 */
+  int addSpiritStonesAtomically(Long userId, int amount);
 }

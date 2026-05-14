@@ -45,4 +45,9 @@ public class ShopProductRepositoryImpl implements ShopProductRepository {
   public void deleteById(Long id) {
     shopProductMapper.deleteById(id);
   }
+
+  @Override
+  public int deductStockIfAvailable(Long id, int qty) {
+    return shopProductMapper.deductStockIfAvailable(id, qty);
+  }
 }

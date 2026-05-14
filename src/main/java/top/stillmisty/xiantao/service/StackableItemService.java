@@ -27,6 +27,7 @@ public class StackableItemService {
   }
 
   /** 添加堆叠物品到背包（含属性） */
+  @Transactional
   public void addStackableItem(
       Long userId,
       Long templateId,
@@ -55,33 +56,24 @@ public class StackableItemService {
     }
   }
 
-  /** 按物品ID减少堆叠物品数量 */
+  /** 按物品ID原子减少堆叠物品数量 */
   @Transactional
   public void reduceStackableItem(Long userId, Long itemId, int quantity) {
-    var existingItem = stackableItemRepository.findById(itemId);
-    if (existingItem.isEmpty()) {
-      log.warn("物品不存在: itemId={}", itemId);
-      throw new BusinessException(ErrorCode.ITEM_NOT_EXISTS);
-    }
-
-    StackableItem item = existingItem.get();
-    if (!item.getUserId().equals(userId)) {
-      log.warn("物品所有权不匹配: userId={}, itemOwnerId={}", userId, item.getUserId());
-      throw new BusinessException(ErrorCode.ITEM_OWNERSHIP_MISMATCH);
-    }
-
-    if (!item.hasEnoughQuantity(quantity)) {
+    if (quantity <= 0) return;
+    int affected = stackableItemRepository.reduceQuantityById(itemId, userId, quantity);
+    if (affected == 0) {
+      var existingItem = stackableItemRepository.findById(itemId);
+      if (existingItem.isEmpty()) {
+        throw new BusinessException(ErrorCode.ITEM_NOT_EXISTS);
+      }
+      StackableItem item = existingItem.get();
+      if (!item.getUserId().equals(userId)) {
+        throw new BusinessException(ErrorCode.ITEM_OWNERSHIP_MISMATCH);
+      }
       throw new BusinessException(
           ErrorCode.ITEM_QUANTITY_INSUFFICIENT, quantity, item.getQuantity());
     }
-
-    if (item.reduceQuantity(quantity)) {
-      stackableItemRepository.deleteById(item.getId());
-      log.info("删除堆叠物品（数量为0）: userId={}, itemId={}", userId, itemId);
-    } else {
-      stackableItemRepository.save(item);
-      log.info("减少堆叠物品数量: userId={}, itemId={}, quantity={}", userId, itemId, quantity);
-    }
+    log.info("原子减少堆叠物品数量: userId={}, itemId={}, quantity={}", userId, itemId, quantity);
   }
 
   /** 检查堆叠物品数量是否足够 */

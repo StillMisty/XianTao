@@ -66,6 +66,7 @@ public class BeastEvolutionService {
     if (ThreadLocalRandom.current().nextInt(100) < 10
         && beast.getQuality() != BeastQuality.DIVINE) {
       beast.qualityBreak();
+      beast.recalculateAttributes();
       qualityUpgraded = true;
     }
 

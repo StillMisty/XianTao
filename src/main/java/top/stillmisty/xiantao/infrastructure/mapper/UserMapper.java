@@ -12,4 +12,7 @@ public interface UserMapper extends BaseMapper<User> {
   @Update(
       "UPDATE xt_user SET spirit_stones = spirit_stones - #{cost} WHERE id = #{userId} AND spirit_stones >= #{cost}")
   int deductSpiritStonesIfEnough(@Param("userId") Long userId, @Param("cost") int cost);
+
+  @Update("UPDATE xt_user SET spirit_stones = spirit_stones + #{amount} WHERE id = #{userId}")
+  int addSpiritStonesAtomically(@Param("userId") Long userId, @Param("amount") int amount);
 }

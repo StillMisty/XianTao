@@ -200,6 +200,8 @@ public class GmService {
     var mapNode = mapNodeRepository.findByName(locationName);
     if (mapNode.isEmpty()) return "未找到地点：" + locationName;
     target.setLocationId(mapNode.get().getId());
+    target.setStatus(UserStatus.IDLE);
+    target.clearActivity();
     userRepository.save(target);
     log.info("GM {} 传送 {} 到 {}（{}）", gmUserId, targetNickname, locationName, mapNode.get().getId());
     return String.format("已将 %s 传送到「%s」", targetNickname, locationName);

@@ -126,8 +126,9 @@ public class PillConsumptionService {
       healAmount = (int) (e.amount() * qualityMultiplier);
     }
     int oldHp = user.getHpCurrent();
-    user.setHpCurrent(Math.min(maxHp, oldHp + healAmount));
-    return "恢复 " + healAmount + " 生命值";
+    int actualHealed = Math.min(maxHp - oldHp, healAmount);
+    user.setHpCurrent(oldHp + actualHealed);
+    return "恢复 " + actualHealed + " 生命值";
   }
 
   private String applyStat(
@@ -232,7 +233,7 @@ public class PillConsumptionService {
   private double calcResistanceDecay(Long userId, long templateId) {
     var opt = pillResistanceRepository.findByUserIdAndTemplateId(userId, templateId);
     int count = opt.map(PillResistance::getCount).orElse(0);
-    return Math.max(0.1, 1.0 / (1 + count));
+    return Math.max(0.1, 1.0 / (1 + count * 0.3));
   }
 
   // ===================== 辅助方法 =====================

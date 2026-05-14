@@ -107,7 +107,7 @@ public class BeastProductionService {
 
   private int calculateProductionAmount(Beast beast, int cycles) {
     int tier = beast.getTier();
-    double outputMultiplier = beast.getQualityMultiplier();
+    double outputMultiplier = beast.getQuality().getOutputMultiplier();
     int perCycle =
         (int)
             Math.round(

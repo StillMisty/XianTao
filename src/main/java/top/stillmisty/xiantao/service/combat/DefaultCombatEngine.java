@@ -142,9 +142,9 @@ public class DefaultCombatEngine implements CombatEngine {
     all.addAll(teamB.aliveMembers());
     all.sort(
         (c1, c2) -> {
-          int s1 = (int) (c1.getSpeed() * buffManager.getSpeedModifier(c1.getId()));
-          int s2 = (int) (c2.getSpeed() * buffManager.getSpeedModifier(c2.getId()));
-          return Integer.compare(s2, s1);
+          double s1 = c1.getSpeed() * buffManager.getSpeedModifier(c1.getId());
+          double s2 = c2.getSpeed() * buffManager.getSpeedModifier(c2.getId());
+          return Double.compare(s2, s1);
         });
     return all;
   }
@@ -202,7 +202,7 @@ public class DefaultCombatEngine implements CombatEngine {
             case MULTI_HIT ->
                 damage +=
                     damageCalculator.calculateEffectDamage(attacker, defender, effect, buffManager)
-                        * 3;
+                        * (effect.value() != null ? effect.value().intValue() : 3);
             case ARMOR_BREAK -> {
               applyArmorBreak(defender, effect, selectedSkill, buffManager);
               isControl = true;
@@ -251,7 +251,26 @@ public class DefaultCombatEngine implements CombatEngine {
         }
       }
       if (damage == 0 && !isBuff && !isControl) {
-        damage = damageCalculator.calculateNormalDamage(attacker, defender, buffManager);
+        boolean anyEffectProcessed =
+            selectedSkill.getEffects() != null
+                && selectedSkill.getEffects().stream()
+                    .anyMatch(
+                        e ->
+                            e.type() == EffectType.HEAL
+                                || e.type() == EffectType.ATTACK_BUFF
+                                || e.type() == EffectType.DEFENSE_BUFF
+                                || e.type() == EffectType.SPEED_BUFF
+                                || e.type() == EffectType.DOT
+                                || e.type() == EffectType.STUN
+                                || e.type() == EffectType.FREEZE
+                                || e.type() == EffectType.SILENCE
+                                || e.type() == EffectType.ARMOR_BREAK
+                                || e.type() == EffectType.SLOW
+                                || e.type() == EffectType.LIFESTEAL
+                                || e.type() == EffectType.EXECUTE);
+        if (!anyEffectProcessed) {
+          damage = damageCalculator.calculateNormalDamage(attacker, defender, buffManager);
+        }
       }
     } else {
       damage = damageCalculator.calculateNormalDamage(attacker, defender, buffManager);

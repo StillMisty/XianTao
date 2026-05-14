@@ -287,6 +287,12 @@ public class ForgingService {
     if (blueprint == null) throw new BusinessException(ErrorCode.BLUEPRINT_SCROLL_WRONG_TYPE);
     long equipmentTemplateId = blueprint.equipmentTemplateId();
 
+    if (recipeItem.reduceQuantity(1)) {
+      stackableItemRepository.deleteById(recipeItem.getId());
+    } else {
+      stackableItemRepository.save(recipeItem);
+    }
+
     PlayerForgingRecipe recipe =
         PlayerForgingRecipe.create(userId, blueprintTemplate.getId(), equipmentTemplateId);
     playerForgingRecipeRepository.save(recipe);

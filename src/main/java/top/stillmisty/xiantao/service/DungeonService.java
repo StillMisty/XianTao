@@ -202,12 +202,13 @@ public class DungeonService {
 
     if (nextPoi == null) {
       if (Boolean.TRUE.equals(instance.getPassageUnlocked())) {
-        throw new BusinessException(ErrorCode.DUNGEON_PASSAGE_LOCKED);
+        return new ExploreResultVO(
+            "", "区域完成", true, "当前区域已探索完毕，输入「秘境深入」继续推进。", null, 0, 0, false, "已完成");
       }
       throw new BusinessException(ErrorCode.DUNGEON_AREA_NOT_FOUND);
     }
 
-    ExploreResultVO result = executePoi(user, instance, nextPoi);
+    ExploreResultVO exploreResult = executePoi(user, instance, nextPoi);
     instance.addExploredPoi(nextPoi.getId());
 
     checkAreaCompletion(instance, dungeon.getId(), areaPois);
@@ -215,7 +216,7 @@ public class DungeonService {
     instanceRepository.save(instance);
     userStateService.save(user);
 
-    return result;
+    return exploreResult;
   }
 
   public String continueDungeon(Long userId) {
@@ -287,7 +288,7 @@ public class DungeonService {
 
   private void checkExpired(DungeonInstance instance) {
     if (instance.isExpired()) {
-      instance.markAbandoned();
+      instance.setStatus(DungeonStatus.ABANDONED);
       instanceRepository.save(instance);
       throw new BusinessException(ErrorCode.DUNGEON_INSTANCE_EXPIRED);
     }
@@ -317,7 +318,7 @@ public class DungeonService {
     DungeonCombatHelper.CombatOutcome outcome =
         combatHelper.executeCombat(user, instance, poi, isBoss);
 
-    if (outcome.summary() == null && !outcome.playerWon()) {
+    if (!outcome.playerWon()) {
       instance.markFailed();
       instanceRepository.save(instance);
       userStateService.save(user);

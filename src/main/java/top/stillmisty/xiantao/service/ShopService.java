@@ -123,9 +123,11 @@ public class ShopService {
           ErrorCode.SHOP_SPIRIT_STONES_INSUFFICIENT, totalPrice, user.getSpiritStones());
     }
 
-    product.setCurrentStock(product.getCurrentStock() - quantity);
+    rows = shopProductRepository.deductStockIfAvailable(product.getId(), quantity);
+    if (rows == 0) {
+      throw new BusinessException(ErrorCode.SHOP_PRODUCT_OUT_OF_STOCK);
+    }
     product.setLastSaleTime(LocalDateTime.now());
-    shopProductRepository.save(product);
 
     addStackableItem(userId, template, quantity);
 
@@ -162,6 +164,11 @@ public class ShopService {
       User user = userStateService.loadUser(userId);
       throw new BusinessException(
           ErrorCode.SHOP_SPIRIT_STONES_INSUFFICIENT, price, user.getSpiritStones());
+    }
+
+    rows = shopProductRepository.deductStockIfAvailable(product.getId(), 1);
+    if (rows == 0) {
+      throw new BusinessException(ErrorCode.SHOP_PRODUCT_OUT_OF_STOCK);
     }
 
     Rarity rarity = rollRarity();

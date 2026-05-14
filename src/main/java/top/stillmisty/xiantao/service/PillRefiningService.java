@@ -125,14 +125,14 @@ public class PillRefiningService {
         double qualityScore = combinationFinder.calculateQualityScore(elementTotals, requirements);
         PillQuality quality = combinationFinder.determineQuality(qualityScore);
 
-        for (HerbInput input : parsedInputs) {
-          stackableItemService.reduceStackableItem(userId, input.herb().getId(), input.quantity());
-        }
-
         long resultItemId = recipeScroll.resultItemId();
         int resultQuantity = recipeScroll.resultQuantity();
         ItemTemplate resultTemplate = itemTemplateRepository.findById(resultItemId).orElse(null);
-        if (resultTemplate == null) continue;
+        if (resultTemplate == null) throw new BusinessException(ErrorCode.RECIPE_PILL_DATA_ERROR);
+
+        for (HerbInput input : parsedInputs) {
+          stackableItemService.reduceStackableItem(userId, input.herb().getId(), input.quantity());
+        }
 
         combinationFinder.createPillItem(
             userId, resultTemplate, recipeScroll.grade(), quality, resultQuantity);

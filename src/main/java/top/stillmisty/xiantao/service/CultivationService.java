@@ -136,8 +136,8 @@ public class CultivationService {
     String message;
     if (isMajor) {
       CultivationRealm newRealm = CultivationRealm.fromLevel(newLevel);
-      applyMajorBreakthroughBonuses(user);
       String llmMessage = generateBreakthroughMessage(newRealm, user.getNickname());
+      applyMajorBreakthroughBonuses(user);
       message =
           "*** "
               + llmMessage

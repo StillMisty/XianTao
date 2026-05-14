@@ -77,7 +77,17 @@ public class UserStateService {
     if (destinationMap.isEmpty()) return false;
 
     Integer travelTime = currentMap.get().getTravelTimeTo(destinationMap.get().getId());
-    if (travelTime == null) return false;
+    if (travelTime == null) {
+      // Broken state: clear travel activity to prevent softlock
+      user.setStatus(UserStatus.IDLE);
+      user.clearActivity();
+      log.warn(
+          "Player {} travel softlock detected, no route {} → {}, cleared status",
+          user.getId(),
+          currentMap.get().getName(),
+          destinationMap.get().getName());
+      return true;
+    }
 
     LocalDateTime arrivalTime = startTime.plusMinutes(travelTime);
     if (LocalDateTime.now().isBefore(arrivalTime)) return false;
