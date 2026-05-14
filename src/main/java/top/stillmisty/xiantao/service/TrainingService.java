@@ -26,6 +26,7 @@ import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.util.TypeUtils;
 import top.stillmisty.xiantao.infrastructure.util.WeightedRandom;
 import top.stillmisty.xiantao.service.activity.TrainingCompleter;
+import top.stillmisty.xiantao.service.ai.ExplorationDescriptionFunction;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
 
 @Slf4j
@@ -40,6 +41,7 @@ public class TrainingService {
   private final StackableItemService stackableItemService;
   private final TrainingCombatLogic trainingCombatLogic;
   private final TrainingCompleter trainingCompleter;
+  private final ExplorationDescriptionFunction explorationDescriptionFunction;
 
   @Authenticated
   @Transactional
@@ -196,9 +198,21 @@ public class TrainingService {
     }
     userStateService.save(user);
 
-    String summary =
+    List<String> itemNames =
+        trainingItems != null
+            ? trainingItems.stream()
+                .map(i -> (String) i.get("name"))
+                .filter(Objects::nonNull)
+                .toList()
+            : List.of();
+
+    String plainSummary =
         buildEndTrainingSummary(
             minutesTraining, totalExp, battleResult, trainingItems, diedInTraining);
+
+    String summary =
+        beautifyTrainingSummary(
+            mapNode, minutesTraining, totalExp, itemNames, battleResult.summary(), plainSummary);
 
     log.info("用户 {} 结束历练并应用奖励", userId);
     return TrainingRewardVO.builder()
@@ -212,6 +226,34 @@ public class TrainingService {
         .items(trainingItems)
         .summary(summary)
         .build();
+  }
+
+  private String beautifyTrainingSummary(
+      MapNode mapNode,
+      long minutesTraining,
+      long totalExp,
+      List<String> itemNames,
+      String battleSummary,
+      String fallbackSummary) {
+    var request =
+        new ExplorationDescriptionFunction.Request(
+            mapNode.getName(),
+            mapNode.getDescription(),
+            "历时" + minutesTraining + "分钟的野外历练",
+            itemNames,
+            totalExp > 0 ? totalExp : null,
+            null,
+            battleSummary);
+
+    try {
+      var response = explorationDescriptionFunction.beautify(request);
+      if (response != null && response.description() != null && !response.description().isEmpty()) {
+        return response.description();
+      }
+    } catch (Exception e) {
+      log.warn("LLM 美化历练描述失败", e);
+    }
+    return fallbackSummary;
   }
 
   private String buildEndTrainingSummary(
