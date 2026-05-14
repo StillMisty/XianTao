@@ -57,20 +57,12 @@ public class MapCommandHandler implements CommandGroup {
     return handleEndTraining(platform, openId, TextFormat.PLAIN);
   }
 
-  public String handleMapList(PlatformType platform, String openId) {
-    return handleMapList(platform, openId, TextFormat.PLAIN);
+  public String handleMap(PlatformType platform, String openId) {
+    return handleMap(platform, openId, TextFormat.PLAIN);
   }
 
-  public String handleCurrentMap(PlatformType platform, String openId) {
-    return handleCurrentMap(platform, openId, TextFormat.PLAIN);
-  }
-
-  public String handleBountyList(PlatformType platform, String openId) {
-    return handleBountyList(platform, openId, TextFormat.PLAIN);
-  }
-
-  public String handleBountyStatus(PlatformType platform, String openId) {
-    return handleBountyStatus(platform, openId, TextFormat.PLAIN);
+  public String handleBounty(PlatformType platform, String openId) {
+    return handleBounty(platform, openId, TextFormat.PLAIN);
   }
 
   public String handleStartBounty(PlatformType platform, String openId, String bountyId) {
@@ -99,20 +91,12 @@ public class MapCommandHandler implements CommandGroup {
     return handleEndTraining(platform, openId, TextFormat.MARKDOWN);
   }
 
-  public String handleMapListMarkdown(PlatformType platform, String openId) {
-    return handleMapList(platform, openId, TextFormat.MARKDOWN);
+  public String handleMapMarkdown(PlatformType platform, String openId) {
+    return handleMap(platform, openId, TextFormat.MARKDOWN);
   }
 
-  public String handleCurrentMapMarkdown(PlatformType platform, String openId) {
-    return handleCurrentMap(platform, openId, TextFormat.MARKDOWN);
-  }
-
-  public String handleBountyListMarkdown(PlatformType platform, String openId) {
-    return handleBountyList(platform, openId, TextFormat.MARKDOWN);
-  }
-
-  public String handleBountyStatusMarkdown(PlatformType platform, String openId) {
-    return handleBountyStatus(platform, openId, TextFormat.MARKDOWN);
+  public String handleBountyMarkdown(PlatformType platform, String openId) {
+    return handleBounty(platform, openId, TextFormat.MARKDOWN);
   }
 
   public String handleStartBountyMarkdown(PlatformType platform, String openId, String bountyId) {
@@ -157,37 +141,39 @@ public class MapCommandHandler implements CommandGroup {
     };
   }
 
-  public String handleMapList(PlatformType platform, String openId, TextFormat fmt) {
-    log.debug("处理地图列表查询 - Platform: {}, OpenId: {}", platform, openId);
-    return switch (mapService.getAllMaps(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
-      case ServiceResult.Success(var vo) -> vo.isEmpty() ? "暂无可用地图" : formatMapList(vo, fmt);
-    };
-  }
+  public String handleMap(PlatformType platform, String openId, TextFormat fmt) {
+    log.debug("处理地图查询 - Platform: {}, OpenId: {}", platform, openId);
+    var currentResult = mapService.getCurrentMapInfo(platform, openId);
+    var listResult = mapService.getAllMaps(platform, openId);
 
-  public String handleCurrentMap(PlatformType platform, String openId, TextFormat fmt) {
-    log.debug("处理当前地图查询 - Platform: {}, OpenId: {}", platform, openId);
-    return switch (mapService.getCurrentMapInfo(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
-      case ServiceResult.Success(var vo) -> formatCurrentMap(vo, fmt);
-    };
+    StringBuilder sb = new StringBuilder();
+    switch (currentResult) {
+      case ServiceResult.Failure(var code, var msg) -> sb.append("❌ ").append(msg).append("\n");
+      case ServiceResult.Success(var vo) -> sb.append(formatCurrentMap(vo, fmt)).append("\n");
+    }
+    sb.append(fmt.separator());
+    switch (listResult) {
+      case ServiceResult.Failure(var code, var msg) -> sb.append("❌ ").append(msg);
+      case ServiceResult.Success(var vo) ->
+          sb.append(vo.isEmpty() ? "暂无可用地图" : formatMapList(vo, fmt));
+    }
+    return sb.toString();
   }
 
   // ===================== 悬赏统一处理方法 =====================
 
-  public String handleBountyList(PlatformType platform, String openId, TextFormat fmt) {
-    log.debug("处理悬赏列表 - Platform: {}, OpenId: {}", platform, openId);
-    return switch (bountyService.listBounties(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
-      case ServiceResult.Success(var vo) -> formatBountyList(vo, fmt);
-    };
-  }
-
-  public String handleBountyStatus(PlatformType platform, String openId, TextFormat fmt) {
-    log.debug("处理悬赏状态 - Platform: {}, OpenId: {}", platform, openId);
+  public String handleBounty(PlatformType platform, String openId, TextFormat fmt) {
+    log.debug("处理悬赏 - Platform: {}, OpenId: {}", platform, openId);
     return switch (bountyService.getBountyStatus(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var vo) -> formatBountyStatus(vo, fmt);
+      case ServiceResult.Failure(var code, var msg) -> {
+        // 无进行中悬赏，显示可接列表
+        var listResult = bountyService.listBounties(platform, openId);
+        yield switch (listResult) {
+          case ServiceResult.Failure(var listCode, var listMsg) -> "❌ " + listMsg;
+          case ServiceResult.Success(var vo) -> formatBountyList(vo, fmt);
+        };
+      }
     };
   }
 
@@ -511,13 +497,11 @@ public class MapCommandHandler implements CommandGroup {
   @Override
   public List<CommandEntry> commands() {
     return List.of(
-        new CommandEntry("地图", "查看当前地图信息", "地图"),
-        new CommandEntry("地图列表", "查看所有地图", "地图列表"),
+        new CommandEntry("地图", "查看当前地图信息与世界地图", "地图"),
         new CommandEntry("前往 {{地图名}}", "前往相邻地图", "前往 青木林"),
         new CommandEntry("历练", "开始在地图历练", "历练"),
         new CommandEntry("历练结算", "结束历练并结算收益", "历练结算"),
-        new CommandEntry("悬赏", "查看当前悬赏状态", "悬赏"),
-        new CommandEntry("悬赏列表", "查看可接取悬赏", "悬赏列表"),
+        new CommandEntry("悬赏", "查看悬赏状态或可接列表", "悬赏"),
         new CommandEntry("悬赏接取 {{编号}}", "接取悬赏任务", "悬赏接取 1"),
         new CommandEntry("悬赏结算", "完成并结算悬赏", "悬赏结算"),
         new CommandEntry("悬赏放弃", "放弃当前悬赏", "悬赏放弃"));

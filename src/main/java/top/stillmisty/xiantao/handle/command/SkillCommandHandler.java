@@ -22,12 +22,8 @@ public class SkillCommandHandler implements CommandGroup {
 
   // ===================== 委托方法（纯文本） =====================
 
-  public String handleEquippedSkills(PlatformType platform, String openId) {
-    return handleEquippedSkills(platform, openId, TextFormat.PLAIN);
-  }
-
-  public String handleLearnedSkills(PlatformType platform, String openId) {
-    return handleLearnedSkills(platform, openId, TextFormat.PLAIN);
+  public String handleSkills(PlatformType platform, String openId) {
+    return handleSkills(platform, openId, TextFormat.PLAIN);
   }
 
   public String handleEquipSkill(PlatformType platform, String openId, String skillInput) {
@@ -40,12 +36,8 @@ public class SkillCommandHandler implements CommandGroup {
 
   // ===================== 委托方法（Markdown） =====================
 
-  public String handleEquippedSkillsMarkdown(PlatformType platform, String openId) {
-    return handleEquippedSkills(platform, openId, TextFormat.MARKDOWN);
-  }
-
-  public String handleLearnedSkillsMarkdown(PlatformType platform, String openId) {
-    return handleLearnedSkills(platform, openId, TextFormat.MARKDOWN);
+  public String handleSkillsMarkdown(PlatformType platform, String openId) {
+    return handleSkills(platform, openId, TextFormat.MARKDOWN);
   }
 
   public String handleEquipSkillMarkdown(PlatformType platform, String openId, String skillInput) {
@@ -59,20 +51,22 @@ public class SkillCommandHandler implements CommandGroup {
 
   // ===================== 统一处理方法（含 TextFormat 参数） =====================
 
-  public String handleEquippedSkills(PlatformType platform, String openId, TextFormat fmt) {
-    log.debug("查询已装载法决 - Platform: {}, OpenId: {}", platform, openId);
-    return switch (skillService.getEquippedSkills(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
-      case ServiceResult.Success(var skills) -> formatEquippedSkills(skills, fmt);
-    };
-  }
+  public String handleSkills(PlatformType platform, String openId, TextFormat fmt) {
+    log.debug("查询法决 - Platform: {}, OpenId: {}", platform, openId);
+    var equipped = skillService.getEquippedSkills(platform, openId);
+    var learned = skillService.getLearnedSkills(platform, openId);
 
-  public String handleLearnedSkills(PlatformType platform, String openId, TextFormat fmt) {
-    log.debug("查询已学法决 - Platform: {}, OpenId: {}", platform, openId);
-    return switch (skillService.getLearnedSkills(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
-      case ServiceResult.Success(var skills) -> formatLearnedSkills(skills, fmt);
-    };
+    StringBuilder sb = new StringBuilder();
+    switch (equipped) {
+      case ServiceResult.Failure(var code, var msg) -> sb.append("❌ ").append(msg);
+      case ServiceResult.Success(var skills) -> sb.append(formatEquippedSkills(skills, fmt));
+    }
+    sb.append("\n\n");
+    switch (learned) {
+      case ServiceResult.Failure(var code, var msg) -> sb.append("❌ ").append(msg);
+      case ServiceResult.Success(var skills) -> sb.append(formatLearnedSkills(skills, fmt));
+    }
+    return sb.toString();
   }
 
   public String handleEquipSkill(
@@ -193,8 +187,7 @@ public class SkillCommandHandler implements CommandGroup {
   @Override
   public List<CommandEntry> commands() {
     return List.of(
-        new CommandEntry("法决", "查看已装载法决", "法决"),
-        new CommandEntry("法决列表", "查看所有已学法决", "法决列表"),
+        new CommandEntry("法决", "查看已装载法决与已学法决列表", "法决"),
         new CommandEntry("法决装载 {{法决}}", "装载法决到槽位", "法决装载 御剑术"),
         new CommandEntry("法决卸下 {{法决}}", "从槽位卸下法决", "法决卸下 御剑术"));
   }

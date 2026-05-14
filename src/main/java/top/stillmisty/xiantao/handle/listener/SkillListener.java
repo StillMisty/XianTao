@@ -24,17 +24,6 @@ public class SkillListener {
 
   @Listener
   @ContentTrim
-  @Filter("法决列表")
-  public void learnedSkillsAll(OneBotMessageEvent event) {
-    log.debug("收到法决列表请求 - AuthorId: {}", event.getAuthorId());
-    String response =
-        skillCommandHandler.handleLearnedSkills(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
-    replyHelper.replyOneBot(event, response);
-  }
-
-  @Listener
-  @ContentTrim
   @Filter("法决装载 {{skill}}")
   public void equipSkill(OneBotMessageEvent event, @FilterValue("skill") String skill) {
     log.debug("收到法决装载请求 - AuthorId: {}, Skill: {}", event.getAuthorId(), skill);
@@ -66,26 +55,14 @@ public class SkillListener {
   @Listener
   @ContentTrim
   @Filter("法决")
-  public void equippedSkills(OneBotMessageEvent event) {
+  public void skills(OneBotMessageEvent event) {
     log.debug("收到法决查询请求 - AuthorId: {}", event.getAuthorId());
     String response =
-        skillCommandHandler.handleEquippedSkills(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
+        skillCommandHandler.handleSkills(PlatformType.ONE_BOT_V11, event.getAuthorId().toString());
     replyHelper.replyOneBot(event, response);
   }
 
   // === QQ ===
-
-  @Listener
-  @ContentTrim
-  @Filter("法决列表")
-  public void learnedSkillsAllQq(QGGroupAtMessageCreateEvent event) {
-    log.debug("收到法决列表请求 - AuthorId: {}", event.getAuthorId());
-    String response =
-        skillCommandHandler.handleLearnedSkillsMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString());
-    replyHelper.replyQQ(event, response);
-  }
 
   @Listener
   @ContentTrim
@@ -121,11 +98,10 @@ public class SkillListener {
   @Listener
   @ContentTrim
   @Filter("法决")
-  public void equippedSkillsQq(QGGroupAtMessageCreateEvent event) {
+  public void skillsQq(QGGroupAtMessageCreateEvent event) {
     log.debug("收到法决查询请求 - AuthorId: {}", event.getAuthorId());
     String response =
-        skillCommandHandler.handleEquippedSkillsMarkdown(
-            PlatformType.QQ, event.getAuthorId().toString());
+        skillCommandHandler.handleSkillsMarkdown(PlatformType.QQ, event.getAuthorId().toString());
     replyHelper.replyQQ(event, response);
   }
 }
