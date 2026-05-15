@@ -42,6 +42,11 @@ public class UserStateService {
     return user;
   }
 
+  /** 根据道号加载用户，不解析状态。 */
+  public User loadUserByNickname(String nickname) {
+    return userRepository.findByNickname(nickname).orElse(null);
+  }
+
   /** 保存用户。 */
   public User save(User user) {
     return userRepository.save(user);

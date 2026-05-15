@@ -8,7 +8,8 @@ import lombok.Getter;
 public enum ActivityType {
   TRAVEL("TRAVEL", "旅行"),
   TRAINING("TRAINING", "历练"),
-  BOUNTY("BOUNTY", "悬赏");
+  BOUNTY("BOUNTY", "悬赏"),
+  DUNGEON("DUNGEON", "秘境");
 
   @EnumValue private final String code;
   private final String name;

@@ -5,6 +5,7 @@ import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -26,6 +27,8 @@ public class DungeonInstance {
   private Long teamId;
   private DungeonArea currentArea;
   private Boolean passageUnlocked;
+  private Long passagePoiId;
+  private Boolean hasCoreToken;
 
   @Column(typeHandler = JsonbCollectionTypeHandler.class)
   private List<Long> exploredPois;
@@ -52,7 +55,7 @@ public class DungeonInstance {
 
   public void addExploredPoi(Long poiConfigId) {
     if (exploredPois == null) {
-      exploredPois = new java.util.ArrayList<>();
+      exploredPois = new ArrayList<>();
     }
     exploredPois.add(poiConfigId);
   }
@@ -69,7 +72,8 @@ public class DungeonInstance {
           case CORE -> null;
         };
     passageUnlocked = false;
-    exploredPois = new java.util.ArrayList<>();
+    passagePoiId = null;
+    exploredPois = new ArrayList<>();
   }
 
   public void markCompleted() {

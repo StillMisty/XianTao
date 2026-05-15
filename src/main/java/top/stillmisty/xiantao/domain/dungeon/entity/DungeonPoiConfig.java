@@ -31,9 +31,6 @@ public class DungeonPoiConfig {
   @Column(typeHandler = JsonbCollectionTypeHandler.class)
   private List<top.stillmisty.xiantao.domain.dungeon.vo.LootPoolEntry> lootPool;
 
-  @Column(typeHandler = JsonbCollectionTypeHandler.class)
-  private List<String> affinityTags;
-
   private Boolean isPassage;
   private String unlockCondition;
   private Boolean isOneTime;

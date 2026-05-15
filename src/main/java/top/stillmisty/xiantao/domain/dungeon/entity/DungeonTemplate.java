@@ -7,7 +7,6 @@ import com.mybatisflex.annotation.Table;
 import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import top.stillmisty.xiantao.domain.dungeon.enums.DungeonElementType;
 
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -21,7 +20,6 @@ public class DungeonTemplate {
   private String name;
   private String description;
   private Long mapNodeId;
-  private DungeonElementType elementType;
   private Integer minLevel;
   private Integer maxLevel;
   private Integer maxTeamSize;

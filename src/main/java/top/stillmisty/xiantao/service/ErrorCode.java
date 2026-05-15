@@ -123,6 +123,19 @@ public enum ErrorCode {
   SELL_PRICE_MISMATCH("价格不匹配，请重新报价"),
   WORLD_EVENT_NOT_FOUND("世界事件不存在"),
 
+  // ===== Team =====
+  TEAM_ALREADY_IN("你已经在队伍中了（队伍ID: %d）"),
+  TEAM_INVITATION_NOT_FOUND("未找到编号 %d 的组队邀请"),
+  TEAM_INVITATION_EXPIRED("该邀请已过期"),
+  TEAM_INVITATION_NOT_FOR_YOU("该邀请不是发给你的"),
+  TEAM_INVITEE_ALREADY_IN_TEAM("【%s】已在其他队伍中"),
+  TEAM_FULL("队伍已满（最多 %d 人）"),
+  TEAM_NOT_IN("你不在任何队伍中"),
+  TEAM_NOT_LEADER("只有队长可以执行此操作"),
+  TEAM_CANNOT_INVITE_SELF("不能邀请自己"),
+  TEAM_LEADER_MUST_TRANSFER("队长离队前需转让队长或解散队伍"),
+  TEAM_NO_PENDING_INVITATION("没有待处理的组队邀请"),
+
   // ===== Dungeon =====
   DUNGEON_NOT_FOUND("秘境【%s】不存在"),
   DUNGEON_NOT_ACTIVE("秘境【%s】尚未开放"),

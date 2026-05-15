@@ -39,10 +39,15 @@ public class DungeonCombatHelper {
   private final UserStateService userStateService;
 
   public record CombatOutcome(
-      boolean playerWon, long expGained, String monsterName, String summary) {}
+      boolean playerWon, boolean memberAlive, long expGained, String monsterName, String summary) {}
 
-  public CombatOutcome executeCombat(
-      User user, DungeonInstance instance, DungeonPoiConfig poi, boolean isBoss) {
+  public CombatOutcome executeCombatForTeam(
+      User leader,
+      DungeonInstance instance,
+      DungeonPoiConfig poi,
+      boolean isBoss,
+      List<Long> memberIds) {
+
     MonsterPoolEntry monsterEntry =
         weightedRandom(poi.getMonsterPool(), MonsterPoolEntry::weight, poi.getMonsterWeightTotal());
     if (monsterEntry == null) {
@@ -54,12 +59,35 @@ public class DungeonCombatHelper {
             .findById(monsterEntry.monsterTemplateId())
             .orElseThrow(() -> new BusinessException(ErrorCode.DUNGEON_POI_NOT_FOUND));
 
-    Team playerTeam = combatService.buildPlayerTeam(user);
+    int areaMinLevel =
+        instance.getCurrentArea() == top.stillmisty.xiantao.domain.dungeon.enums.DungeonArea.OUTER
+            ? 1
+            : instance.getCurrentArea()
+                    == top.stillmisty.xiantao.domain.dungeon.enums.DungeonArea.INNER
+                ? 10
+                : 20;
 
-    int monsterLevel = monsterTmpl.getBaseLevel();
-    Monster monster = new Monster(monsterTmpl, monsterLevel, List.of());
+    Monster monster = new Monster(monsterTmpl, areaMinLevel, List.of());
     Team monsterTeam = new Team(-1L, monster.getName());
     monsterTeam.addMember(monster);
+
+    Team playerTeam = combatService.buildPlayerTeam(leader);
+    Map<Long, User> memberUsers = new HashMap<>();
+    Map<Long, Team> memberTeams = new HashMap<>();
+
+    for (Long memberId : memberIds) {
+      if (memberId.equals(leader.getId())) continue;
+      User member = userStateService.loadUserForUpdate(memberId);
+      if (member.getHpCurrent() == null || member.getHpCurrent() <= 0) continue;
+      memberUsers.put(memberId, member);
+      memberTeams.put(memberId, combatService.buildPlayerTeam(member));
+    }
+
+    for (Team mt : memberTeams.values()) {
+      for (var combatant : mt.members()) {
+        playerTeam.addMember(combatant);
+      }
+    }
 
     BattleContext context =
         BattleContext.builder()
@@ -68,30 +96,45 @@ public class DungeonCombatHelper {
             .maxRounds(isBoss ? 30 : 20)
             .scene(BattleContext.BattleScene.DUNGEON)
             .mapId(instance.getDungeonId())
-            .playerLevel(user.getLevel())
+            .playerLevel(leader.getLevel())
             .build();
     BattleResultVO battleResult = combatEngine.simulate(context);
 
-    postCombatProcessor.applyHpToUser(user, playerTeam);
+    postCombatProcessor.applyHpToUser(leader, playerTeam);
+    userStateService.save(leader);
+
+    for (var entry : memberUsers.entrySet()) {
+      postCombatProcessor.applyHpToUser(entry.getValue(), playerTeam);
+      userStateService.save(entry.getValue());
+    }
 
     Map<Long, Beast> beastCache = new HashMap<>();
-    postCombatProcessor.applyHpToBeasts(playerTeam, user, true, false, beastCache);
+    postCombatProcessor.applyHpToBeasts(playerTeam, leader, true, false, beastCache);
     beastCache.values().forEach(beastRepository::save);
 
-    userStateService.save(user);
-
     boolean playerWon = "Player".equals(battleResult.winner());
+    boolean anyAlive = !playerTeam.aliveMembers().isEmpty();
 
-    if (!playerWon && user.getHpCurrent() <= 0) {
-      instance.markFailed();
-      user.setStatus(UserStatus.DYING);
-      user.setDyingStartTime(LocalDateTime.now());
-      return new CombatOutcome(false, 0, monster.getName(), null);
+    if (!playerWon && !anyAlive) {
+      leader.setStatus(UserStatus.DYING);
+      leader.setDyingStartTime(LocalDateTime.now());
+      userStateService.save(leader);
+      for (User m : memberUsers.values()) {
+        if (m.getHpCurrent() != null && m.getHpCurrent() <= 0) {
+          m.setStatus(UserStatus.DYING);
+          m.setDyingStartTime(LocalDateTime.now());
+          userStateService.save(m);
+        }
+      }
+      return new CombatOutcome(false, false, 0, monster.getName(), null);
     }
 
     long expGained = battleResult.expGained();
     if (playerWon && expGained > 0) {
-      user.addExp(expGained);
+      leader.addExp(expGained);
+      for (User m : memberUsers.values()) {
+        m.addExp(expGained);
+      }
     }
 
     String summary = battleResult.summary();
@@ -101,6 +144,7 @@ public class DungeonCombatHelper {
 
     return new CombatOutcome(
         playerWon,
+        anyAlive,
         expGained,
         monster.getName(),
         playerWon

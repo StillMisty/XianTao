@@ -76,9 +76,6 @@ public class DungeonCommandHandler implements CommandGroup {
 
     for (DungeonListVO d : dungeons) {
       sb.append(fmt.bold(d.name()));
-      if (d.elementType() != null) {
-        sb.append(" [").append(d.elementType().getName()).append("]");
-      }
       sb.append("\n");
       sb.append(fmt.listItem("等级: " + d.minLevel() + "-" + d.maxLevel()));
       sb.append(fmt.listItem("队伍上限: " + d.maxTeamSize() + "人"));

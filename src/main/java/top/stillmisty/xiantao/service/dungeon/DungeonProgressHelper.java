@@ -14,7 +14,6 @@ import top.stillmisty.xiantao.domain.dungeon.repository.DungeonFirstClearReposit
 import top.stillmisty.xiantao.domain.dungeon.repository.DungeonProgressRepository;
 import top.stillmisty.xiantao.domain.dungeon.repository.DungeonTemplateRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
-import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.service.UserStateService;
 
 @Component
@@ -32,7 +31,7 @@ public class DungeonProgressHelper {
     instance.markCompleted();
 
     User user = userStateService.loadUser(userId);
-    user.setStatus(UserStatus.IDLE);
+    user.clearActivity();
     userStateService.save(user);
 
     DungeonProgress progress =
