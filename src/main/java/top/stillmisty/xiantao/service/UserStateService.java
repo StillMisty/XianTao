@@ -36,6 +36,12 @@ public class UserStateService {
     return user;
   }
 
+  /** 使用行锁加载用户，用于并发敏感操作（突破、状态切换等）。不在锁内解析过期状态。 */
+  public User loadUserForUpdate(Long userId) {
+    User user = userRepository.findByIdForUpdate(userId).orElseThrow();
+    return user;
+  }
+
   /** 保存用户。 */
   public User save(User user) {
     return userRepository.save(user);

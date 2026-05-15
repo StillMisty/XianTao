@@ -83,7 +83,7 @@ public class PillRecipeService {
         }
       }
     }
-    return null;
+    throw new BusinessException(ErrorCode.ITEM_NOT_FOUND, recipeName);
   }
 
   @Transactional

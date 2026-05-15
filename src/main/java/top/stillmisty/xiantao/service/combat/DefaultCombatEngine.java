@@ -279,6 +279,11 @@ public class DefaultCombatEngine implements CombatEngine {
     }
 
     if (damage > 0) {
+      // 冰冻目标受到额外30%伤害
+      if (buffManager.getBuffsByType(defender.getId(), BuffType.FREEZE).stream()
+          .anyMatch(b -> !b.isExpired())) {
+        damage = (int) (damage * 1.3);
+      }
       defender.takeDamage(damage);
       damageDealt.merge(attacker.getName(), damage, Integer::sum);
     }
@@ -338,7 +343,7 @@ public class DefaultCombatEngine implements CombatEngine {
       SkillEffect effect,
       Skill skill,
       BuffManager buffManager) {
-    double value = effect.value() != null ? effect.value() : 0.3;
+    double value = effect.value() != null ? effect.value() : 0.15;
     int duration = effect.duration() != null ? effect.duration() : 3;
     int maxStacks = effect.maxStacks() != null ? effect.maxStacks() : 3;
     buffManager.addBuff(

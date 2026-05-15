@@ -110,10 +110,10 @@ public class BountyService {
   }
 
   public BountyStatusVO getBountyStatus(Long userId) {
-    UserBounty record =
-        userBountyRepository
-            .findActiveByUserId(userId)
-            .orElseThrow(() -> new BusinessException(BOUNTY_NO_ACTIVE));
+    UserBounty record = userBountyRepository.findActiveByUserId(userId).orElse(null);
+    if (record == null) {
+      return new BountyStatusVO(null, "无进行中的悬赏", "", null, 0, 0, 0, List.of());
+    }
 
     long minutesElapsed = Duration.between(record.getStartTime(), LocalDateTime.now()).toMinutes();
     long minutesRemaining = Math.max(0, record.getDurationMinutes() - minutesElapsed);
@@ -132,7 +132,7 @@ public class BountyService {
   }
 
   public String startBounty(Long userId, Long bountyId) {
-    User user = userStateService.loadUser(userId);
+    User user = userStateService.loadUserForUpdate(userId);
 
     if (user.getStatus() != UserStatus.IDLE) {
       throw new BusinessException(STATUS_BLOCKED, user.getStatus().getName(), "空闲");

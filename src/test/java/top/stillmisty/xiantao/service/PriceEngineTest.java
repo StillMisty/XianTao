@@ -256,7 +256,7 @@ class PriceEngineTest {
 
     priceEngine.applyLazyRestock(product);
 
-    assertEquals(5, product.getCurrentStock());
+    assertEquals(10, product.getCurrentStock());
     assertEquals(115L, product.getCurrentPrice());
   }
 

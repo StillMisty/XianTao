@@ -49,6 +49,7 @@ public class TrainingCombatLogic {
   private final SkillRepository skillRepository;
   private final PlayerSkillRepository playerSkillRepository;
   private final GameEventService gameEventService;
+  private volatile List<Skill> skillsCache;
 
   public BattleResultVO simulateTraining(
       Long userId, User user, int durationMinutes, MapNode mapNode) {
@@ -150,6 +151,10 @@ public class TrainingCombatLogic {
       MonsterTemplate tmpl,
       int count,
       Map<Long, Skill> skillMap) {
+    int recoveryAmount = Math.max(1, ctx.user.calculateMaxHp() / 20);
+    ctx.user.setHpCurrent(
+        Math.min(ctx.user.calculateMaxHp(), ctx.user.getHpCurrent() + recoveryAmount));
+
     Team playerTeam = combatService.buildPlayerTeam(ctx.user, skillMap);
     Team monsterTeam = buildMonsterTeamWithSkills(tmpl, count, skillMap);
 
@@ -478,7 +483,7 @@ public class TrainingCombatLogic {
     int level = ctx.user.getLevel();
 
     List<Skill> learnable =
-        skillRepository.findAll().stream()
+        getAllSkills().stream()
             .filter(s -> s.meetsWisRequirement(wis))
             .filter(s -> s.meetsLevelRequirement(level))
             .filter(s -> s.getRequireSkillId() == null)
@@ -494,6 +499,17 @@ public class TrainingCombatLogic {
     ctx.learnedSkillIds.add(chosen.getId());
 
     return chosen;
+  }
+
+  private List<Skill> getAllSkills() {
+    if (skillsCache == null) {
+      synchronized (this) {
+        if (skillsCache == null) {
+          skillsCache = skillRepository.findAll();
+        }
+      }
+    }
+    return skillsCache;
   }
 
   private record EncounterParams(int encounterChances, double encounterChance) {}

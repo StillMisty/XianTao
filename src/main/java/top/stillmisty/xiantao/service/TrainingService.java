@@ -61,7 +61,7 @@ public class TrainingService {
 
   @Transactional
   public TrainingStartResult startTraining(Long userId) {
-    User user = userStateService.loadUser(userId);
+    User user = userStateService.loadUserForUpdate(userId);
 
     if (user.getStatus() != UserStatus.IDLE) {
       throw new BusinessException(ErrorCode.STATUS_BLOCKED, user.getStatus().getName(), "空闲");
@@ -173,7 +173,6 @@ public class TrainingService {
     long combatExp = battleResult.expGained();
     long totalExp = baseExp + combatExp;
 
-    user = userStateService.loadUser(userId);
     boolean diedInTraining = user.getStatus() == UserStatus.DYING;
 
     if (baseExp > 0) {
@@ -289,7 +288,7 @@ public class TrainingService {
   }
 
   private double calculateLevelDecayMultiplier(int playerLevel, int mapLevel) {
-    int levelDiff = playerLevel - mapLevel - 15;
+    int levelDiff = playerLevel - mapLevel - 5;
     if (levelDiff <= 0) return 1.0;
     double decay = levelDiff * 0.04;
     return Math.max(0.1, 1.0 - decay);

@@ -49,15 +49,33 @@ public class DiscardService {
       return "已丢弃装备【" + equipment.getName() + "】";
     }
 
+    int quantity = 1;
+    String itemName = input;
+    int spaceIdx = input.indexOf(' ');
+    if (spaceIdx > 0) {
+      try {
+        quantity = Integer.parseInt(input.substring(0, spaceIdx));
+        if (quantity > 0) {
+          itemName = input.substring(spaceIdx + 1).trim();
+        }
+      } catch (NumberFormatException ignored) {
+      }
+    }
+
     List<StackableItem> items =
-        stackableItemRepository.findByUserIdAndNameContaining(userId, input);
+        stackableItemRepository.findByUserIdAndNameContaining(userId, itemName);
     if (items.isEmpty()) {
-      throw new BusinessException(ErrorCode.ITEM_NOT_FOUND, input);
+      throw new BusinessException(ErrorCode.ITEM_NOT_FOUND, itemName);
     }
     StackableItem item = items.getFirst();
-    stackableItemService.reduceStackableItem(userId, item.getId(), 1);
+    int actualDiscard = Math.min(quantity, item.getQuantity());
+    stackableItemService.reduceStackableItem(userId, item.getId(), actualDiscard);
     log.info(
-        "丢弃物品: userId={}, item={}, templateId={}", userId, item.getName(), item.getTemplateId());
-    return "已丢弃【" + item.getName() + "】";
+        "丢弃物品: userId={}, item={}, quantity={}, templateId={}",
+        userId,
+        item.getName(),
+        actualDiscard,
+        item.getTemplateId());
+    return "已丢弃【" + item.getName() + "】 x" + actualDiscard;
   }
 }

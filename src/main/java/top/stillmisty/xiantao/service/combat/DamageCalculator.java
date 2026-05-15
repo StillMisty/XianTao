@@ -77,6 +77,7 @@ public class DamageCalculator {
 
   public int evaluateFormula(String formula, PlayerCombatant pc) {
     try {
+      // 替换顺序：先替换长变量名避免前缀匹配（如 future atk_bonus 会被误替换）
       String expr =
           formula
               .replace("wis", String.valueOf(pc.getWis()))
@@ -146,7 +147,9 @@ public class DamageCalculator {
           left *= parseFactor();
         } else if (op == '/') {
           pos++;
-          left /= parseFactor();
+          int divisor = parseFactor();
+          if (divisor == 0) throw new ArithmeticException("Division by zero");
+          left /= divisor;
         } else {
           break;
         }

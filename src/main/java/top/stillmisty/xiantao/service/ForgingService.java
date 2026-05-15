@@ -76,7 +76,6 @@ public class ForgingService {
 
   // ===================== 内部 API =====================
 
-  @Transactional
   public ForgingResultVO forgeAuto(Long userId, String blueprintName) {
     List<PlayerForgingRecipe> recipes = playerForgingRecipeRepository.findByUserId(userId);
     PlayerForgingRecipe targetRecipe = null;
@@ -117,7 +116,6 @@ public class ForgingService {
         targetRecipe.getEquipmentTemplateId());
   }
 
-  @Transactional
   public ForgingResultVO forgeManual(Long userId, List<String> materialInputs) {
     List<MaterialInput> parsedInputs = parseMaterialInputs(userId, materialInputs);
     if (parsedInputs.isEmpty()) {
@@ -188,12 +186,11 @@ public class ForgingService {
 
         String name = rarity.randomPrefix() + equipTmpl.getName();
 
-        Map<String, Integer> statBonus =
-            Map.of(
-                "STR", equipTmpl.getBaseStr(),
-                "CON", equipTmpl.getBaseCon(),
-                "AGI", equipTmpl.getBaseAgi(),
-                "WIS", equipTmpl.getBaseWis());
+        Map<String, Integer> statBonus = new HashMap<>();
+        if (equipTmpl.getBaseStr() > 0) statBonus.put("STR", equipTmpl.getBaseStr());
+        if (equipTmpl.getBaseCon() > 0) statBonus.put("CON", equipTmpl.getBaseCon());
+        if (equipTmpl.getBaseAgi() > 0) statBonus.put("AGI", equipTmpl.getBaseAgi());
+        if (equipTmpl.getBaseWis() > 0) statBonus.put("WIS", equipTmpl.getBaseWis());
 
         var equipment =
             top.stillmisty.xiantao.domain.item.entity.Equipment.create(

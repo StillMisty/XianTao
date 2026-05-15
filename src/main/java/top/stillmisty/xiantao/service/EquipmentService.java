@@ -102,7 +102,7 @@ public class EquipmentService {
       Long replacedEquipmentId, String replacedEquipmentName, Equipment replacedEquipment) {}
 
   private ReplacementResult handleSlotReplacement(Long userId, EquipmentSlot slot) {
-    var currentEquipped = equipmentRepository.findEquippedByUserIdAndSlot(userId, slot);
+    var currentEquipped = equipmentRepository.findEquippedByUserIdAndSlotForUpdate(userId, slot);
 
     if (currentEquipped.isEmpty()) {
       return new ReplacementResult(null, null, null);
@@ -223,7 +223,7 @@ public class EquipmentService {
     Collections.shuffle(pool, ThreadLocalRandom.current());
     for (int i = 0; i < affixCount && i < pool.size(); i++) {
       AffixType at = pool.get(i);
-      int value = at.isSpecial() ? 5 : (1 + (int) (Math.random() * 4));
+      int value = at.isSpecial() ? 5 : (1 + ThreadLocalRandom.current().nextInt(4));
       if (at.getStatField() != null) {
         affixes.put(at.getStatField(), value);
       } else {

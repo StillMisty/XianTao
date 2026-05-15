@@ -71,7 +71,7 @@ class TrainingServiceTest {
   @DisplayName("startTraining — 非 IDLE 状态抛异常")
   void startTraining_whenNotIdle_shouldThrow() {
     User user = createUser(UserStatus.TRAINING, null);
-    when(userStateService.loadUser(userId)).thenReturn(user);
+    when(userStateService.loadUserForUpdate(userId)).thenReturn(user);
 
     assertThrows(BusinessException.class, () -> trainingService.startTraining(userId));
   }
@@ -80,7 +80,7 @@ class TrainingServiceTest {
   @DisplayName("startTraining — 位置为空返回失败")
   void startTraining_whenNoLocation_shouldReturnFailure() {
     User user = createUser(UserStatus.IDLE, null).setLocationId(null);
-    when(userStateService.loadUser(userId)).thenReturn(user);
+    when(userStateService.loadUserForUpdate(userId)).thenReturn(user);
 
     var result = trainingService.startTraining(userId);
 

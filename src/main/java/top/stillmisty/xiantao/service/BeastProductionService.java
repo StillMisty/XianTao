@@ -93,7 +93,7 @@ public class BeastProductionService {
     LocalDateTime lastProduction = pen.lastProductionTime();
     if (lastProduction == null) lastProduction = matureTime;
 
-    double intervalHours = getProductionIntervalHours(pen.templateId());
+    double intervalHours = getProductionIntervalHours(pen.templateId(), cell.getCellLevel());
     long intervalSeconds = (long) (intervalHours * 3600);
     if (intervalSeconds <= 0) intervalSeconds = 14400;
 
@@ -227,13 +227,13 @@ public class BeastProductionService {
     return List.of();
   }
 
-  double getProductionIntervalHours(Integer templateId) {
+  double getProductionIntervalHours(Integer templateId, int cellLevel) {
     if (templateId == null) return 4.0;
     ItemTemplate template = itemTemplateRepository.findById(templateId.longValue()).orElse(null);
     if (template == null) return 4.0;
     double baseGrowthHours = template.getGrowTime() != null ? template.getGrowTime() : 72;
     int tier = fudiHelper.getCropTier((int) baseGrowthHours);
-    double levelSpeed = fudiHelper.getLevelSpeedMultiplier(1, tier);
+    double levelSpeed = fudiHelper.getLevelSpeedMultiplier(cellLevel, tier);
     return 4.0 / levelSpeed;
   }
 }

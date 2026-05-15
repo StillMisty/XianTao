@@ -139,11 +139,16 @@ class BountyServiceTest {
   }
 
   @Test
-  @DisplayName("getBountyStatus — 无进行中悬赏抛异常")
-  void getBountyStatus_whenNoActiveBounty_shouldThrow() {
+  @DisplayName("getBountyStatus — 无进行中悬赏返回空状态")
+  void getBountyStatus_whenNoActiveBounty_shouldReturnEmpty() {
     when(userBountyRepository.findActiveByUserId(userId)).thenReturn(Optional.empty());
 
-    assertThrows(BusinessException.class, () -> bountyService.getBountyStatus(userId));
+    BountyStatusVO result = bountyService.getBountyStatus(userId);
+
+    assertNull(result.bountyId());
+    assertEquals("无进行中的悬赏", result.bountyName());
+    assertEquals(0, result.minutesElapsed());
+    assertEquals(0, result.minutesRemaining());
   }
 
   @Test
@@ -166,7 +171,7 @@ class BountyServiceTest {
   @DisplayName("startBounty — 非 IDLE 状态抛异常")
   void startBounty_whenNotIdle_shouldThrow() {
     User user = createUser(UserStatus.BOUNTY);
-    when(userStateService.loadUser(userId)).thenReturn(user);
+    when(userStateService.loadUserForUpdate(userId)).thenReturn(user);
 
     assertThrows(BusinessException.class, () -> bountyService.startBounty(userId, bountyId));
   }
@@ -180,7 +185,7 @@ class BountyServiceTest {
     otherMap.setName("其他地图");
     Bounty bounty = createBounty(1, 5);
 
-    when(userStateService.loadUser(userId)).thenReturn(user);
+    when(userStateService.loadUserForUpdate(userId)).thenReturn(user);
     when(bountyRepository.findById(bountyId)).thenReturn(Optional.of(bounty));
     when(mapNodeRepository.findById(999L)).thenReturn(Optional.of(otherMap));
 
@@ -194,7 +199,7 @@ class BountyServiceTest {
     MapNode mapNode = createMapNode();
     Bounty bounty = createBounty(10, 5);
 
-    when(userStateService.loadUser(userId)).thenReturn(user);
+    when(userStateService.loadUserForUpdate(userId)).thenReturn(user);
     when(bountyRepository.findById(bountyId)).thenReturn(Optional.of(bounty));
     when(mapNodeRepository.findById(mapId)).thenReturn(Optional.of(mapNode));
 
@@ -265,7 +270,7 @@ class BountyServiceTest {
     template.setName("培元丹");
     template.setType(ItemType.MATERIAL);
 
-    when(userStateService.loadUser(userId)).thenReturn(user);
+    when(userStateService.loadUserForUpdate(userId)).thenReturn(user);
     when(bountyRepository.findById(bountyId)).thenReturn(Optional.of(bounty));
     when(mapNodeRepository.findById(mapId)).thenReturn(Optional.of(mapNode));
     when(itemTemplateRepository.findByIds(anyList())).thenReturn(List.of(template));

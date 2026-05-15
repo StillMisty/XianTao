@@ -277,10 +277,10 @@ class ShopServiceTest {
       when(priceEngine.getMaxPrice(50L)).thenReturn(60L);
       when(userStateService.loadUser(userId)).thenReturn(user);
 
-      SellResult result = shopService.sellStackableItem(userId, npc, 1L, 50L);
+      SellResult result = shopService.sellStackableItem(userId, npc, 1L, 40L);
 
       assertTrue(result.success());
-      assertEquals(50L, result.price());
+      assertEquals(40L, result.price());
       assertEquals("聚灵丹", result.itemName());
     }
 

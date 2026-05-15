@@ -31,6 +31,7 @@ import top.stillmisty.xiantao.service.annotation.Authenticated;
 public class PillConsumptionService {
 
   private static final double GRADE_DECAY_COEFFICIENT = 0.2;
+  private static final int MAX_ACTIVE_BUFFS_PER_TYPE = 3;
   private final UserStateService userStateService;
   private final ItemTemplateRepository itemTemplateRepository;
   private final StackableItemRepository stackableItemRepository;
@@ -64,10 +65,12 @@ public class PillConsumptionService {
     User user = userStateService.loadUser(userId);
     double qualityMultiplier = PillQuality.fromCode(pill.getQuality()).getMultiplier();
     int grade = getPillGrade(pill);
+    String quality = pill.getQuality();
     var messages = new ArrayList<String>();
 
     for (var effect : effects) {
-      String msg = applyEffect(user, effect, qualityMultiplier, grade, pill.getTemplateId());
+      String msg =
+          applyEffect(user, effect, qualityMultiplier, grade, pill.getTemplateId(), quality);
       if (msg != null && !msg.isEmpty()) messages.add(msg);
     }
 
@@ -84,11 +87,14 @@ public class PillConsumptionService {
       ItemProperties.Effect effect,
       double qualityMultiplier,
       int grade,
-      long templateId) {
+      long templateId,
+      String quality) {
     return switch (effect) {
-      case ItemProperties.Effect.Exp e -> applyExp(user, e, qualityMultiplier, grade, templateId);
+      case ItemProperties.Effect.Exp e ->
+          applyExp(user, e, qualityMultiplier, grade, templateId, quality);
       case ItemProperties.Effect.Hp e -> applyHp(user, e, qualityMultiplier);
-      case ItemProperties.Effect.Stat e -> applyStat(user, e, qualityMultiplier, grade, templateId);
+      case ItemProperties.Effect.Stat e ->
+          applyStat(user, e, qualityMultiplier, grade, templateId, quality);
       case ItemProperties.Effect.Breakthrough e ->
           applyBreakthrough(user, e, qualityMultiplier, grade);
       case ItemProperties.Effect.Buff e -> applyBuff(user, e, qualityMultiplier, grade);
@@ -101,13 +107,14 @@ public class PillConsumptionService {
       ItemProperties.Effect.Exp e,
       double qualityMultiplier,
       int grade,
-      long templateId) {
+      long templateId,
+      String quality) {
     double gradeDecay = calcGradeDecay(user.getLevel(), grade, true);
-    double resistanceDecay = calcResistanceDecay(user.getId(), templateId);
+    double resistanceDecay = calcResistanceDecay(user.getId(), templateId, quality);
     long actualExp = (long) (e.amount() * qualityMultiplier * gradeDecay * resistanceDecay);
     if (actualExp <= 0) return null;
     user.addExp(actualExp);
-    pillResistanceRepository.incrementCount(user.getId(), templateId);
+    pillResistanceRepository.incrementCount(user.getId(), templateId, quality);
     return "获得 " + actualExp + " 经验值";
   }
 
@@ -121,7 +128,7 @@ public class PillConsumptionService {
     int maxHp = user.calculateMaxHp();
     int healAmount;
     if (e.percentage() > 0) {
-      healAmount = (int) (maxHp * e.percentage() / 100 * qualityMultiplier);
+      healAmount = (int) (maxHp * e.percentage() * qualityMultiplier);
     } else {
       healAmount = (int) (e.amount() * qualityMultiplier);
     }
@@ -136,9 +143,10 @@ public class PillConsumptionService {
       ItemProperties.Effect.Stat e,
       double qualityMultiplier,
       int grade,
-      long templateId) {
+      long templateId,
+      String quality) {
     double gradeDecay = calcGradeDecay(user.getLevel(), grade, false);
-    double resistanceDecay = calcResistanceDecay(user.getId(), templateId);
+    double resistanceDecay = calcResistanceDecay(user.getId(), templateId, quality);
     int actualStat = (int) (e.amount() * qualityMultiplier * gradeDecay * resistanceDecay);
     if (actualStat <= 0) return null;
 
@@ -169,7 +177,7 @@ public class PillConsumptionService {
           }
         };
 
-    pillResistanceRepository.incrementCount(user.getId(), templateId);
+    pillResistanceRepository.incrementCount(user.getId(), templateId, quality);
     return statName + " +" + actualStat;
   }
 
@@ -194,6 +202,11 @@ public class PillConsumptionService {
     if (actualValue <= 0) return null;
 
     PlayerBuffType buffType = PlayerBuffType.fromCode(e.attribute());
+
+    int activeCount = playerBuffRepository.countActiveByUserIdAndType(user.getId(), buffType);
+    if (activeCount >= MAX_ACTIVE_BUFFS_PER_TYPE) {
+      return buffType.getDisplayName() + " buff 已达堆叠上限（" + MAX_ACTIVE_BUFFS_PER_TYPE + "层）";
+    }
 
     LocalDateTime expiresAt = LocalDateTime.now().plusSeconds(e.durationSeconds());
     PlayerBuff buff = PlayerBuff.create(user.getId(), buffType, actualValue, expiresAt);
@@ -230,8 +243,9 @@ public class PillConsumptionService {
   }
 
   /** 计算抗性衰减 */
-  private double calcResistanceDecay(Long userId, long templateId) {
-    var opt = pillResistanceRepository.findByUserIdAndTemplateId(userId, templateId);
+  private double calcResistanceDecay(Long userId, long templateId, String quality) {
+    var opt =
+        pillResistanceRepository.findByUserIdAndTemplateIdAndQuality(userId, templateId, quality);
     int count = opt.map(PillResistance::getCount).orElse(0);
     return Math.max(0.1, 1.0 / (1 + count * 0.3));
   }
@@ -243,10 +257,16 @@ public class PillConsumptionService {
         stackableItemRepository.findByUserId(userId).stream()
             .filter(
                 item ->
-                    item.getItemType() == top.stillmisty.xiantao.domain.item.enums.ItemType.POTION
-                        && item.getName().contains(pillName))
+                    item.getItemType() == top.stillmisty.xiantao.domain.item.enums.ItemType.POTION)
             .toList();
-    return pills.isEmpty() ? null : pills.getFirst();
+
+    // 精确匹配优先
+    var exact = pills.stream().filter(p -> p.getName().equals(pillName)).findFirst();
+    if (exact.isPresent()) return exact.get();
+
+    // 模糊匹配兜底
+    var partial = pills.stream().filter(p -> p.getName().contains(pillName)).findFirst();
+    return partial.orElse(null);
   }
 
   private int getPillGrade(StackableItem pill) {

@@ -33,6 +33,11 @@ public class PlayerBuffRepositoryImpl implements PlayerBuffRepository {
   }
 
   @Override
+  public int countActiveByUserIdAndType(Long userId, PlayerBuffType buffType) {
+    return mapper.countActiveByUserIdAndType(userId, buffType.getCode());
+  }
+
+  @Override
   public PlayerBuff save(PlayerBuff buff) {
     mapper.insertOrUpdateSelective(buff);
     return buff;

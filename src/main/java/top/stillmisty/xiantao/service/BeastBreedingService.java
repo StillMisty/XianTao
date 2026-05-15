@@ -88,6 +88,7 @@ public class BeastBreedingService {
     ItemTemplate eggTemplate =
         itemTemplateRepository.findByType(ItemType.BEAST_EGG).stream()
             .filter(t -> t.getName().equals(eggName) || t.getName().contains(eggName))
+            .sorted(java.util.Comparator.comparing(ItemTemplate::getName))
             .findFirst()
             .orElseThrow(() -> new BusinessException(BEAST_EGG_NOT_FOUND, eggName));
 

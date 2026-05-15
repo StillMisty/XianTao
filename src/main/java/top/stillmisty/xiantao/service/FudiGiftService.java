@@ -23,6 +23,8 @@ import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 @Slf4j
 public class FudiGiftService {
 
+  private static final long GIFT_TEMPLATE_ID_FALLBACK = 1L;
+
   private final FudiHelper fudiHelper;
   private final FudiRepository fudiRepository;
   private final SpiritRepository spiritRepository;
@@ -41,7 +43,8 @@ public class FudiGiftService {
     StackableItem gift = resolveGiftItem(userId, itemName);
     ItemTemplate template =
         itemTemplateRepository
-            .findById(gift.getTemplateId() != null ? gift.getTemplateId() : (long) 1)
+            .findById(
+                gift.getTemplateId() != null ? gift.getTemplateId() : GIFT_TEMPLATE_ID_FALLBACK)
             .orElse(null);
 
     Spirit spirit =

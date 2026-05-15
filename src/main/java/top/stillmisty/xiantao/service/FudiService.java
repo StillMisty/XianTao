@@ -360,6 +360,15 @@ public class FudiService {
       throw new BusinessException(ErrorCode.CELL_OCCUPIED, cellId);
     }
 
+    int stoneCost =
+        switch (type) {
+          case FARM -> 50;
+          case PEN -> 100;
+          default -> 50;
+        };
+    fudiHelper.checkSpiritStones(userId, stoneCost);
+    fudiHelper.deductSpiritStones(userId, stoneCost);
+
     FudiCell cell = existingCell != null ? existingCell : new FudiCell();
     if (existingCell == null) {
       cell.setFudiId(fudi.getId());
@@ -369,7 +378,7 @@ public class FudiService {
     cell.setCellLevel(1);
     fudiCellRepository.save(cell);
 
-    log.info("用户 {} 在地块 {} 建造 {}", userId, cellId, type.getChineseName());
+    log.info("用户 {} 在地块 {} 建造 {}（消耗 {} 灵石）", userId, cellId, type.getChineseName(), stoneCost);
 
     return new CellOperationVO(cellId, type.getChineseName());
   }

@@ -95,7 +95,6 @@ public class ShopService {
     return listProducts(npc);
   }
 
-  @Transactional
   public PurchaseResult purchaseItem(Long userId, ShopNpc npc, Long templateId, int quantity) {
     ShopProduct product =
         shopProductRepository
@@ -238,6 +237,12 @@ public class ShopService {
 
     String itemName = item.getName();
     int quantity = item.getQuantity();
+
+    double acceptanceRate = 1.0 - (confirmedPrice - minPrice) / (double) (maxPrice - minPrice);
+    if (Math.random() > acceptanceRate) {
+      return new SellResult(
+          false, confirmedPrice, itemName, "掌柜对你的报价不满意：" + itemName + " 未能售出，试着多降些价吧");
+    }
 
     if (item.reduceQuantity(1)) {
       stackableItemRepository.deleteById(item.getId());

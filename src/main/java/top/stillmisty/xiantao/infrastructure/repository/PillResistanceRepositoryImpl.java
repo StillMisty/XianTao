@@ -16,13 +16,16 @@ public class PillResistanceRepositoryImpl implements PillResistanceRepository {
   private final PillResistanceMapper mapper;
 
   @Override
-  public Optional<PillResistance> findByUserIdAndTemplateId(Long userId, Long templateId) {
-    return mapper.selectByUserIdAndTemplateId(userId, templateId);
+  public Optional<PillResistance> findByUserIdAndTemplateIdAndQuality(
+      Long userId, Long templateId, String quality) {
+    return mapper.selectByUserIdAndTemplateIdAndQuality(userId, templateId, quality);
   }
 
   @Override
-  public int incrementCount(Long userId, Long templateId) {
-    mapper.upsertIncrementCount(userId, templateId);
-    return findByUserIdAndTemplateId(userId, templateId).map(PillResistance::getCount).orElse(1);
+  public int incrementCount(Long userId, Long templateId, String quality) {
+    mapper.upsertIncrementCount(userId, templateId, quality);
+    return findByUserIdAndTemplateIdAndQuality(userId, templateId, quality)
+        .map(PillResistance::getCount)
+        .orElse(1);
   }
 }

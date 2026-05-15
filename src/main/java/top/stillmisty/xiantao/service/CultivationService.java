@@ -83,9 +83,8 @@ public class CultivationService {
    * @param userId 用户ID
    * @return 突破结果
    */
-  @Transactional
   public BreakthroughResult attemptBreakthrough(Long userId) {
-    User user = userStateService.loadUser(userId);
+    User user = userStateService.loadUserForUpdate(userId);
 
     long expNeeded = user.calculateExpToNextLevel();
     if (user.getExp() < expNeeded) {

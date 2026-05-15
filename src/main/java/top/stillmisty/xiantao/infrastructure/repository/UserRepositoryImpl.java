@@ -26,6 +26,11 @@ public class UserRepositoryImpl implements UserRepository {
   }
 
   @Override
+  public Optional<User> findByIdForUpdate(Long id) {
+    return Optional.ofNullable(userMapper.selectByIdForUpdate(id));
+  }
+
+  @Override
   public List<User> findByIds(List<Long> ids) {
     if (ids == null || ids.isEmpty()) return List.of();
     return userMapper.selectListByIds(ids);

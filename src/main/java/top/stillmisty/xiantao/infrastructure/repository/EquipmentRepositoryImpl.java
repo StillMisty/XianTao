@@ -58,6 +58,12 @@ public class EquipmentRepositoryImpl implements EquipmentRepository {
   }
 
   @Override
+  public Optional<Equipment> findEquippedByUserIdAndSlotForUpdate(Long userId, EquipmentSlot slot) {
+    return Optional.ofNullable(
+        equipmentMapper.selectEquippedByUserIdAndSlotForUpdate(userId, slot));
+  }
+
+  @Override
   public void deleteById(Long id) {
     equipmentMapper.deleteById(id);
   }

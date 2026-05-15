@@ -19,6 +19,10 @@ public interface PlayerBuffMapper extends BaseMapper<PlayerBuff> {
   List<PlayerBuff> selectActiveByUserIdAndType(
       @Param("userId") Long userId, @Param("buffType") String buffType);
 
+  @Select(
+      "SELECT COUNT(*) FROM xt_player_buff WHERE user_id = #{userId} AND buff_type = #{buffType} AND expires_at > NOW()")
+  int countActiveByUserIdAndType(@Param("userId") Long userId, @Param("buffType") String buffType);
+
   @Delete("DELETE FROM xt_player_buff WHERE user_id = #{userId} AND buff_type = #{buffType}")
   void deleteByUserIdAndType(@Param("userId") Long userId, @Param("buffType") String buffType);
 

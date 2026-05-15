@@ -118,7 +118,7 @@ public class DungeonService {
   }
 
   public String enterDungeon(Long userId, String dungeonName) {
-    User user = userStateService.loadUser(userId);
+    User user = userStateService.loadUserForUpdate(userId);
     DungeonTemplate dungeon =
         dungeonTemplateRepository
             .findByName(dungeonName)

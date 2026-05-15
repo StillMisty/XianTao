@@ -26,6 +26,9 @@ public interface EquipmentRepository {
   /** 根据用户ID和部位查找已穿戴的装备 */
   Optional<Equipment> findEquippedByUserIdAndSlot(Long userId, EquipmentSlot slot);
 
+  /** 根据用户ID和部位查找已穿戴的装备（行锁） */
+  Optional<Equipment> findEquippedByUserIdAndSlotForUpdate(Long userId, EquipmentSlot slot);
+
   /** 删除装备 */
   void deleteById(Long id);
 }

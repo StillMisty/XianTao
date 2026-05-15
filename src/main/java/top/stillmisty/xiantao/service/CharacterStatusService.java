@@ -29,6 +29,8 @@ import top.stillmisty.xiantao.service.annotation.Authenticated;
 @RequiredArgsConstructor
 public class CharacterStatusService {
 
+  private static final int MAX_PROTECTOR_DISPLAY = 3;
+
   private final UserStateService userStateService;
   private final UserRepository userRepository;
   private final EquipmentRepository equipmentRepository;
@@ -104,7 +106,7 @@ public class CharacterStatusService {
         user.calculateBreakthroughSuccessRate(),
         user.getBreakthroughFailCount(),
         protData.protectingCount,
-        3,
+        MAX_PROTECTOR_DISPLAY,
         protData.protectingList,
         protData.protectedByList,
         protData.totalBonus,

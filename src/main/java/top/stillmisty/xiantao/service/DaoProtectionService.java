@@ -69,6 +69,7 @@ public class DaoProtectionService {
           null);
     }
 
+    userStateService.loadUserForUpdate(protectorId); // lock the protector row
     long currentProtectingCount = daoProtectionRepository.countByProtectorId(protectorId);
     if (currentProtectingCount >= MAX_PROTECTOR_COUNT) {
       return new DaoProtectionResult(

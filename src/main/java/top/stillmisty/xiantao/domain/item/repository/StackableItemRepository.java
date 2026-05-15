@@ -35,4 +35,7 @@ public interface StackableItemRepository {
 
   /** 原子减少数量，返回受影响的记录数（0或1） */
   int reduceQuantityById(Long id, Long userId, int qty);
+
+  /** UPSERT 原子增加堆叠物品数量（利用数据库唯一约束防并发重复） */
+  int upsertIncrementQuantity(StackableItem item);
 }

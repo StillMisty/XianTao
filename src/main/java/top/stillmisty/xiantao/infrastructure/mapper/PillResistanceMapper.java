@@ -12,13 +12,18 @@ import top.stillmisty.xiantao.domain.pill.entity.PillResistance;
 public interface PillResistanceMapper extends BaseMapper<PillResistance> {
 
   @Select(
-      "SELECT * FROM xt_pill_resistance WHERE user_id = #{userId} AND template_id = #{templateId}")
-  Optional<PillResistance> selectByUserIdAndTemplateId(
-      @Param("userId") Long userId, @Param("templateId") Long templateId);
+      "SELECT * FROM xt_pill_resistance WHERE user_id = #{userId} AND template_id = #{templateId} AND quality = #{quality}")
+  Optional<PillResistance> selectByUserIdAndTemplateIdAndQuality(
+      @Param("userId") Long userId,
+      @Param("templateId") Long templateId,
+      @Param("quality") String quality);
 
   @Update(
-      "INSERT INTO xt_pill_resistance (user_id, template_id, count, updated_at) "
-          + "VALUES (#{userId}, #{templateId}, 1, NOW()) "
-          + "ON CONFLICT (user_id, template_id) DO UPDATE SET count = xt_pill_resistance.count + 1, updated_at = NOW()")
-  int upsertIncrementCount(@Param("userId") Long userId, @Param("templateId") Long templateId);
+      "INSERT INTO xt_pill_resistance (user_id, template_id, quality, count, updated_at) "
+          + "VALUES (#{userId}, #{templateId}, #{quality}, 1, NOW()) "
+          + "ON CONFLICT (user_id, template_id, quality) DO UPDATE SET count = xt_pill_resistance.count + 1, updated_at = NOW()")
+  int upsertIncrementCount(
+      @Param("userId") Long userId,
+      @Param("templateId") Long templateId,
+      @Param("quality") String quality);
 }

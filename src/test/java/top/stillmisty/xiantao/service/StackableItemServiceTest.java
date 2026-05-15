@@ -42,25 +42,21 @@ class StackableItemServiceTest {
   @Test
   @DisplayName("addStackableItem — 新物品创建")
   void addStackableItem_whenNew_shouldCreate() {
-    when(stackableItemRepository.findByUserIdAndTemplateIdAndPropertiesHash(userId, templateId, 0))
-        .thenReturn(Optional.empty());
+    when(stackableItemRepository.upsertIncrementQuantity(any(StackableItem.class))).thenReturn(1);
 
     stackableItemService.addStackableItem(userId, templateId, ItemType.MATERIAL, "测试材料", 5);
 
-    verify(stackableItemRepository).save(any(StackableItem.class));
+    verify(stackableItemRepository).upsertIncrementQuantity(any(StackableItem.class));
   }
 
   @Test
   @DisplayName("addStackableItem — 已有物品增加数量")
   void addStackableItem_whenExisting_shouldAddQuantity() {
-    var existing = createItem(1L, 3);
-    when(stackableItemRepository.findByUserIdAndTemplateIdAndPropertiesHash(userId, templateId, 0))
-        .thenReturn(Optional.of(existing));
+    when(stackableItemRepository.upsertIncrementQuantity(any(StackableItem.class))).thenReturn(2);
 
     stackableItemService.addStackableItem(userId, templateId, ItemType.MATERIAL, "测试材料", 5);
 
-    assertEquals(8, existing.getQuantity());
-    verify(stackableItemRepository).save(existing);
+    verify(stackableItemRepository).upsertIncrementQuantity(any(StackableItem.class));
   }
 
   @Test
@@ -68,13 +64,12 @@ class StackableItemServiceTest {
   void addStackableItem_withProperties_shouldLookupByHash() {
     Map<String, Object> props = Map.of("grade", 3, "quality", "SUPERIOR");
     int expectedHash = StackableItem.computeHash(props);
-    when(stackableItemRepository.findByUserIdAndTemplateIdAndPropertiesHash(
-            userId, templateId, expectedHash))
-        .thenReturn(Optional.empty());
+    when(stackableItemRepository.upsertIncrementQuantity(any(StackableItem.class))).thenReturn(1);
 
     stackableItemService.addStackableItem(userId, templateId, ItemType.POTION, "筑基丹", 1, props);
 
-    verify(stackableItemRepository).save(argThat(item -> item.getPropertiesHash() == expectedHash));
+    verify(stackableItemRepository)
+        .upsertIncrementQuantity(argThat(item -> item.getPropertiesHash() == expectedHash));
   }
 
   @Test

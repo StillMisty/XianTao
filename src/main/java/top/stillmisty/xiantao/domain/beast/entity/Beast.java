@@ -107,27 +107,23 @@ public class Beast {
    * 添加经验值
    *
    * @param expToAdd 要添加的经验值
-   * @return 实际添加的经验值
+   * @return 实际消耗的经验值
    */
   public long addExp(long expToAdd) {
-    long actualAdd = expToAdd;
-    while (actualAdd > 0 && canLevelUp()) {
-      long needed = (int) calculateExpToNextLevel() - exp;
-      if (actualAdd >= needed) {
-        exp += (int) needed;
-        actualAdd -= needed;
-        levelUp();
-      } else {
-        exp += (int) actualAdd;
-        actualAdd = 0;
-      }
+    if (expToAdd <= 0) return 0;
+
+    exp += (int) Math.min(expToAdd, Integer.MAX_VALUE);
+
+    while (levelCap != null && level < levelCap && exp >= (int) calculateExpToNextLevel()) {
+      exp -= (int) calculateExpToNextLevel();
+      level++;
+      recalculateAttributes();
     }
+
     if (levelCap != null && level >= levelCap) {
-      long maxExp = calculateExpToNextLevel();
-      exp = (int) Math.min(exp, maxExp);
-    } else if (actualAdd > 0) {
-      exp += (int) actualAdd;
+      exp = (int) Math.min(exp, (int) calculateExpToNextLevel());
     }
+
     return expToAdd;
   }
 

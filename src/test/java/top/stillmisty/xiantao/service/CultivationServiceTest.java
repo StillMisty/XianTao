@@ -55,7 +55,7 @@ class CultivationServiceTest {
   @DisplayName("attemptBreakthrough — 经验不足时返回失败结果")
   void attemptBreakthrough_whenExpInsufficient_shouldReturnFailedResult() {
     User user = createUser(5, 0L, 0);
-    when(userStateService.loadUser(userId)).thenReturn(user);
+    when(userStateService.loadUserForUpdate(userId)).thenReturn(user);
 
     BreakthroughResult result = cultivationService.attemptBreakthrough(userId);
 
@@ -67,7 +67,7 @@ class CultivationServiceTest {
   @DisplayName("attemptBreakthrough — 突破后清除了护道关系和丹药加成")
   void attemptBreakthrough_shouldClearRelationsAndBuffs() {
     User user = createUser(2, 1000L, 0);
-    when(userStateService.loadUser(userId)).thenReturn(user);
+    when(userStateService.loadUserForUpdate(userId)).thenReturn(user);
     when(playerBuffRepository.findActiveByUserIdAndType(userId, PlayerBuffType.BREAKTHROUGH))
         .thenReturn(List.of());
 

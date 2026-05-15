@@ -38,22 +38,17 @@ public class StackableItemService {
     userStateService.loadUser(userId);
 
     int hash = StackableItem.computeHash(properties);
-    var existingItem =
-        stackableItemRepository.findByUserIdAndTemplateIdAndPropertiesHash(
-            userId, templateId, hash);
+    StackableItem newItem = StackableItem.create(userId, templateId, itemType, name, quantity);
+    newItem.setProperties(properties);
+    newItem.setPropertiesHash(hash);
 
-    if (existingItem.isPresent()) {
-      StackableItem item = existingItem.get();
-      item.addQuantity(quantity);
-      stackableItemRepository.save(item);
-      log.info("增加堆叠物品数量: userId={}, templateId={}, quantity={}", userId, templateId, quantity);
-    } else {
-      StackableItem newItem = StackableItem.create(userId, templateId, itemType, name, quantity);
-      newItem.setProperties(properties);
-      newItem.setPropertiesHash(hash);
-      stackableItemRepository.save(newItem);
-      log.info("添加新堆叠物品: userId={}, templateId={}, quantity={}", userId, templateId, quantity);
-    }
+    int affected = stackableItemRepository.upsertIncrementQuantity(newItem);
+    log.info(
+        "添加堆叠物品: userId={}, templateId={}, quantity={}, affected={}",
+        userId,
+        templateId,
+        quantity,
+        affected);
   }
 
   /** 按物品ID原子减少堆叠物品数量 */

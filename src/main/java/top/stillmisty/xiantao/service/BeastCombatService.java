@@ -227,12 +227,15 @@ public class BeastCombatService {
 
   @Transactional
   public void addBeastExp(Long beastId, long expToAdd) {
-    Beast beast = beastRepository.findById(beastId).orElse(null);
-    if (beast == null) {
-      return;
-    }
-    beast.addExp(expToAdd);
-    beastRepository.save(beast);
+    beastRepository
+        .findById(beastId)
+        .ifPresentOrElse(
+            beast -> {
+              long consumed = beast.addExp(expToAdd);
+              beastRepository.save(beast);
+              log.debug("灵兽 {} 获得 {} 经验", beastId, consumed);
+            },
+            () -> log.warn("灵兽 {} 不存在，经验 {} 无法添加", beastId, expToAdd));
   }
 
   @Transactional

@@ -303,12 +303,10 @@ public class FarmService {
     if (plantTime == null || matureTime == null) return null;
 
     LocalDateTime now = LocalDateTime.now();
-    if (now.isAfter(matureTime) || now.isEqual(matureTime)) return 1.0;
-
     long totalSeconds = java.time.Duration.between(plantTime, matureTime).getSeconds();
     if (totalSeconds <= 0) return 1.0;
     long elapsedSeconds = java.time.Duration.between(plantTime, now).getSeconds();
-    return Math.min(1.0, (double) elapsedSeconds / totalSeconds);
+    return (double) elapsedSeconds / totalSeconds;
   }
 
   public String getCropName(Integer cropId) {
@@ -331,6 +329,7 @@ public class FarmService {
   ItemTemplate findSeedTemplateByName(String name) {
     return itemTemplateRepository.findByType(ItemType.SEED).stream()
         .filter(t -> t.getName().equals(name) || t.getName().contains(name))
+        .sorted(java.util.Comparator.comparing(ItemTemplate::getName))
         .findFirst()
         .orElseThrow(() -> new BusinessException(ErrorCode.SEED_TEMPLATE_NOT_FOUND, name));
   }

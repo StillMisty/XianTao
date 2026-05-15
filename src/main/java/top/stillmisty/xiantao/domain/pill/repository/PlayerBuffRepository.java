@@ -17,6 +17,9 @@ public interface PlayerBuffRepository {
   /** 根据用户ID和buff类型查找未过期的Buff */
   List<PlayerBuff> findActiveByUserIdAndType(Long userId, PlayerBuffType buffType);
 
+  /** 根据用户ID和buff类型统计未过期的Buff数量 */
+  int countActiveByUserIdAndType(Long userId, PlayerBuffType buffType);
+
   /** 保存Buff */
   PlayerBuff save(PlayerBuff buff);
 

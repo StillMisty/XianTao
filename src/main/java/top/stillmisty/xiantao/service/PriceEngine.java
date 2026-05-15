@@ -138,7 +138,7 @@ public class PriceEngine {
     if (currentStock == 0) {
       long hoursSinceLastSale = Duration.between(product.getLastSaleTime(), now).toHours();
       if (hoursSinceLastSale > 4) {
-        int restockQty = Math.min(5, product.getMaxStock());
+        int restockQty = Math.max(1, product.getMaxStock() / 2);
         int newStock = Math.min(restockQty, product.getMaxStock());
         long newPrice = Math.min((long) Math.ceil(currentPrice * 1.15), product.getMaxPrice());
         product.setCurrentStock(newStock);

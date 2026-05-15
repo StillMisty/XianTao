@@ -78,4 +78,9 @@ public class StackableItemRepositoryImpl implements StackableItemRepository {
   public int reduceQuantityById(Long id, Long userId, int qty) {
     return stackableItemMapper.reduceQuantityById(id, userId, qty);
   }
+
+  @Override
+  public int upsertIncrementQuantity(StackableItem item) {
+    return stackableItemMapper.upsertIncrementQuantity(item);
+  }
 }

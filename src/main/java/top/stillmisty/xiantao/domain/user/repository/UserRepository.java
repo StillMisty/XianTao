@@ -5,14 +5,13 @@ import java.util.Optional;
 import top.stillmisty.xiantao.domain.user.entity.User;
 
 public interface UserRepository {
-
-  /** 保存用户 */
   User save(User user);
 
-  /** 根据ID查找用户 */
   Optional<User> findById(Long id);
 
-  /** 根据ID列表批量查找用户 */
+  /** 使用行锁加载用户，用于并发敏感操作（突破、状态切换等） */
+  Optional<User> findByIdForUpdate(Long id);
+
   List<User> findByIds(List<Long> ids);
 
   /** 检查昵称是否已存在 */

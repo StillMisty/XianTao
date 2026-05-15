@@ -73,13 +73,14 @@ class DiscardServiceTest {
     item.setTemplateId(200L);
     item.setName("铁矿");
     item.setItemType(ItemType.MATERIAL);
+    item.setQuantity(5);
 
     when(stackableItemRepository.findByUserIdAndNameContaining(userId, "铁矿"))
         .thenReturn(List.of(item));
 
     String result = discardService.discardItem(userId, "铁矿");
 
-    assertEquals("已丢弃【铁矿】", result);
+    assertEquals("已丢弃【铁矿】 x1", result);
     verify(stackableItemService).reduceStackableItem(userId, 20L, 1);
   }
 

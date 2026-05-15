@@ -47,7 +47,6 @@ public class EnhancementService {
 
   // ===================== 内部 API =====================
 
-  @Transactional
   public EnhanceResultVO enhanceAuto(Long userId, String equipmentInput) {
     var resolved = resolveAndValidate(userId, equipmentInput);
     int currentLevel = resolved.currentLevel();

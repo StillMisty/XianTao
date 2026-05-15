@@ -27,6 +27,8 @@ import top.stillmisty.xiantao.domain.user.entity.User;
 @RequiredArgsConstructor
 public class CombatService {
 
+  private static final int MAX_BEAST_DEPLOY_COUNT = 2;
+
   private final EquipmentRepository equipmentRepository;
   private final EquipmentTemplateRepository equipmentTemplateRepository;
   private final SkillRepository skillRepository;
@@ -44,40 +46,19 @@ public class CombatService {
   public Team buildPlayerTeam(User user) {
     Team team = new Team(user.getId(), "Player");
 
-    List<PlayerBuff> activeBuffs = playerBuffRepository.findActiveByUserId(user.getId());
-    int attackBuff = 0, defenseBuff = 0, speedBuff = 0;
-    for (PlayerBuff buff : activeBuffs) {
-      switch (buff.getBuffType()) {
-        case ATTACK -> attackBuff += buff.getValue();
-        case DEFENSE -> defenseBuff += buff.getValue();
-        case SPEED -> speedBuff += buff.getValue();
-        case BREAKTHROUGH -> {}
-      }
-    }
+    BuffValues buffs = loadActiveBuffs(user.getId());
 
-    Equipment weapon =
-        equipmentRepository.findEquippedByUserId(user.getId()).stream()
-            .filter(e -> e.getSlot() == EquipmentSlot.WEAPON)
-            .findFirst()
-            .orElse(null);
-
-    double attackSpeed = 1.0;
-    if (weapon != null) {
-      attackSpeed =
-          equipmentTemplateRepository
-              .findById(weapon.getTemplateId())
-              .map(template -> template.getAttackSpeed() != null ? template.getAttackSpeed() : 1.0)
-              .orElse(1.0);
-    }
+    Equipment weapon = findWeapon(user.getId());
+    double attackSpeed = getWeaponAttackSpeed(user.getId(), weapon);
 
     List<Skill> playerSkills = loadEquippedSkills(user.getId(), weapon);
 
     team.addMember(
         new PlayerCombatant(user, weapon, attackSpeed, playerSkills)
-            .withBuffs(attackBuff, defenseBuff, speedBuff));
+            .withBuffs(buffs.attack, buffs.defense, buffs.speed));
 
     List<Beast> deployed = beastRepository.findDeployedByUserId(user.getId());
-    for (int i = 0; i < Math.min(deployed.size(), 2); i++) {
+    for (int i = 0; i < Math.min(deployed.size(), MAX_BEAST_DEPLOY_COUNT); i++) {
       Beast beast = deployed.get(i);
       if (beast.canFight()) {
         List<Skill> beastSkills = List.of();
@@ -94,40 +75,19 @@ public class CombatService {
   public Team buildPlayerTeam(User user, Map<Long, Skill> skillLookup) {
     Team team = new Team(user.getId(), "Player");
 
-    List<PlayerBuff> activeBuffs = playerBuffRepository.findActiveByUserId(user.getId());
-    int attackBuff = 0, defenseBuff = 0, speedBuff = 0;
-    for (PlayerBuff buff : activeBuffs) {
-      switch (buff.getBuffType()) {
-        case ATTACK -> attackBuff += buff.getValue();
-        case DEFENSE -> defenseBuff += buff.getValue();
-        case SPEED -> speedBuff += buff.getValue();
-        case BREAKTHROUGH -> {}
-      }
-    }
+    BuffValues buffs = loadActiveBuffs(user.getId());
 
-    Equipment weapon =
-        equipmentRepository.findEquippedByUserId(user.getId()).stream()
-            .filter(e -> e.getSlot() == EquipmentSlot.WEAPON)
-            .findFirst()
-            .orElse(null);
-
-    double attackSpeed = 1.0;
-    if (weapon != null) {
-      attackSpeed =
-          equipmentTemplateRepository
-              .findById(weapon.getTemplateId())
-              .map(template -> template.getAttackSpeed() != null ? template.getAttackSpeed() : 1.0)
-              .orElse(1.0);
-    }
+    Equipment weapon = findWeapon(user.getId());
+    double attackSpeed = getWeaponAttackSpeed(user.getId(), weapon);
 
     List<Skill> playerSkills = loadEquippedSkillsFromLookup(user.getId(), weapon, skillLookup);
 
     team.addMember(
         new PlayerCombatant(user, weapon, attackSpeed, playerSkills)
-            .withBuffs(attackBuff, defenseBuff, speedBuff));
+            .withBuffs(buffs.attack, buffs.defense, buffs.speed));
 
     List<Beast> deployed = beastRepository.findDeployedByUserId(user.getId());
-    for (int i = 0; i < Math.min(deployed.size(), 2); i++) {
+    for (int i = 0; i < Math.min(deployed.size(), MAX_BEAST_DEPLOY_COUNT); i++) {
       Beast beast = deployed.get(i);
       if (beast.canFight()) {
         List<Skill> beastSkills = List.of();
@@ -186,5 +146,38 @@ public class CombatService {
       case WEAPON_CATEGORY -> weaponType.getCategory().equals(skill.getBindingValue());
       case ELEMENT, NONE -> true;
     };
+  }
+
+  // ===================== 辅助方法 =====================
+
+  private record BuffValues(int attack, int defense, int speed) {}
+
+  private BuffValues loadActiveBuffs(Long userId) {
+    List<PlayerBuff> activeBuffs = playerBuffRepository.findActiveByUserId(userId);
+    int attackBuff = 0, defenseBuff = 0, speedBuff = 0;
+    for (PlayerBuff buff : activeBuffs) {
+      switch (buff.getBuffType()) {
+        case ATTACK -> attackBuff += buff.getValue();
+        case DEFENSE -> defenseBuff += buff.getValue();
+        case SPEED -> speedBuff += buff.getValue();
+        case BREAKTHROUGH -> {}
+      }
+    }
+    return new BuffValues(attackBuff, defenseBuff, speedBuff);
+  }
+
+  private Equipment findWeapon(Long userId) {
+    return equipmentRepository.findEquippedByUserId(userId).stream()
+        .filter(e -> e.getSlot() == EquipmentSlot.WEAPON)
+        .findFirst()
+        .orElse(null);
+  }
+
+  private double getWeaponAttackSpeed(Long userId, Equipment weapon) {
+    if (weapon == null) return 1.0;
+    return equipmentTemplateRepository
+        .findById(weapon.getTemplateId())
+        .map(template -> template.getAttackSpeed() != null ? template.getAttackSpeed() : 1.0)
+        .orElse(1.0);
   }
 }
