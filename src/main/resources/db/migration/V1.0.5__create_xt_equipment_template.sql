@@ -50,10 +50,9 @@ COMMENT ON COLUMN xt_equipment_template.base_agi IS '基础敏捷加成';
 COMMENT ON COLUMN xt_equipment_template.base_wis IS '基础智慧加成';
 COMMENT ON COLUMN xt_equipment_template.attack_speed IS '攻速，如 1.2 快 / 0.7 慢（法器专属）';
 COMMENT ON COLUMN xt_equipment_template.attack_range IS '近战/远程（法器专属）';
-COMMENT ON COLUMN xt_equipment_template.drop_weight IS '稀有度掉落权重 JSONB';
+COMMENT ON COLUMN xt_equipment_template.drop_weight IS '稀有度掉落权重 JSONB: {"BROKEN":60,"COMMON":25,"RARE":10,"EPIC":4,"LEGENDARY":1}';
 
 -- 索引
 CREATE INDEX idx_equipment_template_slot ON xt_equipment_template (slot);
 CREATE INDEX idx_equipment_template_weapon_type ON xt_equipment_template (weapon_type);
 CREATE INDEX idx_equipment_template_category ON xt_equipment_template (category);
-CREATE INDEX idx_equipment_template_tags ON xt_equipment_template USING GIN (tags);

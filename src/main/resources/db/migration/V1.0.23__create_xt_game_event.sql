@@ -22,4 +22,4 @@ COMMENT ON COLUMN xt_game_event.occurred_at IS '事件发生时间';
 COMMENT ON COLUMN xt_game_event.delivered IS '是否已投递给玩家 (FALSE=待投递)';
 COMMENT ON COLUMN xt_game_event.narrative_key IS '叙事模板 key (用于格式化叙事文本)';
 COMMENT ON COLUMN xt_game_event.narrative_args IS '叙事模板参数 JSONB';
-COMMENT ON COLUMN xt_game_event.effects IS '事件效果 (exp/item 变动快照, 仅供调试)';
+COMMENT ON COLUMN xt_game_event.effects IS '事件效果快照（预留扩展字段，当前未使用）';

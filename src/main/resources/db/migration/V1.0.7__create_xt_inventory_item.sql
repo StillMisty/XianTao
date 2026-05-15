@@ -34,7 +34,7 @@ COMMENT ON COLUMN xt_inventory_item.name IS '物品名称 (从模板复制)';
 COMMENT ON COLUMN xt_inventory_item.quantity IS '数量';
 COMMENT ON COLUMN xt_inventory_item.tags IS '物品标签 JSONB，用于AI检索和NPC交互';
 COMMENT ON COLUMN xt_inventory_item.properties IS '类型特有属性 JSONB：
-   丹药: {"grade": 3, "quality": "superior"}
+   丹药: {"grade": 3, "quality": "SUPERIOR"}
    药材: {"elements": {"wood": 3, "fire": 1, "water": 2}}
    其他: {}';
 COMMENT ON COLUMN xt_inventory_item.properties_hash IS 'properties 的确定性哈希值，用于唯一约束拆分不同属性的堆叠物品';

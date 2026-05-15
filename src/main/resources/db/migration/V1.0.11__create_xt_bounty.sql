@@ -23,7 +23,7 @@ COMMENT ON COLUMN xt_bounty.map_id IS '所属地图 ID';
 COMMENT ON COLUMN xt_bounty.name IS '悬赏名称';
 COMMENT ON COLUMN xt_bounty.description IS '悬赏描述';
 COMMENT ON COLUMN xt_bounty.duration_minutes IS '悬赏耗时（分钟）';
-COMMENT ON COLUMN xt_bounty.rewards IS '奖励池 JSONB，格式: [{"name":"月光石","weight":50,"count":3},{"name":"竹剑","weight":30,"amount":1}]';
+COMMENT ON COLUMN xt_bounty.rewards IS '奖励池 JSONB，type 区分类型: 稀有物品 {"type":"rare_item","weight":60,"min":1,"max":2,"template_id":123}, 灵石 {"type":"spirit_stones","weight":40,"min":100,"max":200}, 兽卵 {"type":"beast_egg","weight":20,"name":"灵兽蛋"}, 装备 {"type":"equipment","weight":30,"template_id":456}';
 COMMENT ON COLUMN xt_bounty.require_level IS '最低接取等级';
 COMMENT ON COLUMN xt_bounty.event_weight IS '旅行事件触发权重';
 

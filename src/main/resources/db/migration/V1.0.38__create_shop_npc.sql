@@ -19,5 +19,5 @@ COMMENT ON COLUMN shop_npc.name IS '掌柜名称';
 COMMENT ON COLUMN shop_npc.map_node_id IS '所属地图节点 ID';
 COMMENT ON COLUMN shop_npc.personality IS 'MBTI 或性格标签，复用福地地灵模式';
 COMMENT ON COLUMN shop_npc.buy_price_modifier IS '收购折扣系数（相对基准价的百分比）';
-COMMENT ON COLUMN shop_npc.category_multiplier IS '按物品类型的浮动系数，如 {"HERB": 0.85, "ORE": 1.15}';
+COMMENT ON COLUMN shop_npc.category_multiplier IS '按物品类型的浮动系数，如 {"HERB": 0.85, "MATERIAL": 1.15}';
 COMMENT ON COLUMN shop_npc.system_prompt IS 'LLM system prompt（覆盖默认）';
