@@ -19,6 +19,13 @@ import top.stillmisty.xiantao.domain.fudi.vo.PenCellVO;
 import top.stillmisty.xiantao.domain.item.enums.InventoryCategory;
 import top.stillmisty.xiantao.domain.item.vo.ItemEntry;
 import top.stillmisty.xiantao.service.*;
+import top.stillmisty.xiantao.service.BusinessException;
+import top.stillmisty.xiantao.service.ErrorCode;
+import top.stillmisty.xiantao.service.UserContext;
+import top.stillmisty.xiantao.service.beast.BeastBreedingService;
+import top.stillmisty.xiantao.service.fudi.FarmService;
+import top.stillmisty.xiantao.service.fudi.FudiService;
+import top.stillmisty.xiantao.service.inventory.InventoryService;
 
 /** 地灵可用的工具函数（Function Calling） 这些工具会被 LLM 调用，以执行福地相关的操作 */
 @Service

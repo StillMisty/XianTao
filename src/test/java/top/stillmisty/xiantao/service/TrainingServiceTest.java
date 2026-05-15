@@ -12,6 +12,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
+import top.stillmisty.xiantao.service.combat.TrainingService;
+import top.stillmisty.xiantao.service.player.UserStateService;
 
 @DisplayName("TrainingService 测试")
 @ExtendWith(MockitoExtension.class)

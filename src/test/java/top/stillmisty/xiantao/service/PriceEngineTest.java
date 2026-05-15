@@ -24,6 +24,7 @@ import top.stillmisty.xiantao.domain.shop.entity.ShopNpc;
 import top.stillmisty.xiantao.domain.shop.entity.ShopProduct;
 import top.stillmisty.xiantao.domain.shop.entity.WorldEvent;
 import top.stillmisty.xiantao.domain.shop.repository.WorldEventRepository;
+import top.stillmisty.xiantao.service.shop.PriceEngine;
 
 @DisplayName("PriceEngine 测试")
 @ExtendWith(MockitoExtension.class)

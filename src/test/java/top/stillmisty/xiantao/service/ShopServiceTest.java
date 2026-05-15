@@ -47,6 +47,9 @@ import top.stillmisty.xiantao.domain.shop.vo.SellResult;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
+import top.stillmisty.xiantao.service.player.UserStateService;
+import top.stillmisty.xiantao.service.shop.PriceEngine;
+import top.stillmisty.xiantao.service.shop.ShopService;
 
 @DisplayName("ShopService 测试")
 @ExtendWith(MockitoExtension.class)

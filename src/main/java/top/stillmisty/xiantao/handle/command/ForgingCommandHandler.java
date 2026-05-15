@@ -12,9 +12,9 @@ import top.stillmisty.xiantao.domain.forge.vo.ForgingRecipeVO;
 import top.stillmisty.xiantao.domain.forge.vo.ForgingResultVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.TextFormat;
-import top.stillmisty.xiantao.service.EnhancementService;
-import top.stillmisty.xiantao.service.ForgingService;
 import top.stillmisty.xiantao.service.ServiceResult;
+import top.stillmisty.xiantao.service.enhance.EnhancementService;
+import top.stillmisty.xiantao.service.forging.ForgingService;
 
 /** 锻造/强化命令处理器（纯 View 层） */
 @Slf4j

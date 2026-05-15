@@ -13,8 +13,8 @@ import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
-import top.stillmisty.xiantao.service.ForgingCombinationFinder;
-import top.stillmisty.xiantao.service.FudiHelper;
+import top.stillmisty.xiantao.service.forging.ForgingCombinationFinder;
+import top.stillmisty.xiantao.service.fudi.FudiHelper;
 
 /** 强化图纸期 +10→上限：需要蓝图，品质分 = 成功率 */
 @Component

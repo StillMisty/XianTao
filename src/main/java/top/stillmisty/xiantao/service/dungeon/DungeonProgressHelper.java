@@ -14,7 +14,7 @@ import top.stillmisty.xiantao.domain.dungeon.repository.DungeonFirstClearReposit
 import top.stillmisty.xiantao.domain.dungeon.repository.DungeonProgressRepository;
 import top.stillmisty.xiantao.domain.dungeon.repository.DungeonTemplateRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
-import top.stillmisty.xiantao.service.UserStateService;
+import top.stillmisty.xiantao.service.player.UserStateService;
 
 @Component
 @RequiredArgsConstructor

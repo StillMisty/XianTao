@@ -12,6 +12,8 @@ import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
+import top.stillmisty.xiantao.service.inventory.EquipmentService;
+import top.stillmisty.xiantao.service.inventory.StackableItemService;
 
 @Slf4j
 @Service

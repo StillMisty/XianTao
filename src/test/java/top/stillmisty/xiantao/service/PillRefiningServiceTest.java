@@ -20,6 +20,9 @@ import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.domain.pill.entity.PlayerPillRecipe;
 import top.stillmisty.xiantao.domain.pill.repository.PlayerPillRecipeRepository;
 import top.stillmisty.xiantao.domain.pill.vo.PillRefiningResultVO;
+import top.stillmisty.xiantao.service.inventory.StackableItemService;
+import top.stillmisty.xiantao.service.pill.PillCombinationFinder;
+import top.stillmisty.xiantao.service.pill.PillRefiningService;
 
 @DisplayName("PillRefiningService 测试")
 @ExtendWith(MockitoExtension.class)

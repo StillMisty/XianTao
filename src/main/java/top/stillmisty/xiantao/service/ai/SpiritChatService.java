@@ -20,10 +20,10 @@ import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
-import top.stillmisty.xiantao.service.FarmService;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
+import top.stillmisty.xiantao.service.fudi.FarmService;
 
 /** 地灵对话核心服务 提供 MBTI 人格化对话和意图识别功能 */
 @Service

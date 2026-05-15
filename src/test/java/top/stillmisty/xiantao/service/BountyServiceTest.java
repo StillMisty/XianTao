@@ -30,6 +30,10 @@ import top.stillmisty.xiantao.domain.map.entity.SpecialtyEntry;
 import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
+import top.stillmisty.xiantao.service.bounty.BountyCombatService;
+import top.stillmisty.xiantao.service.bounty.BountyService;
+import top.stillmisty.xiantao.service.inventory.StackableItemService;
+import top.stillmisty.xiantao.service.player.UserStateService;
 
 @DisplayName("BountyService 测试")
 @ExtendWith(MockitoExtension.class)

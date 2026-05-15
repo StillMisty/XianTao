@@ -24,6 +24,9 @@ import top.stillmisty.xiantao.domain.skill.repository.PlayerSkillRepository;
 import top.stillmisty.xiantao.domain.skill.repository.SkillRepository;
 import top.stillmisty.xiantao.domain.skill.vo.SkillSlotResult;
 import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.service.inventory.StackableItemService;
+import top.stillmisty.xiantao.service.player.UserStateService;
+import top.stillmisty.xiantao.service.skill.SkillService;
 
 @DisplayName("SkillService 测试")
 @ExtendWith(MockitoExtension.class)

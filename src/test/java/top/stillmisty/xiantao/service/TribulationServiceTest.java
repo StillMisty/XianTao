@@ -19,6 +19,9 @@ import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
 import top.stillmisty.xiantao.domain.monster.Team;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
+import top.stillmisty.xiantao.service.combat.CombatService;
+import top.stillmisty.xiantao.service.cultivation.TribulationService;
+import top.stillmisty.xiantao.service.fudi.FudiHelper;
 
 @DisplayName("TribulationService 测试")
 @ExtendWith(MockitoExtension.class)

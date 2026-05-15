@@ -14,9 +14,9 @@ import top.stillmisty.xiantao.domain.pill.vo.PillRecipeVO;
 import top.stillmisty.xiantao.domain.pill.vo.PillRefiningResultVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.TextFormat;
-import top.stillmisty.xiantao.service.PillRecipeService;
-import top.stillmisty.xiantao.service.PillRefiningService;
 import top.stillmisty.xiantao.service.ServiceResult;
+import top.stillmisty.xiantao.service.pill.PillRecipeService;
+import top.stillmisty.xiantao.service.pill.PillRefiningService;
 
 /** 炼丹命令处理器（纯 View 层） 调用 Service 层获取结构化数据，格式化为纯文本返回 */
 @Slf4j

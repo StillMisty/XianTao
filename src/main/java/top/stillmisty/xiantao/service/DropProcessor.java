@@ -18,6 +18,8 @@ import top.stillmisty.xiantao.domain.monster.entity.DropTableEntry;
 import top.stillmisty.xiantao.domain.monster.entity.MonsterTemplate;
 import top.stillmisty.xiantao.domain.monster.vo.DropItem;
 import top.stillmisty.xiantao.domain.monster.vo.DropItem.DropType;
+import top.stillmisty.xiantao.service.inventory.EquipmentService;
+import top.stillmisty.xiantao.service.inventory.StackableItemService;
 
 @Slf4j
 @Component

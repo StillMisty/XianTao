@@ -20,6 +20,9 @@ import top.stillmisty.xiantao.domain.item.vo.InventorySummaryVO;
 import top.stillmisty.xiantao.domain.item.vo.ItemEntry;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
+import top.stillmisty.xiantao.service.inventory.InventoryService;
+import top.stillmisty.xiantao.service.inventory.ItemResolver;
+import top.stillmisty.xiantao.service.player.UserStateService;
 
 @DisplayName("InventoryService 测试")
 @ExtendWith(MockitoExtension.class)

@@ -22,6 +22,8 @@ import top.stillmisty.xiantao.domain.monster.entity.MonsterTemplate;
 import top.stillmisty.xiantao.domain.monster.enums.MonsterType;
 import top.stillmisty.xiantao.domain.monster.repository.MonsterTemplateRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.service.map.MapService;
+import top.stillmisty.xiantao.service.player.UserStateService;
 
 @DisplayName("MapService 测试")
 @ExtendWith(MockitoExtension.class)

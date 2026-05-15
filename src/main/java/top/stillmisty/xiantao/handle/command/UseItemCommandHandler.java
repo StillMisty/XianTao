@@ -8,8 +8,8 @@ import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.TextFormat;
-import top.stillmisty.xiantao.service.ItemUseService;
 import top.stillmisty.xiantao.service.ServiceResult;
+import top.stillmisty.xiantao.service.inventory.ItemUseService;
 
 /** 统一使用物品命令处理器 支持：丹药、法决玉简、丹方卷轴、进化石 */
 @Slf4j

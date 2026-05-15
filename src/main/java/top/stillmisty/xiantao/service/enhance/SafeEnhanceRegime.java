@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.forge.vo.EnhanceResultVO;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
-import top.stillmisty.xiantao.service.FudiHelper;
+import top.stillmisty.xiantao.service.fudi.FudiHelper;
 
 /** 强化安全期 +0→+3：100% 成功，仅消耗灵石 */
 @Component

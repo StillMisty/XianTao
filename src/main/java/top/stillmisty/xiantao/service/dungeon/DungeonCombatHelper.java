@@ -22,10 +22,10 @@ import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.service.BusinessException;
-import top.stillmisty.xiantao.service.CombatService;
 import top.stillmisty.xiantao.service.ErrorCode;
-import top.stillmisty.xiantao.service.PostCombatProcessor;
-import top.stillmisty.xiantao.service.UserStateService;
+import top.stillmisty.xiantao.service.combat.CombatService;
+import top.stillmisty.xiantao.service.combat.PostCombatProcessor;
+import top.stillmisty.xiantao.service.player.UserStateService;
 
 @Component
 @RequiredArgsConstructor

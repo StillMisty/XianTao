@@ -10,9 +10,9 @@ import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.fudi.vo.PenCellVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.TextFormat;
-import top.stillmisty.xiantao.service.BeastBreedingService;
-import top.stillmisty.xiantao.service.BeastCombatService;
 import top.stillmisty.xiantao.service.ServiceResult;
+import top.stillmisty.xiantao.service.beast.BeastBreedingService;
+import top.stillmisty.xiantao.service.beast.BeastCombatService;
 
 @Slf4j
 @Component

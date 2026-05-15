@@ -6,7 +6,7 @@ import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.pill.vo.PillRecipeVO;
-import top.stillmisty.xiantao.service.PillRecipeService;
+import top.stillmisty.xiantao.service.pill.PillRecipeService;
 
 /** 丹方卷轴使用处理器 */
 @Component

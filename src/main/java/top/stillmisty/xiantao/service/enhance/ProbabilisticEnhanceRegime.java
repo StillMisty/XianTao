@@ -13,8 +13,8 @@ import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
-import top.stillmisty.xiantao.service.ForgingCombinationFinder;
-import top.stillmisty.xiantao.service.FudiHelper;
+import top.stillmisty.xiantao.service.forging.ForgingCombinationFinder;
+import top.stillmisty.xiantao.service.fudi.FudiHelper;
 
 /** 强化概率期 +4→+9：固定成功率 × 稀有度修正，需要锻材 */
 @Component

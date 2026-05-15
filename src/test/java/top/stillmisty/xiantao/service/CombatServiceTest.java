@@ -25,6 +25,7 @@ import top.stillmisty.xiantao.domain.skill.repository.PlayerSkillRepository;
 import top.stillmisty.xiantao.domain.skill.repository.SkillRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
+import top.stillmisty.xiantao.service.combat.CombatService;
 
 @DisplayName("CombatService 测试")
 @ExtendWith(MockitoExtension.class)

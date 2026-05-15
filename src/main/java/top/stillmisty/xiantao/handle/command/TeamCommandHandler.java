@@ -9,7 +9,7 @@ import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.TeamService;
+import top.stillmisty.xiantao.service.pvp.TeamService;
 
 @Slf4j
 @Component

@@ -11,8 +11,8 @@ import top.stillmisty.xiantao.domain.dungeon.vo.DungeonListVO;
 import top.stillmisty.xiantao.domain.dungeon.vo.ExploreResultVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.TextFormat;
-import top.stillmisty.xiantao.service.DungeonService;
 import top.stillmisty.xiantao.service.ServiceResult;
+import top.stillmisty.xiantao.service.dungeon.DungeonService;
 
 @Slf4j
 @Component

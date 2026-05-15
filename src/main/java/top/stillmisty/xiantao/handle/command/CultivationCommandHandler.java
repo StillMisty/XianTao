@@ -19,14 +19,14 @@ import top.stillmisty.xiantao.domain.user.vo.*;
 import top.stillmisty.xiantao.domain.user.vo.PlayerViewVO;
 import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.infrastructure.util.FormatUtils;
-import top.stillmisty.xiantao.service.CharacterStatusService;
-import top.stillmisty.xiantao.service.CultivationService;
-import top.stillmisty.xiantao.service.DiscardService;
-import top.stillmisty.xiantao.service.EquipmentService;
-import top.stillmisty.xiantao.service.InventoryService;
-import top.stillmisty.xiantao.service.PlayerViewService;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.UserService;
+import top.stillmisty.xiantao.service.cultivation.CultivationService;
+import top.stillmisty.xiantao.service.inventory.DiscardService;
+import top.stillmisty.xiantao.service.inventory.EquipmentService;
+import top.stillmisty.xiantao.service.inventory.InventoryService;
+import top.stillmisty.xiantao.service.player.CharacterStatusService;
+import top.stillmisty.xiantao.service.player.PlayerViewService;
+import top.stillmisty.xiantao.service.player.UserService;
 
 @Slf4j
 @Component

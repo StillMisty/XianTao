@@ -29,7 +29,11 @@ import top.stillmisty.xiantao.domain.map.vo.TravelResultVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.infrastructure.util.FormatUtils;
-import top.stillmisty.xiantao.service.*;
+import top.stillmisty.xiantao.service.ServiceResult;
+import top.stillmisty.xiantao.service.bounty.BountyService;
+import top.stillmisty.xiantao.service.combat.TrainingService;
+import top.stillmisty.xiantao.service.map.MapService;
+import top.stillmisty.xiantao.service.map.TravelService;
 
 @Slf4j
 @Component

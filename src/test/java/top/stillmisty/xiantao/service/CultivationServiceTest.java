@@ -18,6 +18,9 @@ import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.domain.user.vo.BreakthroughResult;
 import top.stillmisty.xiantao.domain.user.vo.DaoProtectionQueryResult;
 import top.stillmisty.xiantao.domain.user.vo.DaoProtectionResult;
+import top.stillmisty.xiantao.service.cultivation.CultivationService;
+import top.stillmisty.xiantao.service.cultivation.DaoProtectionService;
+import top.stillmisty.xiantao.service.player.UserStateService;
 
 @DisplayName("CultivationService 测试")
 @ExtendWith(MockitoExtension.class)

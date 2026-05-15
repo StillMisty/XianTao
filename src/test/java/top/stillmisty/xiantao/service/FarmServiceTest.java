@@ -23,6 +23,10 @@ import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
+import top.stillmisty.xiantao.service.fudi.FarmService;
+import top.stillmisty.xiantao.service.fudi.FudiHelper;
+import top.stillmisty.xiantao.service.inventory.ItemResolver;
+import top.stillmisty.xiantao.service.inventory.StackableItemService;
 
 @DisplayName("FarmService 测试")
 @ExtendWith(MockitoExtension.class)

@@ -11,11 +11,11 @@ import top.stillmisty.xiantao.domain.fudi.vo.FudiStatusVO;
 import top.stillmisty.xiantao.domain.fudi.vo.PenCellVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.TextFormat;
-import top.stillmisty.xiantao.service.BeastBreedingService;
-import top.stillmisty.xiantao.service.FarmService;
-import top.stillmisty.xiantao.service.FudiService;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.ai.SpiritChatService;
+import top.stillmisty.xiantao.service.beast.BeastBreedingService;
+import top.stillmisty.xiantao.service.fudi.FarmService;
+import top.stillmisty.xiantao.service.fudi.FudiService;
 
 /** 福地命令处理器（纯 View 层） */
 @Component

@@ -20,6 +20,15 @@ import top.stillmisty.xiantao.domain.fudi.repository.FudiCellRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
+import top.stillmisty.xiantao.service.beast.BeastBreedingService;
+import top.stillmisty.xiantao.service.beast.BeastCombatService;
+import top.stillmisty.xiantao.service.beast.BeastDisplayHelper;
+import top.stillmisty.xiantao.service.beast.BeastEvolutionService;
+import top.stillmisty.xiantao.service.beast.BeastMutationService;
+import top.stillmisty.xiantao.service.beast.BeastSkillService;
+import top.stillmisty.xiantao.service.fudi.FudiHelper;
+import top.stillmisty.xiantao.service.inventory.ItemResolver;
+import top.stillmisty.xiantao.service.inventory.StackableItemService;
 
 @DisplayName("BeastBreedingService 测试")
 @ExtendWith(MockitoExtension.class)

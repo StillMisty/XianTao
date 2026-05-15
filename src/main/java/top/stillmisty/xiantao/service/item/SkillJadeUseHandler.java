@@ -6,7 +6,7 @@ import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.skill.vo.SkillSlotResult;
-import top.stillmisty.xiantao.service.SkillService;
+import top.stillmisty.xiantao.service.skill.SkillService;
 
 /** 法决玉简使用处理器 */
 @Component

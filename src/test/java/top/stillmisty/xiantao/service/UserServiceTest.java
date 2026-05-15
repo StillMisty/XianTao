@@ -18,6 +18,8 @@ import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.repository.UserAuthRepository;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 import top.stillmisty.xiantao.domain.user.vo.RegisterResult;
+import top.stillmisty.xiantao.service.fudi.FudiService;
+import top.stillmisty.xiantao.service.player.UserService;
 
 @DisplayName("UserService 测试")
 @ExtendWith(MockitoExtension.class)

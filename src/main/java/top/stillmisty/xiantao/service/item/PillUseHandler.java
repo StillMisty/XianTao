@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
-import top.stillmisty.xiantao.service.PillConsumptionService;
+import top.stillmisty.xiantao.service.pill.PillConsumptionService;
 
 /** 丹药使用处理器 */
 @Component

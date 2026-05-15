@@ -12,8 +12,8 @@ import top.stillmisty.xiantao.domain.dungeon.vo.ExploreResultVO;
 import top.stillmisty.xiantao.domain.dungeon.vo.LootPoolEntry;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
-import top.stillmisty.xiantao.service.StackableItemService;
-import top.stillmisty.xiantao.service.UserStateService;
+import top.stillmisty.xiantao.service.inventory.StackableItemService;
+import top.stillmisty.xiantao.service.player.UserStateService;
 
 @Component
 @RequiredArgsConstructor

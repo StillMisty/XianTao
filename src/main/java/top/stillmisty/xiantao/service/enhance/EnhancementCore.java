@@ -11,8 +11,8 @@ import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.enums.Rarity;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
-import top.stillmisty.xiantao.service.ItemResolver;
-import top.stillmisty.xiantao.service.StackableItemService;
+import top.stillmisty.xiantao.service.inventory.ItemResolver;
+import top.stillmisty.xiantao.service.inventory.StackableItemService;
 
 @Component
 @RequiredArgsConstructor

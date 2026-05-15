@@ -15,7 +15,7 @@ import top.stillmisty.xiantao.domain.map.entity.SpecialtyEntry;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.infrastructure.util.WeightedRandom;
 import top.stillmisty.xiantao.service.GameEventService;
-import top.stillmisty.xiantao.service.StackableItemService;
+import top.stillmisty.xiantao.service.inventory.StackableItemService;
 
 /** 历练结算器 — 处理历练结算的子事件和隐藏事件 */
 @Slf4j

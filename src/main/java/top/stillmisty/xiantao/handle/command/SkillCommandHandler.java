@@ -11,7 +11,7 @@ import top.stillmisty.xiantao.domain.skill.vo.SkillVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.SkillService;
+import top.stillmisty.xiantao.service.skill.SkillService;
 
 @Slf4j
 @Component

@@ -6,7 +6,7 @@ import top.stillmisty.xiantao.domain.forge.vo.ForgingRecipeVO;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
-import top.stillmisty.xiantao.service.ForgingService;
+import top.stillmisty.xiantao.service.forging.ForgingService;
 
 @Component
 @RequiredArgsConstructor

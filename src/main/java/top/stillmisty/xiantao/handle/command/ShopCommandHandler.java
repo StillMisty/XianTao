@@ -8,8 +8,8 @@ import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.ShopService;
 import top.stillmisty.xiantao.service.ai.ShopChatService;
+import top.stillmisty.xiantao.service.shop.ShopService;
 
 @Component
 @RequiredArgsConstructor

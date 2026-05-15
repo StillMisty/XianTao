@@ -16,6 +16,10 @@ import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
+import top.stillmisty.xiantao.service.inventory.DiscardService;
+import top.stillmisty.xiantao.service.inventory.ItemResolver;
+import top.stillmisty.xiantao.service.inventory.StackableItemService;
+import top.stillmisty.xiantao.service.player.UserStateService;
 
 @DisplayName("DiscardService 测试")
 @ExtendWith(MockitoExtension.class)

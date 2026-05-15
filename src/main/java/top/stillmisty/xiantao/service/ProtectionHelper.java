@@ -15,13 +15,13 @@ import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 @RequiredArgsConstructor
 public class ProtectionHelper {
 
-  static final double MAX_TOTAL_BONUS_PERCENTAGE = 20.0;
+  public static final double MAX_TOTAL_BONUS_PERCENTAGE = 20.0;
 
   private final DaoProtectionRepository daoProtectionRepository;
   private final UserRepository userRepository;
 
   /** 计算总护道加成（仅统计同地点的护道者） */
-  double calculateProtectionBonus(User protege) {
+  public double calculateProtectionBonus(User protege) {
     List<DaoProtection> protections = daoProtectionRepository.findByProtegeId(protege.getId());
     double totalBonus = 0.0;
 
