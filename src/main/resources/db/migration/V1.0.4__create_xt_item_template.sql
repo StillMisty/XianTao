@@ -21,7 +21,7 @@ COMMENT ON COLUMN xt_item_template.properties IS '类型特有属性 JSONB：
     种子: {"grow_time":24,"reharvest":0,"production_items":[{"weight":1,"template_id":1}]}
     兽卵: {"grow_time":72,"production_items":[...],"skill_pool":{...}}
    法决玉简: {"skill_id":1}
-   丹方卷轴: {"grade":3,"product":{"item_id":1,"quantity":1},"requirements":[{"element":"metal","min":1,"max":5}]}
+    丹方卷轴: {"recipe":{"grade":3,"result_item_id":1,"result_quantity":1,"requirements":{"metal":{"min":1,"max":5}}}}
    丹药: {"effects":[{"type":"exp","amount":100}]}';
 COMMENT ON COLUMN xt_item_template.tags IS '物品标签 JSONB，用于AI检索和NPC交互，示例: ["ore", "metal", "forge_base"]';
 COMMENT ON COLUMN xt_item_template.base_value IS '物品基准价（灵石），系统配置，用于计算收购/售价';
