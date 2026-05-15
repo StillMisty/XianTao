@@ -74,7 +74,7 @@ public class MapNode extends Model<MapNode> {
     return neighbors.stream()
         .filter(n -> n.targetId().equals(mapId))
         .findFirst()
-        .map(NeighborEntry::cost)
+        .map(NeighborEntry::minutes)
         .orElse(null);
   }
 

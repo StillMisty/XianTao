@@ -405,7 +405,7 @@ public class MapCommandHandler implements CommandGroup {
         String adjName = map.getAdjacentMapNames().get(i);
         Integer travelTime =
             map.getNeighbors() != null && i < map.getNeighbors().size()
-                ? map.getNeighbors().get(i).cost()
+                ? map.getNeighbors().get(i).minutes()
                 : null;
         String timeStr =
             travelTime != null ? " (" + FormatUtils.formatMinutes(travelTime) + ")" : "";
