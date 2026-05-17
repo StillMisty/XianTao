@@ -18,6 +18,7 @@ import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.fudi.FudiHelper;
+import top.stillmisty.xiantao.service.masterapprentice.MasterApprenticeService;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
 /** 修仙核心服务 处理突破等核心修仙机制 */
@@ -32,6 +33,7 @@ public class CultivationService {
   private final DaoProtectionService daoProtectionService;
   private final FudiHelper fudiHelper;
   private final ChatClient chatClient;
+  private final MasterApprenticeService masterApprenticeService;
 
   // ===================== 公开 API（含认证） =====================
 
@@ -157,6 +159,8 @@ public class CultivationService {
     }
 
     userStateService.save(user);
+
+    masterApprenticeService.checkAndGraduate(userId);
 
     return new BreakthroughResult(
         true,

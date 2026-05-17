@@ -152,6 +152,39 @@ public enum ErrorCode {
   DUNGEON_INSTANCE_EXPIRED("秘境已超时关闭"),
   DUNGEON_TEAM_SIZE_EXCEED("队伍人数超过秘境限制（最多 %d 人）"),
 
+  // ===== Sect =====
+  SECT_NOT_FOUND("宗门不存在"),
+  SECT_NAME_TAKEN("宗门名【%s】已被使用"),
+  SECT_ALREADY_IN("你已在宗门【%s】中"),
+  SECT_NOT_IN("你不在任何宗门中"),
+  SECT_NOT_LEADER("只有宗主可以执行此操作"),
+  SECT_NO_PERMISSION("你的职位权限不足（需要 %s 权限）"),
+  SECT_FULL("宗门已满（上限 %d 人）"),
+  SECT_CREATE_LEVEL_INSUFFICIENT("创建宗门需要达到金丹期"),
+  SECT_CREATE_MEMBERS_INSUFFICIENT("创建宗门需要至少 %d 名初始成员（含自己）"),
+  SECT_CREATE_FUNDS_INSUFFICIENT("创建宗门需要消耗 %d 灵石"),
+  SECT_DISSOLVE_HAS_MEMBERS("宗门还有 %d 名成员，无法解散"),
+  SECT_COOLDOWN("你刚刚退出了宗门，请等待 %d 小时后再加入新宗门"),
+  SECT_POSITION_INVALID("无效的宗门职位: %s"),
+  SECT_POSITION_LIMIT("该职位人数已达上限（%d 人）"),
+  SECT_CANNOT_KICK_LEADER("无法踢出宗主"),
+  SECT_CANNOT_KICK_SELF("无法踢出自己"),
+  SECT_NOT_SAME("你和目标不在同一宗门"),
+  SECT_APPRENTICE_MUST_FOLLOW_MASTER("徒弟必须跟随师傅的宗门归属"),
+  SECT_MASTER_MUST_MANAGE_APPRENTICE("请先处理师徒关系再操作宗门"),
+
+  // ===== Master-Apprentice =====
+  MASTER_NOT_FOUND("目标师傅不存在"),
+  MASTER_LEVEL_INSUFFICIENT("师傅境界必须高于你至少一个大境界"),
+  MASTER_FULL("师傅收徒已达上限（%d 人）"),
+  MASTER_ALREADY_HAS("你已有师傅"),
+  MASTER_NO_MASTER("你没有师傅"),
+  MASTER_APPRENTICE_NOT_FOUND("未找到该徒弟"),
+  MASTER_CANNOT_SELF("不能拜自己为师"),
+  MASTER_COOLDOWN("你刚刚脱离了师门，请等待 %d 小时后再拜师"),
+  MASTER_NOT_SAME_SECT("师徒双方必须在同一宗门或同为散修"),
+  MASTER_APPRENTICE_HAS_MASTER("该玩家已有师门"),
+
   // ===== Context =====
   USER_CONTEXT_MISSING("未找到用户上下文，请先设置 UserContext");
 

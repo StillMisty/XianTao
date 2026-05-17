@@ -31,6 +31,10 @@ class CultivationServiceTest {
   @Mock private ProtectionHelper protectionHelper;
   @Mock private DaoProtectionService daoProtectionService;
 
+  @Mock
+  private top.stillmisty.xiantao.service.masterapprentice.MasterApprenticeService
+      masterApprenticeService;
+
   @InjectMocks private CultivationService cultivationService;
 
   private final Long userId = 1L;
