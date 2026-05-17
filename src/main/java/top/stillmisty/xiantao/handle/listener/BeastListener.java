@@ -88,12 +88,45 @@ public class BeastListener {
 
   @Listener
   @ContentTrim
-  @Filter("出战灵兽")
-  public void getDeployedBeasts(OneBotMessageEvent event) {
-    log.debug("收到查看出战灵兽请求 - AuthorId: {}", event.getAuthorId());
+  @Filter("灵兽")
+  public void handleBeast(OneBotMessageEvent event) {
+    log.debug("收到灵兽请求 - AuthorId: {}", event.getAuthorId());
     String response =
         beastCommandHandler.handleGetDeployedBeasts(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
+    replyHelper.replyOneBot(event, response);
+  }
+
+  @Listener
+  @ContentTrim
+  @Filter("灵兽列表")
+  public void handleBeastList(OneBotMessageEvent event) {
+    log.debug("收到灵兽列表请求 - AuthorId: {}", event.getAuthorId());
+    String response =
+        beastCommandHandler.handleBeastList(
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
+    replyHelper.replyOneBot(event, response);
+  }
+
+  @Listener
+  @ContentTrim
+  @Filter("灵兽喂养 {{position}} {{quantity}}")
+  public void feedBeast(
+      OneBotMessageEvent event,
+      @FilterValue("position") String position,
+      @FilterValue("quantity") int quantity) {
+    log.debug(
+        "收到灵兽喂养请求 - AuthorId: {}, Position: {}, Quantity: {}",
+        event.getAuthorId(),
+        position,
+        quantity);
+    String response =
+        beastCommandHandler.handleFeedBeast(
+            PlatformType.ONE_BOT_V11,
+            event.getAuthorId().toString(),
+            position,
+            quantity,
+            TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -164,12 +197,45 @@ public class BeastListener {
 
   @Listener
   @ContentTrim
-  @Filter("出战灵兽")
-  public void getDeployedBeastsQq(QGGroupAtMessageCreateEvent event) {
-    log.debug("收到查看出战灵兽请求 - AuthorId: {}", event.getAuthorId());
+  @Filter("灵兽")
+  public void handleBeastQq(QGGroupAtMessageCreateEvent event) {
+    log.debug("收到灵兽请求 - AuthorId: {}", event.getAuthorId());
     String response =
         beastCommandHandler.handleGetDeployedBeasts(
             PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
+    replyHelper.replyQQ(event, response);
+  }
+
+  @Listener
+  @ContentTrim
+  @Filter("灵兽列表")
+  public void handleBeastListQq(QGGroupAtMessageCreateEvent event) {
+    log.debug("收到灵兽列表请求 - AuthorId: {}", event.getAuthorId());
+    String response =
+        beastCommandHandler.handleBeastList(
+            PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
+    replyHelper.replyQQ(event, response);
+  }
+
+  @Listener
+  @ContentTrim
+  @Filter("灵兽喂养 {{position}} {{quantity}}")
+  public void feedBeastQq(
+      QGGroupAtMessageCreateEvent event,
+      @FilterValue("position") String position,
+      @FilterValue("quantity") int quantity) {
+    log.debug(
+        "收到灵兽喂养请求 - AuthorId: {}, Position: {}, Quantity: {}",
+        event.getAuthorId(),
+        position,
+        quantity);
+    String response =
+        beastCommandHandler.handleFeedBeast(
+            PlatformType.QQ,
+            event.getAuthorId().toString(),
+            position,
+            quantity,
+            TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 }

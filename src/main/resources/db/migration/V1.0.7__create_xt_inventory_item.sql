@@ -20,7 +20,7 @@ CREATE TABLE xt_inventory_item
 
     -- 唯一约束：同一用户同模板同属性合并为一行，不同属性分行为不同物品
     CONSTRAINT uk_user_template_props UNIQUE (user_id, template_id, properties_hash),
-    CONSTRAINT chk_inventory_item_type CHECK (item_type IN ('MATERIAL', 'SEED', 'BEAST_EGG', 'POTION', 'EVOLUTION_STONE', 'SKILL_JADE', 'RECIPE_SCROLL', 'HERB')),
+    CONSTRAINT chk_inventory_item_type CHECK (item_type IN ('MATERIAL', 'SEED', 'BEAST_EGG', 'POTION', 'EVOLUTION_STONE', 'SKILL_JADE', 'RECIPE_SCROLL', 'HERB', 'BEAST_ESSENCE')),
     CONSTRAINT chk_inventory_item_quantity CHECK (quantity >= 0)
 );
 

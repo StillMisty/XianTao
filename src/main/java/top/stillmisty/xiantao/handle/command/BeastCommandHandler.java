@@ -75,10 +75,32 @@ public class BeastCommandHandler implements CommandGroup {
   }
 
   public String handleGetDeployedBeasts(PlatformType platform, String openId, TextFormat fmt) {
-    log.debug("处理查看出战灵兽 - Platform: {}, OpenId: {}", platform, openId);
+    log.debug("处理灵兽 - Platform: {}, OpenId: {}", platform, openId);
     return switch (beastCombatService.getDeployedBeasts(platform, openId)) {
       case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
       case ServiceResult.Success(var beasts) -> formatDeployedBeasts(beasts, fmt);
+    };
+  }
+
+  public String handleBeastList(PlatformType platform, String openId, TextFormat fmt) {
+    log.debug("处理灵兽列表 - Platform: {}, OpenId: {}", platform, openId);
+    return switch (beastCombatService.getBeastList(platform, openId)) {
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Success(var beasts) -> formatBeastList(beasts, fmt);
+    };
+  }
+
+  public String handleFeedBeast(
+      PlatformType platform, String openId, String position, int quantity, TextFormat fmt) {
+    log.debug(
+        "处理灵兽喂养 - Platform: {}, OpenId: {}, Position: {}, Quantity: {}",
+        platform,
+        openId,
+        position,
+        quantity);
+    return switch (beastBreedingService.feedBeast(platform, openId, position, quantity)) {
+      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Success(var exp) -> "✅ 喂养成功！灵兽获得 %d 经验。".formatted(exp);
     };
   }
 
@@ -148,7 +170,8 @@ public class BeastCommandHandler implements CommandGroup {
   private String formatReleaseResult(ReleaseBeastVO result, TextFormat fmt) {
     return fmt.heading("灵兽放生成功", "🕊️")
         + String.format(
-            "放生了 %s（T%d %s）\n获得灵兽精华", result.beastName(), result.tier(), result.quality());
+            "放生了 %s（T%d %s）\n获得 %d 份灵兽精华",
+            result.beastName(), result.tier(), result.quality(), result.essenceAmount());
   }
 
   private String formatDeployedBeasts(List<BeastStatusVO> beasts, TextFormat fmt) {
@@ -172,6 +195,32 @@ public class BeastCommandHandler implements CommandGroup {
     return sb.toString();
   }
 
+  private String formatBeastList(List<BeastStatusVO> beasts, TextFormat fmt) {
+    if (beasts.isEmpty()) {
+      return fmt.heading("灵兽列表（空）", "📋") + "你还没有任何灵兽。";
+    }
+    StringBuilder sb = new StringBuilder(fmt.heading("灵兽列表", "📋"));
+    sb.append(fmt.listItem("共 " + beasts.size() + " 只")).append(fmt.separator());
+    for (int i = 0; i < beasts.size(); i++) {
+      BeastStatusVO beast = beasts.get(i);
+      String status;
+      if (beast.isDeployed()) {
+        status = "⚔️ 出战";
+      } else if (beast.needsRecovery()) {
+        status = "🛌 休养";
+      } else if (beast.pennedCellId() > 0) {
+        status = "🏠 在栏";
+      } else {
+        status = "💤 待命";
+      }
+      sb.append(
+          "%d. %s T%d %s Lv%d %s\n"
+              .formatted(
+                  i + 1, beast.beastName(), beast.tier(), beast.quality(), beast.level(), status));
+    }
+    return sb.toString();
+  }
+
   @Override
   public String groupName() {
     return "灵兽";
@@ -185,11 +234,13 @@ public class BeastCommandHandler implements CommandGroup {
   @Override
   public List<CommandEntry> commands() {
     return List.of(
-        new CommandEntry("灵兽出战 {{编号}}", "派出灵兽参与战斗", "灵兽出战 1"),
-        new CommandEntry("灵兽召回 {{编号/all}}", "召回出战的灵兽", "灵兽召回 1"),
-        new CommandEntry("灵兽恢复 {{编号/all}}", "恢复灵兽生命值", "灵兽恢复 1"),
-        new CommandEntry("灵兽进化 {{编号}} {{升阶/升品}}", "进化灵兽", "灵兽进化 1 升阶"),
-        new CommandEntry("灵兽放生 {{编号}}", "放生灵兽", "灵兽放生 1"),
-        new CommandEntry("出战灵兽", "查看当前出战的灵兽", "出战灵兽"));
+        new CommandEntry("灵兽", "查看当前出战的灵兽", "灵兽"),
+        new CommandEntry("灵兽列表", "查看拥有的所有灵兽", "灵兽列表"),
+        new CommandEntry("灵兽出战 「编号」", "派出灵兽参与战斗", "灵兽出战 1"),
+        new CommandEntry("灵兽召回 「编号/all」", "召回出战的灵兽", "灵兽召回 1"),
+        new CommandEntry("灵兽恢复 「编号/all」", "恢复灵兽生命值", "灵兽恢复 1"),
+        new CommandEntry("灵兽进化 「编号」 「升阶/升品」", "进化灵兽", "灵兽进化 1 升阶"),
+        new CommandEntry("灵兽放生 「编号」", "放生灵兽", "灵兽放生 1"),
+        new CommandEntry("灵兽喂养 「编号」 「数量」", "消耗灵兽精华喂养灵兽", "灵兽喂养 1 3"));
   }
 }

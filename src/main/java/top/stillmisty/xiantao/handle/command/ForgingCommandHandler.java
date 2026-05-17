@@ -154,9 +154,9 @@ public class ForgingCommandHandler implements CommandGroup {
   public List<CommandEntry> commands() {
     return List.of(
         new CommandEntry("锻造列表", "查看已学锻造图纸", "锻造列表"),
-        new CommandEntry("锻造 {{图纸名}}", "自动锻造（自动选材）", "锻造 寒冰剑图"),
-        new CommandEntry("锻造 {{锻材1×N 锻材2×M ...}}", "手动锻造（指定锻材配比）", "锻造 玄铁矿石×3 紫金砂×1"),
-        new CommandEntry("强化 {{装备名}}", "自动强化（自动选材）", "强化 寒冰剑"),
-        new CommandEntry("强化 {{装备名 锻材1×N ...}}", "手动强化（精确控制配比）", "强化 寒冰剑 玄铁矿石×3"));
+        new CommandEntry("锻造 「图纸名」", "自动锻造（自动选材）", "锻造 寒冰剑图"),
+        new CommandEntry("锻造 「锻材1×N 锻材2×M ...」", "手动锻造（指定锻材配比）", "锻造 玄铁矿石×3 紫金砂×1"),
+        new CommandEntry("强化 「装备名」", "自动强化（自动选材）", "强化 寒冰剑"),
+        new CommandEntry("强化 「装备名 锻材1×N ...」", "手动强化（精确控制配比）", "强化 寒冰剑 玄铁矿石×3"));
   }
 }

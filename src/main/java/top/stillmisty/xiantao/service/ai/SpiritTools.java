@@ -16,6 +16,7 @@ import top.stillmisty.xiantao.domain.fudi.vo.CollectVO;
 import top.stillmisty.xiantao.domain.fudi.vo.FarmCellVO;
 import top.stillmisty.xiantao.domain.fudi.vo.GiveGiftVO;
 import top.stillmisty.xiantao.domain.fudi.vo.PenCellVO;
+import top.stillmisty.xiantao.domain.fudi.vo.UpgradeCellVO;
 import top.stillmisty.xiantao.domain.item.enums.InventoryCategory;
 import top.stillmisty.xiantao.domain.item.vo.ItemEntry;
 import top.stillmisty.xiantao.service.*;
@@ -246,6 +247,27 @@ public class SpiritTools {
     }
   }
 
+  /** 升级地块工具 */
+  @Tool(description = "升级福地中指定地块的等级。提供地块编号。")
+  public UpgradeCellResponse upgradeCell(
+      @ToolParam(description = "地块编号，如'1'、'2'等") String position) {
+    try {
+      Long userId = getCurrentUserId();
+      UpgradeCellVO result = fudiService.upgradeCell(userId, position);
+      return new UpgradeCellResponse(
+          true,
+          String.format(
+              "已将地块 %s 的%s从 Lv%d 升级至 Lv%d。",
+              position, result.type(), result.oldLevel(), result.newLevel()),
+          position,
+          result.oldLevel(),
+          result.newLevel());
+    } catch (Exception e) {
+      log.error("升级地块失败: position={}", position, e);
+      return new UpgradeCellResponse(false, "升级失败：" + e.getMessage(), position, 0, 0);
+    }
+  }
+
   /** 赠送礼物工具 */
   @Tool(description = "赠送背包中的物品给地灵。当地灵表示喜欢某物或玩家主动送礼时调用。参数为物品名称。")
   public GiveGiftResponse giveGift(@ToolParam(description = "物品名称，如'精铁剑'、'灵石'等") String itemName) {
@@ -362,6 +384,13 @@ public class SpiritTools {
       @JsonPropertyDescription("物品名称") String itemName,
       @JsonPropertyDescription("好感度变化") int affectionChange,
       @JsonPropertyDescription("地灵反应") String reaction) {}
+
+  public record UpgradeCellResponse(
+      @JsonPropertyDescription("是否成功") boolean success,
+      @JsonPropertyDescription("结果消息") String message,
+      @JsonPropertyDescription("地块编号") String position,
+      @JsonPropertyDescription("旧等级") int oldLevel,
+      @JsonPropertyDescription("新等级") int newLevel) {}
 
   public record ReportOffenseResponse(
       @JsonPropertyDescription("是否成功") boolean success,

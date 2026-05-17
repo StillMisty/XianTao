@@ -434,11 +434,11 @@ public class MapCommandHandler implements CommandGroup {
   public List<CommandEntry> commands() {
     return List.of(
         new CommandEntry("地图", "查看当前地图信息与世界地图", "地图"),
-        new CommandEntry("前往 {{地图名}}", "前往相邻地图", "前往 青木林"),
+        new CommandEntry("前往 「地图名」", "前往相邻地图", "前往 青木林"),
         new CommandEntry("历练", "开始在地图历练", "历练"),
         new CommandEntry("历练结算", "结束历练并结算收益", "历练结算"),
         new CommandEntry("悬赏", "查看悬赏状态或可接列表", "悬赏"),
-        new CommandEntry("悬赏接取 {{编号}}", "接取悬赏任务", "悬赏接取 1"),
+        new CommandEntry("悬赏接取 「编号」", "接取悬赏任务", "悬赏接取 1"),
         new CommandEntry("悬赏结算", "完成并结算悬赏", "悬赏结算"),
         new CommandEntry("悬赏放弃", "放弃当前悬赏", "悬赏放弃"));
   }

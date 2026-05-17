@@ -36,6 +36,6 @@ public class PvpCommandHandler implements CommandGroup {
 
   @Override
   public List<CommandEntry> commands() {
-    return List.of(new CommandEntry("切磋 {{道号}}", "与其他玩家切磋对战", "切磋 张三"));
+    return List.of(new CommandEntry("切磋 「道号」", "与其他玩家切磋对战", "切磋 张三"));
   }
 }

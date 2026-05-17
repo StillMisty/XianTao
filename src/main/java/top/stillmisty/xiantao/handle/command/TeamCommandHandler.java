@@ -75,7 +75,7 @@ public class TeamCommandHandler implements CommandGroup {
   public List<CommandEntry> commands() {
     return List.of(
         new CommandEntry("组队", "查看队伍状态和待处理邀请", "组队"),
-        new CommandEntry("组队邀请 {{道号}}", "邀请玩家组队", "组队邀请 张三"),
+        new CommandEntry("组队邀请 「道号」", "邀请玩家组队", "组队邀请 张三"),
         new CommandEntry("组队接受 [邀请编号]", "接受组队邀请（不填编号默认接受最新）", "组队接受 42"),
         new CommandEntry("组队拒绝 [邀请编号]", "拒绝组队邀请（不填编号拒绝全部）", "组队拒绝 42"),
         new CommandEntry("组队离开", "离开当前队伍", "组队离开"));

@@ -551,18 +551,18 @@ public class CultivationCommandHandler implements CommandGroup {
   @Override
   public List<CommandEntry> commands() {
     return List.of(
-        new CommandEntry("改号 {{新道号}}", "更改道号（道号不可与其他玩家重复）", "改号 李四"),
-        new CommandEntry("我要修仙 {{道号}}", "注册新角色", "我要修仙 张三"),
+        new CommandEntry("改号 「新道号」", "更改道号（道号不可与其他玩家重复）", "改号 李四"),
+        new CommandEntry("我要修仙 「道号」", "注册新角色", "我要修仙 张三"),
         new CommandEntry("状态", "查看角色完整信息", "状态"),
         new CommandEntry("背包", "查看背包汇总", "背包"),
-        new CommandEntry("背包 {{分类}}", "查看分类物品（种子/装备/兽卵）", "背包 种子"),
-        new CommandEntry("装备 {{物品}}", "穿戴装备", "装备 玄铁剑"),
-        new CommandEntry("卸下 {{部位/物品}}", "卸下装备（支持部位名或物品名/编号）", "卸下 武器"),
-        new CommandEntry("丢弃 {{物品}}", "丢弃物品或装备", "丢弃 玄铁剑"),
-        new CommandEntry("查看 {{道号}}", "查看其他玩家的信息", "查看 张三"),
+        new CommandEntry("背包 「分类」", "查看分类物品（种子/装备/兽卵）", "背包 种子"),
+        new CommandEntry("装备 「物品」", "穿戴装备", "装备 玄铁剑"),
+        new CommandEntry("卸下 「部位/物品」", "卸下装备（支持部位名或物品名/编号）", "卸下 武器"),
+        new CommandEntry("丢弃 「物品」", "丢弃物品或装备", "丢弃 玄铁剑"),
+        new CommandEntry("查看 「道号」", "查看其他玩家的信息", "查看 张三"),
         new CommandEntry("突破", "尝试境界突破", "突破"),
-        new CommandEntry("护道 {{道号}}", "建立护道关系", "护道 李四"),
-        new CommandEntry("护道解除 {{道号}}", "解除护道关系", "护道解除 李四"),
+        new CommandEntry("护道 「道号」", "建立护道关系", "护道 李四"),
+        new CommandEntry("护道解除 「道号」", "解除护道关系", "护道解除 李四"),
         new CommandEntry("护道查询", "查看护道信息", "护道查询"));
   }
 }

@@ -31,8 +31,8 @@ public class ShopCommandHandler implements CommandGroup {
   @Override
   public List<CommandEntry> commands() {
     return List.of(
-        new CommandEntry("掌柜 {{内容}}", "与当前所在地图商铺掌柜自然语言交互", "掌柜 有什么好货？"),
-        new CommandEntry("回收 {{物品名}}", "快速回收物品（直接估价出售）", "回收 玄铁剑"));
+        new CommandEntry("掌柜 「内容」", "与当前所在地图商铺掌柜自然语言交互", "掌柜 有什么好货？"),
+        new CommandEntry("回收 「物品名」", "快速回收物品（直接估价出售）", "回收 玄铁剑"));
   }
 
   public String handleShopkeeper(

@@ -51,6 +51,17 @@ public class BeastBreedingService {
   private final BeastEvolutionService beastEvolutionService;
   private final BeastMutationService beastMutationService;
 
+  /** 每份灵兽精华提供的经验值 */
+  public static final int ESSENCE_EXP_PER_UNIT = 50;
+
+  private static final java.util.Map<String, Integer> ESSENCE_QUALITY_BONUS =
+      java.util.Map.of(
+          "MORTAL", 0,
+          "SPIRIT", 2,
+          "IMMORTAL", 5,
+          "SAINT", 10,
+          "DIVINE", 20);
+
   // ===================== 公开 API（含认证） =====================
 
   @Authenticated
@@ -75,6 +86,14 @@ public class BeastBreedingService {
       PlatformType platform, String openId, String position) {
     Long userId = UserContext.getCurrentUserId();
     return new ServiceResult.Success<>(releaseBeast(userId, position));
+  }
+
+  @Authenticated
+  @Transactional
+  public ServiceResult<Integer> feedBeast(
+      PlatformType platform, String openId, String position, int quantity) {
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(feedBeast(userId, position, quantity));
   }
 
   @Authenticated
@@ -306,9 +325,84 @@ public class BeastBreedingService {
       beastRepository.deleteById(beast.getId());
     }
 
-    log.info("用户 {} 放生 {} (T{}/{})", userId, beastName, tier, qualityStr);
+    int essenceAmount = tier * 5 + ESSENCE_QUALITY_BONUS.getOrDefault(qualityStr, 0);
+    if (essenceAmount > 0) {
+      itemTemplateRepository
+          .findByName("灵兽精华")
+          .ifPresent(
+              template ->
+                  stackableItemService.addStackableItem(
+                      userId,
+                      template.getId(),
+                      ItemType.BEAST_ESSENCE,
+                      "灵兽精华",
+                      essenceAmount,
+                      java.util.Map.of()));
+    }
 
-    return new ReleaseBeastVO(beastName, tier, qualityStr);
+    log.info(
+        "用户 {} 放生 {} (T{}/{})，获得 {} 份灵兽精华", userId, beastName, tier, qualityStr, essenceAmount);
+
+    return new ReleaseBeastVO(beastName, tier, qualityStr, essenceAmount);
+  }
+
+  @Transactional
+  public int feedBeast(Long userId, String position, int quantity) {
+    if (quantity <= 0) {
+      throw new BusinessException(ITEM_QUANTITY_INSUFFICIENT, quantity, 0);
+    }
+
+    Integer cellId = fudiHelper.parseCellId(position);
+    Fudi fudi =
+        fudiHelper
+            .findAndTouchFudi(userId)
+            .orElseThrow(() -> new BusinessException(FUDI_NOT_FOUND));
+
+    FudiCell cell =
+        fudiCellRepository
+            .findByFudiIdAndCellId(fudi.getId(), cellId)
+            .orElseThrow(() -> new BusinessException(CELL_NOT_FOUND, cellId));
+
+    if (cell.getCellType() != CellType.PEN) {
+      throw new BusinessException(CELL_NOT_PEN, cellId);
+    }
+
+    Beast beast = beastDisplayHelper.findBeastByCell(cell);
+    if (beast == null) {
+      throw new BusinessException(BEAST_NOT_FOUND);
+    }
+    if (beast.getLevel() >= beast.getLevelCap()) {
+      throw new BusinessException(CELL_MAX_LEVEL);
+    }
+
+    ItemTemplate essenceTemplate =
+        itemTemplateRepository
+            .findByName("灵兽精华")
+            .orElseThrow(() -> new BusinessException(ITEM_NOT_FOUND, "灵兽精华"));
+
+    var essenceItem =
+        stackableItemRepository
+            .findByUserIdAndTemplateId(userId, essenceTemplate.getId())
+            .orElseThrow(() -> new BusinessException(ITEM_NOT_EXISTS, "灵兽精华"));
+    if (essenceItem.getQuantity() < quantity) {
+      throw new BusinessException(ITEM_QUANTITY_INSUFFICIENT, quantity, essenceItem.getQuantity());
+    }
+
+    stackableItemService.reduceStackableItem(userId, essenceItem.getId(), quantity);
+
+    int totalExp = quantity * ESSENCE_EXP_PER_UNIT;
+    long consumed = beast.addExp(totalExp);
+    beastRepository.save(beast);
+
+    log.info(
+        "用户 {} 喂 {} 份灵兽精华给地块 {} 的灵兽 {}，获得 {} 经验",
+        userId,
+        quantity,
+        cellId,
+        beast.getBeastName(),
+        consumed);
+
+    return (int) consumed;
   }
 
   @Transactional

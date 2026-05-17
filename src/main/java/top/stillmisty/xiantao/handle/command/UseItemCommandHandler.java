@@ -46,7 +46,7 @@ public class UseItemCommandHandler implements CommandGroup {
   @Override
   public List<CommandEntry> commands() {
     return List.of(
-        new CommandEntry("使用 {{物品}}", "使用物品（丹药、玉简、卷轴等）", "使用 天元丹"),
-        new CommandEntry("使用 {{物品}} {{参数}}", "使用物品并指定参数", "使用 进化石 1"));
+        new CommandEntry("使用 「物品」", "使用物品（丹药、玉简、卷轴等）", "使用 天元丹"),
+        new CommandEntry("使用 「物品」 「参数」", "使用物品并指定参数", "使用 进化石 1"));
   }
 }

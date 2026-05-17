@@ -148,7 +148,7 @@ public class DungeonCommandHandler implements CommandGroup {
   public List<CommandEntry> commands() {
     return List.of(
         new CommandEntry("秘境", "查看秘境列表与当前进度", "秘境"),
-        new CommandEntry("秘境 {{秘境名}}", "进入指定秘境", "秘境 紫府秘境"),
+        new CommandEntry("秘境 「秘境名」", "进入指定秘境", "秘境 紫府秘境"),
         new CommandEntry("秘境探索", "探索当前区域的下一个建筑", "秘境探索"),
         new CommandEntry("秘境继续", "推进到下一区域", "秘境继续"),
         new CommandEntry("秘境撤退", "退出秘境并结算", "秘境撤退"));

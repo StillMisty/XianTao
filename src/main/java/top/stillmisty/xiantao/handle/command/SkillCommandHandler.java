@@ -159,7 +159,7 @@ public class SkillCommandHandler implements CommandGroup {
   public List<CommandEntry> commands() {
     return List.of(
         new CommandEntry("法决", "查看已装载法决与已学法决列表", "法决"),
-        new CommandEntry("法决装载 {{法决}}", "装载法决到槽位", "法决装载 御剑术"),
-        new CommandEntry("法决卸下 {{法决}}", "从槽位卸下法决", "法决卸下 御剑术"));
+        new CommandEntry("法决装载 「法决」", "装载法决到槽位", "法决装载 御剑术"),
+        new CommandEntry("法决卸下 「法决」", "从槽位卸下法决", "法决卸下 御剑术"));
   }
 }

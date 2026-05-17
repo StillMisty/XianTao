@@ -22,7 +22,9 @@ public enum ItemType {
 
   FORGING_BLUEPRINT("FORGING_BLUEPRINT", "锻造图纸"),
 
-  HERB("HERB", "药材");
+  HERB("HERB", "药材"),
+
+  BEAST_ESSENCE("BEAST_ESSENCE", "灵兽精华");
 
   @EnumValue private final String code;
 

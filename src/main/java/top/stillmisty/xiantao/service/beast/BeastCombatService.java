@@ -63,6 +63,12 @@ public class BeastCombatService {
     return new ServiceResult.Success<>(getDeployedBeasts(userId));
   }
 
+  @Authenticated
+  public ServiceResult<List<BeastStatusVO>> getBeastList(PlatformType platform, String openId) {
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(getBeastList(userId));
+  }
+
   // ===================== 静态公式 =====================
 
   public static int calculateBeastAttack(int level, BeastQuality quality) {
@@ -225,6 +231,12 @@ public class BeastCombatService {
     List<Beast> allBeasts = beastRepository.findByFudiId(fudi.getId());
     return allBeasts.stream()
         .filter(b -> Boolean.TRUE.equals(b.getIsDeployed()))
+        .map(beastDisplayHelper::convertToBeastStatusVO)
+        .toList();
+  }
+
+  List<BeastStatusVO> getBeastList(Long userId) {
+    return beastRepository.findByUserId(userId).stream()
         .map(beastDisplayHelper::convertToBeastStatusVO)
         .toList();
   }
