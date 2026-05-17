@@ -5,13 +5,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class Team {
+public class CombatTeam {
 
   private final Long ownerId;
   private final List<Combatant> members;
   private final String name;
 
-  public Team(Long ownerId, String name) {
+  public CombatTeam(Long ownerId, String name) {
     this.ownerId = ownerId;
     this.name = name;
     this.members = new ArrayList<>();

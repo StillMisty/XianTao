@@ -37,14 +37,14 @@ public class CombatService {
   private final PlayerBuffRepository playerBuffRepository;
   private final CombatEngine combatEngine;
 
-  public BattleResultVO simulate(Team teamA, Team teamB, int maxRounds) {
+  public BattleResultVO simulate(CombatTeam teamA, CombatTeam teamB, int maxRounds) {
     Battle battle =
         Battle.of(teamA, teamB, BattleContext.BattleScene.TRAINING, maxRounds, combatEngine);
     return battle.execute();
   }
 
-  public Team buildPlayerTeam(User user) {
-    Team team = new Team(user.getId(), "Player");
+  public CombatTeam buildPlayerTeam(User user) {
+    CombatTeam team = new CombatTeam(user.getId(), "Player");
 
     BuffValues buffs = loadActiveBuffs(user.getId());
 
@@ -72,8 +72,8 @@ public class CombatService {
   }
 
   /** 构建玩家队伍，使用预加载的技能映射（避免N+1查询） */
-  public Team buildPlayerTeam(User user, Map<Long, Skill> skillLookup) {
-    Team team = new Team(user.getId(), "Player");
+  public CombatTeam buildPlayerTeam(User user, Map<Long, Skill> skillLookup) {
+    CombatTeam team = new CombatTeam(user.getId(), "Player");
 
     BuffValues buffs = loadActiveBuffs(user.getId());
 

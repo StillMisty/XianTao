@@ -6,13 +6,13 @@ import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
 /**
  * 战斗实体 — 单场战斗的完整生命周期
  *
- * <p>泛型设计：只操作 {@link Combatant} 接口和 {@link Team}，不关心具体类型。 战后结算（HP 回写、掉落计算、灵兽休养）由调用方处理。
+ * <p>泛型设计：只操作 {@link Combatant} 接口和 {@link CombatTeam}，不关心具体类型。 战后结算（HP 回写、掉落计算、灵兽休养）由调用方处理。
  */
 @Getter
 public class Battle {
 
-  private final Team teamA;
-  private final Team teamB;
+  private final CombatTeam teamA;
+  private final CombatTeam teamB;
   private final BattleContext.BattleScene scene;
   private final int maxRounds;
   private final CombatEngine combatEngine;
@@ -21,8 +21,8 @@ public class Battle {
   private boolean executed;
 
   private Battle(
-      Team teamA,
-      Team teamB,
+      CombatTeam teamA,
+      CombatTeam teamB,
       BattleContext.BattleScene scene,
       int maxRounds,
       CombatEngine combatEngine) {
@@ -43,8 +43,8 @@ public class Battle {
    * @param combatEngine 战斗引擎
    */
   public static Battle of(
-      Team teamA,
-      Team teamB,
+      CombatTeam teamA,
+      CombatTeam teamB,
       BattleContext.BattleScene scene,
       int maxRounds,
       CombatEngine combatEngine) {

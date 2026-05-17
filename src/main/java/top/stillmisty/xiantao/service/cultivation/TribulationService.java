@@ -15,8 +15,8 @@ import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiCellRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
+import top.stillmisty.xiantao.domain.monster.CombatTeam;
 import top.stillmisty.xiantao.domain.monster.Combatant;
-import top.stillmisty.xiantao.domain.monster.Team;
 import top.stillmisty.xiantao.domain.monster.TribulationBoss;
 import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
 import top.stillmisty.xiantao.domain.user.entity.User;
@@ -80,7 +80,7 @@ public class TribulationService {
     }
 
     // 构建防守方队伍（玩家 + 出战灵兽）
-    Team defendingTeam = combatService.buildPlayerTeam(user);
+    CombatTeam defendingTeam = combatService.buildPlayerTeam(user);
 
     // 检查是否有存活成员
     if (defendingTeam.aliveMembers().isEmpty()) {
@@ -106,7 +106,7 @@ public class TribulationService {
             compassionTriggered);
 
     // Boss 队伍
-    Team bossTeam = new Team(0L, "天劫");
+    CombatTeam bossTeam = new CombatTeam(0L, "天劫");
     bossTeam.addMember(boss);
 
     // 执行战斗
@@ -136,7 +136,7 @@ public class TribulationService {
 
   private record TeamStats(int totalMaxHp, int avgAttack, int avgDef, int avgSpeed) {}
 
-  private TeamStats calculateTeamStats(Team team) {
+  private TeamStats calculateTeamStats(CombatTeam team) {
     List<Combatant> members = team.members();
     int totalMaxHp = 0, totalAtk = 0, totalDef = 0, totalSpd = 0;
     int count = 0;
@@ -155,7 +155,7 @@ public class TribulationService {
 
   // ===================== 战斗后 HP 应用 =====================
 
-  private void applyHpToUser(User user, Team team) {
+  private void applyHpToUser(User user, CombatTeam team) {
     team.members().stream()
         .filter(c -> c instanceof top.stillmisty.xiantao.domain.monster.PlayerCombatant)
         .findFirst()
@@ -169,7 +169,7 @@ public class TribulationService {
     userRepository.save(user);
   }
 
-  private void applyHpToBeasts(Team team, User user, boolean playerWon) {
+  private void applyHpToBeasts(CombatTeam team, User user, boolean playerWon) {
     for (Combatant c : team.members()) {
       if (c instanceof top.stillmisty.xiantao.domain.monster.BeastCombatant bc) {
         Beast beast = beastRepository.findById(c.getId()).orElse(null);

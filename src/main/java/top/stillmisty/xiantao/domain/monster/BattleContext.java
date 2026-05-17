@@ -9,9 +9,9 @@ import lombok.Getter;
 public class BattleContext {
 
   /** 战斗队伍 */
-  private final Team teamA;
+  private final CombatTeam teamA;
 
-  private final Team teamB;
+  private final CombatTeam teamB;
 
   /** 最大回合数 */
   @Builder.Default private final int maxRounds = 20;

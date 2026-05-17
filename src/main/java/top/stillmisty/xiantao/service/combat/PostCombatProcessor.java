@@ -8,9 +8,9 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
 import top.stillmisty.xiantao.domain.monster.BeastCombatant;
+import top.stillmisty.xiantao.domain.monster.CombatTeam;
 import top.stillmisty.xiantao.domain.monster.Combatant;
 import top.stillmisty.xiantao.domain.monster.PlayerCombatant;
-import top.stillmisty.xiantao.domain.monster.Team;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.service.beast.BeastSkillService;
 
@@ -22,7 +22,7 @@ public class PostCombatProcessor {
   private final BeastRepository beastRepository;
   private final BeastSkillService beastSkillService;
 
-  public void applyHpToUser(User user, Team team) {
+  public void applyHpToUser(User user, CombatTeam team) {
     for (Combatant c : team.members()) {
       if (c instanceof PlayerCombatant) {
         user.setHpCurrent(c.getHp());
@@ -31,7 +31,7 @@ public class PostCombatProcessor {
   }
 
   public void applyHpToBeasts(
-      Team team,
+      CombatTeam team,
       User user,
       boolean playerWon,
       boolean isHighlightBattle,

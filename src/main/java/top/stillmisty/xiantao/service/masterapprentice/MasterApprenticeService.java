@@ -4,8 +4,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.masterapprentice.entity.MasterApprentice;
@@ -29,7 +29,6 @@ import top.stillmisty.xiantao.service.sect.SectService;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class MasterApprenticeService {
 
   private static final int MAX_APPRENTICE_COUNT = 3;
@@ -39,7 +38,20 @@ public class MasterApprenticeService {
   private final DaoProtectionRepository daoProtectionRepository;
   private final UserRepository userRepository;
   private final UserStateService userStateService;
-  private final SectService sectService;
+  @Lazy private final SectService sectService;
+
+  public MasterApprenticeService(
+      MasterApprenticeRepository masterApprenticeRepository,
+      DaoProtectionRepository daoProtectionRepository,
+      UserRepository userRepository,
+      UserStateService userStateService,
+      @Lazy SectService sectService) {
+    this.masterApprenticeRepository = masterApprenticeRepository;
+    this.daoProtectionRepository = daoProtectionRepository;
+    this.userRepository = userRepository;
+    this.userStateService = userStateService;
+    this.sectService = sectService;
+  }
 
   // ===================== 公开 API =====================
 

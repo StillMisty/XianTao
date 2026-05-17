@@ -14,9 +14,9 @@ import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
 import top.stillmisty.xiantao.domain.map.entity.MonsterEncounterEntry;
 import top.stillmisty.xiantao.domain.monster.BeastCombatant;
+import top.stillmisty.xiantao.domain.monster.CombatTeam;
 import top.stillmisty.xiantao.domain.monster.Combatant;
 import top.stillmisty.xiantao.domain.monster.Monster;
-import top.stillmisty.xiantao.domain.monster.Team;
 import top.stillmisty.xiantao.domain.monster.entity.MonsterTemplate;
 import top.stillmisty.xiantao.domain.monster.repository.MonsterTemplateRepository;
 import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
@@ -156,8 +156,8 @@ public class TrainingCombatLogic {
     ctx.user.setHpCurrent(
         Math.min(ctx.user.calculateMaxHp(), ctx.user.getHpCurrent() + recoveryAmount));
 
-    Team playerTeam = combatService.buildPlayerTeam(ctx.user, skillMap);
-    Team monsterTeam = buildMonsterTeamWithSkills(tmpl, count, skillMap);
+    CombatTeam playerTeam = combatService.buildPlayerTeam(ctx.user, skillMap);
+    CombatTeam monsterTeam = buildMonsterTeamWithSkills(tmpl, count, skillMap);
 
     BattleResultVO result = combatService.simulate(playerTeam, monsterTeam, DEFAULT_MAX_ROUNDS);
     ctx.totalRounds += result.rounds();
@@ -270,9 +270,9 @@ public class TrainingCombatLogic {
     return new EncounterParams(chances, chance);
   }
 
-  private Team buildMonsterTeamWithSkills(
+  private CombatTeam buildMonsterTeamWithSkills(
       MonsterTemplate tmpl, int count, Map<Long, Skill> skillMap) {
-    Team team = new Team(0L, "Monsters");
+    CombatTeam team = new CombatTeam(0L, "Monsters");
     for (int j = 0; j < count; j++) {
       List<Skill> monsterSkills =
           tmpl.getSkills() != null && !tmpl.getSkills().isEmpty()
@@ -292,7 +292,7 @@ public class TrainingCombatLogic {
   }
 
   private void captureInitialBeastHp(User user, CombatContext ctx, Map<Long, Skill> skillMap) {
-    Team initialTeam = combatService.buildPlayerTeam(user, skillMap);
+    CombatTeam initialTeam = combatService.buildPlayerTeam(user, skillMap);
     for (Combatant c : initialTeam.members()) {
       if (c instanceof BeastCombatant) {
         ctx.beastHpTracks.put(c.getId(), new BeastHpTrack(c.getName(), c.getHp(), c.getHp()));
@@ -300,7 +300,7 @@ public class TrainingCombatLogic {
     }
   }
 
-  private void updateBeastHpTracks(CombatContext ctx, Team playerTeam) {
+  private void updateBeastHpTracks(CombatContext ctx, CombatTeam playerTeam) {
     for (Combatant c : playerTeam.members()) {
       if (c instanceof BeastCombatant) {
         BeastHpTrack track = ctx.beastHpTracks.get(c.getId());

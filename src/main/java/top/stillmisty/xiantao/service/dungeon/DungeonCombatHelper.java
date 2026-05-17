@@ -14,8 +14,8 @@ import top.stillmisty.xiantao.domain.dungeon.entity.DungeonPoiConfig;
 import top.stillmisty.xiantao.domain.dungeon.vo.MonsterPoolEntry;
 import top.stillmisty.xiantao.domain.monster.BattleContext;
 import top.stillmisty.xiantao.domain.monster.CombatEngine;
+import top.stillmisty.xiantao.domain.monster.CombatTeam;
 import top.stillmisty.xiantao.domain.monster.Monster;
-import top.stillmisty.xiantao.domain.monster.Team;
 import top.stillmisty.xiantao.domain.monster.entity.MonsterTemplate;
 import top.stillmisty.xiantao.domain.monster.repository.MonsterTemplateRepository;
 import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
@@ -68,12 +68,12 @@ public class DungeonCombatHelper {
                 : 20;
 
     Monster monster = new Monster(monsterTmpl, areaMinLevel, List.of());
-    Team monsterTeam = new Team(-1L, monster.getName());
+    CombatTeam monsterTeam = new CombatTeam(-1L, monster.getName());
     monsterTeam.addMember(monster);
 
-    Team playerTeam = combatService.buildPlayerTeam(leader);
+    CombatTeam playerTeam = combatService.buildPlayerTeam(leader);
     Map<Long, User> memberUsers = new HashMap<>();
-    Map<Long, Team> memberTeams = new HashMap<>();
+    Map<Long, CombatTeam> memberTeams = new HashMap<>();
 
     for (Long memberId : memberIds) {
       if (memberId.equals(leader.getId())) continue;
@@ -83,7 +83,7 @@ public class DungeonCombatHelper {
       memberTeams.put(memberId, combatService.buildPlayerTeam(member));
     }
 
-    for (Team mt : memberTeams.values()) {
+    for (CombatTeam mt : memberTeams.values()) {
       for (var combatant : mt.members()) {
         playerTeam.addMember(combatant);
       }

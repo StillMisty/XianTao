@@ -13,8 +13,8 @@ import top.stillmisty.xiantao.domain.monster.BeastCombatant;
 import top.stillmisty.xiantao.domain.monster.Buff;
 import top.stillmisty.xiantao.domain.monster.BuffManager;
 import top.stillmisty.xiantao.domain.monster.CombatEngine;
+import top.stillmisty.xiantao.domain.monster.CombatTeam;
 import top.stillmisty.xiantao.domain.monster.Combatant;
-import top.stillmisty.xiantao.domain.monster.Team;
 import top.stillmisty.xiantao.domain.monster.enums.BuffType;
 import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
 import top.stillmisty.xiantao.domain.monster.vo.CombatLogEntry;
@@ -35,8 +35,8 @@ public class DefaultCombatEngine implements CombatEngine {
 
   @Override
   public BattleResultVO simulate(BattleContext context) {
-    Team teamA = context.getTeamA();
-    Team teamB = context.getTeamB();
+    CombatTeam teamA = context.getTeamA();
+    CombatTeam teamB = context.getTeamB();
     int maxRounds = context.getMaxRounds();
 
     int round = 0;
@@ -81,8 +81,8 @@ public class DefaultCombatEngine implements CombatEngine {
           continue;
         }
 
-        Team attackerTeam = teamA.members().contains(attacker) ? teamA : teamB;
-        Team defenderTeam = attackerTeam == teamA ? teamB : teamA;
+        CombatTeam attackerTeam = teamA.members().contains(attacker) ? teamA : teamB;
+        CombatTeam defenderTeam = attackerTeam == teamA ? teamB : teamA;
         sequence++;
 
         Skill selectedSkill = selectSkill(attacker, skillCooldowns, buffManager);
@@ -123,7 +123,7 @@ public class DefaultCombatEngine implements CombatEngine {
 
   // ===================== 回合处理 =====================
 
-  void processOverTimeEffects(Team team, BuffManager buffManager) {
+  void processOverTimeEffects(CombatTeam team, BuffManager buffManager) {
     for (Combatant c : team.aliveMembers()) {
       int effect = buffManager.processOverTimeEffects(c.getId());
       if (effect > 0) {
@@ -136,7 +136,7 @@ public class DefaultCombatEngine implements CombatEngine {
 
   // ===================== 技能选择 =====================
 
-  List<Combatant> buildTurnOrder(Team teamA, Team teamB, BuffManager buffManager) {
+  List<Combatant> buildTurnOrder(CombatTeam teamA, CombatTeam teamB, BuffManager buffManager) {
     List<Combatant> all = new ArrayList<>();
     all.addAll(teamA.aliveMembers());
     all.addAll(teamB.aliveMembers());
@@ -397,7 +397,7 @@ public class DefaultCombatEngine implements CombatEngine {
             .build());
   }
 
-  private Combatant selectTarget(Team defenderTeam) {
+  private Combatant selectTarget(CombatTeam defenderTeam) {
     return defenderTeam.selectTargetForPVE();
   }
 
@@ -414,7 +414,7 @@ public class DefaultCombatEngine implements CombatEngine {
     }
   }
 
-  Map<String, Integer> captureHp(Team team) {
+  Map<String, Integer> captureHp(CombatTeam team) {
     Map<String, Integer> hpMap = new LinkedHashMap<>();
     for (Combatant c : team.members()) {
       hpMap.put("member_" + c.getId(), c.getHp());
@@ -425,8 +425,8 @@ public class DefaultCombatEngine implements CombatEngine {
   private BattleResultVO buildResult(
       String winner,
       int round,
-      Team teamA,
-      Team teamB,
+      CombatTeam teamA,
+      CombatTeam teamB,
       Map<String, Integer> initialHpA,
       Map<String, Integer> initialHpB,
       Map<String, Integer> damageDealt,
