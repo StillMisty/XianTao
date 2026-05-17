@@ -33,6 +33,9 @@ public sealed interface TextFormat {
   /** 提示文本（平台差异化样式） */
   String tip(String text);
 
+  /** 错误前缀 */
+  String error(String text);
+
   record PlainFormat() implements TextFormat {
     @Override
     public String heading(String text) {
@@ -77,6 +80,11 @@ public sealed interface TextFormat {
     @Override
     public String tip(String text) {
       return "💡 " + text + "\n";
+    }
+
+    @Override
+    public String error(String text) {
+      return "❌ " + text;
     }
   }
 
@@ -124,6 +132,11 @@ public sealed interface TextFormat {
     @Override
     public String tip(String text) {
       return "> 💡 " + text + "\n";
+    }
+
+    @Override
+    public String error(String text) {
+      return "❌ " + text;
     }
   }
 }

@@ -26,7 +26,7 @@ public class DungeonCommandHandler implements CommandGroup {
   public String handleDungeon(PlatformType platform, String openId, TextFormat fmt) {
     log.debug("处理秘境列表 - Platform: {}, OpenId: {}", platform, openId);
     return switch (dungeonService.listDungeons(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var vo) -> formatDungeonList(vo, fmt);
     };
   }
@@ -35,7 +35,7 @@ public class DungeonCommandHandler implements CommandGroup {
       PlatformType platform, String openId, String dungeonName, TextFormat fmt) {
     log.debug("处理进入秘境 - Platform: {}, OpenId: {}, Dungeon: {}", platform, openId, dungeonName);
     return switch (dungeonService.enterDungeon(platform, openId, dungeonName)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var msg) -> msg;
     };
   }
@@ -43,7 +43,7 @@ public class DungeonCommandHandler implements CommandGroup {
   public String handleDungeonExplore(PlatformType platform, String openId, TextFormat fmt) {
     log.debug("处理秘境探索 - Platform: {}, OpenId: {}", platform, openId);
     return switch (dungeonService.exploreDungeon(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var vo) -> formatExploreResult(vo, fmt);
     };
   }
@@ -51,7 +51,7 @@ public class DungeonCommandHandler implements CommandGroup {
   public String handleDungeonContinue(PlatformType platform, String openId, TextFormat fmt) {
     log.debug("处理秘境继续 - Platform: {}, OpenId: {}", platform, openId);
     return switch (dungeonService.continueDungeon(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var msg) -> msg;
     };
   }
@@ -59,7 +59,7 @@ public class DungeonCommandHandler implements CommandGroup {
   public String handleDungeonRetreat(PlatformType platform, String openId, TextFormat fmt) {
     log.debug("处理秘境撤退 - Platform: {}, OpenId: {}", platform, openId);
     return switch (dungeonService.retreatDungeon(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var msg) -> msg;
     };
   }

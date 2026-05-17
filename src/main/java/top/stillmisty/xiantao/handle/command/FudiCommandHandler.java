@@ -23,14 +23,14 @@ public class FudiCommandHandler implements CommandGroup {
 
   public String handleFudiStatus(PlatformType platform, String openId, TextFormat fmt) {
     return switch (fudiService.getFudiStatus(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var vo) -> formatFudiStatus(vo, fmt);
     };
   }
 
   public String handleFudiGrid(PlatformType platform, String openId, TextFormat fmt) {
     return switch (fudiService.getFudiStatus(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var vo) -> formatCellLayout(vo, fmt);
     };
   }
@@ -39,7 +39,7 @@ public class FudiCommandHandler implements CommandGroup {
       PlatformType platform, String openId, String userInput, TextFormat fmt) {
     log.info("处理地灵自然语言交互 - platform: {}, input: {}", platform, userInput);
     return switch (spiritChatService.chatWithSpirit(platform, openId, userInput)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var response) -> response;
     };
   }

@@ -44,7 +44,7 @@ public class SkillCommandHandler implements CommandGroup {
       PlatformType platform, String openId, String skillInput, TextFormat fmt) {
     log.debug("装载法决 - Platform: {}, OpenId: {}, SkillInput: {}", platform, openId, skillInput);
     return switch (skillService.equipSkill(platform, openId, skillInput)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var result) -> formatSkillSlotResult(result, fmt);
     };
   }
@@ -53,7 +53,7 @@ public class SkillCommandHandler implements CommandGroup {
       PlatformType platform, String openId, String skillInput, TextFormat fmt) {
     log.debug("卸下法决 - Platform: {}, OpenId: {}, SkillInput: {}", platform, openId, skillInput);
     return switch (skillService.unequipSkill(platform, openId, skillInput)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var result) -> formatSkillSlotResult(result, fmt);
     };
   }

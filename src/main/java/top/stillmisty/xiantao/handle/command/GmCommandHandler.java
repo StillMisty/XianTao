@@ -15,7 +15,7 @@ public class GmCommandHandler {
 
   public String handleGmHelp(PlatformType platform, String openId, TextFormat fmt) {
     return switch (gmService.gmHelp(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var text) -> text;
     };
   }
@@ -33,7 +33,7 @@ public class GmCommandHandler {
       return "❌ 数量格式错误：" + amountStr;
     }
     return switch (gmService.giveSpiritStones(platform, openId, targetNickname, amount)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var text) -> text;
     };
   }
@@ -51,7 +51,7 @@ public class GmCommandHandler {
       return "❌ 数量格式错误：" + amountStr;
     }
     return switch (gmService.giveExp(platform, openId, targetNickname, amount)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var text) -> text;
     };
   }
@@ -59,7 +59,7 @@ public class GmCommandHandler {
   public String handleHealUser(
       PlatformType platform, String openId, String targetNickname, TextFormat fmt) {
     return switch (gmService.healUser(platform, openId, targetNickname)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var text) -> text;
     };
   }
@@ -67,7 +67,7 @@ public class GmCommandHandler {
   public String handleReviveUser(
       PlatformType platform, String openId, String targetNickname, TextFormat fmt) {
     return switch (gmService.reviveUser(platform, openId, targetNickname)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var text) -> text;
     };
   }
@@ -85,7 +85,7 @@ public class GmCommandHandler {
       return "❌ 等级格式错误：" + levelStr;
     }
     return switch (gmService.setLevel(platform, openId, targetNickname, level)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var text) -> text;
     };
   }
@@ -97,7 +97,7 @@ public class GmCommandHandler {
       String locationName,
       TextFormat fmt) {
     return switch (gmService.setLocation(platform, openId, targetNickname, locationName)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var text) -> text;
     };
   }
@@ -118,7 +118,7 @@ public class GmCommandHandler {
       }
     }
     return switch (gmService.giveItem(platform, openId, targetNickname, itemName, quantity)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var text) -> text;
     };
   }

@@ -47,7 +47,7 @@ public class CultivationCommandHandler implements CommandGroup {
       PlatformType platform, String openId, String nickname, TextFormat fmt) {
     log.debug("处理注册请求 - Platform: {}, OpenId: {}, Nickname: {}", platform, openId, nickname);
     return switch (userService.createUser(platform, openId, nickname)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var result) -> {
         if (!result.success()) {
           yield result.message() != null ? result.message() : "系统错误：用户创建失败，请联系管理员";
@@ -62,7 +62,7 @@ public class CultivationCommandHandler implements CommandGroup {
     log.debug("处理状态查询 - Platform: {}, OpenId: {}", platform, openId);
     var status = characterStatusService.getCharacterStatus(platform, openId);
     return switch (status) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var vo) -> formatCharacterStatus(vo, fmt);
     };
   }
@@ -70,28 +70,28 @@ public class CultivationCommandHandler implements CommandGroup {
   public String handleInventory(PlatformType platform, String openId, TextFormat fmt) {
     log.debug("处理背包查询 - Platform: {}, OpenId: {}", platform, openId);
     return switch (inventoryService.getInventorySummary(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var vo) -> formatInventorySummary(vo, fmt);
     };
   }
 
   public String handleSeedInventory(PlatformType platform, String openId, TextFormat fmt) {
     return switch (inventoryService.getSeedInventory(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var entries) -> formatItemList("种子", entries, fmt);
     };
   }
 
   public String handleEquipmentInventory(PlatformType platform, String openId, TextFormat fmt) {
     return switch (inventoryService.getEquipmentInventory(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var entries) -> formatItemList("装备", entries, fmt);
     };
   }
 
   public String handleEggInventory(PlatformType platform, String openId, TextFormat fmt) {
     return switch (inventoryService.getEggInventory(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var entries) -> formatItemList("兽卵", entries, fmt);
     };
   }
@@ -117,7 +117,7 @@ public class CultivationCommandHandler implements CommandGroup {
   public String handleEquip(PlatformType platform, String openId, String itemName, TextFormat fmt) {
     log.debug("处理装备穿戴 - Platform: {}, OpenId: {}, ItemName: {}", platform, openId, itemName);
     return switch (equipmentService.equipItem(platform, openId, itemName)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var vo) ->
           vo.success() ? formatEquipResult(vo, fmt) : vo.message();
     };
@@ -127,7 +127,7 @@ public class CultivationCommandHandler implements CommandGroup {
       PlatformType platform, String openId, String slotName, TextFormat fmt) {
     log.debug("处理装备卸下 - Platform: {}, OpenId: {}, SlotName: {}", platform, openId, slotName);
     return switch (equipmentService.unequipItem(platform, openId, slotName)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var vo) ->
           vo.isSuccess() ? formatUnequipResult(vo, fmt) : vo.getMessage();
     };
@@ -136,7 +136,7 @@ public class CultivationCommandHandler implements CommandGroup {
   public String handleBreakthrough(PlatformType platform, String openId, TextFormat fmt) {
     log.debug("处理突破 - Platform: {}, OpenId: {}", platform, openId);
     return switch (cultivationService.attemptBreakthrough(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var vo) -> formatBreakthroughResult(vo, fmt);
     };
   }
@@ -145,7 +145,7 @@ public class CultivationCommandHandler implements CommandGroup {
       PlatformType platform, String openId, String protegeNickname, TextFormat fmt) {
     log.debug("处理护道 - Platform: {}, OpenId: {}, Protege: {}", platform, openId, protegeNickname);
     return switch (cultivationService.establishProtection(platform, openId, protegeNickname)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var vo) ->
           vo.success() ? formatProtectionResult(vo, fmt) : vo.message();
     };
@@ -155,7 +155,7 @@ public class CultivationCommandHandler implements CommandGroup {
       PlatformType platform, String openId, String protegeNickname, TextFormat fmt) {
     log.debug("处理护道解除 - Platform: {}, OpenId: {}, Protege: {}", platform, openId, protegeNickname);
     return switch (cultivationService.removeProtection(platform, openId, protegeNickname)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var vo) -> vo.message();
     };
   }
@@ -164,7 +164,7 @@ public class CultivationCommandHandler implements CommandGroup {
       PlatformType platform, String openId, String itemName, TextFormat fmt) {
     log.debug("处理丢弃 - Platform: {}, OpenId: {}, ItemName: {}", platform, openId, itemName);
     return switch (discardService.discardItem(platform, openId, itemName)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var msg) -> msg;
     };
   }
@@ -173,7 +173,7 @@ public class CultivationCommandHandler implements CommandGroup {
       PlatformType platform, String openId, String newNickname, TextFormat fmt) {
     log.debug("处理改号 - Platform: {}, OpenId: {}, NewNickname: {}", platform, openId, newNickname);
     return switch (userService.changeNickname(platform, openId, newNickname)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var msg) -> msg;
     };
   }
@@ -182,7 +182,7 @@ public class CultivationCommandHandler implements CommandGroup {
       PlatformType platform, String openId, String targetNickname, TextFormat fmt) {
     log.debug("处理查看 - Platform: {}, OpenId: {}, Target: {}", platform, openId, targetNickname);
     return switch (playerViewService.viewPlayer(platform, openId, targetNickname)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var vo) -> formatPlayerView(vo, fmt);
     };
   }
@@ -190,7 +190,7 @@ public class CultivationCommandHandler implements CommandGroup {
   public String handleQueryProtection(PlatformType platform, String openId, TextFormat fmt) {
     log.debug("处理护道查询 - Platform: {}, OpenId: {}", platform, openId);
     return switch (cultivationService.queryProtectionInfo(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var vo) ->
           vo.isSuccess() ? formatProtectionQueryResult(vo, fmt) : vo.getMessage();
     };

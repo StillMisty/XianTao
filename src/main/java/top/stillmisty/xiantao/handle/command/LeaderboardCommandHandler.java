@@ -20,14 +20,14 @@ public class LeaderboardCommandHandler implements CommandGroup {
 
   public String handleLevelLeaderboard(PlatformType platform, String openId, TextFormat fmt) {
     return switch (leaderboardService.getLevelLeaderboard(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var vo) -> formatLeaderboard(vo);
     };
   }
 
   public String handleSpiritStoneLeaderboard(PlatformType platform, String openId, TextFormat fmt) {
     return switch (leaderboardService.getSpiritStoneLeaderboard(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var vo) -> formatLeaderboard(vo);
     };
   }

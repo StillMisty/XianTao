@@ -28,7 +28,7 @@ public class BeastCommandHandler implements CommandGroup {
       PlatformType platform, String openId, String position, TextFormat fmt) {
     log.debug("处理灵兽出战 - Platform: {}, OpenId: {}, Position: {}", platform, openId, position);
     return switch (beastCombatService.deployBeast(platform, openId, position)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var result) -> formatDeployResult(result, fmt);
     };
   }
@@ -37,7 +37,7 @@ public class BeastCommandHandler implements CommandGroup {
       PlatformType platform, String openId, String position, TextFormat fmt) {
     log.debug("处理灵兽召回 - Platform: {}, OpenId: {}, Position: {}", platform, openId, position);
     return switch (beastCombatService.undeployBeast(platform, openId, position)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var result) -> formatUndeployResult(result, fmt);
     };
   }
@@ -46,7 +46,7 @@ public class BeastCommandHandler implements CommandGroup {
       PlatformType platform, String openId, String position, TextFormat fmt) {
     log.debug("处理灵兽恢复 - Platform: {}, OpenId: {}, Position: {}", platform, openId, position);
     return switch (beastCombatService.recoverBeast(platform, openId, position)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var result) -> formatRecoverSingle(result, fmt);
     };
   }
@@ -60,7 +60,7 @@ public class BeastCommandHandler implements CommandGroup {
         position,
         mode);
     return switch (beastBreedingService.evolveBeast(platform, openId, position, mode)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var result) -> formatEvolveResult(result, fmt);
     };
   }
@@ -69,7 +69,7 @@ public class BeastCommandHandler implements CommandGroup {
       PlatformType platform, String openId, String position, TextFormat fmt) {
     log.debug("处理灵兽放生 - Platform: {}, OpenId: {}, Position: {}", platform, openId, position);
     return switch (beastBreedingService.releaseBeast(platform, openId, position)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var result) -> formatReleaseResult(result, fmt);
     };
   }
@@ -77,7 +77,7 @@ public class BeastCommandHandler implements CommandGroup {
   public String handleGetDeployedBeasts(PlatformType platform, String openId, TextFormat fmt) {
     log.debug("处理灵兽 - Platform: {}, OpenId: {}", platform, openId);
     return switch (beastCombatService.getDeployedBeasts(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var beasts) -> formatDeployedBeasts(beasts, fmt);
     };
   }
@@ -85,7 +85,7 @@ public class BeastCommandHandler implements CommandGroup {
   public String handleBeastList(PlatformType platform, String openId, TextFormat fmt) {
     log.debug("处理灵兽列表 - Platform: {}, OpenId: {}", platform, openId);
     return switch (beastCombatService.getBeastList(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var beasts) -> formatBeastList(beasts, fmt);
     };
   }
@@ -99,7 +99,7 @@ public class BeastCommandHandler implements CommandGroup {
         position,
         quantity);
     return switch (beastBreedingService.feedBeast(platform, openId, position, quantity)) {
-      case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
+      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
       case ServiceResult.Success(var exp) -> "✅ 喂养成功！灵兽获得 %d 经验。".formatted(exp);
     };
   }
