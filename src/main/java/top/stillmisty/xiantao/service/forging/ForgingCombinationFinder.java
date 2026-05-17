@@ -12,6 +12,7 @@ import top.stillmisty.xiantao.domain.item.enums.Rarity;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
+import top.stillmisty.xiantao.service.CombinationStrategy;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
 
 /** 锻造组合算法 — 自动匹配锻材、计算三性配比、品质分→稀有度映射 */
@@ -27,6 +28,9 @@ public class ForgingCombinationFinder {
   private final EquipmentTemplateRepository equipmentTemplateRepository;
   private final top.stillmisty.xiantao.domain.item.repository.EquipmentRepository
       equipmentRepository;
+
+  private final CombinationStrategy strategy =
+      new CombinationStrategy(FORGE_ATTRIBUTES, ForgingCombinationFinder::getMaterialValue);
 
   public ItemProperties.ForgingBlueprint getForgingBlueprint(ItemTemplate template) {
     var props = template.typedProperties();
@@ -48,10 +52,11 @@ public class ForgingCombinationFinder {
       remainingQuantities.put(mat, mat.getQuantity());
     }
 
-    tryFindBestMaterialCombination(
+    strategy.tryFindBestCombination(
         requirements, materials, attributeTotals, usedMaterials, remainingQuantities);
 
-    List<String> missingAttributes = collectMissingAttributes(requirements, attributeTotals);
+    List<String> missingAttributes =
+        strategy.collectMissingAttributes(requirements, attributeTotals);
     if (!missingAttributes.isEmpty()) {
       return new ForgingResultVO(
           false,
@@ -64,8 +69,8 @@ public class ForgingCombinationFinder {
           attributeTotals);
     }
 
-    if (exceedsAttributeMax(requirements, attributeTotals)) {
-      String overAttribute = findOverMaxAttribute(requirements, attributeTotals);
+    if (strategy.exceedsAttributeMax(requirements, attributeTotals)) {
+      String overAttribute = strategy.findOverMaxAttribute(requirements, attributeTotals);
       return new ForgingResultVO(
           false,
           "锻材属性超过上限：" + overAttribute,
@@ -96,143 +101,18 @@ public class ForgingCombinationFinder {
       remainingQuantities.put(mat, mat.getQuantity());
     }
 
-    tryFindBestMaterialCombination(
+    strategy.tryFindBestCombination(
         requirements, materials, attributeTotals, usedMaterials, remainingQuantities);
 
-    List<String> missingAttributes = collectMissingAttributes(requirements, attributeTotals);
+    List<String> missingAttributes =
+        strategy.collectMissingAttributes(requirements, attributeTotals);
     return new MaterialSelectionResult(
         missingAttributes.isEmpty(), usedMaterials, attributeTotals, missingAttributes);
   }
 
-  private void tryFindBestMaterialCombination(
-      Map<String, ElementRange> requirements,
-      List<StackableItem> materials,
-      Map<String, Integer> attributeTotals,
-      Map<String, Integer> usedMaterials,
-      Map<StackableItem, Integer> remainingQuantities) {
-    for (int pass = 0; pass < requirements.size(); pass++) {
-      boolean anyProgress = false;
-      for (var entry : requirements.entrySet()) {
-        String attribute = entry.getKey();
-        int min = entry.getValue().min();
-        int currentTotal = attributeTotals.getOrDefault(attribute, 0);
-        if (currentTotal >= min) continue;
-
-        int bestGain = 0;
-        StackableItem bestMaterial = null;
-        int bestQty = 0;
-
-        for (StackableItem mat : materials) {
-          Integer remaining = remainingQuantities.get(mat);
-          if (remaining == null || remaining <= 0) continue;
-          int matValue = mat.getMaterialValue(attribute);
-          if (matValue <= 0) continue;
-          int needed = (int) Math.ceil((double) (min - currentTotal) / matValue);
-          int toUse = Math.min(needed, remaining);
-          int totalGain = computeTotalGain(mat, toUse, requirements, attributeTotals);
-          if (totalGain > bestGain || (totalGain == bestGain && toUse < bestQty)) {
-            bestGain = totalGain;
-            bestMaterial = mat;
-            bestQty = toUse;
-          }
-        }
-
-        if (bestMaterial != null && bestQty > 0) {
-          applyMaterialAttributes(bestMaterial, bestQty, attributeTotals);
-          remainingQuantities.merge(bestMaterial, -bestQty, Integer::sum);
-          usedMaterials.merge(bestMaterial.getName(), bestQty, Integer::sum);
-          anyProgress = true;
-        }
-      }
-      if (!anyProgress) break;
-    }
-  }
-
-  private int computeTotalGain(
-      StackableItem mat,
-      int quantity,
-      Map<String, ElementRange> requirements,
-      Map<String, Integer> currentTotals) {
-    int gain = 0;
-    for (var entry : requirements.entrySet()) {
-      String attribute = entry.getKey();
-      int current = currentTotals.getOrDefault(attribute, 0);
-      int min = entry.getValue().min();
-      if (current >= min) continue;
-      int contrib = mat.getMaterialValue(attribute) * quantity;
-      if (contrib > 0) {
-        gain += Math.min(contrib, min - current);
-      }
-    }
-    return gain;
-  }
-
-  private void applyMaterialAttributes(
-      StackableItem mat, int quantity, Map<String, Integer> attributeTotals) {
-    for (String attr : FORGE_ATTRIBUTES) {
-      int value = mat.getMaterialValue(attr);
-      if (value > 0) {
-        attributeTotals.merge(attr, value * quantity, Integer::sum);
-      }
-    }
-  }
-
-  private List<String> collectMissingAttributes(
-      Map<String, ElementRange> requirements, Map<String, Integer> attributeTotals) {
-    List<String> missing = new ArrayList<>();
-    for (var entry : requirements.entrySet()) {
-      if (attributeTotals.getOrDefault(entry.getKey(), 0) < entry.getValue().min()) {
-        missing.add(entry.getKey());
-      }
-    }
-    return missing;
-  }
-
-  private boolean exceedsAttributeMax(
-      Map<String, ElementRange> requirements, Map<String, Integer> attributeTotals) {
-    for (var entry : requirements.entrySet()) {
-      String attr = entry.getKey();
-      int max = entry.getValue().max() == 0 ? Integer.MAX_VALUE : entry.getValue().max();
-      if (attributeTotals.getOrDefault(attr, 0) > max) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private String findOverMaxAttribute(
-      Map<String, ElementRange> requirements, Map<String, Integer> attributeTotals) {
-    for (var entry : requirements.entrySet()) {
-      String attr = entry.getKey();
-      int max = entry.getValue().max() == 0 ? Integer.MAX_VALUE : entry.getValue().max();
-      if (attributeTotals.getOrDefault(attr, 0) > max) {
-        return attr;
-      }
-    }
-    return "";
-  }
-
   public double calculateQualityScore(
       Map<String, Integer> attributeTotals, Map<String, ElementRange> requirements) {
-    double totalScore = 0;
-    int count = 0;
-    for (var entry : requirements.entrySet()) {
-      String attr = entry.getKey();
-      int min = entry.getValue().min();
-      int max = entry.getValue().max();
-      int current = attributeTotals.getOrDefault(attr, 0);
-
-      double center = (max + min) / 2.0;
-      double halfWidth = (max - min) / 2.0;
-      if (halfWidth == 0) {
-        totalScore += 1.0;
-      } else {
-        double deviation = Math.abs(current - center);
-        totalScore += Math.max(0, 1 - deviation / halfWidth);
-      }
-      count++;
-    }
-    return count > 0 ? totalScore / count : 0;
+    return strategy.calculateQualityScore(attributeTotals, requirements);
   }
 
   public Rarity rollRarityByQualityScore(double qualityScore, int grade) {
@@ -264,7 +144,7 @@ public class ForgingCombinationFinder {
       return new ForgingResultVO(false, "锻造图纸数据错误", null, null, null, 0.0, null, null);
     }
 
-    double qualityScore = calculateQualityScore(attributeTotals, blueprint.requirements());
+    double qualityScore = strategy.calculateQualityScore(attributeTotals, blueprint.requirements());
     Rarity rarity = rollRarityByQualityScore(qualityScore, blueprint.grade());
 
     for (Map.Entry<String, Integer> entry : usedMaterials.entrySet()) {
@@ -332,5 +212,10 @@ public class ForgingCombinationFinder {
         qualityScore,
         usedMaterials,
         attributeTotals);
+  }
+
+  @SuppressWarnings("unused")
+  private static int getMaterialValue(StackableItem item, String attribute) {
+    return item.getMaterialValue(attribute);
   }
 }

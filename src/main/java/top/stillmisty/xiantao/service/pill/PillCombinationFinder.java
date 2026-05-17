@@ -13,6 +13,7 @@ import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.domain.pill.enums.PillQuality;
 import top.stillmisty.xiantao.domain.pill.vo.PillRefiningResultVO;
 import top.stillmisty.xiantao.service.BusinessException;
+import top.stillmisty.xiantao.service.CombinationStrategy;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
 
@@ -21,9 +22,15 @@ import top.stillmisty.xiantao.service.inventory.StackableItemService;
 @RequiredArgsConstructor
 public class PillCombinationFinder {
 
+  private static final List<String> PILL_ELEMENTS =
+      List.of("METAL", "WOOD", "WATER", "FIRE", "EARTH");
+
   private final StackableItemService stackableItemService;
   private final ItemTemplateRepository itemTemplateRepository;
   private final StackableItemRepository stackableItemRepository;
+
+  private final CombinationStrategy strategy =
+      new CombinationStrategy(PILL_ELEMENTS, PillCombinationFinder::getElementValue);
 
   public ItemProperties.Scroll getRecipeScroll(ItemTemplate template) {
     var props = template.typedProperties();
@@ -44,9 +51,10 @@ public class PillCombinationFinder {
       remainingQuantities.put(herb, herb.getQuantity());
     }
 
-    tryFindBestHerbCombination(requirements, herbs, elementTotals, usedHerbs, remainingQuantities);
+    strategy.tryFindBestCombination(
+        requirements, herbs, elementTotals, usedHerbs, remainingQuantities);
 
-    List<String> missingElements = collectMissingElements(requirements, elementTotals);
+    List<String> missingElements = strategy.collectMissingAttributes(requirements, elementTotals);
     if (!missingElements.isEmpty()) {
       return new PillRefiningResultVO(
           false,
@@ -59,92 +67,13 @@ public class PillCombinationFinder {
           missingElements);
     }
 
-    if (exceedsElementMax(requirements, elementTotals)) {
-      String overElement = findOverMaxElement(requirements, elementTotals);
+    if (strategy.exceedsAttributeMax(requirements, elementTotals)) {
+      String overElement = strategy.findOverMaxAttribute(requirements, elementTotals);
       return new PillRefiningResultVO(
           false, "药材属性超过上限：" + overElement, null, null, 0, null, usedHerbs, null);
     }
 
     return craftPill(userId, herbs, elementTotals, usedHerbs, requirements, recipeTemplate);
-  }
-
-  private void tryFindBestHerbCombination(
-      Map<String, ElementRange> requirements,
-      List<StackableItem> herbs,
-      Map<String, Integer> elementTotals,
-      Map<String, Integer> usedHerbs,
-      Map<StackableItem, Integer> remainingQuantities) {
-    for (int pass = 0; pass < requirements.size(); pass++) {
-      boolean anyProgress = false;
-      for (var entry : requirements.entrySet()) {
-        String element = entry.getKey();
-        int min = entry.getValue().min();
-        int currentTotal = elementTotals.getOrDefault(element, 0);
-        if (currentTotal >= min) continue;
-
-        int bestGain = 0;
-        StackableItem bestHerb = null;
-        int bestQty = 0;
-
-        for (StackableItem herb : herbs) {
-          Integer remaining = remainingQuantities.get(herb);
-          if (remaining == null || remaining <= 0) continue;
-          int herbValue = herb.getElementValue(element);
-          if (herbValue <= 0) continue;
-          int needed = (int) Math.ceil((double) (min - currentTotal) / herbValue);
-          int toUse = Math.min(needed, remaining);
-          int totalGain = computeTotalGain(herb, toUse, requirements, elementTotals);
-          if (totalGain > bestGain || (totalGain == bestGain && toUse < bestQty)) {
-            bestGain = totalGain;
-            bestHerb = herb;
-            bestQty = toUse;
-          }
-        }
-
-        if (bestHerb != null && bestQty > 0) {
-          applyHerbElements(bestHerb, bestQty, elementTotals);
-          remainingQuantities.merge(bestHerb, -bestQty, Integer::sum);
-          usedHerbs.merge(bestHerb.getName(), bestQty, Integer::sum);
-          anyProgress = true;
-        }
-      }
-      if (!anyProgress) break;
-    }
-  }
-
-  private List<String> collectMissingElements(
-      Map<String, ElementRange> requirements, Map<String, Integer> elementTotals) {
-    List<String> missingElements = new ArrayList<>();
-    for (var entry : requirements.entrySet()) {
-      if (elementTotals.getOrDefault(entry.getKey(), 0) < entry.getValue().min()) {
-        missingElements.add(entry.getKey());
-      }
-    }
-    return missingElements;
-  }
-
-  private boolean exceedsElementMax(
-      Map<String, ElementRange> requirements, Map<String, Integer> elementTotals) {
-    for (var entry : requirements.entrySet()) {
-      String element = entry.getKey();
-      int max = entry.getValue().max() == 0 ? Integer.MAX_VALUE : entry.getValue().max();
-      if (elementTotals.getOrDefault(element, 0) > max) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private String findOverMaxElement(
-      Map<String, ElementRange> requirements, Map<String, Integer> elementTotals) {
-    for (var entry : requirements.entrySet()) {
-      String element = entry.getKey();
-      int max = entry.getValue().max() == 0 ? Integer.MAX_VALUE : entry.getValue().max();
-      if (elementTotals.getOrDefault(element, 0) > max) {
-        return element;
-      }
-    }
-    return "";
   }
 
   private PillRefiningResultVO craftPill(
@@ -154,7 +83,7 @@ public class PillCombinationFinder {
       Map<String, Integer> usedHerbs,
       Map<String, ElementRange> requirements,
       ItemTemplate recipeTemplate) {
-    double qualityScore = calculateQualityScore(elementTotals, requirements);
+    double qualityScore = strategy.calculateQualityScore(elementTotals, requirements);
     PillQuality quality = determineQuality(qualityScore);
 
     for (Map.Entry<String, Integer> entry : usedHerbs.entrySet()) {
@@ -190,68 +119,14 @@ public class PillCombinationFinder {
         null);
   }
 
-  private int computeTotalGain(
-      StackableItem herb,
-      int quantity,
-      Map<String, ElementRange> requirements,
-      Map<String, Integer> currentTotals) {
-    int gain = 0;
-    for (var entry : requirements.entrySet()) {
-      String element = entry.getKey();
-      int current = currentTotals.getOrDefault(element, 0);
-      int min = entry.getValue().min();
-      if (current >= min) continue;
-      int contrib = herb.getElementValue(element) * quantity;
-      if (contrib > 0) {
-        gain += Math.min(contrib, min - current);
-      }
-    }
-    return gain;
-  }
-
-  private void applyHerbElements(
-      StackableItem herb, int quantity, Map<String, Integer> elementTotals) {
-    for (String element : List.of("METAL", "WOOD", "WATER", "FIRE", "EARTH")) {
-      int value = herb.getElementValue(element);
-      if (value > 0) {
-        elementTotals.merge(element, value * quantity, Integer::sum);
-      }
-    }
-  }
-
   public boolean matchesRequirements(
       Map<String, Integer> elementTotals, Map<String, ElementRange> requirements) {
-    for (var entry : requirements.entrySet()) {
-      String element = entry.getKey();
-      int min = entry.getValue().min();
-      int max = entry.getValue().max() == 0 ? Integer.MAX_VALUE : entry.getValue().max();
-      int current = elementTotals.getOrDefault(element, 0);
-      if (current < min || current > max) return false;
-    }
-    return true;
+    return strategy.matchesRequirements(elementTotals, requirements);
   }
 
   public double calculateQualityScore(
       Map<String, Integer> elementTotals, Map<String, ElementRange> requirements) {
-    double totalScore = 0;
-    int count = 0;
-    for (var entry : requirements.entrySet()) {
-      String element = entry.getKey();
-      int min = entry.getValue().min();
-      int max = entry.getValue().max();
-      int current = elementTotals.getOrDefault(element, 0);
-
-      double center = (max + min) / 2.0;
-      double halfWidth = (max - min) / 2.0;
-      if (halfWidth == 0) {
-        totalScore += 1.0;
-      } else {
-        double deviation = Math.abs(current - center);
-        totalScore += Math.max(0, 1 - deviation / halfWidth);
-      }
-      count++;
-    }
-    return count > 0 ? totalScore / count : 0;
+    return strategy.calculateQualityScore(elementTotals, requirements);
   }
 
   public PillQuality determineQuality(double score) {
@@ -284,5 +159,10 @@ public class PillCombinationFinder {
       newItem.setPropertiesHash(hash);
       stackableItemRepository.save(newItem);
     }
+  }
+
+  @SuppressWarnings("unused")
+  private static int getElementValue(StackableItem item, String element) {
+    return item.getElementValue(element);
   }
 }
