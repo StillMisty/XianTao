@@ -9,7 +9,6 @@ import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.fudi.enums.CellType;
-import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
 import top.stillmisty.xiantao.domain.fudi.vo.CellStatusVO;
 import top.stillmisty.xiantao.domain.fudi.vo.CollectAllVO;
 import top.stillmisty.xiantao.domain.fudi.vo.CollectVO;
@@ -20,8 +19,6 @@ import top.stillmisty.xiantao.domain.fudi.vo.UpgradeCellVO;
 import top.stillmisty.xiantao.domain.item.enums.InventoryCategory;
 import top.stillmisty.xiantao.domain.item.vo.ItemEntry;
 import top.stillmisty.xiantao.service.*;
-import top.stillmisty.xiantao.service.BusinessException;
-import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.beast.BeastBreedingService;
 import top.stillmisty.xiantao.service.fudi.FarmService;
@@ -38,7 +35,6 @@ public class SpiritTools {
   private final FarmService farmService;
   private final BeastBreedingService beastBreedingService;
   private final InventoryService inventoryService;
-  private final SpiritRepository spiritRepository;
 
   /** 查询福地地块状态工具 */
   @Tool(description = "查询福地的地块布局状态，包括哪些地块编号是空的、哪些已被占用。在种植或建造前应该先调用此工具了解可用地块编号。")
@@ -300,29 +296,8 @@ public class SpiritTools {
       @ToolParam(description = "冒犯程度 1~5（1=轻微冒犯，5=严重冒犯）") int severity) {
     try {
       Long userId = getCurrentUserId();
-      var fudi =
-          fudiService
-              .findAndTouchFudi(userId)
-              .orElseThrow(() -> new BusinessException(ErrorCode.FUDI_NOT_FOUND));
-
-      var spirit =
-          spiritRepository
-              .findByFudiId(fudi.getId())
-              .orElseThrow(() -> new BusinessException(ErrorCode.SPIRIT_NOT_FOUND));
-
       int clampedSeverity = Math.clamp(severity, 1, 5);
-      int oldAffection = spirit.getAffection();
-      spirit.addAffection(-clampedSeverity);
-      spiritRepository.save(spirit);
-
-      log.info(
-          "地灵冒犯上报 - userId: {}, reason: {}, severity: {}, affection: {} -> {}",
-          userId,
-          reason,
-          clampedSeverity,
-          oldAffection,
-          spirit.getAffection());
-
+      fudiService.adjustSpiritAffection(userId, -clampedSeverity);
       return new ReportOffenseResponse(true, reason, clampedSeverity);
     } catch (Exception e) {
       log.error("冒犯上报失败: reason={}", reason, e);

@@ -509,4 +509,17 @@ public class FudiService {
     return new CellStatusVO(
         totalCells, occupiedCells.size(), emptyCellIds.size(), emptyCellIds, occupiedCells);
   }
+
+  @Transactional
+  public void adjustSpiritAffection(Long userId, int delta) {
+    Fudi fudi =
+        findAndTouchFudi(userId).orElseThrow(() -> new BusinessException(ErrorCode.FUDI_NOT_FOUND));
+    Spirit spirit =
+        spiritRepository
+            .findByFudiId(fudi.getId())
+            .orElseThrow(() -> new BusinessException(ErrorCode.SPIRIT_NOT_FOUND));
+    spirit.addAffection(delta);
+    spiritRepository.save(spirit);
+    log.info("用户 {} 地灵好感度变化 {} -> {}", userId, delta, spirit.getAffection());
+  }
 }
