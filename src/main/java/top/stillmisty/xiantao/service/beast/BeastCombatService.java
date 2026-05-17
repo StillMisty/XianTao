@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
 import top.stillmisty.xiantao.domain.beast.vo.*;
-import top.stillmisty.xiantao.domain.beast.vo.ActionResultVO;
 import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
 import top.stillmisty.xiantao.domain.fudi.enums.BeastQuality;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
@@ -50,7 +49,7 @@ public class BeastCombatService {
 
   @Authenticated
   @Transactional
-  public ServiceResult<BeastRecoverResult> recoverBeast(
+  public ServiceResult<ActionResultVO> recoverBeast(
       PlatformType platform, String openId, String position) {
     Long userId = UserContext.getCurrentUserId();
     return new ServiceResult.Success<>(recoverBeast(userId, position));
@@ -162,7 +161,7 @@ public class BeastCombatService {
   }
 
   @Transactional
-  public BeastRecoverResult recoverBeast(Long userId, String position) {
+  public ActionResultVO recoverBeast(Long userId, String position) {
     if ("all".equalsIgnoreCase(position)) {
       return recoverAllBeasts(userId);
     }
@@ -177,27 +176,21 @@ public class BeastCombatService {
       return new ActionResultVO(true, "灵兽HP已满");
     }
 
-    int missingHp = hpMax - hpCurrent;
-    int stoneCost = (int) Math.ceil(missingHp * 0.1);
-    fudiHelper.deductSpiritStones(userId, stoneCost);
-
     beast.setHpCurrent(hpMax);
     beast.setRecoveryUntil(null);
     beastRepository.save(beast);
 
     String beastName = beast.getBeastName();
-    log.info("用户 {} 恢复灵兽 {} HP (消耗{}灵石)", userId, beastName, stoneCost);
-    return new RecoverResultVO(
-        true, "灵兽 [%s] HP已恢复（消耗%d灵石）".formatted(beastName, stoneCost), stoneCost);
+    log.info("用户 {} 恢复灵兽 {} HP", userId, beastName);
+    return new ActionResultVO(true, "灵兽 [%s] HP已恢复".formatted(beastName));
   }
 
-  BeastRecoverResult recoverAllBeasts(Long userId) {
+  ActionResultVO recoverAllBeasts(Long userId) {
     Fudi fudi =
         fudiHelper
             .findAndTouchFudi(userId)
             .orElseThrow(() -> new BusinessException(FUDI_NOT_FOUND));
 
-    int totalCost = 0;
     int recoverCount = 0;
 
     List<Beast> beasts = beastRepository.findByFudiId(fudi.getId());
@@ -206,8 +199,6 @@ public class BeastCombatService {
       int hpMax = beast.getMaxHp();
       if (hpCurrent >= hpMax) continue;
 
-      int missingHp = hpMax - hpCurrent;
-      totalCost += (int) Math.ceil(missingHp * 0.1);
       beast.setHpCurrent(hpMax);
       beast.setRecoveryUntil(null);
       beastRepository.save(beast);
@@ -218,9 +209,7 @@ public class BeastCombatService {
       return new ActionResultVO(true, "没有需要恢复的灵兽");
     }
 
-    fudiHelper.deductSpiritStones(userId, totalCost);
-
-    return new BatchRecoverVO(recoverCount, totalCost);
+    return new ActionResultVO(true, "已恢复 %d 只灵兽".formatted(recoverCount));
   }
 
   List<BeastStatusVO> getDeployedBeasts(Long userId) {

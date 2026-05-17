@@ -47,7 +47,7 @@ public class BeastCommandHandler implements CommandGroup {
     log.debug("处理灵兽恢复 - Platform: {}, OpenId: {}, Position: {}", platform, openId, position);
     return switch (beastCombatService.recoverBeast(platform, openId, position)) {
       case ServiceResult.Failure(var code, var msg) -> "❌ " + msg;
-      case ServiceResult.Success(var result) -> formatRecoverResult(result, fmt);
+      case ServiceResult.Success(var result) -> formatRecoverSingle(result, fmt);
     };
   }
 
@@ -132,31 +132,12 @@ public class BeastCommandHandler implements CommandGroup {
     return fmt.heading("灵兽召回", "🐾") + "已召回 %d 只灵兽。".formatted(vo.count());
   }
 
-  private String formatRecoverResult(BeastRecoverResult result, TextFormat fmt) {
-    if (result instanceof ActionResultVO vo) return formatRecoverSingle(vo, fmt);
-    if (result instanceof RecoverResultVO vo) return formatRecoverDetailed(vo, fmt);
-    if (result instanceof BatchRecoverVO vo) return formatRecoverBatch(vo, fmt);
-    return "恢复完成";
-  }
-
   private String formatRecoverSingle(ActionResultVO vo, TextFormat fmt) {
     if (vo.success()) {
       return fmt.heading("灵兽恢复", "💚") + vo.message();
     } else {
       return fmt.heading("恢复失败", "❌") + vo.message();
     }
-  }
-
-  private String formatRecoverDetailed(RecoverResultVO vo, TextFormat fmt) {
-    if (vo.success()) {
-      return fmt.heading("灵兽恢复", "💚") + vo.message();
-    } else {
-      return fmt.heading("恢复失败", "❌") + vo.message();
-    }
-  }
-
-  private String formatRecoverBatch(BatchRecoverVO vo, TextFormat fmt) {
-    return fmt.heading("灵兽恢复", "💚") + "已恢复 %d 只灵兽，消耗 %d 灵石。".formatted(vo.count(), vo.cost());
   }
 
   private String formatEvolveResult(PenCellVO beast, TextFormat fmt) {

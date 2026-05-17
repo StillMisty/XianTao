@@ -80,10 +80,6 @@ public class FarmService {
       throw new BusinessException(ErrorCode.CROP_TIER_REQUIRES_FARM, cropTier, minLevel, cellLevel);
     }
 
-    int stoneCost = cropTier * 5;
-    fudiHelper.checkSpiritStones(userId, stoneCost);
-    fudiHelper.deductSpiritStones(userId, stoneCost);
-
     double levelSpeedMultiplier = fudiHelper.getLevelSpeedMultiplier(cellLevel, minLevel);
     double baseGrowthHours = getBaseGrowthHours(cropId);
     double actualGrowthHours = baseGrowthHours / levelSpeedMultiplier;
