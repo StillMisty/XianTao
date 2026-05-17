@@ -25,7 +25,7 @@ import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.player.UserStateService;
-import top.stillmisty.xiantao.service.sect.SectService;
+import top.stillmisty.xiantao.service.sect.SectMemberService;
 
 @Slf4j
 @Service
@@ -38,19 +38,19 @@ public class MasterApprenticeService {
   private final DaoProtectionRepository daoProtectionRepository;
   private final UserRepository userRepository;
   private final UserStateService userStateService;
-  @Lazy private final SectService sectService;
+  @Lazy private final SectMemberService sectMemberService;
 
   public MasterApprenticeService(
       MasterApprenticeRepository masterApprenticeRepository,
       DaoProtectionRepository daoProtectionRepository,
       UserRepository userRepository,
       UserStateService userStateService,
-      @Lazy SectService sectService) {
+      @Lazy SectMemberService sectMemberService) {
     this.masterApprenticeRepository = masterApprenticeRepository;
     this.daoProtectionRepository = daoProtectionRepository;
     this.userRepository = userRepository;
     this.userStateService = userStateService;
-    this.sectService = sectService;
+    this.sectMemberService = sectMemberService;
   }
 
   // ===================== 公开 API =====================
@@ -118,7 +118,7 @@ public class MasterApprenticeService {
     if (isOnCooldown(userId)) {
       throw new BusinessException(ErrorCode.MASTER_COOLDOWN, COOLDOWN_HOURS);
     }
-    if (!sectService.isInSameSect(userId, master.getId())) {
+    if (!sectMemberService.isInSameSect(userId, master.getId())) {
       throw new BusinessException(ErrorCode.MASTER_NOT_SAME_SECT);
     }
 
@@ -152,7 +152,7 @@ public class MasterApprenticeService {
     if (isOnCooldown(apprentice.getId())) {
       throw new BusinessException(ErrorCode.MASTER_COOLDOWN, COOLDOWN_HOURS);
     }
-    if (!sectService.isInSameSect(userId, apprentice.getId())) {
+    if (!sectMemberService.isInSameSect(userId, apprentice.getId())) {
       throw new BusinessException(ErrorCode.MASTER_NOT_SAME_SECT);
     }
 
@@ -240,8 +240,8 @@ public class MasterApprenticeService {
 
     clearDaoProtection(userId, target.getId());
 
-    if (sectService.isInSect(target.getId())) {
-      sectService.leaveSectInternal(target.getId());
+    if (sectMemberService.isInSect(target.getId())) {
+      sectMemberService.leaveSectInternal(target.getId());
     }
 
     log.info("玩家 {} 被师傅 {} 逐出师门", target.getId(), userId);
@@ -261,8 +261,8 @@ public class MasterApprenticeService {
 
     clearDaoProtection(relation.getMasterId(), userId);
 
-    if (sectService.isInSect(userId)) {
-      sectService.leaveSectInternal(userId);
+    if (sectMemberService.isInSect(userId)) {
+      sectMemberService.leaveSectInternal(userId);
     }
 
     log.info("玩家 {} 叛师", userId);
@@ -356,7 +356,7 @@ public class MasterApprenticeService {
     List<MasterApprentice> relations = masterApprenticeRepository.findByMasterId(masterId);
     for (MasterApprentice relation : relations) {
       if (relation.isActive()) {
-        sectService.joinSectInternal(relation.getApprenticeId(), targetSectId);
+        sectMemberService.joinSectInternal(relation.getApprenticeId(), targetSectId);
         log.info("徒弟 {} 跟随师傅 {} 加入宗门 {}", relation.getApprenticeId(), masterId, targetSectId);
       }
     }
@@ -371,8 +371,8 @@ public class MasterApprenticeService {
         relation.setStatus(MasterApprenticeStatus.RENEGED);
         masterApprenticeRepository.save(relation);
         clearDaoProtection(masterId, relation.getApprenticeId());
-        if (sectService.isInSect(relation.getApprenticeId())) {
-          sectService.leaveSectInternal(relation.getApprenticeId());
+        if (sectMemberService.isInSect(relation.getApprenticeId())) {
+          sectMemberService.leaveSectInternal(relation.getApprenticeId());
         }
         log.info("徒弟 {} 因师傅 {} 退出宗门而叛师", relation.getApprenticeId(), masterId);
       }

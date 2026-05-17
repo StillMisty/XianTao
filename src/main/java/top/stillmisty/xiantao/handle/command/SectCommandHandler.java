@@ -9,17 +9,17 @@ import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.ai.SectSpiritChatService;
-import top.stillmisty.xiantao.service.sect.SectService;
+import top.stillmisty.xiantao.service.sect.SectMemberService;
 
 @Component
 @RequiredArgsConstructor
 public class SectCommandHandler implements CommandGroup {
 
-  private final SectService sectService;
+  private final SectMemberService sectMemberService;
   private final SectSpiritChatService sectSpiritChatService;
 
   public String handleOverview(PlatformType platform, String openId, TextFormat fmt) {
-    var result = sectService.getSectOverview(platform, openId);
+    var result = sectMemberService.getSectOverview(platform, openId);
     return switch (result) {
       case ServiceResult.Success(var text) -> text;
       case ServiceResult.Failure(var code, var msg) -> "操作失败: " + msg;
@@ -30,8 +30,8 @@ public class SectCommandHandler implements CommandGroup {
       PlatformType platform, String openId, String name, String ethosDesc, TextFormat fmt) {
     var result =
         (ethosDesc != null && !ethosDesc.isBlank())
-            ? sectService.createSectWithEthos(platform, openId, name, ethosDesc)
-            : sectService.createSect(platform, openId, name);
+            ? sectMemberService.createSectWithEthos(platform, openId, name, ethosDesc)
+            : sectMemberService.createSect(platform, openId, name);
     return switch (result) {
       case ServiceResult.Success(var text) -> text;
       case ServiceResult.Failure(var code, var msg) -> "操作失败: " + msg;
@@ -39,7 +39,7 @@ public class SectCommandHandler implements CommandGroup {
   }
 
   public String handleLeave(PlatformType platform, String openId, TextFormat fmt) {
-    var result = sectService.leaveSect(platform, openId);
+    var result = sectMemberService.leaveSect(platform, openId);
     return switch (result) {
       case ServiceResult.Success(var text) -> text;
       case ServiceResult.Failure(var code, var msg) -> "操作失败: " + msg;
@@ -47,7 +47,7 @@ public class SectCommandHandler implements CommandGroup {
   }
 
   public String handleDismiss(PlatformType platform, String openId, TextFormat fmt) {
-    var result = sectService.dismissSect(platform, openId);
+    var result = sectMemberService.dismissSect(platform, openId);
     return switch (result) {
       case ServiceResult.Success(var text) -> text;
       case ServiceResult.Failure(var code, var msg) -> "操作失败: " + msg;

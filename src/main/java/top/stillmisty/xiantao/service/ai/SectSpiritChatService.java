@@ -18,7 +18,7 @@ import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
-import top.stillmisty.xiantao.service.sect.SectService;
+import top.stillmisty.xiantao.service.sect.SectBuildingService;
 
 /** 宗灵对话核心服务 宗灵是宗门意志的化身，LLM 驱动，成员通过自然语言与宗灵对话来执行所有宗门操作 */
 @Service
@@ -33,7 +33,7 @@ public class SectSpiritChatService {
   private final SectMemberRepository sectMemberRepository;
   private final ChatHistoryRepository chatHistoryRepository;
   private final SectSpiritTools sectSpiritTools;
-  private final SectService sectService;
+  private final SectBuildingService sectBuildingService;
 
   @Authenticated
   public ServiceResult<String> chatWithSectSpirit(
@@ -56,7 +56,7 @@ public class SectSpiritChatService {
               .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_FOUND));
 
       // 灵脉惰性结算
-      sectService.settleSpiritVein(sect.getId());
+      sectBuildingService.settleSpiritVein(sect.getId());
 
       // 加载历史
       List<ChatHistory> history =

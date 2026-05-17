@@ -9,7 +9,10 @@ import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.UserContext;
-import top.stillmisty.xiantao.service.sect.SectService;
+import top.stillmisty.xiantao.service.sect.SectBuildingService;
+import top.stillmisty.xiantao.service.sect.SectMemberService;
+import top.stillmisty.xiantao.service.sect.SectSharedSkillService;
+import top.stillmisty.xiantao.service.sect.SectShopService;
 
 /** 宗灵可用的工具函数（Function Calling） 这些工具会被 LLM 调用，以执行宗门相关的操作 */
 @Service
@@ -17,7 +20,10 @@ import top.stillmisty.xiantao.service.sect.SectService;
 @Slf4j
 public class SectSpiritTools {
 
-  private final SectService sectService;
+  private final SectMemberService sectMemberService;
+  private final SectShopService sectShopService;
+  private final SectSharedSkillService sectSharedSkillService;
+  private final SectBuildingService sectBuildingService;
 
   /** 获取当前用户ID */
   private Long getCurrentUserId() {
@@ -33,7 +39,7 @@ public class SectSpiritTools {
   public ShopQueryResponse queryShop() {
     try {
       Long userId = getCurrentUserId();
-      String result = sectService.getShop(userId);
+      String result = sectShopService.getShop(userId);
       return new ShopQueryResponse(true, result);
     } catch (Exception e) {
       log.error("查询贡献商店失败", e);
@@ -47,7 +53,7 @@ public class SectSpiritTools {
       @ToolParam(description = "商品编号，从queryShop结果中获取") long shopItemId) {
     try {
       Long userId = getCurrentUserId();
-      String result = sectService.exchangeShopItem(userId, shopItemId);
+      String result = sectShopService.exchangeShopItem(userId, shopItemId);
       return new ExchangeResponse(true, result);
     } catch (Exception e) {
       log.error("兑换商品失败: shopItemId={}", shopItemId, e);
@@ -60,7 +66,7 @@ public class SectSpiritTools {
   public SharedSkillQueryResponse querySharedSkills() {
     try {
       Long userId = getCurrentUserId();
-      String result = sectService.getSharedSkills(userId);
+      String result = sectSharedSkillService.getSharedSkills(userId);
       return new SharedSkillQueryResponse(true, result);
     } catch (Exception e) {
       log.error("查询共享功法失败", e);
@@ -74,7 +80,7 @@ public class SectSpiritTools {
       @ToolParam(description = "共享功法编号，从querySharedSkills结果中获取") long sharedSkillId) {
     try {
       Long userId = getCurrentUserId();
-      String result = sectService.learnSharedSkill(userId, sharedSkillId);
+      String result = sectSharedSkillService.learnSharedSkill(userId, sharedSkillId);
       return new LearnSkillResponse(true, result);
     } catch (Exception e) {
       log.error("学习共享功法失败: sharedSkillId={}", sharedSkillId, e);
@@ -88,7 +94,7 @@ public class SectSpiritTools {
       @ToolParam(description = "功法玉简名称，如'烈焰诀玉简'") String jadeName) {
     try {
       Long userId = getCurrentUserId();
-      String result = sectService.submitSkillJade(userId, jadeName);
+      String result = sectSharedSkillService.submitSkillJade(userId, jadeName);
       return new SubmitJadeResponse(true, result);
     } catch (Exception e) {
       log.error("提交功法玉简失败: jadeName={}", jadeName, e);
@@ -101,7 +107,7 @@ public class SectSpiritTools {
   public DonateResponse donateStones(@ToolParam(description = "捐献灵石数量") long amount) {
     try {
       Long userId = getCurrentUserId();
-      String result = sectService.donateStones(userId, amount);
+      String result = sectMemberService.donateStones(userId, amount);
       return new DonateResponse(true, result);
     } catch (Exception e) {
       log.error("捐献灵石失败: amount={}", amount, e);
@@ -115,7 +121,7 @@ public class SectSpiritTools {
       @ToolParam(description = "目标玩家的道号") String targetNickname) {
     try {
       Long userId = getCurrentUserId();
-      String result = sectService.inviteMember(userId, targetNickname);
+      String result = sectMemberService.inviteMember(userId, targetNickname);
       return new InviteMemberResponse(true, result);
     } catch (Exception e) {
       log.error("邀请成员失败: targetNickname={}", targetNickname, e);
@@ -128,7 +134,7 @@ public class SectSpiritTools {
   public KickMemberResponse kickMember(@ToolParam(description = "要踢出的成员道号") String targetNickname) {
     try {
       Long userId = getCurrentUserId();
-      String result = sectService.kickMember(userId, targetNickname);
+      String result = sectMemberService.kickMember(userId, targetNickname);
       return new KickMemberResponse(true, result);
     } catch (Exception e) {
       log.error("踢出成员失败: targetNickname={}", targetNickname, e);
@@ -141,7 +147,7 @@ public class SectSpiritTools {
   public PostNoticeResponse postNotice(@ToolParam(description = "公告内容") String content) {
     try {
       Long userId = getCurrentUserId();
-      String result = sectService.setNotice(userId, content);
+      String result = sectMemberService.setNotice(userId, content);
       return new PostNoticeResponse(true, result);
     } catch (Exception e) {
       log.error("发布公告失败", e);
@@ -155,7 +161,7 @@ public class SectSpiritTools {
       @ToolParam(description = "共享功法编号，从querySharedSkills结果中获取") long sharedSkillId) {
     try {
       Long userId = getCurrentUserId();
-      String result = sectService.removeSharedSkill(userId, sharedSkillId);
+      String result = sectSharedSkillService.removeSharedSkill(userId, sharedSkillId);
       return new RemoveSkillResponse(true, result);
     } catch (Exception e) {
       log.error("下架共享功法失败: sharedSkillId={}", sharedSkillId, e);
@@ -169,7 +175,7 @@ public class SectSpiritTools {
       @ToolParam(description = "共享功法编号，从待上架列表获取") long sharedSkillId) {
     try {
       Long userId = getCurrentUserId();
-      String result = sectService.listSharedSkill(userId, sharedSkillId);
+      String result = sectSharedSkillService.listSharedSkill(userId, sharedSkillId);
       return new ListSkillResponse(true, result);
     } catch (Exception e) {
       log.error("上架共享功法失败: sharedSkillId={}", sharedSkillId, e);
@@ -182,7 +188,7 @@ public class SectSpiritTools {
   public TaskQueryResponse queryTasks() {
     try {
       Long userId = getCurrentUserId();
-      String result = sectService.getTasks(userId);
+      String result = sectMemberService.getTasks(userId);
       return new TaskQueryResponse(true, result);
     } catch (Exception e) {
       log.error("查询宗门任务失败", e);
@@ -197,7 +203,7 @@ public class SectSpiritTools {
       @ToolParam(description = "新职位代码：LEADER（宗主）/ ELDER（长老）/ MEMBER（弟子）") String positionCode) {
     try {
       Long userId = getCurrentUserId();
-      String result = sectService.appointMember(userId, targetNickname, positionCode);
+      String result = sectMemberService.appointMember(userId, targetNickname, positionCode);
       return new AppointMemberResponse(true, result);
     } catch (Exception e) {
       log.error("任命成员失败: targetNickname={}, position={}", targetNickname, positionCode, e);
@@ -210,7 +216,7 @@ public class SectSpiritTools {
   public UpgradeSectResponse upgradeSect() {
     try {
       Long userId = getCurrentUserId();
-      String result = sectService.upgradeSect(userId);
+      String result = sectMemberService.upgradeSect(userId);
       return new UpgradeSectResponse(true, result);
     } catch (Exception e) {
       log.error("升级宗门失败", e);
@@ -223,7 +229,7 @@ public class SectSpiritTools {
   public ExpandMembersResponse expandMembers() {
     try {
       Long userId = getCurrentUserId();
-      String result = sectService.expandMembers(userId);
+      String result = sectMemberService.expandMembers(userId);
       return new ExpandMembersResponse(true, result);
     } catch (Exception e) {
       log.error("扩充成员上限失败", e);
@@ -236,7 +242,7 @@ public class SectSpiritTools {
   public BuildingQueryResponse queryBuildings() {
     try {
       Long userId = getCurrentUserId();
-      String result = sectService.getBuildings(userId);
+      String result = sectBuildingService.getBuildings(userId);
       return new BuildingQueryResponse(true, result);
     } catch (Exception e) {
       log.error("查询建筑失败", e);
@@ -252,7 +258,7 @@ public class SectSpiritTools {
       @ToolParam(description = "建筑类型代码") String buildingTypeCode) {
     try {
       Long userId = getCurrentUserId();
-      String result = sectService.buildStructure(userId, buildingTypeCode);
+      String result = sectBuildingService.buildStructure(userId, buildingTypeCode);
       return new BuildStructureResponse(true, result);
     } catch (Exception e) {
       log.error("建造建筑失败: buildingTypeCode={}", buildingTypeCode, e);
@@ -266,7 +272,7 @@ public class SectSpiritTools {
       @ToolParam(description = "建筑类型代码") String buildingTypeCode) {
     try {
       Long userId = getCurrentUserId();
-      String result = sectService.upgradeBuilding(userId, buildingTypeCode);
+      String result = sectBuildingService.upgradeBuilding(userId, buildingTypeCode);
       return new UpgradeBuildingResponse(true, result);
     } catch (Exception e) {
       log.error("升级建筑失败: buildingTypeCode={}", buildingTypeCode, e);
