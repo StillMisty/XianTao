@@ -27,6 +27,7 @@ import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ServiceResult;
+import top.stillmisty.xiantao.service.SpiritStoneService;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.fudi.FudiHelper;
@@ -46,6 +47,7 @@ public class BeastBreedingService {
   private final StackableItemService stackableItemService;
   private final ItemResolver itemResolver;
   private final FudiHelper fudiHelper;
+  private final SpiritStoneService spiritStoneService;
   private final BeastSkillService beastSkillService;
   private final BeastDisplayHelper beastDisplayHelper;
   private final BeastEvolutionService beastEvolutionService;
@@ -222,7 +224,7 @@ public class BeastBreedingService {
     }
 
     int stoneCost = tier * 200 + 200;
-    fudiHelper.deductSpiritStones(userId, stoneCost);
+    spiritStoneService.withdraw(userId, stoneCost);
 
     BeastQuality quality = rollBeastQuality();
     boolean isMutant = ThreadLocalRandom.current().nextInt(100) < 5;

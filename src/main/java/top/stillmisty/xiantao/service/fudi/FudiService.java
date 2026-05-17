@@ -27,6 +27,7 @@ import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
+import top.stillmisty.xiantao.service.SpiritStoneService;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.beast.BeastDisplayHelper;
@@ -47,6 +48,7 @@ public class FudiService {
   private final BeastProductionService beastProductionService;
   private final FarmService farmService;
   private final FudiHelper fudiHelper;
+  private final SpiritStoneService spiritStoneService;
   private final TribulationService tribulationService;
   private final FudiGiftService fudiGiftService;
   private final FudiCollectService fudiCollectService;
@@ -373,8 +375,7 @@ public class FudiService {
           case PEN -> 100;
           default -> 50;
         };
-    fudiHelper.checkSpiritStones(userId, stoneCost);
-    fudiHelper.deductSpiritStones(userId, stoneCost);
+    spiritStoneService.withdraw(userId, stoneCost);
 
     FudiCell cell = existingCell != null ? existingCell : new FudiCell();
     if (existingCell == null) {
@@ -435,7 +436,7 @@ public class FudiService {
     }
 
     int cost = currentLevel == 1 ? 200 : currentLevel == 2 ? 400 : currentLevel == 3 ? 800 : 1600;
-    fudiHelper.deductSpiritStones(userId, cost);
+    spiritStoneService.withdraw(userId, cost);
 
     int newLevel = currentLevel + 1;
     cell.setCellLevel(newLevel);

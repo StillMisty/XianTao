@@ -15,7 +15,7 @@ import top.stillmisty.xiantao.domain.fudi.enums.BeastQuality;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
 import top.stillmisty.xiantao.domain.fudi.vo.PenCellVO;
 import top.stillmisty.xiantao.service.BusinessException;
-import top.stillmisty.xiantao.service.fudi.FudiHelper;
+import top.stillmisty.xiantao.service.SpiritStoneService;
 
 /** 灵兽进化 — 等阶提升、品质突破 */
 @Slf4j
@@ -23,7 +23,7 @@ import top.stillmisty.xiantao.service.fudi.FudiHelper;
 @RequiredArgsConstructor
 public class BeastEvolutionService {
 
-  private final FudiHelper fudiHelper;
+  private final SpiritStoneService spiritStoneService;
   private final BeastRepository beastRepository;
   private final SpiritRepository spiritRepository;
   private final BeastSkillService beastSkillService;
@@ -47,7 +47,7 @@ public class BeastEvolutionService {
 
     int currentTier = beast.getTier();
     int cost = (currentTier + 1) * 200;
-    fudiHelper.deductSpiritStones(userId, cost);
+    spiritStoneService.withdraw(userId, cost);
 
     var spirit = spiritRepository.findByFudiId(fudi.getId()).orElse(null);
     int affectionBonus =
@@ -112,7 +112,7 @@ public class BeastEvolutionService {
     BeastQuality nextQuality = currentQuality.next();
 
     int cost = nextQuality.getOrder() * 300;
-    fudiHelper.deductSpiritStones(userId, cost);
+    spiritStoneService.withdraw(userId, cost);
 
     var spirit = spiritRepository.findByFudiId(fudi.getId()).orElse(null);
     int affectionBonus =

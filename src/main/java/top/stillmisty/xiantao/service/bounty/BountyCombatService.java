@@ -23,9 +23,9 @@ import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.service.BusinessException;
+import top.stillmisty.xiantao.service.SpiritStoneService;
 import top.stillmisty.xiantao.service.activity.BountyCompleter;
 import top.stillmisty.xiantao.service.ai.ExplorationDescriptionFunction;
-import top.stillmisty.xiantao.service.fudi.FudiHelper;
 import top.stillmisty.xiantao.service.inventory.EquipmentService;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
 import top.stillmisty.xiantao.service.player.UserStateService;
@@ -43,7 +43,7 @@ public class BountyCombatService {
   private final StackableItemService stackableItemService;
   private final EquipmentService equipmentService;
   private final BountyCompleter bountyCompleter;
-  private final FudiHelper fudiHelper;
+  private final SpiritStoneService spiritStoneService;
 
   @Transactional
   public BountyRewardVO completeBounty(Long userId) {
@@ -81,7 +81,7 @@ public class BountyCombatService {
             userId, record.getBountyId(), record.getBountyName(), items, stats.spiritStones);
 
     if (finalSpiritStones > 0) {
-      fudiHelper.addSpiritStones(userId, (int) finalSpiritStones);
+      spiritStoneService.deposit(userId, (int) finalSpiritStones);
     }
 
     // Bounty completion event

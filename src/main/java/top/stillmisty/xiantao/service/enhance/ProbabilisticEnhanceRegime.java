@@ -13,8 +13,8 @@ import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
+import top.stillmisty.xiantao.service.SpiritStoneService;
 import top.stillmisty.xiantao.service.forging.ForgingCombinationFinder;
-import top.stillmisty.xiantao.service.fudi.FudiHelper;
 
 /** 强化概率期 +4→+9：固定成功率 × 稀有度修正，需要锻材 */
 @Component
@@ -22,7 +22,7 @@ import top.stillmisty.xiantao.service.fudi.FudiHelper;
 public class ProbabilisticEnhanceRegime {
 
   private final EnhancementCore core;
-  private final FudiHelper fudiHelper;
+  private final SpiritStoneService spiritStoneService;
   private final ForgingCombinationFinder combinationFinder;
   private final StackableItemRepository stackableItemRepository;
 
@@ -45,7 +45,7 @@ public class ProbabilisticEnhanceRegime {
           ErrorCode.FORGING_ATTRIBUTE_MISSING, String.join(", ", selection.missingAttributes()));
     }
 
-    fudiHelper.deductSpiritStones(userId, stoneCost);
+    spiritStoneService.withdraw(userId, stoneCost);
     core.consumeMaterials(userId, selection.usedMaterials(), materials);
 
     return rollAndApply(
@@ -66,7 +66,7 @@ public class ProbabilisticEnhanceRegime {
       throw new BusinessException(ErrorCode.ENHANCE_MATERIAL_NOT_MATCH);
     }
 
-    fudiHelper.deductSpiritStones(userId, stoneCost);
+    spiritStoneService.withdraw(userId, stoneCost);
     core.consumeMaterialsByName(userId, usedMaterials);
 
     return rollAndApply(userId, equipment, currentLevel, targetLevel, stoneCost, usedMaterials);

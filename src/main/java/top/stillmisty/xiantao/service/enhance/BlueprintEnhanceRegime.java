@@ -13,8 +13,8 @@ import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
+import top.stillmisty.xiantao.service.SpiritStoneService;
 import top.stillmisty.xiantao.service.forging.ForgingCombinationFinder;
-import top.stillmisty.xiantao.service.fudi.FudiHelper;
 
 /** 强化图纸期 +10→上限：需要蓝图，品质分 = 成功率 */
 @Component
@@ -22,7 +22,7 @@ import top.stillmisty.xiantao.service.fudi.FudiHelper;
 public class BlueprintEnhanceRegime {
 
   private final EnhancementCore core;
-  private final FudiHelper fudiHelper;
+  private final SpiritStoneService spiritStoneService;
   private final ForgingCombinationFinder combinationFinder;
   private final StackableItemRepository stackableItemRepository;
   private final PlayerForgingRecipeRepository playerForgingRecipeRepository;
@@ -47,7 +47,7 @@ public class BlueprintEnhanceRegime {
       throw new BusinessException(ErrorCode.ENHANCE_MATERIAL_NOT_MATCH);
     }
 
-    fudiHelper.deductSpiritStones(userId, stoneCost);
+    spiritStoneService.withdraw(userId, stoneCost);
     core.consumeMaterials(userId, selection.usedMaterials(), materials);
 
     double successRate =
@@ -79,7 +79,7 @@ public class BlueprintEnhanceRegime {
       throw new BusinessException(ErrorCode.ENHANCE_MATERIAL_NOT_MATCH);
     }
 
-    fudiHelper.deductSpiritStones(userId, stoneCost);
+    spiritStoneService.withdraw(userId, stoneCost);
     core.consumeMaterialsByName(userId, usedMaterials);
 
     double successRate = combinationFinder.calculateQualityScore(attributeTotals, constraints);

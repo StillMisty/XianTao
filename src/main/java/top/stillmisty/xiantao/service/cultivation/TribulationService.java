@@ -21,8 +21,8 @@ import top.stillmisty.xiantao.domain.monster.TribulationBoss;
 import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
+import top.stillmisty.xiantao.service.SpiritStoneService;
 import top.stillmisty.xiantao.service.combat.CombatService;
-import top.stillmisty.xiantao.service.fudi.FudiHelper;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +37,7 @@ public class TribulationService {
   private final SpiritRepository spiritRepository;
   private final BeastRepository beastRepository;
   private final UserRepository userRepository;
-  private final FudiHelper fudiHelper;
+  private final SpiritStoneService spiritStoneService;
   private final CombatService combatService;
 
   /** 判断天劫是否已到触发时间（冷却已过）。 */
@@ -198,7 +198,7 @@ public class TribulationService {
     fudi.setTribulationStage(newStage);
 
     int stoneReward = newWinStreak * 100;
-    fudiHelper.addSpiritStones(fudi.getUserId(), stoneReward);
+    spiritStoneService.deposit(fudi.getUserId(), stoneReward);
 
     return new TribulationProgress(oldStage, newWinStreak, newStage, stoneReward);
   }

@@ -13,9 +13,9 @@ import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
+import top.stillmisty.xiantao.service.SpiritStoneService;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
-import top.stillmisty.xiantao.service.fudi.FudiHelper;
 
 @Slf4j
 @Service
@@ -26,7 +26,7 @@ public class EnhancementService {
   private final SafeEnhanceRegime safeRegime;
   private final ProbabilisticEnhanceRegime probabilisticRegime;
   private final BlueprintEnhanceRegime blueprintRegime;
-  private final FudiHelper fudiHelper;
+  private final SpiritStoneService spiritStoneService;
 
   // ===================== 公开 API（含认证） =====================
 
@@ -115,7 +115,10 @@ public class EnhancementService {
     }
 
     int stoneCost = core.calculateSpiritStoneCost(equipment.getRarity(), targetLevel);
-    fudiHelper.checkSpiritStones(userId, stoneCost);
+    int balance = spiritStoneService.getBalance(userId);
+    if (balance < stoneCost) {
+      throw new BusinessException(ErrorCode.SPIRIT_STONES_INSUFFICIENT, stoneCost, balance);
+    }
 
     return new ResolvedEnhance(equipment, currentLevel, stoneCost);
   }

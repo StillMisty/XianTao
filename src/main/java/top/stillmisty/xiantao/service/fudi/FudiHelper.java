@@ -9,7 +9,6 @@ import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
 import top.stillmisty.xiantao.domain.shared.SharedKernel;
 import top.stillmisty.xiantao.domain.user.entity.User;
-import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.player.UserStateService;
@@ -22,7 +21,6 @@ public class FudiHelper {
   private final FudiRepository fudiRepository;
   private final SpiritRepository spiritRepository;
   private final UserStateService userStateService;
-  private final UserRepository userRepository;
 
   /**
    * 根据 userId 查找福地，并自动更新在线时间、更新地灵情绪状态并持久化。
@@ -45,30 +43,6 @@ public class FudiHelper {
           fudiRepository.save(fudi);
         });
     return fudiOpt;
-  }
-
-  /** 检查灵石是否足够，不足则抛出异常 */
-  public void checkSpiritStones(Long userId, int cost) {
-    User user = userStateService.loadUser(userId);
-    if (user.getSpiritStones() < cost) {
-      throw new BusinessException(
-          ErrorCode.SPIRIT_STONES_INSUFFICIENT, cost, user.getSpiritStones());
-    }
-  }
-
-  /** 原子扣除灵石（灵石不足时抛出异常） */
-  public void deductSpiritStones(Long userId, int cost) {
-    int affected = userRepository.deductSpiritStonesIfEnough(userId, cost);
-    if (affected == 0) {
-      User user = userStateService.loadUser(userId);
-      throw new BusinessException(
-          ErrorCode.SPIRIT_STONES_INSUFFICIENT, cost, user.getSpiritStones());
-    }
-  }
-
-  /** 原子增加灵石 */
-  public void addSpiritStones(Long userId, int amount) {
-    userRepository.addSpiritStonesAtomically(userId, amount);
   }
 
   /** 获取用户信息，不存在则抛出异常 */

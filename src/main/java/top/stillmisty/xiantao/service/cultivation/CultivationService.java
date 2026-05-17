@@ -15,9 +15,9 @@ import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.vo.*;
 import top.stillmisty.xiantao.service.ProtectionHelper;
 import top.stillmisty.xiantao.service.ServiceResult;
+import top.stillmisty.xiantao.service.SpiritStoneService;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
-import top.stillmisty.xiantao.service.fudi.FudiHelper;
 import top.stillmisty.xiantao.service.masterapprentice.MasterApprenticeService;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
@@ -31,7 +31,7 @@ public class CultivationService {
   private final PlayerBuffRepository playerBuffRepository;
   private final ProtectionHelper protectionHelper;
   private final DaoProtectionService daoProtectionService;
-  private final FudiHelper fudiHelper;
+  private final SpiritStoneService spiritStoneService;
   private final ChatClient chatClient;
   private final MasterApprenticeService masterApprenticeService;
 
@@ -215,7 +215,7 @@ public class CultivationService {
 
     CultivationRealm realm = CultivationRealm.fromLevel(user.getLevel());
     long spiritStones = CultivationRealm.breakthroughSpiritStonesReward(realm);
-    fudiHelper.addSpiritStones(user.getId(), (int) spiritStones);
+    spiritStoneService.deposit(user.getId(), (int) spiritStones);
   }
 
   /** 使用 LLM 生成跨大境界突破贺词 */
