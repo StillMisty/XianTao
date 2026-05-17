@@ -104,38 +104,19 @@ public class PillCommandHandler implements CommandGroup {
 
   private String formatRefiningResult(PillRefiningResultVO result, TextFormat fmt) {
     StringBuilder sb = new StringBuilder();
-    if (result.success()) {
-      sb.append(fmt.heading("炼丹成功", "⚗️✨"));
-      sb.append(fmt.listItem(String.format("成丹：%s x%d", result.pillName(), result.quantity())));
-      sb.append(
-          fmt.listItem(
-              String.format("成色：%s", PillQuality.fromCode(result.quality()).getChineseName())));
-      sb.append(
-          fmt.listItem(
-              String.format("效果倍率：%.1f", PillQuality.fromCode(result.quality()).getMultiplier())));
+    sb.append(fmt.heading("炼丹成功", "⚗️✨"));
+    sb.append(fmt.listItem(String.format("成丹：%s x%d", result.pillName(), result.quantity())));
+    sb.append(
+        fmt.listItem(
+            String.format("成色：%s", PillQuality.fromCode(result.quality()).getChineseName())));
+    sb.append(
+        fmt.listItem(
+            String.format("效果倍率：%.1f", PillQuality.fromCode(result.quality()).getMultiplier())));
 
-      if (result.usedHerbs() != null && !result.usedHerbs().isEmpty()) {
-        sb.append("\n消耗药材：\n");
-        for (Map.Entry<String, Integer> entry : result.usedHerbs().entrySet()) {
-          sb.append(fmt.listItem(String.format("%s x%d", entry.getKey(), entry.getValue())));
-        }
-      }
-    } else {
-      sb.append(fmt.heading("炼丹失败", "💥"));
-      sb.append(result.message());
-
-      if (result.missingElements() != null && !result.missingElements().isEmpty()) {
-        sb.append("\n缺少属性：\n");
-        for (String element : result.missingElements()) {
-          sb.append(fmt.listItem(getElementName(element)));
-        }
-      }
-
-      if (result.usedHerbs() != null && !result.usedHerbs().isEmpty()) {
-        sb.append("\n已使用药材：\n");
-        for (Map.Entry<String, Integer> entry : result.usedHerbs().entrySet()) {
-          sb.append(fmt.listItem(String.format("%s x%d", entry.getKey(), entry.getValue())));
-        }
+    if (result.usedHerbs() != null && !result.usedHerbs().isEmpty()) {
+      sb.append("\n消耗药材：\n");
+      for (Map.Entry<String, Integer> entry : result.usedHerbs().entrySet()) {
+        sb.append(fmt.listItem(String.format("%s x%d", entry.getKey(), entry.getValue())));
       }
     }
     return sb.toString();

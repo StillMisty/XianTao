@@ -5,7 +5,6 @@ import top.stillmisty.xiantao.domain.item.enums.Rarity;
 
 /** 锻造结果VO */
 public record ForgingResultVO(
-    boolean success,
     String message,
     Long equipmentId,
     String equipmentName,

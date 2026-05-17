@@ -65,6 +65,13 @@ public enum ErrorCode {
   RECIPE_ALREADY_LEARNED("已学会该丹方"),
   RECIPE_SCROLL_WRONG_TYPE("该物品不是丹方卷轴"),
   RECIPE_PILL_DATA_ERROR("丹药产物数据异常"),
+  RECIPE_NOT_FOUND("未找到丹方：%s"),
+  PILL_ELEMENT_MISSING("缺少药材属性：%s"),
+  PILL_ELEMENT_EXCEED("药材属性超过上限：%s"),
+  HERBS_EMPTY("背包中没有药材"),
+  PILL_MATERIAL_INPUT_FORMAT("药材输入格式错误，请使用 药材名×数量 格式"),
+  PILL_MATERIAL_INSUFFICIENT("药材数量不足：%s"),
+  PILL_NO_MATCHING_RECIPE("药材五行不匹配任何丹方"),
 
   // ===== Forging =====
   BLUEPRINT_SCROLL_NOT_FOUND("未找到名为「%s」的锻造图纸"),

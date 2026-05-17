@@ -213,7 +213,6 @@ public class ForgingService {
         equipmentRepository.save(equipment);
 
         return new ForgingResultVO(
-            true,
             "锻造成功！",
             equipment.getId(),
             equipment.getName(),

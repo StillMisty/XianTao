@@ -92,25 +92,19 @@ public class ForgingCommandHandler implements CommandGroup {
 
   private String formatForgingResult(ForgingResultVO result, TextFormat fmt) {
     StringBuilder sb = new StringBuilder();
-    if (result.success()) {
-      sb.append(fmt.heading("锻造成功", "🔨✨"));
-      sb.append(fmt.listItem("装备：" + result.equipmentName()));
-      if (result.rarity() != null) {
-        sb.append(
-            fmt.listItem(
-                "稀有度：" + result.rarity().getColor().getEmoji() + result.rarity().getName()));
-      }
-      sb.append(fmt.listItem(String.format("品质分：%.1f%%", result.qualityScore() * 100)));
+    sb.append(fmt.heading("锻造成功", "🔨✨"));
+    sb.append(fmt.listItem("装备：" + result.equipmentName()));
+    if (result.rarity() != null) {
+      sb.append(
+          fmt.listItem("稀有度：" + result.rarity().getColor().getEmoji() + result.rarity().getName()));
+    }
+    sb.append(fmt.listItem(String.format("品质分：%.1f%%", result.qualityScore() * 100)));
 
-      if (result.usedMaterials() != null && !result.usedMaterials().isEmpty()) {
-        sb.append("\n消耗锻材：\n");
-        for (Map.Entry<String, Integer> entry : result.usedMaterials().entrySet()) {
-          sb.append(fmt.listItem(String.format("%s x%d", entry.getKey(), entry.getValue())));
-        }
+    if (result.usedMaterials() != null && !result.usedMaterials().isEmpty()) {
+      sb.append("\n消耗锻材：\n");
+      for (Map.Entry<String, Integer> entry : result.usedMaterials().entrySet()) {
+        sb.append(fmt.listItem(String.format("%s x%d", entry.getKey(), entry.getValue())));
       }
-    } else {
-      sb.append(fmt.heading("锻造失败", "💥"));
-      sb.append(result.message());
     }
     return sb.toString();
   }

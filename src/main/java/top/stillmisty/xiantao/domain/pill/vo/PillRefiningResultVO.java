@@ -5,7 +5,6 @@ import java.util.Map;
 
 /** 炼丹结果VO */
 public record PillRefiningResultVO(
-    boolean success,
     String message,
     Long pillTemplateId,
     String pillName,

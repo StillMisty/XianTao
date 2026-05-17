@@ -53,26 +53,16 @@ public class PillCombinationFinder {
 
     strategy.tryFindBestCombination(
         requirements, herbs, elementTotals, usedHerbs, remainingQuantities);
-
     List<String> missingElements = strategy.collectMissingAttributes(requirements, elementTotals);
     if (!missingElements.isEmpty()) {
-      return new PillRefiningResultVO(
-          false,
-          "缺少药材属性：" + String.join(", ", missingElements),
-          null,
-          null,
-          0,
-          null,
-          null,
-          missingElements);
+      throw new BusinessException(
+          ErrorCode.PILL_ELEMENT_MISSING, String.join(", ", missingElements));
     }
 
     if (strategy.exceedsAttributeMax(requirements, elementTotals)) {
       String overElement = strategy.findOverMaxAttribute(requirements, elementTotals);
-      return new PillRefiningResultVO(
-          false, "药材属性超过上限：" + overElement, null, null, 0, null, usedHerbs, null);
+      throw new BusinessException(ErrorCode.PILL_ELEMENT_EXCEED, overElement);
     }
-
     return craftPill(userId, herbs, elementTotals, usedHerbs, requirements, recipeTemplate);
   }
 
@@ -109,7 +99,6 @@ public class PillCombinationFinder {
     createPillItem(userId, resultTemplate, recipeScroll.grade(), quality, resultQuantity);
 
     return new PillRefiningResultVO(
-        true,
         "炼丹成功！",
         resultItemId,
         resultTemplate.getName(),

@@ -70,13 +70,12 @@ public class PillRefiningService {
     }
 
     if (targetRecipe == null) {
-      return new PillRefiningResultVO(
-          false, "未找到丹方：" + recipeName, null, null, 0, null, null, null);
+      throw new BusinessException(ErrorCode.RECIPE_NOT_FOUND, recipeName);
     }
 
     var recipeScroll = combinationFinder.getRecipeScroll(recipeTemplate);
     if (recipeScroll == null || recipeScroll.requirements().isEmpty()) {
-      return new PillRefiningResultVO(false, "丹方数据错误", null, null, 0, null, null, null);
+      throw new BusinessException(ErrorCode.RECIPE_PILL_DATA_ERROR);
     }
     var requirements = recipeScroll.requirements();
 
@@ -86,7 +85,7 @@ public class PillRefiningService {
             .toList();
 
     if (herbs.isEmpty()) {
-      return new PillRefiningResultVO(false, "背包中没有药材", null, null, 0, null, null, List.of());
+      throw new BusinessException(ErrorCode.HERBS_EMPTY);
     }
 
     return combinationFinder.findBestCombination(userId, herbs, requirements, recipeTemplate);
@@ -98,7 +97,7 @@ public class PillRefiningService {
   public PillRefiningResultVO refinePillManual(Long userId, List<String> herbInputs) {
     List<HerbInput> parsedInputs = parseHerbInputs(userId, herbInputs);
     if (parsedInputs.isEmpty()) {
-      return new PillRefiningResultVO(false, "药材输入格式错误", null, null, 0, null, null, null);
+      throw new BusinessException(ErrorCode.PILL_MATERIAL_INPUT_FORMAT);
     }
 
     Map<String, Integer> elementTotals = new HashMap<>();
@@ -107,8 +106,7 @@ public class PillRefiningService {
       StackableItem herb = input.herb();
       int quantity = input.quantity();
       if (!herb.hasEnoughQuantity(quantity)) {
-        return new PillRefiningResultVO(
-            false, "药材数量不足：" + herb.getName(), null, null, 0, null, null, null);
+        throw new BusinessException(ErrorCode.PILL_MATERIAL_INSUFFICIENT, herb.getName());
       }
       for (String element : List.of("METAL", "WOOD", "WATER", "FIRE", "EARTH")) {
         int value = herb.getElementValue(element) * quantity;
@@ -143,7 +141,6 @@ public class PillRefiningService {
             userId, resultTemplate, recipeScroll.grade(), quality, resultQuantity);
 
         return new PillRefiningResultVO(
-            true,
             "炼丹成功！",
             resultItemId,
             resultTemplate.getName(),
@@ -154,7 +151,7 @@ public class PillRefiningService {
       }
     }
 
-    return new PillRefiningResultVO(false, "药材五行不匹配任何丹方", null, null, 0, null, usedHerbs, null);
+    throw new BusinessException(ErrorCode.PILL_NO_MATCHING_RECIPE);
   }
 
   private List<HerbInput> parseHerbInputs(Long userId, List<String> herbInputs) {

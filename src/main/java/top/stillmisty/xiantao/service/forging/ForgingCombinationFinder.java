@@ -12,7 +12,9 @@ import top.stillmisty.xiantao.domain.item.enums.Rarity;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
+import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.CombinationStrategy;
+import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
 
 /** 锻造组合算法 — 自动匹配锻材、计算三性配比、品质分→稀有度映射 */
@@ -58,28 +60,13 @@ public class ForgingCombinationFinder {
     List<String> missingAttributes =
         strategy.collectMissingAttributes(requirements, attributeTotals);
     if (!missingAttributes.isEmpty()) {
-      return new ForgingResultVO(
-          false,
-          "缺少锻材属性：" + String.join(", ", missingAttributes),
-          null,
-          null,
-          null,
-          0.0,
-          null,
-          attributeTotals);
+      throw new BusinessException(
+          ErrorCode.FORGING_ATTRIBUTE_MISSING, String.join(", ", missingAttributes));
     }
 
     if (strategy.exceedsAttributeMax(requirements, attributeTotals)) {
       String overAttribute = strategy.findOverMaxAttribute(requirements, attributeTotals);
-      return new ForgingResultVO(
-          false,
-          "锻材属性超过上限：" + overAttribute,
-          null,
-          null,
-          null,
-          0.0,
-          usedMaterials,
-          attributeTotals);
+      throw new BusinessException(ErrorCode.FORGING_ATTRIBUTE_EXCEED, overAttribute);
     }
 
     return createEquipmentFromForge(
@@ -141,7 +128,7 @@ public class ForgingCombinationFinder {
       List<StackableItem> materials) {
     var blueprint = getForgingBlueprint(blueprintTemplate);
     if (blueprint == null) {
-      return new ForgingResultVO(false, "锻造图纸数据错误", null, null, null, 0.0, null, null);
+      throw new BusinessException(ErrorCode.BLUEPRINT_DATA_ERROR);
     }
 
     double qualityScore = strategy.calculateQualityScore(attributeTotals, blueprint.requirements());
@@ -158,7 +145,7 @@ public class ForgingCombinationFinder {
 
     var equipTmpl = equipmentTemplateRepository.findById(equipmentTemplateId).orElse(null);
     if (equipTmpl == null) {
-      return new ForgingResultVO(false, "装备模板不存在", null, null, null, 0.0, null, null);
+      throw new BusinessException(ErrorCode.BLUEPRINT_DATA_ERROR);
     }
 
     double qm = rarity.randomQualityMultiplier();
@@ -204,7 +191,6 @@ public class ForgingCombinationFinder {
     equipmentRepository.save(equipment);
 
     return new ForgingResultVO(
-        true,
         "锻造成功！",
         equipment.getId(),
         equipment.getName(),
