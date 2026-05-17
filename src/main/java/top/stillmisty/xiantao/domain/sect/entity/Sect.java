@@ -11,7 +11,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
-/** 宗门实体 */
 @EqualsAndHashCode(callSuper = true)
 @Table("xt_sect")
 @Accessors(chain = true)
@@ -40,6 +39,22 @@ public class Sect extends Model<Sect> {
 
   private String notice;
 
+  private String verse;
+
+  private String ethos;
+
+  private String spiritPersonality;
+
+  private String lastEventType;
+
+  private String lastEventText;
+
+  private LocalDateTime lastEventTime;
+
+  private LocalDateTime eventExpiresAt;
+
+  private LocalDateTime lastVeinPayout;
+
   @Column(onInsertValue = "now()")
   private LocalDateTime createdAt;
 
@@ -60,5 +75,13 @@ public class Sect extends Model<Sect> {
     }
     this.funds = this.funds - amount;
     return true;
+  }
+
+  public boolean isMaxLevel() {
+    return level >= 5;
+  }
+
+  public int getScriptureSlotCount(int buildingLevel) {
+    return 3 + (buildingLevel * 3);
   }
 }

@@ -23,6 +23,8 @@ public class PlayerSkill {
 
   private Boolean isEquipped;
 
+  private Long sourceSectId;
+
   @Column(onInsertValue = "now()")
   private LocalDateTime createTime;
 

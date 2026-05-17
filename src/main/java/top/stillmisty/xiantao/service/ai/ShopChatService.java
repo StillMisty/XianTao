@@ -1,17 +1,16 @@
 package top.stillmisty.xiantao.service.ai;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
-import top.stillmisty.xiantao.domain.shop.entity.NpcDialogue;
+import top.stillmisty.xiantao.domain.sect.entity.ChatHistory;
+import top.stillmisty.xiantao.domain.sect.enums.ChatType;
+import top.stillmisty.xiantao.domain.sect.repository.ChatHistoryRepository;
 import top.stillmisty.xiantao.domain.shop.entity.ShopNpc;
 import top.stillmisty.xiantao.domain.shop.entity.ShopProduct;
 import top.stillmisty.xiantao.domain.shop.entity.WorldEvent;
-import top.stillmisty.xiantao.domain.shop.enums.NpcType;
-import top.stillmisty.xiantao.domain.shop.repository.NpcDialogueRepository;
 import top.stillmisty.xiantao.domain.shop.repository.ShopProductRepository;
 import top.stillmisty.xiantao.domain.shop.repository.WorldEventRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
@@ -34,7 +33,7 @@ public class ShopChatService {
   private final ShopService shopService;
   private final ShopTools shopTools;
   private final UserStateService userStateService;
-  private final NpcDialogueRepository dialogueRepository;
+  private final ChatHistoryRepository chatHistoryRepository;
   private final ShopProductRepository shopProductRepository;
   private final WorldEventRepository worldEventRepository;
 
@@ -53,9 +52,9 @@ public class ShopChatService {
       String systemPrompt = buildPrompt(npc);
 
       handleLazyCleanup(userId, npc.getId());
-      List<NpcDialogue> history = loadHistory(userId, npc.getId());
+      List<ChatHistory> history = loadHistory(userId, npc.getId());
 
-      saveDialogue(userId, npc.getId(), "user", userInput);
+      saveHistory(userId, npc.getId(), "user", userInput);
 
       String response =
           npcChatClient
@@ -66,7 +65,7 @@ public class ShopChatService {
               .call()
               .content();
 
-      saveDialogue(userId, npc.getId(), "assistant", response);
+      saveHistory(userId, npc.getId(), "assistant", response);
 
       log.info("商铺对话成功 - userId: {}, shopNpc: {}, input: {}", userId, npc.getName(), userInput);
       return response;
@@ -117,26 +116,25 @@ public class ShopChatService {
     return sb.toString();
   }
 
-  private List<NpcDialogue> loadHistory(Long userId, Long npcId) {
-    return dialogueRepository.findByUserIdAndNpcTypeAndNpcIdOrderByCreateTimeDesc(
-        userId, NpcType.SHOP_KEEPER, npcId, MAX_HISTORY + 1);
+  private List<ChatHistory> loadHistory(Long userId, Long npcId) {
+    return chatHistoryRepository.findByChatTypeAndConversationIdAndUserIdOrderByCreateTimeDesc(
+        ChatType.SHOP, npcId, userId, MAX_HISTORY + 1);
   }
 
   private void handleLazyCleanup(Long userId, Long npcId) {
-    List<NpcDialogue> history = loadHistory(userId, npcId);
+    List<ChatHistory> history = loadHistory(userId, npcId);
     if (history.size() >= MAX_HISTORY + 1) {
-      dialogueRepository.deleteOldEntries(userId, NpcType.SHOP_KEEPER, npcId, MAX_HISTORY);
+      chatHistoryRepository.deleteOldEntries(ChatType.SHOP, npcId, userId, MAX_HISTORY);
     }
   }
 
-  private void saveDialogue(Long userId, Long npcId, String role, String content) {
-    NpcDialogue dialogue = new NpcDialogue();
-    dialogue.setUserId(userId);
-    dialogue.setNpcType(NpcType.SHOP_KEEPER);
-    dialogue.setNpcId(npcId);
-    dialogue.setRole(role);
-    dialogue.setContent(content);
-    dialogue.setCreateTime(LocalDateTime.now());
-    dialogueRepository.save(dialogue);
+  private void saveHistory(Long npcId, Long userId, String role, String content) {
+    ChatHistory history = new ChatHistory();
+    history.setChatType(ChatType.SHOP);
+    history.setConversationId(npcId);
+    history.setUserId(userId);
+    history.setRole(role);
+    history.setContent(content);
+    chatHistoryRepository.save(history);
   }
 }

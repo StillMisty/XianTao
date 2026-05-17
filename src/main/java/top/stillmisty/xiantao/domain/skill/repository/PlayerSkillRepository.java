@@ -15,4 +15,6 @@ public interface PlayerSkillRepository {
   PlayerSkill save(PlayerSkill playerSkill);
 
   void deleteById(Long id);
+
+  void deleteByUserIdAndSourceSectId(Long userId, Long sourceSectId);
 }

@@ -10,17 +10,17 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-import top.stillmisty.xiantao.domain.sect.enums.SectPosition;
+import top.stillmisty.xiantao.domain.sect.enums.SectSharedSkillStatus;
 
 @EqualsAndHashCode(callSuper = true)
-@Table("xt_sect_member")
+@Table("xt_sect_shared_skill")
 @Accessors(chain = true)
 @Data
 @NoArgsConstructor
-public class SectMember extends Model<SectMember> {
+public class SectSharedSkill extends Model<SectSharedSkill> {
 
-  public static SectMember create() {
-    return new SectMember();
+  public static SectSharedSkill create() {
+    return new SectSharedSkill();
   }
 
   @Id(keyType = KeyType.Auto)
@@ -28,18 +28,12 @@ public class SectMember extends Model<SectMember> {
 
   private Long sectId;
 
-  private Long userId;
+  private Long skillId;
 
-  private SectPosition position;
+  private Long submitterUserId;
 
-  private Integer contribution;
+  private SectSharedSkillStatus status;
 
   @Column(onInsertValue = "now()")
-  private LocalDateTime joinedAt;
-
-  private LocalDateTime cooldownUntil;
-
-  public boolean isOnCooldown() {
-    return cooldownUntil != null && cooldownUntil.isAfter(LocalDateTime.now());
-  }
+  private LocalDateTime createdAt;
 }

@@ -4,9 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import top.stillmisty.xiantao.domain.sect.entity.SectShopItem;
 
-/** 宗门商店商品仓储接口 */
 public interface SectShopItemRepository {
-
   SectShopItem save(SectShopItem item);
 
   Optional<SectShopItem> findById(Long id);

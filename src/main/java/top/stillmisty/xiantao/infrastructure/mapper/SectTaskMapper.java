@@ -2,7 +2,7 @@ package top.stillmisty.xiantao.infrastructure.mapper;
 
 import com.mybatisflex.core.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
-import top.stillmisty.xiantao.domain.fudi.entity.SpiritHistory;
+import top.stillmisty.xiantao.domain.sect.entity.SectTask;
 
 @Mapper
-public interface SpiritHistoryMapper extends BaseMapper<SpiritHistory> {}
+public interface SectTaskMapper extends BaseMapper<SectTask> {}

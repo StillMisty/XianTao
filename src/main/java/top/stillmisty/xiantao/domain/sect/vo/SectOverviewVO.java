@@ -2,7 +2,6 @@ package top.stillmisty.xiantao.domain.sect.vo;
 
 import top.stillmisty.xiantao.domain.sect.enums.SectPosition;
 
-/** 宗门概览 VO */
 public record SectOverviewVO(
     Long sectId,
     String name,
@@ -13,5 +12,8 @@ public record SectOverviewVO(
     String leaderName,
     String description,
     String notice,
+    String verse,
+    String ethos,
+    String eventText,
     SectPosition myPosition,
     Integer myContribution) {}

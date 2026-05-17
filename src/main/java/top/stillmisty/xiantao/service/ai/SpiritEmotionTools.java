@@ -7,16 +7,16 @@ import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.fudi.entity.Spirit;
-import top.stillmisty.xiantao.domain.fudi.entity.SpiritHistory;
 import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
-import top.stillmisty.xiantao.domain.fudi.repository.SpiritHistoryRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
+import top.stillmisty.xiantao.domain.sect.entity.ChatHistory;
+import top.stillmisty.xiantao.domain.sect.enums.ChatType;
+import top.stillmisty.xiantao.domain.sect.repository.ChatHistoryRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.UserContext;
 
-/** 地灵情绪工具 供 LLM 通过 Function Calling 自主判断和更新情绪状态 */
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -24,9 +24,8 @@ public class SpiritEmotionTools {
 
   private final SpiritRepository spiritRepository;
   private final FudiRepository fudiRepository;
-  private final SpiritHistoryRepository spiritHistoryRepository;
+  private final ChatHistoryRepository chatHistoryRepository;
 
-  /** 更新地灵情绪状态 */
   @Tool(description = "更新地灵的情绪状态")
   @Transactional
   public String updateEmotion(@ToolParam(description = "新的情绪状态") EmotionState emotionState) {
@@ -52,7 +51,6 @@ public class SpiritEmotionTools {
     }
   }
 
-  /** 添加地灵想法/记忆 */
   @Tool(description = "记录地灵的想法或重要事件到记忆中")
   @Transactional
   public String addThought(@ToolParam(description = "要记录的想法或事件内容") String thought) {
@@ -63,11 +61,13 @@ public class SpiritEmotionTools {
 
     try {
       Long fudiId = getFudiId(userId);
-      SpiritHistory history = new SpiritHistory();
-      history.setFudiId(fudiId);
+      ChatHistory history = new ChatHistory();
+      history.setChatType(ChatType.SPIRIT);
+      history.setConversationId(fudiId);
+      history.setUserId(userId);
       history.setRole("system");
       history.setContent(thought);
-      spiritHistoryRepository.save(history);
+      chatHistoryRepository.save(history);
 
       log.info("地灵想法已记录 - userId: {}, thought: {}", userId, thought);
       return "想法已记录";

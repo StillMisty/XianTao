@@ -10,17 +10,17 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-import top.stillmisty.xiantao.domain.sect.enums.SectPosition;
+import top.stillmisty.xiantao.domain.sect.enums.SectBuildingType;
 
 @EqualsAndHashCode(callSuper = true)
-@Table("xt_sect_member")
+@Table("xt_sect_building")
 @Accessors(chain = true)
 @Data
 @NoArgsConstructor
-public class SectMember extends Model<SectMember> {
+public class SectBuilding extends Model<SectBuilding> {
 
-  public static SectMember create() {
-    return new SectMember();
+  public static SectBuilding create() {
+    return new SectBuilding();
   }
 
   @Id(keyType = KeyType.Auto)
@@ -28,18 +28,17 @@ public class SectMember extends Model<SectMember> {
 
   private Long sectId;
 
-  private Long userId;
+  private SectBuildingType buildingType;
 
-  private SectPosition position;
-
-  private Integer contribution;
+  private Integer level;
 
   @Column(onInsertValue = "now()")
-  private LocalDateTime joinedAt;
+  private LocalDateTime createdAt;
 
-  private LocalDateTime cooldownUntil;
+  @Column(onUpdateValue = "now()", onInsertValue = "now()")
+  private LocalDateTime updatedAt;
 
-  public boolean isOnCooldown() {
-    return cooldownUntil != null && cooldownUntil.isAfter(LocalDateTime.now());
+  public boolean isMaxLevel() {
+    return level >= buildingType.getMaxLevel();
   }
 }

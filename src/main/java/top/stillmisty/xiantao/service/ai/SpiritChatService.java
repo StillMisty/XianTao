@@ -14,9 +14,11 @@ import top.stillmisty.xiantao.domain.fudi.enums.FudiEvent;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiCellRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritFormRepository;
-import top.stillmisty.xiantao.domain.fudi.repository.SpiritHistoryRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
+import top.stillmisty.xiantao.domain.sect.entity.ChatHistory;
+import top.stillmisty.xiantao.domain.sect.enums.ChatType;
+import top.stillmisty.xiantao.domain.sect.repository.ChatHistoryRepository;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
@@ -25,7 +27,6 @@ import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.fudi.FarmService;
 
-/** 地灵对话核心服务 提供 MBTI 人格化对话和意图识别功能 */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -35,7 +36,7 @@ public class SpiritChatService {
   private final FudiRepository fudiRepository;
   private final FudiCellRepository fudiCellRepository;
   private final SpiritRepository spiritRepository;
-  private final SpiritHistoryRepository spiritHistoryRepository;
+  private final ChatHistoryRepository chatHistoryRepository;
   private final SpiritFormRepository spiritFormRepository;
   private final SpiritPromptTemplates promptTemplates;
   private final SpiritTools spiritTools;
@@ -45,16 +46,12 @@ public class SpiritChatService {
   private final ItemTemplateRepository itemTemplateRepository;
   private final FarmService farmService;
 
-  // ===================== 公开 API（含认证） =====================
-
   @Authenticated
   public ServiceResult<String> chatWithSpirit(
       PlatformType platform, String openId, String userInput) {
     Long userId = UserContext.getCurrentUserId();
     return new ServiceResult.Success<>(chatWithSpirit(userId, userInput));
   }
-
-  // ===================== 内部 API（需预先完成认证） =====================
 
   public String chatWithSpirit(Long userId, String userInput) {
     try {
@@ -68,7 +65,6 @@ public class SpiritChatService {
               .orElseThrow(() -> new BusinessException(ErrorCode.SPIRIT_NOT_FOUND));
 
       fudi.touchOnlineTime();
-      // 天劫设置的特殊情绪（EXCITED/ANGRY/EXHAUSTED）不应被自动覆盖
       if (spirit.getEmotionState() != EmotionState.EXCITED
           && spirit.getEmotionState() != EmotionState.ANGRY
           && spirit.getEmotionState() != EmotionState.EXHAUSTED) {
@@ -79,12 +75,13 @@ public class SpiritChatService {
       List<FudiEvent> events = fudiEventGenerator.generateEvents(spirit.getLastEventTime());
 
       int maxHistory = calculateMaxHistory(fudi.getTribulationStage());
-      List<SpiritHistory> history =
-          spiritHistoryRepository.findByFudiIdOrderByCreateTimeDesc(fudi.getId(), maxHistory);
+      List<ChatHistory> history =
+          chatHistoryRepository.findByChatTypeAndConversationIdAndUserIdOrderByCreateTimeDesc(
+              ChatType.SPIRIT, fudi.getId(), userId, maxHistory);
 
       String systemPrompt = buildPrompt(fudi, spirit, events, history);
 
-      saveHistory(fudi.getId(), "user", userInput, spirit.getEmotionState());
+      saveHistory(fudi.getId(), userId, "user", userInput);
 
       String response =
           npcChatClient
@@ -95,7 +92,7 @@ public class SpiritChatService {
               .call()
               .content();
 
-      saveHistory(fudi.getId(), "assistant", response, spirit.getEmotionState());
+      saveHistory(fudi.getId(), userId, "assistant", response);
 
       if (!events.isEmpty()) {
         spirit.setLastEventTime(LocalDateTime.now());
@@ -110,10 +107,8 @@ public class SpiritChatService {
     }
   }
 
-  // ===================== 辅助方法 =====================
-
   private String buildPrompt(
-      Fudi fudi, Spirit spirit, List<FudiEvent> events, List<SpiritHistory> history) {
+      Fudi fudi, Spirit spirit, List<FudiEvent> events, List<ChatHistory> history) {
     String cellDetail = buildCellDetailForLLM(fudi);
     String emotionState = spirit.getEmotionState().getDescription();
     String formName = null;
@@ -122,7 +117,6 @@ public class SpiritChatService {
           spiritFormRepository.findById(spirit.getFormId()).map(SpiritForm::getName).orElse(null);
     }
 
-    // 构建事件描述
     String eventContext = "";
     if (!events.isEmpty()) {
       StringBuilder eventSb = new StringBuilder("\n【最近发生的事件】\n");
@@ -137,11 +131,10 @@ public class SpiritChatService {
       eventContext = eventSb.toString();
     }
 
-    // 构建历史记录
     String historyContext = "";
     if (!history.isEmpty()) {
       StringBuilder historySb = new StringBuilder("\n【最近对话记录】\n");
-      for (SpiritHistory h : history.reversed()) {
+      for (ChatHistory h : history.reversed()) {
         String role = h.isFromUser() ? "修士" : "地灵";
         historySb.append(role).append("：").append(h.getContent()).append("\n");
       }
@@ -159,23 +152,20 @@ public class SpiritChatService {
         + historyContext;
   }
 
-  /** 计算记忆容量 公式：5 + floor(5 × log2(tribulationStage + 1)) */
   private int calculateMaxHistory(int tribulationStage) {
     return (int) (5 + Math.floor(5 * Math.log(tribulationStage + 1) / Math.log(2)));
   }
 
-  /** 保存对话历史 */
-  private void saveHistory(Long fudiId, String role, String content, EmotionState emotionState) {
-    SpiritHistory history = new SpiritHistory();
-    history.setFudiId(fudiId);
+  private void saveHistory(Long fudiId, Long userId, String role, String content) {
+    ChatHistory history = new ChatHistory();
+    history.setChatType(ChatType.SPIRIT);
+    history.setConversationId(fudiId);
+    history.setUserId(userId);
     history.setRole(role);
     history.setContent(content);
-    history.setEmotionState(emotionState);
-    history.setCreateTime(LocalDateTime.now());
-    spiritHistoryRepository.save(history);
+    chatHistoryRepository.save(history);
   }
 
-  /** 为 LLM 构建详细的地块状态描述 */
   private String buildCellDetailForLLM(Fudi fudi) {
     List<FudiCell> cells = fudiCellRepository.findByFudiId(fudi.getId());
     if (cells.isEmpty()) {
@@ -240,7 +230,6 @@ public class SpiritChatService {
       sb.append("\n");
     }
 
-    // 检查是否有可收获的灵田
     long matureFarmCount =
         farmCells.stream()
             .filter(

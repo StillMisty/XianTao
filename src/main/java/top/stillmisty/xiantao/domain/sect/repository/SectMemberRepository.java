@@ -4,9 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import top.stillmisty.xiantao.domain.sect.entity.SectMember;
 
-/** 宗门成员仓储接口 */
 public interface SectMemberRepository {
-
   SectMember save(SectMember member);
 
   Optional<SectMember> findById(Long id);

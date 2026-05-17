@@ -56,4 +56,12 @@ public class PlayerSkillRepositoryImpl implements PlayerSkillRepository {
   public void deleteById(Long id) {
     mapper.deleteById(id);
   }
+
+  @Override
+  public void deleteByUserIdAndSourceSectId(Long userId, Long sourceSectId) {
+    mapper.deleteByQuery(
+        QueryWrapper.create()
+            .where(PLAYER_SKILL.USER_ID.eq(userId))
+            .and(PLAYER_SKILL.SOURCE_SECT_ID.eq(sourceSectId)));
+  }
 }
