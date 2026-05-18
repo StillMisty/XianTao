@@ -25,6 +25,8 @@ import com.openai.services.blocking.UploadService;
 import com.openai.services.blocking.VectorStoreService;
 import com.openai.services.blocking.VideoService;
 import com.openai.services.blocking.WebhookService;
+import org.jspecify.annotations.NonNull;
+
 import java.util.function.Consumer;
 
 public class ReasoningPreservingOpenAIClient implements OpenAIClient {
@@ -36,133 +38,132 @@ public class ReasoningPreservingOpenAIClient implements OpenAIClient {
   }
 
   @Override
-  public ChatService chat() {
+  public @NonNull ChatService chat() {
     return new ReasoningPreservingChatService(delegate.chat());
   }
 
   @Override
-  public OpenAIClientAsync async() {
+  public @NonNull OpenAIClientAsync async() {
     return delegate.async();
   }
 
   @Override
-  public CompletionService completions() {
+  public @NonNull CompletionService completions() {
     return delegate.completions();
   }
 
   @Override
-  public EmbeddingService embeddings() {
+  public @NonNull EmbeddingService embeddings() {
     return delegate.embeddings();
   }
 
   @Override
-  public FileService files() {
+  public @NonNull FileService files() {
     return delegate.files();
   }
 
   @Override
-  public ImageService images() {
+  public @NonNull ImageService images() {
     return delegate.images();
   }
 
   @Override
-  public AudioService audio() {
+  public @NonNull AudioService audio() {
     return delegate.audio();
   }
 
   @Override
-  public AdminService admin() {
+  public @NonNull AdminService admin() {
     return delegate.admin();
   }
 
   @Override
-  public ModerationService moderations() {
+  public @NonNull ModerationService moderations() {
     return delegate.moderations();
   }
 
   @Override
-  public ModelService models() {
+  public @NonNull ModelService models() {
     return delegate.models();
   }
 
   @Override
-  public FineTuningService fineTuning() {
+  public @NonNull FineTuningService fineTuning() {
     return delegate.fineTuning();
   }
 
   @Override
-  public GraderService graders() {
+  public @NonNull GraderService graders() {
     return delegate.graders();
   }
 
   @Override
-  public VectorStoreService vectorStores() {
+  public @NonNull VectorStoreService vectorStores() {
     return delegate.vectorStores();
   }
 
   @Override
-  public WebhookService webhooks() {
+  public @NonNull WebhookService webhooks() {
     return delegate.webhooks();
   }
 
   @Override
-  public BetaService beta() {
+  public @NonNull BetaService beta() {
     return delegate.beta();
   }
 
   @Override
-  public BatchService batches() {
+  public @NonNull BatchService batches() {
     return delegate.batches();
   }
 
   @Override
-  public UploadService uploads() {
+  public @NonNull UploadService uploads() {
     return delegate.uploads();
   }
 
   @Override
-  public VideoService videos() {
+  public @NonNull VideoService videos() {
     return delegate.videos();
   }
 
   @Override
-  public ContainerService containers() {
+  public @NonNull ContainerService containers() {
     return delegate.containers();
   }
 
   @Override
-  public ConversationService conversations() {
+  public @NonNull ConversationService conversations() {
     return delegate.conversations();
   }
 
   @Override
-  public EvalService evals() {
+  public @NonNull EvalService evals() {
     return delegate.evals();
   }
 
   @Override
-  public RealtimeService realtime() {
+  public @NonNull RealtimeService realtime() {
     return delegate.realtime();
   }
 
   @Override
-  public ResponseService responses() {
+  public @NonNull ResponseService responses() {
     return delegate.responses();
   }
 
   @Override
-  public SkillService skills() {
+  public @NonNull SkillService skills() {
     return delegate.skills();
   }
 
   @Override
-  public OpenAIClient.WithRawResponse withRawResponse() {
+  public OpenAIClient.@NonNull WithRawResponse withRawResponse() {
     return delegate.withRawResponse();
   }
 
   @Override
-  @SuppressWarnings("deprecation")
-  public OpenAIClient withOptions(Consumer<com.openai.core.ClientOptions.Builder> consumer) {
+  public @NonNull OpenAIClient withOptions(@NonNull Consumer<com.openai.core.ClientOptions.Builder> consumer) {
     return new ReasoningPreservingOpenAIClient(delegate.withOptions(consumer));
   }
 

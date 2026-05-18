@@ -94,11 +94,7 @@ public class ShopTools {
       if (!matchingEquipment.isEmpty()) {
         return shopService.appraiseEquipment(userId, npc, matchingEquipment.getFirst().getId());
       }
-      if (!matchingItems.isEmpty()) {
         return shopService.appraiseStackableItem(userId, npc, matchingItems.getFirst().getId());
-      }
-
-      return new AppraisalResult(false, 0, 0, 0, itemName, "未找到可鉴定的物品：" + itemName);
     } catch (BusinessException e) {
       return new AppraisalResult(false, 0, 0, 0, itemName, e.getMessage());
     } catch (Exception e) {

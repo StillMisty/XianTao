@@ -369,14 +369,14 @@ public class ShopService {
 
   public HaggleResult haggleItem(Long userId, ShopNpc npc, long currentPrice) {
     User user = userStateService.loadUser(userId);
-    double charmFactor = Math.max(0, Math.min(0.3, (user.getEffectiveStatWis() - 10) / 20.0));
+    double charmFactor = Math.clamp((user.getEffectiveStatWis() - 10) / 20.0, 0, 0.3);
     double personalityFactor = 0.1;
     if (npc.getPersonality() != null && npc.getPersonality().toUpperCase().contains("TOUGH")) {
       personalityFactor = 0.2;
     }
 
     double successRate = 0.3 + charmFactor * 0.3 - personalityFactor;
-    successRate = Math.max(0.05, Math.min(0.7, successRate));
+    successRate = Math.clamp(successRate, 0.05, 0.7);
 
     boolean success = ThreadLocalRandom.current().nextDouble() < successRate;
 
@@ -443,7 +443,7 @@ public class ShopService {
     List<ProductListVO.ProductEntry> entries = new ArrayList<>();
     for (ShopProduct product : products) {
       priceEngine.applyLazyRestock(product);
-      String name = "";
+      String name;
       String extra = "";
       if (product.getProductType() == ProductType.ITEM) {
         var t = itemTemplateRepository.findById(product.getTemplateId());

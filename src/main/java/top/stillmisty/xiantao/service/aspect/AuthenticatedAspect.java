@@ -45,8 +45,8 @@ public class AuthenticatedAspect {
     }
 
     ServiceResult<Long> auth = authService.authenticate(platform, openId, requiredStatus);
-    if (auth instanceof ServiceResult.Failure<Long> f) {
-      return new ServiceResult.Failure<>(f.errorCode(), f.errorMessage());
+    if (auth instanceof ServiceResult.Failure<Long>(String errorCode, String errorMessage)) {
+      return new ServiceResult.Failure<>(errorCode, errorMessage);
     }
 
     Long userId = ((ServiceResult.Success<Long>) auth).data();

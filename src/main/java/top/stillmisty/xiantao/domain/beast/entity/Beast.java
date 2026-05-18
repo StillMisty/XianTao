@@ -79,8 +79,7 @@ public class Beast {
   public boolean canFight() {
     if (!Boolean.TRUE.equals(isDeployed)) return false;
     if (hpCurrent == null || hpCurrent <= 0) return false;
-    if (recoveryUntil != null && recoveryUntil.isAfter(LocalDateTime.now())) return false;
-    return true;
+    return recoveryUntil == null || !recoveryUntil.isAfter(LocalDateTime.now());
   }
 
   /** 计算升级所需经验 公式：50 × level^1.5 */
@@ -121,7 +120,7 @@ public class Beast {
     }
 
     if (levelCap != null && level >= levelCap) {
-      exp = (int) Math.min(exp, (int) calculateExpToNextLevel());
+      exp = Math.min(exp, (int) calculateExpToNextLevel());
     }
 
     return expToAdd;

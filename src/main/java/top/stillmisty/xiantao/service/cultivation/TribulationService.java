@@ -93,7 +93,7 @@ public class TribulationService {
     // 检查是否触发怜悯
     var spirit = spiritRepository.findByFudiId(fudi.getId()).orElse(null);
     boolean compassionTriggered =
-        spirit != null && spirit.getAffection() >= 800 && defendingTeam.aliveMembers().size() >= 1;
+        spirit != null && spirit.getAffection() >= 800 && !defendingTeam.aliveMembers().isEmpty();
 
     // 生成天劫化身
     TribulationBoss boss =

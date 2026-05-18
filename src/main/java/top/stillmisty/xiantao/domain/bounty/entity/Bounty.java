@@ -45,13 +45,4 @@ public class Bounty {
   public boolean requiresLevel(int userLevel) {
     return requireLevel == null || userLevel >= requireLevel;
   }
-
-  public boolean hasRewards() {
-    return rewards != null && !rewards.isEmpty();
-  }
-
-  public int getTotalEventWeight() {
-    if (rewards == null) return 0;
-    return rewards.stream().mapToInt(BountyRewardPool::weight).sum();
-  }
 }

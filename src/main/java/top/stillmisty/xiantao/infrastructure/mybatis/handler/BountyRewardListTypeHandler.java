@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 import org.postgresql.util.PGobject;
@@ -59,8 +61,7 @@ public class BountyRewardListTypeHandler extends BaseTypeHandler<List<BountyRewa
       List<Map<String, Object>> raw = OBJECT_MAPPER.readValue(jsonString, List.class);
       if (raw == null) return List.of();
       return raw.stream()
-          .filter(item -> item instanceof Map)
-          .map(item -> (Map<String, Object>) item)
+          .filter(Objects::nonNull)
           .map(BountyRewardItem::parseOne)
           .toList();
     } catch (Exception e) {

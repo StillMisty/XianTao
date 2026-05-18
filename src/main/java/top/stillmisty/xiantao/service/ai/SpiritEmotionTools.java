@@ -72,7 +72,7 @@ public class SpiritEmotionTools {
       log.info("地灵想法已记录 - userId: {}, thought: {}", userId, thought);
       return "想法已记录";
     } catch (Exception e) {
-      log.error("记录想法失败 - userId: {}, error: {}", e.getMessage());
+      log.error("记录想法失败 - userId: {}", e.getMessage());
       return "记录想法失败：" + e.getMessage();
     }
   }

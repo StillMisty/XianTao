@@ -1,6 +1,9 @@
 package top.stillmisty.xiantao.service;
 
+import lombok.Getter;
+
 /** 业务异常枚举，携带结构化的错误码和格式化消息 */
+@Getter
 public enum ErrorCode {
 
   // ===== User / Fudi / System =====
@@ -212,11 +215,7 @@ public enum ErrorCode {
     this.template = template;
   }
 
-  public String getTemplate() {
-    return template;
-  }
-
-  public String format(Object... args) {
+    public String format(Object... args) {
     return args.length == 0 ? template : String.format(template, args);
   }
 }

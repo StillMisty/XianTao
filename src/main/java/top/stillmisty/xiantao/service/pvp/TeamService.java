@@ -170,7 +170,7 @@ public class TeamService {
       if (pending.isEmpty()) {
         throw new BusinessException(ErrorCode.TEAM_NO_PENDING_INVITATION);
       }
-      invitationId = pending.get(0).getId();
+      invitationId = pending.getFirst().getId();
     } else {
       try {
         invitationId = Long.parseLong(invitationIdStr);

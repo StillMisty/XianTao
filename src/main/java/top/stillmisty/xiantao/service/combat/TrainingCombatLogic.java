@@ -288,7 +288,7 @@ public class TrainingCombatLogic {
   static double calculateCombatExpModifier(int playerLevel, int monsterLevel) {
     double diff = monsterLevel - playerLevel;
     double modifier = 1.0 + diff * 0.05;
-    return Math.max(0.1, Math.min(3.0, modifier));
+    return Math.clamp(modifier, 0.1, 3.0);
   }
 
   private void captureInitialBeastHp(User user, CombatContext ctx, Map<Long, Skill> skillMap) {

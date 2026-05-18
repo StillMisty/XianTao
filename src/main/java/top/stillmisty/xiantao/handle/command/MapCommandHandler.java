@@ -182,7 +182,7 @@ public class MapCommandHandler implements CommandGroup {
         itemsStr.append(item.get("name")).append("×").append(item.get("quantity"));
         if (i < rewards.getItems().size() - 1) itemsStr.append(" ");
       }
-      sb.append(fmt.listItem("物品：" + itemsStr.toString()));
+      sb.append(fmt.listItem("物品：" + itemsStr));
     }
 
     return sb.toString();

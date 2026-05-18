@@ -204,12 +204,10 @@ public class TrainingService {
     userStateService.save(user);
 
     List<String> itemNames =
-        trainingItems != null
-            ? trainingItems.stream()
+            trainingItems.stream()
                 .map(i -> (String) i.get("name"))
                 .filter(Objects::nonNull)
-                .toList()
-            : List.of();
+                .toList();
 
     String plainSummary =
         buildEndTrainingSummary(

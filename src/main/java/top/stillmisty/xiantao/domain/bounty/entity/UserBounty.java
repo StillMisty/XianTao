@@ -52,10 +52,6 @@ public class UserBounty {
     return status == BountyStatus.ACTIVE;
   }
 
-  public boolean isCompleted() {
-    return status == BountyStatus.COMPLETED;
-  }
-
   public List<BountyRewardItem> getParsedRewardItems() {
     return rewards != null ? rewards : List.of();
   }

@@ -80,8 +80,7 @@ public class BountyCompleter {
             args);
         yield reduced;
       }
-      case "NOTHING", "INTEL", "SHORT_CUT", "TIME_LOST", "AMBUSH" -> spiritStones;
-      default -> spiritStones;
+        default -> spiritStones;
     };
   }
 

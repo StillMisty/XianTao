@@ -16,6 +16,8 @@ import com.openai.models.chat.completions.ChatCompletionRetrieveParams;
 import com.openai.models.chat.completions.ChatCompletionUpdateParams;
 import com.openai.services.blocking.chat.ChatCompletionService;
 import com.openai.services.blocking.chat.completions.MessageService;
+import org.jspecify.annotations.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +39,7 @@ public class ReasoningPreservingChatCompletionService implements ChatCompletionS
   }
 
   @Override
-  public ChatCompletion create(ChatCompletionCreateParams params, RequestOptions options) {
+  public @NonNull ChatCompletion create(@NonNull ChatCompletionCreateParams params, @NonNull RequestOptions options) {
     ChatCompletionCreateParams modified = injectReasoning(params);
     ChatCompletion response = delegate.create(modified, options);
     extractReasoning(response);
@@ -45,8 +47,8 @@ public class ReasoningPreservingChatCompletionService implements ChatCompletionS
   }
 
   @Override
-  public StreamResponse<ChatCompletionChunk> createStreaming(
-      ChatCompletionCreateParams params, RequestOptions options) {
+  public @NonNull StreamResponse<ChatCompletionChunk> createStreaming(
+          @NonNull ChatCompletionCreateParams params, @NonNull RequestOptions options) {
     ChatCompletionCreateParams modified = injectReasoning(params);
     return delegate.createStreaming(modified, options);
   }
@@ -113,39 +115,38 @@ public class ReasoningPreservingChatCompletionService implements ChatCompletionS
   }
 
   @Override
-  public ChatCompletionService.WithRawResponse withRawResponse() {
+  public ChatCompletionService.@NonNull WithRawResponse withRawResponse() {
     return delegate.withRawResponse();
   }
 
   @Override
-  @SuppressWarnings("deprecation")
-  public ChatCompletionService withOptions(
-      Consumer<com.openai.core.ClientOptions.Builder> consumer) {
+  public @NonNull ChatCompletionService withOptions(
+          @NonNull Consumer<com.openai.core.ClientOptions.Builder> consumer) {
     return new ReasoningPreservingChatCompletionService(delegate.withOptions(consumer));
   }
 
   @Override
-  public MessageService messages() {
+  public @NonNull MessageService messages() {
     return delegate.messages();
   }
 
   @Override
-  public ChatCompletion retrieve(ChatCompletionRetrieveParams params, RequestOptions options) {
+  public @NonNull ChatCompletion retrieve(@NonNull ChatCompletionRetrieveParams params, @NonNull RequestOptions options) {
     return delegate.retrieve(params, options);
   }
 
   @Override
-  public ChatCompletion update(ChatCompletionUpdateParams params, RequestOptions options) {
+  public @NonNull ChatCompletion update(@NonNull ChatCompletionUpdateParams params, @NonNull RequestOptions options) {
     return delegate.update(params, options);
   }
 
   @Override
-  public ChatCompletionListPage list(ChatCompletionListParams params, RequestOptions options) {
+  public @NonNull ChatCompletionListPage list(@NonNull ChatCompletionListParams params, @NonNull RequestOptions options) {
     return delegate.list(params, options);
   }
 
   @Override
-  public ChatCompletionDeleted delete(ChatCompletionDeleteParams params, RequestOptions options) {
+  public @NonNull ChatCompletionDeleted delete(@NonNull ChatCompletionDeleteParams params, @NonNull RequestOptions options) {
     return delegate.delete(params, options);
   }
 }

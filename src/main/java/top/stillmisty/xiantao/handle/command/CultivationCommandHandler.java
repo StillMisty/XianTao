@@ -16,7 +16,6 @@ import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.domain.user.vo.*;
-import top.stillmisty.xiantao.domain.user.vo.PlayerViewVO;
 import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.infrastructure.util.FormatUtils;
 import top.stillmisty.xiantao.service.ServiceResult;
@@ -338,7 +337,7 @@ public class CultivationCommandHandler implements CommandGroup {
     for (var e : entries) {
       sb.append(e.index()).append(". ").append(e.name());
       if (e.quantity() > 1) sb.append(" x").append(e.quantity());
-      if (!e.metadata().isBlank()) sb.append(" [" + e.metadata() + "]");
+      if (!e.metadata().isBlank()) sb.append(" [").append(e.metadata()).append("]");
       sb.append("\n");
     }
     return sb.toString().strip();

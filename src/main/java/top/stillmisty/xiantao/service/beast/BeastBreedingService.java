@@ -114,9 +114,7 @@ public class BeastBreedingService {
 
     ItemTemplate eggTemplate =
         itemTemplateRepository.findByType(ItemType.BEAST_EGG).stream()
-            .filter(t -> t.getName().equals(eggName) || t.getName().contains(eggName))
-            .sorted(java.util.Comparator.comparing(ItemTemplate::getName))
-            .findFirst()
+                .filter(t -> t.getName().equals(eggName) || t.getName().contains(eggName)).min(java.util.Comparator.comparing(ItemTemplate::getName))
             .orElseThrow(() -> new BusinessException(BEAST_EGG_NOT_FOUND, eggName));
 
     var stackableItem =
@@ -144,20 +142,7 @@ public class BeastBreedingService {
       }
       case ItemResolver.NotFound(var name) ->
           throw new BusinessException(BEAST_EGG_NOT_IN_INVENTORY, name);
-      case ItemResolver.Ambiguous(var name, var candidates) -> {
-        var sb = new StringBuilder("找到多个兽卵，请使用编号：\n");
-        for (var e : candidates) {
-          sb.append(e.index())
-              .append(". ")
-              .append(e.name())
-              .append(" x")
-              .append(e.quantity())
-              .append(" (")
-              .append(e.metadata())
-              .append(")\n");
-        }
-        throw new BusinessException(ITEM_MULTIPLE_MATCH, name);
-      }
+      case ItemResolver.Ambiguous(var name, _) -> throw new BusinessException(ITEM_MULTIPLE_MATCH, name);
     };
   }
 

@@ -53,9 +53,9 @@ public record CharacterStatusResult(
     List<ProtectionInfoVO> protectedByList,
     Double totalProtectionBonus,
     EquipmentSummary equipment) {
-  public static record EquipmentSummary(Integer totalEquipped, List<EquipmentSummaryItem> items) {}
+  public record EquipmentSummary(Integer totalEquipped, List<EquipmentSummaryItem> items) {}
 
-  public static record EquipmentSummaryItem(
+  public record EquipmentSummaryItem(
       Long equipmentId,
       String name,
       EquipmentSlot slot,
@@ -70,7 +70,7 @@ public record CharacterStatusResult(
       Integer defenseBonus) {}
 
   /** 护道信息 VO */
-  public static record ProtectionInfoVO(
+  public record ProtectionInfoVO(
       Long userId,
       String userName,
       Integer userLevel,

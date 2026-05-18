@@ -2,6 +2,8 @@ package top.stillmisty.xiantao.service.ai;
 
 import com.openai.services.blocking.ChatService;
 import com.openai.services.blocking.chat.ChatCompletionService;
+import org.jspecify.annotations.NonNull;
+
 import java.util.function.Consumer;
 
 public class ReasoningPreservingChatService implements ChatService {
@@ -13,18 +15,17 @@ public class ReasoningPreservingChatService implements ChatService {
   }
 
   @Override
-  public ChatCompletionService completions() {
+  public @NonNull ChatCompletionService completions() {
     return new ReasoningPreservingChatCompletionService(delegate.completions());
   }
 
   @Override
-  public ChatService.WithRawResponse withRawResponse() {
+  public ChatService.@NonNull WithRawResponse withRawResponse() {
     return delegate.withRawResponse();
   }
 
   @Override
-  @SuppressWarnings("deprecation")
-  public ChatService withOptions(Consumer<com.openai.core.ClientOptions.Builder> consumer) {
+  public @NonNull ChatService withOptions(@NonNull Consumer<com.openai.core.ClientOptions.Builder> consumer) {
     return new ReasoningPreservingChatService(delegate.withOptions(consumer));
   }
 }

@@ -10,6 +10,7 @@ import top.stillmisty.xiantao.domain.dungeon.enums.PoiType;
 import top.stillmisty.xiantao.domain.dungeon.vo.DropItemVO;
 import top.stillmisty.xiantao.domain.dungeon.vo.ExploreResultVO;
 import top.stillmisty.xiantao.domain.dungeon.vo.LootPoolEntry;
+import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
@@ -84,7 +85,7 @@ public class DungeonLootHelper {
 
       int qty = ThreadLocalRandom.current().nextInt(entry.minQty(), entry.maxQty() + 1);
       String itemName =
-          itemTemplateRepository.findById(entry.templateId()).map(t -> t.getName()).orElse("未知物品");
+          itemTemplateRepository.findById(entry.templateId()).map(ItemTemplate::getName).orElse("未知物品");
       drops.add(new DropItemVO(itemName, qty));
     }
     return drops;
@@ -93,14 +94,13 @@ public class DungeonLootHelper {
   public void giveDrops(Long userId, List<DropItemVO> drops, long spiritStones) {
     for (DropItemVO drop : drops) {
       var template = itemTemplateRepository.findByName(drop.name());
-      if (template.isPresent()) {
-        stackableItemService.addStackableItem(
-            userId,
-            template.get().getId(),
-            template.get().getType(),
-            template.get().getName(),
-            drop.quantity());
-      }
+        template.ifPresent(itemTemplate -> stackableItemService.addStackableItem(
+                userId,
+                itemTemplate.getId(),
+                itemTemplate.getType(),
+                itemTemplate.getName(),
+                drop.quantity()
+        ));
     }
     if (spiritStones > 0) {
       User user = userStateService.loadUser(userId);

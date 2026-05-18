@@ -315,7 +315,7 @@ public class MasterApprenticeService {
 
     int levelDiff = master.getLevel() - apprentice.getLevel();
     double bonus = 1.0 + (levelDiff * 0.002);
-    return Math.min(1.5, Math.max(1.0, bonus));
+    return Math.clamp(bonus, 1.0, 1.5);
   }
 
   /** 检测并执行自动出师（由升级/突破时调用） */

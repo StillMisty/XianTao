@@ -50,8 +50,6 @@ public class TrainingCompleter {
 
   /**
    * 历练子事件: 每 15 分钟 roll 1 次，约 30% 概率触发
-   *
-   * @return 返回处理结果列表 (供 BountyCompleter 使用)
    */
   public void rollSubEvents(Long userId, User user, MapNode mapNode, long minutesTraining) {
     int rolls = Math.max(1, (int) (minutesTraining / 15));

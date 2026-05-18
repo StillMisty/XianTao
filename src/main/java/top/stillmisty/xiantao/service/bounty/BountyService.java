@@ -69,7 +69,7 @@ public class BountyService {
   @Transactional
   public ServiceResult<String> startBounty(PlatformType platform, String openId, String bountyId) {
     Long userId = UserContext.getCurrentUserId();
-    Long id;
+    long id;
     try {
       id = Long.parseLong(bountyId);
     } catch (NumberFormatException e) {

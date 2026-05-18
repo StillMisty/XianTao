@@ -15,8 +15,6 @@ public class TribulationBoss implements Combatant {
 
   private final long instanceId;
   private final String name;
-  private final int tribulationStage;
-  private final boolean compassionMode;
   private int hp;
   private final int maxHp;
   private final int attack;
@@ -40,17 +38,13 @@ public class TribulationBoss implements Combatant {
       int tribulationStage,
       boolean compassionMode) {
     this.instanceId = ID_GENERATOR.getAndIncrement();
-    this.tribulationStage = tribulationStage;
-    this.compassionMode = compassionMode;
-    this.skills = List.of();
+      this.skills = List.of();
 
-    double stagePower = tribulationStage;
-
-    // BOSS属性 = 防守方属性 × 倍率，劫数越高倍率越高
-    double hpMultiplier = 1.0 + stagePower * 0.5;
-    double atkMultiplier = 0.6 + stagePower * 0.15;
-    double defMultiplier = 0.4 + stagePower * 0.10;
-    double spdMultiplier = 0.7 + stagePower * 0.08;
+      // BOSS属性 = 防守方属性 × 倍率，劫数越高倍率越高
+    double hpMultiplier = 1.0 + (double) tribulationStage * 0.5;
+    double atkMultiplier = 0.6 + (double) tribulationStage * 0.15;
+    double defMultiplier = 0.4 + (double) tribulationStage * 0.10;
+    double spdMultiplier = 0.7 + (double) tribulationStage * 0.08;
 
     // 怜悯模式：全属性降低30%
     if (compassionMode) {
@@ -123,13 +117,5 @@ public class TribulationBoss implements Combatant {
   @Override
   public List<Skill> getSkills() {
     return skills;
-  }
-
-  public int getTribulationStage() {
-    return tribulationStage;
-  }
-
-  public boolean isCompassionMode() {
-    return compassionMode;
   }
 }

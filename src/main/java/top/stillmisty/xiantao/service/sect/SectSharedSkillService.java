@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.item.entity.ItemProperties;
+import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
@@ -204,7 +205,6 @@ public class SectSharedSkillService {
         + "。";
   }
 
-  @SuppressWarnings("unchecked")
   @Transactional
   public String submitSkillJade(Long userId, String jadeName) {
     SectMember member = requireMember(userId);
@@ -218,7 +218,7 @@ public class SectSharedSkillService {
       throw new BusinessException(ErrorCode.ITEM_NOT_FOUND, "功法玉简");
     }
 
-    var matchedJade = resolveByName(jadeItems, jadeName, si -> si.getName());
+    var matchedJade = resolveByName(jadeItems, jadeName, StackableItem::getName);
     if (matchedJade == null) {
       throw new BusinessException(ErrorCode.ITEM_NOT_FOUND, jadeName);
     }
@@ -340,7 +340,6 @@ public class SectSharedSkillService {
         .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_IN));
   }
 
-  @SuppressWarnings("unchecked")
   private <T> T resolveByName(List<T> items, String input, Function<T, String> nameExtractor) {
     if (input == null || input.isBlank()) return null;
     for (var item : items) {

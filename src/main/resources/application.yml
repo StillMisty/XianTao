@@ -37,10 +37,7 @@ spring:
             api-key: ${OPENAI_API_KEY:sk-placeholder}
             base-url: ${OPENAI_BASE_URL:https://api.deepseek.com}
             chat:
-                options:
-                    model: ${OPENAI_MODEL:deepseek-v4-flash}
-                    temperature: 0.7
-                    max-tokens: 1000
+              model: ${OPENAI_MODEL:deepseek-v4-flash}
 
 # MyBatis-Flex 配置
 mybatis-flex:

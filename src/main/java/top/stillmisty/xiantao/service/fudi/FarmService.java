@@ -330,9 +330,7 @@ public class FarmService {
 
   public ItemTemplate findSeedTemplateByName(String name) {
     return itemTemplateRepository.findByType(ItemType.SEED).stream()
-        .filter(t -> t.getName().equals(name) || t.getName().contains(name))
-        .sorted(java.util.Comparator.comparing(ItemTemplate::getName))
-        .findFirst()
+            .filter(t -> t.getName().equals(name) || t.getName().contains(name)).min(java.util.Comparator.comparing(ItemTemplate::getName))
         .orElseThrow(() -> new BusinessException(ErrorCode.SEED_TEMPLATE_NOT_FOUND, name));
   }
 }

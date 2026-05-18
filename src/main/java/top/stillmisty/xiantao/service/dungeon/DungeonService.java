@@ -397,7 +397,7 @@ public class DungeonService {
     List<DungeonPoiConfig> candidates =
         pois.stream().filter(p -> Boolean.TRUE.equals(p.getIsPassage())).toList();
     if (candidates.isEmpty()) {
-      return pois.isEmpty() ? null : pois.get(0).getId();
+      return pois.isEmpty() ? null : pois.getFirst().getId();
     }
     return candidates.get(ThreadLocalRandom.current().nextInt(candidates.size())).getId();
   }
@@ -407,9 +407,8 @@ public class DungeonService {
       return true;
     }
     return switch (poi.getUnlockCondition()) {
-      case "CORE_TOKEN" -> Boolean.TRUE.equals(instance.getHasCoreToken());
-      case "BOSS_CLEARED" -> Boolean.TRUE.equals(instance.getHasCoreToken());
-      default -> true;
+      case "CORE_TOKEN", "BOSS_CLEARED" -> Boolean.TRUE.equals(instance.getHasCoreToken());
+        default -> true;
     };
   }
 
@@ -524,7 +523,8 @@ public class DungeonService {
         outcome.expGained(),
         spiritStones,
         false,
-        outcome.playerWon() ? "战斗胜利！" : "战斗失败...");
+        "战斗胜利！"
+    );
   }
 
   private String retreatCaptain(DungeonInstance instance) {

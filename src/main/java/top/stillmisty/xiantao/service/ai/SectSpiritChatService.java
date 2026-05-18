@@ -135,15 +135,15 @@ public class SectSpiritChatService {
                 member.getContribution()));
 
     if (sect.getVerse() != null && !sect.getVerse().isBlank()) {
-      prompt.append("\n诗号：" + sect.getVerse());
+      prompt.append("\n诗号：").append(sect.getVerse());
     }
 
     if (sect.getNotice() != null && !sect.getNotice().isBlank()) {
-      prompt.append("\n公告：" + sect.getNotice());
+      prompt.append("\n公告：").append(sect.getNotice());
     }
 
     if (sect.getLastEventText() != null && !sect.getLastEventText().isBlank()) {
-      prompt.append("\n当前宗门事件：" + sect.getLastEventText());
+      prompt.append("\n当前宗门事件：").append(sect.getLastEventText());
     }
 
     // 历史记录

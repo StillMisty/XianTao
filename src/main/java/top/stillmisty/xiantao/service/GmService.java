@@ -34,7 +34,7 @@ public class GmService {
   public ServiceResult<String> gmHelp(PlatformType platform, String openId) {
     Long gmUserId = UserContext.getCurrentUserId();
     if (!isGm(gmUserId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
-    return new ServiceResult.Success<>(help(gmUserId));
+    return new ServiceResult.Success<>(help());
   }
 
   @Authenticated
@@ -106,7 +106,7 @@ public class GmService {
     return userRepository.findById(userId).map(u -> Boolean.TRUE.equals(u.getGm())).orElse(false);
   }
 
-  String help(Long gmUserId) {
+  String help() {
     return """
             【GM指令列表】
             GM帮助 - 查看此列表

@@ -30,14 +30,6 @@ public class UserService {
   private final UserAuthRepository userAuthRepository;
   private final FudiService fudiService;
 
-  /**
-   * 创建新用户（注册）
-   *
-   * @param platform 平台类型
-   * @param openId 平台用户ID
-   * @param nickname 玩家道号
-   * @return 注册结果
-   */
   @Authenticated
   @Transactional
   public ServiceResult<String> changeNickname(
