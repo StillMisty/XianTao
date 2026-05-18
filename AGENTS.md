@@ -73,3 +73,17 @@ src/main/java/top/stillmisty/xiantao/
 4. `service/` — internal method (`Long userId`) + public method with `@Authenticated` returning `ServiceResult<T>`
 5. `handle/command/` — VO → text formatter (implements `CommandGroup`)
 6. `handle/listener/` — listener with both OneBotV11 + QQ platform methods, uses `ReplyHelper`
+
+## Agent skills
+
+### Issue tracker
+
+GitHub Issues (`StillMisty/XianTao`). See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Uses the default canonical labels. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context layout (`CONTEXT.md` + `docs/adr/` at repo root). See `docs/agents/domain.md`.
