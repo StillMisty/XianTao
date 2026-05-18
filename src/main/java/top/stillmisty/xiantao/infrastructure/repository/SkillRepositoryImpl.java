@@ -1,5 +1,8 @@
 package top.stillmisty.xiantao.infrastructure.repository;
 
+import static top.stillmisty.xiantao.domain.skill.entity.table.SkillTableDef.SKILL;
+
+import com.mybatisflex.core.query.QueryWrapper;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -36,5 +39,10 @@ public class SkillRepositoryImpl implements SkillRepository {
   public Skill save(Skill skill) {
     mapper.insertOrUpdateSelective(skill);
     return skill;
+  }
+
+  @Override
+  public List<Skill> findByName(String name) {
+    return mapper.selectListByQuery(QueryWrapper.create().where(SKILL.NAME.eq(name)));
   }
 }

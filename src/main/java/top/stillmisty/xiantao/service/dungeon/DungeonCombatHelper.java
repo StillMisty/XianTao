@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonInstance;
@@ -41,6 +42,7 @@ public class DungeonCombatHelper {
   public record CombatOutcome(
       boolean playerWon, boolean memberAlive, long expGained, String monsterName, String summary) {}
 
+  @Transactional
   public CombatOutcome executeCombatForTeam(
       User leader,
       DungeonInstance instance,

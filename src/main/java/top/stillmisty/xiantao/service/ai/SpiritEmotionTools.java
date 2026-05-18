@@ -43,10 +43,10 @@ public class SpiritEmotionTools {
       spirit.setEmotionState(emotionState);
       spiritRepository.save(spirit);
 
-      log.info("地灵情绪更新 - userId: {}, emotion: {}", userId, emotionState);
+      log.debug("地灵情绪更新 - userId: {}, emotion: {}", userId, emotionState);
       return "情绪已更新为：" + emotionState.getDescription();
     } catch (Exception e) {
-      log.error("更新情绪失败 - userId: {}, error: {}", userId, e.getMessage());
+      log.warn("更新情绪失败 - userId: {}, error: {}", userId, e.getMessage());
       return "更新情绪失败：" + e.getMessage();
     }
   }
@@ -69,10 +69,10 @@ public class SpiritEmotionTools {
       history.setContent(thought);
       chatHistoryRepository.save(history);
 
-      log.info("地灵想法已记录 - userId: {}, thought: {}", userId, thought);
+      log.debug("地灵想法已记录 - userId: {}, thought: {}", userId, thought);
       return "想法已记录";
     } catch (Exception e) {
-      log.error("记录想法失败 - userId: {}", e.getMessage());
+      log.warn("记录想法失败 - userId: {}, error: {}", userId, e.getMessage());
       return "记录想法失败：" + e.getMessage();
     }
   }

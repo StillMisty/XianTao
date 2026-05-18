@@ -13,6 +13,8 @@ import top.stillmisty.xiantao.domain.pill.repository.PlayerBuffRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
+import top.stillmisty.xiantao.service.BusinessException;
+import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.GameEventService;
 import top.stillmisty.xiantao.service.activity.TravelCompleter;
 
@@ -34,14 +36,18 @@ public class UserStateService {
   /** 加载用户并自动解析过期状态。使用行锁防止并发状态更新。 */
   @Transactional
   public User loadUser(Long userId) {
-    User user = userRepository.findByIdForUpdate(userId).orElseThrow();
+    User user =
+        userRepository
+            .findByIdForUpdate(userId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
     resolveState(user);
     return user;
   }
 
-  /** 使用行锁加载用户，用于并发敏感操作（突破、状态切换等）。不在锁内解析过期状态。 */
   public User loadUserForUpdate(Long userId) {
-    return userRepository.findByIdForUpdate(userId).orElseThrow();
+    return userRepository
+        .findByIdForUpdate(userId)
+        .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
   }
 
   /** 根据道号加载用户，不解析状态。 */
@@ -95,7 +101,7 @@ public class UserStateService {
       user.setStatus(UserStatus.IDLE);
       user.clearActivity();
       log.warn(
-          "Player {} travel softlock detected, no route {} → {}, cleared status",
+          "玩家 {} 旅行卡死检测，无路径 {} → {}，已清除状态",
           user.getId(),
           currentMap.get().getName(),
           destinationMap.get().getName());

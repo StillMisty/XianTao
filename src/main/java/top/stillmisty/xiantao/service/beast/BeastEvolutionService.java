@@ -37,6 +37,11 @@ public class BeastEvolutionService {
       throw new BusinessException(BEAST_NOT_FOUND);
     }
 
+    beast =
+        beastRepository
+            .findByIdForUpdate(beast.getId())
+            .orElseThrow(() -> new BusinessException(BEAST_NOT_FOUND));
+
     if (beast.getTier() >= 5) {
       throw new BusinessException(BEAST_MAX_TIER);
     }
@@ -83,7 +88,7 @@ public class BeastEvolutionService {
     beastRepository.save(beast);
 
     log.info(
-        "用户 {} 进化地块 {} 的灵兽 T{}->T{}{}",
+        "玩家 {} 进化地块 {} 的灵兽 T{}->T{}{}",
         userId,
         cellId,
         currentTier,
@@ -99,6 +104,11 @@ public class BeastEvolutionService {
     if (beast == null) {
       throw new BusinessException(BEAST_NOT_FOUND);
     }
+
+    beast =
+        beastRepository
+            .findByIdForUpdate(beast.getId())
+            .orElseThrow(() -> new BusinessException(BEAST_NOT_FOUND));
 
     if (beast.getQuality() == BeastQuality.DIVINE) {
       throw new BusinessException(BEAST_MAX_QUALITY);
@@ -141,7 +151,7 @@ public class BeastEvolutionService {
     beastRepository.save(beast);
 
     log.info(
-        "用户 {} 品质突破地块 {} 的灵兽 {} -> {}",
+        "玩家 {} 品质突破地块 {} 的灵兽 {} -> {}",
         userId,
         cellId,
         currentQuality.getChineseName(),

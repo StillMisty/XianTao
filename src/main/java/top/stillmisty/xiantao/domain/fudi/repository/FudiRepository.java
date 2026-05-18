@@ -12,6 +12,9 @@ public interface FudiRepository {
   /** 根据用户ID查找福地 */
   Optional<Fudi> findByUserId(Long userId);
 
+  /** 使用行锁查找福地，用于并发敏感操作（建造、升级、收取等） */
+  Optional<Fudi> findByUserIdForUpdate(Long userId);
+
   /** 保存或更新福地 */
   Fudi save(Fudi fudi);
 

@@ -42,7 +42,7 @@ public class SectSpiritTools {
       String result = sectShopService.getShop(userId);
       return new ShopQueryResponse(true, result);
     } catch (Exception e) {
-      log.error("查询贡献商店失败", e);
+      log.warn("查询贡献商店失败", e);
       return new ShopQueryResponse(false, e.getMessage());
     }
   }
@@ -56,7 +56,7 @@ public class SectSpiritTools {
       String result = sectShopService.exchangeShopItem(userId, shopItemId);
       return new ExchangeResponse(true, result);
     } catch (Exception e) {
-      log.error("兑换商品失败: shopItemId={}", shopItemId, e);
+      log.warn("兑换商品失败: shopItemId={}", shopItemId, e);
       return new ExchangeResponse(false, e.getMessage());
     }
   }
@@ -69,7 +69,7 @@ public class SectSpiritTools {
       String result = sectSharedSkillService.getSharedSkills(userId);
       return new SharedSkillQueryResponse(true, result);
     } catch (Exception e) {
-      log.error("查询共享功法失败", e);
+      log.warn("查询共享功法失败", e);
       return new SharedSkillQueryResponse(false, e.getMessage());
     }
   }
@@ -83,7 +83,7 @@ public class SectSpiritTools {
       String result = sectSharedSkillService.learnSharedSkill(userId, sharedSkillId);
       return new LearnSkillResponse(true, result);
     } catch (Exception e) {
-      log.error("学习共享功法失败: sharedSkillId={}", sharedSkillId, e);
+      log.warn("学习共享功法失败: sharedSkillId={}", sharedSkillId, e);
       return new LearnSkillResponse(false, e.getMessage());
     }
   }
@@ -97,7 +97,7 @@ public class SectSpiritTools {
       String result = sectSharedSkillService.submitSkillJade(userId, jadeName);
       return new SubmitJadeResponse(true, result);
     } catch (Exception e) {
-      log.error("提交功法玉简失败: jadeName={}", jadeName, e);
+      log.warn("提交功法玉简失败: jadeName={}", jadeName, e);
       return new SubmitJadeResponse(false, e.getMessage());
     }
   }
@@ -110,7 +110,7 @@ public class SectSpiritTools {
       String result = sectMemberService.donateStones(userId, amount);
       return new DonateResponse(true, result);
     } catch (Exception e) {
-      log.error("捐献灵石失败: amount={}", amount, e);
+      log.warn("捐献灵石失败: amount={}", amount, e);
       return new DonateResponse(false, e.getMessage());
     }
   }
@@ -124,7 +124,7 @@ public class SectSpiritTools {
       String result = sectMemberService.inviteMember(userId, targetNickname);
       return new InviteMemberResponse(true, result);
     } catch (Exception e) {
-      log.error("邀请成员失败: targetNickname={}", targetNickname, e);
+      log.warn("邀请成员失败: targetNickname={}", targetNickname, e);
       return new InviteMemberResponse(false, e.getMessage());
     }
   }
@@ -137,7 +137,7 @@ public class SectSpiritTools {
       String result = sectMemberService.kickMember(userId, targetNickname);
       return new KickMemberResponse(true, result);
     } catch (Exception e) {
-      log.error("踢出成员失败: targetNickname={}", targetNickname, e);
+      log.warn("踢出成员失败: targetNickname={}", targetNickname, e);
       return new KickMemberResponse(false, e.getMessage());
     }
   }
@@ -150,7 +150,7 @@ public class SectSpiritTools {
       String result = sectMemberService.setNotice(userId, content);
       return new PostNoticeResponse(true, result);
     } catch (Exception e) {
-      log.error("发布公告失败", e);
+      log.warn("发布公告失败", e);
       return new PostNoticeResponse(false, e.getMessage());
     }
   }
@@ -164,7 +164,7 @@ public class SectSpiritTools {
       String result = sectSharedSkillService.removeSharedSkill(userId, sharedSkillId);
       return new RemoveSkillResponse(true, result);
     } catch (Exception e) {
-      log.error("下架共享功法失败: sharedSkillId={}", sharedSkillId, e);
+      log.warn("下架共享功法失败: sharedSkillId={}", sharedSkillId, e);
       return new RemoveSkillResponse(false, e.getMessage());
     }
   }
@@ -178,7 +178,7 @@ public class SectSpiritTools {
       String result = sectSharedSkillService.listSharedSkill(userId, sharedSkillId);
       return new ListSkillResponse(true, result);
     } catch (Exception e) {
-      log.error("上架共享功法失败: sharedSkillId={}", sharedSkillId, e);
+      log.warn("上架共享功法失败: sharedSkillId={}", sharedSkillId, e);
       return new ListSkillResponse(false, e.getMessage());
     }
   }
@@ -191,7 +191,7 @@ public class SectSpiritTools {
       String result = sectMemberService.getTasks(userId);
       return new TaskQueryResponse(true, result);
     } catch (Exception e) {
-      log.error("查询宗门任务失败", e);
+      log.warn("查询宗门任务失败", e);
       return new TaskQueryResponse(false, e.getMessage());
     }
   }
@@ -206,7 +206,7 @@ public class SectSpiritTools {
       String result = sectMemberService.appointMember(userId, targetNickname, positionCode);
       return new AppointMemberResponse(true, result);
     } catch (Exception e) {
-      log.error("任命成员失败: targetNickname={}, position={}", targetNickname, positionCode, e);
+      log.warn("任命成员失败: targetNickname={}, position={}", targetNickname, positionCode, e);
       return new AppointMemberResponse(false, e.getMessage());
     }
   }
@@ -219,7 +219,7 @@ public class SectSpiritTools {
       String result = sectMemberService.upgradeSect(userId);
       return new UpgradeSectResponse(true, result);
     } catch (Exception e) {
-      log.error("升级宗门失败", e);
+      log.warn("升级宗门失败", e);
       return new UpgradeSectResponse(false, e.getMessage());
     }
   }
@@ -232,7 +232,7 @@ public class SectSpiritTools {
       String result = sectMemberService.expandMembers(userId);
       return new ExpandMembersResponse(true, result);
     } catch (Exception e) {
-      log.error("扩充成员上限失败", e);
+      log.warn("扩充成员上限失败", e);
       return new ExpandMembersResponse(false, e.getMessage());
     }
   }
@@ -245,7 +245,7 @@ public class SectSpiritTools {
       String result = sectBuildingService.getBuildings(userId);
       return new BuildingQueryResponse(true, result);
     } catch (Exception e) {
-      log.error("查询建筑失败", e);
+      log.warn("查询建筑失败", e);
       return new BuildingQueryResponse(false, e.getMessage());
     }
   }
@@ -261,7 +261,7 @@ public class SectSpiritTools {
       String result = sectBuildingService.buildStructure(userId, buildingTypeCode);
       return new BuildStructureResponse(true, result);
     } catch (Exception e) {
-      log.error("建造建筑失败: buildingTypeCode={}", buildingTypeCode, e);
+      log.warn("建造建筑失败: buildingTypeCode={}", buildingTypeCode, e);
       return new BuildStructureResponse(false, e.getMessage());
     }
   }
@@ -275,7 +275,7 @@ public class SectSpiritTools {
       String result = sectBuildingService.upgradeBuilding(userId, buildingTypeCode);
       return new UpgradeBuildingResponse(true, result);
     } catch (Exception e) {
-      log.error("升级建筑失败: buildingTypeCode={}", buildingTypeCode, e);
+      log.warn("升级建筑失败: buildingTypeCode={}", buildingTypeCode, e);
       return new UpgradeBuildingResponse(false, e.getMessage());
     }
   }

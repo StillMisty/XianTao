@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -224,10 +225,10 @@ public class MapCommandHandler implements CommandGroup {
                 }
               });
       try {
-        itemFuture.get();
-        equipFuture.get();
+        itemFuture.get(5, TimeUnit.SECONDS);
+        equipFuture.get(5, TimeUnit.SECONDS);
       } catch (Exception e) {
-        log.warn("Failed to resolve template names", e);
+        log.warn("解析模板名称失败", e);
       }
     }
 

@@ -1,6 +1,7 @@
 package top.stillmisty.xiantao.service.activity;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,7 +9,12 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
 import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.event.repository.HiddenCompletionRepository;
+import top.stillmisty.xiantao.domain.item.entity.StackableItem;
+import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
+import top.stillmisty.xiantao.domain.skill.entity.Skill;
+import top.stillmisty.xiantao.domain.skill.repository.PlayerSkillRepository;
+import top.stillmisty.xiantao.domain.skill.repository.SkillRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.service.GameEventService;
 
@@ -24,6 +30,9 @@ public class TravelCompleter {
   private final GameEventService gameEventService;
   private final SubEventSelector subEventSelector;
   private final HiddenCompletionRepository hiddenCompletionRepository;
+  private final SkillRepository skillRepository;
+  private final PlayerSkillRepository playerSkillRepository;
+  private final StackableItemRepository stackableItemRepository;
 
   /** 处理旅行到达事件 (子事件和隐藏事件) */
   public void completeTravel(Long userId, User user, MapNode fromMap, MapNode toMap) {
@@ -87,7 +96,7 @@ public class TravelCompleter {
       case "SAFE_PASSAGE" -> {
         // safe passage: no event text needed
       }
-      default -> log.debug("Unknown travel sub-event: {}", code);
+      default -> log.debug("未知旅行子事件: {}", code);
     }
   }
 
@@ -116,37 +125,48 @@ public class TravelCompleter {
   }
 
   private boolean checkTriggerConditions(ActivityEvent event, User user) {
-    Map<String, Object> params = event.getParams();
-    if (params == null) return true;
+    String triggerType = event.getTriggerType();
+    Map<String, Object> triggerParams = event.getTriggerParams();
+    if (triggerType == null || triggerParams == null) return true;
 
-    if (params.containsKey("HAS_SKILL")) {
-      // TODO: check user has skill
-    }
-    if (params.containsKey("STAT_THRESHOLD")) {
-      String statExpr = (String) params.get("STAT_THRESHOLD");
-      if (statExpr != null && !checkStatThreshold(statExpr, user)) return false;
-    }
-    if (params.containsKey("HAS_ITEM")) {
-      // TODO: check user has item
-    }
-    return true;
+    return switch (triggerType) {
+      case "HAS_SKILL" -> hasSkill(user.getId(), (String) triggerParams.get("skill_name"));
+      case "HAS_ITEM" -> hasItem(user.getId(), (String) triggerParams.get("item_name"));
+      case "STAT_THRESHOLD" -> {
+        Object statObj = triggerParams.get("stat");
+        Object minObj = triggerParams.get("min");
+        if (!(statObj instanceof String stat) || !(minObj instanceof Number min)) {
+          yield true;
+        }
+        yield checkStatThresholdFromTrigger(stat, min.intValue(), user);
+      }
+      default -> true;
+    };
   }
 
-  private boolean checkStatThreshold(String expr, User user) {
-    String[] parts = expr.split(">=");
-    if (parts.length != 2) return true;
-    String stat = parts[0].trim();
-    int threshold;
-    try {
-      threshold = Integer.parseInt(parts[1].trim());
-    } catch (NumberFormatException e) {
-      return true;
-    }
+  private boolean hasSkill(Long userId, String skillName) {
+    if (skillName == null) return true;
+    List<Skill> skills = skillRepository.findByName(skillName);
+    if (skills.isEmpty()) return false;
+    return skills.stream()
+        .anyMatch(
+            skill ->
+                playerSkillRepository.findByUserIdAndSkillId(userId, skill.getId()).isPresent());
+  }
+
+  private boolean hasItem(Long userId, String itemName) {
+    if (itemName == null) return true;
+    List<StackableItem> items =
+        stackableItemRepository.findByUserIdAndNameContaining(userId, itemName);
+    return items.stream().anyMatch(item -> item.getName().equals(itemName));
+  }
+
+  private boolean checkStatThresholdFromTrigger(String stat, int min, User user) {
     return switch (stat) {
-      case "STR" -> user.getEffectiveStatStr() >= threshold;
-      case "CON" -> user.getEffectiveStatCon() >= threshold;
-      case "AGI" -> user.getEffectiveStatAgi() >= threshold;
-      case "WIS" -> user.getEffectiveStatWis() >= threshold;
+      case "STR" -> user.getEffectiveStatStr() >= min;
+      case "CON" -> user.getEffectiveStatCon() >= min;
+      case "AGI" -> user.getEffectiveStatAgi() >= min;
+      case "WIS" -> user.getEffectiveStatWis() >= min;
       default -> true;
     };
   }

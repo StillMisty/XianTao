@@ -26,6 +26,12 @@ public class BeastRepositoryImpl implements BeastRepository {
   }
 
   @Override
+  public Optional<Beast> findByIdForUpdate(Long id) {
+    return Optional.ofNullable(
+        mapper.selectOneByQuery(QueryWrapper.create().where(BEAST.ID.eq(id)).forUpdate()));
+  }
+
+  @Override
   public List<Beast> findByUserId(Long userId) {
     return mapper.selectListByQuery(
         QueryWrapper.create().select().from(BEAST).where(BEAST.USER_ID.eq(userId)));

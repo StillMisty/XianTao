@@ -168,10 +168,10 @@ public class User extends Model<User> {
 
   /** 计算突破成功率 范围：[0, 100] */
   public double calculateBreakthroughSuccessRate() {
-    double baseMidpoint = 50;
-    double baseSteepness = 4.5;
-    double minPity = 3;
-    double maxPityOffset = 17;
+    double baseMidpoint = 65.0;
+    double baseSteepness = 4.0;
+    double minPity = 5.0;
+    double maxPityOffset = 20.0;
 
     double rawBase = 100.0 / (1.0 + Math.pow((double) level / baseMidpoint, baseSteepness));
     double rawPityGain = minPity + (maxPityOffset / (1.0 + Math.pow(level / 50.0, 2)));

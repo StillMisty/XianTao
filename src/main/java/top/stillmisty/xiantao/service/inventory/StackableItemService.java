@@ -46,7 +46,7 @@ public class StackableItemService {
     newItem.setPropertiesHash(hash);
 
     int affected = stackableItemRepository.upsertIncrementQuantity(newItem);
-    log.info(
+    log.debug(
         "添加堆叠物品: userId={}, templateId={}, quantity={}, affected={}",
         userId,
         templateId,
@@ -71,7 +71,7 @@ public class StackableItemService {
       throw new BusinessException(
           ErrorCode.ITEM_QUANTITY_INSUFFICIENT, quantity, item.getQuantity());
     }
-    log.info("原子减少堆叠物品数量: userId={}, itemId={}, quantity={}", userId, itemId, quantity);
+    log.debug("原子减少堆叠物品数量: userId={}, itemId={}, quantity={}", userId, itemId, quantity);
   }
 
   /** 检查堆叠物品数量是否足够 */

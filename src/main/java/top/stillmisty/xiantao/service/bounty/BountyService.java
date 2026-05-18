@@ -96,7 +96,10 @@ public class BountyService {
 
   public List<BountyVO> listBounties(Long userId) {
     User user = userStateService.loadUser(userId);
-    MapNode mapNode = mapNodeRepository.findById(user.getLocationId()).orElseThrow();
+    MapNode mapNode =
+        mapNodeRepository
+            .findById(user.getLocationId())
+            .orElseThrow(() -> new BusinessException(MAP_CURRENT_NOT_FOUND));
 
     return bountyRepository.findByMapId(mapNode.getId()).stream()
         .filter(b -> user.getLevel() >= b.getRequireLevel())
@@ -122,7 +125,10 @@ public class BountyService {
     long minutesElapsed = Duration.between(record.getStartTime(), LocalDateTime.now()).toMinutes();
     long minutesRemaining = Math.max(0, record.getDurationMinutes() - minutesElapsed);
 
-    Bounty bounty = bountyRepository.findById(record.getBountyId()).orElseThrow();
+    Bounty bounty =
+        bountyRepository
+            .findById(record.getBountyId())
+            .orElseThrow(() -> new BusinessException(BOUNTY_NOT_FOUND));
 
     return new BountyStatusVO(
         record.getBountyId(),
@@ -147,7 +153,10 @@ public class BountyService {
             .findById(bountyId)
             .orElseThrow(() -> new BusinessException(BOUNTY_NOT_FOUND));
 
-    MapNode mapNode = mapNodeRepository.findById(user.getLocationId()).orElseThrow();
+    MapNode mapNode =
+        mapNodeRepository
+            .findById(user.getLocationId())
+            .orElseThrow(() -> new BusinessException(MAP_CURRENT_NOT_FOUND));
     if (!bounty.getMapId().equals(mapNode.getId())) {
       throw new BusinessException(BOUNTY_WRONG_MAP);
     }
@@ -177,7 +186,7 @@ public class BountyService {
     userStateService.save(user);
 
     log.info(
-        "用户 {} 接取悬赏: {} (ID={}, 耗时{}分, 预存物品数={})",
+        "玩家 {} 接取悬赏: {} (ID={}, 耗时{}分, 预存物品数={})",
         userId,
         bounty.getName(),
         bountyId,
@@ -209,7 +218,7 @@ public class BountyService {
     user.clearActivity();
     userStateService.save(user);
 
-    log.info("用户 {} 放弃悬赏: {}", userId, record.getBountyName());
+    log.info("玩家 {} 放弃悬赏: {}", userId, record.getBountyName());
     return String.format("已放弃悬赏「%s」，无任何产出。", record.getBountyName());
   }
 

@@ -115,7 +115,7 @@ public class BeastCombatService {
     beastRepository.save(beast);
 
     String beastName = beast.getBeastName();
-    log.info("用户 {} 将灵兽 {} 设为出战", userId, beastName);
+    log.debug("玩家 {} 将灵兽 {} 设为出战", userId, beastName);
     return new ActionResultVO(true, "灵兽 [%s] 已出战".formatted(beastName));
   }
 
@@ -137,7 +137,7 @@ public class BeastCombatService {
     beastRepository.save(beast);
 
     String beastName = beast.getBeastName();
-    log.info("用户 {} 将灵兽 {} 召回", userId, beastName);
+    log.debug("玩家 {} 将灵兽 {} 召回", userId, beastName);
     return new ActionResultVO(true, "灵兽 [%s] 已召回".formatted(beastName));
   }
 
@@ -181,7 +181,7 @@ public class BeastCombatService {
     beastRepository.save(beast);
 
     String beastName = beast.getBeastName();
-    log.info("用户 {} 恢复灵兽 {} HP", userId, beastName);
+    log.debug("玩家 {} 恢复灵兽 {} HP", userId, beastName);
     return new ActionResultVO(true, "灵兽 [%s] HP已恢复".formatted(beastName));
   }
 

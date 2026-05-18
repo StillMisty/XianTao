@@ -87,7 +87,7 @@ public class SectSpiritChatService {
         saveHistory(sect.getId(), userId, "assistant", response);
       }
 
-      log.info("宗灵对话成功 - userId: {}, sect: {}, input: {}", userId, sect.getName(), userInput);
+      log.debug("宗灵对话成功 - userId: {}, sect: {}, input: {}", userId, sect.getName(), userInput);
       return response != null ? response : "宗灵暂时无法回应，请稍后再试。";
     } catch (Exception e) {
       log.error("宗灵对话失败 - userId: {}, error: {}", userId, e.getMessage(), e);

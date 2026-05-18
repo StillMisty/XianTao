@@ -33,7 +33,7 @@ public class FudiCommandHandler implements CommandGroup {
 
   public String handleSpiritChat(
       PlatformType platform, String openId, String userInput, TextFormat fmt) {
-    log.info("处理地灵自然语言交互 - platform: {}, input: {}", platform, userInput);
+    log.debug("处理地灵自然语言交互 - platform: {}, input: {}", platform, userInput);
     return CommandHandlerHelper.safeCall(
         () -> spiritChatService.chatWithSpirit(platform, openId, userInput),
         fmt,

@@ -174,11 +174,29 @@ public class FudiService {
         .orElseThrow(() -> new BusinessException(ErrorCode.FUDI_NOT_FOUND));
   }
 
+  /** 使用行锁获取福地，用于建造、升级、收取等并发敏感操作 */
+  private Fudi getFudiOrThrowForUpdate(Long userId) {
+    return fudiRepository
+        .findByUserIdForUpdate(userId)
+        .orElseThrow(() -> new BusinessException(ErrorCode.FUDI_NOT_FOUND));
+  }
+
   private record CellContext(Fudi fudi, FudiCell cell, Integer cellId) {}
 
   private CellContext getCellContext(Long userId, String position) {
     Integer cellId = fudiHelper.parseCellId(position);
     Fudi fudi = getFudiOrThrow(userId);
+    FudiCell cell =
+        fudiCellRepository
+            .findByFudiIdAndCellId(fudi.getId(), cellId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.CELL_NOT_FOUND, cellId));
+    return new CellContext(fudi, cell, cellId);
+  }
+
+  /** 使用行锁获取地块上下文，用于收取、升级等并发敏感操作 */
+  private CellContext getCellContextForUpdate(Long userId, String position) {
+    Integer cellId = fudiHelper.parseCellId(position);
+    Fudi fudi = getFudiOrThrowForUpdate(userId);
     FudiCell cell =
         fudiCellRepository
             .findByFudiIdAndCellId(fudi.getId(), cellId)
@@ -321,7 +339,7 @@ public class FudiService {
 
   @Transactional
   public CollectVO collect(Long userId, String position) {
-    CellContext ctx = getCellContext(userId, position);
+    CellContext ctx = getCellContextForUpdate(userId, position);
     FudiCell cell = ctx.cell();
     Integer cellId = ctx.cellId();
     Fudi fudi = ctx.fudi();
@@ -350,7 +368,7 @@ public class FudiService {
   @Transactional
   public CellOperationVO buildCell(Long userId, String position, CellType type) {
     Integer cellId = fudiHelper.parseCellId(position);
-    Fudi fudi = getFudiOrThrow(userId);
+    Fudi fudi = getFudiOrThrowForUpdate(userId);
 
     int maxCells = 3 + fudi.getTribulationStage() / 3;
     if (cellId < 1 || cellId > maxCells) {
@@ -379,7 +397,7 @@ public class FudiService {
     cell.setCellLevel(1);
     fudiCellRepository.save(cell);
 
-    log.info("用户 {} 在地块 {} 建造 {}（消耗 {} 灵石）", userId, cellId, type.getChineseName(), stoneCost);
+    log.info("玩家 {} 在地块 {} 建造 {}（消耗 {} 灵石）", userId, cellId, type.getChineseName(), stoneCost);
 
     return new CellOperationVO(cellId, type.getChineseName());
   }
@@ -408,14 +426,14 @@ public class FudiService {
 
     fudiCellRepository.deleteById(cell.getId());
 
-    log.info("用户 {} 拆除地块 {} 的 {}", userId, cellId, cell.getCellType().getChineseName());
+    log.info("玩家 {} 拆除地块 {} 的 {}", userId, cellId, cell.getCellType().getChineseName());
 
     return new CellOperationVO(cellId, cell.getCellType().getChineseName());
   }
 
   @Transactional
   public UpgradeCellVO upgradeCell(Long userId, String position) {
-    CellContext ctx = getCellContext(userId, position);
+    CellContext ctx = getCellContextForUpdate(userId, position);
     FudiCell cell = ctx.cell();
     Integer cellId = ctx.cellId();
 
@@ -436,7 +454,7 @@ public class FudiService {
     fudiCellRepository.save(cell);
 
     log.info(
-        "用户 {} 升级地块 {} 的 {} Lv{} -> Lv{}",
+        "玩家 {} 升级地块 {} 的 {} Lv{} -> Lv{}",
         userId,
         cellId,
         cell.getCellType().getChineseName(),
@@ -512,6 +530,6 @@ public class FudiService {
             .orElseThrow(() -> new BusinessException(ErrorCode.SPIRIT_NOT_FOUND));
     spirit.addAffection(delta);
     spiritRepository.save(spirit);
-    log.info("用户 {} 地灵好感度变化 {} -> {}", userId, delta, spirit.getAffection());
+    log.info("玩家 {} 地灵好感度变化 {} -> {}", userId, delta, spirit.getAffection());
   }
 }

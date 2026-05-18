@@ -59,14 +59,14 @@ INSERT INTO xt_monster_template (name, description, monster_type, base_level, ba
 ('蜚廉',     '上古风伯之后裔，鹿身雀首，御风而行。',                       'BEAST',    58, 900, 115, 40, 60, 880,   '[]', '[]', '["beast","wind","myth","master"]'),
 ('幽冥骑士', '幽冥之地的亡魂骑士，骑着骷髅战马巡狩。',                     'EVIL',     60, 1200, 120, 50, 35, 1000,  '[]', '[]', '["evil","knight","death","master"]'),
 ('蛟龙',     '即将化龙的大蛟，翻江倒海易如反掌。',                         'BEAST',    62, 1500, 130, 55, 40, 1200,  '[]', '[]', '["beast","dragon_kin","water","master"]'),
-('天罗蛛',   '编织天罗地网的巨型蛛妖，落入网中就别想跑了。',              'BEAST',    64, 1100, 125, 35, 48, 1100,  '[]', '[]', '["beast","spider","trap","master"]');
+('天罗蛛',   '编织天罗地网的巨型蛛妖，落入网中就别想跑了。',              'BEAST',    64, 1100, 125, 35, 48, 1250,  '[]', '[]', '["beast","spider","trap","master"]');
 
 -- ============ 65-80级 宗师区 ============
 INSERT INTO xt_monster_template (name, description, monster_type, base_level, base_hp, base_attack, base_defense, base_speed, exp_reward, skills, drop_table, tags) VALUES
 ('夔牛',     '上古异兽夔牛，状如牛、苍身无角、一足，其声如雷。',           'BEAST',    66, 1800, 140, 60, 30, 1500,  '[]', '[]', '["beast","thunder","myth","grandmaster"]'),
 ('梼杌',     '上古四凶之一，虎身人面，獠牙外露。',                          'BEAST',    68, 2000, 155, 65, 35, 1700,  '[]', '[]', '["beast","evil","myth","grandmaster"]'),
 ('金乌',     '太阳中的三足金乌，浑身金光灼目，凡人直视即瞎。',             'FLYING',   70, 1500, 170, 40, 65, 2000,  '[]', '[]', '["flying","sun","myth","grandmaster"]'),
-('旱魃',     '僵尸之祖，所到之处赤地千里。',                                'EVIL',     72, 2500, 145, 70, 25, 1900,  '[]', '[]', '["evil","zombie","disaster","grandmaster"]'),
+('旱魃',     '僵尸之祖，所到之处赤地千里。',                                'EVIL',     72, 2500, 145, 70, 25, 2100,  '[]', '[]', '["evil","zombie","disaster","grandmaster"]'),
 ('白泽',     '知晓天下万物的神兽，虽然不主动攻击但逼急了也很凶。',         'BEAST',    74, 1800, 160, 50, 55, 2200,  '[]', '[]', '["beast","wisdom","myth","grandmaster"]'),
 ('烛龙',     '人面蛇身而赤，睁眼为昼闭眼为夜，烛九阴之龙。',               'BEAST',    76, 3000, 180, 75, 45, 2800,  '[]', '[]', '["beast","dragon","myth","grandmaster"]'),
 ('天魔王',   '域外天魔之王，降临此界只为收割修士元神。',                   'EVIL',     78, 2200, 200, 55, 60, 3200,  '[]', '[]', '["evil","demon_king","alien","grandmaster"]');
@@ -76,9 +76,9 @@ INSERT INTO xt_monster_template (name, description, monster_type, base_level, ba
 ('麒麟',     '瑞兽麒麟，头生一角身披鳞甲，踏火不焚。',                     'BEAST',    82, 3500, 200, 80, 55, 3800,  '[]', '[]', '["beast","myth","auspicious","legendary"]'),
 ('相柳',     '九头蛇身的上古凶神，一次吃九座山。',                           'BEAST',    84, 4000, 220, 90, 45, 4200,  '[]', '[]', '["beast","snake","myth","legendary"]'),
 ('刑天',     '被砍了头仍以乳为目、以脐为口继续战斗的无头巨人。',           'HUMAN',    86, 5000, 250, 100, 30, 5000, '[]', '[]', '["human","myth","warrior","legendary"]'),
-('毕方',     '白喙单足的神鸟，所到之处必有火灾。',                           'FLYING',   88, 3800, 240, 70, 70, 4800, '[]', '[]', '["flying","fire","myth","legendary"]'),
+('毕方',     '白喙单足的神鸟，所到之处必有火灾。',                           'FLYING',   88, 3800, 240, 70, 70, 5200, '[]', '[]', '["flying","fire","myth","legendary"]'),
 ('应龙',     '上古大神应龙，生有双翼，曾助黄帝斩杀蚩尤。',                 'BEAST',    90, 6000, 280, 110, 60, 6500, '[]', '[]', '["beast","dragon","myth","legendary"]'),
-('守鹤',     '尾兽守鹤（串场了？），形如貉而身披紫纹狸猫。',               'BEAST',    93, 5500, 260, 95, 50, 6000,  '[]', '[]', '["beast","sand","myth","legendary"]');
+('守鹤',     '尾兽守鹤（串场了？），形如貉而身披紫纹狸猫。',               'BEAST',    93, 5500, 260, 95, 50, 7000,  '[]', '[]', '["beast","sand","myth","legendary"]');
 
 -- ============ 95-100级 巅峰区 ============
 INSERT INTO xt_monster_template (name, description, monster_type, base_level, base_hp, base_attack, base_defense, base_speed, exp_reward, skills, drop_table, tags) VALUES

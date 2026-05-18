@@ -3,6 +3,7 @@ package top.stillmisty.xiantao.service.pill;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -148,7 +149,7 @@ public class PillConsumptionService {
       int grade,
       long templateId,
       String quality) {
-    double gradeDecay = calcGradeDecay(user.getLevel(), grade, false);
+    double gradeDecay = calcGradeDecay(user.getLevel(), grade, true);
     double resistanceDecay = calcResistanceDecay(user.getId(), templateId, quality);
     int actualStat = (int) (e.amount() * qualityMultiplier * gradeDecay * resistanceDecay);
     if (actualStat <= 0) return null;
@@ -273,11 +274,28 @@ public class PillConsumptionService {
   }
 
   private int getPillGrade(StackableItem pill) {
-    if (pill.getProperties() == null) return 1;
-    Object gradeObj = pill.getProperties().get("grade");
-    if (gradeObj instanceof Integer i) return i;
-    if (gradeObj instanceof Long l) return l.intValue();
-    if (gradeObj instanceof Number n) return n.intValue();
-    return 1;
+    ItemTemplate template = itemTemplateRepository.findById(pill.getTemplateId()).orElse(null);
+    if (template == null || template.getTags() == null || template.getTags().isEmpty()) return 1;
+
+    Set<String> tags = template.getTags();
+    // 高优先级: 传说/神话级
+    if (tags.contains("legendary") || tags.contains("mythic")) return 50;
+    if (tags.contains("grand")) return 35;
+    if (tags.contains("epic")) return 30;
+    if (tags.contains("advanced")) return 20;
+    if (tags.contains("rare")) return 10;
+    if (tags.contains("intermediate")) return 10;
+    // 低优先级: 基础/关键
+    if (tags.contains("critical")) return 8;
+    if (tags.contains("basic")) return 5;
+    if (tags.contains("entry")) return 3;
+    // 兜底: 实例属性
+    if (pill.getProperties() != null) {
+      Object gradeObj = pill.getProperties().get("grade");
+      if (gradeObj instanceof Integer i) return i;
+      if (gradeObj instanceof Long l) return l.intValue();
+      if (gradeObj instanceof Number n) return n.intValue();
+    }
+    return 3;
   }
 }

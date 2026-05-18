@@ -14,6 +14,8 @@ import top.stillmisty.xiantao.domain.dungeon.repository.DungeonFirstClearReposit
 import top.stillmisty.xiantao.domain.dungeon.repository.DungeonProgressRepository;
 import top.stillmisty.xiantao.domain.dungeon.repository.DungeonTemplateRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.service.BusinessException;
+import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
 @Component
@@ -27,7 +29,12 @@ public class DungeonProgressHelper {
 
   public String completeDungeon(Long userId, DungeonInstance instance) {
     DungeonTemplate dungeon =
-        dungeonTemplateRepository.findById(instance.getDungeonId()).orElseThrow();
+        dungeonTemplateRepository
+            .findById(instance.getDungeonId())
+            .orElseThrow(
+                () ->
+                    new BusinessException(
+                        ErrorCode.DUNGEON_NOT_FOUND, String.valueOf(instance.getDungeonId())));
     instance.markCompleted();
 
     User user = userStateService.loadUser(userId);

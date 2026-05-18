@@ -11,6 +11,7 @@ import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
 import top.stillmisty.xiantao.domain.fudi.entity.FudiCell;
 import top.stillmisty.xiantao.domain.fudi.enums.CellType;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiCellRepository;
+import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.fudi.vo.CollectAllVO;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
@@ -27,6 +28,7 @@ import top.stillmisty.xiantao.service.inventory.StackableItemService;
 public class FudiCollectService {
 
   private final FudiHelper fudiHelper;
+  private final FudiRepository fudiRepository;
   private final FudiCellRepository fudiCellRepository;
   private final FarmService farmService;
   private final BeastDisplayHelper beastDisplayHelper;
@@ -37,8 +39,8 @@ public class FudiCollectService {
   @Transactional
   public CollectAllVO collectAll(Long userId) {
     Fudi fudi =
-        fudiHelper
-            .findAndTouchFudi(userId)
+        fudiRepository
+            .findByUserIdForUpdate(userId)
             .orElseThrow(() -> new BusinessException(ErrorCode.FUDI_NOT_FOUND));
     List<FudiCell> cells = fudiCellRepository.findByFudiId(fudi.getId());
     if (cells.isEmpty()) {
@@ -134,7 +136,7 @@ public class FudiCollectService {
 
       totalItems += cellTotalItems;
       collectedCount++;
-      log.info("用户 {} 收取地块 {} 的灵兽产出 {} 件", fudi.getUserId(), cell.getCellId(), cellTotalItems);
+      log.debug("玩家 {} 收取地块 {} 的灵兽产出 {} 件", fudi.getUserId(), cell.getCellId(), cellTotalItems);
     }
 
     return new PenCollectResult(collectedCount, totalItems);

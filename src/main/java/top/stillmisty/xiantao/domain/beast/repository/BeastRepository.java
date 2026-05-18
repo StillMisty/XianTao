@@ -8,6 +8,8 @@ public interface BeastRepository {
 
   Optional<Beast> findById(Long id);
 
+  Optional<Beast> findByIdForUpdate(Long id);
+
   List<Beast> findByUserId(Long userId);
 
   List<Beast> findByUserId(Long userId, int limit, int offset);

@@ -53,7 +53,7 @@ public class CultivationCommandHandler implements CommandGroup {
           if (!result.success()) {
             return result.message() != null ? result.message() : "系统错误：用户创建失败，请联系管理员";
           }
-          log.info("用户注册成功 - UserId: {}, Nickname: {}", result.userId(), result.nickname());
+          log.info("玩家注册成功 - UserId: {}, Nickname: {}", result.userId(), result.nickname());
           return "欢迎踏入仙途！您的道号为：" + result.nickname() + "\n输入「状态」查看您的角色信息";
         });
   }

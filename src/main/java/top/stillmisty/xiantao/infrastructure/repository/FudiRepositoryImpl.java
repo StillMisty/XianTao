@@ -31,6 +31,13 @@ public class FudiRepositoryImpl implements FudiRepository {
   }
 
   @Override
+  public Optional<Fudi> findByUserIdForUpdate(Long userId) {
+    QueryWrapper queryWrapper = QueryWrapper.create().where(FUDI.USER_ID.eq(userId)).forUpdate();
+    Fudi fudi = fudiMapper.selectOneByQuery(queryWrapper);
+    return Optional.ofNullable(fudi);
+  }
+
+  @Override
   public Fudi save(Fudi fudi) {
     fudiMapper.insertOrUpdateSelective(fudi);
     return fudi;

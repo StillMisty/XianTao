@@ -32,9 +32,7 @@ public class AuthenticatedAspect {
     if (args.length < 2
         || !(args[0] instanceof PlatformType platform)
         || !(args[1] instanceof String openId)) {
-      log.warn(
-          "AuthenticatedAspect: first two args are not (PlatformType, String), skipping auth for {}",
-          pjp.getSignature());
+      log.warn("鉴权AOP: 前两个参数不是 (PlatformType, String)，跳过鉴权: {}", pjp.getSignature());
       return pjp.proceed();
     }
 
@@ -64,10 +62,10 @@ public class AuthenticatedAspect {
                 }
               });
     } catch (BusinessException e) {
-      log.warn("Business exception for userId={}: {}", userId, e.getMessage());
+      log.warn("业务异常 - userId={}: {}", userId, e.getMessage());
       throw e;
     } catch (RuntimeException e) {
-      log.error("Unexpected service exception for userId={}: {}", userId, e.getMessage(), e);
+      log.error("服务异常 - userId={}: {}", userId, e.getMessage(), e);
       return ServiceResult.businessFailure("系统繁忙，请稍后再试");
     }
   }

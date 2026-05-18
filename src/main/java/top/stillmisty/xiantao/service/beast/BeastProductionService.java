@@ -66,15 +66,15 @@ public class BeastProductionService {
         stackableItemService.addStackableItem(
             fudi.getUserId(), item.templateId(), itemType, item.name(), item.quantity());
         totalItems += item.quantity();
-        log.info(
-            "用户 {} 收取地块 {} 的灵兽产出: {} x{}", fudi.getUserId(), cellId, item.name(), item.quantity());
+        log.debug(
+            "玩家 {} 收取地块 {} 的灵兽产出: {} x{}", fudi.getUserId(), cellId, item.name(), item.quantity());
       }
     }
 
     cell.clearProductionStored();
     fudiCellRepository.save(cell);
 
-    log.info("用户 {} 收取地块 {} 的灵兽产出 {} 件", fudi.getUserId(), cellId, totalItems);
+    log.debug("玩家 {} 收取地块 {} 的灵兽产出 {} 件", fudi.getUserId(), cellId, totalItems);
 
     return new CollectVO(cellId, "PEN", null, beastName, totalItems, totalItems);
   }
@@ -102,8 +102,7 @@ public class BeastProductionService {
 
     long elapsed = java.time.Duration.between(lastProduction, now).getSeconds();
     if (elapsed < 0) {
-      log.warn(
-          "Beast production clock skew detected: lastProduction={}, now={}", lastProduction, now);
+      log.warn("检测到灵兽产出台账时间异常: lastProduction={}, now={}", lastProduction, now);
       return;
     }
     int cycles = (int) (elapsed / intervalSeconds);

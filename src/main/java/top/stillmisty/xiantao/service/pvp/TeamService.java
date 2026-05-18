@@ -82,7 +82,10 @@ public class TeamService {
 
     Optional<TeamMember> member = teamMemberRepository.findByUserId(userId);
     if (member.isPresent()) {
-      Team team = teamRepository.findById(member.get().getTeamId()).orElseThrow();
+      Team team =
+          teamRepository
+              .findById(member.get().getTeamId())
+              .orElseThrow(() -> new BusinessException(ErrorCode.TEAM_NOT_IN));
       List<TeamMember> members = teamMemberRepository.findByTeamId(team.getId());
       User leader = userStateService.loadUser(team.getLeaderId());
 
@@ -191,7 +194,13 @@ public class TeamService {
       throw new BusinessException(ErrorCode.TEAM_INVITATION_EXPIRED);
     }
 
-    Team team = teamRepository.findById(invitation.getTeamId()).orElseThrow();
+    Team team =
+        teamRepository
+            .findById(invitation.getTeamId())
+            .orElseThrow(
+                () ->
+                    new BusinessException(
+                        ErrorCode.TEAM_INVITATION_NOT_FOUND, invitation.getTeamId()));
     if (!team.isActive()) {
       throw new BusinessException(ErrorCode.TEAM_INVITATION_EXPIRED);
     }
@@ -263,7 +272,10 @@ public class TeamService {
     }
 
     TeamMember member = memberOpt.get();
-    Team team = teamRepository.findById(member.getTeamId()).orElseThrow();
+    Team team =
+        teamRepository
+            .findById(member.getTeamId())
+            .orElseThrow(() -> new BusinessException(ErrorCode.TEAM_NOT_IN));
 
     if (team.getLeaderId().equals(userId)) {
       teamMemberRepository.deleteByTeamId(team.getId());
@@ -292,7 +304,10 @@ public class TeamService {
 
     Optional<TeamMember> member = teamMemberRepository.findByUserId(userId);
     if (member.isPresent()) {
-      Team team = teamRepository.findById(member.get().getTeamId()).orElseThrow();
+      Team team =
+          teamRepository
+              .findById(member.get().getTeamId())
+              .orElseThrow(() -> new BusinessException(ErrorCode.TEAM_NOT_IN));
       if (team.isActive()) {
         throw new BusinessException(ErrorCode.TEAM_ALREADY_IN, team.getId());
       }

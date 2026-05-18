@@ -184,7 +184,7 @@ public class BeastBreedingService {
     fudiCellRepository.save(cell);
 
     log.info(
-        "用户 {} 在地块 {} 孵化 {} (T{}, {}{})",
+        "玩家 {} 在地块 {} 孵化 {} (T{}, {}{})",
         userId,
         cellId,
         setup.beastName,
@@ -317,7 +317,7 @@ public class BeastBreedingService {
     }
 
     log.info(
-        "用户 {} 放生 {} (T{}/{})，获得 {} 份灵兽精华", userId, beastName, tier, qualityStr, essenceAmount);
+        "玩家 {} 放生 {} (T{}/{})，获得 {} 份灵兽精华", userId, beastName, tier, qualityStr, essenceAmount);
 
     return new ReleaseBeastVO(beastName, tier, qualityStr, essenceAmount);
   }
@@ -344,9 +344,6 @@ public class BeastBreedingService {
         stackableItemRepository
             .findByUserIdAndTemplateId(userId, essenceTemplate.getId())
             .orElseThrow(() -> new BusinessException(ITEM_NOT_EXISTS, "灵兽精华"));
-    if (essenceItem.getQuantity() < quantity) {
-      throw new BusinessException(ITEM_QUANTITY_INSUFFICIENT, quantity, essenceItem.getQuantity());
-    }
 
     stackableItemService.reduceStackableItem(userId, essenceItem.getId(), quantity);
 
@@ -354,8 +351,8 @@ public class BeastBreedingService {
     long consumed = beast.addExp(totalExp);
     beastRepository.save(beast);
 
-    log.info(
-        "用户 {} 喂 {} 份灵兽精华给地块 {} 的灵兽 {}，获得 {} 经验",
+    log.debug(
+        "玩家 {} 喂 {} 份灵兽精华给地块 {} 的灵兽 {}，获得 {} 经验",
         userId,
         quantity,
         cellId,
@@ -381,10 +378,6 @@ public class BeastBreedingService {
         stackableItemRepository
             .findByUserIdAndTemplateId(userId, stoneTemplate.getId())
             .orElseThrow(() -> new BusinessException(BEAST_EVOLVE_STONE_INVENTORY_EMPTY));
-    if (stoneItem.getQuantity() < stoneCount) {
-      throw new BusinessException(
-          BEAST_EVOLVE_STONE_INSUFFICIENT, stoneCount, stoneItem.getQuantity());
-    }
     stackableItemService.reduceStackableItem(userId, stoneItem.getId(), stoneCount);
 
     if ("升品".equals(mode)) {

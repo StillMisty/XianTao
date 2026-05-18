@@ -29,16 +29,18 @@ INSERT INTO xt_equipment_template (name, description, tags, slot, weapon_type, c
 INSERT INTO xt_equipment_template (name, description, tags, slot, weapon_type, category, equip_level, base_attack, base_defense, base_str, base_con, base_agi, base_wis, attack_speed, attack_range, drop_weight) VALUES
 ('竹枪',     '青竹削尖后经灵气加持的长枪，轻便有韧劲。',                    '["spear","common","starter"]',       'WEAPON', 'SPEAR', 'POLEARM', 1,  20, 0, 3, 0, 2, 0, 1.0, '近战', '{"BROKEN":60,"COMMON":30,"RARE":10}'),
 ('亮银枪',   '枪身银白锃亮，枪尖寒芒闪烁，军中猛将最爱。',                  '["spear","uncommon","basic"]',       'WEAPON', 'SPEAR', 'POLEARM', 10, 52, 0, 8, 3, 4, 0, 1.0, '近战', '{"BROKEN":40,"COMMON":40,"RARE":15,"EPIC":5}'),
-('游龙枪',   '枪身盘龙浮雕，刺出时宛如游龙出水气势惊人。',                  '["spear","rare","intermediate"]',    'WEAPON', 'SPEAR', 'POLEARM', 25, 115, 5, 18, 5, 8, 0, 1.1, '近战', '{"COMMON":40,"RARE":40,"EPIC":15,"LEGENDARY":5}'),
-('霸王枪',   '传说西楚霸王所用战枪，枪重三百六十斤，非天生神力不可持。',     '["spear","epic","advanced"]',        'WEAPON', 'SPEAR', 'POLEARM', 50, 250, 10, 45, 10, 5, 0, 0.8, '近战', '{"RARE":40,"EPIC":40,"LEGENDARY":20}'),
+('游龙枪',   '枪身盘龙浮雕，刺出时宛如游龙出水气势惊人。',                  '["spear","rare","intermediate"]',    'WEAPON', 'SPEAR', 'POLEARM', 25,  115, 5,  18, 5,  8,  0, 1.1, '近战', '{"COMMON":40,"RARE":40,"EPIC":15,"LEGENDARY":5}'),
+('追魂枪',   '枪尖淬有追魂索命之毒，刺入之后敌人魂魄涣散。',                    '["spear","epic","advanced"]',        'WEAPON', 'SPEAR', 'POLEARM', 38,  185, 8,  32, 8,  6,  0, 0.95, '近战', '{"COMMON":30,"RARE":50,"EPIC":15,"LEGENDARY":5}'),
+('霸王枪',   '传说西楚霸王所用战枪，枪重三百六十斤，非天生神力不可持。',     '["spear","epic","advanced"]',        'WEAPON', 'SPEAR', 'POLEARM', 50,  250, 10, 45, 10, 5,  0, 0.8, '近战', '{"RARE":40,"EPIC":40,"LEGENDARY":20}'),
 ('方天追魂枪','融合方天画戟和追魂索命的特性，可刺可劈，变幻莫测。',           '["spear","legendary","grand"]',      'WEAPON', 'SPEAR', 'POLEARM', 75, 430, 0, 65, 20, 15, 0, 1.0, '近战', '{"EPIC":50,"LEGENDARY":50}');
 
 -- ============ STAFF (棍) ============
 INSERT INTO xt_equipment_template (name, description, tags, slot, weapon_type, category, equip_level, base_attack, base_defense, base_str, base_con, base_agi, base_wis, attack_speed, attack_range, drop_weight) VALUES
 ('木棍',     '一根普普通通的灵木棍子，但也比树枝好用。',                     '["staff","common","starter"]',       'WEAPON', 'STAFF', 'POLEARM', 1,  16, 3, 2, 0, 2, 0, 1.1, '近战', '{"BROKEN":60,"COMMON":30,"RARE":10}'),
 ('镇魔棍',   '经过法阵加持的伏魔之棍，对邪祟有额外镇压之力。',               '["staff","uncommon","basic"]',       'WEAPON', 'STAFF', 'POLEARM', 10, 42, 8, 5, 5, 3, 0, 1.0, '近战', '{"BROKEN":40,"COMMON":40,"RARE":15,"EPIC":5}'),
-('金刚杵',   '佛门金刚手之兵，看似棍实则杵，蕴含降魔佛力。',                '["staff","rare","intermediate"]',    'WEAPON', 'STAFF', 'POLEARM', 25, 100, 15, 10, 12, 5, 5, 1.0, '近战', '{"COMMON":40,"RARE":40,"EPIC":15,"LEGENDARY":5}'),
-('如意金箍棒','传说中大禹治水所用的定海神针，上有金箍两道，可随心意变化。',    '["staff","legendary","sunwukong"]',  'WEAPON', 'STAFF', 'POLEARM', 60, 330, 20, 55, 20, 20, 0, 1.2, '近战', '{"EPIC":30,"LEGENDARY":70}');
+('金刚杵',   '佛门金刚手之兵，看似棍实则杵，蕴含降魔佛力。',                '["staff","rare","intermediate"]',    'WEAPON', 'STAFF', 'POLEARM', 25,  100, 15,  10, 12, 5,  5, 1.0, '近战', '{"COMMON":40,"RARE":40,"EPIC":15,"LEGENDARY":5}'),
+('金刚降魔杵','佛门金刚杵的进阶版，杵身刻满梵文，一击可碎邪魔外道。',           '["staff","epic","advanced"]',        'WEAPON', 'STAFF', 'POLEARM', 38,  180, 16, 25, 15, 10, 5, 1.1, '近战', '{"COMMON":30,"RARE":50,"EPIC":15,"LEGENDARY":5}'),
+('如意金箍棒','传说中大禹治水所用的定海神针，上有金箍两道，可随心意变化。',    '["staff","legendary","sunwukong"]',  'WEAPON', 'STAFF', 'POLEARM', 60,  330, 20,  55, 20, 20, 0, 1.2, '近战', '{"EPIC":30,"LEGENDARY":70}');
 
 -- ============ BOW (弓) ============
 INSERT INTO xt_equipment_template (name, description, tags, slot, weapon_type, category, equip_level, base_attack, base_defense, base_str, base_con, base_agi, base_wis, attack_speed, attack_range, drop_weight) VALUES
@@ -66,22 +68,25 @@ INSERT INTO xt_equipment_template (name, description, tags, slot, weapon_type, c
 INSERT INTO xt_equipment_template (name, description, tags, slot, weapon_type, category, equip_level, base_attack, base_defense, base_str, base_con, base_agi, base_wis, attack_speed, attack_range, drop_weight) VALUES
 ('石锤',     '一块大石头绑在木柄上，举起需要不小的力气。',                    '["hammer","common","starter"]',       'WEAPON', 'HAMMER', 'EXOTIC', 5,  30, 0, 8, 2, 0, 0, 0.5, '近战', '{"BROKEN":60,"COMMON":30,"RARE":10}'),
 ('震地锤',  '锤头镌刻有震荡符文，一锤下去连地都抖三抖。',                      '["hammer","uncommon","basic"]',       'WEAPON', 'HAMMER', 'EXOTIC', 15, 70, 5, 15, 8, 0, 0, 0.5, '近战', '{"BROKEN":40,"COMMON":40,"RARE":15,"EPIC":5}'),
-('碎山锤',  '锤大如斗，纯以重量伤人，一锤碎山岳不是夸张。',                    '["hammer","rare","intermediate"]',    'WEAPON', 'HAMMER', 'EXOTIC', 35, 160, 10, 35, 15, 0, 0, 0.6, '近战', '{"COMMON":40,"RARE":40,"EPIC":15,"LEGENDARY":5}'),
-('昊天锤',  '九天飞来神锤，锤身萦绕雷霆，每击必带雷威。',                       '["hammer","legendary","thunder"]',    'WEAPON', 'HAMMER', 'EXOTIC', 65, 370, 15, 60, 30, 0, 0, 0.7, '近战', '{"EPIC":40,"LEGENDARY":60}');
+('碎山锤',  '锤大如斗，纯以重量伤人，一锤碎山岳不是夸张。',                    '["hammer","rare","intermediate"]',    'WEAPON', 'HAMMER', 'EXOTIC', 35,  160, 10, 35, 15, 0,  0, 0.6, '近战', '{"COMMON":40,"RARE":40,"EPIC":15,"LEGENDARY":5}'),
+('雷霆战锤','锤身缠绕紫色雷电，挥舞时雷声轰轰，每击皆附带雷罡之力。',            '["hammer","epic","thunder","advanced"]', 'WEAPON', 'HAMMER', 'EXOTIC', 48,  250, 12, 45, 22, 0,  0, 0.65, '近战', '{"COMMON":30,"RARE":50,"EPIC":15,"LEGENDARY":5}'),
+('昊天锤',  '九天飞来神锤，锤身萦绕雷霆，每击必带雷威。',                       '["hammer","legendary","thunder"]',    'WEAPON', 'HAMMER', 'EXOTIC', 65,  370, 15, 60, 30, 0,  0, 0.7, '近战', '{"EPIC":40,"LEGENDARY":60}');
 
 -- ============ DAGGER (匕首) ============
 INSERT INTO xt_equipment_template (name, description, tags, slot, weapon_type, category, equip_level, base_attack, base_defense, base_str, base_con, base_agi, base_wis, attack_speed, attack_range, drop_weight) VALUES
 ('骨匕',     '妖兽骨打磨成的匕首，轻便顺手。',                               '["dagger","common","starter"]',       'WEAPON', 'DAGGER', 'EXOTIC', 1,  14, 0, 0, 0, 5, 0, 1.5, '近战', '{"BROKEN":60,"COMMON":30,"RARE":10}'),
 ('暗影匕',  '淬毒的短匕，刃口发黑，见血封喉不是开玩笑的。',                   '["dagger","uncommon","basic"]',       'WEAPON', 'DAGGER', 'EXOTIC', 12, 42, 0, 2, 0, 10, 0, 1.5, '近战', '{"BROKEN":40,"COMMON":40,"RARE":15,"EPIC":5}'),
-('鱼肠剑',  '上古名剑之一，据传可藏在鱼腹之中行刺，实为绝品短剑。',            '["dagger","rare","intermediate"]',    'WEAPON', 'DAGGER', 'EXOTIC', 28, 110, 0, 8, 0, 25, 3, 1.6, '近战', '{"COMMON":30,"RARE":50,"EPIC":15,"LEGENDARY":5}'),
-('千幻匕',  '持之可化千百幻影，一瞬之间敌人身上多了十个窟窿。',                '["dagger","epic","advanced"]',        'WEAPON', 'DAGGER', 'EXOTIC', 50, 220, 0, 15, 0, 50, 10, 1.7, '近战', '{"RARE":30,"EPIC":50,"LEGENDARY":20}'),
+('鱼肠剑',  '上古名剑之一，据传可藏在鱼腹之中行刺，实为绝品短剑。',            '["dagger","rare","intermediate"]',    'WEAPON', 'DAGGER', 'EXOTIC', 28,  110, 0,  8,  0, 25, 3, 1.6, '近战', '{"COMMON":30,"RARE":50,"EPIC":15,"LEGENDARY":5}'),
+('碎星匕',  '匕身嵌有陨星碎片，刺出时星光乍现，可破高防。',                    '["dagger","epic","advanced"]',        'WEAPON', 'DAGGER', 'EXOTIC', 38,  165, 0,  12, 0, 38, 6, 1.65, '近战', '{"COMMON":30,"RARE":50,"EPIC":15,"LEGENDARY":5}'),
+('千幻匕',  '持之可化千百幻影，一瞬之间敌人身上多了十个窟窿。',                '["dagger","epic","advanced"]',        'WEAPON', 'DAGGER', 'EXOTIC', 50,  220, 0,  15, 0, 50, 10, 1.7, '近战', '{"RARE":30,"EPIC":50,"LEGENDARY":20}'),
 ('勾魂刃',  '阎罗殿流出的勾魂之刃，刃出则魂飞魄散。',                          '["dagger","legendary","hell"]',       'WEAPON', 'DAGGER', 'EXOTIC', 70, 350, 0, 20, 0, 80, 15, 1.8, '近战', '{"EPIC":40,"LEGENDARY":60}');
 
 -- ============ FAN (扇) ============
 INSERT INTO xt_equipment_template (name, description, tags, slot, weapon_type, category, equip_level, base_attack, base_defense, base_str, base_con, base_agi, base_wis, attack_speed, attack_range, drop_weight) VALUES
 ('竹扇',     '普通竹骨折扇，正面上书一个"雅"字，反面是山水画。',              '["fan","common","starter"]',          'WEAPON', 'FAN', 'EXOTIC', 8,  18, 0, 0, 0, 3, 5, 1.3, '近战', '{"BROKEN":60,"COMMON":30,"RARE":10}'),
-('云锦扇',  '以云锦为面的灵扇，轻摇则有云气缭绕，修仙雅士首选。',              '["fan","uncommon","basic"]',          'WEAPON', 'FAN', 'EXOTIC', 18, 45, 3, 0, 0, 5, 12, 1.3, '近战', '{"BROKEN":40,"COMMON":40,"RARE":15,"EPIC":5}'),
-('霓裳扇',  '扇面如霓裳羽衣，七彩流转，挥动时妙音伴生。',                     '["fan","rare","intermediate"]',       'WEAPON', 'FAN', 'EXOTIC', 35, 110, 8, 0, 3, 12, 25, 1.2, '近战', '{"COMMON":40,"RARE":40,"EPIC":15,"LEGENDARY":5}'),
+('云锦扇',  '以云锦为面的灵扇，轻摇则有云气缭绕，修仙雅士首选。',              '["fan","uncommon","basic"]',          'WEAPON', 'FAN', 'EXOTIC', 18,  45,  3,  0, 0, 5,  12, 1.3, '近战', '{"BROKEN":40,"COMMON":40,"RARE":15,"EPIC":5}'),
+('幻彩蝶扇','扇面绘制五彩蝶纹，挥动时仿佛蝶群飞舞，迷幻惑目。',                 '["fan","rare","intermediate"]',       'WEAPON', 'FAN', 'EXOTIC', 28,  82,  6,  0, 2, 9,  20, 1.25, '近战', '{"COMMON":40,"RARE":40,"EPIC":15,"LEGENDARY":5}'),
+('霓裳扇',  '扇面如霓裳羽衣，七彩流转，挥动时妙音伴生。',                     '["fan","rare","intermediate"]',       'WEAPON', 'FAN', 'EXOTIC', 35,  110, 8,  0, 3, 12, 25, 1.2, '近战', '{"COMMON":40,"RARE":40,"EPIC":15,"LEGENDARY":5}'),
 ('天罡扇',  '天罡三十六星之力炼化的宝扇，扇出罡风如刀。',                      '["fan","epic","advanced"]',           'WEAPON', 'FAN', 'EXOTIC', 55, 240, 12, 5, 5, 20, 45, 1.2, '近战', '{"RARE":40,"EPIC":40,"LEGENDARY":20}');
 
 -- ============ FLYWHISK (拂尘) ============
@@ -94,8 +99,9 @@ INSERT INTO xt_equipment_template (name, description, tags, slot, weapon_type, c
 -- ============ RING (圈) ============
 INSERT INTO xt_equipment_template (name, description, tags, slot, weapon_type, category, equip_level, base_attack, base_defense, base_str, base_con, base_agi, base_wis, attack_speed, attack_range, drop_weight) VALUES
 ('铁环',     '普通铁环，丢出去可以砸人脑袋。',                                '["ring","common","starter"]',          'WEAPON', 'RING', 'EXOTIC', 10, 24, 0, 5, 0, 5, 0, 1.2, '近战', '{"BROKEN":60,"COMMON":30,"RARE":10}'),
-('金刚圈',  '金刚琢的仿品，据说是太上老君防身之物——不过他老人家很少需要用。',   '["ring","uncommon","basic"]',          'WEAPON', 'RING', 'EXOTIC', 22, 60, 5, 12, 5, 10, 0, 1.1, '近战', '{"BROKEN":40,"COMMON":40,"RARE":15,"EPIC":5}'),
-('乾坤圈',  '乾坤八卦之力凝于一环，圈内可困万物。',                            '["ring","rare","intermediate"]',       'WEAPON', 'RING', 'EXOTIC', 40, 140, 10, 25, 12, 18, 5, 1.1, '近战', '{"COMMON":40,"RARE":40,"EPIC":15,"LEGENDARY":5}'),
+('金刚圈',  '金刚琢的仿品，据说是太上老君防身之物——不过他老人家很少需要用。',   '["ring","uncommon","basic"]',          'WEAPON', 'RING', 'EXOTIC', 22,  60,  5,  12, 5,  10, 0, 1.1, '近战', '{"BROKEN":40,"COMMON":40,"RARE":15,"EPIC":5}'),
+('锁魂环',  '以幽冥铁铸造的小环，脱手飞出可追踪敌人魂魄，防不胜防。',            '["ring","rare","intermediate"]',       'WEAPON', 'RING', 'EXOTIC', 30,  95,  7,  18, 8,  14, 2, 1.1, '近战', '{"COMMON":40,"RARE":40,"EPIC":15,"LEGENDARY":5}'),
+('乾坤圈',  '乾坤八卦之力凝于一环，圈内可困万物。',                            '["ring","rare","intermediate"]',       'WEAPON', 'RING', 'EXOTIC', 40,  140, 10, 25, 12, 18, 5, 1.1, '近战', '{"COMMON":40,"RARE":40,"EPIC":15,"LEGENDARY":5}'),
 ('日月神圈','日月交辉之圈，白日吸日精夜间纳月华，圈中有日月光影流转。',         '["ring","epic","suncircles"]',          'WEAPON', 'RING', 'EXOTIC', 60, 280, 15, 40, 20, 30, 10, 1.0, '近战', '{"RARE":40,"EPIC":40,"LEGENDARY":20}');
 
 -- ============ BELL (钟) ============
@@ -113,11 +119,13 @@ INSERT INTO xt_equipment_template (name, description, tags, slot, equip_level, b
 ('麻布道袍',   '粗麻布缝制的道袍，虽然朴素但好歹有层布。',                  '["armor","cloth","common","starter"]',        'ARMOR', 1,   0, 8,   0, 3,  0, 0, '{"BROKEN":60,"COMMON":30,"RARE":10}'),
 ('青布道袍',   '染青的棉布道袍，袖口绣有微弱的防御符文。',                  '["armor","cloth","uncommon","basic"]',        'ARMOR', 8,   0, 18,  0, 5,  0, 2, '{"BROKEN":50,"COMMON":35,"RARE":12,"EPIC":3}'),
 ('灵蚕法袍',   '以灵蚕丝织成的法袍，轻盈透亮如水波流转。',                   '["armor","cloth","rare","intermediate"]',     'ARMOR', 20,  0, 40,  0, 10, 5,  8, '{"COMMON":30,"RARE":50,"EPIC":15,"LEGENDARY":5}'),
+('蚕丝法袍',   '双层灵蚕丝织就的进阶法袍，轻若无物却可御水火之力。',           '["armor","cloth","epic","advanced"]',          'ARMOR', 28,  0, 55,  0, 14, 8,  12, '{"COMMON":30,"RARE":50,"EPIC":15,"LEGENDARY":5}'),
 ('云锦仙袍',   '云中织成的仙锦所制，穿着如披云霞，御风而行。',               '["armor","cloth","epic","advanced"]',          'ARMOR', 40,  0, 80,  0, 18, 12, 18, '{"RARE":40,"EPIC":40,"LEGENDARY":20}'),
 ('太极仙衣',   '太极八卦纹的仙衣，暗合天道，穿上后心魔不侵。',                '["armor","cloth","legendary","dao"]',          'ARMOR', 65,  0, 150, 0, 30, 20, 40, '{"EPIC":40,"LEGENDARY":60}'),
 -- 皮甲系列
 ('兽皮甲',     '妖兽皮缝制的皮甲，普通刀剑砍不透。',                        '["armor","leather","common","starter"]',      'ARMOR', 5,   0, 14,  3, 5,  2,  0, '{"BROKEN":60,"COMMON":30,"RARE":10}'),
 ('犀皮铠',     '以犀妖兽皮鞣制的重皮甲，防御力不逊于铁甲而更轻。',           '["armor","leather","uncommon","basic"]',      'ARMOR', 15,  0, 30,  5, 12, 3,  0, '{"BROKEN":40,"COMMON":40,"RARE":15,"EPIC":5}'),
+('云纹内甲',   '以云纹妖兽皮缝制的软皮内甲，贴身穿着外罩道袍，防不胜防。',      '["armor","leather","rare","intermediate"]',    'ARMOR', 25,  0, 45,  7, 18, 5,  0, '{"COMMON":30,"RARE":50,"EPIC":15,"LEGENDARY":5}'),
 ('龙鳞软甲',   '龙鳞嵌入的软甲，轻如无物却坚不可摧。',                       '["armor","leather","dragon","rare"]',          'ARMOR', 35,  0, 65,  10, 25, 8,  0, '{"COMMON":30,"RARE":50,"EPIC":15,"LEGENDARY":5}'),
 ('玄武甲',     '玄武神兽的甲壳所制，站立不动时防御翻倍。',                    '["armor","leather","defense","epic"]',         'ARMOR', 55,  0, 120, 15, 45, 5,  5, '{"RARE":40,"EPIC":40,"LEGENDARY":20}'),
 -- 铁/重甲系列
@@ -132,6 +140,7 @@ INSERT INTO xt_equipment_template (name, description, tags, slot, equip_level, b
 ('九霄轻甲',   '九霄云外采来的清气所凝，穿上之后敌人经常打不中你。',           '["armor","light","legendary"]',                'ARMOR', 72,  0, 160, 12, 35, 40, 25, '{"EPIC":40,"LEGENDARY":60}'),
 -- 灵甲
 ('五行灵甲',   '五色灵力交织而生的灵甲，无需穿戴自动护主。',                 '["armor","spirit","rare","intermediate"]',    'ARMOR', 30,  0, 55,  8, 18, 8,  8, '{"COMMON":30,"RARE":50,"EPIC":15,"LEGENDARY":5}'),
+('灵丝软甲',   '以五行灵丝编织的半透明软甲，灵力流转间自动抵御外袭。',         '["armor","spirit","epic","advanced"]',         'ARMOR', 40,  0, 80,  12, 24, 10, 10, '{"COMMON":30,"RARE":50,"EPIC":15,"LEGENDARY":5}'),
 ('元磁灵衣',   '地心元磁之力凝成的灵衣，对金行法器有特别的吸引力（防御）。',   '["armor","spirit","epic","advanced"]',         'ARMOR', 52,  0, 110, 18, 30, 12, 12, '{"RARE":40,"EPIC":40,"LEGENDARY":20}'),
 ('不灭金身',   '以不灭金身神通铸就的甲衣，穿上之后真的很难打死。',             '["armor","spirit","legendary","defense"]',    'ARMOR', 78,  0, 200, 30, 60, 10, 20, '{"EPIC":40,"LEGENDARY":60}'),
 -- 新手回廊专属

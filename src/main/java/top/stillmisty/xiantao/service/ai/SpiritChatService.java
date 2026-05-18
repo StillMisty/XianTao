@@ -99,7 +99,8 @@ public class SpiritChatService {
         spiritRepository.save(spirit);
       }
 
-      log.info("地灵对话成功 - userId: {}, mbti: {}, input: {}", userId, spirit.getMbtiType(), userInput);
+      log.debug(
+          "地灵对话成功 - userId: {}, mbti: {}, input: {}", userId, spirit.getMbtiType(), userInput);
       return response;
     } catch (Exception e) {
       log.error("地灵对话失败 - userId: {}, error: {}", userId, e.getMessage(), e);

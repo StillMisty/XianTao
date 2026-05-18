@@ -240,7 +240,7 @@ public class SkillService {
       return SkillSlotResult.builder().success(false).message("法决数据异常").build();
     }
 
-    log.info("装载法决: userId={}, skillId={}, skillName={}", userId, skill.getId(), skill.getName());
+    log.debug("装载法决: userId={}, skillId={}, skillName={}", userId, skill.getId(), skill.getName());
 
     return SkillSlotResult.builder()
         .success(true)
@@ -278,7 +278,7 @@ public class SkillService {
     var skill = skillRepository.findById(matched.getSkillId()).orElse(null);
     String skillName = skill != null ? skill.getName() : String.valueOf(matched.getSkillId());
 
-    log.info("卸下法决: userId={}, skillId={}, skillName={}", userId, matched.getSkillId(), skillName);
+    log.debug("卸下法决: userId={}, skillId={}, skillName={}", userId, matched.getSkillId(), skillName);
 
     return SkillSlotResult.builder()
         .success(true)

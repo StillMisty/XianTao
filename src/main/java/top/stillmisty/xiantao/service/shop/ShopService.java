@@ -39,6 +39,7 @@ import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
+import top.stillmisty.xiantao.service.inventory.StackableItemService;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
 @Slf4j
@@ -55,6 +56,7 @@ public class ShopService {
   private final UserRepository userRepository;
   private final UserStateService userStateService;
   private final PriceEngine priceEngine;
+  private final StackableItemService stackableItemService;
 
   // ===================== 公开 API（含认证） =====================
 
@@ -468,24 +470,13 @@ public class ShopService {
   }
 
   private void addStackableItem(Long userId, ItemTemplate template, int quantity) {
-    int hash = StackableItem.computeHash(template.getProperties());
-    var existing =
-        stackableItemRepository.findByUserIdAndTemplateIdAndPropertiesHash(
-            userId, template.getId(), hash);
-    if (existing.isPresent()) {
-      StackableItem item = existing.get();
-      item.addQuantity(quantity);
-      stackableItemRepository.save(item);
-    } else {
-      StackableItem newItem =
-          StackableItem.create(
-              userId, template.getId(), template.getType(), template.getName(), quantity);
-      newItem.setTags(template.getTags());
-      newItem.setProperties(template.getProperties());
-      newItem.setPropertiesHash(hash);
-      newItem.setTradable(true);
-      stackableItemRepository.save(newItem);
-    }
+    stackableItemService.addStackableItem(
+        userId,
+        template.getId(),
+        template.getType(),
+        template.getName(),
+        quantity,
+        template.getProperties());
   }
 
   private Rarity rollRarity() {

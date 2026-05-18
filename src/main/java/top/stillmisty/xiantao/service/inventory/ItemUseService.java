@@ -93,7 +93,7 @@ public class ItemUseService {
     }
 
     // 4. 执行使用
-    log.info(
+    log.debug(
         "使用物品: userId={}, item={}, handler={}",
         userId,
         finalItem.getName(),

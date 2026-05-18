@@ -5,19 +5,10 @@ INSERT INTO xt_skill (name, description, skill_type, effects, binding_type, cool
 ('金刚体',   '运转灵气淬炼体魄，永久提升防御力10%。', 'PASSIVE', '[{"type":"DEFENSE_BUFF","value":10}]', 'NONE', 0, NULL, 1, '["passive","defense","beginner"]'),
 ('轻身术',   '灵力灌注双腿，身轻如燕，永久提升敏捷10%。', 'PASSIVE', '[{"type":"SPEED_BUFF","value":10}]', 'NONE', 0, NULL, 1, '["passive","agi","beginner"]'),
 ('蛮牛劲',   '模仿蛮牛之力运行气血，永久提升力道10%。', 'PASSIVE', '[{"type":"ATTACK_BUFF","value":10}]', 'NONE', 0, NULL, 1, '["passive","str","beginner"]'),
-('静心诀',   '心如止水，万念归寂，永久提升悟性10%。', 'PASSIVE', '[{"type":"SPEED_BUFF","value":10}]', 'NONE', 0, NULL, 1, '["passive","wis","beginner"]'),
-('铁布衫',   '以灵化罡，罩护全身，永久提升防御力15%。需要金刚体。', 'PASSIVE', '[{"type":"DEFENSE_BUFF","value":15}]', 'NONE', 0, 15, 10, '["passive","defense","basic"]'),
-('疾风步',   '踏步如风，残影相随，永久提升敏捷15%。需要轻身术。', 'PASSIVE', '[{"type":"SPEED_BUFF","value":15}]', 'NONE', 0, 15, 10, '["passive","agi","basic"]'),
-('龙象般若功','身具龙象之力，开碑裂石，永久提升力道15%。需要蛮牛劲。', 'PASSIVE', '[{"type":"ATTACK_BUFF","value":15}]', 'NONE', 0, 15, 10, '["passive","str","basic"]'),
-('通明心法', '心通大道，慧眼如炬，永久提升悟性15%。需要静心诀。', 'PASSIVE', '[{"type":"SPEED_BUFF","value":15}]', 'NONE', 0, 15, 10, '["passive","wis","basic"]'),
-('不灭金身', '灵力凝甲，金刚不坏，永久提升防御力20%。需要铁布衫。', 'PASSIVE', '[{"type":"DEFENSE_BUFF","value":20}]', 'NONE', 0, 30, 30, '["passive","defense","intermediate"]'),
-('浮光掠影', '身化流光，无影无踪，永久提升敏捷20%。需要疾风步。', 'PASSIVE', '[{"type":"SPEED_BUFF","value":20}]', 'NONE', 0, 30, 30, '["passive","agi","intermediate"]'),
-('九牛二虎', '九牛二虎加身，力拔山兮，永久提升力道20%。需要龙象般若功。', 'PASSIVE', '[{"type":"ATTACK_BUFF","value":20}]', 'NONE', 0, 30, 30, '["passive","str","intermediate"]'),
-('天人感应', '感天悟地，道法自然，永久提升悟性20%。需要通明心法。', 'PASSIVE', '[{"type":"SPEED_BUFF","value":20}]', 'NONE', 0, 30, 30, '["passive","wis","intermediate"]'),
-('万劫不磨', '千劫万磨身不损，永久提升防御力30%。需要不灭金身。', 'PASSIVE', '[{"type":"DEFENSE_BUFF","value":30}]', 'NONE', 0, 50, 50, '["passive","defense","advanced","epic"]'),
-('虚空瞬步', '身融虚空，瞬移百丈，永久提升敏捷30%。需要浮光掠影。', 'PASSIVE', '[{"type":"SPEED_BUFF","value":30}]', 'NONE', 0, 50, 50, '["passive","agi","advanced","epic"]'),
-('搬山倒海', '神通广大，搬山填海，永久提升力道30%。需要九牛二虎。', 'PASSIVE', '[{"type":"ATTACK_BUFF","value":30}]', 'NONE', 0, 50, 50, '["passive","str","advanced","epic"]'),
-('道心通明', '道心坚定，明悟天地至理，永久提升悟性30%。需要天人感应。', 'PASSIVE', '[{"type":"SPEED_BUFF","value":30}]', 'NONE', 0, 50, 50, '["passive","wis","advanced","epic"]');
+('静心诀',   '心如止水，万念归寂，永久提升防御力10%。', 'PASSIVE', '[{"type":"DEFENSE_BUFF","value":10}]', 'NONE', 0, NULL, 1, '["passive","wis","beginner"]'),
+('通明心法', '心通大道，慧眼如炬，永久提升防御力15%。需要静心诀。', 'PASSIVE', '[{"type":"DEFENSE_BUFF","value":15}]', 'NONE', 0, 15, 10, '["passive","wis","basic"]'),
+('天人感应', '感天悟地，道法自然，永久提升防御力20%。需要通明心法。', 'PASSIVE', '[{"type":"DEFENSE_BUFF","value":20}]', 'NONE', 0, 30, 30, '["passive","wis","intermediate"]'),
+('道心通明', '道心坚定，明悟天地至理，永久提升防御力30%。需要天人感应。', 'PASSIVE', '[{"type":"DEFENSE_BUFF","value":30}]', 'NONE', 0, 50, 50, '["passive","wis","advanced","epic"]');
 
 -- ============ BLADE (刀法) ============
 INSERT INTO xt_skill (name, description, skill_type, effects, binding_type, binding_value, cooldown_seconds, require_wis, level_requirement, tags) VALUES

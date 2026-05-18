@@ -131,7 +131,7 @@ public class TrainingCompleter {
       case "NOTHING" -> {
         // no event
       }
-      default -> log.debug("Unknown training sub-event: {}", code);
+      default -> log.debug("未知历练子事件: {}", code);
     }
   }
 

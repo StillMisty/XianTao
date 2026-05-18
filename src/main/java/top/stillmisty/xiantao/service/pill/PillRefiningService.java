@@ -107,9 +107,6 @@ public class PillRefiningService {
     for (HerbInput input : parsedInputs) {
       StackableItem herb = input.herb();
       int quantity = input.quantity();
-      if (!herb.hasEnoughQuantity(quantity)) {
-        throw new BusinessException(ErrorCode.PILL_MATERIAL_INSUFFICIENT, herb.getName());
-      }
       for (String element : List.of("METAL", "WOOD", "WATER", "FIRE", "EARTH")) {
         int value = herb.getElementValue(element) * quantity;
         elementTotals.merge(element, value, Integer::sum);

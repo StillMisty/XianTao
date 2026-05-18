@@ -156,7 +156,10 @@ public class DungeonService {
     var teamMemberOpt = teamMemberRepository.findByUserId(userId);
     if (teamMemberOpt.isPresent()) {
       TeamMember tm = teamMemberOpt.get();
-      var team = teamRepository.findById(tm.getTeamId()).orElseThrow();
+      var team =
+          teamRepository
+              .findById(tm.getTeamId())
+              .orElseThrow(() -> new BusinessException(ErrorCode.TEAM_NOT_IN));
       if (!team.getLeaderId().equals(userId)) {
         throw new BusinessException(ErrorCode.DUNGEON_NOT_LEADER);
       }
@@ -168,7 +171,8 @@ public class DungeonService {
         throw new BusinessException(ErrorCode.DUNGEON_TEAM_SIZE_EXCEED, dungeon.getMaxTeamSize());
       }
 
-      for (Long memberId : memberIds) {
+      var sortedMemberIds = memberIds.stream().sorted().toList();
+      for (Long memberId : sortedMemberIds) {
         User memberUser = userStateService.loadUserForUpdate(memberId);
         checkIdleStatus(memberUser);
         DungeonInstance memberExisting = findActiveInstanceRaw(memberId, dungeon.getId());
@@ -293,7 +297,9 @@ public class DungeonService {
     }
 
     DungeonTemplate dungeon =
-        dungeonTemplateRepository.findById(instance.getDungeonId()).orElseThrow();
+        dungeonTemplateRepository
+            .findById(instance.getDungeonId())
+            .orElseThrow(() -> new BusinessException(ErrorCode.DUNGEON_NOT_FOUND, ""));
     List<DungeonPoiConfig> pois =
         poiConfigRepository.findByDungeonIdAndArea(dungeon.getId(), nextArea);
     Long passagePoiId = pickPassagePoi(pois);
@@ -420,7 +426,7 @@ public class DungeonService {
   }
 
   private ExploreResultVO executePoi(User user, DungeonInstance instance, DungeonPoiConfig poi) {
-    log.info("探索 POI: {} (type={})", poi.getName(), poi.getPoiType().getName());
+    log.debug("探索 POI: {} (type={})", poi.getName(), poi.getPoiType().getName());
 
     return switch (poi.getPoiType()) {
       case GATHER -> executeGatherForTeam(instance, poi);

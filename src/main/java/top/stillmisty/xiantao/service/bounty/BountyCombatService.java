@@ -63,7 +63,10 @@ public class BountyCombatService {
           BOUNTY_TIME_REMAINING, record.getBountyName(), remaining, record.getDurationMinutes());
     }
 
-    MapNode mapNode = mapNodeRepository.findById(user.getLocationId()).orElseThrow();
+    MapNode mapNode =
+        mapNodeRepository
+            .findById(user.getLocationId())
+            .orElseThrow(() -> new BusinessException(MAP_CURRENT_NOT_FOUND));
     return processBountyCompletion(userId, user, record, mapNode, minutesElapsed);
   }
 
@@ -104,7 +107,7 @@ public class BountyCombatService {
     userStateService.save(user);
 
     log.info(
-        "用户 {} 完成悬赏: {} (耗时{}分, 物品数={}, 灵石={})",
+        "玩家 {} 完成悬赏: {} (耗时{}分, 物品数={}, 灵石={})",
         userId,
         record.getBountyName(),
         minutesElapsed,

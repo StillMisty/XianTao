@@ -709,6 +709,7 @@ public class SectMemberService {
     playerSkillRepository.deleteByUserIdAndSourceSectId(userId, sectId);
   }
 
+  @Transactional
   void executeLeave(Long userId, SectMember member) {
     sectMemberRepository.deleteByUserId(userId);
 

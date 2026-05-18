@@ -12,5 +12,7 @@ public interface SkillRepository {
 
   List<Skill> findByIds(List<Long> ids);
 
+  List<Skill> findByName(String name);
+
   Skill save(Skill skill);
 }

@@ -60,7 +60,7 @@ public class BeastSkillService {
       if (innateSkill.unlock().equals(unlockCondition)) {
         if (!currentSkills.contains(innateSkill.skillId())) {
           currentSkills.add(innateSkill.skillId());
-          log.info("灵兽 {} 解锁先天技: {}", beast.getBeastName(), innateSkill.skillId());
+          log.debug("灵兽 {} 解锁先天技: {}", beast.getBeastName(), innateSkill.skillId());
         }
       }
     }
@@ -97,7 +97,7 @@ public class BeastSkillService {
         if (!currentSkills.contains(awakeningSkill.skillId())) {
           currentSkills.add(awakeningSkill.skillId());
           beast.setSkills(currentSkills);
-          log.info("灵兽 {} 觉醒后天悟: {}", beast.getBeastName(), awakeningSkill.skillId());
+          log.debug("灵兽 {} 觉醒后天悟: {}", beast.getBeastName(), awakeningSkill.skillId());
           return;
         }
         break;

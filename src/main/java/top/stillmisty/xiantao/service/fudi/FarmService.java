@@ -97,7 +97,7 @@ public class FarmService {
     farmCell.setConfig(new CellConfig.FarmConfig(cropId, now, matureTime, 0));
     fudiCellRepository.save(farmCell);
 
-    log.info("用户 {} 在地块 {} 种植 {} (T{})", userId, cellId, cropName, cropTier);
+    log.info("玩家 {} 在地块 {} 种植 {} (T{})", userId, cellId, cropName, cropTier);
 
     return FarmCellVO.builder()
         .cellId(cellId)
@@ -198,7 +198,7 @@ public class FarmService {
       fudiCellRepository.deleteById(cell.getId());
     }
 
-    log.info("用户 {} 收获地块 {} 的 {}，获得 {}份", fudi.getUserId(), cellId, cropName, yield);
+    log.info("玩家 {} 收获地块 {} 的 {}，获得 {}份", fudi.getUserId(), cellId, cropName, yield);
 
     return new CollectVO(cellId, "FARM", cropName, null, yield, yield);
   }

@@ -63,7 +63,7 @@ public class SpiritTools {
           result.emptyCount(),
           result.emptyCellIds());
     } catch (Exception e) {
-      log.error("查询地块状态失败", e);
+      log.warn("查询地块状态失败", e);
       return new GetCellStatusResponse(
           false, "查询失败：" + e.getMessage(), 0, 0, 0, java.util.List.of());
     }
@@ -97,7 +97,7 @@ public class SpiritTools {
         }
       };
     } catch (Exception e) {
-      log.error("查询背包失败: category={}", category, e);
+      log.warn("查询背包失败: category={}", category, e);
       return "查询背包失败：" + e.getMessage();
     }
   }
@@ -132,7 +132,7 @@ public class SpiritTools {
           position,
           cropName);
     } catch (Exception e) {
-      log.error("种植灵药失败: position={}, cropName={}", position, cropName, e);
+      log.warn("种植灵药失败: position={}, cropName={}", position, cropName, e);
       return new PlantCropResponse(false, "种植失败：" + e.getMessage(), position, cropName);
     }
   }
@@ -153,7 +153,7 @@ public class SpiritTools {
           position,
           cellType.getChineseName());
     } catch (Exception e) {
-      log.error("建造地块失败: position={}, cellType={}", position, cellType, e);
+      log.warn("建造地块失败: position={}, cellType={}", position, cellType, e);
       return new BuildCellResponse(
           false, "建造失败：" + e.getMessage(), position, cellType.getChineseName());
     }
@@ -181,7 +181,7 @@ public class SpiritTools {
           position,
           result.getBeastName());
     } catch (Exception e) {
-      log.error("孵化兽卵失败: position={}, eggName={}", position, eggName, e);
+      log.warn("孵化兽卵失败: position={}, eggName={}", position, eggName, e);
       return new HatchBeastResponse(false, "孵化失败：" + e.getMessage(), position, eggName);
     }
   }
@@ -197,7 +197,7 @@ public class SpiritTools {
       return new RemoveCellResponse(
           true, String.format("已拆除地块 %s 的%s。", position, result.type()), position);
     } catch (Exception e) {
-      log.error("拆除地块失败: position={}", position, e);
+      log.warn("拆除地块失败: position={}", position, e);
       return new RemoveCellResponse(false, "拆除失败：" + e.getMessage(), position);
     }
   }
@@ -237,7 +237,7 @@ public class SpiritTools {
         return new CollectProduceResponse(true, message, position, items);
       }
     } catch (Exception e) {
-      log.error("收取产出失败: position={}", position, e);
+      log.warn("收取产出失败: position={}", position, e);
       return new CollectProduceResponse(false, "收取失败：" + e.getMessage(), position, 0);
     }
   }
@@ -258,7 +258,7 @@ public class SpiritTools {
           result.oldLevel(),
           result.newLevel());
     } catch (Exception e) {
-      log.error("升级地块失败: position={}", position, e);
+      log.warn("升级地块失败: position={}", position, e);
       return new UpgradeCellResponse(false, "升级失败：" + e.getMessage(), position, 0, 0);
     }
   }
@@ -282,7 +282,7 @@ public class SpiritTools {
       return new GiveGiftResponse(
           true, message, result.itemName(), result.change(), result.reaction());
     } catch (Exception e) {
-      log.error("赠送礼物失败: itemName={}", itemName, e);
+      log.warn("赠送礼物失败: itemName={}", itemName, e);
       return new GiveGiftResponse(false, "送礼失败：" + e.getMessage(), itemName, 0, "");
     }
   }
@@ -299,7 +299,7 @@ public class SpiritTools {
       fudiService.adjustSpiritAffection(userId, -clampedSeverity);
       return new ReportOffenseResponse(true, reason, clampedSeverity);
     } catch (Exception e) {
-      log.error("冒犯上报失败: reason={}", reason, e);
+      log.warn("冒犯上报失败: reason={}", reason, e);
       return new ReportOffenseResponse(false, reason, 0);
     }
   }

@@ -134,9 +134,6 @@ public class ForgingService {
     for (MaterialInput input : parsedInputs) {
       StackableItem mat = input.material();
       int quantity = input.quantity();
-      if (!mat.hasEnoughQuantity(quantity)) {
-        throw new BusinessException(ErrorCode.FORGING_MATERIAL_NOT_ENOUGH, mat.getName());
-      }
       for (String attr : List.of("RIGIDITY", "TOUGHNESS", "SPIRIT")) {
         int value = mat.getMaterialValue(attr) * quantity;
         attributeTotals.merge(attr, value, Integer::sum);

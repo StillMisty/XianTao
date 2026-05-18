@@ -46,7 +46,7 @@ public class DiscardService {
         throw new BusinessException(ErrorCode.ITEM_EQUIPPED, equipment.getName());
       }
       equipmentRepository.deleteById(equipment.getId());
-      log.info(
+      log.debug(
           "丢弃装备: userId={}, equipmentId={}, name={}",
           userId,
           equipment.getId(),
@@ -64,6 +64,7 @@ public class DiscardService {
           itemName = input.substring(spaceIdx + 1).trim();
         }
       } catch (NumberFormatException ignored) {
+        log.trace("丢弃: 无法从 \"{}\" 解析数量，按物品名处理", input);
       }
     }
 
@@ -75,7 +76,7 @@ public class DiscardService {
     StackableItem item = items.getFirst();
     int actualDiscard = Math.min(quantity, item.getQuantity());
     stackableItemService.reduceStackableItem(userId, item.getId(), actualDiscard);
-    log.info(
+    log.debug(
         "丢弃物品: userId={}, item={}, quantity={}, templateId={}",
         userId,
         item.getName(),

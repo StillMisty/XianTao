@@ -67,7 +67,7 @@ public class ShopChatService {
 
       saveHistory(userId, npc.getId(), "assistant", response);
 
-      log.info("商铺对话成功 - userId: {}, shopNpc: {}, input: {}", userId, npc.getName(), userInput);
+      log.debug("商铺对话成功 - userId: {}, shopNpc: {}, input: {}", userId, npc.getName(), userInput);
       return response;
     } catch (BusinessException e) {
       return e.getMessage();

@@ -60,6 +60,7 @@ public class ShopTools {
           var stackResult = tryAppraiseStackable(userId, npc, id);
           if (stackResult != null) return stackResult;
         } catch (NumberFormatException ignored) {
+          log.trace("鉴定: itemId \"{}\" 不是数字，尝试按名称查找", itemId);
         }
       }
 
@@ -98,7 +99,7 @@ public class ShopTools {
     } catch (BusinessException e) {
       return new AppraisalResult(false, 0, 0, 0, itemName, e.getMessage());
     } catch (Exception e) {
-      log.error("估价失败: itemName={}, itemId={}", itemName, itemId, e);
+      log.warn("估价失败: itemName={}, itemId={}", itemName, itemId, e);
       return new AppraisalResult(false, 0, 0, 0, itemName, "估价失败：" + e.getMessage());
     }
   }
@@ -121,7 +122,7 @@ public class ShopTools {
     } catch (BusinessException e) {
       return new HaggleResult(false, currentPrice, 0, e.getMessage());
     } catch (Exception e) {
-      log.error("砍价失败: itemName={}, currentPrice={}", itemName, currentPrice, e);
+      log.warn("砍价失败: itemName={}, currentPrice={}", itemName, currentPrice, e);
       return new HaggleResult(false, currentPrice, 0, "砍价失败：" + e.getMessage());
     }
   }
@@ -163,7 +164,7 @@ public class ShopTools {
     } catch (BusinessException e) {
       return new SellResult(false, 0, itemName, e.getMessage());
     } catch (Exception e) {
-      log.error("出售失败: itemName={}, itemId={}", itemName, itemId, e);
+      log.warn("出售失败: itemName={}, itemId={}", itemName, itemId, e);
       return new SellResult(false, 0, itemName, "出售失败：" + e.getMessage());
     }
   }
@@ -176,7 +177,7 @@ public class ShopTools {
     } catch (BusinessException e) {
       return new ProductListVO("未知", List.of());
     } catch (Exception e) {
-      log.error("列出商品失败", e);
+      log.warn("列出商品失败", e);
       return new ProductListVO("未知", List.of());
     }
   }
@@ -199,7 +200,7 @@ public class ShopTools {
     } catch (BusinessException e) {
       return new PurchaseResult(false, templateName, quantity, 0, e.getMessage());
     } catch (Exception e) {
-      log.error("购买物品失败: templateName={}, quantity={}", templateName, quantity, e);
+      log.warn("购买物品失败: templateName={}, quantity={}", templateName, quantity, e);
       return new PurchaseResult(false, templateName, quantity, 0, "购买失败：" + e.getMessage());
     }
   }
@@ -222,7 +223,7 @@ public class ShopTools {
     } catch (BusinessException e) {
       return new EquipmentPurchaseResult(false, templateName, "COMMON", 0, e.getMessage());
     } catch (Exception e) {
-      log.error("购买装备失败: templateName={}", templateName, e);
+      log.warn("购买装备失败: templateName={}", templateName, e);
       return new EquipmentPurchaseResult(
           false, templateName, "COMMON", 0, "购买失败：" + e.getMessage());
     }
@@ -234,7 +235,7 @@ public class ShopTools {
       Long userId = getCurrentUserId();
       return shopService.queryPlayerEquipment(userId);
     } catch (Exception e) {
-      log.error("查询装备列表失败", e);
+      log.warn("查询装备列表失败", e);
       return new EquipmentListVO(List.of());
     }
   }

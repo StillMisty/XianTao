@@ -40,7 +40,6 @@ import top.stillmisty.xiantao.service.player.UserStateService;
 @RequiredArgsConstructor
 public class TrainingService {
 
-  private static final long BASE_EXP_PER_MINUTE = 2;
   private final UserStateService userStateService;
   private final MapNodeRepository mapNodeRepository;
   private final ItemTemplateRepository itemTemplateRepository;
@@ -98,7 +97,7 @@ public class TrainingService {
     user.setStatus(UserStatus.TRAINING);
     userStateService.save(user);
 
-    log.info("用户 {} 开始在 {} 历练", userId, mapName);
+    log.info("玩家 {} 开始在 {} 历练", userId, mapName);
     return TrainingStartResult.builder().success(true).mapName(mapName).build();
   }
 
@@ -168,9 +167,12 @@ public class TrainingService {
     double efficiencyMultiplier = calculateEfficiencyMultiplier(user.getEffectiveStatAgi());
     double levelDecayMultiplier =
         calculateLevelDecayMultiplier(user.getLevel(), mapNode.getLevelRequirement());
+    long baseExpPerMinute =
+        Math.max(
+            mapNode.getLevelRequirement() * 5L,
+            (long) (Math.sqrt(user.getEffectiveStatWis()) * 12));
     long baseExp =
-        (long)
-            (BASE_EXP_PER_MINUTE * minutesTraining * efficiencyMultiplier * levelDecayMultiplier);
+        (long) (baseExpPerMinute * minutesTraining * efficiencyMultiplier * levelDecayMultiplier);
     List<Map<String, Object>> trainingItems =
         calculateItemsReward(minutesTraining, efficiencyMultiplier, mapNode);
 
@@ -214,7 +216,7 @@ public class TrainingService {
         beautifyTrainingSummary(
             mapNode, minutesTraining, totalExp, itemNames, battleResult.summary(), plainSummary);
 
-    log.info("用户 {} 结束历练并应用奖励", userId);
+    log.info("玩家 {} 结束历练并应用奖励", userId);
     return TrainingRewardVO.builder()
         .userId(userId)
         .mapId(mapNode.getId())
