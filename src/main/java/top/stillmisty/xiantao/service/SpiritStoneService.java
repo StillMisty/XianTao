@@ -17,6 +17,9 @@ public class SpiritStoneService {
 
   @Transactional
   public void withdraw(Long userId, int amount) {
+    if (amount <= 0) {
+      throw new BusinessException(ErrorCode.PARAM_INVALID, "消耗灵石必须大于0");
+    }
     int affected = userRepository.deductSpiritStonesIfEnough(userId, amount);
     if (affected == 0) {
       User user = userStateService.loadUser(userId);
@@ -27,10 +30,14 @@ public class SpiritStoneService {
 
   @Transactional
   public void deposit(Long userId, int amount) {
+    if (amount <= 0) {
+      throw new BusinessException(ErrorCode.PARAM_INVALID, "添加灵石必须大于0");
+    }
     userRepository.addSpiritStonesAtomically(userId, amount);
   }
 
-  public int getBalance(Long userId) {
-    return userStateService.loadUser(userId).getSpiritStones().intValue();
+  public long getBalance(Long userId) {
+    Long stones = userStateService.loadUser(userId).getSpiritStones();
+    return stones != null ? stones : 0L;
   }
 }

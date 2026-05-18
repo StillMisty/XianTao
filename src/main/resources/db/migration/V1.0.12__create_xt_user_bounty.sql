@@ -31,3 +31,5 @@ COMMENT ON COLUMN xt_user_bounty.status IS '状态: ACTIVE / COMPLETED / ABANDON
 
 CREATE INDEX idx_user_bounty_user_id ON xt_user_bounty (user_id);
 CREATE INDEX idx_user_bounty_status ON xt_user_bounty (user_id, status);
+CREATE INDEX idx_user_bounty_bounty_id ON xt_user_bounty (bounty_id);
+CREATE UNIQUE INDEX idx_one_active_bounty ON xt_user_bounty (user_id) WHERE status = 'ACTIVE';

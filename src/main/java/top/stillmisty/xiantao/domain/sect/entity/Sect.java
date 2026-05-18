@@ -71,10 +71,10 @@ public class Sect extends Model<Sect> {
 
   public boolean deductFunds(long amount) {
     if (this.funds < amount) {
-      return true;
+      return false;
     }
     this.funds = this.funds - amount;
-    return false;
+    return true;
   }
 
   public boolean isMaxLevel() {

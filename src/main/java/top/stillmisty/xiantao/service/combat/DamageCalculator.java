@@ -77,13 +77,12 @@ public class DamageCalculator {
 
   public int evaluateFormula(String formula, PlayerCombatant pc) {
     try {
-      // 替换顺序：先替换长变量名避免前缀匹配（如 future atk_bonus 会被误替换）
       String expr =
           formula
-              .replace("wis", String.valueOf(pc.getWis()))
-              .replace("str", String.valueOf(pc.getStr()))
-              .replace("agi", String.valueOf(pc.getAgi()))
-              .replace("atk", String.valueOf(pc.getAttack()))
+              .replaceAll("\\bwis\\b", String.valueOf(pc.getWis()))
+              .replaceAll("\\bstr\\b", String.valueOf(pc.getStr()))
+              .replaceAll("\\bagi\\b", String.valueOf(pc.getAgi()))
+              .replaceAll("\\batk\\b", String.valueOf(pc.getAttack()))
               .replaceAll("\\s+", "");
       return evaluateExpression(expr);
     } catch (Exception e) {
@@ -100,10 +99,10 @@ public class DamageCalculator {
   }
 
   int evaluateExpression(String expr) {
-    return new ExprParser(expr).parse();
+    return (int) Math.clamp(new ExprParser(expr).parse(), Integer.MIN_VALUE, Integer.MAX_VALUE);
   }
 
-  /** 递归下降表达式解析器，支持 +, -, *, /, 括号和运算符优先级 */
+  /** 递归下降表达式解析器，支持 +, -, *, /, 括号和运算符优先级，使用 long 防止溢出 */
   private static class ExprParser {
     private final String input;
     private int pos;
@@ -113,16 +112,16 @@ public class DamageCalculator {
       this.pos = 0;
     }
 
-    int parse() {
-      int result = parseAddSub();
+    long parse() {
+      long result = parseAddSub();
       if (pos < input.length()) {
         throw new IllegalArgumentException("Unexpected character: " + input.charAt(pos));
       }
       return result;
     }
 
-    private int parseAddSub() {
-      int left = parseMulDiv();
+    private long parseAddSub() {
+      long left = parseMulDiv();
       while (pos < input.length()) {
         char op = input.charAt(pos);
         if (op == '+') {
@@ -138,8 +137,8 @@ public class DamageCalculator {
       return left;
     }
 
-    private int parseMulDiv() {
-      int left = parseFactor();
+    private long parseMulDiv() {
+      long left = parseFactor();
       while (pos < input.length()) {
         char op = input.charAt(pos);
         if (op == '*') {
@@ -147,7 +146,7 @@ public class DamageCalculator {
           left *= parseFactor();
         } else if (op == '/') {
           pos++;
-          int divisor = parseFactor();
+          long divisor = parseFactor();
           if (divisor == 0) throw new ArithmeticException("Division by zero");
           left /= divisor;
         } else {
@@ -157,14 +156,14 @@ public class DamageCalculator {
       return left;
     }
 
-    private int parseFactor() {
+    private long parseFactor() {
       if (pos >= input.length()) {
         throw new IllegalArgumentException("Unexpected end of expression");
       }
       char c = input.charAt(pos);
       if (c == '(') {
         pos++;
-        int val = parseAddSub();
+        long val = parseAddSub();
         if (pos >= input.length() || input.charAt(pos) != ')') {
           throw new IllegalArgumentException("Missing closing parenthesis");
         }
@@ -178,7 +177,7 @@ public class DamageCalculator {
       if (start == pos) {
         throw new IllegalArgumentException("Expected number at position " + pos);
       }
-      return Integer.parseInt(input.substring(start, pos));
+      return Long.parseLong(input.substring(start, pos));
     }
   }
 }

@@ -8,8 +8,8 @@ import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.fudi.vo.FudiStatusVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
-import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.ai.SpiritChatService;
 import top.stillmisty.xiantao.service.fudi.FudiService;
 
@@ -22,26 +22,22 @@ public class FudiCommandHandler implements CommandGroup {
   private final SpiritChatService spiritChatService;
 
   public String handleFudiStatus(PlatformType platform, String openId, TextFormat fmt) {
-    return switch (fudiService.getFudiStatus(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
-      case ServiceResult.Success(var vo) -> formatFudiStatus(vo, fmt);
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> fudiService.getFudiStatus(platform, openId), fmt, vo -> formatFudiStatus(vo, fmt));
   }
 
   public String handleFudiGrid(PlatformType platform, String openId, TextFormat fmt) {
-    return switch (fudiService.getFudiStatus(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
-      case ServiceResult.Success(var vo) -> formatCellLayout(vo, fmt);
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> fudiService.getFudiStatus(platform, openId), fmt, vo -> formatCellLayout(vo, fmt));
   }
 
   public String handleSpiritChat(
       PlatformType platform, String openId, String userInput, TextFormat fmt) {
     log.info("处理地灵自然语言交互 - platform: {}, input: {}", platform, userInput);
-    return switch (spiritChatService.chatWithSpirit(platform, openId, userInput)) {
-      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
-      case ServiceResult.Success(var response) -> response;
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> spiritChatService.chatWithSpirit(platform, openId, userInput),
+        fmt,
+        response -> response);
   }
 
   private String formatFudiStatus(FudiStatusVO status, TextFormat fmt) {

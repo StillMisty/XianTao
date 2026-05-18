@@ -3,9 +3,9 @@ package top.stillmisty.xiantao.handle.command;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.service.GmService;
-import top.stillmisty.xiantao.service.ServiceResult;
 
 @Component
 @RequiredArgsConstructor
@@ -14,10 +14,8 @@ public class GmCommandHandler {
   private final GmService gmService;
 
   public String handleGmHelp(PlatformType platform, String openId, TextFormat fmt) {
-    return switch (gmService.gmHelp(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
-      case ServiceResult.Success(var text) -> text;
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> gmService.gmHelp(platform, openId), fmt, text -> text);
   }
 
   public String handleGiveSpiritStones(
@@ -32,10 +30,10 @@ public class GmCommandHandler {
     } catch (NumberFormatException e) {
       return "❌ 数量格式错误：" + amountStr;
     }
-    return switch (gmService.giveSpiritStones(platform, openId, targetNickname, amount)) {
-      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
-      case ServiceResult.Success(var text) -> text;
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> gmService.giveSpiritStones(platform, openId, targetNickname, amount),
+        fmt,
+        text -> text);
   }
 
   public String handleGiveExp(
@@ -50,26 +48,20 @@ public class GmCommandHandler {
     } catch (NumberFormatException e) {
       return "❌ 数量格式错误：" + amountStr;
     }
-    return switch (gmService.giveExp(platform, openId, targetNickname, amount)) {
-      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
-      case ServiceResult.Success(var text) -> text;
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> gmService.giveExp(platform, openId, targetNickname, amount), fmt, text -> text);
   }
 
   public String handleHealUser(
       PlatformType platform, String openId, String targetNickname, TextFormat fmt) {
-    return switch (gmService.healUser(platform, openId, targetNickname)) {
-      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
-      case ServiceResult.Success(var text) -> text;
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> gmService.healUser(platform, openId, targetNickname), fmt, text -> text);
   }
 
   public String handleReviveUser(
       PlatformType platform, String openId, String targetNickname, TextFormat fmt) {
-    return switch (gmService.reviveUser(platform, openId, targetNickname)) {
-      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
-      case ServiceResult.Success(var text) -> text;
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> gmService.reviveUser(platform, openId, targetNickname), fmt, text -> text);
   }
 
   public String handleSetLevel(
@@ -84,10 +76,8 @@ public class GmCommandHandler {
     } catch (NumberFormatException e) {
       return "❌ 等级格式错误：" + levelStr;
     }
-    return switch (gmService.setLevel(platform, openId, targetNickname, level)) {
-      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
-      case ServiceResult.Success(var text) -> text;
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> gmService.setLevel(platform, openId, targetNickname, level), fmt, text -> text);
   }
 
   public String handleSetLocation(
@@ -96,10 +86,10 @@ public class GmCommandHandler {
       String targetNickname,
       String locationName,
       TextFormat fmt) {
-    return switch (gmService.setLocation(platform, openId, targetNickname, locationName)) {
-      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
-      case ServiceResult.Success(var text) -> text;
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> gmService.setLocation(platform, openId, targetNickname, locationName),
+        fmt,
+        text -> text);
   }
 
   public String handleGiveItem(
@@ -117,9 +107,10 @@ public class GmCommandHandler {
         return "❌ 数量格式错误：" + quantityStr;
       }
     }
-    return switch (gmService.giveItem(platform, openId, targetNickname, itemName, quantity)) {
-      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
-      case ServiceResult.Success(var text) -> text;
-    };
+    int finalQuantity = quantity;
+    return CommandHandlerHelper.safeCall(
+        () -> gmService.giveItem(platform, openId, targetNickname, itemName, finalQuantity),
+        fmt,
+        text -> text);
   }
 }

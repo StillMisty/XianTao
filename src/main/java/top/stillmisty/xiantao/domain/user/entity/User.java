@@ -219,5 +219,6 @@ public class User extends Model<User> {
     this.activityType = null;
     this.activityStartTime = null;
     this.activityTargetId = null;
+    this.status = UserStatus.IDLE;
   }
 }

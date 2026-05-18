@@ -79,6 +79,9 @@ public class TribulationService {
       fudi.setTribulationWinStreak(0);
     }
 
+    // 先持久化天劫状态，防止并发重复触发
+    fudiRepository.save(fudi);
+
     // 构建防守方队伍（玩家 + 出战灵兽）
     CombatTeam defendingTeam = combatService.buildPlayerTeam(user);
 

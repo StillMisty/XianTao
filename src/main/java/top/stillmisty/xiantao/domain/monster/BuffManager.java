@@ -72,31 +72,34 @@ public class BuffManager {
     return Math.max(0.1, modifier);
   }
 
-  /** 计算速度修正（考虑减速效果） */
+  /** 计算速度修正（考虑减速和加速效果） */
   public double getSpeedModifier(Long combatantId) {
     double modifier = 1.0;
     for (Buff buff : getBuffsByType(combatantId, BuffType.SLOW)) {
       modifier -= buff.getValue();
     }
-    return Math.max(0.1, modifier);
+    for (Buff buff : getBuffsByType(combatantId, BuffType.SPEED_BUFF)) {
+      modifier += buff.getValue();
+    }
+    return Math.max(0.1, Math.min(3.0, modifier));
   }
 
-  /** 计算攻击力修正（考虑增益效果） */
+  /** 计算攻击力修正（考虑增益效果），上限 300% */
   public double getAttackModifier(Long combatantId) {
     double modifier = 1.0;
     for (Buff buff : getBuffsByType(combatantId, BuffType.ATTACK_BUFF)) {
       modifier += buff.getValue();
     }
-    return modifier;
+    return Math.min(4.0, modifier);
   }
 
-  /** 计算防御力修正（考虑增益效果） */
+  /** 计算防御力修正（考虑增益效果），上限 200% */
   public double getDefenseBonusModifier(Long combatantId) {
     double modifier = 1.0;
     for (Buff buff : getBuffsByType(combatantId, BuffType.DEFENSE_BUFF)) {
       modifier += buff.getValue();
     }
-    return modifier;
+    return Math.min(3.0, modifier);
   }
 
   /**

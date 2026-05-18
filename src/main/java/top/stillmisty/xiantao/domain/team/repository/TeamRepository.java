@@ -11,4 +11,8 @@ public interface TeamRepository {
   Team save(Team team);
 
   void deleteById(Long id);
+
+  int incrementMemberCount(Long teamId);
+
+  int decrementMemberCount(Long teamId);
 }

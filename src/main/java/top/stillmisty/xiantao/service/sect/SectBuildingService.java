@@ -101,7 +101,7 @@ public class SectBuildingService {
   @Transactional
   public String buildStructure(Long userId, String buildingTypeCode) {
     SectMember member = requireMember(userId);
-    if (member.getPosition().canManage()) {
+    if (!member.getPosition().canManage()) {
       throw new BusinessException(ErrorCode.SECT_NOT_LEADER);
     }
 
@@ -116,7 +116,7 @@ public class SectBuildingService {
             .findById(member.getSectId())
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_FOUND));
 
-    if (sect.deductFunds(type.getBuildCost())) {
+    if (!sect.deductFunds(type.getBuildCost())) {
       throw new BusinessException(
           ErrorCode.SECT_FUNDS_INSUFFICIENT, type.getBuildCost(), sect.getFunds());
     }
@@ -133,7 +133,7 @@ public class SectBuildingService {
   @Transactional
   public String upgradeBuilding(Long userId, String buildingTypeCode) {
     SectMember member = requireMember(userId);
-    if (member.getPosition().canManage()) {
+    if (!member.getPosition().canManage()) {
       throw new BusinessException(ErrorCode.SECT_NOT_LEADER);
     }
 
@@ -154,7 +154,7 @@ public class SectBuildingService {
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_FOUND));
 
     long cost = type.upgradeCost();
-    if (sect.deductFunds(cost)) {
+    if (!sect.deductFunds(cost)) {
       throw new BusinessException(ErrorCode.SECT_FUNDS_INSUFFICIENT, cost, sect.getFunds());
     }
     sectRepository.save(sect);

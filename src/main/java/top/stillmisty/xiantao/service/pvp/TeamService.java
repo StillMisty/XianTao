@@ -202,8 +202,7 @@ public class TeamService {
     member.setJoinedAt(LocalDateTime.now());
     teamMemberRepository.save(member);
 
-    team.incrementMemberCount();
-    teamRepository.save(team);
+    teamRepository.incrementMemberCount(team.getId());
 
     invitation.accept();
     invitationRepository.save(invitation);
@@ -276,8 +275,7 @@ public class TeamService {
     }
 
     teamMemberRepository.deleteById(member.getId());
-    team.decrementMemberCount();
-    teamRepository.save(team);
+    teamRepository.decrementMemberCount(team.getId());
 
     log.info("玩家 {} 离开队伍 {}", userId, team.getId());
     return "你已离开队伍。";

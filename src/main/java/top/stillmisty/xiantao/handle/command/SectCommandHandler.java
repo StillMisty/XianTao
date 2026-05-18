@@ -6,8 +6,8 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
-import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.ai.SectSpiritChatService;
 import top.stillmisty.xiantao.service.sect.SectMemberService;
 
@@ -19,48 +19,48 @@ public class SectCommandHandler implements CommandGroup {
   private final SectSpiritChatService sectSpiritChatService;
 
   public String handleOverview(PlatformType platform, String openId, TextFormat fmt) {
-    var result = sectMemberService.getSectOverview(platform, openId);
-    return switch (result) {
-      case ServiceResult.Success(var text) -> text;
-      case ServiceResult.Failure(var code, var msg) -> "操作失败: " + msg;
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> sectMemberService.getSectOverview(platform, openId),
+        fmt,
+        text -> text,
+        msg -> "操作失败: " + msg);
   }
 
   public String handleCreate(
       PlatformType platform, String openId, String name, String ethosDesc, TextFormat fmt) {
-    var result =
-        (ethosDesc != null && !ethosDesc.isBlank())
-            ? sectMemberService.createSectWithEthos(platform, openId, name, ethosDesc)
-            : sectMemberService.createSect(platform, openId, name);
-    return switch (result) {
-      case ServiceResult.Success(var text) -> text;
-      case ServiceResult.Failure(var code, var msg) -> "操作失败: " + msg;
-    };
+    return CommandHandlerHelper.safeCall(
+        () ->
+            (ethosDesc != null && !ethosDesc.isBlank())
+                ? sectMemberService.createSectWithEthos(platform, openId, name, ethosDesc)
+                : sectMemberService.createSect(platform, openId, name),
+        fmt,
+        text -> text,
+        msg -> "操作失败: " + msg);
   }
 
   public String handleLeave(PlatformType platform, String openId, TextFormat fmt) {
-    var result = sectMemberService.leaveSect(platform, openId);
-    return switch (result) {
-      case ServiceResult.Success(var text) -> text;
-      case ServiceResult.Failure(var code, var msg) -> "操作失败: " + msg;
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> sectMemberService.leaveSect(platform, openId),
+        fmt,
+        text -> text,
+        msg -> "操作失败: " + msg);
   }
 
   public String handleDismiss(PlatformType platform, String openId, TextFormat fmt) {
-    var result = sectMemberService.dismissSect(platform, openId);
-    return switch (result) {
-      case ServiceResult.Success(var text) -> text;
-      case ServiceResult.Failure(var code, var msg) -> "操作失败: " + msg;
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> sectMemberService.dismissSect(platform, openId),
+        fmt,
+        text -> text,
+        msg -> "操作失败: " + msg);
   }
 
   public String handleSectSpiritChat(
       PlatformType platform, String openId, String userInput, TextFormat fmt) {
-    var result = sectSpiritChatService.chatWithSectSpirit(platform, openId, userInput);
-    return switch (result) {
-      case ServiceResult.Success(var text) -> text;
-      case ServiceResult.Failure(var code, var msg) -> "操作失败: " + msg;
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> sectSpiritChatService.chatWithSectSpirit(platform, openId, userInput),
+        fmt,
+        text -> text,
+        msg -> "操作失败: " + msg);
   }
 
   @Override

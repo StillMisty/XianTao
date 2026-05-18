@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
-import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.pvp.TeamService;
 
 @Slf4j
@@ -19,46 +19,43 @@ public class TeamCommandHandler implements CommandGroup {
   private final TeamService teamService;
 
   public String handleTeamStatus(PlatformType platform, String openId, TextFormat fmt) {
-    var result = teamService.getTeamStatus(platform, openId);
-    return switch (result) {
-      case ServiceResult.Success(var text) -> text;
-      case ServiceResult.Failure(var code, var msg) -> "操作失败: " + msg;
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> teamService.getTeamStatus(platform, openId),
+        fmt,
+        text -> text,
+        msg -> "操作失败: " + msg);
   }
 
   public String handleInvite(
       PlatformType platform, String openId, String targetNickname, TextFormat fmt) {
-    var result = teamService.invitePlayer(platform, openId, targetNickname);
-    return switch (result) {
-      case ServiceResult.Success(var text) -> text;
-      case ServiceResult.Failure(var code, var msg) -> "操作失败: " + msg;
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> teamService.invitePlayer(platform, openId, targetNickname),
+        fmt,
+        text -> text,
+        msg -> "操作失败: " + msg);
   }
 
   public String handleAccept(
       PlatformType platform, String openId, String invitationId, TextFormat fmt) {
-    var result = teamService.acceptInvitation(platform, openId, invitationId);
-    return switch (result) {
-      case ServiceResult.Success(var text) -> text;
-      case ServiceResult.Failure(var code, var msg) -> "操作失败: " + msg;
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> teamService.acceptInvitation(platform, openId, invitationId),
+        fmt,
+        text -> text,
+        msg -> "操作失败: " + msg);
   }
 
   public String handleReject(
       PlatformType platform, String openId, String invitationId, TextFormat fmt) {
-    var result = teamService.rejectInvitation(platform, openId, invitationId);
-    return switch (result) {
-      case ServiceResult.Success(var text) -> text;
-      case ServiceResult.Failure(var code, var msg) -> "操作失败: " + msg;
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> teamService.rejectInvitation(platform, openId, invitationId),
+        fmt,
+        text -> text,
+        msg -> "操作失败: " + msg);
   }
 
   public String handleLeave(PlatformType platform, String openId, TextFormat fmt) {
-    var result = teamService.leaveTeam(platform, openId);
-    return switch (result) {
-      case ServiceResult.Success(var text) -> text;
-      case ServiceResult.Failure(var code, var msg) -> "操作失败: " + msg;
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> teamService.leaveTeam(platform, openId), fmt, text -> text, msg -> "操作失败: " + msg);
   }
 
   @Override

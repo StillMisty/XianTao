@@ -6,8 +6,8 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
-import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.pvp.PvpService;
 
 @Component
@@ -18,10 +18,8 @@ public class PvpCommandHandler implements CommandGroup {
 
   public String handleSpar(
       PlatformType platform, String openId, String targetNickname, TextFormat fmt) {
-    return switch (pvpService.spar(platform, openId, targetNickname)) {
-      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
-      case ServiceResult.Success(var msg) -> msg;
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> pvpService.spar(platform, openId, targetNickname), fmt, msg -> msg);
   }
 
   @Override

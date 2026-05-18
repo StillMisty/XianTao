@@ -10,8 +10,8 @@ import top.stillmisty.xiantao.domain.dungeon.vo.DropItemVO;
 import top.stillmisty.xiantao.domain.dungeon.vo.DungeonListVO;
 import top.stillmisty.xiantao.domain.dungeon.vo.ExploreResultVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
-import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.dungeon.DungeonService;
 
 @Slf4j
@@ -25,43 +25,35 @@ public class DungeonCommandHandler implements CommandGroup {
 
   public String handleDungeon(PlatformType platform, String openId, TextFormat fmt) {
     log.debug("处理秘境列表 - Platform: {}, OpenId: {}", platform, openId);
-    return switch (dungeonService.listDungeons(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
-      case ServiceResult.Success(var vo) -> formatDungeonList(vo, fmt);
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> dungeonService.listDungeons(platform, openId), fmt, vo -> formatDungeonList(vo, fmt));
   }
 
   public String handleDungeonEnter(
       PlatformType platform, String openId, String dungeonName, TextFormat fmt) {
     log.debug("处理进入秘境 - Platform: {}, OpenId: {}, Dungeon: {}", platform, openId, dungeonName);
-    return switch (dungeonService.enterDungeon(platform, openId, dungeonName)) {
-      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
-      case ServiceResult.Success(var msg) -> msg;
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> dungeonService.enterDungeon(platform, openId, dungeonName), fmt, msg -> msg);
   }
 
   public String handleDungeonExplore(PlatformType platform, String openId, TextFormat fmt) {
     log.debug("处理秘境探索 - Platform: {}, OpenId: {}", platform, openId);
-    return switch (dungeonService.exploreDungeon(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
-      case ServiceResult.Success(var vo) -> formatExploreResult(vo, fmt);
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> dungeonService.exploreDungeon(platform, openId),
+        fmt,
+        vo -> formatExploreResult(vo, fmt));
   }
 
   public String handleDungeonContinue(PlatformType platform, String openId, TextFormat fmt) {
     log.debug("处理秘境继续 - Platform: {}, OpenId: {}", platform, openId);
-    return switch (dungeonService.continueDungeon(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
-      case ServiceResult.Success(var msg) -> msg;
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> dungeonService.continueDungeon(platform, openId), fmt, msg -> msg);
   }
 
   public String handleDungeonRetreat(PlatformType platform, String openId, TextFormat fmt) {
     log.debug("处理秘境撤退 - Platform: {}, OpenId: {}", platform, openId);
-    return switch (dungeonService.retreatDungeon(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
-      case ServiceResult.Success(var msg) -> msg;
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> dungeonService.retreatDungeon(platform, openId), fmt, msg -> msg);
   }
 
   // ===================== 格式化方法 =====================

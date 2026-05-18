@@ -8,9 +8,9 @@ import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.vo.LeaderboardVO;
+import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.service.LeaderboardService;
-import top.stillmisty.xiantao.service.ServiceResult;
 
 @Component
 @RequiredArgsConstructor
@@ -19,17 +19,17 @@ public class LeaderboardCommandHandler implements CommandGroup {
   private final LeaderboardService leaderboardService;
 
   public String handleLevelLeaderboard(PlatformType platform, String openId, TextFormat fmt) {
-    return switch (leaderboardService.getLevelLeaderboard(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
-      case ServiceResult.Success(var vo) -> formatLeaderboard(vo);
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> leaderboardService.getLevelLeaderboard(platform, openId),
+        fmt,
+        this::formatLeaderboard);
   }
 
   public String handleSpiritStoneLeaderboard(PlatformType platform, String openId, TextFormat fmt) {
-    return switch (leaderboardService.getSpiritStoneLeaderboard(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
-      case ServiceResult.Success(var vo) -> formatLeaderboard(vo);
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> leaderboardService.getSpiritStoneLeaderboard(platform, openId),
+        fmt,
+        this::formatLeaderboard);
   }
 
   private String formatLeaderboard(LeaderboardVO vo) {

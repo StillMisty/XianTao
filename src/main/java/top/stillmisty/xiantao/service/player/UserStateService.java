@@ -30,9 +30,9 @@ public class UserStateService {
   private final GameEventService gameEventService;
   private final TravelCompleter travelCompleter;
 
-  /** 加载用户并自动解析过期状态。 */
+  /** 加载用户并自动解析过期状态。使用行锁防止并发状态更新。 */
   public User loadUser(Long userId) {
-    User user = userRepository.findById(userId).orElseThrow();
+    User user = userRepository.findByIdForUpdate(userId).orElseThrow();
     resolveState(user);
     return user;
   }

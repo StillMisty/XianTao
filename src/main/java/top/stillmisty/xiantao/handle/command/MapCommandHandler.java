@@ -27,8 +27,10 @@ import top.stillmisty.xiantao.domain.map.vo.MapInfoVO;
 import top.stillmisty.xiantao.domain.map.vo.TrainingRewardVO;
 import top.stillmisty.xiantao.domain.map.vo.TravelResultVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.infrastructure.util.FormatUtils;
+import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.bounty.BountyService;
 import top.stillmisty.xiantao.service.combat.TrainingService;
@@ -51,91 +53,83 @@ public class MapCommandHandler implements CommandGroup {
 
   public String handleGoTo(PlatformType platform, String openId, String mapName, TextFormat fmt) {
     log.debug("处理前往请求 - Platform: {}, OpenId: {}, MapName: {}", platform, openId, mapName);
-    return switch (travelService.startTravel(platform, openId, mapName)) {
-      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
-      case ServiceResult.Success(var vo) ->
-          vo.isSuccess() ? formatTravelResult(vo, fmt) : vo.getMessage();
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> travelService.startTravel(platform, openId, mapName),
+        fmt,
+        vo -> vo.isSuccess() ? formatTravelResult(vo, fmt) : vo.getMessage());
   }
 
   public String handleTraining(PlatformType platform, String openId, TextFormat fmt) {
     log.debug("处理历练请求 - Platform: {}, OpenId: {}", platform, openId);
-    return switch (trainingService.startTraining(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
-      case ServiceResult.Success(var vo) ->
-          vo.isSuccess()
-              ? String.format("开始在%s历练，使用「历练结算」结算收益。", vo.getMapName())
-              : vo.getMessage();
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> trainingService.startTraining(platform, openId),
+        fmt,
+        vo ->
+            vo.isSuccess()
+                ? String.format("开始在%s历练，使用「历练结算」结算收益。", vo.getMapName())
+                : vo.getMessage());
   }
 
   public String handleEndTraining(PlatformType platform, String openId, TextFormat fmt) {
     log.debug("处理结束历练请求 - Platform: {}, OpenId: {}", platform, openId);
-    return switch (trainingService.endTraining(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
-      case ServiceResult.Success(var vo) -> formatTrainingReward(vo, fmt);
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> trainingService.endTraining(platform, openId),
+        fmt,
+        vo -> formatTrainingReward(vo, fmt));
   }
 
   public String handleMap(PlatformType platform, String openId, TextFormat fmt) {
     log.debug("处理地图查询 - Platform: {}, OpenId: {}", platform, openId);
-    var currentResult = mapService.getCurrentMapInfo(platform, openId);
-    var listResult = mapService.getAllMaps(platform, openId);
-
-    StringBuilder sb = new StringBuilder();
-    switch (currentResult) {
-      case ServiceResult.Failure(var code, var msg) -> sb.append("❌ ").append(msg).append("\n");
-      case ServiceResult.Success(var vo) -> sb.append(formatCurrentMap(vo, fmt)).append("\n");
-    }
-    sb.append(fmt.separator());
-    switch (listResult) {
-      case ServiceResult.Failure(var code, var msg) -> sb.append("❌ ").append(msg);
-      case ServiceResult.Success(var vo) ->
-          sb.append(vo.isEmpty() ? "暂无可用地图" : formatMapList(vo, fmt));
-    }
-    return sb.toString();
+    var currentPart =
+        CommandHandlerHelper.safeCall(
+            () -> mapService.getCurrentMapInfo(platform, openId),
+            fmt,
+            vo -> formatCurrentMap(vo, fmt),
+            msg -> "❌ " + msg);
+    var listPart =
+        CommandHandlerHelper.safeCall(
+            () -> mapService.getAllMaps(platform, openId),
+            fmt,
+            vo -> vo.isEmpty() ? "暂无可用地图" : formatMapList(vo, fmt),
+            msg -> "❌ " + msg);
+    return currentPart + fmt.separator() + listPart;
   }
 
   // ===================== 悬赏统一处理方法 =====================
 
   public String handleBounty(PlatformType platform, String openId, TextFormat fmt) {
     log.debug("处理悬赏 - Platform: {}, OpenId: {}", platform, openId);
-    return switch (bountyService.getBountyStatus(platform, openId)) {
-      case ServiceResult.Success(var vo) -> formatBountyStatus(vo, fmt);
-      case ServiceResult.Failure(var code, var msg) -> {
-        // 无进行中悬赏，显示可接列表
-        var listResult = bountyService.listBounties(platform, openId);
-        yield switch (listResult) {
-          case ServiceResult.Failure(var listCode, var listMsg) -> fmt.error(listMsg);
-          case ServiceResult.Success(var vo) -> formatBountyList(vo, fmt);
-        };
+    try {
+      var statusResult = bountyService.getBountyStatus(platform, openId);
+      if (statusResult instanceof ServiceResult.Success(var vo)) {
+        return formatBountyStatus(vo, fmt);
       }
-    };
+      return CommandHandlerHelper.safeCall(
+          () -> bountyService.listBounties(platform, openId), fmt, vo -> formatBountyList(vo, fmt));
+    } catch (BusinessException e) {
+      return fmt.error(e.getMessage());
+    }
   }
 
   public String handleStartBounty(
       PlatformType platform, String openId, String bountyId, TextFormat fmt) {
     log.debug("处理接取悬赏 - Platform: {}, OpenId: {}, BountyId: {}", platform, openId, bountyId);
-    return switch (bountyService.startBounty(platform, openId, bountyId)) {
-      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
-      case ServiceResult.Success(var msg) -> msg;
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> bountyService.startBounty(platform, openId, bountyId), fmt, msg -> msg);
   }
 
   public String handleCompleteBounty(PlatformType platform, String openId, TextFormat fmt) {
     log.debug("处理完成悬赏 - Platform: {}, OpenId: {}", platform, openId);
-    return switch (bountyService.completeBounty(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
-      case ServiceResult.Success(var vo) -> formatBountyReward(vo, fmt);
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> bountyService.completeBounty(platform, openId),
+        fmt,
+        vo -> formatBountyReward(vo, fmt));
   }
 
   public String handleAbandonBounty(PlatformType platform, String openId, TextFormat fmt) {
     log.debug("处理放弃悬赏 - Platform: {}, OpenId: {}", platform, openId);
-    return switch (bountyService.abandonBounty(platform, openId)) {
-      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
-      case ServiceResult.Success(var msg) -> msg;
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> bountyService.abandonBounty(platform, openId), fmt, msg -> msg);
   }
 
   // ===================== 格式化方法 =====================

@@ -33,11 +33,17 @@ public class BeastMutationService {
       traits = new ArrayList<>();
     }
     if (traits.size() >= 2) return;
-    String newTrait = rollRandomTrait();
-    if (!traits.contains(newTrait)) {
-      traits.add(newTrait);
-      beast.setMutationTraits(traits);
-      beast.setIsMutant(true);
+    List<String> availableTraits = new ArrayList<>();
+    for (MutationTrait trait : MutationTrait.values()) {
+      if (!traits.contains(trait.getCode())) {
+        availableTraits.add(trait.getCode());
+      }
     }
+    if (availableTraits.isEmpty()) return;
+    String newTrait =
+        availableTraits.get(ThreadLocalRandom.current().nextInt(availableTraits.size()));
+    traits.add(newTrait);
+    beast.setMutationTraits(traits);
+    beast.setIsMutant(true);
   }
 }

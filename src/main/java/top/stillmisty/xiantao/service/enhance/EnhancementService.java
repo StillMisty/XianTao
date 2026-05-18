@@ -117,7 +117,7 @@ public class EnhancementService {
     }
 
     int stoneCost = core.calculateSpiritStoneCost(equipment.getRarity(), targetLevel);
-    int balance = spiritStoneService.getBalance(userId);
+    long balance = spiritStoneService.getBalance(userId);
     if (balance < stoneCost) {
       throw new BusinessException(ErrorCode.SPIRIT_STONES_INSUFFICIENT, stoneCost, balance);
     }

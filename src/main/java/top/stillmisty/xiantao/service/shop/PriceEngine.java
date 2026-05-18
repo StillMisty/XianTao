@@ -65,7 +65,9 @@ public class PriceEngine {
   }
 
   public long getMaxPrice(long basePrice) {
-    return (long) (basePrice * 1.2);
+    if (basePrice <= 0) return 1;
+    long result = (long) (basePrice * 1.2);
+    return Math.max(1, result);
   }
 
   private double calculateEquipmentMultiplier(Equipment equipment) {

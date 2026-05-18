@@ -101,6 +101,11 @@ public class BeastProductionService {
     if (intervalSeconds <= 0) intervalSeconds = 14400;
 
     long elapsed = java.time.Duration.between(lastProduction, now).getSeconds();
+    if (elapsed < 0) {
+      log.warn(
+          "Beast production clock skew detected: lastProduction={}, now={}", lastProduction, now);
+      return;
+    }
     int cycles = (int) (elapsed / intervalSeconds);
     if (cycles <= 0) return;
 

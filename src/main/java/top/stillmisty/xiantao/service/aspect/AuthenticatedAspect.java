@@ -63,15 +63,12 @@ public class AuthenticatedAspect {
                   throw new RuntimeException(e);
                 }
               });
+    } catch (BusinessException e) {
+      log.warn("Business exception for userId={}: {}", userId, e.getMessage());
+      throw e;
     } catch (RuntimeException e) {
-      log.error("Service exception for userId={}: {}", userId, e.getMessage(), e);
-      String message =
-          e instanceof IllegalStateException
-                  || e instanceof IllegalArgumentException
-                  || e instanceof BusinessException
-              ? e.getMessage()
-              : "系统繁忙，请稍后再试";
-      return ServiceResult.businessFailure(message);
+      log.error("Unexpected service exception for userId={}: {}", userId, e.getMessage(), e);
+      return ServiceResult.businessFailure("系统繁忙，请稍后再试");
     }
   }
 }

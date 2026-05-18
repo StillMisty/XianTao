@@ -24,8 +24,12 @@ public class PostCombatProcessor {
 
   public void applyHpToUser(User user, CombatTeam team) {
     for (Combatant c : team.members()) {
-      if (c instanceof PlayerCombatant) {
-        user.setHpCurrent(c.getHp());
+      if (c instanceof PlayerCombatant pc && pc.getId().equals(user.getId())) {
+        user.setHpCurrent(Math.max(0, c.getHp()));
+        if (c.getHp() <= 0) {
+          user.setDying();
+        }
+        break;
       }
     }
   }

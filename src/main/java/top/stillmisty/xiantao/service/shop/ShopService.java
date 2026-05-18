@@ -101,6 +101,9 @@ public class ShopService {
   }
 
   public PurchaseResult purchaseItem(Long userId, ShopNpc npc, Long templateId, int quantity) {
+    if (quantity <= 0) {
+      throw new BusinessException(ErrorCode.PARAM_INVALID, "数量必须大于0");
+    }
     ShopProduct product =
         shopProductRepository
             .findByShopNpcIdAndTemplateId(npc.getId(), templateId)
@@ -300,10 +303,9 @@ public class ShopService {
     }
 
     String equipmentName = equipment.getName();
-    equipmentRepository.deleteById(equipment.getId());
 
-    User user = userStateService.loadUser(userId);
     userRepository.addSpiritStonesAtomically(userId, confirmedPrice);
+    equipmentRepository.deleteById(equipment.getId());
 
     return new SellResult(
         true,

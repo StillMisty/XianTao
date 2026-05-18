@@ -99,7 +99,8 @@ public class DefaultCombatEngine implements CombatEngine {
                 damageDealt,
                 buffManager,
                 round,
-                sequence);
+                sequence,
+                defenderTeam);
         combatLog.add(logEntry);
 
         if (defenderTeam.isAllDead()) break;
@@ -177,7 +178,8 @@ public class DefaultCombatEngine implements CombatEngine {
       Map<String, Integer> damageDealt,
       BuffManager buffManager,
       int round,
-      int sequence) {
+      int sequence,
+      CombatTeam defenderTeam) {
     int hpBefore = defender.getHp();
     int damage = 0;
     boolean isControl = false;
@@ -185,8 +187,9 @@ public class DefaultCombatEngine implements CombatEngine {
     String skillName = null;
 
     if (selectedSkill != null) {
-      double attackSpeed = attacker.getAttackSpeed();
-      int cooldownTicks = (int) Math.max(1, selectedSkill.getCooldownSeconds() / attackSpeed);
+      double attackSpeed = Math.max(0.01, attacker.getAttackSpeed());
+      Integer cdSeconds = selectedSkill.getCooldownSeconds();
+      int cooldownTicks = cdSeconds != null ? (int) Math.max(1, cdSeconds / attackSpeed) : 1;
       skillCooldowns.put(skillKey(attacker, selectedSkill), cooldownTicks);
       skillProcs.merge(attacker.getName() + ":" + selectedSkill.getName(), 1, Integer::sum);
       skillName = selectedSkill.getName();
@@ -201,6 +204,18 @@ public class DefaultCombatEngine implements CombatEngine {
             case DAMAGE ->
                 damage +=
                     damageCalculator.calculateEffectDamage(attacker, defender, effect, buffManager);
+            case AOE_DAMAGE -> {
+              int aoeBase =
+                  damageCalculator.calculateEffectDamage(attacker, defender, effect, buffManager);
+              damage += aoeBase;
+              for (Combatant other : defenderTeam.members()) {
+                if (other != defender && other.isAlive()) {
+                  int aoeDmg = (int) (aoeBase * 0.6);
+                  other.takeDamage(aoeDmg);
+                  damageDealt.merge(attacker.getName(), aoeDmg, Integer::sum);
+                }
+              }
+            }
             case MULTI_HIT ->
                 damage +=
                     damageCalculator.calculateEffectDamage(attacker, defender, effect, buffManager)
@@ -230,7 +245,7 @@ public class DefaultCombatEngine implements CombatEngine {
             }
             case HEAL -> {
               double ratio = effect.value() != null ? effect.value() : 0.5;
-              attacker.heal((int) (attacker.getAttack() * ratio));
+              attacker.heal((int) (attacker.getMaxHp() * ratio));
               isBuff = true;
             }
             case ATTACK_BUFF -> {

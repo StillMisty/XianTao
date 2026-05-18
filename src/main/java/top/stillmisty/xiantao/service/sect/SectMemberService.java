@@ -591,7 +591,7 @@ public class SectMemberService {
           default -> Long.MAX_VALUE;
         };
 
-    if (sect.deductFunds(cost)) {
+    if (!sect.deductFunds(cost)) {
       throw new BusinessException(ErrorCode.SECT_FUNDS_INSUFFICIENT, cost, sect.getFunds());
     }
 
@@ -626,7 +626,7 @@ public class SectMemberService {
     int slots = 5;
     long cost = slots * 500L;
 
-    if (sect.deductFunds(cost)) {
+    if (!sect.deductFunds(cost)) {
       throw new BusinessException(ErrorCode.SECT_FUNDS_INSUFFICIENT, cost, sect.getFunds());
     }
 

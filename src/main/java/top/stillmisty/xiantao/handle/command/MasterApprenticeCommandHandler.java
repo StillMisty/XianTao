@@ -6,8 +6,8 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
-import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.masterapprentice.MasterApprenticeService;
 
 @Component
@@ -18,45 +18,45 @@ public class MasterApprenticeCommandHandler implements CommandGroup {
 
   public String handleRequestMentor(
       PlatformType platform, String openId, String targetNickname, TextFormat fmt) {
-    var result = masterApprenticeService.requestMentor(platform, openId, targetNickname);
-    return switch (result) {
-      case ServiceResult.Success(var text) -> text;
-      case ServiceResult.Failure(var code, var msg) -> "操作失败: " + msg;
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> masterApprenticeService.requestMentor(platform, openId, targetNickname),
+        fmt,
+        text -> text,
+        msg -> "操作失败: " + msg);
   }
 
   public String handleRequestApprentice(
       PlatformType platform, String openId, String targetNickname, TextFormat fmt) {
-    var result = masterApprenticeService.requestApprentice(platform, openId, targetNickname);
-    return switch (result) {
-      case ServiceResult.Success(var text) -> text;
-      case ServiceResult.Failure(var code, var msg) -> "操作失败: " + msg;
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> masterApprenticeService.requestApprentice(platform, openId, targetNickname),
+        fmt,
+        text -> text,
+        msg -> "操作失败: " + msg);
   }
 
   public String handleStatus(PlatformType platform, String openId, TextFormat fmt) {
-    var result = masterApprenticeService.getStatus(platform, openId);
-    return switch (result) {
-      case ServiceResult.Success(var info) -> formatStatus(info, fmt);
-      case ServiceResult.Failure(var code, var msg) -> "操作失败: " + msg;
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> masterApprenticeService.getStatus(platform, openId),
+        fmt,
+        info -> formatStatus(info, fmt),
+        msg -> "操作失败: " + msg);
   }
 
   public String handleDismiss(
       PlatformType platform, String openId, String targetNickname, TextFormat fmt) {
-    var result = masterApprenticeService.dismissApprentice(platform, openId, targetNickname);
-    return switch (result) {
-      case ServiceResult.Success(var text) -> text;
-      case ServiceResult.Failure(var code, var msg) -> "操作失败: " + msg;
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> masterApprenticeService.dismissApprentice(platform, openId, targetNickname),
+        fmt,
+        text -> text,
+        msg -> "操作失败: " + msg);
   }
 
   public String handleRenounce(PlatformType platform, String openId, TextFormat fmt) {
-    var result = masterApprenticeService.renounceMaster(platform, openId);
-    return switch (result) {
-      case ServiceResult.Success(var text) -> text;
-      case ServiceResult.Failure(var code, var msg) -> "操作失败: " + msg;
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> masterApprenticeService.renounceMaster(platform, openId),
+        fmt,
+        text -> text,
+        msg -> "操作失败: " + msg);
   }
 
   private String formatStatus(

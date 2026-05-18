@@ -207,7 +207,10 @@ public enum ErrorCode {
   MASTER_APPRENTICE_HAS_MASTER("该玩家已有师门"),
 
   // ===== Context =====
-  USER_CONTEXT_MISSING("未找到用户上下文，请先设置 UserContext");
+  USER_CONTEXT_MISSING("未找到用户上下文，请先设置 UserContext"),
+
+  // ===== General =====
+  PARAM_INVALID("参数无效：%s");
 
   private final String template;
 

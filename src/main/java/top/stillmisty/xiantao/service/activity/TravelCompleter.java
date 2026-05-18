@@ -57,6 +57,9 @@ public class TravelCompleter {
       case "AMBUSH" -> {
         int damage = getIntParam(params, "damage", 10, 30);
         user.takeDamage(damage);
+        if (user.getHpCurrent() <= 0) {
+          user.setDying();
+        }
         Map<String, Object> args = Map.of("damage", damage, "hpCurrent", user.getHpCurrent());
         gameEventService.createEvent(
             userId,
@@ -113,8 +116,39 @@ public class TravelCompleter {
   }
 
   private boolean checkTriggerConditions(ActivityEvent event, User user) {
-    // Stub: individual checks can be extended later
+    Map<String, Object> params = event.getParams();
+    if (params == null) return true;
+
+    if (params.containsKey("HAS_SKILL")) {
+      // TODO: check user has skill
+    }
+    if (params.containsKey("STAT_THRESHOLD")) {
+      String statExpr = (String) params.get("STAT_THRESHOLD");
+      if (statExpr != null && !checkStatThreshold(statExpr, user)) return false;
+    }
+    if (params.containsKey("HAS_ITEM")) {
+      // TODO: check user has item
+    }
     return true;
+  }
+
+  private boolean checkStatThreshold(String expr, User user) {
+    String[] parts = expr.split(">=");
+    if (parts.length != 2) return true;
+    String stat = parts[0].trim();
+    int threshold;
+    try {
+      threshold = Integer.parseInt(parts[1].trim());
+    } catch (NumberFormatException e) {
+      return true;
+    }
+    return switch (stat) {
+      case "STR" -> user.getEffectiveStatStr() >= threshold;
+      case "CON" -> user.getEffectiveStatCon() >= threshold;
+      case "AGI" -> user.getEffectiveStatAgi() >= threshold;
+      case "WIS" -> user.getEffectiveStatWis() >= threshold;
+      default -> true;
+    };
   }
 
   private int getIntParam(Map<String, Object> params, String key, int min, int max) {

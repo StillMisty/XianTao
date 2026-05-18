@@ -43,3 +43,6 @@ CREATE TABLE xt_user
     CONSTRAINT chk_user_stat_wis CHECK (stat_wis >= 0),
     CONSTRAINT fk_user_location FOREIGN KEY (location_id) REFERENCES xt_map_node (id)
 );
+
+CREATE INDEX idx_xt_user_status ON xt_user (status);
+CREATE INDEX idx_xt_user_location ON xt_user (location_id);

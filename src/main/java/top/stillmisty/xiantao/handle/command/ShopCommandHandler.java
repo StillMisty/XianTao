@@ -6,8 +6,8 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
-import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.ai.ShopChatService;
 import top.stillmisty.xiantao.service.shop.ShopService;
 
@@ -37,10 +37,11 @@ public class ShopCommandHandler implements CommandGroup {
 
   public String handleShopkeeper(
       PlatformType platform, String openId, String userInput, TextFormat fmt) {
-    return switch (shopChatService.chatWithShopkeeper(platform, openId, userInput)) {
-      case ServiceResult.Failure(var code, var msg) -> fmt.bold("掌柜") + " " + msg;
-      case ServiceResult.Success(var msg) -> msg;
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> shopChatService.chatWithShopkeeper(platform, openId, userInput),
+        fmt,
+        msg -> msg,
+        msg -> fmt.bold("掌柜") + " " + msg);
   }
 
   public String handleQuickSell(

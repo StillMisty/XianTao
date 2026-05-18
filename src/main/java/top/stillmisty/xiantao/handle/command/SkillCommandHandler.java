@@ -9,8 +9,8 @@ import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.skill.vo.SkillSlotResult;
 import top.stillmisty.xiantao.domain.skill.vo.SkillVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
-import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.skill.SkillService;
 
 @Slf4j
@@ -24,38 +24,37 @@ public class SkillCommandHandler implements CommandGroup {
 
   public String handleSkills(PlatformType platform, String openId, TextFormat fmt) {
     log.debug("查询法决 - Platform: {}, OpenId: {}", platform, openId);
-    var equipped = skillService.getEquippedSkills(platform, openId);
-    var learned = skillService.getLearnedSkills(platform, openId);
-
-    StringBuilder sb = new StringBuilder();
-    switch (equipped) {
-      case ServiceResult.Failure(var code, var msg) -> sb.append("❌ ").append(msg);
-      case ServiceResult.Success(var skills) -> sb.append(formatEquippedSkills(skills, fmt));
-    }
-    sb.append("\n\n");
-    switch (learned) {
-      case ServiceResult.Failure(var code, var msg) -> sb.append("❌ ").append(msg);
-      case ServiceResult.Success(var skills) -> sb.append(formatLearnedSkills(skills, fmt));
-    }
-    return sb.toString();
+    var equippedPart =
+        CommandHandlerHelper.safeCall(
+            () -> skillService.getEquippedSkills(platform, openId),
+            fmt,
+            skills -> formatEquippedSkills(skills, fmt),
+            msg -> "❌ " + msg);
+    var learnedPart =
+        CommandHandlerHelper.safeCall(
+            () -> skillService.getLearnedSkills(platform, openId),
+            fmt,
+            skills -> formatLearnedSkills(skills, fmt),
+            msg -> "❌ " + msg);
+    return equippedPart + "\n\n" + learnedPart;
   }
 
   public String handleEquipSkill(
       PlatformType platform, String openId, String skillInput, TextFormat fmt) {
     log.debug("装载法决 - Platform: {}, OpenId: {}, SkillInput: {}", platform, openId, skillInput);
-    return switch (skillService.equipSkill(platform, openId, skillInput)) {
-      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
-      case ServiceResult.Success(var result) -> formatSkillSlotResult(result, fmt);
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> skillService.equipSkill(platform, openId, skillInput),
+        fmt,
+        result -> formatSkillSlotResult(result, fmt));
   }
 
   public String handleUnequipSkill(
       PlatformType platform, String openId, String skillInput, TextFormat fmt) {
     log.debug("卸下法决 - Platform: {}, OpenId: {}, SkillInput: {}", platform, openId, skillInput);
-    return switch (skillService.unequipSkill(platform, openId, skillInput)) {
-      case ServiceResult.Failure(var code, var msg) -> fmt.error(msg);
-      case ServiceResult.Success(var result) -> formatSkillSlotResult(result, fmt);
-    };
+    return CommandHandlerHelper.safeCall(
+        () -> skillService.unequipSkill(platform, openId, skillInput),
+        fmt,
+        result -> formatSkillSlotResult(result, fmt));
   }
 
   // ===================== 统一格式化方法 =====================

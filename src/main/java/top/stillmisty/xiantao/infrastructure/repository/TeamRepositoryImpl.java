@@ -44,4 +44,14 @@ public class TeamRepositoryImpl implements TeamRepository {
   public void deleteById(Long id) {
     mapper.deleteById(id);
   }
+
+  @Override
+  public int incrementMemberCount(Long teamId) {
+    return mapper.incrementMemberCount(teamId);
+  }
+
+  @Override
+  public int decrementMemberCount(Long teamId) {
+    return mapper.decrementMemberCount(teamId);
+  }
 }
