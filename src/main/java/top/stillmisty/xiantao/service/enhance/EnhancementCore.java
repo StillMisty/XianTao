@@ -128,9 +128,9 @@ public class EnhancementCore {
       int min = entry.getValue().min();
       int max = entry.getValue().max() == 0 ? Integer.MAX_VALUE : entry.getValue().max();
       int current = attributeTotals.getOrDefault(attr, 0);
-      if (current < min || current > max) return false;
+      if (current < min || current > max) return true;
     }
-    return true;
+    return false;
   }
 
   EnhanceResultVO applyEnhanceSuccess(

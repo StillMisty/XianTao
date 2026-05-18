@@ -71,8 +71,9 @@ public class TravelCompleter {
         gameEventService.createEvent(
             userId, GameEventCategory.TRAVEL_EVENT, "你途经一处遗迹，意外发现了 {{spiritStones}} 灵石。", args);
       }
-      case "WEATHER" -> gameEventService.createEvent(
-          userId, GameEventCategory.TRAVEL_EVENT, "你遭遇了恶劣天气，艰难穿过才得以继续前行。", Map.of());
+      case "WEATHER" ->
+          gameEventService.createEvent(
+              userId, GameEventCategory.TRAVEL_EVENT, "你遭遇了恶劣天气，艰难穿过才得以继续前行。", Map.of());
       case "ENLIGHTENMENT" -> {
         long exp = getLongParam(params, "exp", 15, 50);
         user.addExp(exp);

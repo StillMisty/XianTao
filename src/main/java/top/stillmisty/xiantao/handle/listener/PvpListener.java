@@ -26,7 +26,7 @@ public class PvpListener {
   @ContentTrim
   @Filter("切磋 {{targetNickname}}")
   public void spar(OneBotMessageEvent event, @FilterValue("targetNickname") String targetNickname) {
-    log.debug("收到切磋请求 - AuthorId: {}, Target: {}", event.getAuthorId(), targetNickname);
+    log.debug("[OneBot] 收到切磋请求 - AuthorId: {}, Target: {}", event.getAuthorId(), targetNickname);
     String response =
         pvpCommandHandler.handleSpar(
             PlatformType.ONE_BOT_V11,
@@ -43,7 +43,7 @@ public class PvpListener {
   @Filter("切磋 {{targetNickname}}")
   public void sparQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("targetNickname") String targetNickname) {
-    log.debug("收到切磋请求 - AuthorId: {}, Target: {}", event.getAuthorId(), targetNickname);
+    log.debug("[QQ] 收到切磋请求 - AuthorId: {}, Target: {}", event.getAuthorId(), targetNickname);
     String response =
         pvpCommandHandler.handleSpar(
             PlatformType.QQ, event.getAuthorId().toString(), targetNickname, TextFormat.MARKDOWN);

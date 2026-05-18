@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +40,8 @@ public class MasterApprenticeService {
   private final UserRepository userRepository;
   private final UserStateService userStateService;
   @Lazy private final SectMemberService sectMemberService;
+
+  @Lazy @Autowired private MasterApprenticeService self;
 
   public MasterApprenticeService(
       MasterApprenticeRepository masterApprenticeRepository,
@@ -109,7 +112,7 @@ public class MasterApprenticeService {
         .orElse(false)) {
       throw new BusinessException(ErrorCode.MASTER_ALREADY_HAS);
     }
-    if (!isLevelGapSufficient(master.getLevel(), apprentice.getLevel())) {
+    if (isLevelGapSufficient(master.getLevel(), apprentice.getLevel())) {
       throw new BusinessException(ErrorCode.MASTER_LEVEL_INSUFFICIENT);
     }
     if (masterApprenticeRepository.countActiveByMasterId(master.getId()) >= MAX_APPRENTICE_COUNT) {
@@ -118,11 +121,11 @@ public class MasterApprenticeService {
     if (isOnCooldown(userId)) {
       throw new BusinessException(ErrorCode.MASTER_COOLDOWN, COOLDOWN_HOURS);
     }
-    if (!sectMemberService.isInSameSect(userId, master.getId())) {
+    if (sectMemberService.isInSameSect(userId, master.getId())) {
       throw new BusinessException(ErrorCode.MASTER_NOT_SAME_SECT);
     }
 
-    establishMasterApprentice(master.getId(), userId);
+    self.establishMasterApprentice(master.getId(), userId);
 
     log.info("玩家 {} 拜师 {}", userId, master.getId());
     return "已拜【" + targetNickname + "】为师！护道关系已自动建立。";
@@ -143,7 +146,7 @@ public class MasterApprenticeService {
         .orElse(false)) {
       throw new BusinessException(ErrorCode.MASTER_APPRENTICE_HAS_MASTER);
     }
-    if (!isLevelGapSufficient(master.getLevel(), apprentice.getLevel())) {
+    if (isLevelGapSufficient(master.getLevel(), apprentice.getLevel())) {
       throw new BusinessException(ErrorCode.MASTER_LEVEL_INSUFFICIENT);
     }
     if (masterApprenticeRepository.countActiveByMasterId(userId) >= MAX_APPRENTICE_COUNT) {
@@ -152,11 +155,11 @@ public class MasterApprenticeService {
     if (isOnCooldown(apprentice.getId())) {
       throw new BusinessException(ErrorCode.MASTER_COOLDOWN, COOLDOWN_HOURS);
     }
-    if (!sectMemberService.isInSameSect(userId, apprentice.getId())) {
+    if (sectMemberService.isInSameSect(userId, apprentice.getId())) {
       throw new BusinessException(ErrorCode.MASTER_NOT_SAME_SECT);
     }
 
-    establishMasterApprentice(userId, apprentice.getId());
+    self.establishMasterApprentice(userId, apprentice.getId());
 
     log.info("玩家 {} 收徒 {}", userId, apprentice.getId());
     return "已收【" + targetNickname + "】为徒！护道关系已自动建立。";
@@ -384,7 +387,7 @@ public class MasterApprenticeService {
   private boolean isLevelGapSufficient(int higherLevel, int lowerLevel) {
     CultivationRealm higherRealm = CultivationRealm.fromLevel(higherLevel);
     CultivationRealm lowerRealm = CultivationRealm.fromLevel(lowerLevel);
-    return higherRealm.ordinal() > lowerRealm.ordinal();
+    return higherRealm.ordinal() <= lowerRealm.ordinal();
   }
 
   private boolean isOnCooldown(Long userId) {

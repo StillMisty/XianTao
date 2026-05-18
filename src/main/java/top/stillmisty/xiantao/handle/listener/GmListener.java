@@ -27,7 +27,7 @@ public class GmListener {
   @ContentTrim
   @Filter("GM帮助")
   public void gmHelp(OneBotMessageEvent event) {
-    log.debug("收到GM帮助请求 - AuthorId: {}", event.getAuthorId());
+    log.debug("[OneBot] 收到GM帮助请求 - AuthorId: {}", event.getAuthorId());
     String response =
         gmCommandHandler.handleGmHelp(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
@@ -42,7 +42,10 @@ public class GmListener {
       @FilterValue("nickname") String nickname,
       @FilterValue("amount") String amount) {
     log.debug(
-        "收到GM给灵石请求 - AuthorId: {}, Target: {}, Amount: {}", event.getAuthorId(), nickname, amount);
+        "[OneBot] 收到GM给灵石请求 - AuthorId: {}, Target: {}, Amount: {}",
+        event.getAuthorId(),
+        nickname,
+        amount);
     String response =
         gmCommandHandler.handleGiveSpiritStones(
             PlatformType.ONE_BOT_V11,
@@ -61,7 +64,10 @@ public class GmListener {
       @FilterValue("nickname") String nickname,
       @FilterValue("amount") String amount) {
     log.debug(
-        "收到GM给修为请求 - AuthorId: {}, Target: {}, Amount: {}", event.getAuthorId(), nickname, amount);
+        "[OneBot] 收到GM给修为请求 - AuthorId: {}, Target: {}, Amount: {}",
+        event.getAuthorId(),
+        nickname,
+        amount);
     String response =
         gmCommandHandler.handleGiveExp(
             PlatformType.ONE_BOT_V11,
@@ -76,7 +82,7 @@ public class GmListener {
   @ContentTrim
   @Filter("GM治疗 {{nickname}}")
   public void healUser(OneBotMessageEvent event, @FilterValue("nickname") String nickname) {
-    log.debug("收到GM治疗请求 - AuthorId: {}, Target: {}", event.getAuthorId(), nickname);
+    log.debug("[OneBot] 收到GM治疗请求 - AuthorId: {}, Target: {}", event.getAuthorId(), nickname);
     String response =
         gmCommandHandler.handleHealUser(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), nickname, TextFormat.PLAIN);
@@ -87,7 +93,7 @@ public class GmListener {
   @ContentTrim
   @Filter("GM复活 {{nickname}}")
   public void reviveUser(OneBotMessageEvent event, @FilterValue("nickname") String nickname) {
-    log.debug("收到GM复活请求 - AuthorId: {}, Target: {}", event.getAuthorId(), nickname);
+    log.debug("[OneBot] 收到GM复活请求 - AuthorId: {}, Target: {}", event.getAuthorId(), nickname);
     String response =
         gmCommandHandler.handleReviveUser(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), nickname, TextFormat.PLAIN);
@@ -102,7 +108,10 @@ public class GmListener {
       @FilterValue("nickname") String nickname,
       @FilterValue("level") String level) {
     log.debug(
-        "收到GM等级请求 - AuthorId: {}, Target: {}, Level: {}", event.getAuthorId(), nickname, level);
+        "[OneBot] 收到GM等级请求 - AuthorId: {}, Target: {}, Level: {}",
+        event.getAuthorId(),
+        nickname,
+        level);
     String response =
         gmCommandHandler.handleSetLevel(
             PlatformType.ONE_BOT_V11,
@@ -121,7 +130,7 @@ public class GmListener {
       @FilterValue("nickname") String nickname,
       @FilterValue("locationName") String locationName) {
     log.debug(
-        "收到GM传送请求 - AuthorId: {}, Target: {}, Location: {}",
+        "[OneBot] 收到GM传送请求 - AuthorId: {}, Target: {}, Location: {}",
         event.getAuthorId(),
         nickname,
         locationName);
@@ -144,7 +153,7 @@ public class GmListener {
       @FilterValue("itemName") String itemName,
       @FilterValue("quantity") String quantity) {
     log.debug(
-        "收到GM给物品请求 - AuthorId: {}, Target: {}, Item: {}, Quantity: {}",
+        "[OneBot] 收到GM给物品请求 - AuthorId: {}, Target: {}, Item: {}, Quantity: {}",
         event.getAuthorId(),
         nickname,
         itemName,
@@ -166,7 +175,7 @@ public class GmListener {
   @ContentTrim
   @Filter("GM帮助")
   public void gmHelpQq(QGGroupAtMessageCreateEvent event) {
-    log.debug("收到GM帮助请求 - AuthorId: {}", event.getAuthorId());
+    log.debug("[QQ] 收到GM帮助请求 - AuthorId: {}", event.getAuthorId());
     String response =
         gmCommandHandler.handleGmHelp(
             PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
@@ -181,7 +190,10 @@ public class GmListener {
       @FilterValue("nickname") String nickname,
       @FilterValue("amount") String amount) {
     log.debug(
-        "收到GM给灵石请求 - AuthorId: {}, Target: {}, Amount: {}", event.getAuthorId(), nickname, amount);
+        "[QQ] 收到GM给灵石请求 - AuthorId: {}, Target: {}, Amount: {}",
+        event.getAuthorId(),
+        nickname,
+        amount);
     String response =
         gmCommandHandler.handleGiveSpiritStones(
             PlatformType.QQ, event.getAuthorId().toString(), nickname, amount, TextFormat.MARKDOWN);
@@ -196,7 +208,10 @@ public class GmListener {
       @FilterValue("nickname") String nickname,
       @FilterValue("amount") String amount) {
     log.debug(
-        "收到GM给修为请求 - AuthorId: {}, Target: {}, Amount: {}", event.getAuthorId(), nickname, amount);
+        "[QQ] 收到GM给修为请求 - AuthorId: {}, Target: {}, Amount: {}",
+        event.getAuthorId(),
+        nickname,
+        amount);
     String response =
         gmCommandHandler.handleGiveExp(
             PlatformType.QQ, event.getAuthorId().toString(), nickname, amount, TextFormat.MARKDOWN);
@@ -208,7 +223,7 @@ public class GmListener {
   @Filter("GM治疗 {{nickname}}")
   public void healUserQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("nickname") String nickname) {
-    log.debug("收到GM治疗请求 - AuthorId: {}, Target: {}", event.getAuthorId(), nickname);
+    log.debug("[QQ] 收到GM治疗请求 - AuthorId: {}, Target: {}", event.getAuthorId(), nickname);
     String response =
         gmCommandHandler.handleHealUser(
             PlatformType.QQ, event.getAuthorId().toString(), nickname, TextFormat.MARKDOWN);
@@ -220,7 +235,7 @@ public class GmListener {
   @Filter("GM复活 {{nickname}}")
   public void reviveUserQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("nickname") String nickname) {
-    log.debug("收到GM复活请求 - AuthorId: {}, Target: {}", event.getAuthorId(), nickname);
+    log.debug("[QQ] 收到GM复活请求 - AuthorId: {}, Target: {}", event.getAuthorId(), nickname);
     String response =
         gmCommandHandler.handleReviveUser(
             PlatformType.QQ, event.getAuthorId().toString(), nickname, TextFormat.MARKDOWN);
@@ -235,7 +250,10 @@ public class GmListener {
       @FilterValue("nickname") String nickname,
       @FilterValue("level") String level) {
     log.debug(
-        "收到GM等级请求 - AuthorId: {}, Target: {}, Level: {}", event.getAuthorId(), nickname, level);
+        "[QQ] 收到GM等级请求 - AuthorId: {}, Target: {}, Level: {}",
+        event.getAuthorId(),
+        nickname,
+        level);
     String response =
         gmCommandHandler.handleSetLevel(
             PlatformType.QQ, event.getAuthorId().toString(), nickname, level, TextFormat.MARKDOWN);
@@ -250,7 +268,7 @@ public class GmListener {
       @FilterValue("nickname") String nickname,
       @FilterValue("locationName") String locationName) {
     log.debug(
-        "收到GM传送请求 - AuthorId: {}, Target: {}, Location: {}",
+        "[QQ] 收到GM传送请求 - AuthorId: {}, Target: {}, Location: {}",
         event.getAuthorId(),
         nickname,
         locationName);
@@ -273,7 +291,7 @@ public class GmListener {
       @FilterValue("itemName") String itemName,
       @FilterValue("quantity") String quantity) {
     log.debug(
-        "收到GM给物品请求 - AuthorId: {}, Target: {}, Item: {}, Quantity: {}",
+        "[QQ] 收到GM给物品请求 - AuthorId: {}, Target: {}, Item: {}, Quantity: {}",
         event.getAuthorId(),
         nickname,
         itemName,

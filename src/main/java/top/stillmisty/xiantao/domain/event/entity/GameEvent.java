@@ -63,8 +63,4 @@ public class GameEvent {
     this.effects = effects != null ? effects : Map.of();
     return this;
   }
-
-  public boolean isUndelivered() {
-    return delivered != null && !delivered;
-  }
 }

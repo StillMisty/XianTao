@@ -33,23 +33,21 @@ public class LeaderboardService {
 
   LeaderboardVO buildLevelLeaderboard() {
     List<User> users = userRepository.findTopByLevel(10);
-    List<LeaderboardEntryVO> entries = new ArrayList<>();
-    for (int i = 0; i < users.size(); i++) {
-      User u = users.get(i);
-      entries.add(
-          new LeaderboardEntryVO(i + 1, u.getNickname(), u.getLevel(), u.getSpiritStones()));
-    }
-    return new LeaderboardVO("【修为排行榜】", entries, true);
+    return new LeaderboardVO("【修为排行榜】", buildEntries(users), true);
   }
 
   LeaderboardVO buildSpiritStoneLeaderboard() {
     List<User> users = userRepository.findTopBySpiritStones(10);
+    return new LeaderboardVO("【灵石排行榜】", buildEntries(users), false);
+  }
+
+  private List<LeaderboardEntryVO> buildEntries(List<User> users) {
     List<LeaderboardEntryVO> entries = new ArrayList<>();
     for (int i = 0; i < users.size(); i++) {
       User u = users.get(i);
       entries.add(
           new LeaderboardEntryVO(i + 1, u.getNickname(), u.getLevel(), u.getSpiritStones()));
     }
-    return new LeaderboardVO("【灵石排行榜】", entries, false);
+    return entries;
   }
 }

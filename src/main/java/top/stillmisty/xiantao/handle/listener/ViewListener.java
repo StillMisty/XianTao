@@ -28,7 +28,7 @@ public class ViewListener {
   @Filter("查看 {{targetNickname}}")
   public void viewPlayer(
       OneBotMessageEvent event, @FilterValue("targetNickname") String targetNickname) {
-    log.debug("收到查看请求 - AuthorId: {}, Target: {}", event.getAuthorId(), targetNickname);
+    log.debug("[OneBot] 收到查看请求 - AuthorId: {}, Target: {}", event.getAuthorId(), targetNickname);
     String response =
         cultivationCommandHandler.handleViewPlayer(
             PlatformType.ONE_BOT_V11,
@@ -45,7 +45,7 @@ public class ViewListener {
   @Filter("查看 {{targetNickname}}")
   public void viewPlayerQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("targetNickname") String targetNickname) {
-    log.debug("收到查看请求 - AuthorId: {}, Target: {}", event.getAuthorId(), targetNickname);
+    log.debug("[QQ] 收到查看请求 - AuthorId: {}, Target: {}", event.getAuthorId(), targetNickname);
     String response =
         cultivationCommandHandler.handleViewPlayer(
             PlatformType.QQ, event.getAuthorId().toString(), targetNickname, TextFormat.MARKDOWN);

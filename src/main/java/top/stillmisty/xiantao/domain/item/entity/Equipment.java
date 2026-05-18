@@ -178,16 +178,4 @@ public class Equipment {
   public int getWisBonus() {
     return getTotalStatBonus("WIS");
   }
-
-  /** 是否含有特殊词条（吸血、寻宝等） */
-  public boolean hasSpecialAffix(String affixCode) {
-    if (affixes == null) return false;
-    return affixes.containsKey(affixCode.toUpperCase());
-  }
-
-  /** 获取特殊词条值 */
-  public Integer getSpecialAffixValue(String affixCode) {
-    if (affixes == null) return null;
-    return affixes.get(affixCode.toUpperCase());
-  }
 }

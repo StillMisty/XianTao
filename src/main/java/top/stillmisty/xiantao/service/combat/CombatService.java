@@ -144,7 +144,8 @@ public class CombatService {
     return switch (bindingType) {
       case WEAPON_TYPE -> weaponType.getCode().equals(skill.getBindingValue());
       case WEAPON_CATEGORY -> weaponType.getCategory().equals(skill.getBindingValue());
-      case ELEMENT, NONE -> true;
+      case ELEMENT -> true;
+      default -> true;
     };
   }
 

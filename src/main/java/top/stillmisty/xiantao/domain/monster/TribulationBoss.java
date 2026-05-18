@@ -38,9 +38,9 @@ public class TribulationBoss implements Combatant {
       int tribulationStage,
       boolean compassionMode) {
     this.instanceId = ID_GENERATOR.getAndIncrement();
-      this.skills = List.of();
+    this.skills = List.of();
 
-      // BOSS属性 = 防守方属性 × 倍率，劫数越高倍率越高
+    // BOSS属性 = 防守方属性 × 倍率，劫数越高倍率越高
     double hpMultiplier = 1.0 + (double) tribulationStage * 0.5;
     double atkMultiplier = 0.6 + (double) tribulationStage * 0.15;
     double defMultiplier = 0.4 + (double) tribulationStage * 0.10;

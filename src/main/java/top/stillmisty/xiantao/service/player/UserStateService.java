@@ -39,7 +39,7 @@ public class UserStateService {
 
   /** 使用行锁加载用户，用于并发敏感操作（突破、状态切换等）。不在锁内解析过期状态。 */
   public User loadUserForUpdate(Long userId) {
-      return userRepository.findByIdForUpdate(userId).orElseThrow();
+    return userRepository.findByIdForUpdate(userId).orElseThrow();
   }
 
   /** 根据道号加载用户，不解析状态。 */

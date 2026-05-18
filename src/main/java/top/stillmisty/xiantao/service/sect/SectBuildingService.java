@@ -101,16 +101,11 @@ public class SectBuildingService {
   @Transactional
   public String buildStructure(Long userId, String buildingTypeCode) {
     SectMember member = requireMember(userId);
-    if (!member.getPosition().canManage()) {
+    if (member.getPosition().canManage()) {
       throw new BusinessException(ErrorCode.SECT_NOT_LEADER);
     }
 
-    SectBuildingType type;
-    try {
-      type = SectBuildingType.fromCode(buildingTypeCode);
-    } catch (IllegalArgumentException e) {
-      throw new BusinessException(ErrorCode.SECT_BUILDING_NOT_FOUND);
-    }
+    SectBuildingType type = resolveBuildingType(buildingTypeCode);
 
     if (sectBuildingRepository.findBySectIdAndType(member.getSectId(), type).isPresent()) {
       throw new BusinessException(ErrorCode.SECT_BUILDING_ALREADY_EXISTS);
@@ -121,7 +116,7 @@ public class SectBuildingService {
             .findById(member.getSectId())
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_FOUND));
 
-    if (!sect.deductFunds(type.getBuildCost())) {
+    if (sect.deductFunds(type.getBuildCost())) {
       throw new BusinessException(
           ErrorCode.SECT_FUNDS_INSUFFICIENT, type.getBuildCost(), sect.getFunds());
     }
@@ -138,16 +133,11 @@ public class SectBuildingService {
   @Transactional
   public String upgradeBuilding(Long userId, String buildingTypeCode) {
     SectMember member = requireMember(userId);
-    if (!member.getPosition().canManage()) {
+    if (member.getPosition().canManage()) {
       throw new BusinessException(ErrorCode.SECT_NOT_LEADER);
     }
 
-    SectBuildingType type;
-    try {
-      type = SectBuildingType.fromCode(buildingTypeCode);
-    } catch (IllegalArgumentException e) {
-      throw new BusinessException(ErrorCode.SECT_BUILDING_NOT_FOUND);
-    }
+    SectBuildingType type = resolveBuildingType(buildingTypeCode);
 
     SectBuilding building =
         sectBuildingRepository
@@ -164,7 +154,7 @@ public class SectBuildingService {
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_FOUND));
 
     long cost = type.upgradeCost();
-    if (!sect.deductFunds(cost)) {
+    if (sect.deductFunds(cost)) {
       throw new BusinessException(ErrorCode.SECT_FUNDS_INSUFFICIENT, cost, sect.getFunds());
     }
     sectRepository.save(sect);
@@ -251,6 +241,14 @@ public class SectBuildingService {
       sect.addFunds(income);
       sect.setLastVeinPayout(now);
       sectRepository.save(sect);
+    }
+  }
+
+  private SectBuildingType resolveBuildingType(String buildingTypeCode) {
+    try {
+      return SectBuildingType.fromCode(buildingTypeCode);
+    } catch (IllegalArgumentException e) {
+      throw new BusinessException(ErrorCode.SECT_BUILDING_NOT_FOUND);
     }
   }
 

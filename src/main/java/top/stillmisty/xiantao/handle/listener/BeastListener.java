@@ -27,7 +27,7 @@ public class BeastListener {
   @ContentTrim
   @Filter("灵兽出战 {{position}}")
   public void deployBeast(OneBotMessageEvent event, @FilterValue("position") String position) {
-    log.debug("收到灵兽出战请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
+    log.debug("[OneBot] 收到灵兽出战请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
     String response =
         beastCommandHandler.handleDeployBeast(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), position, TextFormat.PLAIN);
@@ -38,7 +38,7 @@ public class BeastListener {
   @ContentTrim
   @Filter("灵兽召回 {{position}}")
   public void undeployBeast(OneBotMessageEvent event, @FilterValue("position") String position) {
-    log.debug("收到灵兽召回请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
+    log.debug("[OneBot] 收到灵兽召回请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
     String response =
         beastCommandHandler.handleUndeployBeast(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), position, TextFormat.PLAIN);
@@ -49,7 +49,7 @@ public class BeastListener {
   @ContentTrim
   @Filter("灵兽恢复 {{position}}")
   public void recoverBeast(OneBotMessageEvent event, @FilterValue("position") String position) {
-    log.debug("收到灵兽恢复请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
+    log.debug("[OneBot] 收到灵兽恢复请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
     String response =
         beastCommandHandler.handleRecoverBeast(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), position, TextFormat.PLAIN);
@@ -64,7 +64,10 @@ public class BeastListener {
       @FilterValue("position") String position,
       @FilterValue("mode") String mode) {
     log.debug(
-        "收到灵兽进化请求 - AuthorId: {}, Position: {}, Mode: {}", event.getAuthorId(), position, mode);
+        "[OneBot] 收到灵兽进化请求 - AuthorId: {}, Position: {}, Mode: {}",
+        event.getAuthorId(),
+        position,
+        mode);
     String response =
         beastCommandHandler.handleEvolveBeast(
             PlatformType.ONE_BOT_V11,
@@ -79,7 +82,7 @@ public class BeastListener {
   @ContentTrim
   @Filter("灵兽放生 {{position}}")
   public void releaseBeast(OneBotMessageEvent event, @FilterValue("position") String position) {
-    log.debug("收到灵兽放生请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
+    log.debug("[OneBot] 收到灵兽放生请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
     String response =
         beastCommandHandler.handleReleaseBeast(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), position, TextFormat.PLAIN);
@@ -90,7 +93,7 @@ public class BeastListener {
   @ContentTrim
   @Filter("灵兽")
   public void handleBeast(OneBotMessageEvent event) {
-    log.debug("收到灵兽请求 - AuthorId: {}", event.getAuthorId());
+    log.debug("[OneBot] 收到灵兽请求 - AuthorId: {}", event.getAuthorId());
     String response =
         beastCommandHandler.handleGetDeployedBeasts(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
@@ -101,7 +104,7 @@ public class BeastListener {
   @ContentTrim
   @Filter("灵兽列表")
   public void handleBeastList(OneBotMessageEvent event) {
-    log.debug("收到灵兽列表请求 - AuthorId: {}", event.getAuthorId());
+    log.debug("[OneBot] 收到灵兽列表请求 - AuthorId: {}", event.getAuthorId());
     String response =
         beastCommandHandler.handleBeastList(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
@@ -116,7 +119,7 @@ public class BeastListener {
       @FilterValue("position") String position,
       @FilterValue("quantity") int quantity) {
     log.debug(
-        "收到灵兽喂养请求 - AuthorId: {}, Position: {}, Quantity: {}",
+        "[OneBot] 收到灵兽喂养请求 - AuthorId: {}, Position: {}, Quantity: {}",
         event.getAuthorId(),
         position,
         quantity);
@@ -137,7 +140,7 @@ public class BeastListener {
   @Filter("灵兽出战 {{position}}")
   public void deployBeastQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("position") String position) {
-    log.debug("收到灵兽出战请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
+    log.debug("[QQ] 收到灵兽出战请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
     String response =
         beastCommandHandler.handleDeployBeast(
             PlatformType.QQ, event.getAuthorId().toString(), position, TextFormat.MARKDOWN);
@@ -149,7 +152,7 @@ public class BeastListener {
   @Filter("灵兽召回 {{position}}")
   public void undeployBeastQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("position") String position) {
-    log.debug("收到灵兽召回请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
+    log.debug("[QQ] 收到灵兽召回请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
     String response =
         beastCommandHandler.handleUndeployBeast(
             PlatformType.QQ, event.getAuthorId().toString(), position, TextFormat.MARKDOWN);
@@ -161,7 +164,7 @@ public class BeastListener {
   @Filter("灵兽恢复 {{position}}")
   public void recoverBeastQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("position") String position) {
-    log.debug("收到灵兽恢复请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
+    log.debug("[QQ] 收到灵兽恢复请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
     String response =
         beastCommandHandler.handleRecoverBeast(
             PlatformType.QQ, event.getAuthorId().toString(), position, TextFormat.MARKDOWN);
@@ -176,7 +179,10 @@ public class BeastListener {
       @FilterValue("position") String position,
       @FilterValue("mode") String mode) {
     log.debug(
-        "收到灵兽进化请求 - AuthorId: {}, Position: {}, Mode: {}", event.getAuthorId(), position, mode);
+        "[QQ] 收到灵兽进化请求 - AuthorId: {}, Position: {}, Mode: {}",
+        event.getAuthorId(),
+        position,
+        mode);
     String response =
         beastCommandHandler.handleEvolveBeast(
             PlatformType.QQ, event.getAuthorId().toString(), position, mode, TextFormat.MARKDOWN);
@@ -188,7 +194,7 @@ public class BeastListener {
   @Filter("灵兽放生 {{position}}")
   public void releaseBeastQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("position") String position) {
-    log.debug("收到灵兽放生请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
+    log.debug("[QQ] 收到灵兽放生请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
     String response =
         beastCommandHandler.handleReleaseBeast(
             PlatformType.QQ, event.getAuthorId().toString(), position, TextFormat.MARKDOWN);
@@ -199,7 +205,7 @@ public class BeastListener {
   @ContentTrim
   @Filter("灵兽")
   public void handleBeastQq(QGGroupAtMessageCreateEvent event) {
-    log.debug("收到灵兽请求 - AuthorId: {}", event.getAuthorId());
+    log.debug("[QQ] 收到灵兽请求 - AuthorId: {}", event.getAuthorId());
     String response =
         beastCommandHandler.handleGetDeployedBeasts(
             PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
@@ -210,7 +216,7 @@ public class BeastListener {
   @ContentTrim
   @Filter("灵兽列表")
   public void handleBeastListQq(QGGroupAtMessageCreateEvent event) {
-    log.debug("收到灵兽列表请求 - AuthorId: {}", event.getAuthorId());
+    log.debug("[QQ] 收到灵兽列表请求 - AuthorId: {}", event.getAuthorId());
     String response =
         beastCommandHandler.handleBeastList(
             PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
@@ -225,7 +231,7 @@ public class BeastListener {
       @FilterValue("position") String position,
       @FilterValue("quantity") int quantity) {
     log.debug(
-        "收到灵兽喂养请求 - AuthorId: {}, Position: {}, Quantity: {}",
+        "[QQ] 收到灵兽喂养请求 - AuthorId: {}, Position: {}, Quantity: {}",
         event.getAuthorId(),
         position,
         quantity);

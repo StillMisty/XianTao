@@ -27,7 +27,7 @@ public class FudiListener {
   @ContentTrim
   @Filter("福地")
   public void handleFudi(OneBotMessageEvent event) {
-    log.debug("收到福地请求 - AuthorId: {}", event.getAuthorId());
+    log.debug("[OneBot] 收到福地请求 - AuthorId: {}", event.getAuthorId());
     String response =
         fudiCommandHandler.handleFudiStatus(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
@@ -38,7 +38,7 @@ public class FudiListener {
   @ContentTrim
   @Filter("福地地块")
   public void handleFudiGrid(OneBotMessageEvent event) {
-    log.debug("收到福地地块请求 - AuthorId: {}", event.getAuthorId());
+    log.debug("[OneBot] 收到福地地块请求 - AuthorId: {}", event.getAuthorId());
     String response =
         fudiCommandHandler.handleFudiGrid(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
@@ -49,7 +49,7 @@ public class FudiListener {
   @ContentTrim
   @Filter("地灵 {{content}}")
   public void handleFudiSpirit(OneBotMessageEvent event, @FilterValue("content") String content) {
-    log.debug("收到地灵自然语言请求 - AuthorId: {}, Content: {}", event.getAuthorId(), content);
+    log.debug("[OneBot] 收到地灵自然语言请求 - AuthorId: {}, Content: {}", event.getAuthorId(), content);
     String response =
         fudiCommandHandler.handleSpiritChat(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), content, TextFormat.PLAIN);
@@ -62,7 +62,7 @@ public class FudiListener {
   @ContentTrim
   @Filter("福地")
   public void handleFudiQq(QGGroupAtMessageCreateEvent event) {
-    log.debug("收到福地请求 - AuthorId: {}", event.getAuthorId());
+    log.debug("[QQ] 收到福地请求 - AuthorId: {}", event.getAuthorId());
     String response =
         fudiCommandHandler.handleFudiStatus(
             PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
@@ -73,7 +73,7 @@ public class FudiListener {
   @ContentTrim
   @Filter("福地地块")
   public void handleFudiGridQq(QGGroupAtMessageCreateEvent event) {
-    log.debug("收到福地地块请求 - AuthorId: {}", event.getAuthorId());
+    log.debug("[QQ] 收到福地地块请求 - AuthorId: {}", event.getAuthorId());
     String response =
         fudiCommandHandler.handleFudiGrid(
             PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
@@ -85,7 +85,7 @@ public class FudiListener {
   @Filter("地灵 {{content}}")
   public void handleFudiSpiritQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("content") String content) {
-    log.debug("收到地灵自然语言请求 - AuthorId: {}, Content: {}", event.getAuthorId(), content);
+    log.debug("[QQ] 收到地灵自然语言请求 - AuthorId: {}, Content: {}", event.getAuthorId(), content);
     String response =
         fudiCommandHandler.handleSpiritChat(
             PlatformType.QQ, event.getAuthorId().toString(), content, TextFormat.MARKDOWN);

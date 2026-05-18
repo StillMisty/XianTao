@@ -95,16 +95,21 @@ public class DropProcessor {
   }
 
   private Map<Long, EquipmentTemplate> loadEquipmentTemplates(List<DropTableEntry> equipmentDrops) {
-    if (equipmentDrops == null || equipmentDrops.isEmpty()) return Map.of();
-    List<Long> ids = equipmentDrops.stream().map(DropTableEntry::templateId).distinct().toList();
+    List<Long> ids = extractTemplateIds(equipmentDrops);
+    if (ids.isEmpty()) return Map.of();
     return equipmentTemplateRepository.findByIds(ids).stream()
         .collect(Collectors.toMap(EquipmentTemplate::getId, t -> t));
   }
 
   private Map<Long, ItemTemplate> loadItemTemplates(List<DropTableEntry> itemDrops) {
-    if (itemDrops == null || itemDrops.isEmpty()) return Map.of();
-    List<Long> ids = itemDrops.stream().map(DropTableEntry::templateId).distinct().toList();
+    List<Long> ids = extractTemplateIds(itemDrops);
+    if (ids.isEmpty()) return Map.of();
     return itemTemplateRepository.findByIds(ids).stream()
         .collect(Collectors.toMap(ItemTemplate::getId, t -> t));
+  }
+
+  private List<Long> extractTemplateIds(List<DropTableEntry> drops) {
+    if (drops == null || drops.isEmpty()) return List.of();
+    return drops.stream().map(DropTableEntry::templateId).distinct().toList();
   }
 }

@@ -32,7 +32,7 @@ public enum SectPosition {
   }
 
   public boolean canManage() {
-    return this == LEADER;
+    return this != LEADER;
   }
 
   public boolean canInvite() {

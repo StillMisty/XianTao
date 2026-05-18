@@ -26,7 +26,7 @@ public class StatusListener {
   @ContentTrim
   @Filter("状态")
   public void status(OneBotMessageEvent event) {
-    log.debug("收到状态查询请求 - AuthorId: {}", event.getAuthorId());
+    log.debug("[OneBot] 收到状态查询请求 - AuthorId: {}", event.getAuthorId());
     String response =
         cultivationCommandHandler.handleStatus(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
@@ -39,7 +39,7 @@ public class StatusListener {
   @ContentTrim
   @Filter("状态")
   public void statusQq(QGGroupAtMessageCreateEvent event) {
-    log.debug("收到状态查询请求 - AuthorId: {}", event.getAuthorId());
+    log.debug("[QQ] 收到状态查询请求 - AuthorId: {}", event.getAuthorId());
     String response =
         cultivationCommandHandler.handleStatus(
             PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);

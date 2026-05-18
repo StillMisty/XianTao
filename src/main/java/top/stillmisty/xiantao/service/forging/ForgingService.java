@@ -23,6 +23,8 @@ import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
+import top.stillmisty.xiantao.util.MaterialParser;
+import top.stillmisty.xiantao.util.MaterialParser.ParsedMaterial;
 
 /** 锻造服务 处理：自动/手动锻造、图纸学习、已学列表 */
 @Slf4j
@@ -346,18 +348,11 @@ public class ForgingService {
   private List<MaterialInput> parseMaterialInputs(Long userId, List<String> materialInputs) {
     List<MaterialInput> result = new ArrayList<>();
     for (String input : materialInputs) {
-      String[] parts = input.split("[×xX]");
-      if (parts.length != 2) continue;
+      ParsedMaterial parsed = MaterialParser.parse(input);
+      if (parsed == null) continue;
 
-      String materialName = parts[0].trim();
-      int quantity;
-      try {
-        quantity = Integer.parseInt(parts[1].trim());
-      } catch (NumberFormatException e) {
-        continue;
-      }
-
-      if (quantity <= 0) continue;
+      String materialName = parsed.name();
+      int quantity = parsed.quantity();
 
       List<StackableItem> materials =
           stackableItemRepository.findByUserId(userId).stream()

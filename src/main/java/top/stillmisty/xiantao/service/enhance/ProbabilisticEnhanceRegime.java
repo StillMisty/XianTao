@@ -62,7 +62,7 @@ public class ProbabilisticEnhanceRegime {
       Map<String, Integer> usedMaterials) {
     Map<String, ElementRange> constraints =
         core.getGenericEnhanceConstraints(equipment.getRarity());
-    if (!core.matchesConstraints(attributeTotals, constraints)) {
+    if (core.matchesConstraints(attributeTotals, constraints)) {
       throw new BusinessException(ErrorCode.ENHANCE_MATERIAL_NOT_MATCH);
     }
 

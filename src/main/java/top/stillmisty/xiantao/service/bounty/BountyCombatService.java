@@ -182,9 +182,9 @@ public class BountyCombatService {
           stackableItemService.addStackableItem(userId, templateId, itemType, name, quantity);
         }
         case BountyRewardItem.BeastEggReward(var templateId, var name) ->
-                stackableItemService.addStackableItem(userId, templateId, ItemType.BEAST_EGG, name, 1);
+            stackableItemService.addStackableItem(userId, templateId, ItemType.BEAST_EGG, name, 1);
         case BountyRewardItem.EquipmentRewardItem(var templateId, var name) ->
-                equipmentService.createEquipment(userId, templateId);
+            equipmentService.createEquipment(userId, templateId);
         default -> {}
       }
     }

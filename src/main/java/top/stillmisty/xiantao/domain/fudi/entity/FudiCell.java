@@ -75,12 +75,6 @@ public class FudiCell {
     return List.of();
   }
 
-  public void addProductionItem(Long templateId, String name, int quantity) {
-    if (config instanceof CellConfig.PenConfig pen) {
-      pen.addProductionItem(templateId, name, quantity);
-    }
-  }
-
   public void clearProductionStored() {
     if (config instanceof CellConfig.PenConfig pen) {
       setConfig(pen.withClearedProduction());

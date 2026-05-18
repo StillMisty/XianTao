@@ -1,0 +1,108 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/service/GmService.java</file>
+  <line>109</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.service</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.service.GmService java.lang.String help()" />
+  <problem_class id="SameReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法始终返回相同的值</problem_class>
+  <hints />
+  <description>方法 &lt;code&gt;help()&lt;/code&gt; 始终返回 &lt;code&gt;【GM指令列表】
+GM帮助 - 查看此列表
+GM给灵石 [道号] [数量] - 给指定玩家灵石
+GM给修为 [道号] [数量] - 给指定玩家修为
+GM治疗 [道号] - 治疗指定玩家至满血
+GM复活 [道号] - 复活指定玩家
+GM等级 [道号] [等级] - 设置指定玩家等级
+GM传送 [道号] [地点名] - 传送到指定地图节点
+GM给物品 [道号] [物品名] [数量] - 给指定玩家物品/装备（数量可选，默认1）&lt;/code&gt;</description>
+  <highlighted_element>help</highlighted_element>
+  <language>JAVA</language>
+  <offset>9</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/service/activity/TravelCompleter.java</file>
+  <line>114</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.service.activity</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.service.activity.TravelCompleter boolean checkTriggerConditions(top.stillmisty.xiantao.domain.event.entity.ActivityEvent event, top.stillmisty.xiantao.domain.user.entity.User user)" />
+  <problem_class id="SameReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法始终返回相同的值</problem_class>
+  <hints />
+  <description>方法 &lt;code&gt;checkTriggerConditions()&lt;/code&gt; 始终返回 &lt;code&gt;true&lt;/code&gt;</description>
+  <highlighted_element>checkTriggerConditions</highlighted_element>
+  <language>JAVA</language>
+  <offset>18</offset>
+  <length>22</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/service/dungeon/DungeonService.java</file>
+  <line>530</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.service.dungeon</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.service.dungeon.DungeonService java.lang.String retreatCaptain(top.stillmisty.xiantao.domain.dungeon.entity.DungeonInstance instance)" />
+  <problem_class id="SameReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法始终返回相同的值</problem_class>
+  <hints />
+  <description>方法 &lt;code&gt;retreatCaptain()&lt;/code&gt; 始终返回 &lt;code&gt;你带领队伍撤退了。所有成员已退出秘境，已获奖励保留。&lt;/code&gt;</description>
+  <highlighted_element>retreatCaptain</highlighted_element>
+  <language>JAVA</language>
+  <offset>17</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/service/dungeon/DungeonService.java</file>
+  <line>549</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.service.dungeon</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.service.dungeon.DungeonService java.lang.String retreatMember(java.lang.Long userId, top.stillmisty.xiantao.domain.dungeon.entity.DungeonInstance instance)" />
+  <problem_class id="SameReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法始终返回相同的值</problem_class>
+  <hints />
+  <description>方法 &lt;code&gt;retreatMember()&lt;/code&gt; 始终返回 &lt;code&gt;你退出了秘境。已获得的奖励保留。&lt;/code&gt;</description>
+  <highlighted_element>retreatMember</highlighted_element>
+  <language>JAVA</language>
+  <offset>17</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/service/player/UserStateService.java</file>
+  <line>157</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.service.player</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.service.player.UserStateService boolean tryExpireBuffs(top.stillmisty.xiantao.domain.user.entity.User user)" />
+  <problem_class id="SameReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法始终返回相同的值</problem_class>
+  <hints />
+  <description>方法 &lt;code&gt;tryExpireBuffs()&lt;/code&gt; 始终返回 &lt;code&gt;false&lt;/code&gt;</description>
+  <highlighted_element>tryExpireBuffs</highlighted_element>
+  <language>JAVA</language>
+  <offset>18</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/service/sect/SectMemberService.java</file>
+  <line>506</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.service.sect</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.service.sect.SectMemberService java.lang.String setNotice(java.lang.Long userId, java.lang.String content)" />
+  <problem_class id="SameReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法始终返回相同的值</problem_class>
+  <hints />
+  <description>方法 &lt;code&gt;setNotice()&lt;/code&gt; 始终返回 &lt;code&gt;宗门公告已更新。&lt;/code&gt;</description>
+  <highlighted_element>setNotice</highlighted_element>
+  <language>JAVA</language>
+  <offset>16</offset>
+  <length>9</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/service/sect/SectMemberService.java</file>
+  <line>553</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.service.sect</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.service.sect.SectMemberService java.lang.String getTasks(java.lang.Long userId)" />
+  <problem_class id="SameReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法始终返回相同的值</problem_class>
+  <hints />
+  <description>方法 &lt;code&gt;getTasks()&lt;/code&gt; 始终返回 &lt;code&gt;暂无进行中的宗门事件任务。&lt;/code&gt;</description>
+  <highlighted_element>getTasks</highlighted_element>
+  <language>JAVA</language>
+  <offset>16</offset>
+  <length>8</length>
+</problem>
+</problems>

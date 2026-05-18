@@ -270,18 +270,7 @@ public class SectSharedSkillService {
   @Transactional
   public String removeSharedSkill(Long userId, long sharedSkillId) {
     SectMember member = requireMember(userId);
-    if (!member.getPosition().canManageSkills()) {
-      throw new BusinessException(ErrorCode.SECT_NO_PERMISSION, "管理功法");
-    }
-
-    SectSharedSkill sharedSkill =
-        sectSharedSkillRepository
-            .findById(sharedSkillId)
-            .orElseThrow(() -> new BusinessException(ErrorCode.SECT_SHARED_SKILL_NOT_FOUND));
-
-    if (!sharedSkill.getSectId().equals(member.getSectId())) {
-      throw new BusinessException(ErrorCode.SECT_SHARED_SKILL_NOT_FOUND);
-    }
+    SectSharedSkill sharedSkill = requireManageableSharedSkill(member, sharedSkillId);
 
     if (sharedSkill.getStatus() != SectSharedSkillStatus.LISTED) {
       return "该功法尚未上架。";
@@ -298,18 +287,7 @@ public class SectSharedSkillService {
   @Transactional
   public String listSharedSkill(Long userId, long sharedSkillId) {
     SectMember member = requireMember(userId);
-    if (!member.getPosition().canManageSkills()) {
-      throw new BusinessException(ErrorCode.SECT_NO_PERMISSION, "管理功法");
-    }
-
-    SectSharedSkill sharedSkill =
-        sectSharedSkillRepository
-            .findById(sharedSkillId)
-            .orElseThrow(() -> new BusinessException(ErrorCode.SECT_SHARED_SKILL_NOT_FOUND));
-
-    if (!sharedSkill.getSectId().equals(member.getSectId())) {
-      throw new BusinessException(ErrorCode.SECT_SHARED_SKILL_NOT_FOUND);
-    }
+    SectSharedSkill sharedSkill = requireManageableSharedSkill(member, sharedSkillId);
 
     if (sharedSkill.getStatus() != SectSharedSkillStatus.PENDING) {
       return "该功法已上架或状态异常。";
@@ -329,6 +307,22 @@ public class SectSharedSkillService {
     Skill skill = skillRepository.findById(sharedSkill.getSkillId()).orElse(null);
     String skillName = skill != null ? skill.getName() : "[" + sharedSkillId + "]";
     return "已上架「" + skillName + "」，宗门成员可以学习了。";
+  }
+
+  private SectSharedSkill requireManageableSharedSkill(SectMember member, long sharedSkillId) {
+    if (!member.getPosition().canManageSkills()) {
+      throw new BusinessException(ErrorCode.SECT_NO_PERMISSION, "管理功法");
+    }
+
+    SectSharedSkill sharedSkill =
+        sectSharedSkillRepository
+            .findById(sharedSkillId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.SECT_SHARED_SKILL_NOT_FOUND));
+
+    if (!sharedSkill.getSectId().equals(member.getSectId())) {
+      throw new BusinessException(ErrorCode.SECT_SHARED_SKILL_NOT_FOUND);
+    }
+    return sharedSkill;
   }
 
   // ===================== 工具方法 =====================

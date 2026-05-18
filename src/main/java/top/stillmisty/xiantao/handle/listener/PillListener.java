@@ -28,7 +28,7 @@ public class PillListener {
   @ContentTrim
   @Filter("丹方")
   public void recipeList(OneBotMessageEvent event) {
-    log.debug("收到丹方列表查询请求 - AuthorId: {}", event.getAuthorId());
+    log.debug("[OneBot] 收到丹方列表查询请求 - AuthorId: {}", event.getAuthorId());
     String response =
         pillCommandHandler.handleRecipeList(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
@@ -39,7 +39,8 @@ public class PillListener {
   @ContentTrim
   @Filter("丹方 {{recipeName}}")
   public void recipeDetail(OneBotMessageEvent event, @FilterValue("recipeName") String recipeName) {
-    log.debug("收到丹方详情查询请求 - AuthorId: {}, RecipeName: {}", event.getAuthorId(), recipeName);
+    log.debug(
+        "[OneBot] 收到丹方详情查询请求 - AuthorId: {}, RecipeName: {}", event.getAuthorId(), recipeName);
     String response =
         pillCommandHandler.handleRecipeDetail(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), recipeName, TextFormat.PLAIN);
@@ -50,7 +51,7 @@ public class PillListener {
   @ContentTrim
   @Filter("炼方 {{recipeName}}")
   public void refineAuto(OneBotMessageEvent event, @FilterValue("recipeName") String recipeName) {
-    log.debug("收到自动炼丹请求 - AuthorId: {}, RecipeName: {}", event.getAuthorId(), recipeName);
+    log.debug("[OneBot] 收到自动炼丹请求 - AuthorId: {}, RecipeName: {}", event.getAuthorId(), recipeName);
     String response =
         pillCommandHandler.handleRefineAuto(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), recipeName, TextFormat.PLAIN);
@@ -61,7 +62,7 @@ public class PillListener {
   @ContentTrim
   @Filter("炼 {{herbInput}}")
   public void refineManual(OneBotMessageEvent event, @FilterValue("herbInput") String herbInput) {
-    log.debug("收到手动炼丹请求 - AuthorId: {}, HerbInput: {}", event.getAuthorId(), herbInput);
+    log.debug("[OneBot] 收到手动炼丹请求 - AuthorId: {}, HerbInput: {}", event.getAuthorId(), herbInput);
     List<String> herbInputs = Arrays.asList(herbInput.split("\\s+"));
     String response =
         pillCommandHandler.handleRefineManual(
@@ -75,7 +76,7 @@ public class PillListener {
   @ContentTrim
   @Filter("丹方")
   public void recipeListQq(QGGroupAtMessageCreateEvent event) {
-    log.debug("收到丹方列表查询请求 - AuthorId: {}", event.getAuthorId());
+    log.debug("[QQ] 收到丹方列表查询请求 - AuthorId: {}", event.getAuthorId());
     String response =
         pillCommandHandler.handleRecipeList(
             PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
@@ -87,7 +88,7 @@ public class PillListener {
   @Filter("丹方 {{recipeName}}")
   public void recipeDetailQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("recipeName") String recipeName) {
-    log.debug("收到丹方详情查询请求 - AuthorId: {}, RecipeName: {}", event.getAuthorId(), recipeName);
+    log.debug("[QQ] 收到丹方详情查询请求 - AuthorId: {}, RecipeName: {}", event.getAuthorId(), recipeName);
     String response =
         pillCommandHandler.handleRecipeDetail(
             PlatformType.QQ, event.getAuthorId().toString(), recipeName, TextFormat.MARKDOWN);
@@ -99,7 +100,7 @@ public class PillListener {
   @Filter("炼方 {{recipeName}}")
   public void refineAutoQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("recipeName") String recipeName) {
-    log.debug("收到自动炼丹请求 - AuthorId: {}, RecipeName: {}", event.getAuthorId(), recipeName);
+    log.debug("[QQ] 收到自动炼丹请求 - AuthorId: {}, RecipeName: {}", event.getAuthorId(), recipeName);
     String response =
         pillCommandHandler.handleRefineAuto(
             PlatformType.QQ, event.getAuthorId().toString(), recipeName, TextFormat.MARKDOWN);
@@ -111,7 +112,7 @@ public class PillListener {
   @Filter("炼 {{herbInput}}")
   public void refineManualQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("herbInput") String herbInput) {
-    log.debug("收到手动炼丹请求 - AuthorId: {}, HerbInput: {}", event.getAuthorId(), herbInput);
+    log.debug("[QQ] 收到手动炼丹请求 - AuthorId: {}, HerbInput: {}", event.getAuthorId(), herbInput);
     List<String> herbInputs = Arrays.asList(herbInput.split("\\s+"));
     String response =
         pillCommandHandler.handleRefineManual(

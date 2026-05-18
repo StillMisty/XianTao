@@ -91,10 +91,6 @@ public class NotificationAppender {
 
   private String getSectionGroup(GameEventCategory category) {
     if (category == null) return null;
-    String code = category.getCode();
-    if (GameEventCategory.isTravel(code)) return category.getSectionTitle();
-    if (GameEventCategory.isTraining(code)) return category.getSectionTitle();
-    if (GameEventCategory.isBounty(code)) return category.getSectionTitle();
     return category.getSectionTitle();
   }
 

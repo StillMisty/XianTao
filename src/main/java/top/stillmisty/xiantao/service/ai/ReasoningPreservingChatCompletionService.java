@@ -16,13 +16,12 @@ import com.openai.models.chat.completions.ChatCompletionRetrieveParams;
 import com.openai.models.chat.completions.ChatCompletionUpdateParams;
 import com.openai.services.blocking.chat.ChatCompletionService;
 import com.openai.services.blocking.chat.completions.MessageService;
-import org.jspecify.annotations.NonNull;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import org.jspecify.annotations.NonNull;
 
 public class ReasoningPreservingChatCompletionService implements ChatCompletionService {
 
@@ -39,7 +38,8 @@ public class ReasoningPreservingChatCompletionService implements ChatCompletionS
   }
 
   @Override
-  public @NonNull ChatCompletion create(@NonNull ChatCompletionCreateParams params, @NonNull RequestOptions options) {
+  public @NonNull ChatCompletion create(
+      @NonNull ChatCompletionCreateParams params, @NonNull RequestOptions options) {
     ChatCompletionCreateParams modified = injectReasoning(params);
     ChatCompletion response = delegate.create(modified, options);
     extractReasoning(response);
@@ -48,7 +48,7 @@ public class ReasoningPreservingChatCompletionService implements ChatCompletionS
 
   @Override
   public @NonNull StreamResponse<ChatCompletionChunk> createStreaming(
-          @NonNull ChatCompletionCreateParams params, @NonNull RequestOptions options) {
+      @NonNull ChatCompletionCreateParams params, @NonNull RequestOptions options) {
     ChatCompletionCreateParams modified = injectReasoning(params);
     return delegate.createStreaming(modified, options);
   }
@@ -121,7 +121,7 @@ public class ReasoningPreservingChatCompletionService implements ChatCompletionS
 
   @Override
   public @NonNull ChatCompletionService withOptions(
-          @NonNull Consumer<com.openai.core.ClientOptions.Builder> consumer) {
+      @NonNull Consumer<com.openai.core.ClientOptions.Builder> consumer) {
     return new ReasoningPreservingChatCompletionService(delegate.withOptions(consumer));
   }
 
@@ -131,22 +131,26 @@ public class ReasoningPreservingChatCompletionService implements ChatCompletionS
   }
 
   @Override
-  public @NonNull ChatCompletion retrieve(@NonNull ChatCompletionRetrieveParams params, @NonNull RequestOptions options) {
+  public @NonNull ChatCompletion retrieve(
+      @NonNull ChatCompletionRetrieveParams params, @NonNull RequestOptions options) {
     return delegate.retrieve(params, options);
   }
 
   @Override
-  public @NonNull ChatCompletion update(@NonNull ChatCompletionUpdateParams params, @NonNull RequestOptions options) {
+  public @NonNull ChatCompletion update(
+      @NonNull ChatCompletionUpdateParams params, @NonNull RequestOptions options) {
     return delegate.update(params, options);
   }
 
   @Override
-  public @NonNull ChatCompletionListPage list(@NonNull ChatCompletionListParams params, @NonNull RequestOptions options) {
+  public @NonNull ChatCompletionListPage list(
+      @NonNull ChatCompletionListParams params, @NonNull RequestOptions options) {
     return delegate.list(params, options);
   }
 
   @Override
-  public @NonNull ChatCompletionDeleted delete(@NonNull ChatCompletionDeleteParams params, @NonNull RequestOptions options) {
+  public @NonNull ChatCompletionDeleted delete(
+      @NonNull ChatCompletionDeleteParams params, @NonNull RequestOptions options) {
     return delegate.delete(params, options);
   }
 }

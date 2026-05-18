@@ -1,0 +1,15 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/service/combat/CombatService.java</file>
+  <line>147</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.service.combat</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.service.combat.CombatService boolean isSkillCompatibleWithWeapon(top.stillmisty.xiantao.domain.skill.entity.Skill skill, top.stillmisty.xiantao.domain.item.entity.Equipment weapon)" />
+  <problem_class id="DataFlowIssue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">为 null 性和数据流问题</problem_class>
+  <description>switch 标签 &lt;code&gt;NONE&lt;/code&gt; 无法访问</description>
+  <highlighted_element>NONE</highlighted_element>
+  <language>JAVA</language>
+  <offset>20</offset>
+  <length>4</length>
+</problem>
+</problems>

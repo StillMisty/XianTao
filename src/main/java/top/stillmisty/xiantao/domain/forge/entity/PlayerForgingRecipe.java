@@ -25,10 +25,6 @@ public class PlayerForgingRecipe {
   @Column(onInsertValue = "now()")
   private LocalDateTime learnTime;
 
-  public boolean isRecipeFor(Long templateId) {
-    return blueprintTemplateId != null && blueprintTemplateId.equals(templateId);
-  }
-
   public static PlayerForgingRecipe create(
       Long userId, Long blueprintTemplateId, Long equipmentTemplateId) {
     PlayerForgingRecipe recipe = new PlayerForgingRecipe();

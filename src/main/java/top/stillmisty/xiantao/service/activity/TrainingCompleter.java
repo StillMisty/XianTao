@@ -48,9 +48,7 @@ public class TrainingCompleter {
         userId, GameEventCategory.TRAINING_INTERRUPTED, "你在{{mapName}}的历练因重伤而中断。", args);
   }
 
-  /**
-   * 历练子事件: 每 15 分钟 roll 1 次，约 30% 概率触发
-   */
+  /** 历练子事件: 每 15 分钟 roll 1 次，约 30% 概率触发 */
   public void rollSubEvents(Long userId, User user, MapNode mapNode, long minutesTraining) {
     int rolls = Math.max(1, (int) (minutesTraining / 15));
     for (int i = 0; i < rolls; i++) {

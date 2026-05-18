@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,6 +53,8 @@ public class DungeonService {
   private final DungeonProgressHelper progressHelper;
   private final TeamRepository teamRepository;
   private final TeamMemberRepository teamMemberRepository;
+
+  @Lazy @Autowired private DungeonService self;
 
   // ===================== 公开 API =====================
 
@@ -139,9 +143,7 @@ public class DungeonService {
       throw new BusinessException(ErrorCode.DUNGEON_NOT_AT_ENTRANCE, dungeonName);
     }
 
-    if (user.getStatus() != UserStatus.IDLE) {
-      throw new BusinessException(ErrorCode.DUNGEON_STATUS_BLOCKED, user.getStatus().getName());
-    }
+    checkIdleStatus(user);
 
     DungeonInstance existing = findActiveInstanceRaw(userId, dungeon.getId());
     if (existing != null) {
@@ -168,10 +170,7 @@ public class DungeonService {
 
       for (Long memberId : memberIds) {
         User memberUser = userStateService.loadUserForUpdate(memberId);
-        if (memberUser.getStatus() != UserStatus.IDLE) {
-          throw new BusinessException(
-              ErrorCode.DUNGEON_STATUS_BLOCKED, memberUser.getStatus().getName());
-        }
+        checkIdleStatus(memberUser);
         DungeonInstance memberExisting = findActiveInstanceRaw(memberId, dungeon.getId());
         if (memberExisting != null) {
           throw new BusinessException(ErrorCode.DUNGEON_ALREADY_IN, dungeonName);
@@ -213,18 +212,7 @@ public class DungeonService {
       sb.append("队伍人数: ").append(memberIds.size()).append("人\n");
     }
     sb.append("紫气弥漫，天地间充斥着锋锐的金行道韵。\n\n");
-    sb.append("可探索的建筑：\n");
-    for (DungeonPoiConfig poi : outerPois) {
-      sb.append("  · ")
-          .append(poi.getName())
-          .append(" [")
-          .append(poi.getPoiType().getName())
-          .append("]");
-      if (poi.getUnlockCondition() != null && !poi.getUnlockCondition().isBlank()) {
-        sb.append(" 🔒");
-      }
-      sb.append("\n");
-    }
+    appendBuildingPrompt(sb, outerPois);
     sb.append("\n输入「秘境探索」开始探索。");
     return sb.toString();
   }
@@ -320,18 +308,7 @@ public class DungeonService {
         .append("】的")
         .append(instance.getCurrentArea().getName())
         .append("区域。\n\n");
-    sb.append("可探索的建筑：\n");
-    for (DungeonPoiConfig poi : pois) {
-      sb.append("  · ")
-          .append(poi.getName())
-          .append(" [")
-          .append(poi.getPoiType().getName())
-          .append("]");
-      if (poi.getUnlockCondition() != null && !poi.getUnlockCondition().isBlank()) {
-        sb.append(" 🔒");
-      }
-      sb.append("\n");
-    }
+    appendBuildingPrompt(sb, pois);
     sb.append("\n输入「秘境探索」继续探索。");
     return sb.toString();
   }
@@ -348,6 +325,27 @@ public class DungeonService {
   }
 
   // ===================== 私有方法 =====================
+
+  private void checkIdleStatus(User user) {
+    if (user.getStatus() != UserStatus.IDLE) {
+      throw new BusinessException(ErrorCode.DUNGEON_STATUS_BLOCKED, user.getStatus().getName());
+    }
+  }
+
+  private void appendBuildingPrompt(StringBuilder sb, List<DungeonPoiConfig> pois) {
+    sb.append("可探索的建筑：\n");
+    for (DungeonPoiConfig poi : pois) {
+      sb.append("  · ")
+          .append(poi.getName())
+          .append(" [")
+          .append(poi.getPoiType().getName())
+          .append("]");
+      if (poi.getUnlockCondition() != null && !poi.getUnlockCondition().isBlank()) {
+        sb.append(" 🔒");
+      }
+      sb.append("\n");
+    }
+  }
 
   private DungeonInstance findActiveInstance(Long userId) {
     User user = userStateService.loadUser(userId);
@@ -368,7 +366,7 @@ public class DungeonService {
 
   private void checkExpired(DungeonInstance instance) {
     if (instance.isExpired()) {
-      markInstanceAbandoned(instance);
+      self.markInstanceAbandoned(instance);
       throw new BusinessException(ErrorCode.DUNGEON_INSTANCE_EXPIRED);
     }
   }
@@ -408,7 +406,7 @@ public class DungeonService {
     }
     return switch (poi.getUnlockCondition()) {
       case "CORE_TOKEN", "BOSS_CLEARED" -> Boolean.TRUE.equals(instance.getHasCoreToken());
-        default -> true;
+      default -> true;
     };
   }
 
@@ -491,7 +489,7 @@ public class DungeonService {
     if (!outcome.playerWon()) {
       boolean anyAlive = outcome.memberAlive();
       if (!anyAlive) {
-        markInstanceFailed(instance);
+        self.markInstanceFailed(instance);
         userStateService.save(user);
         throw new BusinessException(ErrorCode.DUNGEON_COMBAT_LOST);
       }
@@ -523,8 +521,7 @@ public class DungeonService {
         outcome.expGained(),
         spiritStones,
         false,
-        "战斗胜利！"
-    );
+        "战斗胜利！");
   }
 
   private String retreatCaptain(DungeonInstance instance) {

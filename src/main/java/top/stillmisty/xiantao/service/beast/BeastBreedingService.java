@@ -114,7 +114,8 @@ public class BeastBreedingService {
 
     ItemTemplate eggTemplate =
         itemTemplateRepository.findByType(ItemType.BEAST_EGG).stream()
-                .filter(t -> t.getName().equals(eggName) || t.getName().contains(eggName)).min(java.util.Comparator.comparing(ItemTemplate::getName))
+            .filter(t -> t.getName().equals(eggName) || t.getName().contains(eggName))
+            .min(java.util.Comparator.comparing(ItemTemplate::getName))
             .orElseThrow(() -> new BusinessException(BEAST_EGG_NOT_FOUND, eggName));
 
     var stackableItem =
@@ -142,7 +143,8 @@ public class BeastBreedingService {
       }
       case ItemResolver.NotFound(var name) ->
           throw new BusinessException(BEAST_EGG_NOT_IN_INVENTORY, name);
-      case ItemResolver.Ambiguous(var name, _) -> throw new BusinessException(ITEM_MULTIPLE_MATCH, name);
+      case ItemResolver.Ambiguous(var name, _) ->
+          throw new BusinessException(ITEM_MULTIPLE_MATCH, name);
     };
   }
 
@@ -286,22 +288,9 @@ public class BeastBreedingService {
 
   @Transactional
   public ReleaseBeastVO releaseBeast(Long userId, String position) {
-    Integer cellId = fudiHelper.parseCellId(position);
-    Fudi fudi =
-        fudiHelper
-            .findAndTouchFudi(userId)
-            .orElseThrow(() -> new BusinessException(FUDI_NOT_FOUND));
-
-    FudiCell cell =
-        fudiCellRepository
-            .findByFudiIdAndCellId(fudi.getId(), cellId)
-            .orElseThrow(() -> new BusinessException(CELL_NOT_FOUND, cellId));
-
-    if (cell.getCellType() != CellType.PEN) {
-      throw new BusinessException(CELL_NOT_PEN, cellId);
-    }
-
-    Beast beast = beastDisplayHelper.findBeastByCell(cell);
+    var pcb = beastDisplayHelper.findPenCell(userId, position, false, false);
+    var cell = pcb.cell();
+    var beast = pcb.beast();
     String beastName = beast != null ? beast.getBeastName() : "未知灵兽";
     int tier = beast != null ? beast.getTier() : 1;
     String qualityStr =
@@ -339,25 +328,9 @@ public class BeastBreedingService {
       throw new BusinessException(ITEM_QUANTITY_INSUFFICIENT, quantity, 0);
     }
 
-    Integer cellId = fudiHelper.parseCellId(position);
-    Fudi fudi =
-        fudiHelper
-            .findAndTouchFudi(userId)
-            .orElseThrow(() -> new BusinessException(FUDI_NOT_FOUND));
-
-    FudiCell cell =
-        fudiCellRepository
-            .findByFudiIdAndCellId(fudi.getId(), cellId)
-            .orElseThrow(() -> new BusinessException(CELL_NOT_FOUND, cellId));
-
-    if (cell.getCellType() != CellType.PEN) {
-      throw new BusinessException(CELL_NOT_PEN, cellId);
-    }
-
-    Beast beast = beastDisplayHelper.findBeastByCell(cell);
-    if (beast == null) {
-      throw new BusinessException(BEAST_NOT_FOUND);
-    }
+    var pcb = beastDisplayHelper.findPenCell(userId, position, false, true);
+    var beast = pcb.beast();
+    var cellId = pcb.cellId();
     if (beast.getLevel() >= beast.getLevelCap()) {
       throw new BusinessException(CELL_MAX_LEVEL);
     }
@@ -394,23 +367,10 @@ public class BeastBreedingService {
 
   @Transactional
   public PenCellVO evolveBeast(Long userId, String position, String mode) {
-    Integer cellId = fudiHelper.parseCellId(position);
-    Fudi fudi =
-        fudiHelper
-            .findAndTouchFudi(userId)
-            .orElseThrow(() -> new BusinessException(FUDI_NOT_FOUND));
-
-    FudiCell cell =
-        fudiCellRepository
-            .findByFudiIdAndCellId(fudi.getId(), cellId)
-            .orElseThrow(() -> new BusinessException(CELL_NOT_FOUND, cellId));
-
-    if (cell.getCellType() != CellType.PEN) {
-      throw new BusinessException(CELL_NOT_PEN, cellId);
-    }
-    if (beastDisplayHelper.isIncubating(cell)) {
-      throw new BusinessException(BEAST_HATCHING);
-    }
+    var pcb = beastDisplayHelper.findPenCell(userId, position, true, false);
+    var fudi = pcb.fudi();
+    var cell = pcb.cell();
+    var cellId = pcb.cellId();
 
     int stoneCount = "升品".equals(mode) ? 2 : 1;
     ItemTemplate stoneTemplate =

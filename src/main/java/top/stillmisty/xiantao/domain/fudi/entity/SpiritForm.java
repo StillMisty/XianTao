@@ -32,12 +32,4 @@ public class SpiritForm extends Model<SpiritForm> {
 
   @Column(typeHandler = JsonbCollectionTypeHandler.class)
   private Set<String> dislikedTags;
-
-  public boolean likes(String tag) {
-    return likedTags != null && likedTags.contains(tag);
-  }
-
-  public boolean dislikes(String tag) {
-    return dislikedTags != null && dislikedTags.contains(tag);
-  }
 }

@@ -47,21 +47,13 @@ public class ForgingCombinationFinder {
       Map<String, ElementRange> requirements,
       ItemTemplate blueprintTemplate,
       long equipmentTemplateId) {
-    Map<String, Integer> attributeTotals = new HashMap<>();
-    Map<String, Integer> usedMaterials = new LinkedHashMap<>();
-    Map<StackableItem, Integer> remainingQuantities = new HashMap<>();
-    for (StackableItem mat : materials) {
-      remainingQuantities.put(mat, mat.getQuantity());
-    }
+    CombinationResult cr = runCombination(requirements, materials);
+    Map<String, Integer> attributeTotals = cr.attributeTotals();
+    Map<String, Integer> usedMaterials = cr.usedMaterials();
 
-    strategy.tryFindBestCombination(
-        requirements, materials, attributeTotals, usedMaterials, remainingQuantities);
-
-    List<String> missingAttributes =
-        strategy.collectMissingAttributes(requirements, attributeTotals);
-    if (!missingAttributes.isEmpty()) {
+    if (!cr.missingAttributes().isEmpty()) {
       throw new BusinessException(
-          ErrorCode.FORGING_ATTRIBUTE_MISSING, String.join(", ", missingAttributes));
+          ErrorCode.FORGING_ATTRIBUTE_MISSING, String.join(", ", cr.missingAttributes()));
     }
 
     if (strategy.exceedsAttributeMax(requirements, attributeTotals)) {
@@ -81,6 +73,21 @@ public class ForgingCombinationFinder {
 
   public MaterialSelectionResult findBestMaterials(
       Map<String, ElementRange> requirements, List<StackableItem> materials) {
+    CombinationResult cr = runCombination(requirements, materials);
+    return new MaterialSelectionResult(
+        cr.missingAttributes().isEmpty(),
+        cr.usedMaterials(),
+        cr.attributeTotals(),
+        cr.missingAttributes());
+  }
+
+  private record CombinationResult(
+      Map<String, Integer> attributeTotals,
+      Map<String, Integer> usedMaterials,
+      List<String> missingAttributes) {}
+
+  private CombinationResult runCombination(
+      Map<String, ElementRange> requirements, List<StackableItem> materials) {
     Map<String, Integer> attributeTotals = new HashMap<>();
     Map<String, Integer> usedMaterials = new LinkedHashMap<>();
     Map<StackableItem, Integer> remainingQuantities = new HashMap<>();
@@ -93,8 +100,7 @@ public class ForgingCombinationFinder {
 
     List<String> missingAttributes =
         strategy.collectMissingAttributes(requirements, attributeTotals);
-    return new MaterialSelectionResult(
-        missingAttributes.isEmpty(), usedMaterials, attributeTotals, missingAttributes);
+    return new CombinationResult(attributeTotals, usedMaterials, missingAttributes);
   }
 
   public double calculateQualityScore(

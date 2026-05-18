@@ -1,0 +1,464 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/domain/beast/repository/BeastRepository.java</file>
+  <line>21</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.domain.beast.repository</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.domain.beast.repository.BeastRepository top.stillmisty.xiantao.domain.beast.entity.Beast save(top.stillmisty.xiantao.domain.beast.entity.Beast beast)" />
+  <problem_class id="UnusedReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法可以为 'void'</problem_class>
+  <hints />
+  <description>方法的返回值从未使用过</description>
+  <highlighted_element>save</highlighted_element>
+  <language>JAVA</language>
+  <offset>8</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/domain/dungeon/repository/DungeonFirstClearRepository.java</file>
+  <line>7</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.domain.dungeon.repository</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.domain.dungeon.repository.DungeonFirstClearRepository top.stillmisty.xiantao.domain.dungeon.entity.DungeonFirstClear save(top.stillmisty.xiantao.domain.dungeon.entity.DungeonFirstClear firstClear)" />
+  <problem_class id="UnusedReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法可以为 'void'</problem_class>
+  <hints />
+  <description>方法的返回值从未使用过</description>
+  <highlighted_element>save</highlighted_element>
+  <language>JAVA</language>
+  <offset>20</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/domain/dungeon/repository/DungeonInstanceRepository.java</file>
+  <line>8</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.domain.dungeon.repository</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.domain.dungeon.repository.DungeonInstanceRepository top.stillmisty.xiantao.domain.dungeon.entity.DungeonInstance save(top.stillmisty.xiantao.domain.dungeon.entity.DungeonInstance instance)" />
+  <problem_class id="UnusedReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法可以为 'void'</problem_class>
+  <hints />
+  <description>方法的返回值从未使用过</description>
+  <highlighted_element>save</highlighted_element>
+  <language>JAVA</language>
+  <offset>18</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/domain/dungeon/repository/DungeonProgressRepository.java</file>
+  <line>7</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.domain.dungeon.repository</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.domain.dungeon.repository.DungeonProgressRepository top.stillmisty.xiantao.domain.dungeon.entity.DungeonProgress save(top.stillmisty.xiantao.domain.dungeon.entity.DungeonProgress progress)" />
+  <problem_class id="UnusedReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法可以为 'void'</problem_class>
+  <hints />
+  <description>方法的返回值从未使用过</description>
+  <highlighted_element>save</highlighted_element>
+  <language>JAVA</language>
+  <offset>18</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/domain/event/repository/HiddenCompletionRepository.java</file>
+  <line>13</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.domain.event.repository</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.domain.event.repository.HiddenCompletionRepository top.stillmisty.xiantao.domain.event.entity.HiddenCompletion save(top.stillmisty.xiantao.domain.event.entity.HiddenCompletion completion)" />
+  <problem_class id="UnusedReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法可以为 'void'</problem_class>
+  <hints />
+  <description>方法的返回值从未使用过</description>
+  <highlighted_element>save</highlighted_element>
+  <language>JAVA</language>
+  <offset>19</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/domain/forge/repository/PlayerForgingRecipeRepository.java</file>
+  <line>20</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.domain.forge.repository</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.domain.forge.repository.PlayerForgingRecipeRepository top.stillmisty.xiantao.domain.forge.entity.PlayerForgingRecipe save(top.stillmisty.xiantao.domain.forge.entity.PlayerForgingRecipe recipe)" />
+  <problem_class id="UnusedReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法可以为 'void'</problem_class>
+  <hints />
+  <description>方法的返回值从未使用过</description>
+  <highlighted_element>save</highlighted_element>
+  <language>JAVA</language>
+  <offset>22</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/domain/fudi/repository/FudiCellRepository.java</file>
+  <line>18</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.domain.fudi.repository</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.domain.fudi.repository.FudiCellRepository top.stillmisty.xiantao.domain.fudi.entity.FudiCell save(top.stillmisty.xiantao.domain.fudi.entity.FudiCell cell)" />
+  <problem_class id="UnusedReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法可以为 'void'</problem_class>
+  <hints />
+  <description>方法的返回值从未使用过</description>
+  <highlighted_element>save</highlighted_element>
+  <language>JAVA</language>
+  <offset>11</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/domain/fudi/repository/SpiritRepository.java</file>
+  <line>12</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.domain.fudi.repository</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository top.stillmisty.xiantao.domain.fudi.entity.Spirit save(top.stillmisty.xiantao.domain.fudi.entity.Spirit spirit)" />
+  <problem_class id="UnusedReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法可以为 'void'</problem_class>
+  <hints />
+  <description>方法的返回值从未使用过</description>
+  <highlighted_element>save</highlighted_element>
+  <language>JAVA</language>
+  <offset>9</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/domain/item/repository/EquipmentRepository.java</file>
+  <line>12</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.domain.item.repository</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.domain.item.repository.EquipmentRepository top.stillmisty.xiantao.domain.item.entity.Equipment save(top.stillmisty.xiantao.domain.item.entity.Equipment equipment)" />
+  <problem_class id="UnusedReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法可以为 'void'</problem_class>
+  <hints />
+  <description>方法的返回值从未使用过</description>
+  <highlighted_element>save</highlighted_element>
+  <language>JAVA</language>
+  <offset>12</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/domain/item/repository/StackableItemRepository.java</file>
+  <line>12</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.domain.item.repository</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.domain.item.repository.StackableItemRepository top.stillmisty.xiantao.domain.item.entity.StackableItem save(top.stillmisty.xiantao.domain.item.entity.StackableItem item)" />
+  <problem_class id="UnusedReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法可以为 'void'</problem_class>
+  <hints />
+  <description>方法的返回值从未使用过</description>
+  <highlighted_element>save</highlighted_element>
+  <language>JAVA</language>
+  <offset>16</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/domain/masterapprentice/repository/MasterApprenticeRepository.java</file>
+  <line>10</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.domain.masterapprentice.repository</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.domain.masterapprentice.repository.MasterApprenticeRepository top.stillmisty.xiantao.domain.masterapprentice.entity.MasterApprentice save(top.stillmisty.xiantao.domain.masterapprentice.entity.MasterApprentice relation)" />
+  <problem_class id="UnusedReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法可以为 'void'</problem_class>
+  <hints />
+  <description>方法的返回值从未使用过</description>
+  <highlighted_element>save</highlighted_element>
+  <language>JAVA</language>
+  <offset>19</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/domain/pill/repository/PillResistanceRepository.java</file>
+  <line>14</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.domain.pill.repository</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.domain.pill.repository.PillResistanceRepository int incrementCount(java.lang.Long userId, java.lang.Long templateId, java.lang.String quality)" />
+  <problem_class id="UnusedReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法可以为 'void'</problem_class>
+  <hints />
+  <description>方法的返回值从未使用过</description>
+  <highlighted_element>incrementCount</highlighted_element>
+  <language>JAVA</language>
+  <offset>6</offset>
+  <length>14</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/domain/pill/repository/PlayerBuffRepository.java</file>
+  <line>24</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.domain.pill.repository</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.domain.pill.repository.PlayerBuffRepository top.stillmisty.xiantao.domain.pill.entity.PlayerBuff save(top.stillmisty.xiantao.domain.pill.entity.PlayerBuff buff)" />
+  <problem_class id="UnusedReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法可以为 'void'</problem_class>
+  <hints />
+  <description>方法的返回值从未使用过</description>
+  <highlighted_element>save</highlighted_element>
+  <language>JAVA</language>
+  <offset>13</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/domain/pill/repository/PlayerPillRecipeRepository.java</file>
+  <line>23</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.domain.pill.repository</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.domain.pill.repository.PlayerPillRecipeRepository top.stillmisty.xiantao.domain.pill.entity.PlayerPillRecipe save(top.stillmisty.xiantao.domain.pill.entity.PlayerPillRecipe recipe)" />
+  <problem_class id="UnusedReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法可以为 'void'</problem_class>
+  <hints />
+  <description>方法的返回值从未使用过</description>
+  <highlighted_element>save</highlighted_element>
+  <language>JAVA</language>
+  <offset>19</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/domain/sect/repository/ChatHistoryRepository.java</file>
+  <line>8</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.domain.sect.repository</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.domain.sect.repository.ChatHistoryRepository top.stillmisty.xiantao.domain.sect.entity.ChatHistory save(top.stillmisty.xiantao.domain.sect.entity.ChatHistory history)" />
+  <problem_class id="UnusedReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法可以为 'void'</problem_class>
+  <hints />
+  <description>方法的返回值从未使用过</description>
+  <highlighted_element>save</highlighted_element>
+  <language>JAVA</language>
+  <offset>14</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/domain/sect/repository/SectBuildingRepository.java</file>
+  <line>9</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.domain.sect.repository</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.domain.sect.repository.SectBuildingRepository top.stillmisty.xiantao.domain.sect.entity.SectBuilding save(top.stillmisty.xiantao.domain.sect.entity.SectBuilding building)" />
+  <problem_class id="UnusedReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法可以为 'void'</problem_class>
+  <hints />
+  <description>方法的返回值从未使用过</description>
+  <highlighted_element>save</highlighted_element>
+  <language>JAVA</language>
+  <offset>15</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/domain/sect/repository/SectMemberRepository.java</file>
+  <line>8</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.domain.sect.repository</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.domain.sect.repository.SectMemberRepository top.stillmisty.xiantao.domain.sect.entity.SectMember save(top.stillmisty.xiantao.domain.sect.entity.SectMember member)" />
+  <problem_class id="UnusedReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法可以为 'void'</problem_class>
+  <hints />
+  <description>方法的返回值从未使用过</description>
+  <highlighted_element>save</highlighted_element>
+  <language>JAVA</language>
+  <offset>13</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/domain/sect/repository/SectRepository.java</file>
+  <line>8</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.domain.sect.repository</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.domain.sect.repository.SectRepository top.stillmisty.xiantao.domain.sect.entity.Sect save(top.stillmisty.xiantao.domain.sect.entity.Sect sect)" />
+  <problem_class id="UnusedReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法可以为 'void'</problem_class>
+  <hints />
+  <description>方法的返回值从未使用过</description>
+  <highlighted_element>save</highlighted_element>
+  <language>JAVA</language>
+  <offset>7</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/domain/sect/repository/SectSharedSkillRepository.java</file>
+  <line>9</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.domain.sect.repository</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.domain.sect.repository.SectSharedSkillRepository top.stillmisty.xiantao.domain.sect.entity.SectSharedSkill save(top.stillmisty.xiantao.domain.sect.entity.SectSharedSkill skill)" />
+  <problem_class id="UnusedReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法可以为 'void'</problem_class>
+  <hints />
+  <description>方法的返回值从未使用过</description>
+  <highlighted_element>save</highlighted_element>
+  <language>JAVA</language>
+  <offset>18</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/domain/sect/repository/SectShopItemRepository.java</file>
+  <line>8</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.domain.sect.repository</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.domain.sect.repository.SectShopItemRepository top.stillmisty.xiantao.domain.sect.entity.SectShopItem save(top.stillmisty.xiantao.domain.sect.entity.SectShopItem item)" />
+  <problem_class id="UnusedReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法可以为 'void'</problem_class>
+  <hints />
+  <description>方法的返回值从未使用过</description>
+  <highlighted_element>save</highlighted_element>
+  <language>JAVA</language>
+  <offset>15</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/domain/shop/repository/ShopProductRepository.java</file>
+  <line>9</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.domain.shop.repository</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.domain.shop.repository.ShopProductRepository top.stillmisty.xiantao.domain.shop.entity.ShopProduct save(top.stillmisty.xiantao.domain.shop.entity.ShopProduct product)" />
+  <problem_class id="UnusedReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法可以为 'void'</problem_class>
+  <hints />
+  <description>方法的返回值从未使用过</description>
+  <highlighted_element>save</highlighted_element>
+  <language>JAVA</language>
+  <offset>14</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/domain/skill/repository/PlayerSkillRepository.java</file>
+  <line>15</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.domain.skill.repository</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.domain.skill.repository.PlayerSkillRepository top.stillmisty.xiantao.domain.skill.entity.PlayerSkill save(top.stillmisty.xiantao.domain.skill.entity.PlayerSkill playerSkill)" />
+  <problem_class id="UnusedReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法可以为 'void'</problem_class>
+  <hints />
+  <description>方法的返回值从未使用过</description>
+  <highlighted_element>save</highlighted_element>
+  <language>JAVA</language>
+  <offset>14</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/domain/team/repository/TeamInvitationRepository.java</file>
+  <line>14</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.domain.team.repository</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.domain.team.repository.TeamInvitationRepository top.stillmisty.xiantao.domain.team.entity.TeamInvitation save(top.stillmisty.xiantao.domain.team.entity.TeamInvitation invitation)" />
+  <problem_class id="UnusedReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法可以为 'void'</problem_class>
+  <hints />
+  <description>方法的返回值从未使用过</description>
+  <highlighted_element>save</highlighted_element>
+  <language>JAVA</language>
+  <offset>17</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/domain/team/repository/TeamMemberRepository.java</file>
+  <line>12</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.domain.team.repository</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.domain.team.repository.TeamMemberRepository top.stillmisty.xiantao.domain.team.entity.TeamMember save(top.stillmisty.xiantao.domain.team.entity.TeamMember member)" />
+  <problem_class id="UnusedReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法可以为 'void'</problem_class>
+  <hints />
+  <description>方法的返回值从未使用过</description>
+  <highlighted_element>save</highlighted_element>
+  <language>JAVA</language>
+  <offset>13</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/domain/team/repository/TeamRepository.java</file>
+  <line>11</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.domain.team.repository</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.domain.team.repository.TeamRepository top.stillmisty.xiantao.domain.team.entity.Team save(top.stillmisty.xiantao.domain.team.entity.Team team)" />
+  <problem_class id="UnusedReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法可以为 'void'</problem_class>
+  <hints />
+  <description>方法的返回值从未使用过</description>
+  <highlighted_element>save</highlighted_element>
+  <language>JAVA</language>
+  <offset>7</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/domain/user/repository/DaoProtectionRepository.java</file>
+  <line>11</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.domain.user.repository</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.domain.user.repository.DaoProtectionRepository top.stillmisty.xiantao.domain.user.entity.DaoProtection save(top.stillmisty.xiantao.domain.user.entity.DaoProtection protection)" />
+  <problem_class id="UnusedReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法可以为 'void'</problem_class>
+  <hints />
+  <description>方法的返回值从未使用过</description>
+  <highlighted_element>save</highlighted_element>
+  <language>JAVA</language>
+  <offset>16</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/domain/user/repository/UserAuthRepository.java</file>
+  <line>12</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.domain.user.repository</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.domain.user.repository.UserAuthRepository top.stillmisty.xiantao.domain.user.entity.UserAuth save(top.stillmisty.xiantao.domain.user.entity.UserAuth userAuth)" />
+  <problem_class id="UnusedReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法可以为 'void'</problem_class>
+  <hints />
+  <description>方法的返回值从未使用过</description>
+  <highlighted_element>save</highlighted_element>
+  <language>JAVA</language>
+  <offset>11</offset>
+  <length>4</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/domain/user/repository/UserRepository.java</file>
+  <line>33</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.domain.user.repository</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.domain.user.repository.UserRepository int addSpiritStonesAtomically(java.lang.Long userId, long amount)" />
+  <problem_class id="UnusedReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法可以为 'void'</problem_class>
+  <hints />
+  <description>方法的返回值从未使用过</description>
+  <highlighted_element>addSpiritStonesAtomically</highlighted_element>
+  <language>JAVA</language>
+  <offset>6</offset>
+  <length>25</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/infrastructure/mapper/ChatHistoryMapper.java</file>
+  <line>23</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.infrastructure.mapper</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.infrastructure.mapper.ChatHistoryMapper int deleteOldEntries(java.lang.String chatType, java.lang.Long conversationId, java.lang.Long userId, int keepCount)" />
+  <problem_class id="UnusedReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法可以为 'void'</problem_class>
+  <hints />
+  <description>方法的返回值从未使用过</description>
+  <highlighted_element>deleteOldEntries</highlighted_element>
+  <language>JAVA</language>
+  <offset>6</offset>
+  <length>16</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/infrastructure/mapper/PillResistanceMapper.java</file>
+  <line>25</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.infrastructure.mapper</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.infrastructure.mapper.PillResistanceMapper int upsertIncrementCount(java.lang.Long userId, java.lang.Long templateId, java.lang.String quality)" />
+  <problem_class id="UnusedReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法可以为 'void'</problem_class>
+  <hints />
+  <description>方法的返回值从未使用过</description>
+  <highlighted_element>upsertIncrementCount</highlighted_element>
+  <language>JAVA</language>
+  <offset>6</offset>
+  <length>20</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/service/GameEventService.java</file>
+  <line>30</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.service</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.service.GameEventService top.stillmisty.xiantao.domain.event.entity.GameEvent createEvent(java.lang.Long userId, top.stillmisty.xiantao.domain.event.enums.GameEventCategory category, java.lang.String narrativeKey, java.util.Map&lt;java.lang.String,java.lang.Object&gt; narrativeArgs)" />
+  <problem_class id="UnusedReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法可以为 'void'</problem_class>
+  <hints />
+  <description>方法的返回值从未使用过</description>
+  <highlighted_element>createEvent</highlighted_element>
+  <language>JAVA</language>
+  <offset>19</offset>
+  <length>11</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/service/GameEventService.java</file>
+  <line>67</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.service</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.service.GameEventService int markDelivered(java.util.List&lt;java.lang.Long&gt; eventIds)" />
+  <problem_class id="UnusedReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法可以为 'void'</problem_class>
+  <hints />
+  <description>方法的返回值从未使用过</description>
+  <highlighted_element>markDelivered</highlighted_element>
+  <language>JAVA</language>
+  <offset>13</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/service/player/UserStateService.java</file>
+  <line>51</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.service.player</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.service.player.UserStateService top.stillmisty.xiantao.domain.user.entity.User save(top.stillmisty.xiantao.domain.user.entity.User user)" />
+  <problem_class id="UnusedReturnValue" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">方法可以为 'void'</problem_class>
+  <hints />
+  <description>方法的返回值从未使用过</description>
+  <highlighted_element>save</highlighted_element>
+  <language>JAVA</language>
+  <offset>14</offset>
+  <length>4</length>
+</problem>
+</problems>

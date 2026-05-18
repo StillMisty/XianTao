@@ -15,6 +15,7 @@ import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
 import top.stillmisty.xiantao.service.player.UserStateService;
+import top.stillmisty.xiantao.util.WeightedRandom;
 
 @Component
 @RequiredArgsConstructor
@@ -80,12 +81,16 @@ public class DungeonLootHelper {
 
     for (int i = 0; i < rollCount; i++) {
       LootPoolEntry entry =
-          weightedRandom(poi.getLootPool(), LootPoolEntry::weight, poi.getLootWeightTotal());
+          WeightedRandom.weightedRandom(
+              poi.getLootPool(), LootPoolEntry::weight, poi.getLootWeightTotal());
       if (entry == null) continue;
 
       int qty = ThreadLocalRandom.current().nextInt(entry.minQty(), entry.maxQty() + 1);
       String itemName =
-          itemTemplateRepository.findById(entry.templateId()).map(ItemTemplate::getName).orElse("未知物品");
+          itemTemplateRepository
+              .findById(entry.templateId())
+              .map(ItemTemplate::getName)
+              .orElse("未知物品");
       drops.add(new DropItemVO(itemName, qty));
     }
     return drops;
@@ -94,13 +99,14 @@ public class DungeonLootHelper {
   public void giveDrops(Long userId, List<DropItemVO> drops, long spiritStones) {
     for (DropItemVO drop : drops) {
       var template = itemTemplateRepository.findByName(drop.name());
-        template.ifPresent(itemTemplate -> stackableItemService.addStackableItem(
-                userId,
-                itemTemplate.getId(),
-                itemTemplate.getType(),
-                itemTemplate.getName(),
-                drop.quantity()
-        ));
+      template.ifPresent(
+          itemTemplate ->
+              stackableItemService.addStackableItem(
+                  userId,
+                  itemTemplate.getId(),
+                  itemTemplate.getType(),
+                  itemTemplate.getName(),
+                  drop.quantity()));
     }
     if (spiritStones > 0) {
       User user = userStateService.loadUser(userId);
@@ -108,17 +114,5 @@ public class DungeonLootHelper {
           (user.getSpiritStones() != null ? user.getSpiritStones() : 0) + spiritStones);
       userStateService.save(user);
     }
-  }
-
-  private <T> T weightedRandom(
-      List<T> items, java.util.function.ToIntFunction<T> weightFn, int totalWeight) {
-    if (items == null || items.isEmpty() || totalWeight <= 0) return null;
-    int roll = ThreadLocalRandom.current().nextInt(totalWeight);
-    int cumulative = 0;
-    for (T item : items) {
-      cumulative += weightFn.applyAsInt(item);
-      if (roll < cumulative) return item;
-    }
-    return items.getLast();
   }
 }

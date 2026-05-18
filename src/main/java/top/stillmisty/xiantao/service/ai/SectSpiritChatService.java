@@ -12,7 +12,9 @@ import top.stillmisty.xiantao.domain.sect.enums.ChatType;
 import top.stillmisty.xiantao.domain.sect.repository.ChatHistoryRepository;
 import top.stillmisty.xiantao.domain.sect.repository.SectMemberRepository;
 import top.stillmisty.xiantao.domain.sect.repository.SectRepository;
+import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
@@ -34,6 +36,7 @@ public class SectSpiritChatService {
   private final ChatHistoryRepository chatHistoryRepository;
   private final SectSpiritTools sectSpiritTools;
   private final SectBuildingService sectBuildingService;
+  private final UserRepository userRepository;
 
   @Authenticated
   public ServiceResult<String> chatWithSectSpirit(
@@ -93,6 +96,10 @@ public class SectSpiritChatService {
   }
 
   private String buildPrompt(Sect sect, SectMember member, List<ChatHistory> history) {
+    User user =
+        userRepository
+            .findById(member.getUserId())
+            .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_IN));
     StringBuilder prompt = new StringBuilder();
 
     prompt.append(
@@ -131,6 +138,7 @@ public class SectSpiritChatService {
                 sectMemberRepository.countBySectId(sect.getId()),
                 sect.getMaxMembers(),
                 sect.getLeaderId(),
+                user.getNickname(),
                 member.getPosition().getName(),
                 member.getContribution()));
 

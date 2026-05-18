@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
@@ -26,6 +25,7 @@ import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.combat.CombatService;
 import top.stillmisty.xiantao.service.combat.PostCombatProcessor;
 import top.stillmisty.xiantao.service.player.UserStateService;
+import top.stillmisty.xiantao.util.WeightedRandom;
 
 @Component
 @RequiredArgsConstructor
@@ -49,7 +49,8 @@ public class DungeonCombatHelper {
       List<Long> memberIds) {
 
     MonsterPoolEntry monsterEntry =
-        weightedRandom(poi.getMonsterPool(), MonsterPoolEntry::weight, poi.getMonsterWeightTotal());
+        WeightedRandom.weightedRandom(
+            poi.getMonsterPool(), MonsterPoolEntry::weight, poi.getMonsterWeightTotal());
     if (monsterEntry == null) {
       throw new BusinessException(ErrorCode.DUNGEON_POI_NOT_FOUND);
     }
@@ -150,17 +151,5 @@ public class DungeonCombatHelper {
         playerWon
             ? ("击败了" + monster.getName() + "！\n" + (summary != null ? summary : ""))
             : "被" + monster.getName() + "击败...");
-  }
-
-  private <T> T weightedRandom(
-      List<T> items, java.util.function.ToIntFunction<T> weightFn, int totalWeight) {
-    if (items == null || items.isEmpty() || totalWeight <= 0) return null;
-    int roll = ThreadLocalRandom.current().nextInt(totalWeight);
-    int cumulative = 0;
-    for (T item : items) {
-      cumulative += weightFn.applyAsInt(item);
-      if (roll < cumulative) return item;
-    }
-    return items.getLast();
   }
 }

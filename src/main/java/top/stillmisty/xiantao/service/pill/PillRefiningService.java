@@ -21,6 +21,8 @@ import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
+import top.stillmisty.xiantao.util.MaterialParser;
+import top.stillmisty.xiantao.util.MaterialParser.ParsedMaterial;
 
 /** 炼丹服务 处理：自动/手动炼丹、成色计算 */
 @Slf4j
@@ -157,18 +159,11 @@ public class PillRefiningService {
   private List<HerbInput> parseHerbInputs(Long userId, List<String> herbInputs) {
     List<HerbInput> result = new ArrayList<>();
     for (String input : herbInputs) {
-      String[] parts = input.split("[×xX]");
-      if (parts.length != 2) continue;
+      ParsedMaterial parsed = MaterialParser.parse(input);
+      if (parsed == null) continue;
 
-      String herbName = parts[0].trim();
-      int quantity;
-      try {
-        quantity = Integer.parseInt(parts[1].trim());
-      } catch (NumberFormatException e) {
-        continue;
-      }
-
-      if (quantity <= 0) continue;
+      String herbName = parsed.name();
+      int quantity = parsed.quantity();
 
       List<StackableItem> herbs =
           stackableItemRepository.findByUserId(userId).stream()

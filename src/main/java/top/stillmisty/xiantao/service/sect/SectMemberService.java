@@ -6,6 +6,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,6 +51,8 @@ public class SectMemberService {
   private final PlayerSkillRepository playerSkillRepository;
   private final ChatClient npcChatClient;
   @Lazy private final MasterApprenticeService masterApprenticeService;
+
+  @Lazy @Autowired private SectMemberService self;
 
   // ===================== 公开 API =====================
 
@@ -292,15 +295,11 @@ public class SectMemberService {
       for (String line : response.split("\n")) {
         String trimmed = line.trim();
         if (trimmed.startsWith("诗号：") || trimmed.startsWith("诗号:")) {
-          verse = trimmed.substring(trimmed.indexOf('：') + 1).trim();
-          if (verse.isEmpty()) verse = trimmed.substring(trimmed.indexOf(':') + 1).trim();
+          verse = extractSuffix(trimmed);
         } else if (trimmed.startsWith("道统：") || trimmed.startsWith("道统:")) {
-          ethos = trimmed.substring(trimmed.indexOf('：') + 1).trim();
-          if (ethos.isEmpty()) ethos = trimmed.substring(trimmed.indexOf(':') + 1).trim();
+          ethos = extractSuffix(trimmed);
         } else if (trimmed.startsWith("宗灵人格：") || trimmed.startsWith("宗灵人格:")) {
-          personality = trimmed.substring(trimmed.indexOf('：') + 1).trim();
-          if (personality.isEmpty())
-            personality = trimmed.substring(trimmed.indexOf(':') + 1).trim();
+          personality = extractSuffix(trimmed);
         }
       }
 
@@ -316,6 +315,18 @@ public class SectMemberService {
       log.warn("LLM 生成宗门身份失败，使用默认值", e);
       return new String[] {"", "以" + name + "之名，问道长生。", "沉稳大气的宗门意志"};
     }
+  }
+
+  private static String extractSuffix(String trimmed) {
+    int fullWidthIndex = trimmed.indexOf('：');
+    if (fullWidthIndex >= 0) {
+      return trimmed.substring(fullWidthIndex + 1).trim();
+    }
+    int halfWidthIndex = trimmed.indexOf(':');
+    if (halfWidthIndex >= 0) {
+      return trimmed.substring(halfWidthIndex + 1).trim();
+    }
+    return trimmed;
   }
 
   @Transactional
@@ -420,7 +431,7 @@ public class SectMemberService {
   @Transactional
   public String appointMember(Long userId, String targetNickname, String positionCode) {
     SectMember actorMember = requireMember(userId);
-    if (!actorMember.getPosition().canManage()) {
+    if (actorMember.getPosition().canManage()) {
       throw new BusinessException(ErrorCode.SECT_NOT_LEADER);
     }
 
@@ -474,7 +485,7 @@ public class SectMemberService {
   @Transactional
   public String dismissSect(Long userId) {
     SectMember member = requireMember(userId);
-    if (!member.getPosition().canManage()) {
+    if (member.getPosition().canManage()) {
       throw new BusinessException(ErrorCode.SECT_NOT_LEADER);
     }
 
@@ -558,7 +569,7 @@ public class SectMemberService {
   @Transactional
   public String upgradeSect(Long userId) {
     SectMember member = requireMember(userId);
-    if (!member.getPosition().canManage()) {
+    if (member.getPosition().canManage()) {
       throw new BusinessException(ErrorCode.SECT_NOT_LEADER);
     }
 
@@ -580,7 +591,7 @@ public class SectMemberService {
           default -> Long.MAX_VALUE;
         };
 
-    if (!sect.deductFunds(cost)) {
+    if (sect.deductFunds(cost)) {
       throw new BusinessException(ErrorCode.SECT_FUNDS_INSUFFICIENT, cost, sect.getFunds());
     }
 
@@ -603,7 +614,7 @@ public class SectMemberService {
   @Transactional
   public String expandMembers(Long userId) {
     SectMember member = requireMember(userId);
-    if (!member.getPosition().canManage()) {
+    if (member.getPosition().canManage()) {
       throw new BusinessException(ErrorCode.SECT_NOT_LEADER);
     }
 
@@ -615,7 +626,7 @@ public class SectMemberService {
     int slots = 5;
     long cost = slots * 500L;
 
-    if (!sect.deductFunds(cost)) {
+    if (sect.deductFunds(cost)) {
       throw new BusinessException(ErrorCode.SECT_FUNDS_INSUFFICIENT, cost, sect.getFunds());
     }
 
@@ -641,14 +652,14 @@ public class SectMemberService {
     Optional<SectMember> memberA = sectMemberRepository.findByUserId(userIdA);
     Optional<SectMember> memberB = sectMemberRepository.findByUserId(userIdB);
     if (memberA.isEmpty() && memberB.isEmpty()) {
-      return true;
+      return false;
     }
     if (memberA.isEmpty() || memberB.isEmpty()) {
-      return false;
+      return true;
     }
     Long sectA = memberA.get().getSectId();
     Long sectB = memberB.get().getSectId();
-    return sectA != null && sectA.equals(sectB);
+    return !sectA.equals(sectB);
   }
 
   public boolean areBothRogue(Long userIdA, Long userIdB) {
@@ -701,7 +712,7 @@ public class SectMemberService {
   void executeLeave(Long userId, SectMember member) {
     sectMemberRepository.deleteByUserId(userId);
 
-    forgetSharedSkills(userId);
+    self.forgetSharedSkills(userId);
 
     sectMemberRepository.save(
         SectMember.create()

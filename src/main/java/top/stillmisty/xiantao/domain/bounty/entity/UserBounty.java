@@ -48,10 +48,6 @@ public class UserBounty {
   @Column(onUpdateValue = "now()", onInsertValue = "now()")
   private LocalDateTime updateTime;
 
-  public boolean isActive() {
-    return status == BountyStatus.ACTIVE;
-  }
-
   public List<BountyRewardItem> getParsedRewardItems() {
     return rewards != null ? rewards : List.of();
   }

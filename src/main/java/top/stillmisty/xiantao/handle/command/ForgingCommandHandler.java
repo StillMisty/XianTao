@@ -100,12 +100,7 @@ public class ForgingCommandHandler implements CommandGroup {
     }
     sb.append(fmt.listItem(String.format("品质分：%.1f%%", result.qualityScore() * 100)));
 
-    if (result.usedMaterials() != null && !result.usedMaterials().isEmpty()) {
-      sb.append("\n消耗锻材：\n");
-      for (Map.Entry<String, Integer> entry : result.usedMaterials().entrySet()) {
-        sb.append(fmt.listItem(String.format("%s x%d", entry.getKey(), entry.getValue())));
-      }
-    }
+    appendUsedMaterials(sb, result.usedMaterials(), fmt);
     return sb.toString();
   }
 
@@ -125,13 +120,18 @@ public class ForgingCommandHandler implements CommandGroup {
     if (result.spiritStoneCost() > 0) {
       sb.append(fmt.listItem("消耗灵石：" + result.spiritStoneCost()));
     }
-    if (result.usedMaterials() != null && !result.usedMaterials().isEmpty()) {
+    appendUsedMaterials(sb, result.usedMaterials(), fmt);
+    return sb.toString();
+  }
+
+  private void appendUsedMaterials(
+      StringBuilder sb, Map<String, Integer> usedMaterials, TextFormat fmt) {
+    if (usedMaterials != null && !usedMaterials.isEmpty()) {
       sb.append("\n消耗锻材：\n");
-      for (Map.Entry<String, Integer> entry : result.usedMaterials().entrySet()) {
+      for (Map.Entry<String, Integer> entry : usedMaterials.entrySet()) {
         sb.append(fmt.listItem(String.format("%s x%d", entry.getKey(), entry.getValue())));
       }
     }
-    return sb.toString();
   }
 
   @Override

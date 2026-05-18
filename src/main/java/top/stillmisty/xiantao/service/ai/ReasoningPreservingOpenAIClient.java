@@ -25,9 +25,8 @@ import com.openai.services.blocking.UploadService;
 import com.openai.services.blocking.VectorStoreService;
 import com.openai.services.blocking.VideoService;
 import com.openai.services.blocking.WebhookService;
-import org.jspecify.annotations.NonNull;
-
 import java.util.function.Consumer;
+import org.jspecify.annotations.NonNull;
 
 public class ReasoningPreservingOpenAIClient implements OpenAIClient {
 
@@ -163,7 +162,8 @@ public class ReasoningPreservingOpenAIClient implements OpenAIClient {
   }
 
   @Override
-  public @NonNull OpenAIClient withOptions(@NonNull Consumer<com.openai.core.ClientOptions.Builder> consumer) {
+  public @NonNull OpenAIClient withOptions(
+      @NonNull Consumer<com.openai.core.ClientOptions.Builder> consumer) {
     return new ReasoningPreservingOpenAIClient(delegate.withOptions(consumer));
   }
 

@@ -30,6 +30,7 @@ public class ItemUseService {
 
   /** 使用物品（公开API，含认证） */
   @Authenticated
+  @Transactional
   public ServiceResult<String> useItem(
       PlatformType platform, String openId, String itemName, String args) {
     Long userId = UserContext.getCurrentUserId();

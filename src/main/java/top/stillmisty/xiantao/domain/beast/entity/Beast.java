@@ -92,16 +92,6 @@ public class Beast {
     return levelCap != null && level < levelCap && exp >= (int) calculateExpToNextLevel();
   }
 
-  /** 升级 */
-  public void levelUp() {
-    if (!canLevelUp()) {
-      return;
-    }
-    exp -= (int) calculateExpToNextLevel();
-    level++;
-    recalculateAttributes();
-  }
-
   /**
    * 添加经验值
    *
@@ -150,11 +140,6 @@ public class Beast {
       case DIVINE -> 2.0;
       default -> 0.8;
     };
-  }
-
-  /** 计算速度 公式：level × 2 + 8 */
-  public int calculateSpeed() {
-    return level * 2 + 8;
   }
 
   /** 检查是否还需要提升等级才能进化 */

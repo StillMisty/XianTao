@@ -1,0 +1,93 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/service/dungeon/DungeonService.java</file>
+  <line>371</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.service.dungeon</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.service.dungeon.DungeonService void checkExpired(top.stillmisty.xiantao.domain.dungeon.entity.DungeonInstance instance)" />
+  <problem_class id="SpringTransactionalMethodCallsInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">@Transactional 自调用方法调用</problem_class>
+  <description>@Transactional 自调用(实际上是目标对象内的方法调用目标对象的另一个方法)在运行时不会导致实际的事务</description>
+  <highlighted_element>markInstanceAbandoned</highlighted_element>
+  <language>JAVA</language>
+  <offset>6</offset>
+  <length>21</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/service/dungeon/DungeonService.java</file>
+  <line>494</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.service.dungeon</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.service.dungeon.DungeonService top.stillmisty.xiantao.domain.dungeon.vo.ExploreResultVO executePoiCombat(top.stillmisty.xiantao.domain.user.entity.User user, top.stillmisty.xiantao.domain.dungeon.entity.DungeonInstance instance, top.stillmisty.xiantao.domain.dungeon.entity.DungeonPoiConfig poi, boolean isBoss)" />
+  <problem_class id="SpringTransactionalMethodCallsInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">@Transactional 自调用方法调用</problem_class>
+  <description>@Transactional 自调用(实际上是目标对象内的方法调用目标对象的另一个方法)在运行时不会导致实际的事务</description>
+  <highlighted_element>markInstanceFailed</highlighted_element>
+  <language>JAVA</language>
+  <offset>8</offset>
+  <length>18</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/service/fudi/FudiService.java</file>
+  <line>61</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.service.fudi</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.service.fudi.FudiService top.stillmisty.xiantao.service.ServiceResult&lt;top.stillmisty.xiantao.domain.fudi.vo.FudiStatusVO&gt; getFudiStatus(top.stillmisty.xiantao.domain.user.enums.PlatformType platform, java.lang.String openId)" />
+  <problem_class id="SpringTransactionalMethodCallsInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">@Transactional 自调用方法调用</problem_class>
+  <description>@Transactional 自调用(实际上是目标对象内的方法调用目标对象的另一个方法)在运行时不会导致实际的事务</description>
+  <highlighted_element>getFudiStatus</highlighted_element>
+  <language>JAVA</language>
+  <offset>39</offset>
+  <length>13</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/service/inventory/ItemUseService.java</file>
+  <line>36</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.service.inventory</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.service.inventory.ItemUseService top.stillmisty.xiantao.service.ServiceResult&lt;java.lang.String&gt; useItem(top.stillmisty.xiantao.domain.user.enums.PlatformType platform, java.lang.String openId, java.lang.String itemName, java.lang.String args)" />
+  <problem_class id="SpringTransactionalMethodCallsInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">@Transactional 自调用方法调用</problem_class>
+  <description>@Transactional 自调用(实际上是目标对象内的方法调用目标对象的另一个方法)在运行时不会导致实际的事务</description>
+  <highlighted_element>useItem</highlighted_element>
+  <language>JAVA</language>
+  <offset>39</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/service/masterapprentice/MasterApprenticeService.java</file>
+  <line>125</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.service.masterapprentice</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.service.masterapprentice.MasterApprenticeService java.lang.String requestMentor(java.lang.Long userId, java.lang.String targetNickname)" />
+  <problem_class id="SpringTransactionalMethodCallsInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">@Transactional 自调用方法调用</problem_class>
+  <description>@Transactional 自调用(实际上是目标对象内的方法调用目标对象的另一个方法)在运行时不会导致实际的事务</description>
+  <highlighted_element>establishMasterApprentice</highlighted_element>
+  <language>JAVA</language>
+  <offset>4</offset>
+  <length>25</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/service/masterapprentice/MasterApprenticeService.java</file>
+  <line>159</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.service.masterapprentice</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.service.masterapprentice.MasterApprenticeService java.lang.String requestApprentice(java.lang.Long userId, java.lang.String targetNickname)" />
+  <problem_class id="SpringTransactionalMethodCallsInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">@Transactional 自调用方法调用</problem_class>
+  <description>@Transactional 自调用(实际上是目标对象内的方法调用目标对象的另一个方法)在运行时不会导致实际的事务</description>
+  <highlighted_element>establishMasterApprentice</highlighted_element>
+  <language>JAVA</language>
+  <offset>4</offset>
+  <length>25</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/service/sect/SectMemberService.java</file>
+  <line>704</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.service.sect</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.service.sect.SectMemberService void executeLeave(java.lang.Long userId, top.stillmisty.xiantao.domain.sect.entity.SectMember member)" />
+  <problem_class id="SpringTransactionalMethodCallsInspection" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">@Transactional 自调用方法调用</problem_class>
+  <description>@Transactional 自调用(实际上是目标对象内的方法调用目标对象的另一个方法)在运行时不会导致实际的事务</description>
+  <highlighted_element>forgetSharedSkills</highlighted_element>
+  <language>JAVA</language>
+  <offset>4</offset>
+  <length>18</length>
+</problem>
+</problems>

@@ -36,10 +36,6 @@ public class DungeonPoiConfig {
   private Boolean isOneTime;
   private Integer exhaustedHours;
 
-  public boolean hasMonsterPool() {
-    return monsterPool != null && !monsterPool.isEmpty();
-  }
-
   public boolean hasLootPool() {
     return lootPool != null && !lootPool.isEmpty();
   }

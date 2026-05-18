@@ -187,7 +187,7 @@ public class TeamService {
     if (!invitation.getInviteeId().equals(userId)) {
       throw new BusinessException(ErrorCode.TEAM_INVITATION_NOT_FOR_YOU);
     }
-    if (!invitation.isPending() || invitation.isExpired()) {
+    if (invitation.isPending() || invitation.isExpired()) {
       throw new BusinessException(ErrorCode.TEAM_INVITATION_EXPIRED);
     }
 
@@ -246,7 +246,7 @@ public class TeamService {
     if (!invitation.getInviteeId().equals(userId)) {
       throw new BusinessException(ErrorCode.TEAM_INVITATION_NOT_FOR_YOU);
     }
-    if (!invitation.isPending()) {
+    if (invitation.isPending()) {
       return "该邀请已处理。";
     }
 

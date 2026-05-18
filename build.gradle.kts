@@ -74,6 +74,7 @@ tasks.withType<JavaExec> {
 }
 
 tasks.register<Exec>("installGitHooks") {
+    description = "Installs git hooks from gradle/hooks/ into .git/hooks/"
     commandLine(
         "bash", "-c",
         "cp gradle/hooks/* .git/hooks/ && chmod +x .git/hooks/*"

@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 import org.postgresql.util.PGobject;
@@ -60,10 +59,7 @@ public class BountyRewardListTypeHandler extends BaseTypeHandler<List<BountyRewa
     try {
       List<Map<String, Object>> raw = OBJECT_MAPPER.readValue(jsonString, List.class);
       if (raw == null) return List.of();
-      return raw.stream()
-          .filter(Objects::nonNull)
-          .map(BountyRewardItem::parseOne)
-          .toList();
+      return raw.stream().filter(Objects::nonNull).map(BountyRewardItem::parseOne).toList();
     } catch (Exception e) {
       throw new SQLException("Failed to deserialize BountyRewardItem list: " + jsonString, e);
     }

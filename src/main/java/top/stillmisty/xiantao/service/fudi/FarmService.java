@@ -167,7 +167,6 @@ public class FarmService {
   // ===================== 收获系统 =====================
 
   public CollectVO harvestCrop(Fudi fudi, FudiCell cell, Integer cellId) {
-    updateGrowthProgress(cell);
 
     if (!(cell.getConfig() instanceof CellConfig.FarmConfig farm)) {
       throw new BusinessException(ErrorCode.CELL_NOT_FARM);
@@ -252,7 +251,6 @@ public class FarmService {
     String cropName = getCropName(farm.cropId());
     if (cropName == null) cropName = "未知灵草";
 
-    updateGrowthProgress(cell);
     Double growthProgress = calculateGrowthProgress(cell);
     if (growthProgress == null) growthProgress = 0.0;
     boolean isPerennial = farm.harvestCount() < getMaxHarvest(farm.cropId());
@@ -279,10 +277,6 @@ public class FarmService {
         .map(
             template -> template.getGrowTime() != null ? template.getGrowTime().doubleValue() : 5.0)
         .orElse(5.0);
-  }
-
-  void updateGrowthProgress(FudiCell cell) {
-    // growthProgress is now computed on-the-fly, nothing to persist
   }
 
   boolean isWilted(FudiCell cell) {
@@ -330,7 +324,8 @@ public class FarmService {
 
   public ItemTemplate findSeedTemplateByName(String name) {
     return itemTemplateRepository.findByType(ItemType.SEED).stream()
-            .filter(t -> t.getName().equals(name) || t.getName().contains(name)).min(java.util.Comparator.comparing(ItemTemplate::getName))
+        .filter(t -> t.getName().equals(name) || t.getName().contains(name))
+        .min(java.util.Comparator.comparing(ItemTemplate::getName))
         .orElseThrow(() -> new BusinessException(ErrorCode.SEED_TEMPLATE_NOT_FOUND, name));
   }
 }

@@ -27,7 +27,7 @@ public class SkillListener {
   @ContentTrim
   @Filter("法决装载 {{skill}}")
   public void equipSkill(OneBotMessageEvent event, @FilterValue("skill") String skill) {
-    log.debug("收到法决装载请求 - AuthorId: {}, Skill: {}", event.getAuthorId(), skill);
+    log.debug("[OneBot] 收到法决装载请求 - AuthorId: {}, Skill: {}", event.getAuthorId(), skill);
     if (skill == null || skill.isEmpty()) {
       event.replyBlocking("用法：法决装载 [法决名称或编号]\n示例：法决装载 御剑术");
       return;
@@ -42,7 +42,7 @@ public class SkillListener {
   @ContentTrim
   @Filter("法决卸下 {{skill}}")
   public void unequipSkill(OneBotMessageEvent event, @FilterValue("skill") String skill) {
-    log.debug("收到法决卸下请求 - AuthorId: {}, Skill: {}", event.getAuthorId(), skill);
+    log.debug("[OneBot] 收到法决卸下请求 - AuthorId: {}, Skill: {}", event.getAuthorId(), skill);
     if (skill == null || skill.isEmpty()) {
       event.replyBlocking("用法：法决卸下 [法决名称或编号]\n示例：法决卸下 御剑术");
       return;
@@ -57,7 +57,7 @@ public class SkillListener {
   @ContentTrim
   @Filter("法决")
   public void skills(OneBotMessageEvent event) {
-    log.debug("收到法决查询请求 - AuthorId: {}", event.getAuthorId());
+    log.debug("[OneBot] 收到法决查询请求 - AuthorId: {}", event.getAuthorId());
     String response =
         skillCommandHandler.handleSkills(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
@@ -70,7 +70,7 @@ public class SkillListener {
   @ContentTrim
   @Filter("法决装载 {{skill}}")
   public void equipSkillQq(QGGroupAtMessageCreateEvent event, @FilterValue("skill") String skill) {
-    log.debug("收到法决装载请求 - AuthorId: {}, Skill: {}", event.getAuthorId(), skill);
+    log.debug("[QQ] 收到法决装载请求 - AuthorId: {}, Skill: {}", event.getAuthorId(), skill);
     if (skill == null || skill.isEmpty()) {
       event.replyBlocking(QGMarkdown.create("用法：法决装载 [法决名称或编号]\n示例：法决装载 御剑术"));
       return;
@@ -86,7 +86,7 @@ public class SkillListener {
   @Filter("法决卸下 {{skill}}")
   public void unequipSkillQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("skill") String skill) {
-    log.debug("收到法决卸下请求 - AuthorId: {}, Skill: {}", event.getAuthorId(), skill);
+    log.debug("[QQ] 收到法决卸下请求 - AuthorId: {}, Skill: {}", event.getAuthorId(), skill);
     if (skill == null || skill.isEmpty()) {
       event.replyBlocking(QGMarkdown.create("用法：法决卸下 [法决名称或编号]\n示例：法决卸下 御剑术"));
       return;
@@ -101,7 +101,7 @@ public class SkillListener {
   @ContentTrim
   @Filter("法决")
   public void skillsQq(QGGroupAtMessageCreateEvent event) {
-    log.debug("收到法决查询请求 - AuthorId: {}", event.getAuthorId());
+    log.debug("[QQ] 收到法决查询请求 - AuthorId: {}", event.getAuthorId());
     String response =
         skillCommandHandler.handleSkills(
             PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);

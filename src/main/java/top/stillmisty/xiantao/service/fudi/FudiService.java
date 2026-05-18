@@ -56,6 +56,7 @@ public class FudiService {
   // ===================== 公开 API（含认证） =====================
 
   @Authenticated
+  @Transactional
   public ServiceResult<FudiStatusVO> getFudiStatus(PlatformType platform, String openId) {
     Long userId = UserContext.getCurrentUserId();
     return new ServiceResult.Success<>(getFudiStatus(userId));
@@ -371,7 +372,6 @@ public class FudiService {
 
     int stoneCost =
         switch (type) {
-          case FARM -> 50;
           case PEN -> 100;
           default -> 50;
         };
@@ -488,7 +488,6 @@ public class FudiService {
           } else {
             builder.name("未知灵草");
           }
-          farmService.updateGrowthProgress(cell);
           Double progress = farmService.calculateGrowthProgress(cell);
           builder.growthProgress(progress);
           builder.isMature(progress != null && progress >= 1.0);

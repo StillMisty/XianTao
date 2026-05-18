@@ -20,10 +20,6 @@ import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionType
 @NoArgsConstructor
 public class MapNode extends Model<MapNode> {
 
-  public static MapNode create() {
-    return new MapNode();
-  }
-
   /** 地图 ID */
   @Id(keyType = KeyType.Auto)
   private Long id;

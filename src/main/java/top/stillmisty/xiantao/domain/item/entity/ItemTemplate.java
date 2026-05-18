@@ -61,12 +61,6 @@ public class ItemTemplate {
   @Column(onUpdateValue = "now()", onInsertValue = "now()")
   private LocalDateTime updateTime;
 
-  /** 检查是否包含指定标签 */
-  public boolean hasTag(String tag) {
-    if (tags == null || tags.isEmpty()) return false;
-    return tags.stream().anyMatch(t -> t.equalsIgnoreCase(tag));
-  }
-
   // ===================== properties 访问器 =====================
 
   /** 检查是否包含所有指定标签 */

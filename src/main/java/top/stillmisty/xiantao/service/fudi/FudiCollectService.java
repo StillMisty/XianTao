@@ -67,7 +67,6 @@ public class FudiCollectService {
       if (cell.getCellType() != CellType.FARM) continue;
       if (!(cell.getConfig() instanceof CellConfig.FarmConfig farm)) continue;
 
-      farmService.updateGrowthProgress(cell);
       Double progress = farmService.calculateGrowthProgress(cell);
       if (progress == null || progress < 1.0) continue;
 

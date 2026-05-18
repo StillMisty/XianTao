@@ -1,0 +1,15 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/service/beast/BeastDisplayHelper.java</file>
+  <line>113</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.service.beast</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.service.beast.BeastDisplayHelper top.stillmisty.xiantao.domain.fudi.vo.PenCellVO buildPenCellVO(top.stillmisty.xiantao.domain.fudi.entity.FudiCell cell)" />
+  <problem_class id="ConditionalExpressionWithIdenticalBranches" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">具有相同分支的条件表达式</problem_class>
+  <description>条件表达式 &lt;code&gt;pen != null ? 4.0 : 4.0&lt;/code&gt; 具有相同的分支</description>
+  <highlighted_element>pen != null ? 4.0 : 4.0</highlighted_element>
+  <language>JAVA</language>
+  <offset>33</offset>
+  <length>23</length>
+</problem>
+</problems>

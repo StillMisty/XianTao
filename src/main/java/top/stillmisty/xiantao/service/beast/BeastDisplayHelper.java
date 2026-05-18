@@ -31,7 +31,8 @@ public class BeastDisplayHelper {
 
   public record PenCellBeast(Fudi fudi, FudiCell cell, Integer cellId, Beast beast) {}
 
-  PenCellBeast getBeastFromPenCell(Long userId, String position, boolean checkIncubating) {
+  PenCellBeast findPenCell(
+      Long userId, String position, boolean checkIncubating, boolean requireBeast) {
     Integer cellId = fudiHelper.parseCellId(position);
     Fudi fudi =
         fudiHelper
@@ -51,10 +52,14 @@ public class BeastDisplayHelper {
     }
 
     Beast beast = findBeastByCell(cell);
-    if (beast == null) {
+    if (requireBeast && beast == null) {
       throw new BusinessException(BEAST_NOT_FOUND);
     }
     return new PenCellBeast(fudi, cell, cellId, beast);
+  }
+
+  PenCellBeast getBeastFromPenCell(Long userId, String position, boolean checkIncubating) {
+    return findPenCell(userId, position, checkIncubating, true);
   }
 
   public Beast findBeastByCell(FudiCell cell) {
@@ -110,7 +115,7 @@ public class BeastDisplayHelper {
         .isIncubating(isIncubating(cell))
         .hatchTime(pen != null ? pen.hatchTime() : null)
         .matureTime(pen != null ? pen.matureTime() : null)
-        .productionIntervalHours(pen != null ? 4.0 : 4.0)
+        .productionIntervalHours(4.0)
         .productionStored(cell.getTotalProductionQuantity())
         .powerScore(powerScore)
         .birthTime(beast != null ? beast.getBirthTime() : null)

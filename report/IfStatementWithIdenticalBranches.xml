@@ -1,0 +1,15 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/src/main/java/top/stillmisty/xiantao/service/NotificationAppender.java</file>
+  <line>97</line>
+  <module>XianTao.main</module>
+  <package>top.stillmisty.xiantao.service</package>
+  <entry_point TYPE="method" FQNAME="top.stillmisty.xiantao.service.NotificationAppender java.lang.String getSectionGroup(top.stillmisty.xiantao.domain.event.enums.GameEventCategory category)" />
+  <problem_class id="IfStatementWithIdenticalBranches" severity="WEAK WARNING" attribute_key="INFO_ATTRIBUTES">具有相同分支或通用部分的 'if' 语句</problem_class>
+  <description>可以收起 'if' 语句</description>
+  <highlighted_element>if</highlighted_element>
+  <language>JAVA</language>
+  <offset>4</offset>
+  <length>2</length>
+</problem>
+</problems>

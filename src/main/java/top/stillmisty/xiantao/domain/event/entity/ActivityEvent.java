@@ -43,10 +43,6 @@ public class ActivityEvent {
   @Column(onInsertValue = "now()")
   private LocalDateTime createTime;
 
-  public boolean isHidden() {
-    return isHidden != null && isHidden;
-  }
-
   public int getWeight() {
     return weight != null ? weight : 100;
   }

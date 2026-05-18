@@ -27,7 +27,7 @@ public class ItemListener {
   @ContentTrim
   @Filter("背包")
   public void inventory(OneBotMessageEvent event) {
-    log.debug("收到背包查询请求 - AuthorId: {}", event.getAuthorId());
+    log.debug("[OneBot] 收到背包查询请求 - AuthorId: {}", event.getAuthorId());
     String response =
         commandHandler.handleInventory(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
@@ -49,7 +49,7 @@ public class ItemListener {
   @ContentTrim
   @Filter("装备 {{itemName}}")
   public void equip(OneBotMessageEvent event, @FilterValue("itemName") String itemName) {
-    log.debug("收到装备穿戴请求 - AuthorId: {}, ItemName: {}", event.getAuthorId(), itemName);
+    log.debug("[OneBot] 收到装备穿戴请求 - AuthorId: {}, ItemName: {}", event.getAuthorId(), itemName);
     String response =
         commandHandler.handleEquip(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), itemName, TextFormat.PLAIN);
@@ -60,7 +60,7 @@ public class ItemListener {
   @ContentTrim
   @Filter("卸下 {{slotName}}")
   public void unequip(OneBotMessageEvent event, @FilterValue("slotName") String slotName) {
-    log.debug("收到装备卸下请求 - AuthorId: {}, SlotName: {}", event.getAuthorId(), slotName);
+    log.debug("[OneBot] 收到装备卸下请求 - AuthorId: {}, SlotName: {}", event.getAuthorId(), slotName);
     String response =
         commandHandler.handleUnequip(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), slotName, TextFormat.PLAIN);
@@ -71,7 +71,7 @@ public class ItemListener {
   @ContentTrim
   @Filter("丢弃 {{itemName}}")
   public void discard(OneBotMessageEvent event, @FilterValue("itemName") String itemName) {
-    log.debug("收到丢弃请求 - AuthorId: {}, ItemName: {}", event.getAuthorId(), itemName);
+    log.debug("[OneBot] 收到丢弃请求 - AuthorId: {}, ItemName: {}", event.getAuthorId(), itemName);
     String response =
         commandHandler.handleDiscard(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), itemName, TextFormat.PLAIN);
@@ -84,7 +84,7 @@ public class ItemListener {
   @ContentTrim
   @Filter("背包")
   public void inventoryQq(QGGroupAtMessageCreateEvent event) {
-    log.debug("收到背包查询请求 - AuthorId: {}", event.getAuthorId());
+    log.debug("[QQ] 收到背包查询请求 - AuthorId: {}", event.getAuthorId());
     String response =
         commandHandler.handleInventory(
             PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
@@ -106,7 +106,7 @@ public class ItemListener {
   @ContentTrim
   @Filter("装备 {{itemName}}")
   public void equipQq(QGGroupAtMessageCreateEvent event, @FilterValue("itemName") String itemName) {
-    log.debug("收到装备穿戴请求 - AuthorId: {}, ItemName: {}", event.getAuthorId(), itemName);
+    log.debug("[QQ] 收到装备穿戴请求 - AuthorId: {}, ItemName: {}", event.getAuthorId(), itemName);
     String response =
         commandHandler.handleEquip(
             PlatformType.QQ, event.getAuthorId().toString(), itemName, TextFormat.MARKDOWN);
@@ -118,7 +118,7 @@ public class ItemListener {
   @Filter("卸下 {{slotName}}")
   public void unequipQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("slotName") String slotName) {
-    log.debug("收到装备卸下请求 - AuthorId: {}, SlotName: {}", event.getAuthorId(), slotName);
+    log.debug("[QQ] 收到装备卸下请求 - AuthorId: {}, SlotName: {}", event.getAuthorId(), slotName);
     String response =
         commandHandler.handleUnequip(
             PlatformType.QQ, event.getAuthorId().toString(), slotName, TextFormat.MARKDOWN);
@@ -130,7 +130,7 @@ public class ItemListener {
   @Filter("丢弃 {{itemName}}")
   public void discardQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("itemName") String itemName) {
-    log.debug("收到丢弃请求 - AuthorId: {}, ItemName: {}", event.getAuthorId(), itemName);
+    log.debug("[QQ] 收到丢弃请求 - AuthorId: {}, ItemName: {}", event.getAuthorId(), itemName);
     String response =
         commandHandler.handleDiscard(
             PlatformType.QQ, event.getAuthorId().toString(), itemName, TextFormat.MARKDOWN);

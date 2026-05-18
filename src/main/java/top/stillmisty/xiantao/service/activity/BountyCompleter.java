@@ -80,7 +80,7 @@ public class BountyCompleter {
             args);
         yield reduced;
       }
-        default -> spiritStones;
+      default -> spiritStones;
     };
   }
 

@@ -25,7 +25,7 @@ public class LeaderboardListener {
   @ContentTrim
   @Filter("排行榜")
   public void levelLeaderboard(OneBotMessageEvent event) {
-    log.debug("收到排行榜请求 - AuthorId: {}", event.getAuthorId());
+    log.debug("[OneBot] 收到排行榜请求 - AuthorId: {}", event.getAuthorId());
     String response =
         leaderboardCommandHandler.handleLevelLeaderboard(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
@@ -36,7 +36,7 @@ public class LeaderboardListener {
   @ContentTrim
   @Filter("排行榜 灵石")
   public void spiritStoneLeaderboard(OneBotMessageEvent event) {
-    log.debug("收到灵石排行榜请求 - AuthorId: {}", event.getAuthorId());
+    log.debug("[OneBot] 收到灵石排行榜请求 - AuthorId: {}", event.getAuthorId());
     String response =
         leaderboardCommandHandler.handleSpiritStoneLeaderboard(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
@@ -49,7 +49,7 @@ public class LeaderboardListener {
   @ContentTrim
   @Filter("排行榜")
   public void levelLeaderboardQq(QGGroupAtMessageCreateEvent event) {
-    log.debug("收到排行榜请求 - AuthorId: {}", event.getAuthorId());
+    log.debug("[QQ] 收到排行榜请求 - AuthorId: {}", event.getAuthorId());
     String response =
         leaderboardCommandHandler.handleLevelLeaderboard(
             PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
@@ -60,7 +60,7 @@ public class LeaderboardListener {
   @ContentTrim
   @Filter("排行榜 灵石")
   public void spiritStoneLeaderboardQq(QGGroupAtMessageCreateEvent event) {
-    log.debug("收到灵石排行榜请求 - AuthorId: {}", event.getAuthorId());
+    log.debug("[QQ] 收到灵石排行榜请求 - AuthorId: {}", event.getAuthorId());
     String response =
         leaderboardCommandHandler.handleSpiritStoneLeaderboard(
             PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);

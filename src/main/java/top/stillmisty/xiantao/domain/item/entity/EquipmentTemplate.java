@@ -63,9 +63,4 @@ public class EquipmentTemplate {
 
   @Column(onUpdateValue = "now()", onInsertValue = "now()")
   private LocalDateTime updateTime;
-
-  public int getTotalDropWeight() {
-    if (dropWeight == null || dropWeight.isEmpty()) return 0;
-    return dropWeight.values().stream().mapToInt(Integer::intValue).sum();
-  }
 }

@@ -215,7 +215,7 @@ public enum ErrorCode {
     this.template = template;
   }
 
-    public String format(Object... args) {
+  public String format(Object... args) {
     return args.length == 0 ? template : String.format(template, args);
   }
 }

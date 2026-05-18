@@ -1,7 +1,6 @@
 package top.stillmisty.xiantao.service.ai;
 
 import java.util.concurrent.atomic.AtomicReference;
-
 import org.jspecify.annotations.NonNull;
 import org.springframework.ai.chat.client.ChatClientRequest;
 import org.springframework.ai.chat.client.ChatClientResponse;
@@ -24,7 +23,7 @@ public class ReasoningScopeAdvisor implements CallAdvisor {
 
   @Override
   public @NonNull ChatClientResponse adviseCall(
-          @NonNull ChatClientRequest chatClientRequest, @NonNull CallAdvisorChain callAdvisorChain) {
+      @NonNull ChatClientRequest chatClientRequest, @NonNull CallAdvisorChain callAdvisorChain) {
     AtomicReference<String> holder = new AtomicReference<>();
     try {
       return ScopedValue.where(REASONING_HOLDER, holder)

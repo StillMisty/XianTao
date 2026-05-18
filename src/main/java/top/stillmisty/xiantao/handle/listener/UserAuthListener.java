@@ -28,7 +28,7 @@ public class UserAuthListener {
   @Filter(value = "改号 {{newNickname}}")
   public void changeNickname(
       OneBotMessageEvent event, @FilterValue("newNickname") String newNickname) {
-    log.info("收到改号请求 - AuthorId: {}, NewNickname: {}", event.getAuthorId(), newNickname);
+    log.info("[OneBot] 收到改号请求 - AuthorId: {}, NewNickname: {}", event.getAuthorId(), newNickname);
     String response =
         cultivationCommandHandler.handleChangeNickname(
             PlatformType.ONE_BOT_V11,
@@ -42,7 +42,7 @@ public class UserAuthListener {
   @ContentTrim
   @Filter(value = "我要修仙 {{nickname}}")
   public void register(OneBotMessageEvent event, @FilterValue("nickname") String nickname) {
-    log.info("收到注册请求 - AuthorId: {}, Nickname: {}", event.getAuthorId(), nickname);
+    log.info("[OneBot] 收到注册请求 - AuthorId: {}, Nickname: {}", event.getAuthorId(), nickname);
     String response =
         cultivationCommandHandler.handleRegister(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), nickname, TextFormat.PLAIN);
@@ -56,7 +56,7 @@ public class UserAuthListener {
   @Filter(value = "改号 {{newNickname}}")
   public void changeNicknameQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("newNickname") String newNickname) {
-    log.debug("收到改号请求 - AuthorId: {}, NewNickname: {}", event.getAuthorId(), newNickname);
+    log.debug("[QQ] 收到改号请求 - AuthorId: {}, NewNickname: {}", event.getAuthorId(), newNickname);
     String response =
         cultivationCommandHandler.handleChangeNickname(
             PlatformType.QQ, event.getAuthorId().toString(), newNickname, TextFormat.MARKDOWN);
@@ -68,7 +68,7 @@ public class UserAuthListener {
   @Filter(value = "我要修仙 {{nickname}}")
   public void registerQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("nickname") String nickname) {
-    log.info("收到注册请求 - AuthorId: {}, Nickname: {}", event.getAuthorId(), nickname);
+    log.info("[QQ] 收到注册请求 - AuthorId: {}, Nickname: {}", event.getAuthorId(), nickname);
     String response =
         cultivationCommandHandler.handleRegister(
             PlatformType.QQ, event.getAuthorId().toString(), nickname, TextFormat.MARKDOWN);

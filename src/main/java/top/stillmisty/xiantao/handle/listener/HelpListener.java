@@ -27,7 +27,7 @@ public class HelpListener {
   @ContentTrim
   @Filter("帮助")
   public void help(OneBotMessageEvent event) {
-    log.debug("收到帮助请求 - AuthorId: {}", event.getAuthorId());
+    log.debug("[OneBot] 收到帮助请求 - AuthorId: {}", event.getAuthorId());
     String response =
         helpCommandHandler.handleHelp(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), null, TextFormat.PLAIN);
@@ -38,7 +38,7 @@ public class HelpListener {
   @ContentTrim
   @Filter("帮助 {{command}}")
   public void helpDetail(OneBotMessageEvent event, @FilterValue("command") String command) {
-    log.debug("收到命令详情请求 - AuthorId: {}, Command: {}", event.getAuthorId(), command);
+    log.debug("[OneBot] 收到命令详情请求 - AuthorId: {}, Command: {}", event.getAuthorId(), command);
     String response =
         helpCommandHandler.handleHelp(
             PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), command, TextFormat.PLAIN);
@@ -51,7 +51,7 @@ public class HelpListener {
   @ContentTrim
   @Filter("帮助")
   public void helpQq(QGGroupAtMessageCreateEvent event) {
-    log.debug("收到帮助请求 - AuthorId: {}", event.getAuthorId());
+    log.debug("[QQ] 收到帮助请求 - AuthorId: {}", event.getAuthorId());
     String response =
         helpCommandHandler.handleHelp(
             PlatformType.QQ, event.getAuthorId().toString(), null, TextFormat.MARKDOWN);
@@ -63,7 +63,7 @@ public class HelpListener {
   @Filter("帮助 {{command}}")
   public void helpDetailQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("command") String command) {
-    log.debug("收到命令详情请求 - AuthorId: {}, Command: {}", event.getAuthorId(), command);
+    log.debug("[QQ] 收到命令详情请求 - AuthorId: {}, Command: {}", event.getAuthorId(), command);
     String response =
         helpCommandHandler.handleHelp(
             PlatformType.QQ, event.getAuthorId().toString(), command, TextFormat.MARKDOWN);

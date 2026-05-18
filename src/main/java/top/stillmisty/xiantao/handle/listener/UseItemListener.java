@@ -31,7 +31,10 @@ public class UseItemListener {
       @FilterValue("itemName") String itemName,
       @FilterValue("args") String args) {
     log.debug(
-        "收到使用物品请求 - AuthorId: {}, ItemName: {}, Args: {}", event.getAuthorId(), itemName, args);
+        "[OneBot] 收到使用物品请求 - AuthorId: {}, ItemName: {}, Args: {}",
+        event.getAuthorId(),
+        itemName,
+        args);
     String response =
         useItemCommandHandler.handleUseItem(
             PlatformType.ONE_BOT_V11,
@@ -46,7 +49,7 @@ public class UseItemListener {
   @ContentTrim
   @Filter("使用 {{itemName}}")
   public void useItem(OneBotMessageEvent event, @FilterValue("itemName") String itemName) {
-    log.debug("收到使用物品请求 - AuthorId: {}, ItemName: {}", event.getAuthorId(), itemName);
+    log.debug("[OneBot] 收到使用物品请求 - AuthorId: {}, ItemName: {}", event.getAuthorId(), itemName);
     String response =
         useItemCommandHandler.handleUseItem(
             PlatformType.ONE_BOT_V11,
@@ -67,7 +70,10 @@ public class UseItemListener {
       @FilterValue("itemName") String itemName,
       @FilterValue("args") String args) {
     log.debug(
-        "收到使用物品请求 - AuthorId: {}, ItemName: {}, Args: {}", event.getAuthorId(), itemName, args);
+        "[QQ] 收到使用物品请求 - AuthorId: {}, ItemName: {}, Args: {}",
+        event.getAuthorId(),
+        itemName,
+        args);
     String response =
         useItemCommandHandler.handleUseItem(
             PlatformType.QQ, event.getAuthorId().toString(), itemName, args, TextFormat.MARKDOWN);
@@ -79,7 +85,7 @@ public class UseItemListener {
   @Filter("使用 {{itemName}}")
   public void useItemQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("itemName") String itemName) {
-    log.debug("收到使用物品请求 - AuthorId: {}, ItemName: {}", event.getAuthorId(), itemName);
+    log.debug("[QQ] 收到使用物品请求 - AuthorId: {}, ItemName: {}", event.getAuthorId(), itemName);
     String response =
         useItemCommandHandler.handleUseItem(
             PlatformType.QQ, event.getAuthorId().toString(), itemName, null, TextFormat.MARKDOWN);

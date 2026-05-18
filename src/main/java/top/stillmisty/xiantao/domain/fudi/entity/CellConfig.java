@@ -45,11 +45,6 @@ public sealed interface CellConfig {
       if (productionStored == null) productionStored = new ArrayList<>();
     }
 
-    public PenConfig withProductionStored(List<ProductionItem> productionStored) {
-      return new PenConfig(
-          beastId, templateId, hatchTime, matureTime, productionStored, lastProductionTime);
-    }
-
     public PenConfig withLastProductionTime(LocalDateTime lastProductionTime) {
       return new PenConfig(
           beastId, templateId, hatchTime, matureTime, productionStored, lastProductionTime);

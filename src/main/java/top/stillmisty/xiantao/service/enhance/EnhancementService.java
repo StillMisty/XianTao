@@ -16,6 +16,8 @@ import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.SpiritStoneService;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
+import top.stillmisty.xiantao.util.MaterialParser;
+import top.stillmisty.xiantao.util.MaterialParser.ParsedMaterial;
 
 @Slf4j
 @Service
@@ -129,16 +131,10 @@ public class EnhancementService {
       Map<String, Integer> attributeTotals,
       Map<String, Integer> usedMaterials) {
     for (String input : materialInputs) {
-      String[] parts = input.split("[×xX]");
-      if (parts.length != 2) continue;
-      String materialName = parts[0].trim();
-      int quantity;
-      try {
-        quantity = Integer.parseInt(parts[1].trim());
-      } catch (NumberFormatException e) {
-        continue;
-      }
-      if (quantity <= 0) continue;
+      ParsedMaterial parsed = MaterialParser.parse(input);
+      if (parsed == null) continue;
+      String materialName = parsed.name();
+      int quantity = parsed.quantity();
 
       List<top.stillmisty.xiantao.domain.item.entity.StackableItem> mats =
           core.resolveManualMaterial(userId, materialName);

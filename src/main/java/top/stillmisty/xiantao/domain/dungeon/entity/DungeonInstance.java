@@ -45,10 +45,6 @@ public class DungeonInstance {
     return status == DungeonStatus.ACTIVE;
   }
 
-  public boolean isCompleted() {
-    return status == DungeonStatus.COMPLETED;
-  }
-
   public boolean isExpired() {
     return expiresAt != null && LocalDateTime.now().isAfter(expiresAt);
   }

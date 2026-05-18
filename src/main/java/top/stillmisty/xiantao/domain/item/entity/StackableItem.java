@@ -121,17 +121,6 @@ public class StackableItem {
   }
 
   /**
-   * 获取丹药品阶（仅丹药类）
-   *
-   * @return 品阶1~9，不存在返回0
-   */
-  public int getGrade() {
-    if (properties == null) return 0;
-    Object val = properties.get("grade");
-    return val instanceof Number n ? n.intValue() : 0;
-  }
-
-  /**
    * 获取丹药成色（仅丹药类）
    *
    * @return 成色字符串（superior, normal, inferior），不存在返回null
