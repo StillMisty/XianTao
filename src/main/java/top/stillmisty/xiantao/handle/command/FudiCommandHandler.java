@@ -40,6 +40,13 @@ public class FudiCommandHandler implements CommandGroup {
         response -> response);
   }
 
+  public String handleTriggerTribulation(PlatformType platform, String openId, TextFormat fmt) {
+    return CommandHandlerHelper.safeCall(
+        () -> fudiService.triggerTribulation(platform, openId),
+        fmt,
+        vo -> vo.tribulationResult() + "\n劫数：" + vo.tribulationStage() + "  连胜×" + vo.winStreak());
+  }
+
   private String formatFudiStatus(FudiStatusVO status, TextFormat fmt) {
     StringBuilder sb = new StringBuilder();
 
@@ -123,6 +130,7 @@ public class FudiCommandHandler implements CommandGroup {
     return List.of(
         new CommandEntry("福地", "查看福地概况", "福地"),
         new CommandEntry("福地地块", "查看福地详细布局", "福地地块"),
+        new CommandEntry("福地渡劫", "手动触发天劫", "福地渡劫"),
         new CommandEntry("地灵 「内容」", "与地灵自然语言聊天", "地灵 你好呀"));
   }
 }

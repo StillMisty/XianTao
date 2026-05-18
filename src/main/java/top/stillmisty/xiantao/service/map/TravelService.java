@@ -71,6 +71,12 @@ public class TravelService {
     }
 
     Integer travelTime = currentMap.getTravelTimeTo(targetMap.getId());
+    if (travelTime == null) {
+      return TravelResultVO.builder()
+          .success(false)
+          .message(currentMap.getName() + " 到 " + targetMap.getName() + " 无可用路径")
+          .build();
+    }
 
     user.setStatus(UserStatus.TRAVELING);
     user.setActivityType(ActivityType.TRAVEL);

@@ -50,7 +50,6 @@ public class TrainingCombatLogic {
   private final SkillRepository skillRepository;
   private final PlayerSkillRepository playerSkillRepository;
   private final GameEventService gameEventService;
-  private volatile List<Skill> skillsCache;
 
   public BattleResultVO simulateTraining(
       Long userId, User user, int durationMinutes, MapNode mapNode) {
@@ -503,14 +502,7 @@ public class TrainingCombatLogic {
   }
 
   private List<Skill> getAllSkills() {
-    if (skillsCache == null) {
-      synchronized (this) {
-        if (skillsCache == null) {
-          skillsCache = skillRepository.findAll();
-        }
-      }
-    }
-    return skillsCache;
+    return skillRepository.findAll();
   }
 
   private record EncounterParams(int encounterChances, double encounterChance) {}

@@ -29,7 +29,6 @@ import top.stillmisty.xiantao.service.combat.CombatService;
 @Slf4j
 public class TribulationService {
 
-  private static final int TRIBULATION_COOLDOWN_DAYS = 7;
   private static final int TRIBULATION_MAX_ROUNDS = 40;
 
   private final FudiCellRepository fudiCellRepository;
@@ -40,37 +39,15 @@ public class TribulationService {
   private final SpiritStoneService spiritStoneService;
   private final CombatService combatService;
 
-  /** 判断天劫是否已到触发时间（冷却已过）。 */
-  public boolean isTribulationDue(Fudi fudi) {
-    LocalDateTime referenceTime =
-        fudi.getLastTribulationTime() != null
-            ? fudi.getLastTribulationTime()
-            : fudi.getCreateTime();
-    return java.time.Duration.between(referenceTime, LocalDateTime.now()).toDays()
-        >= TRIBULATION_COOLDOWN_DAYS;
-  }
-
   /**
-   * 触发天劫 — 使用战斗引擎进行回合制战斗
+   * 触发天劫 — 使用战斗引擎进行回合制战斗（玩家于福地手动触发）
    *
    * @param fudi 福地
    * @param user 玩家
-   * @param forceTrigger 是否强制触发（忽略冷却）
-   * @return 天劫结果文本，未触发返回 null
+   * @return 天劫结果文本
    */
   @Transactional
-  public String resolveTribulation(Fudi fudi, User user, boolean forceTrigger) {
-    LocalDateTime referenceTime =
-        fudi.getLastTribulationTime() != null
-            ? fudi.getLastTribulationTime()
-            : fudi.getCreateTime();
-
-    if (!forceTrigger
-        && java.time.Duration.between(referenceTime, LocalDateTime.now()).toDays()
-            < TRIBULATION_COOLDOWN_DAYS) {
-      return null;
-    }
-
+  public String resolveTribulation(Fudi fudi, User user) {
     fudi.setLastTribulationTime(LocalDateTime.now());
     if (fudi.getTribulationStage() == null) {
       fudi.setTribulationStage(0);

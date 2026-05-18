@@ -16,7 +16,7 @@ public class SpiritStoneService {
   private final UserStateService userStateService;
 
   @Transactional
-  public void withdraw(Long userId, int amount) {
+  public void withdraw(Long userId, long amount) {
     if (amount <= 0) {
       throw new BusinessException(ErrorCode.PARAM_INVALID, "消耗灵石必须大于0");
     }
@@ -29,7 +29,7 @@ public class SpiritStoneService {
   }
 
   @Transactional
-  public void deposit(Long userId, int amount) {
+  public void deposit(Long userId, long amount) {
     if (amount <= 0) {
       throw new BusinessException(ErrorCode.PARAM_INVALID, "添加灵石必须大于0");
     }

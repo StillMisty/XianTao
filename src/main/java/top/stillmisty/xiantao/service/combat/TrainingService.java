@@ -104,7 +104,7 @@ public class TrainingService {
 
   @Transactional
   public TrainingRewardVO endTraining(Long userId) {
-    User user = userStateService.loadUser(userId);
+    User user = userStateService.loadUserForUpdate(userId);
 
     if (user.getStatus() != UserStatus.TRAINING && user.getStatus() != UserStatus.DYING) {
       throw new BusinessException(ErrorCode.STATUS_BLOCKED, user.getStatus().getName(), "历练");

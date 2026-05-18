@@ -56,6 +56,17 @@ public class FudiListener {
     replyHelper.replyOneBot(event, response);
   }
 
+  @Listener
+  @ContentTrim
+  @Filter("福地渡劫")
+  public void handleFudiTribulation(OneBotMessageEvent event) {
+    log.debug("[OneBot] 收到福地渡劫请求 - AuthorId: {}", event.getAuthorId());
+    String response =
+        fudiCommandHandler.handleTriggerTribulation(
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
+    replyHelper.replyOneBot(event, response);
+  }
+
   // === QQ ===
 
   @Listener
@@ -89,6 +100,17 @@ public class FudiListener {
     String response =
         fudiCommandHandler.handleSpiritChat(
             PlatformType.QQ, event.getAuthorId().toString(), content, TextFormat.MARKDOWN);
+    replyHelper.replyQQ(event, response);
+  }
+
+  @Listener
+  @ContentTrim
+  @Filter("福地渡劫")
+  public void handleFudiTribulationQq(QGGroupAtMessageCreateEvent event) {
+    log.debug("[QQ] 收到福地渡劫请求 - AuthorId: {}", event.getAuthorId());
+    String response =
+        fudiCommandHandler.handleTriggerTribulation(
+            PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 }

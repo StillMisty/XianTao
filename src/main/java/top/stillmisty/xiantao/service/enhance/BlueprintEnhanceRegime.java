@@ -75,7 +75,7 @@ public class BlueprintEnhanceRegime {
     Map<String, ElementRange> constraints =
         core.getAmplifiedConstraints(blueprint.requirements(), targetLevel);
 
-    if (core.matchesConstraints(attributeTotals, constraints)) {
+    if (core.violatesConstraints(attributeTotals, constraints)) {
       throw new BusinessException(ErrorCode.ENHANCE_MATERIAL_NOT_MATCH);
     }
 

@@ -121,7 +121,7 @@ public class EnhancementCore {
     return amplified;
   }
 
-  boolean matchesConstraints(
+  boolean violatesConstraints(
       Map<String, Integer> attributeTotals, Map<String, ElementRange> constraints) {
     for (var entry : constraints.entrySet()) {
       String attr = entry.getKey();

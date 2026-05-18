@@ -103,7 +103,7 @@ public class GmService {
   // ===================== 内部 API（需预先完成认证） =====================
 
   private boolean isGm(Long userId) {
-    return userRepository.findById(userId).map(u -> !Boolean.TRUE.equals(u.getGm())).orElse(true);
+    return userRepository.findById(userId).map(u -> Boolean.TRUE.equals(u.getGm())).orElse(false);
   }
 
   String help() {

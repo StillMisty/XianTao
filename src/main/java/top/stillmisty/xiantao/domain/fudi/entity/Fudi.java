@@ -52,12 +52,4 @@ public class Fudi extends Model<Fudi> {
   public void touchOnlineTime() {
     lastOnlineTime = LocalDateTime.now();
   }
-
-  /** 计算下次天劫触发时间 */
-  public LocalDateTime calculateNextTribulationTime() {
-    if (lastTribulationTime == null) {
-      return createTime.plusDays(7);
-    }
-    return lastTribulationTime.plusDays(7);
-  }
 }

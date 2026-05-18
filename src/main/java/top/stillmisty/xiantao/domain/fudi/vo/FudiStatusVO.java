@@ -26,7 +26,6 @@ public class FudiStatusVO {
   private Integer occupiedCells;
   private Integer tribulationWinStreak;
   private LocalDateTime lastTribulationTime;
-  private LocalDateTime nextTribulationTime;
   private String tribulationResult;
   private List<CellDetailVO> cellDetails;
   private Integer totalBeasts;

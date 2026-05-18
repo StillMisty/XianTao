@@ -140,11 +140,18 @@ public class CultivationService {
     daoProtectionService.clearProtegeRelations(userId);
     playerBuffRepository.deleteByUserIdAndType(userId, PlayerBuffType.BREAKTHROUGH);
 
+    if (isMajor) {
+      applyMajorBreakthroughBonuses(user);
+    }
+
+    userStateService.save(user);
+
+    masterApprenticeService.checkAndGraduate(userId);
+
     String message;
     if (isMajor) {
       CultivationRealm newRealm = CultivationRealm.fromLevel(newLevel);
       String llmMessage = generateBreakthroughMessage(newRealm, user.getNickname());
-      applyMajorBreakthroughBonuses(user);
       message =
           "*** "
               + llmMessage
@@ -157,10 +164,6 @@ public class CultivationService {
     } else {
       message = "恭喜！突破成功！";
     }
-
-    userStateService.save(user);
-
-    masterApprenticeService.checkAndGraduate(userId);
 
     return new BreakthroughResult(
         true,
@@ -215,7 +218,7 @@ public class CultivationService {
 
     CultivationRealm realm = CultivationRealm.fromLevel(user.getLevel());
     long spiritStones = CultivationRealm.breakthroughSpiritStonesReward(realm);
-    spiritStoneService.deposit(user.getId(), (int) spiritStones);
+    spiritStoneService.deposit(user.getId(), spiritStones);
   }
 
   /** 使用 LLM 生成跨大境界突破贺词 */

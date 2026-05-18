@@ -84,6 +84,7 @@ public class Beast {
 
   /** 计算升级所需经验 公式：50 × level^1.5 */
   public long calculateExpToNextLevel() {
+    if (level == null || level <= 0) return 50;
     return (long) (50 * Math.pow(level, 1.5));
   }
 
@@ -103,7 +104,10 @@ public class Beast {
 
     exp += (int) Math.min(expToAdd, Integer.MAX_VALUE);
 
-    while (levelCap != null && level < levelCap && exp >= (int) calculateExpToNextLevel()) {
+    while (levelCap != null
+        && level < levelCap
+        && calculateExpToNextLevel() > 0
+        && exp >= (int) calculateExpToNextLevel()) {
       exp -= (int) calculateExpToNextLevel();
       level++;
       recalculateAttributes();

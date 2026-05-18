@@ -219,14 +219,8 @@ public class FudiService {
     Fudi fudi = getFudiOrThrow(userId);
     autoExpandCells(fudi);
 
-    String tribulationResult = null;
-    if (tribulationService.isTribulationDue(fudi)) {
-      var user = fudiHelper.getUserOrThrow(userId);
-      tribulationResult = tribulationService.resolveTribulation(fudi, user, false);
-    }
-
     fudiRepository.save(fudi);
-    return buildFudiStatusVO(fudi, tribulationResult);
+    return buildFudiStatusVO(fudi, null);
   }
 
   private FudiStatusVO buildFudiStatusVO(Fudi fudi, String tribulationResult) {
@@ -268,7 +262,6 @@ public class FudiService {
         .occupiedCells(getOccupiedCellCount(fudi))
         .tribulationWinStreak(fudi.getTribulationWinStreak())
         .lastTribulationTime(fudi.getLastTribulationTime())
-        .nextTribulationTime(fudi.calculateNextTribulationTime())
         .cellDetails(cellDetails)
         .totalBeasts(totalBeasts)
         .tribulationResult(tribulationResult)
@@ -290,7 +283,7 @@ public class FudiService {
 
     User user = fudiHelper.getUserOrThrow(userId);
 
-    String result = tribulationService.resolveTribulation(fudi, user, true);
+    String result = tribulationService.resolveTribulation(fudi, user);
     fudiRepository.save(fudi);
 
     return new TriggerTribulationVO(

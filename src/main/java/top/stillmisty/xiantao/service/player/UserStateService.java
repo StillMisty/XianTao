@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.event.enums.ActivityType;
 import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
@@ -31,6 +32,7 @@ public class UserStateService {
   private final TravelCompleter travelCompleter;
 
   /** 加载用户并自动解析过期状态。使用行锁防止并发状态更新。 */
+  @Transactional
   public User loadUser(Long userId) {
     User user = userRepository.findByIdForUpdate(userId).orElseThrow();
     resolveState(user);
