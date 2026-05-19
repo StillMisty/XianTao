@@ -9,6 +9,8 @@ public interface DungeonInstanceRepository {
 
   Optional<DungeonInstance> findById(Long id);
 
+  Optional<DungeonInstance> findByIdForUpdate(Long id);
+
   Optional<DungeonInstance> findByLeaderIdAndDungeonIdAndStatus(
       Long leaderId, Long dungeonId, DungeonStatus status);
 

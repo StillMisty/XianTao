@@ -53,7 +53,7 @@ public class BountyCombatService {
     }
     UserBounty record =
         userBountyRepository
-            .findActiveByUserId(userId)
+            .findActiveByUserIdForUpdate(userId)
             .orElseThrow(() -> new BusinessException(BOUNTY_NO_ACTIVE));
 
     long minutesElapsed = Duration.between(record.getStartTime(), LocalDateTime.now()).toMinutes();

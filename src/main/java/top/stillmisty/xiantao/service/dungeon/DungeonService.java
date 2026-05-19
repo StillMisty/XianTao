@@ -359,7 +359,7 @@ public class DungeonService {
       throw new BusinessException(ErrorCode.DUNGEON_NO_ACTIVE_INSTANCE);
     }
     return instanceRepository
-        .findById(user.getActivityTargetId())
+        .findByIdForUpdate(user.getActivityTargetId())
         .filter(DungeonInstance::isActive)
         .orElseThrow(() -> new BusinessException(ErrorCode.DUNGEON_NO_ACTIVE_INSTANCE));
   }

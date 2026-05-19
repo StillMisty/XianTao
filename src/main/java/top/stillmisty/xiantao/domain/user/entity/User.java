@@ -214,11 +214,18 @@ public class User extends Model<User> {
     this.hpCurrent = 1;
   }
 
-  /** 清除活动状态，回到空闲 */
+  /** 清除活动标记，回到空闲 */
   public void clearActivity() {
     this.activityType = null;
     this.activityStartTime = null;
     this.activityTargetId = null;
     this.status = UserStatus.IDLE;
+  }
+
+  /** 清除活动标记但保留当前状态（如濒死时清除历练/悬赏活动但不变状态） */
+  public void endActivity() {
+    this.activityType = null;
+    this.activityStartTime = null;
+    this.activityTargetId = null;
   }
 }

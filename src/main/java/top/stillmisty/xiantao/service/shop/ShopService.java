@@ -136,7 +136,11 @@ public class ShopService {
     if (rows == 0) {
       throw new BusinessException(ErrorCode.SHOP_PRODUCT_OUT_OF_STOCK);
     }
-    product.setLastSaleTime(LocalDateTime.now());
+
+    ShopProduct saleTouch = new ShopProduct();
+    saleTouch.setId(product.getId());
+    saleTouch.setLastSaleTime(LocalDateTime.now());
+    shopProductRepository.save(saleTouch);
 
     addStackableItem(userId, template, quantity);
 
@@ -203,9 +207,10 @@ public class ShopService {
     equipment.setEquipped(false);
     equipmentRepository.save(equipment);
 
-    product.setCurrentStock(product.getCurrentStock() - 1);
-    product.setLastSaleTime(LocalDateTime.now());
-    shopProductRepository.save(product);
+    ShopProduct saleTouch = new ShopProduct();
+    saleTouch.setId(product.getId());
+    saleTouch.setLastSaleTime(LocalDateTime.now());
+    shopProductRepository.save(saleTouch);
 
     String description = rarity.getName() + "品质，品质系数 " + String.format("%.2f", qualityMultiplier);
     if (affixCount > 0) {
@@ -260,7 +265,6 @@ public class ShopService {
       stackableItemRepository.save(item);
     }
 
-    User user = userStateService.loadUser(userId);
     userRepository.addSpiritStonesAtomically(userId, confirmedPrice);
 
     return new SellResult(

@@ -7,5 +7,7 @@ public interface UserBountyRepository {
 
   Optional<UserBounty> findActiveByUserId(Long userId);
 
+  Optional<UserBounty> findActiveByUserIdForUpdate(Long userId);
+
   void save(UserBounty userBounty);
 }

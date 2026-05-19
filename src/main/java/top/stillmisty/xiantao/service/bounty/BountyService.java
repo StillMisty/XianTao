@@ -208,7 +208,7 @@ public class BountyService {
     }
     UserBounty record =
         userBountyRepository
-            .findActiveByUserId(userId)
+            .findActiveByUserIdForUpdate(userId)
             .orElseThrow(() -> new BusinessException(BOUNTY_NO_ACTIVE));
 
     record.setStatus(BountyStatus.ABANDONED);

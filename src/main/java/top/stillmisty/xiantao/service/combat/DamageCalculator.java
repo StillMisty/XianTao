@@ -99,7 +99,7 @@ public class DamageCalculator {
   }
 
   int evaluateExpression(String expr) {
-    return (int) Math.clamp(new ExprParser(expr).parse(), Integer.MIN_VALUE, Integer.MAX_VALUE);
+    return (int) Math.clamp(new ExprParser(expr).parse(), 0, Integer.MAX_VALUE);
   }
 
   /** 递归下降表达式解析器，支持 +, -, *, /, 括号和运算符优先级，使用 long 防止溢出 */

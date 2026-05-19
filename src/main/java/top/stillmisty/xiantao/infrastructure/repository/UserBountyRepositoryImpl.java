@@ -27,6 +27,16 @@ public class UserBountyRepositoryImpl implements UserBountyRepository {
   }
 
   @Override
+  public Optional<UserBounty> findActiveByUserIdForUpdate(Long userId) {
+    return Optional.ofNullable(
+        mapper.selectOneByQuery(
+            QueryWrapper.create()
+                .where(USER_BOUNTY.USER_ID.eq(userId))
+                .and(USER_BOUNTY.STATUS.eq(BountyStatus.ACTIVE))
+                .forUpdate()));
+  }
+
+  @Override
   public void save(UserBounty userBounty) {
     mapper.insertOrUpdateSelective(userBounty);
   }

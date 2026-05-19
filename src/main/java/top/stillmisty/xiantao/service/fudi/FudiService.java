@@ -199,7 +199,7 @@ public class FudiService {
     Fudi fudi = getFudiOrThrowForUpdate(userId);
     FudiCell cell =
         fudiCellRepository
-            .findByFudiIdAndCellId(fudi.getId(), cellId)
+            .findByFudiIdAndCellIdForUpdate(fudi.getId(), cellId)
             .orElseThrow(() -> new BusinessException(ErrorCode.CELL_NOT_FOUND, cellId));
     return new CellContext(fudi, cell, cellId);
   }

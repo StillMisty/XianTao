@@ -33,6 +33,17 @@ public class FudiCellRepositoryImpl implements FudiCellRepository {
   }
 
   @Override
+  public Optional<FudiCell> findByFudiIdAndCellIdForUpdate(Long fudiId, Integer cellId) {
+    QueryWrapper queryWrapper =
+        QueryWrapper.create()
+            .where(FUDI_CELL.FUDI_ID.eq(fudiId))
+            .and(FUDI_CELL.CELL_ID.eq(cellId))
+            .forUpdate();
+    FudiCell cell = fudiCellMapper.selectOneByQuery(queryWrapper);
+    return Optional.ofNullable(cell);
+  }
+
+  @Override
   public List<FudiCell> findByFudiId(Long fudiId) {
     QueryWrapper queryWrapper =
         QueryWrapper.create().where(FUDI_CELL.FUDI_ID.eq(fudiId)).orderBy(FUDI_CELL.CELL_ID.asc());

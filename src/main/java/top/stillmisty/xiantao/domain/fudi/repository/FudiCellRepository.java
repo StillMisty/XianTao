@@ -11,6 +11,8 @@ public interface FudiCellRepository {
 
   Optional<FudiCell> findByFudiIdAndCellId(Long fudiId, Integer cellId);
 
+  Optional<FudiCell> findByFudiIdAndCellIdForUpdate(Long fudiId, Integer cellId);
+
   List<FudiCell> findByFudiId(Long fudiId);
 
   List<FudiCell> findByFudiIdAndCellType(Long fudiId, CellType cellType);

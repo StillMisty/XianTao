@@ -33,7 +33,7 @@ public class GmService {
   @Transactional
   public ServiceResult<String> gmHelp(PlatformType platform, String openId) {
     Long gmUserId = UserContext.getCurrentUserId();
-    if (isGm(gmUserId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
+    if (!isGm(gmUserId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
     return new ServiceResult.Success<>(help());
   }
 
@@ -42,7 +42,7 @@ public class GmService {
   public ServiceResult<String> giveSpiritStones(
       PlatformType platform, String openId, String targetNickname, long amount) {
     Long gmUserId = UserContext.getCurrentUserId();
-    if (isGm(gmUserId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
+    if (!isGm(gmUserId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
     return new ServiceResult.Success<>(giveSpiritStones(gmUserId, targetNickname, amount));
   }
 
@@ -51,7 +51,7 @@ public class GmService {
   public ServiceResult<String> giveExp(
       PlatformType platform, String openId, String targetNickname, long amount) {
     Long gmUserId = UserContext.getCurrentUserId();
-    if (isGm(gmUserId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
+    if (!isGm(gmUserId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
     return new ServiceResult.Success<>(giveExp(gmUserId, targetNickname, amount));
   }
 
@@ -60,7 +60,7 @@ public class GmService {
   public ServiceResult<String> healUser(
       PlatformType platform, String openId, String targetNickname) {
     Long gmUserId = UserContext.getCurrentUserId();
-    if (isGm(gmUserId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
+    if (!isGm(gmUserId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
     return new ServiceResult.Success<>(healUser(gmUserId, targetNickname));
   }
 
@@ -69,7 +69,7 @@ public class GmService {
   public ServiceResult<String> reviveUser(
       PlatformType platform, String openId, String targetNickname) {
     Long gmUserId = UserContext.getCurrentUserId();
-    if (isGm(gmUserId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
+    if (!isGm(gmUserId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
     return new ServiceResult.Success<>(reviveUser(gmUserId, targetNickname));
   }
 
@@ -78,7 +78,7 @@ public class GmService {
   public ServiceResult<String> setLevel(
       PlatformType platform, String openId, String targetNickname, int level) {
     Long gmUserId = UserContext.getCurrentUserId();
-    if (isGm(gmUserId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
+    if (!isGm(gmUserId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
     return new ServiceResult.Success<>(setLevel(gmUserId, targetNickname, level));
   }
 
@@ -87,7 +87,7 @@ public class GmService {
   public ServiceResult<String> setLocation(
       PlatformType platform, String openId, String targetNickname, String locationName) {
     Long gmUserId = UserContext.getCurrentUserId();
-    if (isGm(gmUserId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
+    if (!isGm(gmUserId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
     return new ServiceResult.Success<>(setLocation(gmUserId, targetNickname, locationName));
   }
 
@@ -96,7 +96,7 @@ public class GmService {
   public ServiceResult<String> giveItem(
       PlatformType platform, String openId, String targetNickname, String itemName, int quantity) {
     Long gmUserId = UserContext.getCurrentUserId();
-    if (isGm(gmUserId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
+    if (!isGm(gmUserId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
     return new ServiceResult.Success<>(giveItem(gmUserId, targetNickname, itemName, quantity));
   }
 

@@ -199,7 +199,7 @@ public class TrainingService {
       // 历练隐藏事件
       trainingCompleter.checkHiddenEvents(userId, user, mapNode);
     } else {
-      user.clearActivity();
+      user.endActivity();
       // 历练中断事件
       trainingCompleter.produceInterruptedEvent(userId, mapNode);
     }
