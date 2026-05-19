@@ -57,7 +57,14 @@ public class StackableItemService {
   /** 按物品ID原子减少堆叠物品数量 */
   @Transactional
   public void reduceStackableItem(Long userId, Long itemId, int quantity) {
-    if (quantity <= 0) return;
+    if (quantity <= 0) {
+      log.warn(
+          "reduceStackableItem 请求数量无效: userId={}, itemId={}, quantity={}",
+          userId,
+          itemId,
+          quantity);
+      return;
+    }
     int affected = stackableItemRepository.reduceQuantityById(itemId, userId, quantity);
     if (affected == 0) {
       var existingItem = stackableItemRepository.findById(itemId);

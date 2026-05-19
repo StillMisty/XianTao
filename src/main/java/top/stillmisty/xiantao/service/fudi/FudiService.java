@@ -221,7 +221,11 @@ public class FudiService {
     for (int i = 1; i <= maxCells; i++) {
       if (!existingCellIds.contains(i)) {
         FudiCell cell = FudiCell.createEmpty(fudi.getId(), i);
-        fudiCellRepository.save(cell);
+        try {
+          fudiCellRepository.save(cell);
+        } catch (org.springframework.dao.DuplicateKeyException e) {
+          log.debug("单元格已存在，跳过: fudiId={}, cellId={}", fudi.getId(), i);
+        }
       }
     }
   }

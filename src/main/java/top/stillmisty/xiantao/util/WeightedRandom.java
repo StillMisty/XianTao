@@ -9,8 +9,10 @@ public final class WeightedRandom {
   private WeightedRandom() {}
 
   public static <T> T weightedRandom(List<T> items, ToIntFunction<T> weightFn, int totalWeight) {
-    if (items == null || items.isEmpty() || totalWeight <= 0) return null;
-    int roll = ThreadLocalRandom.current().nextInt(totalWeight);
+    if (items == null || items.isEmpty()) return null;
+    int actualTotal = items.stream().mapToInt(weightFn).sum();
+    if (actualTotal <= 0) return null;
+    int roll = ThreadLocalRandom.current().nextInt(actualTotal);
     int cumulative = 0;
     for (T item : items) {
       cumulative += weightFn.applyAsInt(item);

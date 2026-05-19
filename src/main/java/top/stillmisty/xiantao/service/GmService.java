@@ -43,7 +43,11 @@ public class GmService {
       PlatformType platform, String openId, String targetNickname, long amount) {
     Long gmUserId = UserContext.getCurrentUserId();
     if (!isGm(gmUserId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
-    return new ServiceResult.Success<>(giveSpiritStones(gmUserId, targetNickname, amount));
+    String result = giveSpiritStones(gmUserId, targetNickname, amount);
+    if (result.startsWith("未找到") || result.startsWith("数量必须")) {
+      return ServiceResult.businessFailure(result);
+    }
+    return new ServiceResult.Success<>(result);
   }
 
   @Authenticated
@@ -52,7 +56,11 @@ public class GmService {
       PlatformType platform, String openId, String targetNickname, long amount) {
     Long gmUserId = UserContext.getCurrentUserId();
     if (!isGm(gmUserId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
-    return new ServiceResult.Success<>(giveExp(gmUserId, targetNickname, amount));
+    String result = giveExp(gmUserId, targetNickname, amount);
+    if (result.startsWith("未找到") || result.startsWith("数量必须")) {
+      return ServiceResult.businessFailure(result);
+    }
+    return new ServiceResult.Success<>(result);
   }
 
   @Authenticated
@@ -61,7 +69,11 @@ public class GmService {
       PlatformType platform, String openId, String targetNickname) {
     Long gmUserId = UserContext.getCurrentUserId();
     if (!isGm(gmUserId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
-    return new ServiceResult.Success<>(healUser(gmUserId, targetNickname));
+    String result = healUser(gmUserId, targetNickname);
+    if (result.startsWith("未找到")) {
+      return ServiceResult.businessFailure(result);
+    }
+    return new ServiceResult.Success<>(result);
   }
 
   @Authenticated
@@ -70,7 +82,11 @@ public class GmService {
       PlatformType platform, String openId, String targetNickname) {
     Long gmUserId = UserContext.getCurrentUserId();
     if (!isGm(gmUserId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
-    return new ServiceResult.Success<>(reviveUser(gmUserId, targetNickname));
+    String result = reviveUser(gmUserId, targetNickname);
+    if (result.startsWith("未找到") || result.contains("未处于")) {
+      return ServiceResult.businessFailure(result);
+    }
+    return new ServiceResult.Success<>(result);
   }
 
   @Authenticated
@@ -79,7 +95,11 @@ public class GmService {
       PlatformType platform, String openId, String targetNickname, int level) {
     Long gmUserId = UserContext.getCurrentUserId();
     if (!isGm(gmUserId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
-    return new ServiceResult.Success<>(setLevel(gmUserId, targetNickname, level));
+    String result = setLevel(gmUserId, targetNickname, level);
+    if (result.startsWith("未找到") || result.startsWith("等级必须")) {
+      return ServiceResult.businessFailure(result);
+    }
+    return new ServiceResult.Success<>(result);
   }
 
   @Authenticated
@@ -88,7 +108,11 @@ public class GmService {
       PlatformType platform, String openId, String targetNickname, String locationName) {
     Long gmUserId = UserContext.getCurrentUserId();
     if (!isGm(gmUserId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
-    return new ServiceResult.Success<>(setLocation(gmUserId, targetNickname, locationName));
+    String result = setLocation(gmUserId, targetNickname, locationName);
+    if (result.startsWith("未找到")) {
+      return ServiceResult.businessFailure(result);
+    }
+    return new ServiceResult.Success<>(result);
   }
 
   @Authenticated
@@ -97,7 +121,11 @@ public class GmService {
       PlatformType platform, String openId, String targetNickname, String itemName, int quantity) {
     Long gmUserId = UserContext.getCurrentUserId();
     if (!isGm(gmUserId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
-    return new ServiceResult.Success<>(giveItem(gmUserId, targetNickname, itemName, quantity));
+    String result = giveItem(gmUserId, targetNickname, itemName, quantity);
+    if (result.startsWith("未找到") || result.startsWith("数量必须")) {
+      return ServiceResult.businessFailure(result);
+    }
+    return new ServiceResult.Success<>(result);
   }
 
   // ===================== 内部 API（需预先完成认证） =====================

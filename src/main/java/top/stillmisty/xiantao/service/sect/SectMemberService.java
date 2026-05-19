@@ -659,7 +659,7 @@ public class SectMemberService {
     }
     Long sectA = memberA.get().getSectId();
     Long sectB = memberB.get().getSectId();
-    return !sectA.equals(sectB);
+    return sectA.equals(sectB);
   }
 
   public boolean areBothRogue(Long userIdA, Long userIdB) {

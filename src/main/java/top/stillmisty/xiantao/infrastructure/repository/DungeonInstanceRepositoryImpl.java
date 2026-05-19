@@ -30,7 +30,7 @@ public class DungeonInstanceRepositoryImpl implements DungeonInstanceRepository 
   @Override
   public Optional<DungeonInstance> findByIdForUpdate(Long id) {
     QueryWrapper qw =
-        new QueryWrapper().eq(DungeonInstanceTableDef.DUNGEON_INSTANCE.ID, id).forUpdate();
+        QueryWrapper.create().where(DungeonInstanceTableDef.DUNGEON_INSTANCE.ID.eq(id)).forUpdate();
     return Optional.ofNullable(mapper.selectOneByQuery(qw));
   }
 

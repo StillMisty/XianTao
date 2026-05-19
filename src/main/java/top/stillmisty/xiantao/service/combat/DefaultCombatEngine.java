@@ -198,7 +198,7 @@ public class DefaultCombatEngine implements CombatEngine {
       if (effects != null && !effects.isEmpty()) {
         for (SkillEffect effect : effects) {
           double chance = effect.chance() != null ? effect.chance() : 1.0;
-          if (Math.random() > chance) continue;
+          if (ThreadLocalRandom.current().nextDouble() > chance) continue;
 
           switch (effect.type()) {
             case DAMAGE ->
@@ -232,7 +232,9 @@ public class DefaultCombatEngine implements CombatEngine {
             case EXECUTE -> {
               int baseDmg =
                   damageCalculator.calculateEffectDamage(attacker, defender, effect, buffManager);
-              double hpRatio = (double) defender.getHp() / defender.getMaxHp();
+              int maxHp = defender.getMaxHp();
+              if (maxHp <= 0) maxHp = 1;
+              double hpRatio = (double) defender.getHp() / maxHp;
               double threshold = effect.value() != null ? effect.value() : 0.3;
               damage += (int) (baseDmg * (hpRatio < threshold ? 2.0 : 1.0));
             }
@@ -245,7 +247,10 @@ public class DefaultCombatEngine implements CombatEngine {
             }
             case HEAL -> {
               double ratio = effect.value() != null ? effect.value() : 0.5;
-              attacker.heal((int) (attacker.getMaxHp() * ratio));
+              int maxHp = attacker.getMaxHp();
+              if (maxHp > 0) {
+                attacker.heal((int) (maxHp * ratio));
+              }
               isBuff = true;
             }
             case ATTACK_BUFF -> {

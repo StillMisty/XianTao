@@ -212,7 +212,10 @@ public class EquipmentService {
   @Transactional
   public void createEquipment(Long userId, Long templateId) {
     var equipTmpl = equipmentTemplateRepository.findById(templateId).orElse(null);
-    if (equipTmpl == null) return;
+    if (equipTmpl == null) {
+      log.warn("装备模板不存在: templateId={}", templateId);
+      return;
+    }
 
     Rarity rarity = Rarity.roll(equipTmpl.getDropWeight());
     double qm = rarity.randomQualityMultiplier();

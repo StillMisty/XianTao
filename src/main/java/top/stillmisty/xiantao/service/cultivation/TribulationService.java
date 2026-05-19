@@ -1,5 +1,6 @@
 package top.stillmisty.xiantao.service.cultivation;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ import top.stillmisty.xiantao.service.combat.CombatService;
 public class TribulationService {
 
   private static final int TRIBULATION_MAX_ROUNDS = 40;
+  private static final int TRIBULATION_COOLDOWN_HOURS = 1;
 
   private final FudiCellRepository fudiCellRepository;
   private final FudiRepository fudiRepository;
@@ -48,6 +50,15 @@ public class TribulationService {
    */
   @Transactional
   public String resolveTribulation(Fudi fudi, User user) {
+    if (fudi.getLastTribulationTime() != null) {
+      long hoursSinceLast =
+          Duration.between(fudi.getLastTribulationTime(), LocalDateTime.now()).toHours();
+      if (hoursSinceLast < TRIBULATION_COOLDOWN_HOURS) {
+        long remaining = TRIBULATION_COOLDOWN_HOURS - hoursSinceLast;
+        return String.format("天劫刚过不久，灵气尚在激荡。请%d小时后再次引动。", remaining);
+      }
+    }
+
     fudi.setLastTribulationTime(LocalDateTime.now());
     if (fudi.getTribulationStage() == null) {
       fudi.setTribulationStage(0);

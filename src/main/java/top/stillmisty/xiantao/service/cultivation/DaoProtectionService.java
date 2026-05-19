@@ -33,7 +33,7 @@ public class DaoProtectionService {
 
   @Transactional
   public DaoProtectionResult establishProtection(Long protectorId, String protegeNickname) {
-    User protector = userStateService.loadUser(protectorId);
+    User protector = userStateService.loadUserForUpdate(protectorId);
 
     Optional<User> protegeOpt = findUserByNickname(protegeNickname);
     if (protegeOpt.isEmpty()) {
@@ -72,7 +72,6 @@ public class DaoProtectionService {
           null);
     }
 
-    userStateService.loadUserForUpdate(protectorId); // lock the protector row
     long currentProtectingCount = daoProtectionRepository.countByProtectorId(protectorId);
     if (currentProtectingCount >= MAX_PROTECTOR_COUNT) {
       return new DaoProtectionResult(

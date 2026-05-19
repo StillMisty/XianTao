@@ -65,7 +65,7 @@ public class CharacterStatusService {
 
     int attack = totalStr * 2 + equipData.equipAttack;
     int defense = totalCon + equipData.equipDefense;
-    int hpMax = 100 + totalCon * 20;
+    int hpMax = user.calculateMaxHp();
 
     return new CharacterStatusResult(
         true,

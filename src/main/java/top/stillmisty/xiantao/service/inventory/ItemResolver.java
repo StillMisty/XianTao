@@ -3,6 +3,7 @@ package top.stillmisty.xiantao.service.inventory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -115,7 +116,13 @@ public class ItemResolver {
 
     var sorted =
         items.stream()
-            .map(si -> Map.entry(si, templates.get(si.getTemplateId())))
+            .map(
+                si -> {
+                  ItemTemplate tmpl = templates.get(si.getTemplateId());
+                  if (tmpl == null) return null;
+                  return Map.entry(si, tmpl);
+                })
+            .filter(Objects::nonNull)
             .sorted(
                 (a, b) -> {
                   int cmp = Integer.compare(tier(b.getValue()), tier(a.getValue()));

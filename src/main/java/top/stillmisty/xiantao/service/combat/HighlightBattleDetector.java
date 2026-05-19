@@ -37,12 +37,14 @@ public class HighlightBattleDetector {
 
     // 检查血量变化
     boolean isCloseBattle = false;
-    if (playerHpChange != null && playerHpChange.containsKey("Player")) {
+    if (playerHpChange != null && !playerHpChange.isEmpty()) {
+      var hpEntry = playerHpChange.entrySet().iterator().next();
       @SuppressWarnings("unchecked")
-      Map<String, Object> hpChange = (Map<String, Object>) playerHpChange.get("Player");
-      if (hpChange != null) {
-        int hpBefore = (int) hpChange.get("before");
-        int hpAfter = (int) hpChange.get("after");
+      Map<String, Object> hpChange = (Map<String, Object>) hpEntry.getValue();
+      if (hpChange != null
+          && hpChange.get("before") instanceof Integer hpBefore
+          && hpChange.get("after") instanceof Integer hpAfter
+          && hpBefore > 0) {
         double hpRatio = (double) hpAfter / hpBefore;
         isCloseBattle = hpRatio <= HIGHLIGHT_HP_THRESHOLD;
       }

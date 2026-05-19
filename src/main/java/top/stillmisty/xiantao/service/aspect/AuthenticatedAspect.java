@@ -32,8 +32,8 @@ public class AuthenticatedAspect {
     if (args.length < 2
         || !(args[0] instanceof PlatformType platform)
         || !(args[1] instanceof String openId)) {
-      log.warn("鉴权AOP: 前两个参数不是 (PlatformType, String)，跳过鉴权: {}", pjp.getSignature());
-      return pjp.proceed();
+      throw new IllegalStateException(
+          "@Authenticated 方法的前两个参数必须为 (PlatformType, String): " + pjp.getSignature());
     }
 
     // 提取可选的 UserStatus（第3个参数）
@@ -50,17 +50,10 @@ public class AuthenticatedAspect {
     Long userId = ((ServiceResult.Success<Long>) auth).data();
 
     try {
-      return ScopedValue.where(UserContext.CURRENT_USER, userId)
-          .call(
-              () -> {
-                try {
-                  return pjp.proceed();
-                } catch (RuntimeException e) {
-                  throw e;
-                } catch (Exception e) {
-                  throw new RuntimeException(e);
-                }
-              });
+      return UserContext.withUser(userId, pjp::proceed);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new RuntimeException(e);
     } catch (BusinessException e) {
       log.warn("业务异常 - userId={}: {}", userId, e.getMessage());
       throw e;

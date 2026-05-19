@@ -377,13 +377,13 @@ public class DungeonService {
     }
   }
 
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  @Transactional(propagation = Propagation.MANDATORY)
   public void markInstanceFailed(DungeonInstance instance) {
     instance.markFailed();
     instanceRepository.save(instance);
   }
 
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  @Transactional(propagation = Propagation.MANDATORY)
   public void markInstanceAbandoned(DungeonInstance instance) {
     instance.setStatus(DungeonStatus.ABANDONED);
     instanceRepository.save(instance);

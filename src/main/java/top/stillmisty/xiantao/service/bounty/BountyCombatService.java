@@ -84,6 +84,10 @@ public class BountyCombatService {
             userId, record.getBountyId(), record.getBountyName(), items, stats.spiritStones);
 
     if (finalSpiritStones > 0) {
+      if (finalSpiritStones > Integer.MAX_VALUE) {
+        log.warn("灵石奖励溢出: {} > Integer.MAX_VALUE，截断为最大值", finalSpiritStones);
+        finalSpiritStones = Integer.MAX_VALUE;
+      }
       spiritStoneService.deposit(userId, (int) finalSpiritStones);
     }
 

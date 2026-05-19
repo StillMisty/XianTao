@@ -16,6 +16,7 @@ import org.springframework.ai.openai.setup.OpenAiSetup;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import top.stillmisty.xiantao.service.ai.ReasoningPreservingOpenAIClient;
 import top.stillmisty.xiantao.service.ai.ReasoningScopeAdvisor;
 
@@ -25,13 +26,13 @@ public class SpringAiConfig {
 
   /** 通用 NPC ChatClient（支持 reasoning_content 传递，max-tokens: 1000） */
   @Bean
+  @Primary
   public ChatClient npcChatClient(
       OpenAiCommonProperties commonProperties,
       OpenAiChatProperties chatProperties,
       ToolCallingManager toolCallingManager,
       ObjectProvider<ObservationRegistry> observationRegistry,
       ObjectProvider<ToolExecutionEligibilityPredicate> predicate) {
-
     var resolved =
         OpenAiAutoConfigurationUtil.resolveCommonProperties(commonProperties, chatProperties);
 

@@ -82,7 +82,7 @@ public class FarmService {
 
     double levelSpeedMultiplier = fudiHelper.getLevelSpeedMultiplier(cellLevel, minLevel);
     double baseGrowthHours = getBaseGrowthHours(cropId);
-    double actualGrowthHours = baseGrowthHours / levelSpeedMultiplier;
+    double actualGrowthHours = Math.max(0.1, baseGrowthHours / levelSpeedMultiplier);
 
     LocalDateTime now = LocalDateTime.now();
     LocalDateTime matureTime = now.plusHours((long) actualGrowthHours);
