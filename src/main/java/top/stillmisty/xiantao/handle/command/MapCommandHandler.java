@@ -1,14 +1,11 @@
 package top.stillmisty.xiantao.handle.command;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -102,14 +99,14 @@ public class MapCommandHandler implements CommandGroup {
     log.debug("处理悬赏 - Platform: {}, OpenId: {}", platform, openId);
     try {
       var statusResult = bountyService.getBountyStatus(platform, openId);
-      if (statusResult instanceof ServiceResult.Success(var vo)) {
+      if (statusResult instanceof ServiceResult.Success(var vo) && vo.bountyId() != null) {
         return formatBountyStatus(vo, fmt);
       }
-      return CommandHandlerHelper.safeCall(
-          () -> bountyService.listBounties(platform, openId), fmt, vo -> formatBountyList(vo, fmt));
     } catch (BusinessException e) {
-      return fmt.error(e.getMessage());
+      // Bounty definition missing — fall through to list
     }
+    return CommandHandlerHelper.safeCall(
+        () -> bountyService.listBounties(platform, openId), fmt, vo -> formatBountyList(vo, fmt));
   }
 
   public String handleStartBounty(
@@ -203,34 +200,18 @@ public class MapCommandHandler implements CommandGroup {
       }
     }
 
-    Map<Long, String> itemNames = new ConcurrentHashMap<>();
-    Map<Long, String> equipNames = new ConcurrentHashMap<>();
+    Map<Long, String> itemNames = new HashMap<>();
+    Map<Long, String> equipNames = new HashMap<>();
 
-    try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
-      Future<?> itemFuture =
-          executor.submit(
-              () -> {
-                if (!itemIds.isEmpty()) {
-                  itemTemplateRepository
-                      .findByIds(new ArrayList<>(itemIds))
-                      .forEach(t -> itemNames.put(t.getId(), t.getName()));
-                }
-              });
-      Future<?> equipFuture =
-          executor.submit(
-              () -> {
-                if (!equipIds.isEmpty()) {
-                  equipmentTemplateRepository
-                      .findByIds(new ArrayList<>(equipIds))
-                      .forEach(t -> equipNames.put(t.getId(), t.getName()));
-                }
-              });
-      try {
-        itemFuture.get(5, TimeUnit.SECONDS);
-        equipFuture.get(5, TimeUnit.SECONDS);
-      } catch (Exception e) {
-        log.warn("解析模板名称失败", e);
-      }
+    if (!itemIds.isEmpty()) {
+      itemTemplateRepository
+          .findByIds(new ArrayList<>(itemIds))
+          .forEach(t -> itemNames.put(t.getId(), t.getName()));
+    }
+    if (!equipIds.isEmpty()) {
+      equipmentTemplateRepository
+          .findByIds(new ArrayList<>(equipIds))
+          .forEach(t -> equipNames.put(t.getId(), t.getName()));
     }
 
     return new TemplateResolvers(

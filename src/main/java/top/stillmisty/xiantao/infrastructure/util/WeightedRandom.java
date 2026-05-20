@@ -1,6 +1,8 @@
 package top.stillmisty.xiantao.infrastructure.util;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.function.ToIntFunction;
@@ -53,6 +55,38 @@ public final class WeightedRandom {
       if (idx < 0) idx = -idx - 1;
       return items.get(idx);
     }
+  }
+
+  /**
+   * 从列表中按权重不放回抽取 n 个元素。若总权重≤0则退化为均匀随机 shuffle。
+   *
+   * @param items 待选列表
+   * @param weightExtractor 权重提取函数
+   * @param n 抽取数量
+   * @param rng 随机数生成器
+   * @return 选中的元素列表（顺序不保证）
+   */
+  public static <T> List<T> selectN(
+      List<T> items, ToIntFunction<T> weightExtractor, int n, Random rng) {
+    if (items.isEmpty() || n <= 0) return List.of();
+    if (n >= items.size()) return new ArrayList<>(items);
+
+    int totalWeight = items.stream().mapToInt(weightExtractor).sum();
+    if (totalWeight <= 0) {
+      List<T> shuffled = new ArrayList<>(items);
+      Collections.shuffle(shuffled, rng);
+      return new ArrayList<>(shuffled.subList(0, n));
+    }
+
+    List<T> pool = new ArrayList<>(items);
+    List<T> result = new ArrayList<>(n);
+    for (int i = 0; i < n && !pool.isEmpty(); i++) {
+      T selected = WeightedRandom.select(pool, weightExtractor, rng);
+      if (selected == null) break;
+      result.add(selected);
+      pool.remove(selected);
+    }
+    return result;
   }
 
   /** 使用正态分布生成 [min, max] 范围内的随机整数。 以中点为均值、标准差为 (max-min)/4，极值出现概率约 5%。 */

@@ -101,8 +101,25 @@ public class BountyService {
             .findById(user.getLocationId())
             .orElseThrow(() -> new BusinessException(MAP_CURRENT_NOT_FOUND));
 
-    return bountyRepository.findByMapId(mapNode.getId()).stream()
-        .filter(b -> user.getLevel() >= b.getRequireLevel())
+    List<Bounty> eligible =
+        bountyRepository.findByMapId(mapNode.getId()).stream()
+            .filter(b -> b.requiresLevel(user.getLevel()))
+            .toList();
+
+    if (eligible.isEmpty()) return List.of();
+
+    // Deterministic seed: per user, per map, per day → same list within same day
+    long seed = userId * 31 + mapNode.getId() * 17 + LocalDate.now().toEpochDay();
+    Random rng = new Random(seed);
+
+    int count = rng.nextInt(4) + 5; // 5–8 bounties
+    count = Math.min(count, eligible.size());
+
+    List<Bounty> selected =
+        WeightedRandom.selectN(
+            eligible, b -> b.getEventWeight() != null ? b.getEventWeight() : 0, count, rng);
+
+    return selected.stream()
         .map(
             b ->
                 new BountyVO(
@@ -196,7 +213,6 @@ public class BountyService {
     return String.format("已接取悬赏「%s」，预计 %d 分钟后完成。", bounty.getName(), bounty.getDurationMinutes());
   }
 
-  @Transactional
   public BountyRewardVO completeBounty(Long userId) {
     return bountyCombatService.completeBounty(userId);
   }

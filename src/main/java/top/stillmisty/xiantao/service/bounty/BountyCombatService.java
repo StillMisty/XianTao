@@ -205,7 +205,7 @@ public class BountyCombatService {
     }
     if (!items.isEmpty()) {
       if (!sb.isEmpty()) sb.append(" ");
-      sb.append("获得物品：");
+      sb.append("获得：");
       sb.append(
           items.stream()
               .map(
@@ -215,19 +215,13 @@ public class BountyCombatService {
                             String.format("%s x%d", name, quantity);
                         case BountyRewardItem.BeastEggReward(_, var name) ->
                             String.format("%s x1", name);
+                        case BountyRewardItem.EquipmentRewardItem(_, var name) ->
+                            String.format("%s x1", name);
                         default -> "";
                       })
               .filter(s -> !s.isEmpty())
               .collect(Collectors.joining("、")));
       sb.append("。");
-    }
-    if (hasBeastEgg) {
-      if (!sb.isEmpty()) sb.append(" ");
-      sb.append("获得兽卵。");
-    }
-    if (hasEquipment) {
-      if (!sb.isEmpty()) sb.append(" ");
-      sb.append("获得装备。");
     }
     return sb.toString();
   }

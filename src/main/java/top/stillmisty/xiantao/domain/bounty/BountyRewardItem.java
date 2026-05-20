@@ -20,6 +20,7 @@ public sealed interface BountyRewardItem {
     return switch (this) {
       case ItemReward(var templateId, var name, var quantity) -> {
         Map<String, Object> m = new HashMap<>();
+        m.put("_rewardType", "item");
         m.put("templateId", templateId);
         m.put("name", name);
         m.put("quantity", quantity);
@@ -66,6 +67,7 @@ public sealed interface BountyRewardItem {
     if ("equipment".equals(rewardType)) {
       return new EquipmentRewardItem(toLong(map.get("templateId")), (String) map.get("name"));
     }
+    // "item" or missing _rewardType (legacy data)
     return new ItemReward(
         toLong(map.get("templateId")),
         (String) map.get("name"),
