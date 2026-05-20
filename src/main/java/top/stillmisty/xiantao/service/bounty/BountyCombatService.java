@@ -96,7 +96,7 @@ public class BountyCombatService {
         userId, record.getBountyName(), items, finalSpiritStones);
 
     // Check hidden events
-    bountyCompleter.checkHiddenEvents(userId, record);
+    bountyCompleter.checkHiddenEvents(userId, user, record);
 
     String rewardDescription =
         buildRewardDescription(finalSpiritStones, items, stats.hasBeastEgg, stats.hasEquipment);

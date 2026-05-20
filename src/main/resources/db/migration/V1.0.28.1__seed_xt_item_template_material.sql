@@ -25,4 +25,20 @@ INSERT INTO xt_item_template (name, type, properties, tags, description) VALUES
 ('天雷竹',     'MATERIAL', '{"RIGIDITY":5,"TOUGHNESS":8,"SPIRIT":10}', '["wood","craft","thunder","rare"]', '被天雷劈中后不死的灵竹，竹身含雷纹，法器掺入可添雷击之威。'),
 ('万载玄冰',   'MATERIAL', '{"RIGIDITY":12,"TOUGHNESS":4,"SPIRIT":8}', '["ice","craft","rare"]', '极北冰眼万年不化的玄冰核心，三尺之内呵气成冰。'),
 ('太阳真金',   'MATERIAL', '{"RIGIDITY":24,"TOUGHNESS":15,"SPIRIT":12}', '["metal","craft","fire","legendary"]', '太阳星核脱落的一小块神金，炽热无比，非化神修为不得触碰。'),
-('虚空石',     'MATERIAL', '{"RIGIDITY":2,"TOUGHNESS":2,"SPIRIT":16}', '["ore","craft","space","rare"]', '空间裂缝中浮出的透明石头，内含芥子世界，储物法宝的核心。');
+('虚空石',     'MATERIAL', '{"RIGIDITY":2,"TOUGHNESS":2,"SPIRIT":16}', '["ore","craft","space","rare"]', '空间裂缝中浮出的透明石头，内含芥子世界，储物法宝的核心。'),
+-- 补充锻材（兼顾锻造系统各品阶约束匹配）
+('柔铁',       'MATERIAL', '{"RIGIDITY":5,"TOUGHNESS":9,"SPIRIT":3}', '["ore","metal","craft","uncommon"]', '质地柔软的铁精，刚性虽低但延展极佳，适合锻甲柔韧处。'),
+('砂金矿',     'MATERIAL', '{"RIGIDITY":9,"TOUGHNESS":3,"SPIRIT":4}', '["ore","metal","craft","uncommon"]', '河砂中淘出的金粒矿，硬度尚可但性脆，掺入少量即可增刚。'),
+('骨粉',       'MATERIAL', '{"RIGIDITY":3,"TOUGHNESS":7,"SPIRIT":5}', '["bone","craft","supplement","uncommon"]', '妖兽枯骨研磨的细粉，加入熔炉可提升韧性，锻材调和常用辅料。'),
+('寒髓晶',     'MATERIAL', '{"RIGIDITY":7,"TOUGHNESS":4,"SPIRIT":11}', '["ore","crystal","craft","ice","rare"]', '冰脉深处的髓心结晶，灵气凛冽而不刺骨，寒系法器核心贯材。'),
+('烈焰铜',     'MATERIAL', '{"RIGIDITY":12,"TOUGHNESS":6,"SPIRIT":5}', '["ore","metal","craft","fire","rare"]', '火脉淬炼百年的赤铜锭，刚韧适中自带余温，中品法器常用的主材。'),
+('黑曜石',     'MATERIAL', '{"RIGIDITY":17,"TOUGHNESS":4,"SPIRIT":2}', '["ore","crystal","craft","rare"]', '火山口瞬冷凝结的黑曜镜石，硬度骇人但一击即碎，适合刀锋。'),
+('血纹钢',     'MATERIAL', '{"RIGIDITY":9,"TOUGHNESS":9,"SPIRIT":4}', '["metal","craft","blood","rare"]', '淬火时以妖兽血浇淋而成的纹钢，刚韧均衡，散修最爱用的万金油。'),
+('蜘蛛妖丝',   'MATERIAL', '{"RIGIDITY":2,"TOUGHNESS":15,"SPIRIT":7}', '["silk","craft","rare"]', '千年蛛妖吐出的银丝束，纤细却可悬千斤，织入法袍柔韧倍增。'),
+('雷精矿石',   'MATERIAL', '{"RIGIDITY":7,"TOUGHNESS":5,"SPIRIT":11}', '["ore","craft","thunder","rare"]', '雷暴区山巅吸附天雷的铁矿石，锻入器中有雷鸣之威。'),
+('金乌铁',     'MATERIAL', '{"RIGIDITY":19,"TOUGHNESS":9,"SPIRIT":10}', '["ore","metal","craft","fire","epic"]', '日精凝结成的玄铁，传说金乌栖于扶桑时落羽所化，至阳至刚。'),
+('苍穹陨铁',   'MATERIAL', '{"RIGIDITY":21,"TOUGHNESS":7,"SPIRIT":9}', '["ore","metal","craft","star","epic"]', '穿透九天罡风层而未被焚毁的陨铁，质密而不脆，高阶法器主材。'),
+('冰凤骨',     'MATERIAL', '{"RIGIDITY":10,"TOUGHNESS":16,"SPIRIT":12}', '["bone","craft","ice","epic"]', '栖息于万年冰窟的冰凤遗骨，寒而不折、韧如龙筋，冰系炼器极品。'),
+('万年树心',   'MATERIAL', '{"RIGIDITY":10,"TOUGHNESS":16,"SPIRIT":9}', '["wood","craft","epic"]', '万年灵木枯死后的树心精魄，纹理致密如玉，刚韧之间的黄金平衡。'),
+('真龙精血',   'MATERIAL', '{"RIGIDITY":14,"TOUGHNESS":20,"SPIRIT":16}', '["essence","craft","dragon","legendary"]', '真龙陨落前逼出的一滴心头精血，蕴含浩瀚生机，万金难求。'),
+('天劫晶',     'MATERIAL', '{"RIGIDITY":14,"TOUGHNESS":14,"SPIRIT":22}', '["ore","crystal","craft","legendary"]', '天劫雷柱轰击灵石矿脉偶然产生的异晶，灵力澎湃如劫雷再临。');

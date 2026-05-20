@@ -30,7 +30,7 @@ INSERT INTO xt_equipment_template (name, description, tags, slot, weapon_type, c
 ('竹枪',     '青竹削尖后经灵气加持的长枪，轻便有韧劲。',                    '["spear","common","starter"]',       'WEAPON', 'SPEAR', 'POLEARM', 1,  20, 0, 3, 0, 2, 0, 1.0, '近战', '{"BROKEN":60,"COMMON":30,"RARE":10}'),
 ('亮银枪',   '枪身银白锃亮，枪尖寒芒闪烁，军中猛将最爱。',                  '["spear","uncommon","basic"]',       'WEAPON', 'SPEAR', 'POLEARM', 10, 52, 0, 8, 3, 4, 0, 1.0, '近战', '{"BROKEN":40,"COMMON":40,"RARE":15,"EPIC":5}'),
 ('游龙枪',   '枪身盘龙浮雕，刺出时宛如游龙出水气势惊人。',                  '["spear","rare","intermediate"]',    'WEAPON', 'SPEAR', 'POLEARM', 25,  115, 5,  18, 5,  8,  0, 1.1, '近战', '{"COMMON":40,"RARE":40,"EPIC":15,"LEGENDARY":5}'),
-('追魂枪',   '枪尖淬有追魂索命之毒，刺入之后敌人魂魄涣散。',                    '["spear","epic","advanced"]',        'WEAPON', 'SPEAR', 'POLEARM', 38,  185, 8,  32, 8,  6,  0, 0.95, '近战', '{"COMMON":30,"RARE":50,"EPIC":15,"LEGENDARY":5}'),
+('追魂枪',   '枪尖淬有追魂索命之毒，刺入之后敌人魂魄涣散。',                    '["spear","epic","advanced"]',        'WEAPON', 'SPEAR', 'POLEARM', 38,  185, 8,  32, 8,  6,  0, 0.9, '近战', '{"COMMON":30,"RARE":50,"EPIC":15,"LEGENDARY":5}'),
 ('霸王枪',   '传说西楚霸王所用战枪，枪重三百六十斤，非天生神力不可持。',     '["spear","epic","advanced"]',        'WEAPON', 'SPEAR', 'POLEARM', 50,  250, 10, 45, 10, 5,  0, 0.8, '近战', '{"RARE":40,"EPIC":40,"LEGENDARY":20}'),
 ('方天追魂枪','融合方天画戟和追魂索命的特性，可刺可劈，变幻莫测。',           '["spear","legendary","grand"]',      'WEAPON', 'SPEAR', 'POLEARM', 75, 430, 0, 65, 20, 15, 0, 1.0, '近战', '{"EPIC":50,"LEGENDARY":50}');
 
@@ -69,7 +69,7 @@ INSERT INTO xt_equipment_template (name, description, tags, slot, weapon_type, c
 ('石锤',     '一块大石头绑在木柄上，举起需要不小的力气。',                    '["hammer","common","starter"]',       'WEAPON', 'HAMMER', 'EXOTIC', 5,  30, 0, 8, 2, 0, 0, 0.5, '近战', '{"BROKEN":60,"COMMON":30,"RARE":10}'),
 ('震地锤',  '锤头镌刻有震荡符文，一锤下去连地都抖三抖。',                      '["hammer","uncommon","basic"]',       'WEAPON', 'HAMMER', 'EXOTIC', 15, 70, 5, 15, 8, 0, 0, 0.5, '近战', '{"BROKEN":40,"COMMON":40,"RARE":15,"EPIC":5}'),
 ('碎山锤',  '锤大如斗，纯以重量伤人，一锤碎山岳不是夸张。',                    '["hammer","rare","intermediate"]',    'WEAPON', 'HAMMER', 'EXOTIC', 35,  160, 10, 35, 15, 0,  0, 0.6, '近战', '{"COMMON":40,"RARE":40,"EPIC":15,"LEGENDARY":5}'),
-('雷霆战锤','锤身缠绕紫色雷电，挥舞时雷声轰轰，每击皆附带雷罡之力。',            '["hammer","epic","thunder","advanced"]', 'WEAPON', 'HAMMER', 'EXOTIC', 48,  250, 12, 45, 22, 0,  0, 0.65, '近战', '{"COMMON":30,"RARE":50,"EPIC":15,"LEGENDARY":5}'),
+('雷霆战锤','锤身缠绕紫色雷电，挥舞时雷声轰轰，每击皆附带雷罡之力。',            '["hammer","epic","thunder","advanced"]', 'WEAPON', 'HAMMER', 'EXOTIC', 48,  250, 12, 45, 22, 0,  0, 0.6, '近战', '{"COMMON":30,"RARE":50,"EPIC":15,"LEGENDARY":5}'),
 ('昊天锤',  '九天飞来神锤，锤身萦绕雷霆，每击必带雷威。',                       '["hammer","legendary","thunder"]',    'WEAPON', 'HAMMER', 'EXOTIC', 65,  370, 15, 60, 30, 0,  0, 0.7, '近战', '{"EPIC":40,"LEGENDARY":60}');
 
 -- ============ DAGGER (匕首) ============
@@ -77,7 +77,7 @@ INSERT INTO xt_equipment_template (name, description, tags, slot, weapon_type, c
 ('骨匕',     '妖兽骨打磨成的匕首，轻便顺手。',                               '["dagger","common","starter"]',       'WEAPON', 'DAGGER', 'EXOTIC', 1,  14, 0, 0, 0, 5, 0, 1.5, '近战', '{"BROKEN":60,"COMMON":30,"RARE":10}'),
 ('暗影匕',  '淬毒的短匕，刃口发黑，见血封喉不是开玩笑的。',                   '["dagger","uncommon","basic"]',       'WEAPON', 'DAGGER', 'EXOTIC', 12, 42, 0, 2, 0, 10, 0, 1.5, '近战', '{"BROKEN":40,"COMMON":40,"RARE":15,"EPIC":5}'),
 ('鱼肠剑',  '上古名剑之一，据传可藏在鱼腹之中行刺，实为绝品短剑。',            '["dagger","rare","intermediate"]',    'WEAPON', 'DAGGER', 'EXOTIC', 28,  110, 0,  8,  0, 25, 3, 1.6, '近战', '{"COMMON":30,"RARE":50,"EPIC":15,"LEGENDARY":5}'),
-('碎星匕',  '匕身嵌有陨星碎片，刺出时星光乍现，可破高防。',                    '["dagger","epic","advanced"]',        'WEAPON', 'DAGGER', 'EXOTIC', 38,  165, 0,  12, 0, 38, 6, 1.65, '近战', '{"COMMON":30,"RARE":50,"EPIC":15,"LEGENDARY":5}'),
+('碎星匕',  '匕身嵌有陨星碎片，刺出时星光乍现，可破高防。',                    '["dagger","epic","advanced"]',        'WEAPON', 'DAGGER', 'EXOTIC', 38,  165, 0,  12, 0, 38, 6, 1.6, '近战', '{"COMMON":30,"RARE":50,"EPIC":15,"LEGENDARY":5}'),
 ('千幻匕',  '持之可化千百幻影，一瞬之间敌人身上多了十个窟窿。',                '["dagger","epic","advanced"]',        'WEAPON', 'DAGGER', 'EXOTIC', 50,  220, 0,  15, 0, 50, 10, 1.7, '近战', '{"RARE":30,"EPIC":50,"LEGENDARY":20}'),
 ('勾魂刃',  '阎罗殿流出的勾魂之刃，刃出则魂飞魄散。',                          '["dagger","legendary","hell"]',       'WEAPON', 'DAGGER', 'EXOTIC', 70, 350, 0, 20, 0, 80, 15, 1.8, '近战', '{"EPIC":40,"LEGENDARY":60}');
 
@@ -85,7 +85,7 @@ INSERT INTO xt_equipment_template (name, description, tags, slot, weapon_type, c
 INSERT INTO xt_equipment_template (name, description, tags, slot, weapon_type, category, equip_level, base_attack, base_defense, base_str, base_con, base_agi, base_wis, attack_speed, attack_range, drop_weight) VALUES
 ('竹扇',     '普通竹骨折扇，正面上书一个"雅"字，反面是山水画。',              '["fan","common","starter"]',          'WEAPON', 'FAN', 'EXOTIC', 8,  18, 0, 0, 0, 3, 5, 1.3, '近战', '{"BROKEN":60,"COMMON":30,"RARE":10}'),
 ('云锦扇',  '以云锦为面的灵扇，轻摇则有云气缭绕，修仙雅士首选。',              '["fan","uncommon","basic"]',          'WEAPON', 'FAN', 'EXOTIC', 18,  45,  3,  0, 0, 5,  12, 1.3, '近战', '{"BROKEN":40,"COMMON":40,"RARE":15,"EPIC":5}'),
-('幻彩蝶扇','扇面绘制五彩蝶纹，挥动时仿佛蝶群飞舞，迷幻惑目。',                 '["fan","rare","intermediate"]',       'WEAPON', 'FAN', 'EXOTIC', 28,  82,  6,  0, 2, 9,  20, 1.25, '近战', '{"COMMON":40,"RARE":40,"EPIC":15,"LEGENDARY":5}'),
+('幻彩蝶扇','扇面绘制五彩蝶纹，挥动时仿佛蝶群飞舞，迷幻惑目。',                 '["fan","rare","intermediate"]',       'WEAPON', 'FAN', 'EXOTIC', 28,  82,  6,  0, 2, 9,  20, 1.2, '近战', '{"COMMON":40,"RARE":40,"EPIC":15,"LEGENDARY":5}'),
 ('霓裳扇',  '扇面如霓裳羽衣，七彩流转，挥动时妙音伴生。',                     '["fan","rare","intermediate"]',       'WEAPON', 'FAN', 'EXOTIC', 35,  110, 8,  0, 3, 12, 25, 1.2, '近战', '{"COMMON":40,"RARE":40,"EPIC":15,"LEGENDARY":5}'),
 ('天罡扇',  '天罡三十六星之力炼化的宝扇，扇出罡风如刀。',                      '["fan","epic","advanced"]',           'WEAPON', 'FAN', 'EXOTIC', 55, 240, 12, 5, 5, 20, 45, 1.2, '近战', '{"RARE":40,"EPIC":40,"LEGENDARY":20}');
 

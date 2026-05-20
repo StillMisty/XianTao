@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
+import top.stillmisty.xiantao.domain.event.enums.ActivityType;
 import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.event.repository.EventTypeRepository;
 import top.stillmisty.xiantao.domain.event.repository.HiddenCompletionRepository;
@@ -17,8 +18,6 @@ import top.stillmisty.xiantao.service.GameEventService;
 @Component
 @RequiredArgsConstructor
 public class TrainingCompleter {
-
-  private static final String ACTIVITY_TYPE = "TRAINING";
 
   private final GameEventService gameEventService;
   private final SubEventSelector subEventSelector;
@@ -44,38 +43,36 @@ public class TrainingCompleter {
   public void handleNumericEvent(
       Long userId, User user, ActivityEvent event, Map<String, Object> context) {
     Map<String, Object> templateArgs = effectExecutor.execute(event, userId, user, context);
-    String narrativeKey =
-        eventTypeRepository
-            .findByCode(event.getCode())
-            .map(e -> e.getDescription())
-            .orElse(event.getCode());
+    String narrativeKey = resolveNarrativeKey(event.getCode());
     gameEventService.createEvent(
         userId, GameEventCategory.TRAINING_EVENT, narrativeKey, templateArgs);
   }
 
   /** 检查历练隐藏事件 */
   public void checkHiddenEvents(Long userId, User user, MapNode mapNode) {
-    var hiddenEvents = subEventSelector.findHiddenEvents(ACTIVITY_TYPE, mapNode.getId());
+    var hiddenEvents =
+        subEventSelector.findHiddenEvents(ActivityType.TRAINING.getCode(), mapNode.getId());
     for (ActivityEvent event : hiddenEvents) {
       boolean alreadyDone =
           hiddenCompletionRepository.exists(
-              userId, ACTIVITY_TYPE, mapNode.getId(), event.getCode());
+              userId, ActivityType.TRAINING.getCode(), mapNode.getId(), event.getCode());
       if (alreadyDone) continue;
       if (!triggerConditionChecker.check(event, userId, user)) continue;
 
       hiddenCompletionRepository.save(
           top.stillmisty.xiantao.domain.event.entity.HiddenCompletion.create(
-              userId, ACTIVITY_TYPE, mapNode.getId(), event.getCode()));
+              userId, ActivityType.TRAINING.getCode(), mapNode.getId(), event.getCode()));
 
       Map<String, Object> templateArgs =
-          effectExecutor.execute(event, userId, user, Map.of("mapName", mapNode.getName()));
-      String narrativeKey =
-          eventTypeRepository
-              .findByCode(event.getCode())
-              .map(e -> e.getDescription())
-              .orElse(event.getCode());
+          effectExecutor.execute(
+              event, userId, user, Map.of("mapNode", mapNode, "mapName", mapNode.getName()));
+      String narrativeKey = resolveNarrativeKey(event.getCode());
       gameEventService.createEvent(
           userId, GameEventCategory.TRAINING_HIDDEN, narrativeKey, templateArgs);
     }
+  }
+
+  private String resolveNarrativeKey(String code) {
+    return eventTypeRepository.findByCode(code).map(e -> e.getDescription()).orElse(code);
   }
 }

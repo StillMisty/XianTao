@@ -152,4 +152,148 @@ VALUES
     'requirements', '{"RIGIDITY":{"min":30,"max":50},"TOUGHNESS":{"min":20,"max":40},"SPIRIT":{"min":12,"max":25}}'::jsonb
   ),
   '["blueprint","forge","armor","leather","legendary"]'::jsonb,
-  '龙鳞软甲的锻造图纸，龙鳞为甲，轻而坚不可摧。');
+  '龙鳞软甲的锻造图纸，龙鳞为甲，轻而坚不可摧。'),
+
+('龙雀刀图', 'FORGING_BLUEPRINT',
+  jsonb_build_object(
+    'equipment_template_id', (SELECT id FROM xt_equipment_template WHERE name = '龙雀刀'),
+    'grade', 3,
+    'requirements', '{"RIGIDITY":{"min":18,"max":32},"TOUGHNESS":{"min":10,"max":22},"SPIRIT":{"min":5,"max":12}}'::jsonb
+  ),
+  '["blueprint","forge","blade","rare"]'::jsonb,
+  '龙雀刀的锻造图纸，刀身龙纹雀翎交映，刀锋所向无不俯首。'),
+
+('天刑刀图', 'FORGING_BLUEPRINT',
+  jsonb_build_object(
+    'equipment_template_id', (SELECT id FROM xt_equipment_template WHERE name = '天刑刀'),
+    'grade', 4,
+    'requirements', '{"RIGIDITY":{"min":24,"max":42},"TOUGHNESS":{"min":14,"max":28},"SPIRIT":{"min":8,"max":18}}'::jsonb
+  ),
+  '["blueprint","forge","blade","epic"]'::jsonb,
+  '天刑刀的锻造图纸，天刑刀出，代天行罚。需以先天庚金淬刃，否则难以驾驭。'),
+
+('七星剑图', 'FORGING_BLUEPRINT',
+  jsonb_build_object(
+    'equipment_template_id', (SELECT id FROM xt_equipment_template WHERE name = '七星剑'),
+    'grade', 3,
+    'requirements', '{"RIGIDITY":{"min":18,"max":30},"TOUGHNESS":{"min":6,"max":16},"SPIRIT":{"min":10,"max":18}}'::jsonb
+  ),
+  '["blueprint","forge","sword","rare"]'::jsonb,
+  '七星剑的锻造图纸，剑身分七段，每段对应北斗一星。月下锻剑，星光入刃。'),
+
+('诛仙剑图', 'FORGING_BLUEPRINT',
+  jsonb_build_object(
+    'equipment_template_id', (SELECT id FROM xt_equipment_template WHERE name = '诛仙剑'),
+    'grade', 4,
+    'requirements', '{"RIGIDITY":{"min":26,"max":46},"TOUGHNESS":{"min":12,"max":24},"SPIRIT":{"min":12,"max":22}}'::jsonb
+  ),
+  '["blueprint","forge","sword","epic"]'::jsonb,
+  '诛仙剑的锻造图纸，传说此剑铸成日天降血雨，非大毅力者不得持。'),
+
+('轩辕剑图', 'FORGING_BLUEPRINT',
+  jsonb_build_object(
+    'equipment_template_id', (SELECT id FROM xt_equipment_template WHERE name = '轩辕剑'),
+    'grade', 5,
+    'requirements', '{"RIGIDITY":{"min":32,"max":55},"TOUGHNESS":{"min":18,"max":36},"SPIRIT":{"min":16,"max":28}}'::jsonb
+  ),
+  '["blueprint","forge","sword","legendary"]'::jsonb,
+  '轩辕剑的锻造图纸，人皇之剑。一面刻日月星辰，一面刻山川草木。得此图者天下可期。'),
+
+('游龙枪图', 'FORGING_BLUEPRINT',
+  jsonb_build_object(
+    'equipment_template_id', (SELECT id FROM xt_equipment_template WHERE name = '游龙枪'),
+    'grade', 3,
+    'requirements', '{"RIGIDITY":{"min":16,"max":30},"TOUGHNESS":{"min":8,"max":20},"SPIRIT":{"min":5,"max":12}}'::jsonb
+  ),
+  '["blueprint","forge","spear","rare"]'::jsonb,
+  '游龙枪的锻造图纸，枪身柔韧如龙游水，可刺可扫变化万千。'),
+
+('霸王枪图', 'FORGING_BLUEPRINT',
+  jsonb_build_object(
+    'equipment_template_id', (SELECT id FROM xt_equipment_template WHERE name = '霸王枪'),
+    'grade', 4,
+    'requirements', '{"RIGIDITY":{"min":26,"max":44},"TOUGHNESS":{"min":14,"max":28},"SPIRIT":{"min":6,"max":14}}'::jsonb
+  ),
+  '["blueprint","forge","spear","epic"]'::jsonb,
+  '霸王枪的锻造图纸，枪重三百六十斤，非天生神力不可举。一枪之威可断江水。'),
+
+('流星弓图', 'FORGING_BLUEPRINT',
+  jsonb_build_object(
+    'equipment_template_id', (SELECT id FROM xt_equipment_template WHERE name = '流星弓'),
+    'grade', 3,
+    'requirements', '{"RIGIDITY":{"min":12,"max":26},"TOUGHNESS":{"min":10,"max":24},"SPIRIT":{"min":6,"max":14}}'::jsonb
+  ),
+  '["blueprint","forge","bow","rare"]'::jsonb,
+  '流星弓的锻造图纸，弓弦拉满如满月，箭出如流星追月。'),
+
+('帝江戟图', 'FORGING_BLUEPRINT',
+  jsonb_build_object(
+    'equipment_template_id', (SELECT id FROM xt_equipment_template WHERE name = '帝江戟'),
+    'grade', 4,
+    'requirements', '{"RIGIDITY":{"min":24,"max":42},"TOUGHNESS":{"min":12,"max":26},"SPIRIT":{"min":8,"max":18}}'::jsonb
+  ),
+  '["blueprint","forge","halberd","epic"]'::jsonb,
+  '帝江戟的锻造图纸，《山海经》帝江神形为基，无首而舞、万象归一。'),
+
+('雷霆战锤图', 'FORGING_BLUEPRINT',
+  jsonb_build_object(
+    'equipment_template_id', (SELECT id FROM xt_equipment_template WHERE name = '雷霆战锤'),
+    'grade', 4,
+    'requirements', '{"RIGIDITY":{"min":28,"max":48},"TOUGHNESS":{"min":16,"max":30},"SPIRIT":{"min":6,"max":14}}'::jsonb
+  ),
+  '["blueprint","forge","hammer","epic","thunder"]'::jsonb,
+  '雷霆战锤的锻造图纸，锤头刻雷纹，挥动时雷霆炸裂。锻造时需引天雷淬火。'),
+
+('东皇钟图', 'FORGING_BLUEPRINT',
+  jsonb_build_object(
+    'equipment_template_id', (SELECT id FROM xt_equipment_template WHERE name = '东皇钟'),
+    'grade', 5,
+    'requirements', '{"RIGIDITY":{"min":20,"max":40},"TOUGHNESS":{"min":10,"max":25},"SPIRIT":{"min":22,"max":35}}'::jsonb
+  ),
+  '["blueprint","forge","bell","legendary"]'::jsonb,
+  '东皇钟的锻造图纸，上古神器之图。钟声一响天地清，万法归宗莫能争。'),
+
+('云锦仙袍图', 'FORGING_BLUEPRINT',
+  jsonb_build_object(
+    'equipment_template_id', (SELECT id FROM xt_equipment_template WHERE name = '云锦仙袍'),
+    'grade', 4,
+    'requirements', '{"RIGIDITY":{"min":8,"max":20},"TOUGHNESS":{"min":18,"max":36},"SPIRIT":{"min":12,"max":22}}'::jsonb
+  ),
+  '["blueprint","forge","armor","cloth","epic"]'::jsonb,
+  '云锦仙袍的锻造图纸，采云为丝织就天衣。穿上如行云端，轻盈无尽。'),
+
+('玄武甲图', 'FORGING_BLUEPRINT',
+  jsonb_build_object(
+    'equipment_template_id', (SELECT id FROM xt_equipment_template WHERE name = '玄武甲'),
+    'grade', 5,
+    'requirements', '{"RIGIDITY":{"min":34,"max":58},"TOUGHNESS":{"min":22,"max":42},"SPIRIT":{"min":10,"max":22}}'::jsonb
+  ),
+  '["blueprint","forge","armor","plate","legendary"]'::jsonb,
+  '玄武甲的锻造图纸，玄武龟甲所化之铠，万法不侵。穿上即是一座城池。'),
+
+('乾坤戒图', 'FORGING_BLUEPRINT',
+  jsonb_build_object(
+    'equipment_template_id', (SELECT id FROM xt_equipment_template WHERE name = '乾坤戒'),
+    'grade', 3,
+    'requirements', '{"RIGIDITY":{"min":6,"max":18},"TOUGHNESS":{"min":6,"max":18},"SPIRIT":{"min":12,"max":22}}'::jsonb
+  ),
+  '["blueprint","forge","accessory","ring","rare"]'::jsonb,
+  '乾坤戒的锻造图纸，内藏乾坤的储物戒指。虚空石为核心，空间法则为辅。'),
+
+('盘龙金带图', 'FORGING_BLUEPRINT',
+  jsonb_build_object(
+    'equipment_template_id', (SELECT id FROM xt_equipment_template WHERE name = '盘龙金带'),
+    'grade', 4,
+    'requirements', '{"RIGIDITY":{"min":10,"max":24},"TOUGHNESS":{"min":14,"max":30},"SPIRIT":{"min":10,"max":20}}'::jsonb
+  ),
+  '["blueprint","forge","accessory","belt","epic"]'::jsonb,
+  '盘龙金带的锻造图纸，金丝缠绕盘龙纹饰，束腰如龙锁。'),
+
+('山河社稷图图', 'FORGING_BLUEPRINT',
+  jsonb_build_object(
+    'equipment_template_id', (SELECT id FROM xt_equipment_template WHERE name = '山河社稷图'),
+    'grade', 5,
+    'requirements', '{"RIGIDITY":{"min":12,"max":28},"TOUGHNESS":{"min":16,"max":34},"SPIRIT":{"min":20,"max":36}}'::jsonb
+  ),
+  '["blueprint","forge","accessory","special","legendary"]'::jsonb,
+  '山河社稷图的锻造图纸，内藏一界之力。绘制此图的代价是百年寿元。');

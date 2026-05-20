@@ -313,777 +313,792 @@ INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
 ('TRAINING', 'combat_monster_阎罗天子', '阎罗天子', '遭遇阎罗天子');
 
 INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
-('TRAINING', 'combat_monster_原始天魔', '原始天魔', '遭遇原始天魔');
+('TRAINING', 'combat_monster_原始天魔', '原始天魔', '遭遇原始天魔'),
+('TRAINING', 'combat_monster_混沌', '混沌', '遭遇混沌');
 
 -- COMBAT activity events
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 2, 'combat_monster_野狼', 'COMBAT', 100,
+('TRAINING', 2, 'combat_monster_野狼', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='野狼'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 2, 'combat_monster_毒蛇', 'COMBAT', 100,
+('TRAINING', 2, 'combat_monster_毒蛇', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='毒蛇'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 2, 'combat_monster_山魈', 'COMBAT', 100,
+('TRAINING', 2, 'combat_monster_山魈', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='山魈'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 2, 'combat_monster_妖鼠', 'COMBAT', 100,
+('TRAINING', 2, 'combat_monster_妖鼠', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='妖鼠'), 'min_count', 1, 'max_count', 1));
 
+-- 食人花已从翠竹林移除，移至青石矿洞 (map 3) 作为稀有遭遇
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 2, 'combat_monster_食人花', 'COMBAT', 100,
+('TRAINING', 3, 'combat_monster_食人花', 'COMBAT', 30,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='食人花'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 3, 'combat_monster_石灵', 'COMBAT', 100,
+('TRAINING', 3, 'combat_monster_石灵', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='石灵'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 3, 'combat_monster_妖鼠', 'COMBAT', 100,
+('TRAINING', 3, 'combat_monster_妖鼠', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='妖鼠'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 3, 'combat_monster_山魈', 'COMBAT', 100,
+('TRAINING', 3, 'combat_monster_山魈', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='山魈'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 3, 'combat_monster_野猪妖', 'COMBAT', 100,
+('TRAINING', 3, 'combat_monster_野猪妖', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='野猪妖'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 3, 'combat_monster_骷髅兵', 'COMBAT', 100,
+('TRAINING', 3, 'combat_monster_骷髅兵', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='骷髅兵'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 4, 'combat_monster_毒蛇', 'COMBAT', 100,
+('TRAINING', 4, 'combat_monster_毒蛇', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='毒蛇'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 4, 'combat_monster_风狼', 'COMBAT', 100,
+('TRAINING', 4, 'combat_monster_风狼', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='风狼'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 4, 'combat_monster_树精', 'COMBAT', 100,
+('TRAINING', 4, 'combat_monster_树精', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='树精'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 4, 'combat_monster_冰狼', 'COMBAT', 100,
+('TRAINING', 4, 'combat_monster_冰狼', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='冰狼'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 4, 'combat_monster_石甲龟', 'COMBAT', 100,
+('TRAINING', 4, 'combat_monster_石甲龟', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='石甲龟'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 5, 'combat_monster_火焰蜥', 'COMBAT', 100,
+('TRAINING', 5, 'combat_monster_火焰蜥', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='火焰蜥'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 5, 'combat_monster_树精', 'COMBAT', 100,
+('TRAINING', 5, 'combat_monster_树精', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='树精'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 5, 'combat_monster_幽魂', 'COMBAT', 100,
+('TRAINING', 5, 'combat_monster_幽魂', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='幽魂'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 5, 'combat_monster_螳螂妖', 'COMBAT', 100,
+('TRAINING', 5, 'combat_monster_螳螂妖', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='螳螂妖'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 5, 'combat_monster_山贼', 'COMBAT', 100,
+('TRAINING', 5, 'combat_monster_山贼', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='山贼'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 7, 'combat_monster_蝙蝠妖', 'COMBAT', 100,
+('TRAINING', 7, 'combat_monster_蝙蝠妖', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='蝙蝠妖'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 7, 'combat_monster_铁甲虫', 'COMBAT', 100,
+('TRAINING', 7, 'combat_monster_铁甲虫', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='铁甲虫'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 7, 'combat_monster_水鬼', 'COMBAT', 100,
+('TRAINING', 7, 'combat_monster_水鬼', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='水鬼'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 7, 'combat_monster_螳螂妖', 'COMBAT', 100,
+('TRAINING', 7, 'combat_monster_螳螂妖', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='螳螂妖'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 7, 'combat_monster_妖狐', 'COMBAT', 100,
+('TRAINING', 7, 'combat_monster_妖狐', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='妖狐'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 8, 'combat_monster_幽魂', 'COMBAT', 100,
+('TRAINING', 8, 'combat_monster_幽魂', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='幽魂'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 8, 'combat_monster_铁甲虫', 'COMBAT', 100,
+('TRAINING', 8, 'combat_monster_铁甲虫', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='铁甲虫'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 8, 'combat_monster_怨灵', 'COMBAT', 100,
+('TRAINING', 8, 'combat_monster_怨灵', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='怨灵'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 8, 'combat_monster_蝙蝠妖', 'COMBAT', 100,
+('TRAINING', 8, 'combat_monster_蝙蝠妖', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='蝙蝠妖'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 8, 'combat_monster_血蝠', 'COMBAT', 100,
+('TRAINING', 8, 'combat_monster_血蝠', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='血蝠'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 9, 'combat_monster_石魔', 'COMBAT', 100,
+('TRAINING', 9, 'combat_monster_石魔', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='石魔'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 9, 'combat_monster_妖道', 'COMBAT', 100,
+('TRAINING', 9, 'combat_monster_妖道', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='妖道'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 9, 'combat_monster_怨灵', 'COMBAT', 100,
+('TRAINING', 9, 'combat_monster_怨灵', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='怨灵'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 9, 'combat_monster_幽魂', 'COMBAT', 100,
+('TRAINING', 9, 'combat_monster_幽魂', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='幽魂'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 12, 'combat_monster_怨灵', 'COMBAT', 100,
+('TRAINING', 12, 'combat_monster_怨灵', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='怨灵'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 12, 'combat_monster_冰蚕', 'COMBAT', 100,
+('TRAINING', 12, 'combat_monster_冰蚕', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='冰蚕'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 12, 'combat_monster_猿妖', 'COMBAT', 100,
+('TRAINING', 12, 'combat_monster_猿妖', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='猿妖'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 12, 'combat_monster_血蝠', 'COMBAT', 100,
+('TRAINING', 12, 'combat_monster_血蝠', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='血蝠'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 12, 'combat_monster_毒蟾', 'COMBAT', 100,
+('TRAINING', 12, 'combat_monster_毒蟾', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='毒蟾'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 12, 'combat_monster_蛇妖', 'COMBAT', 100,
+('TRAINING', 12, 'combat_monster_蛇妖', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='蛇妖'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 13, 'combat_monster_怨灵', 'COMBAT', 100,
+('TRAINING', 13, 'combat_monster_怨灵', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='怨灵'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 13, 'combat_monster_摄魂妖', 'COMBAT', 100,
+('TRAINING', 13, 'combat_monster_摄魂妖', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='摄魂妖'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 13, 'combat_monster_妖道', 'COMBAT', 100,
+('TRAINING', 13, 'combat_monster_妖道', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='妖道'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 13, 'combat_monster_飞头蛮', 'COMBAT', 100,
+('TRAINING', 13, 'combat_monster_飞头蛮', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='飞头蛮'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 13, 'combat_monster_熔岩巨兽', 'COMBAT', 100,
+('TRAINING', 13, 'combat_monster_熔岩巨兽', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='熔岩巨兽'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 13, 'combat_monster_雪女', 'COMBAT', 100,
+('TRAINING', 13, 'combat_monster_雪女', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='雪女'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 14, 'combat_monster_熔岩巨兽', 'COMBAT', 100,
+('TRAINING', 14, 'combat_monster_熔岩巨兽', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='熔岩巨兽'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 14, 'combat_monster_摄魂妖', 'COMBAT', 100,
+('TRAINING', 14, 'combat_monster_摄魂妖', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='摄魂妖'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 14, 'combat_monster_夜叉', 'COMBAT', 100,
+('TRAINING', 14, 'combat_monster_夜叉', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='夜叉'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 14, 'combat_monster_金甲尸', 'COMBAT', 100,
+('TRAINING', 14, 'combat_monster_金甲尸', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='金甲尸'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 15, 'combat_monster_蛇妖', 'COMBAT', 100,
+('TRAINING', 15, 'combat_monster_蛇妖', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='蛇妖'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 15, 'combat_monster_猿妖', 'COMBAT', 100,
+('TRAINING', 15, 'combat_monster_猿妖', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='猿妖'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 15, 'combat_monster_狮鹫', 'COMBAT', 100,
+('TRAINING', 15, 'combat_monster_狮鹫', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='狮鹫'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 15, 'combat_monster_摄魂妖', 'COMBAT', 100,
+('TRAINING', 15, 'combat_monster_摄魂妖', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='摄魂妖'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 15, 'combat_monster_千年树妖', 'COMBAT', 100,
+('TRAINING', 15, 'combat_monster_千年树妖', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='千年树妖'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 15, 'combat_monster_雷鹰', 'COMBAT', 100,
+('TRAINING', 15, 'combat_monster_雷鹰', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='雷鹰'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 16, 'combat_monster_熔岩巨兽', 'COMBAT', 100,
+('TRAINING', 16, 'combat_monster_熔岩巨兽', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='熔岩巨兽'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 16, 'combat_monster_修罗', 'COMBAT', 100,
+('TRAINING', 16, 'combat_monster_修罗', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='修罗'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 16, 'combat_monster_夜叉', 'COMBAT', 100,
+('TRAINING', 16, 'combat_monster_夜叉', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='夜叉'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 16, 'combat_monster_狮鹫', 'COMBAT', 100,
+('TRAINING', 16, 'combat_monster_狮鹫', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='狮鹫'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 16, 'combat_monster_飞头蛮', 'COMBAT', 100,
+('TRAINING', 16, 'combat_monster_飞头蛮', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='飞头蛮'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 16, 'combat_monster_摄魂妖', 'COMBAT', 100,
+('TRAINING', 16, 'combat_monster_摄魂妖', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='摄魂妖'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 17, 'combat_monster_熔岩巨兽', 'COMBAT', 100,
+('TRAINING', 17, 'combat_monster_熔岩巨兽', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='熔岩巨兽'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 17, 'combat_monster_千年树妖', 'COMBAT', 100,
+('TRAINING', 17, 'combat_monster_千年树妖', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='千年树妖'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 17, 'combat_monster_狮鹫', 'COMBAT', 100,
+('TRAINING', 17, 'combat_monster_狮鹫', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='狮鹫'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 17, 'combat_monster_雷鹰', 'COMBAT', 100,
+('TRAINING', 17, 'combat_monster_雷鹰', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='雷鹰'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 17, 'combat_monster_黑风老妖', 'COMBAT', 100,
+('TRAINING', 17, 'combat_monster_黑风老妖', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='黑风老妖'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 17, 'combat_monster_九尾妖狐', 'COMBAT', 100,
+('TRAINING', 17, 'combat_monster_九尾妖狐', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='九尾妖狐'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 19, 'combat_monster_黑风老妖', 'COMBAT', 100,
+('TRAINING', 19, 'combat_monster_黑风老妖', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='黑风老妖'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 19, 'combat_monster_雷鹰', 'COMBAT', 100,
+('TRAINING', 19, 'combat_monster_雷鹰', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='雷鹰'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 19, 'combat_monster_火凤雏', 'COMBAT', 100,
+('TRAINING', 19, 'combat_monster_火凤雏', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='火凤雏'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 19, 'combat_monster_山鬼', 'COMBAT', 100,
+('TRAINING', 19, 'combat_monster_山鬼', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='山鬼'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 19, 'combat_monster_狮鹫', 'COMBAT', 100,
+('TRAINING', 19, 'combat_monster_狮鹫', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='狮鹫'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 19, 'combat_monster_蜚廉', 'COMBAT', 100,
+('TRAINING', 19, 'combat_monster_蜚廉', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='蜚廉'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 20, 'combat_monster_熔岩巨兽', 'COMBAT', 100,
+('TRAINING', 20, 'combat_monster_熔岩巨兽', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='熔岩巨兽'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 20, 'combat_monster_修罗', 'COMBAT', 100,
+('TRAINING', 20, 'combat_monster_修罗', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='修罗'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 20, 'combat_monster_黑风老妖', 'COMBAT', 100,
+('TRAINING', 20, 'combat_monster_黑风老妖', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='黑风老妖'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 20, 'combat_monster_雷鹰', 'COMBAT', 100,
+('TRAINING', 20, 'combat_monster_雷鹰', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='雷鹰'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 20, 'combat_monster_山鬼', 'COMBAT', 100,
+('TRAINING', 20, 'combat_monster_山鬼', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='山鬼'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 20, 'combat_monster_九尾妖狐', 'COMBAT', 100,
+('TRAINING', 20, 'combat_monster_九尾妖狐', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='九尾妖狐'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 21, 'combat_monster_火凤雏', 'COMBAT', 100,
+('TRAINING', 21, 'combat_monster_火凤雏', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='火凤雏'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 21, 'combat_monster_山鬼', 'COMBAT', 100,
+('TRAINING', 21, 'combat_monster_山鬼', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='山鬼'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 21, 'combat_monster_蜚廉', 'COMBAT', 100,
+('TRAINING', 21, 'combat_monster_蜚廉', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='蜚廉'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 21, 'combat_monster_幽冥骑士', 'COMBAT', 100,
+('TRAINING', 21, 'combat_monster_幽冥骑士', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='幽冥骑士'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 22, 'combat_monster_雪女', 'COMBAT', 100,
+('TRAINING', 22, 'combat_monster_雪女', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='雪女'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 22, 'combat_monster_九尾妖狐', 'COMBAT', 100,
+('TRAINING', 22, 'combat_monster_九尾妖狐', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='九尾妖狐'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 22, 'combat_monster_修罗', 'COMBAT', 100,
+('TRAINING', 22, 'combat_monster_修罗', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='修罗'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 22, 'combat_monster_山鬼', 'COMBAT', 100,
+('TRAINING', 22, 'combat_monster_山鬼', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='山鬼'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 22, 'combat_monster_幽冥骑士', 'COMBAT', 100,
+('TRAINING', 22, 'combat_monster_幽冥骑士', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='幽冥骑士'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 22, 'combat_monster_蜚廉', 'COMBAT', 100,
+('TRAINING', 22, 'combat_monster_蜚廉', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='蜚廉'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 23, 'combat_monster_千年树妖', 'COMBAT', 100,
+('TRAINING', 23, 'combat_monster_千年树妖', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='千年树妖'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 23, 'combat_monster_狮鹫', 'COMBAT', 100,
+('TRAINING', 23, 'combat_monster_狮鹫', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='狮鹫'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 23, 'combat_monster_黑风老妖', 'COMBAT', 100,
+('TRAINING', 23, 'combat_monster_黑风老妖', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='黑风老妖'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 23, 'combat_monster_蜚廉', 'COMBAT', 100,
+('TRAINING', 23, 'combat_monster_蜚廉', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='蜚廉'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 23, 'combat_monster_幽冥骑士', 'COMBAT', 100,
+('TRAINING', 23, 'combat_monster_幽冥骑士', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='幽冥骑士'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 23, 'combat_monster_雷鹰', 'COMBAT', 100,
+('TRAINING', 23, 'combat_monster_雷鹰', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='雷鹰'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 24, 'combat_monster_幽冥骑士', 'COMBAT', 100,
+('TRAINING', 24, 'combat_monster_幽冥骑士', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='幽冥骑士'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 24, 'combat_monster_蜚廉', 'COMBAT', 100,
+('TRAINING', 24, 'combat_monster_蜚廉', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='蜚廉'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 24, 'combat_monster_蛟龙', 'COMBAT', 100,
+('TRAINING', 24, 'combat_monster_蛟龙', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='蛟龙'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 24, 'combat_monster_山鬼', 'COMBAT', 100,
+('TRAINING', 24, 'combat_monster_山鬼', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='山鬼'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 24, 'combat_monster_九尾妖狐', 'COMBAT', 100,
+('TRAINING', 24, 'combat_monster_九尾妖狐', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='九尾妖狐'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 24, 'combat_monster_天罗蛛', 'COMBAT', 100,
+('TRAINING', 24, 'combat_monster_天罗蛛', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='天罗蛛'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 25, 'combat_monster_天罗蛛', 'COMBAT', 100,
+('TRAINING', 25, 'combat_monster_天罗蛛', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='天罗蛛'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 25, 'combat_monster_蛟龙', 'COMBAT', 100,
+('TRAINING', 25, 'combat_monster_蛟龙', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='蛟龙'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 25, 'combat_monster_火凤雏', 'COMBAT', 100,
+('TRAINING', 25, 'combat_monster_火凤雏', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='火凤雏'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 25, 'combat_monster_山鬼', 'COMBAT', 100,
+('TRAINING', 25, 'combat_monster_山鬼', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='山鬼'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 25, 'combat_monster_蜚廉', 'COMBAT', 100,
+('TRAINING', 25, 'combat_monster_蜚廉', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='蜚廉'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 25, 'combat_monster_梼杌', 'COMBAT', 100,
+('TRAINING', 25, 'combat_monster_梼杌', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='梼杌'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 27, 'combat_monster_夔牛', 'COMBAT', 100,
+('TRAINING', 27, 'combat_monster_夔牛', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='夔牛'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 27, 'combat_monster_梼杌', 'COMBAT', 100,
+('TRAINING', 27, 'combat_monster_梼杌', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='梼杌'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 27, 'combat_monster_金乌', 'COMBAT', 100,
+('TRAINING', 27, 'combat_monster_金乌', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='金乌'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 27, 'combat_monster_旱魃', 'COMBAT', 100,
+('TRAINING', 27, 'combat_monster_旱魃', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='旱魃'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 27, 'combat_monster_白泽', 'COMBAT', 100,
+('TRAINING', 27, 'combat_monster_白泽', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='白泽'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 27, 'combat_monster_烛龙', 'COMBAT', 100,
+('TRAINING', 27, 'combat_monster_烛龙', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='烛龙'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 28, 'combat_monster_夔牛', 'COMBAT', 100,
+('TRAINING', 28, 'combat_monster_夔牛', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='夔牛'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 28, 'combat_monster_金乌', 'COMBAT', 100,
+('TRAINING', 28, 'combat_monster_金乌', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='金乌'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 28, 'combat_monster_烛龙', 'COMBAT', 100,
+('TRAINING', 28, 'combat_monster_烛龙', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='烛龙'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 28, 'combat_monster_梼杌', 'COMBAT', 100,
+('TRAINING', 28, 'combat_monster_梼杌', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='梼杌'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 28, 'combat_monster_天魔王', 'COMBAT', 100,
+('TRAINING', 28, 'combat_monster_天魔王', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='天魔王'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 28, 'combat_monster_麒麟', 'COMBAT', 100,
+('TRAINING', 28, 'combat_monster_麒麟', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='麒麟'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 29, 'combat_monster_相柳', 'COMBAT', 100,
+('TRAINING', 29, 'combat_monster_相柳', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='相柳'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 29, 'combat_monster_刑天', 'COMBAT', 100,
+('TRAINING', 29, 'combat_monster_刑天', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='刑天'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 29, 'combat_monster_毕方', 'COMBAT', 100,
+('TRAINING', 29, 'combat_monster_毕方', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='毕方'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 29, 'combat_monster_应龙', 'COMBAT', 100,
+('TRAINING', 29, 'combat_monster_应龙', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='应龙'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 29, 'combat_monster_守鹤', 'COMBAT', 100,
+('TRAINING', 29, 'combat_monster_守鹤', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='守鹤'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 30, 'combat_monster_旱魃', 'COMBAT', 100,
+('TRAINING', 30, 'combat_monster_旱魃', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='旱魃'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 30, 'combat_monster_白泽', 'COMBAT', 100,
+('TRAINING', 30, 'combat_monster_白泽', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='白泽'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 30, 'combat_monster_梼杌', 'COMBAT', 100,
+('TRAINING', 30, 'combat_monster_梼杌', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='梼杌'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 30, 'combat_monster_烛龙', 'COMBAT', 100,
+('TRAINING', 30, 'combat_monster_烛龙', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='烛龙'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 30, 'combat_monster_相柳', 'COMBAT', 100,
+('TRAINING', 30, 'combat_monster_相柳', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='相柳'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 30, 'combat_monster_毕方', 'COMBAT', 100,
+('TRAINING', 30, 'combat_monster_毕方', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='毕方'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 31, 'combat_monster_应龙', 'COMBAT', 100,
+('TRAINING', 31, 'combat_monster_应龙', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='应龙'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 31, 'combat_monster_刑天', 'COMBAT', 100,
+('TRAINING', 31, 'combat_monster_刑天', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='刑天'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 31, 'combat_monster_相柳', 'COMBAT', 100,
+('TRAINING', 31, 'combat_monster_相柳', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='相柳'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 31, 'combat_monster_守鹤', 'COMBAT', 100,
+('TRAINING', 31, 'combat_monster_守鹤', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='守鹤'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 31, 'combat_monster_鲲鹏', 'COMBAT', 100,
+('TRAINING', 31, 'combat_monster_鲲鹏', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='鲲鹏'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 32, 'combat_monster_白泽', 'COMBAT', 100,
+('TRAINING', 32, 'combat_monster_白泽', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='白泽'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 32, 'combat_monster_天魔王', 'COMBAT', 100,
+('TRAINING', 32, 'combat_monster_天魔王', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='天魔王'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 32, 'combat_monster_麒麟', 'COMBAT', 100,
+('TRAINING', 32, 'combat_monster_麒麟', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='麒麟'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 32, 'combat_monster_应龙', 'COMBAT', 100,
+('TRAINING', 32, 'combat_monster_应龙', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='应龙'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 32, 'combat_monster_刑天', 'COMBAT', 100,
+('TRAINING', 32, 'combat_monster_刑天', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='刑天'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 32, 'combat_monster_鲲鹏', 'COMBAT', 100,
+('TRAINING', 32, 'combat_monster_鲲鹏', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='鲲鹏'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 33, 'combat_monster_毕方', 'COMBAT', 100,
+('TRAINING', 33, 'combat_monster_毕方', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='毕方'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 33, 'combat_monster_应龙', 'COMBAT', 100,
+('TRAINING', 33, 'combat_monster_应龙', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='应龙'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 33, 'combat_monster_守鹤', 'COMBAT', 100,
+('TRAINING', 33, 'combat_monster_守鹤', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='守鹤'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 33, 'combat_monster_神龙', 'COMBAT', 100,
+('TRAINING', 33, 'combat_monster_神龙', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='神龙'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 33, 'combat_monster_阎罗天子', 'COMBAT', 100,
+('TRAINING', 33, 'combat_monster_阎罗天子', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='阎罗天子'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 34, 'combat_monster_刑天', 'COMBAT', 100,
+('TRAINING', 34, 'combat_monster_刑天', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='刑天'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 34, 'combat_monster_应龙', 'COMBAT', 100,
+('TRAINING', 34, 'combat_monster_应龙', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='应龙'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 34, 'combat_monster_毕方', 'COMBAT', 100,
+('TRAINING', 34, 'combat_monster_毕方', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='毕方'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 34, 'combat_monster_相柳', 'COMBAT', 100,
+('TRAINING', 34, 'combat_monster_相柳', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='相柳'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 34, 'combat_monster_鲲鹏', 'COMBAT', 100,
+('TRAINING', 34, 'combat_monster_鲲鹏', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='鲲鹏'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 34, 'combat_monster_神龙', 'COMBAT', 100,
+('TRAINING', 34, 'combat_monster_神龙', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='神龙'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 35, 'combat_monster_刑天', 'COMBAT', 100,
+('TRAINING', 35, 'combat_monster_刑天', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='刑天'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 35, 'combat_monster_鲲鹏', 'COMBAT', 100,
+('TRAINING', 35, 'combat_monster_鲲鹏', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='鲲鹏'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 35, 'combat_monster_阎罗天子', 'COMBAT', 100,
+('TRAINING', 35, 'combat_monster_阎罗天子', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='阎罗天子'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 35, 'combat_monster_相柳', 'COMBAT', 100,
+('TRAINING', 35, 'combat_monster_相柳', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='相柳'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 35, 'combat_monster_守鹤', 'COMBAT', 100,
+('TRAINING', 35, 'combat_monster_守鹤', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='守鹤'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 35, 'combat_monster_神龙', 'COMBAT', 100,
+('TRAINING', 35, 'combat_monster_神龙', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='神龙'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 36, 'combat_monster_毕方', 'COMBAT', 100,
+('TRAINING', 36, 'combat_monster_毕方', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='毕方'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 36, 'combat_monster_应龙', 'COMBAT', 100,
+('TRAINING', 36, 'combat_monster_应龙', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='应龙'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 36, 'combat_monster_刑天', 'COMBAT', 100,
+('TRAINING', 36, 'combat_monster_刑天', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='刑天'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 36, 'combat_monster_鲲鹏', 'COMBAT', 100,
+('TRAINING', 36, 'combat_monster_鲲鹏', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='鲲鹏'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 36, 'combat_monster_神龙', 'COMBAT', 100,
+('TRAINING', 36, 'combat_monster_神龙', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='神龙'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 36, 'combat_monster_原始天魔', 'COMBAT', 100,
+('TRAINING', 36, 'combat_monster_原始天魔', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='原始天魔'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 37, 'combat_monster_阎罗天子', 'COMBAT', 100,
+('TRAINING', 37, 'combat_monster_阎罗天子', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='阎罗天子'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 37, 'combat_monster_鲲鹏', 'COMBAT', 100,
+('TRAINING', 37, 'combat_monster_鲲鹏', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='鲲鹏'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 37, 'combat_monster_神龙', 'COMBAT', 100,
+('TRAINING', 37, 'combat_monster_神龙', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='神龙'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 37, 'combat_monster_守鹤', 'COMBAT', 100,
+('TRAINING', 37, 'combat_monster_守鹤', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='守鹤'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 37, 'combat_monster_应龙', 'COMBAT', 100,
+('TRAINING', 37, 'combat_monster_应龙', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='应龙'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 37, 'combat_monster_原始天魔', 'COMBAT', 100,
+('TRAINING', 37, 'combat_monster_原始天魔', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='原始天魔'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 38, 'combat_monster_应龙', 'COMBAT', 100,
+('TRAINING', 38, 'combat_monster_应龙', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='应龙'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 38, 'combat_monster_毕方', 'COMBAT', 100,
+('TRAINING', 38, 'combat_monster_毕方', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='毕方'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 38, 'combat_monster_鲲鹏', 'COMBAT', 100,
+('TRAINING', 38, 'combat_monster_鲲鹏', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='鲲鹏'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 38, 'combat_monster_阎罗天子', 'COMBAT', 100,
+('TRAINING', 38, 'combat_monster_阎罗天子', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='阎罗天子'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 38, 'combat_monster_相柳', 'COMBAT', 100,
+('TRAINING', 38, 'combat_monster_相柳', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='相柳'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 39, 'combat_monster_刑天', 'COMBAT', 100,
+('TRAINING', 39, 'combat_monster_刑天', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='刑天'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 39, 'combat_monster_鲲鹏', 'COMBAT', 100,
+('TRAINING', 39, 'combat_monster_鲲鹏', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='鲲鹏'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 39, 'combat_monster_守鹤', 'COMBAT', 100,
+('TRAINING', 39, 'combat_monster_守鹤', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='守鹤'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 39, 'combat_monster_阎罗天子', 'COMBAT', 100,
+('TRAINING', 39, 'combat_monster_阎罗天子', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='阎罗天子'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 39, 'combat_monster_原始天魔', 'COMBAT', 100,
+('TRAINING', 39, 'combat_monster_原始天魔', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='原始天魔'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 40, 'combat_monster_鲲鹏', 'COMBAT', 100,
+('TRAINING', 40, 'combat_monster_鲲鹏', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='鲲鹏'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 40, 'combat_monster_阎罗天子', 'COMBAT', 100,
+('TRAINING', 40, 'combat_monster_阎罗天子', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='阎罗天子'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 40, 'combat_monster_神龙', 'COMBAT', 100,
+('TRAINING', 40, 'combat_monster_神龙', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='神龙'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 40, 'combat_monster_原始天魔', 'COMBAT', 100,
+('TRAINING', 40, 'combat_monster_原始天魔', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='原始天魔'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 41, 'combat_monster_阎罗天子', 'COMBAT', 100,
+('TRAINING', 41, 'combat_monster_阎罗天子', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='阎罗天子'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 41, 'combat_monster_原始天魔', 'COMBAT', 100,
+('TRAINING', 41, 'combat_monster_原始天魔', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='原始天魔'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 43, 'combat_monster_守鹤', 'COMBAT', 100,
+('TRAINING', 43, 'combat_monster_守鹤', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='守鹤'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 43, 'combat_monster_阎罗天子', 'COMBAT', 100,
+('TRAINING', 43, 'combat_monster_阎罗天子', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='阎罗天子'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 43, 'combat_monster_神龙', 'COMBAT', 100,
+('TRAINING', 43, 'combat_monster_神龙', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='神龙'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 43, 'combat_monster_原始天魔', 'COMBAT', 100,
+('TRAINING', 43, 'combat_monster_原始天魔', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='原始天魔'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 43, 'combat_monster_鲲鹏', 'COMBAT', 100,
+('TRAINING', 43, 'combat_monster_鲲鹏', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='鲲鹏'), 'min_count', 1, 'max_count', 1));
 
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
-('TRAINING', 44, 'combat_monster_原始天魔', 'COMBAT', 100,
+('TRAINING', 44, 'combat_monster_原始天魔', 'COMBAT', 40,
  jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='原始天魔'), 'min_count', 1, 'max_count', 1));
+
+-- 混沌 COMBAT events (level 96, 上古四凶)
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 41, 'combat_monster_混沌', 'COMBAT', 40,
+ jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='混沌'), 'min_count', 1, 'max_count', 1));
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 43, 'combat_monster_混沌', 'COMBAT', 40,
+ jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='混沌'), 'min_count', 1, 'max_count', 1));
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 44, 'combat_monster_混沌', 'COMBAT', 80,
+ jsonb_build_object('monster_template_id', (SELECT id FROM xt_monster_template WHERE name='混沌'), 'min_count', 1, 'max_count', 1));

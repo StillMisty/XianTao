@@ -150,3 +150,6 @@ INSERT INTO shop_product (shop_npc_id, product_type, template_id, base_price, mi
 (4, 'ITEM', (SELECT id FROM xt_item_template WHERE name = '灵蚕丝'), 25, 12, 40, 0, 25, 25, 15, '2026-01-01 00:00:00'::timestamp),
 (4, 'ITEM', (SELECT id FROM xt_item_template WHERE name = '兽骨'),   15, 8, 25, 0, 30, 15, 20, '2026-01-01 00:00:00'::timestamp),
 (4, 'ITEM', (SELECT id FROM xt_item_template WHERE name = '朱砂'),   40, 25, 60, 0, 20, 40, 10, '2026-01-01 00:00:00'::timestamp);
+
+-- Reset sequence
+SELECT setval('shop_npc_id_seq', (SELECT MAX(id) FROM shop_npc));

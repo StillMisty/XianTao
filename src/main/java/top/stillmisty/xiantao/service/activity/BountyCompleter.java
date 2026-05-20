@@ -8,7 +8,9 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.bounty.BountyRewardItem;
 import top.stillmisty.xiantao.domain.bounty.entity.UserBounty;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
+import top.stillmisty.xiantao.domain.event.enums.ActivityType;
 import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
+import top.stillmisty.xiantao.domain.event.repository.EventTypeRepository;
 import top.stillmisty.xiantao.domain.event.repository.HiddenCompletionRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.service.GameEventService;
@@ -19,12 +21,12 @@ import top.stillmisty.xiantao.service.GameEventService;
 @RequiredArgsConstructor
 public class BountyCompleter {
 
-  private static final String ACTIVITY_TYPE = "BOUNTY_SIDE";
-
   private final GameEventService gameEventService;
   private final SubEventSelector subEventSelector;
   private final SubEventEffectExecutor effectExecutor;
   private final HiddenCompletionRepository hiddenCompletionRepository;
+  private final EventTypeRepository eventTypeRepository;
+  private final TriggerConditionChecker triggerConditionChecker;
 
   /** 悬赏完成叙事 */
   public void produceCompletionEvent(
@@ -47,7 +49,8 @@ public class BountyCompleter {
   /** 悬赏子事件调节主奖励 — 通过 context 传出修改后的灵石数 */
   public void rollBountySideEvent(
       Long userId, User user, Long bountyId, String bountyName, Map<String, Object> context) {
-    ActivityEvent selected = subEventSelector.selectSubEvent(ACTIVITY_TYPE, bountyId, 1.0);
+    ActivityEvent selected =
+        subEventSelector.selectSubEvent(ActivityType.BOUNTY_SIDE.getCode(), bountyId, 1.0);
     if (selected == null) return;
 
     context.put("bountyName", bountyName);
@@ -57,31 +60,29 @@ public class BountyCompleter {
   }
 
   /** 检查悬赏隐藏事件 */
-  public void checkHiddenEvents(Long userId, UserBounty record) {
-    Map<String, Object> clues = record.getHiddenClues();
-    if (clues == null || clues.isEmpty()) return;
-    String code = (String) clues.get("code");
-    if (code == null) return;
-
-    var hiddenEvents = subEventSelector.findHiddenEvents(ACTIVITY_TYPE, record.getBountyId());
+  public void checkHiddenEvents(Long userId, User user, UserBounty record) {
+    var hiddenEvents =
+        subEventSelector.findHiddenEvents(ActivityType.BOUNTY_SIDE.getCode(), record.getBountyId());
     for (ActivityEvent event : hiddenEvents) {
-      if (!event.getCode().equals(code)) continue;
       boolean alreadyDone =
           hiddenCompletionRepository.exists(
-              userId, ACTIVITY_TYPE, record.getBountyId(), event.getCode());
+              userId, ActivityType.BOUNTY_SIDE.getCode(), record.getBountyId(), event.getCode());
       if (alreadyDone) continue;
+      if (!triggerConditionChecker.check(event, userId, user)) continue;
 
       hiddenCompletionRepository.save(
           top.stillmisty.xiantao.domain.event.entity.HiddenCompletion.create(
-              userId, ACTIVITY_TYPE, record.getBountyId(), event.getCode()));
+              userId, ActivityType.BOUNTY_SIDE.getCode(), record.getBountyId(), event.getCode()));
 
-      Map<String, Object> args = Map.of("bountyName", record.getBountyName(), "eventName", code);
+      Map<String, Object> templateArgs =
+          effectExecutor.execute(event, userId, user, Map.of("bountyName", record.getBountyName()));
+      String narrativeKey =
+          eventTypeRepository
+              .findByCode(event.getCode())
+              .map(e -> e.getDescription())
+              .orElse(event.getCode());
       gameEventService.createEvent(
-          userId,
-          GameEventCategory.BOUNTY_HIDDEN,
-          "你按照线索找到了「{{bountyName}}」的隐藏收获：{{eventName}}。",
-          args);
-      return;
+          userId, GameEventCategory.BOUNTY_HIDDEN, narrativeKey, templateArgs);
     }
   }
 }

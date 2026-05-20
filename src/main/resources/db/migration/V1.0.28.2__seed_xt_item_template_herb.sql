@@ -33,4 +33,20 @@ INSERT INTO xt_item_template (name, type, properties, tags, description) VALUES
 ('天蚕',       'HERB', '{"elements":{"wood":4}}', '["herb","silk","rare"]', '一种会吐丝结茧的灵虫，丝可织甲，茧可入药固本。'),
 ('蛇涎果',     'HERB', '{"elements":{"wood":2,"water":2}}', '["herb","poison","uncommon"]', '蛇妖唾液浇灌而生的果子，有毒但微量入药可治风痹。'),
 ('星月花',     'HERB', '{"elements":{"water":2,"metal":2}}', '["herb","star","uncommon"]', '花瓣如碎星般闪烁的奇花，只在月圆之夜开放，蕴含星月精华。'),
-('九穗禾',     'HERB', '{"elements":{"earth":3}}', '["herb","grain","uncommon"]', '一茎九穗的灵禾，每一穗都饱满晶莹，蕴含大地精华。');
+('九穗禾',     'HERB', '{"elements":{"earth":3}}', '["herb","grain","uncommon"]', '一茎九穗的灵禾，每一穗都饱满晶莹，蕴含大地精华。'),
+-- 补充药材（兼顾炼丹系统五行匹配）
+('寒露草',     'HERB', '{"elements":{"water":3,"metal":1}}', '["herb","uncommon"]', '晨露中生长的细叶草，触之冰凉，金水相生，是调和丹方常用的凉性药材。'),
+('地髓芝',     'HERB', '{"elements":{"earth":3}}', '["herb","uncommon"]', '深埋三尺的土黄色灵芝，吸纳地气而生，土行纯粹不带杂味。'),
+('金线莲',     'HERB', '{"elements":{"metal":3,"wood":1}}', '["herb","uncommon"]', '叶缘金线缠绕的小莲，生于矿脉旁溪流，金锐之气融于柔水。'),
+('赤炎花',     'HERB', '{"elements":{"fire":5}}', '["herb","fire","rare"]', '通体火红的花，花瓣五裂如火焰。入药时仍有余温，纯粹火行。'),
+('墨玉菇',     'HERB', '{"elements":{"water":5,"earth":1}}', '["herb","rare"]', '漆黑如墨的菌菇，生在阴潭石缝，水中带土，炼丹时添一分厚重。'),
+('金精草',     'HERB', '{"elements":{"metal":5}}', '["herb","rare"]', '生吞金精的小草，根扎矿脉千年方成，金行极为纯粹。'),
+('玄土根',     'HERB', '{"elements":{"earth":5}}', '["herb","rare"]', '埋在玄色灵土中百年不腐的根茎，土行纯厚，是炼制土系丹药的良材。'),
+('双色参',     'HERB', '{"elements":{"fire":3,"water":3}}', '["herb","dual","rare"]', '半红半蓝的双色参，一热一寒并存体内。炼丹师最头疼也最爱的矛盾之材。'),
+('溶血藤',     'HERB', '{"elements":{"fire":4,"wood":2}}', '["herb","rare"]', '缠绕于赤铁灵脉上的血色藤蔓，火中生木，木质坚韧药性猛烈。'),
+('碧落花',     'HERB', '{"elements":{"wood":4,"water":3}}', '["herb","rare"]', '碧空如水倒映般的奇花，花无常开日但开时香飘三里。'),
+('地龙草',     'HERB', '{"elements":{"earth":4,"wood":2}}', '["herb","rare"]', '形如小蛇伏地的异草，土行为主木行为辅，丹方中常作中和之材。'),
+('紫雷芝',     'HERB', '{"elements":{"metal":3,"fire":2,"water":2}}', '["herb","thunder","rare"]', '生于雷击焦木上的紫芝，金雷入药水火暗随，服用时舌尖微麻。'),
+('九色灵芝',   'HERB', '{"elements":{"wood":6,"water":2,"earth":2}}', '["herb","epic"]', '灵芝中的异种，冠面流转九色光华。传闻凡人食之可通灵。'),
+('天元果',     'HERB', '{"elements":{"metal":2,"wood":2,"water":2,"fire":2,"earth":2}}', '["herb","balance","epic"]', '五行均沾的异果，看似平凡却内蕴天地间最和谐的生克之妙。'),
+('玄阴水',     'HERB', '{"elements":{"water":7}}', '["herb","water","epic"]', '极阴极寒的一掬幽水，凝而不冻，触手如握月华。水行丹方的终极之材。');
