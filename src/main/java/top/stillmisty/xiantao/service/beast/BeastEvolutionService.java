@@ -17,7 +17,7 @@ import top.stillmisty.xiantao.domain.fudi.vo.PenCellVO;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.SpiritStoneService;
 
-/** 灵兽进化 — 等阶提升、品质突破 */
+/** 灵兽升阶 */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -70,10 +70,21 @@ public class BeastEvolutionService {
     beast.setHpCurrent(beast.getMaxHp());
 
     boolean qualityUpgraded = false;
-    if (ThreadLocalRandom.current().nextInt(100) < 10
-        && beast.getQuality() != BeastQuality.DIVINE) {
-      beast.qualityBreak();
+    int qualityUpgradeChance = 10;
+    if (beast.getMutationTraits() != null && beast.getMutationTraits().contains("SPIRITUAL")) {
+      qualityUpgradeChance += 10;
+    }
+    if (beast.getQuality() != BeastQuality.DIVINE
+        && ThreadLocalRandom.current().nextInt(100) < qualityUpgradeChance) {
+      int nextOrdinal = beast.getQuality().getOrder() + 1;
+      for (BeastQuality q : BeastQuality.values()) {
+        if (q.getOrder() == nextOrdinal) {
+          beast.setQuality(q);
+          break;
+        }
+      }
       beast.recalculateAttributes();
+      beastSkillService.unlockInnateSkills(beast, "quality_break");
       qualityUpgraded = true;
     }
 
@@ -88,74 +99,12 @@ public class BeastEvolutionService {
     beastRepository.save(beast);
 
     log.info(
-        "玩家 {} 进化地块 {} 的灵兽 T{}->T{}{}",
+        "玩家 {} 升阶地块 {} 的灵兽 {}→{}{}",
         userId,
         cellId,
-        currentTier,
-        beast.getTier(),
+        Beast.getTierName(currentTier),
+        Beast.getTierName(beast.getTier()),
         qualityUpgraded ? " (品质连带提升!)" : "");
-
-    return beastDisplayHelper.buildPenCellVO(cell);
-  }
-
-  @Transactional
-  public PenCellVO breakthroughBeastQuality(Fudi fudi, FudiCell cell, Long userId, Integer cellId) {
-    Beast beast = beastDisplayHelper.findBeastByCell(cell);
-    if (beast == null) {
-      throw new BusinessException(BEAST_NOT_FOUND);
-    }
-
-    beast =
-        beastRepository
-            .findByIdForUpdate(beast.getId())
-            .orElseThrow(() -> new BusinessException(BEAST_NOT_FOUND));
-
-    if (beast.getQuality() == BeastQuality.DIVINE) {
-      throw new BusinessException(BEAST_MAX_QUALITY);
-    }
-
-    if (beast.needsMoreLevels()) {
-      throw new BusinessException(BEAST_NEED_MAX_LEVEL_BREAK);
-    }
-
-    BeastQuality currentQuality = beast.getQuality();
-    BeastQuality nextQuality = currentQuality.next();
-
-    int cost = nextQuality.getOrder() * 300;
-    spiritStoneService.withdraw(userId, cost);
-
-    var spirit = spiritRepository.findByFudiId(fudi.getId()).orElse(null);
-    int affectionBonus =
-        spirit != null && spirit.getAffection() != null
-            ? Math.min(20, spirit.getAffection() / 5)
-            : 0;
-    int successRate = 60 + affectionBonus;
-
-    if (beast.getMutationTraits() != null && beast.getMutationTraits().contains("SPIRITUAL")) {
-      successRate += 10;
-    }
-
-    boolean success = ThreadLocalRandom.current().nextInt(100) < successRate;
-
-    if (!success) {
-      throw new BusinessException(BEAST_QUALITY_FAILED);
-    }
-
-    beast.qualityBreak();
-    beast.recalculateAttributes();
-    beast.setHpCurrent(beast.getMaxHp());
-
-    beastMutationService.attemptMutation(beast, 10);
-
-    beastSkillService.unlockInnateSkills(beast, "quality_break");
-    beastRepository.save(beast);
-
-    log.info(
-        "玩家 {} 品质突破地块 {} 的灵兽 {} -> {}",
-        userId,
-        cellId,
-        currentQuality.getChineseName(),
-        nextQuality.getChineseName());
 
     return beastDisplayHelper.buildPenCellVO(cell);
   }

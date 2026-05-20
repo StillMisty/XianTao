@@ -58,23 +58,12 @@ public class BeastListener {
 
   @Listener
   @ContentTrim
-  @Filter("灵兽进化 {{position}} {{mode}}")
-  public void evolveBeast(
-      OneBotMessageEvent event,
-      @FilterValue("position") String position,
-      @FilterValue("mode") String mode) {
-    log.debug(
-        "[OneBot] 收到灵兽进化请求 - AuthorId: {}, Position: {}, Mode: {}",
-        event.getAuthorId(),
-        position,
-        mode);
+  @Filter("灵兽进化 {{position}}")
+  public void evolveBeast(OneBotMessageEvent event, @FilterValue("position") String position) {
+    log.debug("[OneBot] 收到灵兽进化请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
     String response =
         beastCommandHandler.handleEvolveBeast(
-            PlatformType.ONE_BOT_V11,
-            event.getAuthorId().toString(),
-            position,
-            mode,
-            TextFormat.PLAIN);
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), position, TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -173,19 +162,13 @@ public class BeastListener {
 
   @Listener
   @ContentTrim
-  @Filter("灵兽进化 {{position}} {{mode}}")
+  @Filter("灵兽进化 {{position}}")
   public void evolveBeastQq(
-      QGGroupAtMessageCreateEvent event,
-      @FilterValue("position") String position,
-      @FilterValue("mode") String mode) {
-    log.debug(
-        "[QQ] 收到灵兽进化请求 - AuthorId: {}, Position: {}, Mode: {}",
-        event.getAuthorId(),
-        position,
-        mode);
+      QGGroupAtMessageCreateEvent event, @FilterValue("position") String position) {
+    log.debug("[QQ] 收到灵兽进化请求 - AuthorId: {}, Position: {}", event.getAuthorId(), position);
     String response =
         beastCommandHandler.handleEvolveBeast(
-            PlatformType.QQ, event.getAuthorId().toString(), position, mode, TextFormat.MARKDOWN);
+            PlatformType.QQ, event.getAuthorId().toString(), position, TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 

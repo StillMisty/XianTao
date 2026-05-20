@@ -76,14 +76,20 @@ public class BeastSkillService {
     if (currentSkills == null) {
       currentSkills = new ArrayList<>();
     }
-    if (currentSkills.size() >= 4) {
+    final List<Long> skills = currentSkills;
+    if (skills.size() >= 4) {
       return;
     }
     if (ThreadLocalRandom.current().nextInt(100) >= 15) {
       return;
     }
+    List<BeastSkillPoolVO.AwakeningSkill> unlearned =
+        skillPool.awakeningSkills().stream().filter(as -> !skills.contains(as.skillId())).toList();
+    if (unlearned.isEmpty()) {
+      return;
+    }
     int totalWeight = 0;
-    for (BeastSkillPoolVO.AwakeningSkill awakeningSkill : skillPool.awakeningSkills()) {
+    for (BeastSkillPoolVO.AwakeningSkill awakeningSkill : unlearned) {
       totalWeight += awakeningSkill.weight();
     }
     if (totalWeight <= 0) {
@@ -91,16 +97,13 @@ public class BeastSkillService {
     }
     int random = ThreadLocalRandom.current().nextInt(totalWeight);
     int current = 0;
-    for (BeastSkillPoolVO.AwakeningSkill awakeningSkill : skillPool.awakeningSkills()) {
+    for (BeastSkillPoolVO.AwakeningSkill awakeningSkill : unlearned) {
       current += awakeningSkill.weight();
       if (random < current) {
-        if (!currentSkills.contains(awakeningSkill.skillId())) {
-          currentSkills.add(awakeningSkill.skillId());
-          beast.setSkills(currentSkills);
-          log.debug("灵兽 {} 觉醒后天悟: {}", beast.getBeastName(), awakeningSkill.skillId());
-          return;
-        }
-        break;
+        currentSkills.add(awakeningSkill.skillId());
+        beast.setSkills(currentSkills);
+        log.debug("灵兽 {} 觉醒后天悟: {}", beast.getBeastName(), awakeningSkill.skillId());
+        return;
       }
     }
   }

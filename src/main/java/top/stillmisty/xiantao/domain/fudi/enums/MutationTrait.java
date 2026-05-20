@@ -3,13 +3,34 @@ package top.stillmisty.xiantao.domain.fudi.enums;
 import com.mybatisflex.annotation.EnumValue;
 import lombok.Getter;
 
-/** 灵兽变异特性 */
+/** 灵兽变异特性 — 硬核修仙世界观 */
 @Getter
 public enum MutationTrait {
+  // —— 攻击系 ——
+  SHARP_FANG("SHARP_FANG", "锐齿", "攻击力+15%"),
+  MALEVOLENCE("MALEVOLENCE", "煞气", "攻击力+25%"),
+
+  // —— 防御系 ——
+  THICK_SKIN("THICK_SKIN", "厚皮", "防御力+15%"),
+  MYSTIC_ARMOR("MYSTIC_ARMOR", "玄甲", "防御力+25%"),
+
+  // —— 速度系 ——
+  SWIFT("SWIFT", "疾走", "速度+15%"),
+  LIGHTNING_CHASE("LIGHTNING_CHASE", "追电", "速度+30%"),
+
+  // —— 产出系 ——
   HIGH_YIELD("HIGH_YIELD", "高产", "产出量+30%"),
+  DILIGENT("DILIGENT", "勤勉", "产出间隔-25%"),
   RARE_PRODUCE("RARE_PRODUCE", "稀产", "5%概率产出稀有物品"),
-  GUARDIAN("GUARDIAN", "护主", "天劫战力+50%"),
-  SPIRITUAL("SPIRITUAL", "灵悟", "品质突破成功率+10%");
+
+  // —— 突破系 ——
+  SPIRITUAL("SPIRITUAL", "灵悟", "升阶时品质提升概率+10%"),
+
+  // —— 经验系 ——
+  SPIRIT_DEVOUR("SPIRIT_DEVOUR", "噬灵", "战斗经验+25%"),
+
+  // —— 恢复系 ——
+  SELF_HEAL("SELF_HEAL", "自愈", "战斗结束后恢复10%最大生命值");
 
   @EnumValue private final String code;
   private final String chineseName;

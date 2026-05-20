@@ -51,6 +51,10 @@ public class PostCombatProcessor {
           beast.setIsDeployed(false);
           int recoveryMinutes = beast.getQuality().getRecoveryMinutes();
           beast.setRecoveryUntil(LocalDateTime.now().plusMinutes(recoveryMinutes));
+        } else if (beast.getMutationTraits() != null
+            && beast.getMutationTraits().contains("SELF_HEAL")) {
+          int healAmount = (int) (beast.getMaxHp() * 0.10);
+          beast.setHpCurrent(Math.min(beast.getMaxHp(), beast.getHpCurrent() + healAmount));
         }
 
         if (playerWon) {

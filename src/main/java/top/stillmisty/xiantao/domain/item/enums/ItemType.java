@@ -14,8 +14,6 @@ public enum ItemType {
 
   POTION("POTION", "丹药"),
 
-  EVOLUTION_STONE("EVOLUTION_STONE", "进化石"),
-
   SKILL_JADE("SKILL_JADE", "法决玉简"),
 
   RECIPE_SCROLL("RECIPE_SCROLL", "丹方卷轴"),

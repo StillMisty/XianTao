@@ -96,7 +96,10 @@ public class BeastProductionService {
     LocalDateTime lastProduction = pen.lastProductionTime();
     if (lastProduction == null) lastProduction = matureTime;
 
-    double intervalHours = getProductionIntervalHours(pen.templateId(), cell.getCellLevel());
+    double intervalHours = getProductionIntervalHours(beast.getTier(), cell.getCellLevel());
+    if (beast.getMutationTraits() != null && beast.getMutationTraits().contains("DILIGENT")) {
+      intervalHours *= 0.75;
+    }
     long intervalSeconds = (long) (intervalHours * 3600);
     if (intervalSeconds <= 0) intervalSeconds = 14400;
 
@@ -138,13 +141,7 @@ public class BeastProductionService {
 
     List<ProductionItem> productionItems = getProductionItems(cell);
     if (productionItems.isEmpty()) {
-      int currentStored = pen.totalProductionQuantity();
-      int maxStorage = tier * 20;
-      int newStored = Math.min(maxStorage, currentStored + produced);
-      int added = newStored - currentStored;
-      if (added > 0) {
-        pen.addProductionItem(1L, "灵草", added);
-      }
+      log.warn("灵兽 {} (地块 {}) 兽卵模板未定义产出物品，跳过产出", beast.getBeastName(), cell.getCellId());
     } else {
       int maxStorage = tier * 20;
       int currentTotal = pen.totalProductionQuantity();
@@ -234,13 +231,8 @@ public class BeastProductionService {
     return List.of();
   }
 
-  double getProductionIntervalHours(Integer templateId, int cellLevel) {
-    if (templateId == null) return 4.0;
-    ItemTemplate template = itemTemplateRepository.findById(templateId.longValue()).orElse(null);
-    if (template == null) return 4.0;
-    double baseGrowthHours = template.getGrowTime() != null ? template.getGrowTime() : 72;
-    int tier = fudiHelper.getCropTier((int) baseGrowthHours);
-    double levelSpeed = fudiHelper.getLevelSpeedMultiplier(cellLevel, tier);
+  double getProductionIntervalHours(int beastTier, int cellLevel) {
+    double levelSpeed = fudiHelper.getLevelSpeedMultiplier(cellLevel, beastTier);
     return 4.0 / levelSpeed;
   }
 }

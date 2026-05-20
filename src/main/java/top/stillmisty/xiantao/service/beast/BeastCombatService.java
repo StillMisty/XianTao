@@ -2,6 +2,7 @@ package top.stillmisty.xiantao.service.beast;
 
 import static top.stillmisty.xiantao.service.ErrorCode.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -176,6 +177,12 @@ public class BeastCombatService {
       return new ActionResultVO(true, "灵兽HP已满");
     }
 
+    if (beast.getRecoveryUntil() != null && beast.getRecoveryUntil().isAfter(LocalDateTime.now())) {
+      throw new BusinessException(
+          BEAST_RECOVERING,
+          beast.getRecoveryUntil().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")));
+    }
+
     beast.setHpCurrent(hpMax);
     beast.setRecoveryUntil(null);
     beastRepository.save(beast);
@@ -236,7 +243,12 @@ public class BeastCombatService {
         .findById(beastId)
         .ifPresentOrElse(
             beast -> {
-              long consumed = beast.addExp(expToAdd);
+              long actualExp = expToAdd;
+              if (beast.getMutationTraits() != null
+                  && beast.getMutationTraits().contains("SPIRIT_DEVOUR")) {
+                actualExp = (long) (expToAdd * 1.25);
+              }
+              long consumed = beast.addExp(actualExp);
               beastRepository.save(beast);
               log.debug("灵兽 {} 获得 {} 经验", beastId, consumed);
             },

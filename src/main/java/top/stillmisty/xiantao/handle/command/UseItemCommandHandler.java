@@ -11,7 +11,7 @@ import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.service.inventory.ItemUseService;
 
-/** 统一使用物品命令处理器 支持：丹药、法决玉简、丹方卷轴、进化石 */
+/** 统一使用物品命令处理器 支持：丹药、法决玉简、丹方卷轴 */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -45,6 +45,6 @@ public class UseItemCommandHandler implements CommandGroup {
   public List<CommandEntry> commands() {
     return List.of(
         new CommandEntry("使用 「物品」", "使用物品（丹药、玉简、卷轴等）", "使用 天元丹"),
-        new CommandEntry("使用 「物品」 「参数」", "使用物品并指定参数", "使用 进化石 1"));
+        new CommandEntry("使用 「物品」 「参数」", "使用物品并指定参数", "使用 天元丹 1"));
   }
 }

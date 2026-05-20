@@ -33,7 +33,7 @@ public class ItemResolver {
   }
 
   private String tierMetadata(ItemTemplate template) {
-    return "T" + tier(template);
+    return top.stillmisty.xiantao.domain.beast.entity.Beast.getTierName(tier(template));
   }
 
   public List<ItemEntry> listSeeds(Long userId) {

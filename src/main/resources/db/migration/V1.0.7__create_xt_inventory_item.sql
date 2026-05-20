@@ -20,7 +20,7 @@ CREATE TABLE xt_inventory_item
 
     -- 唯一约束：同一用户同模板同属性合并为一行，不同属性分行为不同物品
     CONSTRAINT uk_user_template_props UNIQUE (user_id, template_id, properties_hash),
-    CONSTRAINT chk_inventory_item_type CHECK (item_type IN ('MATERIAL', 'SEED', 'BEAST_EGG', 'POTION', 'EVOLUTION_STONE', 'SKILL_JADE', 'RECIPE_SCROLL', 'HERB', 'BEAST_ESSENCE')),
+    CONSTRAINT chk_inventory_item_type CHECK (item_type IN ('MATERIAL', 'SEED', 'BEAST_EGG', 'POTION', 'SKILL_JADE', 'RECIPE_SCROLL', 'HERB', 'BEAST_ESSENCE')),
     CONSTRAINT chk_inventory_item_quantity CHECK (quantity >= 0)
 );
 
@@ -29,7 +29,7 @@ COMMENT ON TABLE xt_inventory_item IS '物品实例表 (堆叠类物品)';
 COMMENT ON COLUMN xt_inventory_item.id IS '物品实例ID';
 COMMENT ON COLUMN xt_inventory_item.user_id IS '持有者用户ID';
 COMMENT ON COLUMN xt_inventory_item.template_id IS '物品模板ID';
-COMMENT ON COLUMN xt_inventory_item.item_type IS '物品类型 (MATERIAL, SEED, BEAST_EGG, POTION, EVOLUTION_STONE, SKILL_JADE, RECIPE_SCROLL, HERB)';
+COMMENT ON COLUMN xt_inventory_item.item_type IS '物品类型 (MATERIAL, SEED, BEAST_EGG, POTION, SKILL_JADE, RECIPE_SCROLL, HERB)';
 COMMENT ON COLUMN xt_inventory_item.name IS '物品名称 (从模板复制)';
 COMMENT ON COLUMN xt_inventory_item.quantity IS '数量';
 COMMENT ON COLUMN xt_inventory_item.tags IS '物品标签 JSONB，用于AI检索和NPC交互';

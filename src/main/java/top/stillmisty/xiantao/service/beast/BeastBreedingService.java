@@ -19,6 +19,7 @@ import top.stillmisty.xiantao.domain.fudi.entity.FudiCell;
 import top.stillmisty.xiantao.domain.fudi.enums.BeastQuality;
 import top.stillmisty.xiantao.domain.fudi.enums.CellType;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiCellRepository;
+import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
 import top.stillmisty.xiantao.domain.fudi.vo.PenCellVO;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
@@ -34,7 +35,7 @@ import top.stillmisty.xiantao.service.fudi.FudiHelper;
 import top.stillmisty.xiantao.service.inventory.ItemResolver;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
 
-/** 灵兽孵化、放生、进化、品质突破、变异 */
+/** 灵兽孵化、放生、进化、变异 */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -48,6 +49,7 @@ public class BeastBreedingService {
   private final ItemResolver itemResolver;
   private final FudiHelper fudiHelper;
   private final SpiritStoneService spiritStoneService;
+  private final SpiritRepository spiritRepository;
   private final BeastSkillService beastSkillService;
   private final BeastDisplayHelper beastDisplayHelper;
   private final BeastEvolutionService beastEvolutionService;
@@ -101,9 +103,9 @@ public class BeastBreedingService {
   @Authenticated
   @Transactional
   public ServiceResult<PenCellVO> evolveBeast(
-      PlatformType platform, String openId, String position, String mode) {
+      PlatformType platform, String openId, String position) {
     Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(evolveBeast(userId, position, mode));
+    return new ServiceResult.Success<>(evolveBeast(userId, position));
   }
 
   // ===================== 内部 API =====================
@@ -162,7 +164,7 @@ public class BeastBreedingService {
 
     validateCellForHatch(cell, cellId);
 
-    HatchSetup setup = prepareHatchSetup(userId, eggTemplate, cell.getCellLevel());
+    HatchSetup setup = prepareHatchSetup(userId, eggTemplate, cell.getCellLevel(), fudi);
     LocalDateTime now = LocalDateTime.now();
 
     Beast beast =
@@ -184,11 +186,11 @@ public class BeastBreedingService {
     fudiCellRepository.save(cell);
 
     log.info(
-        "玩家 {} 在地块 {} 孵化 {} (T{}, {}{})",
+        "玩家 {} 在地块 {} 孵化 {}（{} {}）{}",
         userId,
         cellId,
         setup.beastName,
-        setup.tier,
+        Beast.getTierName(setup.tier),
         setup.quality.getChineseName(),
         setup.isMutant ? ", 变异" : "");
 
@@ -203,23 +205,22 @@ public class BeastBreedingService {
       double hatchHours,
       String beastName) {}
 
-  private HatchSetup prepareHatchSetup(Long userId, ItemTemplate eggTemplate, int cellLevel) {
-    int tier =
-        fudiHelper.getCropTier(eggTemplate.getGrowTime() != null ? eggTemplate.getGrowTime() : 72);
-    if (cellLevel < tier) {
-      throw new BusinessException(BEAST_TIER_REQUIRES_PEN, tier, tier);
-    }
+  private HatchSetup prepareHatchSetup(
+      Long userId, ItemTemplate eggTemplate, int cellLevel, Fudi fudi) {
+    int tier = 1;
 
-    int stoneCost = tier * 200 + 200;
+    int stoneCost = 400;
     spiritStoneService.withdraw(userId, stoneCost);
 
-    BeastQuality quality = rollBeastQuality();
+    var spirit = spiritRepository.findByFudiId(fudi.getId()).orElse(null);
+    int affection = spirit != null && spirit.getAffection() != null ? spirit.getAffection() : 0;
+    BeastQuality quality = rollBeastQuality(affection, cellLevel);
     boolean isMutant = ThreadLocalRandom.current().nextInt(100) < 5;
     List<String> mutationTraits = new ArrayList<>();
     if (isMutant) mutationTraits.add(beastMutationService.rollRandomTrait());
 
     double levelSpeed = fudiHelper.getLevelSpeedMultiplier(cellLevel, tier);
-    double baseHatchHours = 24 + tier * 8;
+    double baseHatchHours = 32;
     double hatchHours = baseHatchHours / levelSpeed;
 
     String beastName = eggTemplate.getName().replace("兽卵", "").replace("蛋", "灵兽");
@@ -270,7 +271,6 @@ public class BeastBreedingService {
     beast.setBirthTime(now);
     beast.setEvolutionCount(0);
     beast.setLevelCap(tier * 10 + 10);
-    beastRepository.save(beast);
     return beast;
   }
 
@@ -317,7 +317,12 @@ public class BeastBreedingService {
     }
 
     log.info(
-        "玩家 {} 放生 {} (T{}/{})，获得 {} 份灵兽精华", userId, beastName, tier, qualityStr, essenceAmount);
+        "玩家 {} 放生 {}（{} {}），获得 {} 份灵兽精华",
+        userId,
+        beastName,
+        Beast.getTierName(tier),
+        qualityStr,
+        essenceAmount);
 
     return new ReleaseBeastVO(beastName, tier, qualityStr, essenceAmount);
   }
@@ -363,36 +368,40 @@ public class BeastBreedingService {
   }
 
   @Transactional
-  public PenCellVO evolveBeast(Long userId, String position, String mode) {
+  public PenCellVO evolveBeast(Long userId, String position) {
     var pcb = beastDisplayHelper.findPenCell(userId, position, true, false);
     var fudi = pcb.fudi();
     var cell = pcb.cell();
     var cellId = pcb.cellId();
 
-    int stoneCount = "升品".equals(mode) ? 2 : 1;
-    ItemTemplate stoneTemplate =
-        itemTemplateRepository.findByType(ItemType.EVOLUTION_STONE).stream()
-            .findFirst()
-            .orElseThrow(() -> new BusinessException(BEAST_EVOLVE_STONE_NOT_FOUND));
-    var stoneItem =
-        stackableItemRepository
-            .findByUserIdAndTemplateId(userId, stoneTemplate.getId())
-            .orElseThrow(() -> new BusinessException(BEAST_EVOLVE_STONE_INVENTORY_EMPTY));
-    stackableItemService.reduceStackableItem(userId, stoneItem.getId(), stoneCount);
-
-    if ("升品".equals(mode)) {
-      return beastEvolutionService.breakthroughBeastQuality(fudi, cell, userId, cellId);
-    } else {
-      return beastEvolutionService.evolveBeastTier(fudi, cell, userId, cellId);
-    }
+    return beastEvolutionService.evolveBeastTier(fudi, cell, userId, cellId);
   }
 
-  public BeastQuality rollBeastQuality() {
-    int roll = ThreadLocalRandom.current().nextInt(1000);
+  public BeastQuality rollBeastQuality(int affection, int cellLevel) {
+    int[] weights = new int[BeastQuality.values().length];
+    for (int i = 0; i < weights.length; i++) {
+      weights[i] = BeastQuality.values()[i].getHatchWeight();
+    }
+
+    int cellBonus = cellLevel * 10;
+    int transfer = Math.min(cellBonus, weights[0]);
+    weights[0] -= transfer;
+    weights[4] += transfer;
+
+    int floor = affection / 100;
+    for (int i = 0; i < floor && i < weights.length - 1; i++) {
+      weights[i + 1] += weights[i];
+      weights[i] = 0;
+    }
+
+    int total = 0;
+    for (int w : weights) total += w;
+    int roll = ThreadLocalRandom.current().nextInt(total);
     int cumulative = 0;
-    for (BeastQuality q : BeastQuality.values()) {
-      cumulative += q.getHatchWeight();
-      if (roll < cumulative) return q;
+    BeastQuality[] values = BeastQuality.values();
+    for (int i = 0; i < values.length; i++) {
+      cumulative += weights[i];
+      if (roll < cumulative) return values[i];
     }
     return BeastQuality.MORTAL;
   }

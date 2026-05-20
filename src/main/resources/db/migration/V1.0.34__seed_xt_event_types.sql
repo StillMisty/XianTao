@@ -94,8 +94,7 @@ INSERT INTO xt_activity_event (activity_type, owner_id, code, weight, is_hidden,
 ('TRAVEL', 9, 'travel_treasure_map', 10, true, 'HAS_ITEM', '{"item_name":"青云令牌"}', '{"hidden":"青云密道已现"}'),
 ('TRAVEL', 14, 'travel_wandering_elder', 8, true, 'STAT_THRESHOLD', '{"stat":"WIS","min":50}', '{"item":"大悟道丹","count":1}'),
 ('TRAVEL', 28, 'travel_spring_of_spirit', 10, true, 'HAS_ITEM', '{"item_name":"九转金莲"}', '{}'),
-('TRAVEL', 33, 'travel_bandit_roadblock', 10, true, 'HAS_SKILL', '{"skill_name":"刑天斧法"}', '{}'),
-('TRAVEL', 42, 'travel_fallen_star', 8, true, 'STAT_THRESHOLD', '{"stat":"STR","min":90}', '{"item":"神阶进化石","count":1}');
+('TRAVEL', 33, 'travel_bandit_roadblock', 10, true, 'HAS_SKILL', '{"skill_name":"刑天斧法"}', '{}');
 
 -- Hidden TRAINING events
 INSERT INTO xt_activity_event (activity_type, owner_id, code, weight, is_hidden, trigger_type, trigger_params, params) VALUES

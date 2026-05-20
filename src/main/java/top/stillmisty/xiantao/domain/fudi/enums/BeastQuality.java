@@ -6,11 +6,11 @@ import lombok.Getter;
 /** 灵兽品质 */
 @Getter
 public enum BeastQuality {
-  MORTAL("MORTAL", "凡品", 1.0, 1.0, 1.0, 900, 30),
-  SPIRIT("SPIRIT", "灵品", 1.2, 0.85, 1.1, 80, 60),
-  IMMORTAL("IMMORTAL", "仙品", 1.5, 0.70, 1.2, 18, 120),
-  SAINT("SAINT", "圣品", 2.0, 0.55, 1.3, 2, 240),
-  DIVINE("DIVINE", "神品", 3.0, 0.40, 1.5, 0, 480);
+  MORTAL("MORTAL", "凡品", 1.0, 1.0, 1.0, 600, 30),
+  SPIRIT("SPIRIT", "灵品", 1.2, 0.85, 1.1, 250, 60),
+  IMMORTAL("IMMORTAL", "仙品", 1.5, 0.70, 1.2, 100, 120),
+  SAINT("SAINT", "圣品", 2.0, 0.55, 1.3, 40, 240),
+  DIVINE("DIVINE", "神品", 3.0, 0.40, 1.5, 10, 480);
 
   @EnumValue private final String code;
   private final String chineseName;
@@ -47,15 +47,5 @@ public enum BeastQuality {
       }
     }
     throw new IllegalArgumentException("Unknown BeastQuality code: " + code);
-  }
-
-  public BeastQuality next() {
-    return switch (this) {
-      case MORTAL -> SPIRIT;
-      case SPIRIT -> IMMORTAL;
-      case IMMORTAL -> SAINT;
-      case SAINT -> DIVINE;
-      case DIVINE -> throw new IllegalStateException("神品已是最高品质");
-    };
   }
 }

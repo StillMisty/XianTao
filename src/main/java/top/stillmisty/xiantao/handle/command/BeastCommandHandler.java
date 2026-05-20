@@ -4,6 +4,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.beast.vo.*;
 import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
@@ -52,15 +53,10 @@ public class BeastCommandHandler implements CommandGroup {
   }
 
   public String handleEvolveBeast(
-      PlatformType platform, String openId, String position, String mode, TextFormat fmt) {
-    log.debug(
-        "处理灵兽进化 - Platform: {}, OpenId: {}, Position: {}, Mode: {}",
-        platform,
-        openId,
-        position,
-        mode);
+      PlatformType platform, String openId, String position, TextFormat fmt) {
+    log.debug("处理灵兽进化 - Platform: {}, OpenId: {}, Position: {}", platform, openId, position);
     return CommandHandlerHelper.safeCall(
-        () -> beastBreedingService.evolveBeast(platform, openId, position, mode),
+        () -> beastBreedingService.evolveBeast(platform, openId, position),
         fmt,
         result -> formatEvolveResult(result, fmt));
   }
@@ -143,7 +139,7 @@ public class BeastCommandHandler implements CommandGroup {
   private String formatEvolveResult(PenCellVO beast, TextFormat fmt) {
     return fmt.heading("灵兽进化成功", "⬆️")
         + fmt.listItem("名称：" + beast.getBeastName())
-        + fmt.listItem("等阶：T" + beast.getTier())
+        + fmt.listItem("等阶：" + Beast.getTierName(beast.getTier()))
         + fmt.listItem("品质：" + beast.getQuality())
         + fmt.listItem("战力：" + beast.getPowerScore());
   }
@@ -164,7 +160,8 @@ public class BeastCommandHandler implements CommandGroup {
       BeastStatusVO beast = beasts.get(i);
       sb.append(
           String.format(
-              "%d. %s（T%d %s）\n", i + 1, beast.beastName(), beast.tier(), beast.quality()));
+              "%d. %s（%s %s）\n",
+              i + 1, beast.beastName(), Beast.getTierName(beast.tier()), beast.quality()));
       sb.append(fmt.listItem("等级：" + beast.level()));
       sb.append(fmt.listItem("HP：" + beast.hpCurrent() + "/" + beast.maxHp()));
       sb.append(fmt.listItem("攻击：" + beast.attack() + " 防御：" + beast.defense()));
@@ -195,9 +192,14 @@ public class BeastCommandHandler implements CommandGroup {
         status = "💤 待命";
       }
       sb.append(
-          "%d. %s T%d %s Lv%d %s\n"
+          "%d. %s %s %s Lv%d %s\n"
               .formatted(
-                  i + 1, beast.beastName(), beast.tier(), beast.quality(), beast.level(), status));
+                  i + 1,
+                  beast.beastName(),
+                  Beast.getTierName(beast.tier()),
+                  beast.quality(),
+                  beast.level(),
+                  status));
     }
     return sb.toString();
   }
@@ -220,7 +222,7 @@ public class BeastCommandHandler implements CommandGroup {
         new CommandEntry("灵兽出战 「编号」", "派出灵兽参与战斗", "灵兽出战 1"),
         new CommandEntry("灵兽召回 「编号/all」", "召回出战的灵兽", "灵兽召回 1"),
         new CommandEntry("灵兽恢复 「编号/all」", "恢复灵兽生命值", "灵兽恢复 1"),
-        new CommandEntry("灵兽进化 「编号」 「升阶/升品」", "进化灵兽", "灵兽进化 1 升阶"),
+        new CommandEntry("灵兽进化 「编号」", "进化灵兽，提升等阶", "灵兽进化 1"),
         new CommandEntry("灵兽放生 「编号」", "放生灵兽", "灵兽放生 1"),
         new CommandEntry("灵兽喂养 「编号」 「数量」", "消耗灵兽精华喂养灵兽", "灵兽喂养 1 3"));
   }

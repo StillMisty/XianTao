@@ -97,12 +97,20 @@ public class Beast {
    * 添加经验值
    *
    * @param expToAdd 要添加的经验值
-   * @return 实际消耗的经验值
+   * @return 实际吸收的经验值
    */
   public long addExp(long expToAdd) {
     if (expToAdd <= 0) return 0;
 
+    if (levelCap != null && level >= levelCap) {
+      long neededToFill = Math.max(0, calculateExpToNextLevel() - exp);
+      long actualAdd = Math.min(expToAdd, neededToFill);
+      exp += (int) actualAdd;
+      return actualAdd;
+    }
+
     exp += (int) Math.min(expToAdd, Integer.MAX_VALUE);
+    long consumed = expToAdd;
 
     while (levelCap != null
         && level < levelCap
@@ -114,10 +122,14 @@ public class Beast {
     }
 
     if (levelCap != null && level >= levelCap) {
+      long overflow = exp - calculateExpToNextLevel();
+      if (overflow > 0) {
+        consumed -= overflow;
+      }
       exp = Math.min(exp, (int) calculateExpToNextLevel());
     }
 
-    return expToAdd;
+    return consumed;
   }
 
   /** 重新计算属性（升级、进化后调用） 使用与 FudiService.calculateBeastAttack/Defense 一致的公式 */
@@ -151,7 +163,7 @@ public class Beast {
     return levelCap == null || level < levelCap;
   }
 
-  /** 进化（升阶） */
+  /** 进化（升阶），品质有10%概率连带提升 */
   public void evolve() {
     tier++;
     levelCap = tier * 10 + 10;
@@ -159,10 +171,20 @@ public class Beast {
     recalculateAttributes();
   }
 
-  /** 品质突破（升品） */
-  public void qualityBreak() {
-    if (quality != BeastQuality.DIVINE) {
-      quality = quality.next();
-    }
+  /** 获取等阶修仙名称 */
+  public static String getTierName(int tier) {
+    return switch (tier) {
+      case 1 -> "通灵";
+      case 2 -> "凝魄";
+      case 3 -> "化形";
+      case 4 -> "渡劫";
+      case 5 -> "归真";
+      default -> "T" + tier;
+    };
+  }
+
+  /** 获取品质修仙名称 */
+  public String getQualityName() {
+    return quality != null ? quality.getChineseName() : "凡品";
   }
 }

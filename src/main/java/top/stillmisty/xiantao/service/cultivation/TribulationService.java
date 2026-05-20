@@ -166,8 +166,14 @@ public class TribulationService {
         Beast beast = beastRepository.findById(c.getId()).orElse(null);
         if (beast != null) {
           beast.setHpCurrent(Math.max(0, c.getHp()));
-          if (c.getHp() <= 0 && !playerWon) {
+          if (c.getHp() <= 0) {
             beast.setIsDeployed(false);
+            int recoveryMinutes = beast.getQuality().getRecoveryMinutes();
+            beast.setRecoveryUntil(LocalDateTime.now().plusMinutes(recoveryMinutes));
+          } else if (beast.getMutationTraits() != null
+              && beast.getMutationTraits().contains("SELF_HEAL")) {
+            int healAmount = (int) (beast.getMaxHp() * 0.10);
+            beast.setHpCurrent(Math.min(beast.getMaxHp(), beast.getHpCurrent() + healAmount));
           }
           beastRepository.save(beast);
         }

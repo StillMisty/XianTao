@@ -217,7 +217,6 @@ INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, req
 (18, '鉴定古宝', '有人在废墟中发现了一件古宝，需要懂行的人鉴定。', 45, '[]', 52, 12),
 (18, '捕捉炼器辅料', '玲珑坊需要一批新鲜的妖兽材料，去万兽山搜集。', 60, '[]', 50, 15),
 (18, '学习锻造术', '玲珑坊的大师公开课——教你如何锻造一把法器。', 90, '[]', 50, 10),
-(18, '收集进化石', '玲珑阁在悬赏收购进化石，不管品阶来者不拒。', 120, '[]', 52, 8);
 
 -- 魔王岭 (map_id=19)
 INSERT INTO xt_bounty (map_id, name, description, duration_minutes, rewards, require_level, event_weight) VALUES

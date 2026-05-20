@@ -35,7 +35,7 @@ INSERT INTO shop_npc (id, name, map_node_id, personality, buy_price_modifier, ca
  '2026-01-01 00:00:00'::timestamp),
 
 (4, '柳三娘', 17, 'ESFJ', 0.55,
- '{"SEED": 0.80, "BEAST_EGG": 0.75, "EVOLUTION_STONE": 0.90, "MATERIAL": 0.60}',
+ '{"SEED": 0.80, "BEAST_EGG": 0.75, "MATERIAL": 0.60}',
  '你是飘渺城的杂货铺老板娘「柳三娘」，店如其名什么都卖。
 你嘴甜热情，自称"奴家"，说话带市井气息，对老客特别关照。
 你的铺子什么都收也什么都卖，但对于冷门的东西出价压得低。
@@ -143,12 +143,7 @@ INSERT INTO shop_product (shop_npc_id, product_type, template_id, base_price, mi
 (4, 'ITEM', (SELECT id FROM xt_item_template WHERE name = '铁羽鹰卵'), 180, 120, 270, 0, 10, 180, 5, '2026-01-01 00:00:00'::timestamp),
 (4, 'ITEM', (SELECT id FROM xt_item_template WHERE name = '雪狐卵'),   200, 130, 300, 0, 8, 200, 4, '2026-01-01 00:00:00'::timestamp),
 (4, 'ITEM', (SELECT id FROM xt_item_template WHERE name = '火蟾卵'),   150, 100, 220, 0, 10, 150, 5, '2026-01-01 00:00:00'::timestamp),
-(4, 'ITEM', (SELECT id FROM xt_item_template WHERE name = '玉兔卵'),   80, 50, 120, 0, 15, 80, 8, '2026-01-01 00:00:00'::timestamp);
--- 进化石
-INSERT INTO shop_product (shop_npc_id, product_type, template_id, base_price, min_price, max_price, min_stock, max_stock, current_price, current_stock, last_sale_time) VALUES
-(4, 'ITEM', (SELECT id FROM xt_item_template WHERE name = '初阶进化石'), 100, 70, 150, 0, 20, 100, 12, '2026-01-01 00:00:00'::timestamp),
-(4, 'ITEM', (SELECT id FROM xt_item_template WHERE name = '中阶进化石'), 300, 200, 450, 0, 12, 300, 6, '2026-01-01 00:00:00'::timestamp),
-(4, 'ITEM', (SELECT id FROM xt_item_template WHERE name = '高阶进化石'), 800, 550, 1200, 0, 8, 800, 3, '2026-01-01 00:00:00'::timestamp);
+ (4, 'ITEM', (SELECT id FROM xt_item_template WHERE name = '玉兔卵'),   80, 50, 120, 0, 15, 80, 8, '2026-01-01 00:00:00'::timestamp);
 -- 杂货
 INSERT INTO shop_product (shop_npc_id, product_type, template_id, base_price, min_price, max_price, min_stock, max_stock, current_price, current_stock, last_sale_time) VALUES
 (4, 'ITEM', (SELECT id FROM xt_item_template WHERE name = '妖兽皮'), 20, 10, 35, 0, 30, 20, 18, '2026-01-01 00:00:00'::timestamp),

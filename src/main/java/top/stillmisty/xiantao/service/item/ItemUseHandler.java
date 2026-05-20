@@ -16,7 +16,7 @@ public interface ItemUseHandler {
    * @param userId 用户ID
    * @param item 物品实例
    * @param template 物品模板
-   * @param args 额外参数（如进化石需要位置）
+   * @param args 额外参数
    * @return 使用结果消息
    */
   String use(Long userId, StackableItem item, ItemTemplate template, String args);

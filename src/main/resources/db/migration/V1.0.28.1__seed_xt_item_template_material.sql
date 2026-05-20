@@ -13,7 +13,7 @@ INSERT INTO xt_item_template (name, type, properties, tags, description) VALUES
 ('兽骨',       'MATERIAL', '{"RIGIDITY":6,"TOUGHNESS":4,"SPIRIT":1}', '["bone","craft","common"]', '妖兽陨落后的遗留骨架，骨骼中仍残存微弱妖力。'),
 ('妖兽皮',     'MATERIAL', '{"RIGIDITY":2,"TOUGHNESS":8,"SPIRIT":1}', '["leather","craft","common"]', '猎杀妖兽剥取的完整皮毛，刀枪不入，是制甲之上选。'),
 ('灵蚕丝',     'MATERIAL', '{"RIGIDITY":1,"TOUGHNESS":9,"SPIRIT":4}', '["silk","craft","uncommon"]', '灵蚕吐出的银白蚕丝，轻盈通透却坚韧无比，用以织造法袍。'),
-('地脉精华',   'MATERIAL', '{"RIGIDITY":0,"TOUGHNESS":0,"SPIRIT":18}', '["essence","craft","epic"]', '大地深处凝聚的精华，呈现琥珀色液态，是炼制进化石的主材。'),
+('地脉精华',   'MATERIAL', '{"RIGIDITY":0,"TOUGHNESS":0,"SPIRIT":18}', '["essence","craft","epic"]', '大地深处凝聚的精华，呈现琥珀色液态，蕴含精纯灵力，是炼制高阶法器的珍贵辅材。'),
 ('龙鳞',       'MATERIAL', '{"RIGIDITY":20,"TOUGHNESS":18,"SPIRIT":10}', '["scale","craft","dragon","legendary"]', '真龙蜕变所遗的一片龙鳞，刀枪不入水火不侵，传说级炼器材料。'),
 ('凤羽',       'MATERIAL', '{"RIGIDITY":15,"TOUGHNESS":8,"SPIRIT":15}', '["feather","craft","phoenix","legendary"]', '凤凰涅槃时掉落的一根尾羽，火光流转，蕴含重生之力。'),
 ('混沌石',     'MATERIAL', '{"RIGIDITY":25,"TOUGHNESS":25,"SPIRIT":25}', '["ore","craft","chaos","mythic"]', '混沌初开时便存在的原初之石，内部似有宇宙生灭，古往今来仅存数块。'),
