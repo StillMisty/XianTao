@@ -2,7 +2,9 @@ package top.stillmisty.xiantao.service.shop;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
@@ -15,6 +17,7 @@ import top.stillmisty.xiantao.domain.item.entity.Equipment;
 import top.stillmisty.xiantao.domain.item.entity.EquipmentTemplate;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
+import top.stillmisty.xiantao.domain.item.enums.AffixType;
 import top.stillmisty.xiantao.domain.item.enums.Rarity;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentTemplateRepository;
@@ -184,10 +187,10 @@ public class ShopService {
       throw new BusinessException(ErrorCode.SHOP_PRODUCT_OUT_OF_STOCK);
     }
 
-    Rarity rarity = rollRarity();
+    Rarity rarity = Rarity.roll(template.getDropWeight());
     double qualityMultiplier = rarity.randomQualityMultiplier();
     int affixCount = rarity.randomAffixCount();
-    Map<String, Integer> affixes = rollAffixes(template, affixCount);
+    Map<String, Integer> affixes = rollAffixes(rarity, affixCount);
     String prefix = rarity.randomPrefix();
 
     Equipment equipment =
@@ -483,30 +486,22 @@ public class ShopService {
         template.getProperties());
   }
 
-  private Rarity rollRarity() {
-    return ThreadLocalRandom.current().nextDouble() < 0.05
-        ? Rarity.EPIC
-        : ThreadLocalRandom.current().nextDouble() < 0.30 ? Rarity.RARE : Rarity.COMMON;
-  }
-
-  private Map<String, Integer> rollAffixes(EquipmentTemplate template, int affixCount) {
+  private Map<String, Integer> rollAffixes(Rarity rarity, int affixCount) {
     if (affixCount <= 0) return Map.of();
-    Map<String, Integer> affixes = new HashMap<>();
-    String[][] affixPool = {
-      {"STR", "攻击"},
-      {"CON", "防御"},
-      {"AGI", "速度"},
-      {"WIS", "灵气"},
-      {"CRIT_RATE", "暴击率"},
-      {"CRIT_DMG", "暴击伤害"},
-      {"LIFE_STEAL", "吸血"},
-      {"LUCK", "寻宝"},
-      {"ELEMENT_DMG", "属性伤害"},
-      {"HP_BONUS", "气血"}
-    };
-    for (int i = 0; i < affixCount; i++) {
-      String[] affix = affixPool[ThreadLocalRandom.current().nextInt(affixPool.length)];
-      affixes.put(affix[0], 1 + ThreadLocalRandom.current().nextInt(5));
+    Map<String, Integer> affixes = new LinkedHashMap<>();
+    List<AffixType> pool = new ArrayList<>(List.of(AffixType.getAttributeAffixes()));
+    if (rarity == Rarity.LEGENDARY) {
+      pool.addAll(List.of(AffixType.getSpecialAffixes()));
+    }
+    Collections.shuffle(pool, ThreadLocalRandom.current());
+    for (int i = 0; i < affixCount && i < pool.size(); i++) {
+      AffixType at = pool.get(i);
+      int value = at.isSpecial() ? 5 : (1 + ThreadLocalRandom.current().nextInt(4));
+      if (at.getStatField() != null) {
+        affixes.put(at.getStatField(), value);
+      } else {
+        affixes.put(at.name(), value);
+      }
     }
     return affixes;
   }

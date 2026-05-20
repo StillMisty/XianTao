@@ -154,8 +154,8 @@ public class CharacterStatusService {
       equipCon += equipment.getConBonus();
       equipAgi += equipment.getAgiBonus();
       equipWis += equipment.getWisBonus();
-      equipAttack += equipment.getAttackBonus();
-      equipDefense += equipment.getDefenseBonus();
+      equipAttack += equipment.getFinalAttack();
+      equipDefense += equipment.getFinalDefense();
     }
 
     CharacterStatusResult.EquipmentSummary summary =
@@ -249,8 +249,8 @@ public class CharacterStatusService {
         equipment.getConBonus(),
         equipment.getAgiBonus(),
         equipment.getWisBonus(),
-        equipment.getAttackBonus(),
-        equipment.getDefenseBonus());
+        equipment.getFinalAttack(),
+        equipment.getFinalDefense());
   }
 
   private List<CharacterStatusResult.ProtectionInfoVO> convertToProtectionInfoVO(

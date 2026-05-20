@@ -54,8 +54,8 @@ public class PlayerViewService {
 
     int equipAttack = 0, equipDefense = 0;
     for (Equipment e : equipped) {
-      equipAttack += e.getAttackBonus();
-      equipDefense += e.getDefenseBonus();
+      equipAttack += e.getFinalAttack();
+      equipDefense += e.getFinalDefense();
     }
     int attack = target.getEffectiveStatStr() * 2 + equipAttack;
     int defense = target.getEffectiveStatCon() + equipDefense;

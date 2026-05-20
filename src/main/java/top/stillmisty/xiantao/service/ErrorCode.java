@@ -88,10 +88,8 @@ public enum ErrorCode {
   FORGING_NO_MATCHING_BLUEPRINT("锻材三性不匹配任何锻造图纸"),
   FORGING_MATERIAL_INPUT_FORMAT("锻材输入格式错误，请使用 锻材名×数量 格式"),
   FORGING_MATERIAL_NOT_ENOUGH("锻材数量不足：%s"),
-  EQUIPMENT_NOT_FORGEABLE("该装备不可锻造"),
   EQUIPMENT_FORGE_LEVEL_MAX("装备强化等级已达上限（%d）"),
   EQUIPMENT_BLUEPRINT_REQUIRED("强化+10及以上需要持有对应锻造图纸"),
-  EQUIPMENT_FORGE_LEVEL_CAP("掉落装备强化上限为+9"),
   ENHANCE_MATERIAL_NOT_MATCH("锻材不满足强化约束"),
 
   // ===== Bounty =====

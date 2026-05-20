@@ -7,12 +7,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
+import top.stillmisty.xiantao.domain.item.entity.EquipmentTemplate;
 import top.stillmisty.xiantao.domain.item.enums.AffixType;
 import top.stillmisty.xiantao.domain.item.enums.EquipmentSlot;
 import top.stillmisty.xiantao.domain.item.enums.Rarity;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentTemplateRepository;
 import top.stillmisty.xiantao.domain.item.vo.*;
+import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
@@ -67,8 +69,28 @@ public class EquipmentService {
     var found = (ItemResolver.Found<Equipment>) result;
     Equipment equipmentToEquip = found.item();
 
+    User user = userStateService.loadUser(userId);
+    EquipmentTemplate template =
+        equipmentTemplateRepository.findById(equipmentToEquip.getTemplateId()).orElse(null);
+    if (template != null
+        && template.getEquipLevel() != null
+        && user.getLevel() < template.getEquipLevel()) {
+      return new EquipResult(
+          false,
+          String.format(
+              "等级不足，需要 %d 级才能装备 [%s]", template.getEquipLevel(), equipmentToEquip.getName()),
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null);
+    }
+
     ReplacementResult replacement = handleSlotReplacement(userId, equipmentToEquip.getSlot());
     equipmentToEquip.setEquipped(true);
+    equipmentToEquip.setTradable(false);
     equipmentRepository.save(equipmentToEquip);
 
     AttributeChange attributeChange =
@@ -308,8 +330,8 @@ public class EquipmentService {
     int conChange = newEquipment != null ? newEquipment.getConBonus() : 0;
     int agiChange = newEquipment != null ? newEquipment.getAgiBonus() : 0;
     int wisChange = newEquipment != null ? newEquipment.getWisBonus() : 0;
-    int attackChange = newEquipment != null ? newEquipment.getAttackBonus() : 0;
-    int defenseChange = newEquipment != null ? newEquipment.getDefenseBonus() : 0;
+    int attackChange = newEquipment != null ? newEquipment.getFinalAttack() : 0;
+    int defenseChange = newEquipment != null ? newEquipment.getFinalDefense() : 0;
     int maxHpChange = newEquipment != null ? newEquipment.getConBonus() * 20 : 0;
 
     if (replacedEquipment != null) {
@@ -317,8 +339,8 @@ public class EquipmentService {
       conChange -= replacedEquipment.getConBonus();
       agiChange -= replacedEquipment.getAgiBonus();
       wisChange -= replacedEquipment.getWisBonus();
-      attackChange -= replacedEquipment.getAttackBonus();
-      defenseChange -= replacedEquipment.getDefenseBonus();
+      attackChange -= replacedEquipment.getFinalAttack();
+      defenseChange -= replacedEquipment.getFinalDefense();
       maxHpChange -= replacedEquipment.getConBonus() * 20;
     }
 
