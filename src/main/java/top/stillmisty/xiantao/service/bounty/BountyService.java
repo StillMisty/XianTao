@@ -101,10 +101,23 @@ public class BountyService {
             .findById(user.getLocationId())
             .orElseThrow(() -> new BusinessException(MAP_CURRENT_NOT_FOUND));
 
-    List<Bounty> eligible =
-        bountyRepository.findByMapId(mapNode.getId()).stream()
-            .filter(b -> b.requiresLevel(user.getLevel()))
+    // 先查出全量，再找出唯一悬赏的 completed IDs，交给 SQL 层排除
+    List<Bounty> allBounties = bountyRepository.findByMapId(mapNode.getId());
+    List<Long> uniqueBountyIds =
+        allBounties.stream()
+            .filter(b -> b.getIsUnique() != null && b.getIsUnique())
+            .map(Bounty::getId)
             .toList();
+    Set<Long> excludeIds =
+        uniqueBountyIds.isEmpty()
+            ? Set.of()
+            : new HashSet<>(userBountyRepository.findCompletedBountyIds(userId, uniqueBountyIds));
+
+    List<Bounty> eligible =
+        (excludeIds.isEmpty()
+                ? allBounties
+                : bountyRepository.findByMapIdExcluding(mapNode.getId(), excludeIds))
+            .stream().filter(b -> b.requiresLevel(user.getLevel())).toList();
 
     if (eligible.isEmpty()) return List.of();
 
@@ -179,6 +192,12 @@ public class BountyService {
     }
     if (!bounty.requiresLevel(user.getLevel())) {
       throw new BusinessException(BOUNTY_LEVEL_INSUFFICIENT);
+    }
+
+    if (bounty.getIsUnique() != null
+        && bounty.getIsUnique()
+        && userBountyRepository.findCompletedByUserIdAndBountyId(userId, bountyId).isPresent()) {
+      throw new BusinessException(BOUNTY_ALREADY_COMPLETED);
     }
 
     long seed = userId * 31 + LocalDate.now().toEpochDay() + ThreadLocalRandom.current().nextLong();
@@ -273,6 +292,12 @@ public class BountyService {
         yield equipmentTemplate != null
             ? List.of(
                 new BountyRewardItem.EquipmentRewardItem(templateId, equipmentTemplate.getName()))
+            : List.of();
+      }
+      case BountyRewardPool.SkillJade(_, var templateId) -> {
+        ItemTemplate skillJade = itemTemplateRepository.findById(templateId).orElse(null);
+        yield skillJade != null
+            ? List.of(new BountyRewardItem.SkillJadeRewardItem(templateId, skillJade.getName()))
             : List.of();
       }
     };

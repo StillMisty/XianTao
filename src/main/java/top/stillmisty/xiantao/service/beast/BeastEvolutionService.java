@@ -90,10 +90,15 @@ public class BeastEvolutionService {
 
     beastMutationService.attemptMutation(beast, 15);
 
-    if (beast.getTier() == 2) {
+    int newTier = beast.getTier();
+    if (newTier == 2) {
       beastSkillService.unlockInnateSkills(beast, "tier_2");
-    } else if (beast.getTier() == 3) {
+    } else if (newTier == 3) {
       beastSkillService.unlockInnateSkills(beast, "tier_3");
+    } else if (newTier == 4) {
+      beastSkillService.unlockInnateSkills(beast, "tier_4");
+    } else if (newTier == 5) {
+      beastSkillService.unlockInnateSkills(beast, "tier_5");
     }
 
     beastRepository.save(beast);

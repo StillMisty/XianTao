@@ -196,6 +196,7 @@ public class MapCommandHandler implements CommandGroup {
       switch (reward) {
         case BountyRewardPool.RareItem(_, _, _, var tid) -> itemIds.add(tid);
         case BountyRewardPool.EquipmentReward(_, var tid) -> equipIds.add(tid);
+        case BountyRewardPool.SkillJade(_, var tid) -> itemIds.add(tid);
         default -> {}
       }
     }
@@ -277,6 +278,8 @@ public class MapCommandHandler implements CommandGroup {
               sb.append(fmt.listItem(name + "（兽卵）"));
           case BountyRewardItem.EquipmentRewardItem(_, var name) ->
               sb.append(fmt.listItem(name + "（装备）"));
+          case BountyRewardItem.SkillJadeRewardItem(_, var name) ->
+              sb.append(fmt.listItem(name + "（法决玉简）"));
         }
       }
     }
@@ -310,6 +313,8 @@ public class MapCommandHandler implements CommandGroup {
           case BountyRewardItem.BeastEggReward(_, var name) ->
               sb.append(fmt.listItem(name + " x1"));
           case BountyRewardItem.EquipmentRewardItem(_, var name) ->
+              sb.append(fmt.listItem(name + " x1"));
+          case BountyRewardItem.SkillJadeRewardItem(_, var name) ->
               sb.append(fmt.listItem(name + " x1"));
           default -> {}
         }

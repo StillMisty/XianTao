@@ -3,6 +3,7 @@ package top.stillmisty.xiantao.infrastructure.repository;
 import static top.stillmisty.xiantao.domain.bounty.entity.table.UserBountyTableDef.USER_BOUNTY;
 
 import com.mybatisflex.core.query.QueryWrapper;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -39,5 +40,30 @@ public class UserBountyRepositoryImpl implements UserBountyRepository {
   @Override
   public void save(UserBounty userBounty) {
     mapper.insertOrUpdateSelective(userBounty);
+  }
+
+  @Override
+  public Optional<UserBounty> findCompletedByUserIdAndBountyId(Long userId, Long bountyId) {
+    return Optional.ofNullable(
+        mapper.selectOneByQuery(
+            QueryWrapper.create()
+                .where(USER_BOUNTY.USER_ID.eq(userId))
+                .and(USER_BOUNTY.BOUNTY_ID.eq(bountyId))
+                .and(USER_BOUNTY.STATUS.eq(BountyStatus.COMPLETED))));
+  }
+
+  @Override
+  public List<Long> findCompletedBountyIds(Long userId, List<Long> bountyIds) {
+    if (bountyIds == null || bountyIds.isEmpty()) return List.of();
+    return mapper
+        .selectListByQuery(
+            QueryWrapper.create()
+                .select(USER_BOUNTY.BOUNTY_ID)
+                .where(USER_BOUNTY.USER_ID.eq(userId))
+                .and(USER_BOUNTY.BOUNTY_ID.in(bountyIds))
+                .and(USER_BOUNTY.STATUS.eq(BountyStatus.COMPLETED)))
+        .stream()
+        .map(UserBounty::getBountyId)
+        .toList();
   }
 }

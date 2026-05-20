@@ -16,7 +16,8 @@ import java.util.function.Function;
   @JsonSubTypes.Type(value = BountyRewardPool.RareItem.class, name = "rare_item"),
   @JsonSubTypes.Type(value = BountyRewardPool.SpiritStones.class, name = "spirit_stones"),
   @JsonSubTypes.Type(value = BountyRewardPool.BeastEgg.class, name = "beast_egg"),
-  @JsonSubTypes.Type(value = BountyRewardPool.EquipmentReward.class, name = "equipment")
+  @JsonSubTypes.Type(value = BountyRewardPool.EquipmentReward.class, name = "equipment"),
+  @JsonSubTypes.Type(value = BountyRewardPool.SkillJade.class, name = "skill_jade")
 })
 public sealed interface BountyRewardPool {
 
@@ -126,6 +127,33 @@ public sealed interface BountyRewardPool {
     public String displayText(
         Function<Long, String> itemNameResolver, Function<Long, String> equipNameResolver) {
       return equipNameResolver.apply(templateId);
+    }
+  }
+
+  @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+  @JsonIgnoreProperties(ignoreUnknown = true)
+  record SkillJade(int weight, @JsonProperty("template_id") long templateId)
+      implements BountyRewardPool {
+    @Override
+    public String label() {
+      return "法决玉简";
+    }
+
+    @Override
+    public String displayText() {
+      return "法决玉简";
+    }
+
+    @Override
+    public String label(
+        Function<Long, String> itemNameResolver, Function<Long, String> equipNameResolver) {
+      return itemNameResolver.apply(templateId);
+    }
+
+    @Override
+    public String displayText(
+        Function<Long, String> itemNameResolver, Function<Long, String> equipNameResolver) {
+      return itemNameResolver.apply(templateId);
     }
   }
 }

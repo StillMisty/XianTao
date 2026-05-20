@@ -36,6 +36,8 @@ public class Bounty {
 
   private Integer eventWeight;
 
+  private Boolean isUnique;
+
   @Column(onInsertValue = "now()")
   private LocalDateTime createTime;
 

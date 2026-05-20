@@ -15,6 +15,8 @@ public sealed interface BountyRewardItem {
 
   record EquipmentRewardItem(Long templateId, String name) implements BountyRewardItem {}
 
+  record SkillJadeRewardItem(Long templateId, String name) implements BountyRewardItem {}
+
   /** 序列化为 Map（用于存入 JSONB） */
   default Map<String, Object> toMap() {
     return switch (this) {
@@ -48,6 +50,14 @@ public sealed interface BountyRewardItem {
         m.put("quantity", 1);
         yield m;
       }
+      case SkillJadeRewardItem(var templateId, var name) -> {
+        Map<String, Object> m = new HashMap<>();
+        m.put("_rewardType", "skill_jade");
+        m.put("name", name);
+        m.put("templateId", templateId);
+        m.put("quantity", 1);
+        yield m;
+      }
     };
   }
 
@@ -66,6 +76,9 @@ public sealed interface BountyRewardItem {
     }
     if ("equipment".equals(rewardType)) {
       return new EquipmentRewardItem(toLong(map.get("templateId")), (String) map.get("name"));
+    }
+    if ("skill_jade".equals(rewardType)) {
+      return new SkillJadeRewardItem(toLong(map.get("templateId")), (String) map.get("name"));
     }
     // "item" or missing _rewardType (legacy data)
     return new ItemReward(

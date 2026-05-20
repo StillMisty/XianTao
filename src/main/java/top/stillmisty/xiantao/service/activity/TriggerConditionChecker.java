@@ -26,25 +26,28 @@ public class TriggerConditionChecker {
     if (triggerType == null || triggerParams == null) return true;
 
     return switch (triggerType) {
-      case "HAS_SKILL" -> hasSkill(userId, (String) triggerParams.get("skill_name"));
-      case "HAS_ITEM" -> hasItem(userId, (String) triggerParams.get("item_name"));
+      case "HAS_SKILL" -> hasSkill(userId, ((Number) triggerParams.get("skill_id")).longValue());
+      case "HAS_ITEM" ->
+          hasItem(userId, ((Number) triggerParams.get("item_template_id")).longValue());
       case "STAT_THRESHOLD" -> checkStatThreshold(triggerParams, user);
       default -> true;
     };
   }
 
-  private boolean hasSkill(Long userId, String skillName) {
-    if (skillName == null) return false;
-    return skillRepository.findByName(skillName).stream()
-        .anyMatch(
+  private boolean hasSkill(Long userId, Long skillId) {
+    if (skillId == null) return false;
+    return skillRepository
+        .findById(skillId)
+        .map(
             skill ->
-                playerSkillRepository.findByUserIdAndSkillId(userId, skill.getId()).isPresent());
+                playerSkillRepository.findByUserIdAndSkillId(userId, skill.getId()).isPresent())
+        .orElse(false);
   }
 
-  private boolean hasItem(Long userId, String itemName) {
-    if (itemName == null) return false;
+  private boolean hasItem(Long userId, Long itemTemplateId) {
+    if (itemTemplateId == null) return false;
     return itemTemplateRepository
-        .findByName(itemName)
+        .findById(itemTemplateId)
         .map(
             template ->
                 stackableItemRepository

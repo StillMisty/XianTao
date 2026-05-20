@@ -143,6 +143,7 @@ public class BountyCombatService {
         case BountyRewardItem.SpiritStonesReward(var amount) -> spiritStones += amount;
         case BountyRewardItem.BeastEggReward _ -> hasBeastEgg = true;
         case BountyRewardItem.EquipmentRewardItem _ -> hasEquipment = true;
+        case BountyRewardItem.SkillJadeRewardItem _ -> {}
         default -> {}
       }
     }
@@ -162,7 +163,8 @@ public class BountyCombatService {
                 i ->
                     i instanceof BountyRewardItem.ItemReward
                         || i instanceof BountyRewardItem.BeastEggReward
-                        || i instanceof BountyRewardItem.EquipmentRewardItem)
+                        || i instanceof BountyRewardItem.EquipmentRewardItem
+                        || i instanceof BountyRewardItem.SkillJadeRewardItem)
             .toList();
     if (itemRewards.isEmpty()) return;
 
@@ -172,6 +174,7 @@ public class BountyCombatService {
         case BountyRewardItem.ItemReward(var templateId, _, _) -> templateIds.add(templateId);
         case BountyRewardItem.BeastEggReward(var templateId, _) -> templateIds.add(templateId);
         case BountyRewardItem.EquipmentRewardItem(var templateId, _) -> templateIds.add(templateId);
+        case BountyRewardItem.SkillJadeRewardItem(var templateId, _) -> templateIds.add(templateId);
         default -> {}
       }
     }
@@ -192,6 +195,8 @@ public class BountyCombatService {
             stackableItemService.addStackableItem(userId, templateId, ItemType.BEAST_EGG, name, 1);
         case BountyRewardItem.EquipmentRewardItem(var templateId, var name) ->
             equipmentService.createEquipment(userId, templateId);
+        case BountyRewardItem.SkillJadeRewardItem(var templateId, var name) ->
+            stackableItemService.addStackableItem(userId, templateId, ItemType.SKILL_JADE, name, 1);
         default -> {}
       }
     }
@@ -216,6 +221,8 @@ public class BountyCombatService {
                         case BountyRewardItem.BeastEggReward(_, var name) ->
                             String.format("%s x1", name);
                         case BountyRewardItem.EquipmentRewardItem(_, var name) ->
+                            String.format("%s x1", name);
+                        case BountyRewardItem.SkillJadeRewardItem(_, var name) ->
                             String.format("%s x1", name);
                         default -> "";
                       })
@@ -242,6 +249,7 @@ public class BountyCombatService {
                         case BountyRewardItem.ItemReward(_, var name, _) -> name;
                         case BountyRewardItem.BeastEggReward(_, var name) -> name;
                         case BountyRewardItem.EquipmentRewardItem(_, var name) -> name;
+                        case BountyRewardItem.SkillJadeRewardItem(_, var name) -> name;
                         default -> null;
                       })
               .filter(Objects::nonNull)

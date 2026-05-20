@@ -5,6 +5,7 @@ import static top.stillmisty.xiantao.domain.bounty.entity.table.BountyTableDef.B
 import com.mybatisflex.core.query.QueryWrapper;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import top.stillmisty.xiantao.domain.bounty.entity.Bounty;
@@ -25,5 +26,14 @@ public class BountyRepositoryImpl implements BountyRepository {
   @Override
   public List<Bounty> findByMapId(Long mapId) {
     return mapper.selectListByQuery(QueryWrapper.create().where(BOUNTY.MAP_ID.eq(mapId)));
+  }
+
+  @Override
+  public List<Bounty> findByMapIdExcluding(Long mapId, Set<Long> excludeIds) {
+    QueryWrapper qw = QueryWrapper.create().where(BOUNTY.MAP_ID.eq(mapId));
+    if (excludeIds != null && !excludeIds.isEmpty()) {
+      qw.and(BOUNTY.ID.notIn(excludeIds));
+    }
+    return mapper.selectListByQuery(qw);
   }
 }

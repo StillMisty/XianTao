@@ -9,6 +9,7 @@ CREATE TABLE xt_bounty
     rewards          JSONB        NOT NULL DEFAULT '[]'::jsonb,
     require_level    INTEGER      NOT NULL DEFAULT 1,
     event_weight     INTEGER      NOT NULL DEFAULT 0,
+    is_unique        BOOLEAN      NOT NULL DEFAULT false,
     create_time      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     update_time      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -26,5 +27,6 @@ COMMENT ON COLUMN xt_bounty.duration_minutes IS '悬赏耗时（分钟）';
 COMMENT ON COLUMN xt_bounty.rewards IS '奖励池 JSONB，type 区分类型: 稀有物品 {"type":"rare_item","weight":60,"min":1,"max":2,"template_id":123}, 灵石 {"type":"spirit_stones","weight":40,"min":100,"max":200}, 兽卵 {"type":"beast_egg","weight":20,"name":"灵兽蛋"}, 装备 {"type":"equipment","weight":30,"template_id":456}';
 COMMENT ON COLUMN xt_bounty.require_level IS '最低接取等级';
 COMMENT ON COLUMN xt_bounty.event_weight IS '旅行事件触发权重';
+COMMENT ON COLUMN xt_bounty.is_unique IS '是否为唯一悬赏（完成后不可再接取）';
 
 CREATE INDEX idx_bounty_map_id ON xt_bounty (map_id);
