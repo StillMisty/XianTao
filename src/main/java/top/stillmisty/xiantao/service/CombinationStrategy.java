@@ -8,12 +8,15 @@ import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 public class CombinationStrategy {
 
   private final List<String> attributeNames;
+  private final int maxMaterialTypes;
   private final java.util.function.BiFunction<StackableItem, String, Integer> valueExtractor;
 
   public CombinationStrategy(
       List<String> attributeNames,
+      int maxMaterialTypes,
       java.util.function.BiFunction<StackableItem, String, Integer> valueExtractor) {
     this.attributeNames = List.copyOf(attributeNames);
+    this.maxMaterialTypes = maxMaterialTypes;
     this.valueExtractor = valueExtractor;
   }
 
@@ -51,6 +54,10 @@ public class CombinationStrategy {
         }
 
         if (bestItem != null && bestQty > 0) {
+          boolean isNewType = !used.containsKey(bestItem.getName());
+          if (isNewType && used.size() >= maxMaterialTypes) {
+            continue;
+          }
           applyAttributes(bestItem, bestQty, totals);
           remaining.merge(bestItem, -bestQty, Integer::sum);
           used.merge(bestItem.getName(), bestQty, Integer::sum);

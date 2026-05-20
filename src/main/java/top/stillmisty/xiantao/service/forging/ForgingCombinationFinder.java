@@ -32,7 +32,7 @@ public class ForgingCombinationFinder {
       equipmentRepository;
 
   private final CombinationStrategy strategy =
-      new CombinationStrategy(FORGE_ATTRIBUTES, ForgingCombinationFinder::getMaterialValue);
+      new CombinationStrategy(FORGE_ATTRIBUTES, 3, ForgingCombinationFinder::getMaterialValue);
 
   public ItemProperties.ForgingBlueprint getForgingBlueprint(ItemTemplate template) {
     var props = template.typedProperties();

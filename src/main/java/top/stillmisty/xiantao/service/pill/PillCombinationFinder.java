@@ -30,7 +30,7 @@ public class PillCombinationFinder {
   private final StackableItemRepository stackableItemRepository;
 
   private final CombinationStrategy strategy =
-      new CombinationStrategy(PILL_ELEMENTS, PillCombinationFinder::getElementValue);
+      new CombinationStrategy(PILL_ELEMENTS, 5, PillCombinationFinder::getElementValue);
 
   public ItemProperties.Scroll getRecipeScroll(ItemTemplate template) {
     var props = template.typedProperties();

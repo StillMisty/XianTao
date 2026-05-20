@@ -95,8 +95,13 @@ public class PillRefiningService {
 
   // ===================== 辅助方法 =====================
 
+  private static final int MAX_HERB_TYPES = 5;
+
   @Transactional
   public PillRefiningResultVO refinePillManual(Long userId, List<String> herbInputs) {
+    if (herbInputs.size() > MAX_HERB_TYPES) {
+      throw new BusinessException(ErrorCode.PILL_MATERIAL_TOO_MANY);
+    }
     List<HerbInput> parsedInputs = parseHerbInputs(userId, herbInputs);
     if (parsedInputs.isEmpty()) {
       throw new BusinessException(ErrorCode.PILL_MATERIAL_INPUT_FORMAT);

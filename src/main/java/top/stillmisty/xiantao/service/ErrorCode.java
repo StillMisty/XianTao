@@ -68,6 +68,7 @@ public enum ErrorCode {
   PILL_ELEMENT_EXCEED("药材属性超过上限：%s"),
   HERBS_EMPTY("背包中没有药材"),
   PILL_MATERIAL_INPUT_FORMAT("药材输入格式错误，请使用 药材名×数量 格式"),
+  PILL_MATERIAL_TOO_MANY("最多只能使用5种药材"),
   PILL_MATERIAL_INSUFFICIENT("药材数量不足：%s"),
   PILL_NO_MATCHING_RECIPE("药材五行不匹配任何丹方"),
 
@@ -82,6 +83,7 @@ public enum ErrorCode {
   FORGING_ATTRIBUTE_EXCEED("锻材属性超过上限：%s"),
   FORGING_NO_MATCHING_BLUEPRINT("锻材三性不匹配任何锻造图纸"),
   FORGING_MATERIAL_INPUT_FORMAT("锻材输入格式错误，请使用 锻材名×数量 格式"),
+  FORGING_MATERIAL_TOO_MANY("最多只能使用3种锻材"),
   FORGING_MATERIAL_NOT_ENOUGH("锻材数量不足：%s"),
   EQUIPMENT_FORGE_LEVEL_MAX("装备强化等级已达上限（%d）"),
   EQUIPMENT_BLUEPRINT_REQUIRED("强化+10及以上需要持有对应锻造图纸"),

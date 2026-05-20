@@ -65,9 +65,14 @@ public class EnhancementService {
         userId, resolved.equipment(), currentLevel, targetLevel, resolved.stoneCost());
   }
 
+  private static final int MAX_MATERIAL_TYPES = 3;
+
   @Transactional
   public EnhanceResultVO enhanceManual(
       Long userId, String equipmentInput, List<String> materialInputs) {
+    if (materialInputs.size() > MAX_MATERIAL_TYPES) {
+      throw new BusinessException(ErrorCode.FORGING_MATERIAL_TOO_MANY);
+    }
     var resolved = resolveAndValidate(userId, equipmentInput);
     int currentLevel = resolved.currentLevel();
     int targetLevel = currentLevel + 1;

@@ -123,7 +123,12 @@ public class ForgingService {
         targetRecipe.getEquipmentTemplateId());
   }
 
+  private static final int MAX_MATERIAL_TYPES = 3;
+
   public ForgingResultVO forgeManual(Long userId, List<String> materialInputs) {
+    if (materialInputs.size() > MAX_MATERIAL_TYPES) {
+      throw new BusinessException(ErrorCode.FORGING_MATERIAL_TOO_MANY);
+    }
     List<MaterialInput> parsedInputs = parseMaterialInputs(userId, materialInputs);
     if (parsedInputs.isEmpty()) {
       throw new BusinessException(ErrorCode.FORGING_MATERIAL_INPUT_FORMAT);
