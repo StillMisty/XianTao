@@ -9,7 +9,8 @@ public enum ActivityType {
   TRAVEL("TRAVEL", "旅行"),
   TRAINING("TRAINING", "历练"),
   BOUNTY("BOUNTY", "悬赏"),
-  DUNGEON("DUNGEON", "秘境");
+  DUNGEON("DUNGEON", "秘境"),
+  BOUNTY_SIDE("BOUNTY_SIDE", "悬赏事件");
 
   @EnumValue private final String code;
   private final String name;

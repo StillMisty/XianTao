@@ -44,31 +44,7 @@ public class CombatService {
   }
 
   public CombatTeam buildPlayerTeam(User user) {
-    CombatTeam team = new CombatTeam(user.getId(), "Player");
-
-    BuffValues buffs = loadActiveBuffs(user.getId());
-
-    Equipment weapon = findWeapon(user.getId());
-    double attackSpeed = getWeaponAttackSpeed(user.getId(), weapon);
-
-    List<Skill> playerSkills = loadEquippedSkills(user.getId(), weapon);
-
-    team.addMember(
-        new PlayerCombatant(user, weapon, attackSpeed, playerSkills)
-            .withBuffs(buffs.attack, buffs.defense, buffs.speed));
-
-    List<Beast> deployed = beastRepository.findDeployedByUserId(user.getId());
-    for (int i = 0; i < Math.min(deployed.size(), MAX_BEAST_DEPLOY_COUNT); i++) {
-      Beast beast = deployed.get(i);
-      if (beast.canFight()) {
-        List<Skill> beastSkills = List.of();
-        if (beast.getSkills() != null && !beast.getSkills().isEmpty()) {
-          beastSkills = skillRepository.findByIds(beast.getSkills());
-        }
-        team.addMember(new BeastCombatant(beast, beastSkills));
-      }
-    }
-    return team;
+    return buildPlayerTeam(user, Map.of());
   }
 
   /** 构建玩家队伍，使用预加载的技能映射（避免N+1查询） */
@@ -124,6 +100,10 @@ public class CombatService {
             .toList();
 
     if (equippedSkillIds.isEmpty()) return List.of();
+
+    if (skillLookup.isEmpty()) {
+      return loadEquippedSkills(userId, weapon);
+    }
 
     return equippedSkillIds.stream()
         .map(skillLookup::get)

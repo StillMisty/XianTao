@@ -63,6 +63,7 @@ public class DamageCalculator {
     return (int) Math.round(defender.getDefense() * 0.4 * defenseModifier * defenseBonus);
   }
 
+  /** 获取属性克制倍率。仅玩家对怪物生效；灵兽不使用武器，不参与属性克制。 */
   public double getAdvantageMultiplier(Combatant attacker, Combatant defender) {
     if (attacker instanceof PlayerCombatant pc && defender instanceof Monster monster) {
       WeaponType weaponType = pc.getWeaponType();

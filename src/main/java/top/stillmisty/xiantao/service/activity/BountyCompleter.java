@@ -1,6 +1,5 @@
 package top.stillmisty.xiantao.service.activity;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -11,9 +10,10 @@ import top.stillmisty.xiantao.domain.bounty.entity.UserBounty;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
 import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.event.repository.HiddenCompletionRepository;
+import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.service.GameEventService;
 
-/** 悬赏完成器 — 处理悬赏领奖的子事件调节和隐藏事件 */
+/** 悬赏完成器 — 悬赏领奖的子事件调节和隐藏事件 */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -23,14 +23,13 @@ public class BountyCompleter {
 
   private final GameEventService gameEventService;
   private final SubEventSelector subEventSelector;
+  private final SubEventEffectExecutor effectExecutor;
   private final HiddenCompletionRepository hiddenCompletionRepository;
 
   /** 悬赏完成叙事 */
   public void produceCompletionEvent(
       Long userId, String bountyName, List<BountyRewardItem> items, long spiritStones) {
-    Map<String, Object> args = new HashMap<>();
-    args.put("bountyName", bountyName);
-    args.put("spiritStones", spiritStones);
+    Map<String, Object> args = Map.of("bountyName", bountyName, "spiritStones", spiritStones);
     gameEventService.createEvent(
         userId,
         GameEventCategory.BOUNTY_COMPLETE,
@@ -45,57 +44,28 @@ public class BountyCompleter {
         userId, GameEventCategory.BOUNTY_READY, "悬赏「{{bountyName}}」已完成，请使用「悬赏结算」领取奖励。", args);
   }
 
-  /**
-   * 悬赏子事件调节主奖励
-   *
-   * @return 调节后的 spiritStones 数量
-   */
-  public long applySideModifier(
-      Long userId,
-      Long bountyId,
-      String bountyName,
-      List<BountyRewardItem> items,
-      long spiritStones) {
+  /** 悬赏子事件调节主奖励 — 通过 context 传出修改后的灵石数 */
+  public void rollBountySideEvent(
+      Long userId, User user, Long bountyId, String bountyName, Map<String, Object> context) {
     ActivityEvent selected = subEventSelector.selectSubEvent(ACTIVITY_TYPE, bountyId, 1.0);
-    if (selected == null) return spiritStones;
+    if (selected == null) return;
 
-    return switch (selected.getCode()) {
-      case "BONUS_PAY" -> {
-        long bonus = (long) (spiritStones * 0.5);
-        Map<String, Object> args = Map.of("spiritStones", spiritStones + bonus);
-        gameEventService.createEvent(
-            userId,
-            GameEventCategory.BOUNTY_SIDE_MODIFIER,
-            "委托人很满意你的效率，额外给了赏钱。\n✨ 灵石 +{{spiritStones}}",
-            args);
-        yield spiritStones + bonus;
-      }
-      case "SABOTAGE" -> {
-        long reduced = (long) (spiritStones * 0.5);
-        Map<String, Object> args = Map.of("spiritStones", reduced);
-        gameEventService.createEvent(
-            userId,
-            GameEventCategory.BOUNTY_SIDE_MODIFIER,
-            "你在追踪过程中发现目标已被其他猎手抢先一步，损失了一部分战利品。\n✨ 灵石 +{{spiritStones}}",
-            args);
-        yield reduced;
-      }
-      default -> spiritStones;
-    };
+    context.put("bountyName", bountyName);
+    Map<String, Object> templateArgs = effectExecutor.execute(selected, userId, user, context);
+    gameEventService.createEvent(
+        userId, GameEventCategory.BOUNTY_SIDE_MODIFIER, selected.getCode(), templateArgs);
   }
 
-  /** 检查悬赏隐藏事件 (领奖时) */
+  /** 检查悬赏隐藏事件 */
   public void checkHiddenEvents(Long userId, UserBounty record) {
     Map<String, Object> clues = record.getHiddenClues();
     if (clues == null || clues.isEmpty()) return;
-
     String code = (String) clues.get("code");
     if (code == null) return;
 
     var hiddenEvents = subEventSelector.findHiddenEvents(ACTIVITY_TYPE, record.getBountyId());
     for (ActivityEvent event : hiddenEvents) {
       if (!event.getCode().equals(code)) continue;
-
       boolean alreadyDone =
           hiddenCompletionRepository.exists(
               userId, ACTIVITY_TYPE, record.getBountyId(), event.getCode());

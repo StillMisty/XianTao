@@ -30,8 +30,8 @@ CREATE TABLE xt_user
 
     -- 唯一约束：道号必须唯一
     CONSTRAINT uq_nickname UNIQUE (nickname),
-    CONSTRAINT chk_user_status CHECK (status IN ('IDLE', 'TRAINING', 'TRAVELING', 'BOUNTY', 'DYING')),
-    CONSTRAINT chk_user_activity_type CHECK (activity_type IS NULL OR activity_type IN ('TRAVEL', 'TRAINING', 'BOUNTY')),
+    CONSTRAINT chk_user_status CHECK (status IN ('IDLE', 'TRAINING', 'TRAVELING', 'BOUNTY', 'DYING', 'DUNGEON')),
+    CONSTRAINT chk_user_activity_type CHECK (activity_type IS NULL OR activity_type IN ('TRAVEL', 'TRAINING', 'BOUNTY', 'DUNGEON')),
     CONSTRAINT chk_user_level CHECK (level >= 1),
     CONSTRAINT chk_user_exp CHECK (exp >= 0),
     CONSTRAINT chk_user_spirit_stones CHECK (spirit_stones >= 0),

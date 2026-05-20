@@ -55,7 +55,6 @@ public class HighlightBattleDetector {
     List<Map<String, Object>> skillProcs = battleResult.skillProcs();
     if (skillProcs != null) {
       for (Map<String, Object> proc : skillProcs) {
-        String key = (String) proc.get("key");
         int count = (int) proc.get("count");
         // 如果某个技能触发了多次，认为是高光
         if (count >= 3) {

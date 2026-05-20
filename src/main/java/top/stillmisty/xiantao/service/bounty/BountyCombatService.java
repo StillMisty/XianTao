@@ -47,7 +47,7 @@ public class BountyCombatService {
 
   @Transactional
   public BountyRewardVO completeBounty(Long userId) {
-    User user = userStateService.loadUser(userId);
+    User user = userStateService.loadUserForUpdate(userId);
     if (user.getStatus() != UserStatus.BOUNTY) {
       throw new BusinessException(STATUS_BLOCKED, user.getStatus().getName(), "悬赏");
     }
@@ -79,16 +79,16 @@ public class BountyCombatService {
     addRewardsToInventory(userId, items);
 
     // Apply bounty side modifier (子事件调节主奖励)
-    long finalSpiritStones =
-        bountyCompleter.applySideModifier(
-            userId, record.getBountyId(), record.getBountyName(), items, stats.spiritStones);
+    Map<String, Object> sideContext = new HashMap<>();
+    sideContext.put("bountyName", record.getBountyName());
+    long[] rewardHolder = new long[] {stats.spiritStones};
+    sideContext.put("bountyReward", rewardHolder);
+    bountyCompleter.rollBountySideEvent(
+        userId, user, record.getBountyId(), record.getBountyName(), sideContext);
+    long finalSpiritStones = rewardHolder[0];
 
     if (finalSpiritStones > 0) {
-      if (finalSpiritStones > Integer.MAX_VALUE) {
-        log.warn("灵石奖励溢出: {} > Integer.MAX_VALUE，截断为最大值", finalSpiritStones);
-        finalSpiritStones = Integer.MAX_VALUE;
-      }
-      spiritStoneService.deposit(userId, (int) finalSpiritStones);
+      spiritStoneService.deposit(userId, finalSpiritStones);
     }
 
     // Bounty completion event

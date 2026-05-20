@@ -1,6 +1,7 @@
 package top.stillmisty.xiantao.domain.event.repository;
 
 import java.util.List;
+import java.util.Map;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
 
 public interface ActivityEventRepository {
@@ -23,4 +24,11 @@ public interface ActivityEventRepository {
 
   /** 保存 */
   void save(ActivityEvent event);
+
+  /** 按事件类型查询 */
+  List<ActivityEvent> findByType(String activityType, Long ownerId, String eventType);
+
+  /** 批量按类型查询（按 ownerId 分组） */
+  Map<Long, List<ActivityEvent>> findByOwnerIdsAndType(
+      String activityType, List<Long> ownerIds, String eventType);
 }

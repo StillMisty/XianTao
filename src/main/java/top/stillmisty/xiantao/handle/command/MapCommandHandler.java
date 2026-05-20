@@ -146,8 +146,9 @@ public class MapCommandHandler implements CommandGroup {
   }
 
   private String formatTrainingReward(TrainingRewardVO rewards, TextFormat fmt) {
-    if (rewards.getSummary() != null && rewards.getMapName() == null) {
-      return rewards.getSummary();
+    String summary = rewards.getSummary();
+    if (summary != null && rewards.getMapName() == null) {
+      return summary;
     }
     StringBuilder sb = new StringBuilder();
     sb.append(fmt.heading("历练结算"));

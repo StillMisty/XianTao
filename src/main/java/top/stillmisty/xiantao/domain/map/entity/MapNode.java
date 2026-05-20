@@ -40,13 +40,12 @@ public class MapNode extends Model<MapNode> {
   @Column(typeHandler = JsonbCollectionTypeHandler.class)
   private List<NeighborEntry> neighbors;
 
-  /** 历练掉落池/特产 (JSONB) 格式: [{"templateId": 1, "weight": 30}] */
+  /** 特产/掉落池 (JSONB) */
   @Column(typeHandler = JsonbCollectionTypeHandler.class)
   private List<SpecialtyEntry> specialties;
 
-  /** 遇怪池 (JSONB) 格式: [{"templateId": 1, "weight": 50, "min": 1, "max": 3}] */
-  @Column(typeHandler = JsonbCollectionTypeHandler.class)
-  private List<MonsterEncounterEntry> monsterEncounters;
+  /** 事件密集度 1-10, 默认5。越高遇怪/事件越频发 */
+  private Integer encounterRichness;
 
   /** 创建时间 */
   @Column(onInsertValue = "now()")

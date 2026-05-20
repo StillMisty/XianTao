@@ -2,82 +2,66 @@ package top.stillmisty.xiantao.service.combat;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
+import top.stillmisty.xiantao.domain.map.entity.MapNode;
+import top.stillmisty.xiantao.domain.user.entity.User;
 
-/** 遇怪计算器 根据地图难度、玩家等级、装备评分动态计算遇怪间隔 */
+/** 遇怪/事件计算器 — 根据地图密集度、等级匹配度动态计算触发间隔 */
 @Slf4j
 @Component
 public class EncounterCalculator {
 
-  /** 基础遇怪间隔（分钟） */
+  /** 基准间隔（分钟） */
   private static final double BASE_INTERVAL = 10.0;
 
-  /** 地图难度因子系数（最高0.5） */
-  private static final double DIFFICULTY_FACTOR_COEFFICIENT = 0.005;
+  /** 地图凶险系数 */
+  private static final double MAP_DANGER_COEFFICIENT = 0.015;
 
-  /** 玩家等级因子系数（最高0.3） */
-  private static final double LEVEL_FACTOR_COEFFICIENT = 0.0015;
+  /** 等级偏差惩罚系数 */
+  private static final double LEVEL_MISMATCH_COEFFICIENT = 2.5;
 
-  /** 装备评分因子系数（最高0.2） */
-  private static final double GEAR_FACTOR_COEFFICIENT = 0.0002;
+  /** 最小间隔 */
+  private static final double MIN_INTERVAL = 3.0;
 
-  /** 最小遇怪间隔（分钟） */
-  private static final double MIN_INTERVAL = 2.0;
+  /** 最大间隔 */
+  private static final double MAX_INTERVAL = 20.0;
 
-  /**
-   * 计算动态遇怪间隔
-   *
-   * @param mapLevel 地图等级
-   * @param playerLevel 玩家等级
-   * @param gearScore 装备评分
-   * @return 遇怪间隔（分钟）
-   */
-  public double calculateInterval(int mapLevel, int playerLevel, int gearScore) {
-    // 地图难度因子：地图等级越高，遇怪越频繁
-    double difficultyFactor = Math.min(0.5, mapLevel * DIFFICULTY_FACTOR_COEFFICIENT);
+  private final EquipmentRepository equipmentRepository;
 
-    // 玩家等级因子：玩家等级越高，遇怪越频繁
-    double levelFactor = Math.min(0.3, playerLevel * LEVEL_FACTOR_COEFFICIENT);
+  public EncounterCalculator(EquipmentRepository equipmentRepository) {
+    this.equipmentRepository = equipmentRepository;
+  }
 
-    // 装备评分因子：装备越好，遇怪越少（灵压威慑）
-    double gearFactor = Math.min(0.15, gearScore * GEAR_FACTOR_COEFFICIENT);
+  public record EncounterParams(int slots, double perRollChance) {}
 
-    // 计算动态间隔
-    double interval = BASE_INTERVAL * (1 - difficultyFactor) * (1 - levelFactor) * (1 + gearFactor);
+  public EncounterParams compute(Long userId, User user, MapNode mapNode, int durationMinutes) {
+    double interval = calculateInterval(user, mapNode);
+    int slots = (int) (durationMinutes / interval);
+    double perRollChance = Math.min(1.0, 0.4 * BASE_INTERVAL / interval);
+    return new EncounterParams(slots, perRollChance);
+  }
 
-    // 确保最小间隔
-    interval = Math.max(MIN_INTERVAL, interval);
+  double calculateInterval(User user, MapNode mapNode) {
+    int mapLevel = mapNode.getLevelRequirement() != null ? mapNode.getLevelRequirement() : 1;
+    int playerLevel = user.getLevel();
+    int richness = mapNode.getEncounterRichness() != null ? mapNode.getEncounterRichness() : 5;
+
+    double mapDanger = 1.0 + (mapLevel - 1) * MAP_DANGER_COEFFICIENT;
+    int levelDelta = Math.abs(playerLevel - mapLevel);
+    double levelMismatch =
+        1.0 + levelDelta / (double) Math.max(mapLevel, 1) * LEVEL_MISMATCH_COEFFICIENT;
+    double baseInterval = 12.0 - richness;
+
+    double interval = baseInterval * levelMismatch / mapDanger;
+    interval = Math.max(MIN_INTERVAL, Math.min(MAX_INTERVAL, interval));
 
     log.debug(
-        "遇怪间隔计算 - 地图等级: {}, 玩家等级: {}, 装备评分: {}, 间隔: {}分钟",
+        "遇怪间隔计算 - 地图Lv{} 富裕度{} 玩家Lv{} → 间隔={}分钟",
         mapLevel,
+        richness,
         playerLevel,
-        gearScore,
         String.format("%.1f", interval));
 
     return interval;
-  }
-
-  /**
-   * 计算遇怪次数
-   *
-   * @param durationMinutes 历练时长（分钟）
-   * @param interval 遇怪间隔（分钟）
-   * @return 遇怪次数
-   */
-  public int calculateEncounterChances(int durationMinutes, double interval) {
-    return (int) (durationMinutes / interval);
-  }
-
-  /**
-   * 计算遇怪概率（基于间隔） 间隔越短，概率越高
-   *
-   * @param interval 遇怪间隔（分钟）
-   * @return 遇怪概率（0.0-1.0）
-   */
-  public double calculateEncounterChance(double interval) {
-    // 基础概率40%，间隔越短概率越高
-    double baseChance = 0.4;
-    double intervalFactor = BASE_INTERVAL / interval;
-    return Math.min(1.0, baseChance * intervalFactor);
   }
 }

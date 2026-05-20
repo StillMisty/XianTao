@@ -21,4 +21,6 @@ public record CombatLogEntry(
     SKILL,
     CONTROLLED
   }
+
+  // convenience: fully specified with all fields
 }

@@ -73,7 +73,7 @@ public class BountyService {
     try {
       id = Long.parseLong(bountyId);
     } catch (NumberFormatException e) {
-      return new ServiceResult.Failure<>("INVALID_INPUT", "请输入有效的悬赏编号");
+      return new ServiceResult.Failure<>(BOUNTY_ID_INVALID.name(), "请输入有效的悬赏编号");
     }
     return new ServiceResult.Success<>(startBounty(userId, id));
   }
@@ -201,8 +201,9 @@ public class BountyService {
     return bountyCombatService.completeBounty(userId);
   }
 
+  @Transactional
   public String abandonBounty(Long userId) {
-    User user = userStateService.loadUser(userId);
+    User user = userStateService.loadUserForUpdate(userId);
     if (user.getStatus() != UserStatus.BOUNTY) {
       throw new BusinessException(STATUS_BLOCKED, user.getStatus().getName(), "悬赏");
     }

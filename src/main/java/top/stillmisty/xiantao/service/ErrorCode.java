@@ -93,6 +93,7 @@ public enum ErrorCode {
   BOUNTY_WRONG_MAP("该悬赏不属于当前地图"),
   BOUNTY_LEVEL_INSUFFICIENT("等级不足，无法接取该悬赏"),
   BOUNTY_TIME_REMAINING("悬赏「%s」还需 %d 分钟（共需 %d 分）"),
+  BOUNTY_ID_INVALID("请输入有效的悬赏编号"),
 
   // ===== Status =====
   STATUS_BLOCKED("您当前处于 %s 状态，无法进行此操作（需要 %s 状态）"),

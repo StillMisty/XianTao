@@ -28,6 +28,9 @@ public class ActivityEvent {
 
   private String code;
 
+  /** 事件类型: NUMERIC(数值效果) / COMBAT(遇怪战斗) */
+  private String eventType;
+
   private Integer weight;
 
   private Boolean isHidden;

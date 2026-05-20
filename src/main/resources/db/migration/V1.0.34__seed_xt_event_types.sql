@@ -15,17 +15,17 @@ INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
 ('TRAVEL', 'travel_fallen_star', '陨星坠地', '一颗流星在你前方不远处坠落了——赶去看看有没有陨铁。'),
 ('TRAVEL', 'travel_spring_of_spirit', '灵泉偶遇', '路边突然出现一汪灵气四溢的泉水，看起来可以喝。'),
 -- TRAINING 事件
-('TRAINING', 'training_rare_herb_found', '发现珍稀药草', '在历练时偶然发现了一株罕见的药草，运气不错！'),
-('TRAINING', 'training_monster_swarm', '遭遇妖兽群', '一群妖兽突然从四面八方冒出来，数量比预想的多一倍。'),
+('TRAINING', 'training_rare_herb_found', '发现珍稀药草', '在历练时偶然发现了一株{{herb}}，采集到 ×{{count}}，运气不错！'),
+('TRAINING', 'training_monster_swarm', '遭遇妖兽群', '一群妖兽突然从四面八方冒出来，多了{{count}}只妖兽！你奋力击退兽群，获得 +{{exp}} exp。'),
 ('TRAINING', 'training_ancient_ruins', '发现远古遗迹', '在历练地发现了一个此前不为人知的远古遗迹入口。'),
-('TRAINING', 'training_meditation_epiphany', '静坐顿悟', '在历练中突有所感，就地打坐悟出了些许天道碎片。'),
+('TRAINING', 'training_meditation_epiphany', '静坐顿悟', '在历练中突有所感，就地打坐悟出些许天道碎片，获得 +{{exp}} exp。'),
 ('TRAINING', 'training_rival_encounter', '遇到竞争对手', '另一个修士也在同一片区域历练——他好像不太友善。'),
-('TRAINING', 'training_buried_treasure', '挖出宝贝', '地上有一块松土，挖开发现不知是谁埋的宝贝。'),
-('TRAINING', 'training_strange_stone', '奇石异象', '一块石头在你靠近时发出了微弱的光芒——它不普通。'),
-('TRAINING', 'training_evil_presence', '邪气侵体', '突然感到一阵莫名的寒意——这片区域有邪物作祟。'),
-('TRAINING', 'training_spirit_guide', '灵体引路', '一个友善的灵体出现在面前，它似乎想带你去什么地方。'),
-('TRAINING', 'training_qi_storm', '灵气风暴', '灵气突然狂暴起来形成了风暴——站住了别被吹走修炼就在风暴眼。'),
-('TRAINING', 'training_beast_den_found', '发现妖兽巢穴', '一个妖兽的巢穴——里面可能有幼崽或蛋。'),
+('TRAINING', 'training_buried_treasure', '挖出宝贝', '挖开一块松土发现了不知谁埋的宝贝：{{item}} ×{{count}}。'),
+('TRAINING', 'training_strange_stone', '奇石异象', '奇石在你靠近时发出微光，竟是{{item}} ×{{count}}。'),
+('TRAINING', 'training_evil_presence', '邪气侵体', '一阵莫名阴寒袭来，邪气侵体，受到 {{damage}} 点伤害。'),
+('TRAINING', 'training_spirit_guide', '灵体引路', '友善灵体引领你去了一处灵气浓郁之地，获得 +{{exp}} exp。'),
+('TRAINING', 'training_qi_storm', '灵气风暴', '灵气狂暴形成风暴！你在风暴眼稳守心神修炼，获得 +{{exp}} exp。'),
+('TRAINING', 'training_beast_den_found', '发现妖兽巢穴', '发现妖兽巢穴，翻找到妖兽藏匿的宝贝。'),
 -- BOUNTY_SIDE 事件
 ('BOUNTY_SIDE', 'bounty_clue_found', '找到悬赏线索', '在执行悬赏过程中发现了额外的线索——任务可能比想象的复杂。'),
 ('BOUNTY_SIDE', 'bounty_betrayal', '委托人的背叛', '委托人其实是个骗子——他的真实目的另有隐情。'),
@@ -38,90 +38,1054 @@ INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
 
 -- ============ xt_activity_event (活动事件关联) ============
 -- TRAVEL events (owner_id = map_id)
-INSERT INTO xt_activity_event (activity_type, owner_id, code, weight, is_hidden, trigger_type, trigger_params, params) VALUES
-('TRAVEL', 1, 'travel_ambush_beast', 20, false, NULL, '{}', '{}'),
-('TRAVEL', 1, 'travel_broken_cart', 15, false, NULL, '{}', '{"item_chance":0.3,"items":["灵芝","玄铁矿石"]}'),
-('TRAVEL', 1, 'travel_friendly_merchant', 10, false, NULL, '{}', '{}'),
-('TRAVEL', 2, 'travel_strange_fog', 15, false, NULL, '{}', '{}'),
-('TRAVEL', 2, 'travel_injured_cultivator', 10, false, NULL, '{}', '{"reward_exp":50}'),
-('TRAVEL', 3, 'travel_fallen_star', 10, false, NULL, '{}', '{"item":"玄铁矿石","count":1}'),
-('TRAVEL', 4, 'travel_spring_of_spirit', 12, false, NULL, '{}', '{"buff_type":"heal","amount":100}'),
-('TRAVEL', 4, 'travel_broken_cart', 8, false, NULL, '{}', '{}'),
-('TRAVEL', 5, 'travel_rainstorm', 15, false, NULL, '{}', '{}'),
-('TRAVEL', 6, 'travel_friendly_merchant', 15, false, NULL, '{}', '{}'),
-('TRAVEL', 6, 'travel_wandering_elder', 5, false, 'STAT_THRESHOLD', '{"stat":"WIS","min":20}', '{}'),
-('TRAVEL', 7, 'travel_treasure_map', 8, false, NULL, '{}', '{}'),
-('TRAVEL', 8, 'travel_strange_fog', 15, false, NULL, '{}', '{}'),
-('TRAVEL', 10, 'travel_bandit_roadblock', 15, false, NULL, '{}', '{}'),
-('TRAVEL', 11, 'travel_friendly_merchant', 12, false, NULL, '{}', '{}'),
-('TRAVEL', 11, 'travel_wandering_elder', 6, false, 'STAT_THRESHOLD', '{"stat":"WIS","min":45}', '{}'),
-('TRAVEL', 17, 'travel_strange_fog', 20, false, NULL, '{}', '{}'),
-('TRAVEL', 24, 'travel_spring_of_spirit', 10, false, NULL, '{}', '{"buff_type":"heal","amount":500}'),
-('TRAVEL', 27, 'travel_fallen_star', 12, false, NULL, '{}', '{"item":"天外陨铁","count":1}'),
-('TRAVEL', 30, 'travel_fallen_star', 15, false, NULL, '{}', '{"item":"星辰石","count":1}'),
-('TRAVEL', 35, 'travel_strange_fog', 15, false, 'HAS_ITEM', '{"item_name":"魂玉碎片"}', '{}'),
-('TRAVEL', 39, 'travel_fallen_star', 8, false, NULL, '{}', '{}'),
-('TRAVEL', 42, 'travel_wandering_elder', 10, false, NULL, '{}', '{"wisdom_buff":50}');
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, is_hidden, trigger_type, trigger_params, params) VALUES
+('TRAVEL', 1, 'travel_ambush_beast', 'NUMERIC', 20, false, NULL, '{}', '{}'),
+('TRAVEL', 1, 'travel_broken_cart', 'NUMERIC', 15, false, NULL, '{}', '{"item_chance":0.3,"items":["灵芝","玄铁矿石"]}'),
+('TRAVEL', 1, 'travel_friendly_merchant', 'NUMERIC', 10, false, NULL, '{}', '{}'),
+('TRAVEL', 2, 'travel_strange_fog', 'NUMERIC', 15, false, NULL, '{}', '{}'),
+('TRAVEL', 2, 'travel_injured_cultivator', 'NUMERIC', 10, false, NULL, '{}', '{"reward_exp":50}'),
+('TRAVEL', 3, 'travel_fallen_star', 'NUMERIC', 10, false, NULL, '{}', '{"item":"玄铁矿石","count":1}'),
+('TRAVEL', 4, 'travel_spring_of_spirit', 'NUMERIC', 12, false, NULL, '{}', '{"buff_type":"heal","amount":100}'),
+('TRAVEL', 4, 'travel_broken_cart', 'NUMERIC', 8, false, NULL, '{}', '{}'),
+('TRAVEL', 5, 'travel_rainstorm', 'NUMERIC', 15, false, NULL, '{}', '{}'),
+('TRAVEL', 6, 'travel_friendly_merchant', 'NUMERIC', 15, false, NULL, '{}', '{}'),
+('TRAVEL', 6, 'travel_wandering_elder', 'NUMERIC', 5, false, 'STAT_THRESHOLD', '{"stat":"WIS","min":20}', '{}'),
+('TRAVEL', 7, 'travel_treasure_map', 'NUMERIC', 8, false, NULL, '{}', '{}'),
+('TRAVEL', 8, 'travel_strange_fog', 'NUMERIC', 15, false, NULL, '{}', '{}'),
+('TRAVEL', 10, 'travel_bandit_roadblock', 'NUMERIC', 15, false, NULL, '{}', '{}'),
+('TRAVEL', 11, 'travel_friendly_merchant', 'NUMERIC', 12, false, NULL, '{}', '{}'),
+('TRAVEL', 11, 'travel_wandering_elder', 'NUMERIC', 6, false, 'STAT_THRESHOLD', '{"stat":"WIS","min":45}', '{}'),
+('TRAVEL', 17, 'travel_strange_fog', 'NUMERIC', 20, false, NULL, '{}', '{}'),
+('TRAVEL', 24, 'travel_spring_of_spirit', 'NUMERIC', 10, false, NULL, '{}', '{"buff_type":"heal","amount":500}'),
+('TRAVEL', 27, 'travel_fallen_star', 'NUMERIC', 12, false, NULL, '{}', '{"item":"天外陨铁","count":1}'),
+('TRAVEL', 30, 'travel_fallen_star', 'NUMERIC', 15, false, NULL, '{}', '{"item":"星辰石","count":1}'),
+('TRAVEL', 35, 'travel_strange_fog', 'NUMERIC', 15, false, 'HAS_ITEM', '{"item_name":"魂玉碎片"}', '{}'),
+('TRAVEL', 39, 'travel_fallen_star', 'NUMERIC', 8, false, NULL, '{}', '{}'),
+('TRAVEL', 42, 'travel_wandering_elder', 'NUMERIC', 10, false, NULL, '{}', '{"wisdom_buff":50}');
 
 -- TRAINING events (owner_id = map_id)
-INSERT INTO xt_activity_event (activity_type, owner_id, code, weight, is_hidden, trigger_type, trigger_params, params) VALUES
-('TRAINING', 2, 'training_rare_herb_found', 15, false, NULL, '{}', '{"herb":"灵芝","min":2,"max":4}'),
-('TRAINING', 2, 'training_monster_swarm', 15, false, NULL, '{}', '{"extra_monster_count":2}'),
-('TRAINING', 3, 'training_buried_treasure', 10, false, NULL, '{}', '{"item":"玄铁矿石","count":2}'),
-('TRAINING', 3, 'training_strange_stone', 8, false, NULL, '{}', '{"item":"赤铜矿","count":1}'),
-('TRAINING', 4, 'training_qi_storm', 10, false, NULL, '{}', '{"exp_boost":50}'),
-('TRAINING', 5, 'training_rival_encounter', 10, false, NULL, '{}', '{}'),
-('TRAINING', 7, 'training_rare_herb_found', 12, false, NULL, '{}', '{"herb":"地火芝","min":1,"max":3}'),
-('TRAINING', 8, 'training_evil_presence', 12, false, NULL, '{}', '{}'),
-('TRAINING', 9, 'training_ancient_ruins', 15, false, NULL, '{}', '{}'),
-('TRAINING', 12, 'training_monster_swarm', 15, false, NULL, '{}', '{"extra_monster_count":3}'),
-('TRAINING', 12, 'training_beast_den_found', 10, false, NULL, '{}', '{}'),
-('TRAINING', 14, 'training_meditation_epiphany', 15, false, NULL, '{}', '{"exp_boost":200}'),
-('TRAINING', 15, 'training_ancient_ruins', 12, false, 'HAS_SKILL', '{"skill_name":"青莲剑歌"}', '{"extra_loot":true}'),
-('TRAINING', 16, 'training_rare_herb_found', 15, false, NULL, '{}', '{"herb":"地火芝","min":2,"max":5}'),
-('TRAINING', 20, 'training_strange_stone', 10, false, NULL, '{}', '{"item":"紫金砂","count":2}'),
-('TRAINING', 23, 'training_spirit_guide', 10, false, NULL, '{}', '{}'),
-('TRAINING', 27, 'training_evil_presence', 15, false, NULL, '{}', '{}'),
-('TRAINING', 29, 'training_meditation_epiphany', 15, false, NULL, '{}', '{"exp_boost":500}'),
-('TRAINING', 32, 'training_qi_storm', 20, false, NULL, '{}', '{"exp_boost":300}'),
-('TRAINING', 34, 'training_meditation_epiphany', 20, false, NULL, '{}', '{"exp_boost":800}'),
-('TRAINING', 38, 'training_spirit_guide', 12, false, NULL, '{}', '{}'),
-('TRAINING', 39, 'training_meditation_epiphany', 15, false, NULL, '{}', '{"exp_boost":1000}'),
-('TRAINING', 41, 'training_qi_storm', 15, false, NULL, '{}', '{"exp_boost":500}');
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, is_hidden, trigger_type, trigger_params, params) VALUES
+('TRAINING', 2, 'training_rare_herb_found', 'NUMERIC', 15, false, NULL, '{}', '{"herb":"灵芝","min":2,"max":4}'),
+('TRAINING', 2, 'training_monster_swarm', 'NUMERIC', 15, false, NULL, '{}', '{"extra_monster_count":2}'),
+('TRAINING', 3, 'training_buried_treasure', 'NUMERIC', 10, false, NULL, '{}', '{"item":"玄铁矿石","count":2}'),
+('TRAINING', 3, 'training_strange_stone', 'NUMERIC', 8, false, NULL, '{}', '{"item":"赤铜矿","count":1}'),
+('TRAINING', 4, 'training_qi_storm', 'NUMERIC', 10, false, NULL, '{}', '{"exp_boost":50}'),
+('TRAINING', 5, 'training_rival_encounter', 'NUMERIC', 10, false, NULL, '{}', '{}'),
+('TRAINING', 7, 'training_rare_herb_found', 'NUMERIC', 12, false, NULL, '{}', '{"herb":"地火芝","min":1,"max":3}'),
+('TRAINING', 8, 'training_evil_presence', 'NUMERIC', 12, false, NULL, '{}', '{}'),
+('TRAINING', 9, 'training_ancient_ruins', 'NUMERIC', 15, false, NULL, '{}', '{}'),
+('TRAINING', 12, 'training_monster_swarm', 'NUMERIC', 15, false, NULL, '{}', '{"extra_monster_count":3}'),
+('TRAINING', 12, 'training_beast_den_found', 'NUMERIC', 10, false, NULL, '{}', '{}'),
+('TRAINING', 14, 'training_meditation_epiphany', 'NUMERIC', 15, false, NULL, '{}', '{"exp_boost":200}'),
+('TRAINING', 15, 'training_ancient_ruins', 'NUMERIC', 12, false, 'HAS_SKILL', '{"skill_name":"青莲剑歌"}', '{"extra_loot":true}'),
+('TRAINING', 16, 'training_rare_herb_found', 'NUMERIC', 15, false, NULL, '{}', '{"herb":"地火芝","min":2,"max":5}'),
+('TRAINING', 20, 'training_strange_stone', 'NUMERIC', 10, false, NULL, '{}', '{"item":"紫金砂","count":2}'),
+('TRAINING', 23, 'training_spirit_guide', 'NUMERIC', 10, false, NULL, '{}', '{}'),
+('TRAINING', 27, 'training_evil_presence', 'NUMERIC', 15, false, NULL, '{}', '{}'),
+('TRAINING', 29, 'training_meditation_epiphany', 'NUMERIC', 15, false, NULL, '{}', '{"exp_boost":500}'),
+('TRAINING', 32, 'training_qi_storm', 'NUMERIC', 20, false, NULL, '{}', '{"exp_boost":300}'),
+('TRAINING', 34, 'training_meditation_epiphany', 'NUMERIC', 20, false, NULL, '{}', '{"exp_boost":800}'),
+('TRAINING', 38, 'training_spirit_guide', 'NUMERIC', 12, false, NULL, '{}', '{}'),
+('TRAINING', 39, 'training_meditation_epiphany', 'NUMERIC', 15, false, NULL, '{}', '{"exp_boost":1000}'),
+('TRAINING', 41, 'training_qi_storm', 'NUMERIC', 15, false, NULL, '{}', '{"exp_boost":500}');
 
 -- Hidden TRAVEL events
-INSERT INTO xt_activity_event (activity_type, owner_id, code, weight, is_hidden, trigger_type, trigger_params, params) VALUES
-('TRAVEL', 9, 'travel_treasure_map', 10, true, 'HAS_ITEM', '{"item_name":"青云令牌"}', '{"hidden":"青云密道已现"}'),
-('TRAVEL', 14, 'travel_wandering_elder', 8, true, 'STAT_THRESHOLD', '{"stat":"WIS","min":50}', '{"item":"大悟道丹","count":1}'),
-('TRAVEL', 28, 'travel_spring_of_spirit', 10, true, 'HAS_ITEM', '{"item_name":"九转金莲"}', '{}'),
-('TRAVEL', 33, 'travel_bandit_roadblock', 10, true, 'HAS_SKILL', '{"skill_name":"刑天斧法"}', '{}');
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, is_hidden, trigger_type, trigger_params, params) VALUES
+('TRAVEL', 9, 'travel_treasure_map', 'NUMERIC', 10, true, 'HAS_ITEM', '{"item_name":"青云令牌"}', '{"hidden":"青云密道已现"}'),
+('TRAVEL', 14, 'travel_wandering_elder', 'NUMERIC', 8, true, 'STAT_THRESHOLD', '{"stat":"WIS","min":50}', '{"item":"大悟道丹","count":1}'),
+('TRAVEL', 28, 'travel_spring_of_spirit', 'NUMERIC', 10, true, 'HAS_ITEM', '{"item_name":"九转金莲"}', '{}'),
+('TRAVEL', 33, 'travel_bandit_roadblock', 'NUMERIC', 10, true, 'HAS_SKILL', '{"skill_name":"刑天斧法"}', '{}');
 
 -- Hidden TRAINING events
-INSERT INTO xt_activity_event (activity_type, owner_id, code, weight, is_hidden, trigger_type, trigger_params, params) VALUES
-('TRAINING', 29, 'training_spirit_guide', 8, true, 'HAS_SKILL', '{"skill_name":"一气化三清"}', '{"item":"封神榜碎片","count":1}'),
-('TRAINING', 31, 'training_rare_herb_found', 10, true, 'HAS_ITEM', '{"item_name":"紫府秘匙"}', '{"item":"九天仙草","count":1}'),
-('TRAINING', 40, 'training_meditation_epiphany', 8, true, 'STAT_THRESHOLD', '{"stat":"WIS","min":85}', '{"exp_boost":5000}'),
-('TRAINING', 44, 'training_ancient_ruins', 5, true, 'HAS_SKILL', '{"skill_name":"轩辕剑法"}', '{"item":"轩辕剑","count":1}');
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, is_hidden, trigger_type, trigger_params, params) VALUES
+('TRAINING', 29, 'training_spirit_guide', 'NUMERIC', 8, true, 'HAS_SKILL', '{"skill_name":"一气化三清"}', '{"item":"封神榜碎片","count":1}'),
+('TRAINING', 31, 'training_rare_herb_found', 'NUMERIC', 10, true, 'HAS_ITEM', '{"item_name":"紫府秘匙"}', '{"item":"九天仙草","count":1}'),
+('TRAINING', 40, 'training_meditation_epiphany', 'NUMERIC', 8, true, 'STAT_THRESHOLD', '{"stat":"WIS","min":85}', '{"exp_boost":5000}'),
+('TRAINING', 44, 'training_ancient_ruins', 'NUMERIC', 5, true, 'HAS_SKILL', '{"skill_name":"轩辕剑法"}', '{"item":"轩辕剑","count":1}');
 
 -- BOUNTY_SIDE events (owner_id = bounty_id, using codes from event_type)
-INSERT INTO xt_activity_event (activity_type, owner_id, code, weight, is_hidden, trigger_type, trigger_params, params) VALUES
-('BOUNTY_SIDE', 1, 'bounty_clue_found', 20, false, NULL, '{}', '{}'),
-('BOUNTY_SIDE', 5, 'bounty_monster_interference', 15, false, NULL, '{}', '{}'),
-('BOUNTY_SIDE', 10, 'bounty_extra_target', 12, false, NULL, '{}', '{}'),
-('BOUNTY_SIDE', 15, 'bounty_hidden_cache', 10, false, NULL, '{}', '{"item":"聚灵丹","count":3}'),
-('BOUNTY_SIDE', 20, 'bounty_rival_hunter', 12, false, NULL, '{}', '{}'),
-('BOUNTY_SIDE', 25, 'bounty_witness_arrives', 10, false, NULL, '{}', '{}'),
-('BOUNTY_SIDE', 30, 'bounty_betrayal', 8, true, NULL, '{}', '{}'),
-('BOUNTY_SIDE', 40, 'bounty_clue_found', 15, false, NULL, '{}', '{}'),
-('BOUNTY_SIDE', 50, 'bounty_monster_interference', 15, false, NULL, '{}', '{}'),
-('BOUNTY_SIDE', 60, 'bounty_cultivation_boost', 10, false, NULL, '{}', '{"exp_boost":100}'),
-('BOUNTY_SIDE', 70, 'bounty_extra_target', 12, false, NULL, '{}', '{}'),
-('BOUNTY_SIDE', 80, 'bounty_hidden_cache', 10, false, NULL, '{}', '{}'),
-('BOUNTY_SIDE', 100, 'bounty_betrayal', 8, true, NULL, '{}', '{"reward_boost":2}'),
-('BOUNTY_SIDE', 120, 'bounty_rival_hunter', 12, false, NULL, '{}', '{}'),
-('BOUNTY_SIDE', 150, 'bounty_witness_arrives', 10, false, NULL, '{}', '{}'),
-('BOUNTY_SIDE', 200, 'bounty_cultivation_boost', 8, false, NULL, '{}', '{"exp_boost":300}'),
-('BOUNTY_SIDE', 250, 'bounty_clue_found', 15, false, NULL, '{}', '{}'),
-('BOUNTY_SIDE', 300, 'bounty_monster_interference', 12, false, NULL, '{}', '{}'),
-('BOUNTY_SIDE', 350, 'bounty_extra_target', 10, false, NULL, '{}', '{}'),
-('BOUNTY_SIDE', 400, 'bounty_cultivation_boost', 5, true, NULL, '{}', '{"exp_boost":1000}');
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, is_hidden, trigger_type, trigger_params, params) VALUES
+('BOUNTY_SIDE', 1, 'bounty_clue_found', 'NUMERIC', 20, false, NULL, '{}', '{}'),
+('BOUNTY_SIDE', 5, 'bounty_monster_interference', 'NUMERIC', 15, false, NULL, '{}', '{}'),
+('BOUNTY_SIDE', 10, 'bounty_extra_target', 'NUMERIC', 12, false, NULL, '{}', '{}'),
+('BOUNTY_SIDE', 15, 'bounty_hidden_cache', 'NUMERIC', 10, false, NULL, '{}', '{"item":"聚灵丹","count":3}'),
+('BOUNTY_SIDE', 20, 'bounty_rival_hunter', 'NUMERIC', 12, false, NULL, '{}', '{}'),
+('BOUNTY_SIDE', 25, 'bounty_witness_arrives', 'NUMERIC', 10, false, NULL, '{}', '{}'),
+('BOUNTY_SIDE', 30, 'bounty_betrayal', 'NUMERIC', 8, true, NULL, '{}', '{}'),
+('BOUNTY_SIDE', 40, 'bounty_clue_found', 'NUMERIC', 15, false, NULL, '{}', '{}'),
+('BOUNTY_SIDE', 50, 'bounty_monster_interference', 'NUMERIC', 15, false, NULL, '{}', '{}'),
+('BOUNTY_SIDE', 60, 'bounty_cultivation_boost', 'NUMERIC', 10, false, NULL, '{}', '{"exp_boost":100}'),
+('BOUNTY_SIDE', 70, 'bounty_extra_target', 'NUMERIC', 12, false, NULL, '{}', '{}'),
+('BOUNTY_SIDE', 80, 'bounty_hidden_cache', 'NUMERIC', 10, false, NULL, '{}', '{}'),
+('BOUNTY_SIDE', 100, 'bounty_betrayal', 'NUMERIC', 8, true, NULL, '{}', '{"reward_boost":2}'),
+('BOUNTY_SIDE', 120, 'bounty_rival_hunter', 'NUMERIC', 12, false, NULL, '{}', '{}'),
+('BOUNTY_SIDE', 150, 'bounty_witness_arrives', 'NUMERIC', 10, false, NULL, '{}', '{}'),
+('BOUNTY_SIDE', 200, 'bounty_cultivation_boost', 'NUMERIC', 8, false, NULL, '{}', '{"exp_boost":300}'),
+('BOUNTY_SIDE', 250, 'bounty_clue_found', 'NUMERIC', 15, false, NULL, '{}', '{}'),
+('BOUNTY_SIDE', 300, 'bounty_monster_interference', 'NUMERIC', 12, false, NULL, '{}', '{}'),
+('BOUNTY_SIDE', 350, 'bounty_extra_target', 'NUMERIC', 10, false, NULL, '{}', '{}'),
+('BOUNTY_SIDE', 400, 'bounty_cultivation_boost', 'NUMERIC', 5, true, NULL, '{}', '{"exp_boost":1000}');
+
+-- COMBAT event type definitions (migrated from xt_map_node.monster_encounters)
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_野狼', '野狼', '遭遇野狼');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_毒蛇', '毒蛇', '遭遇毒蛇');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_山魈', '山魈', '遭遇山魈');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_妖鼠', '妖鼠', '遭遇妖鼠');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_食人花', '食人花', '遭遇食人花');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_石灵', '石灵', '遭遇石灵');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_野猪妖', '野猪妖', '遭遇野猪妖');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_骷髅兵', '骷髅兵', '遭遇骷髅兵');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_风狼', '风狼', '遭遇风狼');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_树精', '树精', '遭遇树精');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_冰狼', '冰狼', '遭遇冰狼');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_石甲龟', '石甲龟', '遭遇石甲龟');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_火焰蜥', '火焰蜥', '遭遇火焰蜥');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_幽魂', '幽魂', '遭遇幽魂');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_螳螂妖', '螳螂妖', '遭遇螳螂妖');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_山贼', '山贼', '遭遇山贼');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_蝙蝠妖', '蝙蝠妖', '遭遇蝙蝠妖');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_铁甲虫', '铁甲虫', '遭遇铁甲虫');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_水鬼', '水鬼', '遭遇水鬼');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_妖狐', '妖狐', '遭遇妖狐');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_怨灵', '怨灵', '遭遇怨灵');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_血蝠', '血蝠', '遭遇血蝠');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_石魔', '石魔', '遭遇石魔');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_妖道', '妖道', '遭遇妖道');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_冰蚕', '冰蚕', '遭遇冰蚕');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_猿妖', '猿妖', '遭遇猿妖');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_毒蟾', '毒蟾', '遭遇毒蟾');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_蛇妖', '蛇妖', '遭遇蛇妖');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_摄魂妖', '摄魂妖', '遭遇摄魂妖');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_飞头蛮', '飞头蛮', '遭遇飞头蛮');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_熔岩巨兽', '熔岩巨兽', '遭遇熔岩巨兽');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_雪女', '雪女', '遭遇雪女');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_夜叉', '夜叉', '遭遇夜叉');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_金甲尸', '金甲尸', '遭遇金甲尸');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_狮鹫', '狮鹫', '遭遇狮鹫');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_千年树妖', '千年树妖', '遭遇千年树妖');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_雷鹰', '雷鹰', '遭遇雷鹰');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_修罗', '修罗', '遭遇修罗');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_黑风老妖', '黑风老妖', '遭遇黑风老妖');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_九尾妖狐', '九尾妖狐', '遭遇九尾妖狐');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_火凤雏', '火凤雏', '遭遇火凤雏');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_山鬼', '山鬼', '遭遇山鬼');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_蜚廉', '蜚廉', '遭遇蜚廉');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_幽冥骑士', '幽冥骑士', '遭遇幽冥骑士');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_蛟龙', '蛟龙', '遭遇蛟龙');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_天罗蛛', '天罗蛛', '遭遇天罗蛛');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_梼杌', '梼杌', '遭遇梼杌');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_夔牛', '夔牛', '遭遇夔牛');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_金乌', '金乌', '遭遇金乌');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_旱魃', '旱魃', '遭遇旱魃');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_白泽', '白泽', '遭遇白泽');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_烛龙', '烛龙', '遭遇烛龙');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_天魔王', '天魔王', '遭遇天魔王');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_麒麟', '麒麟', '遭遇麒麟');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_相柳', '相柳', '遭遇相柳');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_刑天', '刑天', '遭遇刑天');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_毕方', '毕方', '遭遇毕方');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_应龙', '应龙', '遭遇应龙');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_守鹤', '守鹤', '遭遇守鹤');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_鲲鹏', '鲲鹏', '遭遇鲲鹏');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_神龙', '神龙', '遭遇神龙');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_阎罗天子', '阎罗天子', '遭遇阎罗天子');
+
+INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
+('TRAINING', 'combat_monster_原始天魔', '原始天魔', '遭遇原始天魔');
+
+-- COMBAT activity events
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 2, 'combat_monster_野狼', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''野狼''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 2, 'combat_monster_毒蛇', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''毒蛇''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 2, 'combat_monster_山魈', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''山魈''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 2, 'combat_monster_妖鼠', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''妖鼠''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 2, 'combat_monster_食人花', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''食人花''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 3, 'combat_monster_石灵', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''石灵''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 3, 'combat_monster_妖鼠', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''妖鼠''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 3, 'combat_monster_山魈', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''山魈''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 3, 'combat_monster_野猪妖', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''野猪妖''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 3, 'combat_monster_骷髅兵', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''骷髅兵''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 4, 'combat_monster_毒蛇', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''毒蛇''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 4, 'combat_monster_风狼', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''风狼''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 4, 'combat_monster_树精', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''树精''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 4, 'combat_monster_冰狼', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''冰狼''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 4, 'combat_monster_石甲龟', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''石甲龟''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 5, 'combat_monster_火焰蜥', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''火焰蜥''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 5, 'combat_monster_树精', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''树精''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 5, 'combat_monster_幽魂', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''幽魂''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 5, 'combat_monster_螳螂妖', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''螳螂妖''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 5, 'combat_monster_山贼', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''山贼''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 7, 'combat_monster_蝙蝠妖', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''蝙蝠妖''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 7, 'combat_monster_铁甲虫', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''铁甲虫''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 7, 'combat_monster_水鬼', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''水鬼''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 7, 'combat_monster_螳螂妖', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''螳螂妖''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 7, 'combat_monster_妖狐', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''妖狐''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 8, 'combat_monster_幽魂', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''幽魂''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 8, 'combat_monster_铁甲虫', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''铁甲虫''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 8, 'combat_monster_怨灵', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''怨灵''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 8, 'combat_monster_蝙蝠妖', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''蝙蝠妖''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 8, 'combat_monster_血蝠', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''血蝠''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 9, 'combat_monster_石魔', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''石魔''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 9, 'combat_monster_妖道', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''妖道''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 9, 'combat_monster_怨灵', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''怨灵''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 9, 'combat_monster_幽魂', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''幽魂''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 12, 'combat_monster_怨灵', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''怨灵''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 12, 'combat_monster_冰蚕', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''冰蚕''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 12, 'combat_monster_猿妖', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''猿妖''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 12, 'combat_monster_血蝠', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''血蝠''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 12, 'combat_monster_毒蟾', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''毒蟾''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 12, 'combat_monster_蛇妖', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''蛇妖''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 13, 'combat_monster_怨灵', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''怨灵''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 13, 'combat_monster_摄魂妖', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''摄魂妖''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 13, 'combat_monster_妖道', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''妖道''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 13, 'combat_monster_飞头蛮', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''飞头蛮''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 13, 'combat_monster_熔岩巨兽', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''熔岩巨兽''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 13, 'combat_monster_雪女', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''雪女''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 14, 'combat_monster_熔岩巨兽', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''熔岩巨兽''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 14, 'combat_monster_摄魂妖', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''摄魂妖''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 14, 'combat_monster_夜叉', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''夜叉''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 14, 'combat_monster_金甲尸', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''金甲尸''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 15, 'combat_monster_蛇妖', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''蛇妖''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 15, 'combat_monster_猿妖', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''猿妖''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 15, 'combat_monster_狮鹫', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''狮鹫''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 15, 'combat_monster_摄魂妖', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''摄魂妖''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 15, 'combat_monster_千年树妖', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''千年树妖''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 15, 'combat_monster_雷鹰', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''雷鹰''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 16, 'combat_monster_熔岩巨兽', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''熔岩巨兽''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 16, 'combat_monster_修罗', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''修罗''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 16, 'combat_monster_夜叉', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''夜叉''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 16, 'combat_monster_狮鹫', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''狮鹫''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 16, 'combat_monster_飞头蛮', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''飞头蛮''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 16, 'combat_monster_摄魂妖', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''摄魂妖''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 17, 'combat_monster_熔岩巨兽', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''熔岩巨兽''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 17, 'combat_monster_千年树妖', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''千年树妖''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 17, 'combat_monster_狮鹫', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''狮鹫''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 17, 'combat_monster_雷鹰', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''雷鹰''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 17, 'combat_monster_黑风老妖', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''黑风老妖''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 17, 'combat_monster_九尾妖狐', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''九尾妖狐''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 19, 'combat_monster_黑风老妖', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''黑风老妖''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 19, 'combat_monster_雷鹰', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''雷鹰''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 19, 'combat_monster_火凤雏', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''火凤雏''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 19, 'combat_monster_山鬼', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''山鬼''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 19, 'combat_monster_狮鹫', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''狮鹫''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 19, 'combat_monster_蜚廉', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''蜚廉''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 20, 'combat_monster_熔岩巨兽', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''熔岩巨兽''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 20, 'combat_monster_修罗', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''修罗''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 20, 'combat_monster_黑风老妖', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''黑风老妖''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 20, 'combat_monster_雷鹰', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''雷鹰''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 20, 'combat_monster_山鬼', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''山鬼''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 20, 'combat_monster_九尾妖狐', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''九尾妖狐''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 21, 'combat_monster_火凤雏', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''火凤雏''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 21, 'combat_monster_山鬼', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''山鬼''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 21, 'combat_monster_蜚廉', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''蜚廉''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 21, 'combat_monster_幽冥骑士', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''幽冥骑士''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 22, 'combat_monster_雪女', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''雪女''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 22, 'combat_monster_九尾妖狐', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''九尾妖狐''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 22, 'combat_monster_修罗', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''修罗''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 22, 'combat_monster_山鬼', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''山鬼''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 22, 'combat_monster_幽冥骑士', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''幽冥骑士''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 22, 'combat_monster_蜚廉', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''蜚廉''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 23, 'combat_monster_千年树妖', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''千年树妖''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 23, 'combat_monster_狮鹫', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''狮鹫''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 23, 'combat_monster_黑风老妖', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''黑风老妖''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 23, 'combat_monster_蜚廉', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''蜚廉''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 23, 'combat_monster_幽冥骑士', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''幽冥骑士''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 23, 'combat_monster_雷鹰', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''雷鹰''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 24, 'combat_monster_幽冥骑士', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''幽冥骑士''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 24, 'combat_monster_蜚廉', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''蜚廉''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 24, 'combat_monster_蛟龙', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''蛟龙''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 24, 'combat_monster_山鬼', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''山鬼''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 24, 'combat_monster_九尾妖狐', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''九尾妖狐''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 24, 'combat_monster_天罗蛛', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''天罗蛛''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 25, 'combat_monster_天罗蛛', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''天罗蛛''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 25, 'combat_monster_蛟龙', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''蛟龙''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 25, 'combat_monster_火凤雏', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''火凤雏''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 25, 'combat_monster_山鬼', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''山鬼''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 25, 'combat_monster_蜚廉', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''蜚廉''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 25, 'combat_monster_梼杌', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''梼杌''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 27, 'combat_monster_夔牛', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''夔牛''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 27, 'combat_monster_梼杌', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''梼杌''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 27, 'combat_monster_金乌', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''金乌''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 27, 'combat_monster_旱魃', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''旱魃''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 27, 'combat_monster_白泽', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''白泽''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 27, 'combat_monster_烛龙', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''烛龙''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 28, 'combat_monster_夔牛', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''夔牛''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 28, 'combat_monster_金乌', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''金乌''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 28, 'combat_monster_烛龙', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''烛龙''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 28, 'combat_monster_梼杌', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''梼杌''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 28, 'combat_monster_天魔王', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''天魔王''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 28, 'combat_monster_麒麟', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''麒麟''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 29, 'combat_monster_相柳', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''相柳''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 29, 'combat_monster_刑天', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''刑天''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 29, 'combat_monster_毕方', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''毕方''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 29, 'combat_monster_应龙', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''应龙''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 29, 'combat_monster_守鹤', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''守鹤''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 30, 'combat_monster_旱魃', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''旱魃''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 30, 'combat_monster_白泽', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''白泽''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 30, 'combat_monster_梼杌', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''梼杌''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 30, 'combat_monster_烛龙', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''烛龙''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 30, 'combat_monster_相柳', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''相柳''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 30, 'combat_monster_毕方', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''毕方''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 31, 'combat_monster_应龙', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''应龙''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 31, 'combat_monster_刑天', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''刑天''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 31, 'combat_monster_相柳', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''相柳''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 31, 'combat_monster_守鹤', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''守鹤''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 31, 'combat_monster_鲲鹏', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''鲲鹏''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 32, 'combat_monster_白泽', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''白泽''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 32, 'combat_monster_天魔王', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''天魔王''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 32, 'combat_monster_麒麟', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''麒麟''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 32, 'combat_monster_应龙', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''应龙''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 32, 'combat_monster_刑天', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''刑天''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 32, 'combat_monster_鲲鹏', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''鲲鹏''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 33, 'combat_monster_毕方', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''毕方''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 33, 'combat_monster_应龙', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''应龙''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 33, 'combat_monster_守鹤', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''守鹤''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 33, 'combat_monster_神龙', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''神龙''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 33, 'combat_monster_阎罗天子', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''阎罗天子''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 34, 'combat_monster_刑天', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''刑天''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 34, 'combat_monster_应龙', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''应龙''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 34, 'combat_monster_毕方', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''毕方''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 34, 'combat_monster_相柳', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''相柳''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 34, 'combat_monster_鲲鹏', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''鲲鹏''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 34, 'combat_monster_神龙', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''神龙''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 35, 'combat_monster_刑天', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''刑天''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 35, 'combat_monster_鲲鹏', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''鲲鹏''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 35, 'combat_monster_阎罗天子', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''阎罗天子''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 35, 'combat_monster_相柳', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''相柳''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 35, 'combat_monster_守鹤', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''守鹤''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 35, 'combat_monster_神龙', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''神龙''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 36, 'combat_monster_毕方', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''毕方''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 36, 'combat_monster_应龙', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''应龙''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 36, 'combat_monster_刑天', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''刑天''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 36, 'combat_monster_鲲鹏', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''鲲鹏''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 36, 'combat_monster_神龙', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''神龙''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 36, 'combat_monster_原始天魔', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''原始天魔''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 37, 'combat_monster_阎罗天子', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''阎罗天子''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 37, 'combat_monster_鲲鹏', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''鲲鹏''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 37, 'combat_monster_神龙', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''神龙''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 37, 'combat_monster_守鹤', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''守鹤''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 37, 'combat_monster_应龙', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''应龙''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 37, 'combat_monster_原始天魔', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''原始天魔''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 38, 'combat_monster_应龙', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''应龙''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 38, 'combat_monster_毕方', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''毕方''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 38, 'combat_monster_鲲鹏', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''鲲鹏''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 38, 'combat_monster_阎罗天子', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''阎罗天子''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 38, 'combat_monster_相柳', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''相柳''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 39, 'combat_monster_刑天', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''刑天''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 39, 'combat_monster_鲲鹏', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''鲲鹏''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 39, 'combat_monster_守鹤', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''守鹤''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 39, 'combat_monster_阎罗天子', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''阎罗天子''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 39, 'combat_monster_原始天魔', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''原始天魔''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 40, 'combat_monster_鲲鹏', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''鲲鹏''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 40, 'combat_monster_阎罗天子', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''阎罗天子''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 40, 'combat_monster_神龙', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''神龙''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 40, 'combat_monster_原始天魔', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''原始天魔''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 41, 'combat_monster_阎罗天子', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''阎罗天子''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 41, 'combat_monster_原始天魔', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''原始天魔''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 43, 'combat_monster_守鹤', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''守鹤''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 43, 'combat_monster_阎罗天子', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''阎罗天子''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 43, 'combat_monster_神龙', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''神龙''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 43, 'combat_monster_原始天魔', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''原始天魔''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 43, 'combat_monster_鲲鹏', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''鲲鹏''), "min_count": 1, "max_count": 1}');
+
+INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, params) VALUES
+('TRAINING', 44, 'combat_monster_原始天魔', 'COMBAT', 100,
+ '{"monster_template_id": (SELECT id FROM xt_monster_template WHERE name=''原始天魔''), "min_count": 1, "max_count": 1}');
