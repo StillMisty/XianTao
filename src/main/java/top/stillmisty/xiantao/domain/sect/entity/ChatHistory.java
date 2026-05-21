@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import top.stillmisty.xiantao.domain.sect.enums.ChatRole;
 import top.stillmisty.xiantao.domain.sect.enums.ChatType;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
 
@@ -35,7 +36,7 @@ public class ChatHistory extends Model<ChatHistory> {
 
   private Long userId;
 
-  private String role;
+  private ChatRole role;
 
   private String content;
 
@@ -46,10 +47,10 @@ public class ChatHistory extends Model<ChatHistory> {
   private LocalDateTime createTime;
 
   public boolean isFromUser() {
-    return "user".equals(role);
+    return ChatRole.USER.equals(role);
   }
 
   public boolean isFromAssistant() {
-    return "assistant".equals(role);
+    return ChatRole.ASSISTANT.equals(role);
   }
 }

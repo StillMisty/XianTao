@@ -8,7 +8,9 @@ CREATE TABLE xt_map_node
     level_requirement   INT          NOT NULL DEFAULT 1,
     neighbors           JSONB                 DEFAULT '[]'::jsonb,
     specialties         JSONB                 DEFAULT '[]'::jsonb,
-    encounter_richness  INT           NOT NULL DEFAULT 5 CHECK (encounter_richness BETWEEN 1 AND 10)
+    encounter_richness  INT           NOT NULL DEFAULT 5 CHECK (encounter_richness BETWEEN 1 AND 10),
+    create_time         TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_time         TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 COMMENT ON TABLE xt_map_node IS '地图节点表';
@@ -19,6 +21,8 @@ COMMENT ON COLUMN xt_map_node.level_requirement IS '推荐等级';
 COMMENT ON COLUMN xt_map_node.neighbors IS '相邻地图 [{"targetId": 1, "minutes": 5}]';
 COMMENT ON COLUMN xt_map_node.specialties IS '历练掉落池/特产 [{"templateId": 1, "weight": 30}]';
 COMMENT ON COLUMN xt_map_node.encounter_richness IS '事件密集度 1-10, 默认5。控制遇怪与事件的触发频率。10=频发, 1=极少';
+COMMENT ON COLUMN xt_map_node.create_time IS '创建时间';
+COMMENT ON COLUMN xt_map_node.update_time IS '更新时间';
 
 
 -- 创建索引

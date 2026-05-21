@@ -21,9 +21,9 @@ import top.stillmisty.xiantao.domain.monster.Combatant;
 import top.stillmisty.xiantao.domain.monster.TribulationBoss;
 import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
 import top.stillmisty.xiantao.domain.user.entity.User;
-import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 import top.stillmisty.xiantao.service.SpiritStoneService;
 import top.stillmisty.xiantao.service.combat.CombatService;
+import top.stillmisty.xiantao.service.player.UserStateService;
 
 @Service
 @RequiredArgsConstructor
@@ -37,9 +37,9 @@ public class TribulationService {
   private final FudiRepository fudiRepository;
   private final SpiritRepository spiritRepository;
   private final BeastRepository beastRepository;
-  private final UserRepository userRepository;
   private final SpiritStoneService spiritStoneService;
   private final CombatService combatService;
+  private final UserStateService userStateService;
 
   /**
    * 触发天劫 — 使用战斗引擎进行回合制战斗（玩家于福地手动触发）
@@ -157,7 +157,7 @@ public class TribulationService {
                 user.setDying();
               }
             });
-    userRepository.save(user);
+    userStateService.saveHpStatus(user);
   }
 
   private void applyHpToBeasts(CombatTeam team, User user, boolean playerWon) {

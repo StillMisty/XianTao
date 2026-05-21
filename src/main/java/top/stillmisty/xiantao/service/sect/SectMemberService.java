@@ -26,6 +26,7 @@ import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
+import top.stillmisty.xiantao.service.SpiritStoneService;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.masterapprentice.MasterApprenticeService;
@@ -51,6 +52,7 @@ public class SectMemberService {
   private final PlayerSkillRepository playerSkillRepository;
   private final ChatClient npcChatClient;
   @Lazy private final MasterApprenticeService masterApprenticeService;
+  private final SpiritStoneService spiritStoneService;
 
   @Lazy @Autowired private SectMemberService self;
 
@@ -217,12 +219,7 @@ public class SectMemberService {
       throw new BusinessException(ErrorCode.SECT_NAME_TAKEN, name);
     }
 
-    if (user.getSpiritStones() < SECT_CREATE_COST) {
-      throw new BusinessException(ErrorCode.SECT_CREATE_FUNDS_INSUFFICIENT, SECT_CREATE_COST);
-    }
-
-    user.setSpiritStones(user.getSpiritStones() - SECT_CREATE_COST);
-    userRepository.save(user);
+    spiritStoneService.withdraw(userId, SECT_CREATE_COST);
 
     String[] llmResult = generateSectIdentity(name, ethosDesc);
 
@@ -535,17 +532,10 @@ public class SectMemberService {
     SectMember member = requireMember(userId);
 
     if (amount <= 0) {
-      throw new BusinessException(ErrorCode.SPIRIT_STONES_INSUFFICIENT, amount, 0);
+      throw new BusinessException(ErrorCode.PARAM_INVALID, "捐献灵石必须大于0");
     }
 
-    User user = userStateService.loadUserForUpdate(userId);
-    if (user.getSpiritStones() < amount) {
-      throw new BusinessException(
-          ErrorCode.SPIRIT_STONES_INSUFFICIENT, amount, user.getSpiritStones());
-    }
-
-    user.setSpiritStones(user.getSpiritStones() - amount);
-    userRepository.save(user);
+    spiritStoneService.withdraw(userId, amount);
 
     Sect sect =
         sectRepository

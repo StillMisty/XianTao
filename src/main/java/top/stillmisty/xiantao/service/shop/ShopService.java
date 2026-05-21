@@ -32,6 +32,7 @@ import top.stillmisty.xiantao.domain.shop.vo.AppraisalResult;
 import top.stillmisty.xiantao.domain.shop.vo.EquipmentListVO;
 import top.stillmisty.xiantao.domain.shop.vo.EquipmentPurchaseResult;
 import top.stillmisty.xiantao.domain.shop.vo.HaggleResult;
+import top.stillmisty.xiantao.domain.shop.vo.PlayerItemsVO;
 import top.stillmisty.xiantao.domain.shop.vo.ProductListVO;
 import top.stillmisty.xiantao.domain.shop.vo.PurchaseResult;
 import top.stillmisty.xiantao.domain.shop.vo.SellResult;
@@ -425,6 +426,41 @@ public class ShopService {
                             : "无"))
             .toList();
     return new EquipmentListVO(entries);
+  }
+
+  public PlayerItemsVO queryPlayerItems(Long userId) {
+    List<Equipment> unequipped = equipmentRepository.findUnequippedByUserId(userId);
+    List<StackableItem> items = stackableItemRepository.findByUserId(userId);
+
+    List<PlayerItemsVO.EquipmentInfo> equipInfos =
+        unequipped.stream()
+            .map(
+                e ->
+                    new PlayerItemsVO.EquipmentInfo(
+                        e.getId(),
+                        e.getName(),
+                        e.getRarity() != null ? e.getRarity().getName() : "未知",
+                        e.getForgeLevel() != null ? e.getForgeLevel() : 0,
+                        e.getAffixes() != null
+                            ? e.getAffixes().keySet().stream()
+                                .limit(3)
+                                .collect(Collectors.joining("、"))
+                            : "无"))
+            .toList();
+
+    List<PlayerItemsVO.StackableInfo> itemInfos =
+        items.stream()
+            .map(
+                s ->
+                    new PlayerItemsVO.StackableInfo(
+                        s.getId(),
+                        s.getName(),
+                        s.getQuantity() != null ? s.getQuantity() : 0,
+                        s.getItemType() != null ? s.getItemType().getName() : "未知",
+                        s.getTradable() != null && s.getTradable()))
+            .toList();
+
+    return new PlayerItemsVO(equipInfos, itemInfos);
   }
 
   // ===================== 辅助方法 =====================

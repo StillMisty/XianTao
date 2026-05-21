@@ -82,7 +82,7 @@ public class TravelService {
     user.setActivityType(ActivityType.TRAVEL);
     user.setActivityStartTime(LocalDateTime.now());
     user.setActivityTargetId(targetMap.getId());
-    userStateService.save(user);
+    userStateService.saveActivity(user);
 
     LocalDateTime estimatedArrival = LocalDateTime.now().plusMinutes(travelTime);
 

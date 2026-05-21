@@ -55,9 +55,34 @@ public class UserStateService {
     return userRepository.findByNickname(nickname).orElse(null);
   }
 
-  /** 保存用户。 */
+  /** 保存用户（全字段）。 */
   public User save(User user) {
     return userRepository.save(user);
+  }
+
+  /** 清除活动标记，回空闲状态。 */
+  public void clearActivity(Long userId) {
+    userRepository.clearActivity(userId);
+  }
+
+  /** 仅保存状态/活动相关字段（不碰灵石等数据字段）。 */
+  public void saveActivity(User user) {
+    if (user.getActivityType() == null) {
+      userRepository.clearActivity(user.getId());
+    } else {
+      userRepository.startActivity(
+          user.getId(),
+          user.getStatus().getCode(),
+          user.getActivityType().getCode(),
+          user.getActivityStartTime(),
+          user.getActivityTargetId());
+    }
+  }
+
+  /** 仅保存 HP/状态/濒死时间。 */
+  public void saveHpStatus(User user) {
+    userRepository.updateHpStatus(
+        user.getId(), user.getHpCurrent(), user.getStatus().getCode(), user.getDyingStartTime());
   }
 
   // ===================== 状态解析 =====================

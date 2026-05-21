@@ -219,7 +219,7 @@ public class BountyService {
     user.setActivityType(ActivityType.BOUNTY);
     user.setActivityStartTime(LocalDateTime.now());
     user.setActivityTargetId(record.getId());
-    userStateService.save(user);
+    userStateService.saveActivity(user);
 
     log.info(
         "玩家 {} 接取悬赏: {} (ID={}, 耗时{}分, 预存物品数={})",
@@ -252,7 +252,7 @@ public class BountyService {
 
     user.setStatus(UserStatus.IDLE);
     user.clearActivity();
-    userStateService.save(user);
+    userStateService.saveActivity(user);
 
     log.info("玩家 {} 放弃悬赏: {}", userId, record.getBountyName());
     return String.format("已放弃悬赏「%s」，无任何产出。", record.getBountyName());

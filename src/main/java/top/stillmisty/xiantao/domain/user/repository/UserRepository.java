@@ -1,5 +1,6 @@
 package top.stillmisty.xiantao.domain.user.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import top.stillmisty.xiantao.domain.user.entity.User;
@@ -31,4 +32,18 @@ public interface UserRepository {
 
   /** 原子增加灵石 */
   int addSpiritStonesAtomically(Long userId, long amount);
+
+  /** 清除活动标记，重置为空闲状态 */
+  void clearActivity(Long userId);
+
+  /** 设置活动状态 */
+  void startActivity(
+      Long userId,
+      String status,
+      String activityType,
+      LocalDateTime activityStartTime,
+      Long activityTargetId);
+
+  /** 更新 HP、状态、濒死时间 */
+  void updateHpStatus(Long userId, int hpCurrent, String status, LocalDateTime dyingStartTime);
 }

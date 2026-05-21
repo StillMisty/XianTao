@@ -1,13 +1,15 @@
 package top.stillmisty.xiantao.service.ai;
 
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.sect.entity.ChatHistory;
 import top.stillmisty.xiantao.domain.sect.entity.Sect;
 import top.stillmisty.xiantao.domain.sect.entity.SectMember;
+import top.stillmisty.xiantao.domain.sect.enums.ChatRole;
 import top.stillmisty.xiantao.domain.sect.enums.ChatType;
 import top.stillmisty.xiantao.domain.sect.repository.ChatHistoryRepository;
 import top.stillmisty.xiantao.domain.sect.repository.SectMemberRepository;
@@ -28,9 +30,8 @@ import top.stillmisty.xiantao.service.sect.SectBuildingService;
 @Slf4j
 public class SectSpiritChatService {
 
-  private static final int MAX_HISTORY = 10;
-
   private final ChatClient npcChatClient;
+  private final ChatMemory chatMemory;
   private final SectRepository sectRepository;
   private final SectMemberRepository sectMemberRepository;
   private final ChatHistoryRepository chatHistoryRepository;
@@ -61,30 +62,27 @@ public class SectSpiritChatService {
       // 灵脉惰性结算
       sectBuildingService.settleSpiritVein(sect.getId());
 
-      // 加载历史
-      List<ChatHistory> history =
-          chatHistoryRepository.findByChatTypeAndConversationIdAndUserIdOrderByCreateTimeDesc(
-              ChatType.SECT, sect.getId(), userId, MAX_HISTORY);
+      String systemPrompt = buildPrompt(sect, member);
+      String conversationId = "sect:" + userId + ":" + sect.getId();
 
-      // 构建 system prompt
-      String systemPrompt = buildPrompt(sect, member, history);
+      saveHistory(sect.getId(), userId, ChatRole.USER, userInput);
 
-      // 保存用户消息
-      saveHistory(sect.getId(), userId, "user", userInput);
-
-      // 调用 LLM
       String response =
           npcChatClient
               .prompt()
               .system(systemPrompt)
               .user(userInput)
               .tools(sectSpiritTools)
+              .advisors(
+                  a ->
+                      a.param(ChatMemory.CONVERSATION_ID, conversationId)
+                          .advisors(MessageChatMemoryAdvisor.builder(chatMemory).build()))
               .call()
               .content();
 
       // 保存助手回复
       if (response != null && !response.isBlank()) {
-        saveHistory(sect.getId(), userId, "assistant", response);
+        saveHistory(sect.getId(), userId, ChatRole.ASSISTANT, response);
       }
 
       log.debug("宗灵对话成功 - userId: {}, sect: {}, input: {}", userId, sect.getName(), userInput);
@@ -95,7 +93,7 @@ public class SectSpiritChatService {
     }
   }
 
-  private String buildPrompt(Sect sect, SectMember member, List<ChatHistory> history) {
+  private String buildPrompt(Sect sect, SectMember member) {
     User user =
         userRepository
             .findById(member.getUserId())
@@ -154,19 +152,10 @@ public class SectSpiritChatService {
       prompt.append("\n当前宗门事件：").append(sect.getLastEventText());
     }
 
-    // 历史记录
-    if (!history.isEmpty()) {
-      prompt.append("\n\n【最近对话记录】\n");
-      for (ChatHistory h : history.reversed()) {
-        String role = "user".equals(h.getRole()) ? "修士" : "宗灵";
-        prompt.append(role).append("：").append(h.getContent()).append("\n");
-      }
-    }
-
     return prompt.toString();
   }
 
-  private void saveHistory(Long sectId, Long userId, String role, String content) {
+  private void saveHistory(Long sectId, Long userId, ChatRole role, String content) {
     ChatHistory history = new ChatHistory();
     history.setChatType(ChatType.SECT);
     history.setConversationId(sectId);

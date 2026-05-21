@@ -41,7 +41,8 @@ public class User extends Model<User> {
   /** 当前经验值 */
   private Long exp;
 
-  /** 货币 (灵石) */
+  /** 货币 (灵石) — UPDATE 时不自写，由 SpiritStoneService 原子 SQL 控制 */
+  @Column(onUpdateValue = "spirit_stones")
   private Long spiritStones;
 
   /** 力道 */

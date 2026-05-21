@@ -104,11 +104,11 @@ public class DungeonCombatHelper {
     BattleResultVO battleResult = combatEngine.simulate(context);
 
     postCombatProcessor.applyHpToUser(leader, playerTeam);
-    userStateService.save(leader);
+    userStateService.saveHpStatus(leader);
 
     for (var entry : memberUsers.entrySet()) {
       postCombatProcessor.applyHpToUser(entry.getValue(), playerTeam);
-      userStateService.save(entry.getValue());
+      userStateService.saveHpStatus(entry.getValue());
     }
 
     Map<Long, Beast> beastCache = new HashMap<>();
@@ -121,12 +121,12 @@ public class DungeonCombatHelper {
     if (!playerWon && !anyAlive) {
       leader.setStatus(UserStatus.DYING);
       leader.setDyingStartTime(LocalDateTime.now());
-      userStateService.save(leader);
+      userStateService.saveHpStatus(leader);
       for (User m : memberUsers.values()) {
         if (m.getHpCurrent() != null && m.getHpCurrent() <= 0) {
           m.setStatus(UserStatus.DYING);
           m.setDyingStartTime(LocalDateTime.now());
-          userStateService.save(m);
+          userStateService.saveHpStatus(m);
         }
       }
       return new CombatOutcome(false, false, 0, monster.getName(), null);

@@ -16,6 +16,7 @@ import top.stillmisty.xiantao.domain.dungeon.repository.DungeonTemplateRepositor
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
+import top.stillmisty.xiantao.service.SpiritStoneService;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
 @Component
@@ -26,6 +27,7 @@ public class DungeonProgressHelper {
   private final DungeonProgressRepository progressRepository;
   private final DungeonFirstClearRepository firstClearRepository;
   private final UserStateService userStateService;
+  private final SpiritStoneService spiritStoneService;
 
   public String completeDungeon(Long userId, DungeonInstance instance) {
     DungeonTemplate dungeon =
@@ -39,7 +41,7 @@ public class DungeonProgressHelper {
 
     User user = userStateService.loadUser(userId);
     user.clearActivity();
-    userStateService.save(user);
+    userStateService.saveActivity(user);
 
     DungeonProgress progress =
         progressRepository
@@ -79,9 +81,7 @@ public class DungeonProgressHelper {
     }
 
     long spiritStonesReward = ThreadLocalRandom.current().nextInt(500, 2001);
-    user.setSpiritStones(
-        (user.getSpiritStones() != null ? user.getSpiritStones() : 0) + spiritStonesReward);
-    userStateService.save(user);
+    spiritStoneService.deposit(userId, spiritStonesReward);
 
     boolean rewardGiven = false;
     if (progress.canGetReward()) {

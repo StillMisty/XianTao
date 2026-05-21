@@ -11,6 +11,7 @@ import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
 import top.stillmisty.xiantao.domain.sect.entity.ChatHistory;
+import top.stillmisty.xiantao.domain.sect.enums.ChatRole;
 import top.stillmisty.xiantao.domain.sect.enums.ChatType;
 import top.stillmisty.xiantao.domain.sect.repository.ChatHistoryRepository;
 import top.stillmisty.xiantao.service.BusinessException;
@@ -65,7 +66,7 @@ public class SpiritEmotionTools {
       history.setChatType(ChatType.SPIRIT);
       history.setConversationId(fudiId);
       history.setUserId(userId);
-      history.setRole("system");
+      history.setRole(ChatRole.SYSTEM);
       history.setContent(thought);
       chatHistoryRepository.save(history);
 

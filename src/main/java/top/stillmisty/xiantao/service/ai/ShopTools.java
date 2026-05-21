@@ -16,6 +16,7 @@ import top.stillmisty.xiantao.domain.shop.vo.AppraisalResult;
 import top.stillmisty.xiantao.domain.shop.vo.EquipmentListVO;
 import top.stillmisty.xiantao.domain.shop.vo.EquipmentPurchaseResult;
 import top.stillmisty.xiantao.domain.shop.vo.HaggleResult;
+import top.stillmisty.xiantao.domain.shop.vo.PlayerItemsVO;
 import top.stillmisty.xiantao.domain.shop.vo.ProductListVO;
 import top.stillmisty.xiantao.domain.shop.vo.PurchaseResult;
 import top.stillmisty.xiantao.domain.shop.vo.SellResult;
@@ -237,6 +238,17 @@ public class ShopTools {
     } catch (Exception e) {
       log.warn("查询装备列表失败", e);
       return new EquipmentListVO(List.of());
+    }
+  }
+
+  @Tool(description = "批量查看玩家背包的所有可出售物品（装备+堆叠物品），包含ID、名称、数量、是否可回收等信息")
+  public PlayerItemsVO queryPlayerItems() {
+    try {
+      Long userId = getCurrentUserId();
+      return shopService.queryPlayerItems(userId);
+    } catch (Exception e) {
+      log.warn("批量查询玩家物品失败", e);
+      return new PlayerItemsVO(List.of(), List.of());
     }
   }
 

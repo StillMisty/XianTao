@@ -104,7 +104,7 @@ public class TrainingService {
     user.setActivityStartTime(LocalDateTime.now());
     user.setActivityTargetId(mapNode.getId());
     user.setStatus(UserStatus.TRAINING);
-    userStateService.save(user);
+    userStateService.saveActivity(user);
     log.info("玩家 {} 开始在 {} 历练", userId, mapNode.getName());
     return TrainingStartResult.builder().success(true).mapName(mapNode.getName()).build();
   }
@@ -135,7 +135,7 @@ public class TrainingService {
     if (user.getActivityStartTime() == null) {
       user.setStatus(UserStatus.IDLE);
       user.clearActivity();
-      userStateService.save(user);
+      userStateService.saveActivity(user);
       return TrainingRewardVO.builder()
           .userId(userId)
           .mapId(user.getLocationId())
@@ -147,7 +147,7 @@ public class TrainingService {
     if (minutesTraining <= 5) {
       user.setStatus(UserStatus.IDLE);
       user.clearActivity();
-      userStateService.save(user);
+      userStateService.saveActivity(user);
       return TrainingRewardVO.builder()
           .userId(userId)
           .mapId(user.getLocationId())
@@ -157,7 +157,7 @@ public class TrainingService {
     if (mapNodeRepository.findById(user.getLocationId()).isEmpty()) {
       user.setStatus(UserStatus.IDLE);
       user.clearActivity();
-      userStateService.save(user);
+      userStateService.saveActivity(user);
       return TrainingRewardVO.builder().userId(userId).summary("当前地图不存在").build();
     }
     return null;
@@ -194,12 +194,10 @@ public class TrainingService {
       user.setStatus(UserStatus.IDLE);
       user.clearActivity();
       trainingCompleter.produceCompletionEvent(userId, user, mapNode, minutesTraining);
+      userStateService.saveActivity(user);
     } else {
       user.endActivity();
       trainingCompleter.produceInterruptedEvent(userId, mapNode);
-    }
-    if (!diedInTraining) {
-      userStateService.save(user);
     }
 
     long totalExp = baseExp + combatSummary.expGained();

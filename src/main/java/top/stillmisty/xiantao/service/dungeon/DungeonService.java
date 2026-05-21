@@ -206,7 +206,7 @@ public class DungeonService {
       memberUser.setActivityType(ActivityType.DUNGEON);
       memberUser.setActivityStartTime(LocalDateTime.now());
       memberUser.setActivityTargetId(instance.getId());
-      userStateService.save(memberUser);
+      userStateService.saveActivity(memberUser);
     }
 
     log.info("玩家 {} 率队 {} 人进入秘境 {}", userId, memberIds.size(), dungeonName);
@@ -496,7 +496,6 @@ public class DungeonService {
       boolean anyAlive = outcome.memberAlive();
       if (!anyAlive) {
         self.markInstanceFailed(instance);
-        userStateService.save(user);
         throw new BusinessException(ErrorCode.DUNGEON_COMBAT_LOST);
       }
       return new ExploreResultVO(
@@ -538,7 +537,7 @@ public class DungeonService {
     for (Long memberId : memberIds) {
       User memberUser = userStateService.loadUserForUpdate(memberId);
       memberUser.clearActivity();
-      userStateService.save(memberUser);
+      userStateService.saveActivity(memberUser);
     }
 
     log.info(
@@ -552,7 +551,7 @@ public class DungeonService {
   private String retreatMember(Long userId, DungeonInstance instance) {
     User member = userStateService.loadUserForUpdate(userId);
     member.clearActivity();
-    userStateService.save(member);
+    userStateService.saveActivity(member);
 
     log.info("队员 {} 退出秘境 {}", userId, instance.getDungeonId());
     return "你退出了秘境。已获得的奖励保留。";
@@ -568,7 +567,7 @@ public class DungeonService {
     for (Long memberId : memberIds) {
       User member = userStateService.loadUser(memberId);
       member.clearActivity();
-      userStateService.save(member);
+      userStateService.saveActivity(member);
 
       String result = progressHelper.completeDungeon(memberId, instance);
       if (memberIds.size() > 1) {

@@ -13,8 +13,8 @@ import top.stillmisty.xiantao.domain.dungeon.vo.LootPoolEntry;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.service.SpiritStoneService;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
-import top.stillmisty.xiantao.service.player.UserStateService;
 import top.stillmisty.xiantao.util.WeightedRandom;
 
 @Component
@@ -23,7 +23,7 @@ public class DungeonLootHelper {
 
   private final ItemTemplateRepository itemTemplateRepository;
   private final StackableItemService stackableItemService;
-  private final UserStateService userStateService;
+  private final SpiritStoneService spiritStoneService;
 
   public ExploreResultVO executeGather(User user, DungeonPoiConfig poi) {
     List<DropItemVO> drops = rollLoot(poi);
@@ -109,10 +109,7 @@ public class DungeonLootHelper {
                   drop.quantity()));
     }
     if (spiritStones > 0) {
-      User user = userStateService.loadUser(userId);
-      user.setSpiritStones(
-          (user.getSpiritStones() != null ? user.getSpiritStones() : 0) + spiritStones);
-      userStateService.save(user);
+      spiritStoneService.deposit(userId, spiritStones);
     }
   }
 }

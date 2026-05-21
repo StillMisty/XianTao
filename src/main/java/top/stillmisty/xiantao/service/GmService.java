@@ -26,6 +26,7 @@ public class GmService {
   private final ItemTemplateRepository itemTemplateRepository;
   private final EquipmentTemplateRepository equipmentTemplateRepository;
   private final MapNodeRepository mapNodeRepository;
+  private final SpiritStoneService spiritStoneService;
 
   // ===================== 公开 API（含 GM 认证） =====================
 
@@ -152,11 +153,10 @@ public class GmService {
     if (amount <= 0) return "数量必须大于0";
     User target = getTargetUser(targetNickname);
     if (target == null) return "未找到玩家：" + targetNickname;
-    target.setSpiritStones(target.getSpiritStones() + amount);
-    userRepository.save(target);
-    log.info(
-        "GM {} 给 {} 添加灵石 {}（剩余：{}）", gmUserId, targetNickname, amount, target.getSpiritStones());
-    return String.format("已给 %s 添加 %d 灵石（当前：%d）", targetNickname, amount, target.getSpiritStones());
+    spiritStoneService.deposit(target.getId(), amount);
+    long newBalance = spiritStoneService.getBalance(target.getId());
+    log.info("GM {} 给 {} 添加灵石 {}（剩余：{}）", gmUserId, targetNickname, amount, newBalance);
+    return String.format("已给 %s 添加 %d 灵石（当前：%d）", targetNickname, amount, newBalance);
   }
 
   @Transactional

@@ -6,6 +6,8 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
 import top.stillmisty.xiantao.domain.fudi.entity.*;
@@ -17,6 +19,7 @@ import top.stillmisty.xiantao.domain.fudi.repository.SpiritFormRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.sect.entity.ChatHistory;
+import top.stillmisty.xiantao.domain.sect.enums.ChatRole;
 import top.stillmisty.xiantao.domain.sect.enums.ChatType;
 import top.stillmisty.xiantao.domain.sect.repository.ChatHistoryRepository;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
@@ -33,6 +36,7 @@ import top.stillmisty.xiantao.service.fudi.FarmService;
 public class SpiritChatService {
 
   private final ChatClient npcChatClient;
+  private final ChatMemory chatMemory;
   private final FudiRepository fudiRepository;
   private final FudiCellRepository fudiCellRepository;
   private final SpiritRepository spiritRepository;
@@ -74,14 +78,10 @@ public class SpiritChatService {
 
       List<FudiEvent> events = fudiEventGenerator.generateEvents(spirit.getLastEventTime());
 
-      int maxHistory = calculateMaxHistory(fudi.getTribulationStage());
-      List<ChatHistory> history =
-          chatHistoryRepository.findByChatTypeAndConversationIdAndUserIdOrderByCreateTimeDesc(
-              ChatType.SPIRIT, fudi.getId(), userId, maxHistory);
+      String systemPrompt = buildPrompt(fudi, spirit, events);
+      String conversationId = "spirit:" + userId + ":" + fudi.getId();
 
-      String systemPrompt = buildPrompt(fudi, spirit, events, history);
-
-      saveHistory(fudi.getId(), userId, "user", userInput);
+      saveHistory(fudi.getId(), userId, ChatRole.USER, userInput);
 
       String response =
           npcChatClient
@@ -89,10 +89,14 @@ public class SpiritChatService {
               .system(systemPrompt)
               .user(userInput)
               .tools(spiritTools, spiritEmotionTools)
+              .advisors(
+                  a ->
+                      a.param(ChatMemory.CONVERSATION_ID, conversationId)
+                          .advisors(MessageChatMemoryAdvisor.builder(chatMemory).build()))
               .call()
               .content();
 
-      saveHistory(fudi.getId(), userId, "assistant", response);
+      saveHistory(fudi.getId(), userId, ChatRole.ASSISTANT, response);
 
       if (!events.isEmpty()) {
         spirit.setLastEventTime(LocalDateTime.now());
@@ -108,8 +112,7 @@ public class SpiritChatService {
     }
   }
 
-  private String buildPrompt(
-      Fudi fudi, Spirit spirit, List<FudiEvent> events, List<ChatHistory> history) {
+  private String buildPrompt(Fudi fudi, Spirit spirit, List<FudiEvent> events) {
     String cellDetail = buildCellDetailForLLM(fudi);
     String emotionState = spirit.getEmotionState().getDescription();
     String formName = null;
@@ -132,16 +135,6 @@ public class SpiritChatService {
       eventContext = eventSb.toString();
     }
 
-    String historyContext = "";
-    if (!history.isEmpty()) {
-      StringBuilder historySb = new StringBuilder("\n【最近对话记录】\n");
-      for (ChatHistory h : history.reversed()) {
-        String role = h.isFromUser() ? "修士" : "地灵";
-        historySb.append(role).append("：").append(h.getContent()).append("\n");
-      }
-      historyContext = historySb.toString();
-    }
-
     return promptTemplates.buildSpiritPrompt(
             spirit.getMbtiType(),
             fudi.getTribulationStage(),
@@ -149,15 +142,10 @@ public class SpiritChatService {
             cellDetail,
             emotionState,
             formName)
-        + eventContext
-        + historyContext;
+        + eventContext;
   }
 
-  private int calculateMaxHistory(int tribulationStage) {
-    return (int) (5 + Math.floor(5 * Math.log(tribulationStage + 1) / Math.log(2)));
-  }
-
-  private void saveHistory(Long fudiId, Long userId, String role, String content) {
+  private void saveHistory(Long fudiId, Long userId, ChatRole role, String content) {
     ChatHistory history = new ChatHistory();
     history.setChatType(ChatType.SPIRIT);
     history.setConversationId(fudiId);

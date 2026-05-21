@@ -108,7 +108,7 @@ public class BountyCombatService {
 
     user.setStatus(UserStatus.IDLE);
     user.clearActivity();
-    userStateService.save(user);
+    userStateService.saveActivity(user);
 
     log.info(
         "玩家 {} 完成悬赏: {} (耗时{}分, 物品数={}, 灵石={})",

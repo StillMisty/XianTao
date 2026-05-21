@@ -1,6 +1,7 @@
 package top.stillmisty.xiantao.infrastructure.repository;
 
 import com.mybatisflex.core.query.QueryWrapper;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -73,5 +74,26 @@ public class UserRepositoryImpl implements UserRepository {
   @Override
   public int addSpiritStonesAtomically(Long userId, long amount) {
     return userMapper.addSpiritStonesAtomically(userId, amount);
+  }
+
+  @Override
+  public void clearActivity(Long userId) {
+    userMapper.clearActivity(userId);
+  }
+
+  @Override
+  public void startActivity(
+      Long userId,
+      String status,
+      String activityType,
+      LocalDateTime activityStartTime,
+      Long activityTargetId) {
+    userMapper.startActivity(userId, status, activityType, activityStartTime, activityTargetId);
+  }
+
+  @Override
+  public void updateHpStatus(
+      Long userId, int hpCurrent, String status, LocalDateTime dyingStartTime) {
+    userMapper.updateHpStatus(userId, hpCurrent, status, dyingStartTime);
   }
 }

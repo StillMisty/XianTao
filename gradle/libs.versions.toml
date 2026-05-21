@@ -4,7 +4,7 @@ springAi = "2.+"
 # SimBot 相关版本
 simbotCore = "4.+"
 simbotComponentOnebotV11 = "1.+"
-simbotComponentQqGuild = "4+"
+simbotComponentQqGuild = "4.+"
 # Ktor 客户端版本
 ktor = "2.+"
 # 数据库相关版本
