@@ -1,8 +1,8 @@
 package top.stillmisty.xiantao.service.activity;
 
 import java.util.Map;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
 import top.stillmisty.xiantao.domain.event.enums.ActivityType;
@@ -15,7 +15,6 @@ import top.stillmisty.xiantao.service.GameEventService;
 /** 旅行完成器 — 旅行到达时的子事件和隐藏事件 */
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class TravelCompleter {
 
   private final GameEventService gameEventService;
@@ -23,6 +22,19 @@ public class TravelCompleter {
   private final SubEventEffectExecutor effectExecutor;
   private final HiddenCompletionRepository hiddenCompletionRepository;
   private final TriggerConditionChecker triggerConditionChecker;
+
+  public TravelCompleter(
+      GameEventService gameEventService,
+      SubEventSelector subEventSelector,
+      @Lazy SubEventEffectExecutor effectExecutor,
+      HiddenCompletionRepository hiddenCompletionRepository,
+      TriggerConditionChecker triggerConditionChecker) {
+    this.gameEventService = gameEventService;
+    this.subEventSelector = subEventSelector;
+    this.effectExecutor = effectExecutor;
+    this.hiddenCompletionRepository = hiddenCompletionRepository;
+    this.triggerConditionChecker = triggerConditionChecker;
+  }
 
   public void completeTravel(Long userId, User user, MapNode fromMap, MapNode toMap) {
     Map<String, Object> arrivalArgs =

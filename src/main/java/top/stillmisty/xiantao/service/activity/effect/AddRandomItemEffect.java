@@ -3,18 +3,24 @@ package top.stillmisty.xiantao.service.activity.effect;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
-import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
 
 @Component
-@RequiredArgsConstructor
 public class AddRandomItemEffect implements SubEventEffect {
 
   private final ItemTemplateRepository itemTemplateRepository;
   private final StackableItemService stackableItemService;
+
+  public AddRandomItemEffect(
+      ItemTemplateRepository itemTemplateRepository,
+      @Lazy StackableItemService stackableItemService) {
+    this.itemTemplateRepository = itemTemplateRepository;
+    this.stackableItemService = stackableItemService;
+  }
 
   @Override
   public SubEventEffectType type() {

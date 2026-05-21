@@ -78,19 +78,11 @@ public class MapCommandHandler implements CommandGroup {
 
   public String handleMap(PlatformType platform, String openId, TextFormat fmt) {
     log.debug("处理地图查询 - Platform: {}, OpenId: {}", platform, openId);
-    var currentPart =
-        CommandHandlerHelper.safeCall(
-            () -> mapService.getCurrentMapInfo(platform, openId),
-            fmt,
-            vo -> formatCurrentMap(vo, fmt),
-            msg -> "❌ " + msg);
-    var listPart =
-        CommandHandlerHelper.safeCall(
-            () -> mapService.getAllMaps(platform, openId),
-            fmt,
-            vo -> vo.isEmpty() ? "暂无可用地图" : formatMapList(vo, fmt),
-            msg -> "❌ " + msg);
-    return currentPart + fmt.separator() + listPart;
+    return CommandHandlerHelper.safeCall(
+        () -> mapService.getCurrentMapInfo(platform, openId),
+        fmt,
+        vo -> formatCurrentMap(vo, fmt),
+        msg -> "❌ " + msg);
   }
 
   // ===================== 悬赏统一处理方法 =====================
@@ -320,41 +312,6 @@ public class MapCommandHandler implements CommandGroup {
         }
       }
     }
-    return sb.toString();
-  }
-
-  private String formatMapList(List<MapInfoVO> maps, TextFormat fmt) {
-    StringBuilder sb = new StringBuilder();
-    sb.append(fmt.heading("世界地图")).append("\n");
-    for (MapInfoVO map : maps) {
-      sb.append(
-          String.format(
-              "%s%s (等级: %d)\n",
-              fmt.bold(map.getMapTypeName()), map.getName(), map.getLevelRequirement()));
-      if (map.getDescription() != null && !map.getDescription().isEmpty()) {
-        sb.append(fmt.listItem("描述: " + map.getDescription()));
-      }
-      if (map.getMonsters() != null && !map.getMonsters().isEmpty()) {
-        sb.append(
-            fmt.listItem(
-                "怪物: "
-                    + map.getMonsters().stream()
-                        .map(
-                            m ->
-                                m.getName()
-                                    + "{"
-                                    + m.getTypeName()
-                                    + " Lv"
-                                    + m.getBaseLevel()
-                                    + "}")
-                        .collect(Collectors.joining("、"))));
-      }
-      if (map.getAdjacentMapNames() != null && !map.getAdjacentMapNames().isEmpty()) {
-        sb.append(fmt.listItem("相邻: " + String.join(", ", map.getAdjacentMapNames())));
-      }
-      sb.append(fmt.separator());
-    }
-    sb.append("使用「前往 [地图名]」开始旅行。");
     return sb.toString();
   }
 
