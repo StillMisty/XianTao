@@ -6,8 +6,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
+import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
@@ -21,6 +23,7 @@ public class StackableItemService {
 
   private final UserStateService userStateService;
   private final StackableItemRepository stackableItemRepository;
+  private final ItemTemplateRepository itemTemplateRepository;
 
   /** 添加堆叠物品到背包 */
   @Transactional
@@ -40,9 +43,18 @@ public class StackableItemService {
       Map<String, Object> properties) {
     userStateService.loadUser(userId);
 
-    int hash = StackableItem.computeHash(properties);
+    Map<String, Object> effectiveProperties = properties;
+    var tags = itemTemplateRepository.findById(templateId).map(ItemTemplate::getTags).orElse(null);
+
+    if (properties == null || properties.isEmpty()) {
+      effectiveProperties =
+          itemTemplateRepository.findById(templateId).map(ItemTemplate::getProperties).orElse(null);
+    }
+
+    int hash = StackableItem.computeHash(effectiveProperties);
     StackableItem newItem = StackableItem.create(userId, templateId, itemType, name, quantity);
-    newItem.setProperties(properties);
+    newItem.setTags(tags);
+    newItem.setProperties(effectiveProperties);
     newItem.setPropertiesHash(hash);
 
     int affected = stackableItemRepository.upsertIncrementQuantity(newItem);

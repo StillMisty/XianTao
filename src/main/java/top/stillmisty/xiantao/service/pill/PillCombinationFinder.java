@@ -144,6 +144,7 @@ public class PillCombinationFinder {
               resultTemplate.getType(),
               resultTemplate.getName() + "-" + quality.getChineseName(),
               quantity);
+      newItem.setTags(resultTemplate.getTags());
       newItem.setProperties(properties);
       newItem.setPropertiesHash(hash);
       stackableItemRepository.save(newItem);
