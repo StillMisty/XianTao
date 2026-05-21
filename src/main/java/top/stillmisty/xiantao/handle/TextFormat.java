@@ -18,6 +18,12 @@ public sealed interface TextFormat {
   /** 加粗 / 强调 */
   String bold(String text);
 
+  /** 斜体 */
+  String italic(String text);
+
+  /** 删除线 */
+  String strikethrough(String text);
+
   /** 列表项 */
   String listItem(String text);
 
@@ -55,6 +61,16 @@ public sealed interface TextFormat {
     @Override
     public String bold(String text) {
       return "【" + text + "】";
+    }
+
+    @Override
+    public String italic(String text) {
+      return text;
+    }
+
+    @Override
+    public String strikethrough(String text) {
+      return text;
     }
 
     @Override
@@ -107,6 +123,16 @@ public sealed interface TextFormat {
     @Override
     public String bold(String text) {
       return "**" + text + "**";
+    }
+
+    @Override
+    public String italic(String text) {
+      return "*" + text + "*";
+    }
+
+    @Override
+    public String strikethrough(String text) {
+      return "~~" + text + "~~";
     }
 
     @Override

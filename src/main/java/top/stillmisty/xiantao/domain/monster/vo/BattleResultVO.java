@@ -8,11 +8,8 @@ import lombok.Builder;
 public record BattleResultVO(
     String winner,
     int rounds,
-    Map<String, Object> playerHpChange,
-    List<Map<String, Object>> beastHpChanges,
-    List<Map<String, Object>> monsterHpChanges,
-    List<Map<String, Object>> damageDealt,
-    List<Map<String, Object>> skillProcs,
+    Map<String, HpChange> playerHpChange,
+    List<SkillProc> skillProcs,
     List<CombatLogEntry> combatLog,
     List<DropItem> drops,
     long expGained,

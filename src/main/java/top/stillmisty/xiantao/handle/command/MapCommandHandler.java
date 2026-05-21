@@ -24,6 +24,7 @@ import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.map.vo.MapInfoVO;
 import top.stillmisty.xiantao.domain.map.vo.TrainingRewardVO;
 import top.stillmisty.xiantao.domain.map.vo.TravelResultVO;
+import top.stillmisty.xiantao.domain.monster.vo.DropItem;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
@@ -163,8 +164,8 @@ public class MapCommandHandler implements CommandGroup {
     if (rewards.getItems() != null && !rewards.getItems().isEmpty()) {
       StringBuilder itemsStr = new StringBuilder();
       for (int i = 0; i < rewards.getItems().size(); i++) {
-        Map<String, Object> item = rewards.getItems().get(i);
-        itemsStr.append(item.get("name")).append("×").append(item.get("quantity"));
+        DropItem item = rewards.getItems().get(i);
+        itemsStr.append(item.name()).append("×").append(item.quantity());
         if (i < rewards.getItems().size() - 1) itemsStr.append(" ");
       }
       sb.append(fmt.listItem("物品：" + itemsStr));

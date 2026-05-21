@@ -80,6 +80,7 @@ public class DamageCalculator {
     try {
       String expr =
           formula
+              .replaceAll("\\battack\\b", String.valueOf(pc.getAttack()))
               .replaceAll("\\bwis\\b", String.valueOf(pc.getWis()))
               .replaceAll("\\bstr\\b", String.valueOf(pc.getStr()))
               .replaceAll("\\bagi\\b", String.valueOf(pc.getAgi()))

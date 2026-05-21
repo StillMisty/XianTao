@@ -1,9 +1,9 @@
 package top.stillmisty.xiantao.service.combat;
 
 import java.util.List;
-import java.util.Map;
 import top.stillmisty.xiantao.domain.monster.vo.CombatLogEntry;
 import top.stillmisty.xiantao.domain.monster.vo.DropItem;
+import top.stillmisty.xiantao.domain.monster.vo.SkillProc;
 
 /** 战斗统计累加器 */
 public record CombatSummary(
@@ -15,11 +15,11 @@ public record CombatSummary(
     int enlightenmentCount,
     List<DropItem> allDrops,
     List<CombatLogEntry> allLogs,
-    List<Map<String, Object>> allSkillProcs,
+    List<SkillProc> allSkillProcs,
     boolean hasHighlight,
     String firstHighlightMonsterName,
     List<CombatLogEntry> firstHighlightLogs,
-    List<Map<String, Object>> firstHighlightSkillProcs) {
+    List<SkillProc> firstHighlightSkillProcs) {
 
   public static CombatSummary empty() {
     return new CombatSummary(

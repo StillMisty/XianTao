@@ -1,10 +1,12 @@
 package top.stillmisty.xiantao.service.pvp;
 
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import top.stillmisty.xiantao.domain.monster.vo.CombatLogEntry;
+import top.stillmisty.xiantao.domain.monster.CombatTeam;
+import top.stillmisty.xiantao.domain.pvp.vo.SparResultVO;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
@@ -27,13 +29,14 @@ public class PvpService {
 
   @Authenticated
   @Transactional
-  public ServiceResult<String> spar(PlatformType platform, String openId, String targetNickname) {
+  public ServiceResult<SparResultVO> spar(
+      PlatformType platform, String openId, String targetNickname) {
     Long userId = UserContext.getCurrentUserId();
     return new ServiceResult.Success<>(spar(userId, targetNickname));
   }
 
   @Transactional
-  public String spar(Long userId, String targetNickname) {
+  public SparResultVO spar(Long userId, String targetNickname) {
     User attacker = userStateService.loadUser(userId);
     User defender =
         userRepository
@@ -44,48 +47,28 @@ public class PvpService {
       throw new BusinessException(ErrorCode.PLAYER_CANNOT_SELF);
     }
 
-    var teamA = combatService.buildPlayerTeam(attacker);
-    var teamB = combatService.buildPlayerTeam(defender);
+    var teamA = combatService.buildPlayerTeam(attacker, Map.of(), "A");
+    var teamB = combatService.buildPlayerTeam(defender, Map.of(), "B");
 
     teamA.members().forEach(m -> m.heal(m.getMaxHp()));
     teamB.members().forEach(m -> m.heal(m.getMaxHp()));
 
     var result = combatService.simulate(teamA, teamB, 50);
 
-    boolean playerAWon = "Player".equals(result.winner());
+    boolean attackerWon = "A".equals(result.winner());
 
-    StringBuilder sb = new StringBuilder();
-    sb.append("⚔️ ")
-        .append(attacker.getNickname())
-        .append(" 与 ")
-        .append(defender.getNickname())
-        .append(" 切磋！\n");
+    return new SparResultVO(
+        attacker.getNickname(),
+        defender.getNickname(),
+        attackerWon,
+        result.combatLog(),
+        collectHpStatus(teamA),
+        collectHpStatus(teamB));
+  }
 
-    String winnerName = playerAWon ? attacker.getNickname() : defender.getNickname();
-    sb.append("🏆 ").append(winnerName).append(" 获胜！\n\n");
-
-    sb.append("【战斗记录】\n");
-    var logs = result.combatLog();
-    int showCount = Math.min(5, logs.size());
-    for (int i = logs.size() - showCount; i < logs.size(); i++) {
-      var entry = logs.get(i);
-      sb.append("  ").append(entry.attackerName()).append(" ");
-      sb.append(entry.attackType() == CombatLogEntry.AttackType.SKILL ? "释放" : "攻击");
-      if (entry.skillName() != null) {
-        sb.append("【").append(entry.skillName()).append("】");
-      }
-      sb.append(" → ").append(entry.defenderName());
-      if (entry.damageDealt() > 0) {
-        sb.append(" (").append(entry.damageDealt()).append("点伤害)");
-      }
-      if (entry.isKill()) {
-        sb.append(" 💀击杀");
-      }
-      sb.append("\n");
-    }
-
-    sb.append("\n").append("切磋为模拟战，不实际消耗 HP，双方状态不变");
-
-    return sb.toString();
+  private static java.util.List<SparResultVO.HpStatus> collectHpStatus(CombatTeam team) {
+    return team.members().stream()
+        .map(m -> new SparResultVO.HpStatus(m.getName(), m.getHp(), m.getMaxHp()))
+        .toList();
   }
 }

@@ -1,9 +1,9 @@
 package top.stillmisty.xiantao.domain.map.vo;
 
 import java.util.List;
-import java.util.Map;
 import lombok.Builder;
 import lombok.Data;
+import top.stillmisty.xiantao.domain.monster.vo.DropItem;
 
 /** 历练奖励 VO */
 @Data
@@ -33,8 +33,8 @@ public class TrainingRewardVO {
   /** 获得的修为 */
   private Long exp;
 
-  /** 获得的物品（格式: [{"name": "毒龙草", "quantity": 5, "templateId": 1}]） */
-  private List<Map<String, Object>> items;
+  /** 获得的物品 */
+  private List<DropItem> items;
 
   /** 总奖励描述 */
   private String summary;

@@ -24,12 +24,12 @@ import top.stillmisty.xiantao.domain.map.vo.TrainingStartResult;
 import top.stillmisty.xiantao.domain.monster.entity.MonsterTemplate;
 import top.stillmisty.xiantao.domain.monster.repository.MonsterTemplateRepository;
 import top.stillmisty.xiantao.domain.monster.vo.CombatLogEntry;
+import top.stillmisty.xiantao.domain.monster.vo.DropItem;
 import top.stillmisty.xiantao.domain.skill.entity.Skill;
 import top.stillmisty.xiantao.domain.skill.repository.SkillRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
-import top.stillmisty.xiantao.infrastructure.util.TypeUtils;
 import top.stillmisty.xiantao.infrastructure.util.WeightedRandom;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
@@ -175,7 +175,7 @@ public class TrainingService {
             (long) (Math.sqrt(user.getEffectiveStatWis()) * 12));
     long baseExp =
         (long) (baseExpPerMinute * minutesTraining * efficiencyMultiplier * levelDecayMultiplier);
-    List<Map<String, Object>> trainingItems =
+    List<DropItem> trainingItems =
         calculateItemsReward(minutesTraining, efficiencyMultiplier, mapNode);
 
     // 统一事件循环: COMBAT + NUMERIC 一个池子里加权抽
@@ -203,7 +203,7 @@ public class TrainingService {
 
     long totalExp = baseExp + combatSummary.expGained();
     List<String> itemNames =
-        trainingItems.stream().map(i -> (String) i.get("name")).filter(Objects::nonNull).toList();
+        trainingItems.stream().map(DropItem::name).filter(Objects::nonNull).toList();
     String plainSummary =
         buildEndTrainingSummary(
             minutesTraining, totalExp, combatSummary, trainingItems, diedInTraining);
@@ -348,7 +348,7 @@ public class TrainingService {
       long minutesTraining,
       long totalExp,
       CombatSummary combatSummary,
-      List<Map<String, Object>> trainingItems,
+      List<DropItem> trainingItems,
       boolean diedInTraining) {
     StringBuilder summary = new StringBuilder();
     summary.append(String.format("历练时长: %d 分钟\n", minutesTraining));
@@ -358,11 +358,8 @@ public class TrainingService {
     }
     if (!trainingItems.isEmpty()) {
       summary.append("物品:\n");
-      for (Map<String, Object> item : trainingItems) {
-        summary.append(
-            String.format(
-                "  %s x%d\n",
-                item.get("name"), ((Number) item.getOrDefault("quantity", 1)).intValue()));
+      for (DropItem item : trainingItems) {
+        summary.append(String.format("  %s x%d\n", item.name(), item.quantity()));
       }
     }
     if (diedInTraining) summary.append("\n重伤濒死！30 分钟后自动恢复至 20% HP");
@@ -379,7 +376,7 @@ public class TrainingService {
     return Math.max(MIN_LEVEL_DECAY_MULTIPLIER, 1.0 - levelDiff * LEVEL_DECAY_RATE);
   }
 
-  private List<Map<String, Object>> calculateItemsReward(
+  private List<DropItem> calculateItemsReward(
       long minutesTraining, double efficiencyMultiplier, MapNode mapNode) {
     var specialties = mapNode.getSpecialties();
     if (specialties == null || specialties.isEmpty()) return List.of();
@@ -389,7 +386,7 @@ public class TrainingService {
             .stream()
             .collect(Collectors.toMap(ItemTemplate::getId, t -> t));
     int dropChances = Math.max(1, (int) (minutesTraining / 10.0 * efficiencyMultiplier));
-    Map<Long, Map<String, Object>> merged = new LinkedHashMap<>();
+    Map<Long, DropItem> merged = new LinkedHashMap<>();
     for (int i = 0; i < dropChances; i++) {
       SpecialtyEntry selectedEntry =
           WeightedRandom.select(specialties, SpecialtyEntry::weight, ThreadLocalRandom.current());
@@ -397,29 +394,32 @@ public class TrainingService {
       Long selectedTemplateId = selectedEntry.templateId();
       if (selectedTemplateId == null) continue;
       int quantity = ThreadLocalRandom.current().nextInt(3) + 1;
-      Map<String, Object> existing = merged.get(selectedTemplateId);
+      DropItem existing = merged.get(selectedTemplateId);
       if (existing != null) {
-        existing.put("quantity", (Integer) existing.get("quantity") + quantity);
+        merged.put(
+            selectedTemplateId,
+            new DropItem(
+                DropItem.DropType.ITEM,
+                existing.templateId(),
+                existing.name(),
+                existing.quantity() + quantity));
       } else {
         ItemTemplate template = templateMap.get(selectedTemplateId);
         String name = template != null ? template.getName() : "未知物品";
-        Map<String, Object> item = new HashMap<>();
-        item.put("templateId", selectedTemplateId);
-        item.put("name", name);
-        item.put("quantity", quantity);
-        merged.put(selectedTemplateId, item);
+        merged.put(
+            selectedTemplateId,
+            new DropItem(DropItem.DropType.ITEM, selectedTemplateId, name, quantity));
       }
     }
     return new ArrayList<>(merged.values());
   }
 
-  private void addTrainingItemsToInventory(Long userId, List<Map<String, Object>> items) {
+  private void addTrainingItemsToInventory(Long userId, List<DropItem> items) {
     if (items == null || items.isEmpty()) return;
-    for (Map<String, Object> item : items) {
-      Long templateId = TypeUtils.toLong(item.get("templateId"));
-      if (templateId == null) continue;
-      String name = (String) item.get("name");
-      int quantity = ((Number) item.getOrDefault("quantity", 1)).intValue();
+    for (DropItem item : items) {
+      Long templateId = item.templateId();
+      String name = item.name();
+      int quantity = item.quantity();
       ItemType itemType =
           itemTemplateRepository
               .findById(templateId)

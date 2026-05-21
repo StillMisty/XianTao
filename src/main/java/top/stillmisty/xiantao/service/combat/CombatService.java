@@ -44,12 +44,17 @@ public class CombatService {
   }
 
   public CombatTeam buildPlayerTeam(User user) {
-    return buildPlayerTeam(user, Map.of());
+    return buildPlayerTeam(user, Map.of(), "Player");
   }
 
   /** 构建玩家队伍，使用预加载的技能映射（避免N+1查询） */
   public CombatTeam buildPlayerTeam(User user, Map<Long, Skill> skillLookup) {
-    CombatTeam team = new CombatTeam(user.getId(), "Player");
+    return buildPlayerTeam(user, skillLookup, "Player");
+  }
+
+  /** 构建玩家队伍，可指定队伍名称（PvP时用于区分双方） */
+  public CombatTeam buildPlayerTeam(User user, Map<Long, Skill> skillLookup, String teamName) {
+    CombatTeam team = new CombatTeam(user.getId(), teamName);
 
     BuffValues buffs = loadActiveBuffs(user.getId());
 

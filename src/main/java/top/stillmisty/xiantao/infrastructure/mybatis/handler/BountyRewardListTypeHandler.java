@@ -10,6 +10,7 @@ import java.util.Objects;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 import org.postgresql.util.PGobject;
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 import top.stillmisty.xiantao.domain.bounty.BountyRewardItem;
 
@@ -51,13 +52,13 @@ public class BountyRewardListTypeHandler extends BaseTypeHandler<List<BountyRewa
     return deserialize(cs.getString(columnIndex));
   }
 
-  @SuppressWarnings("unchecked")
   private List<BountyRewardItem> deserialize(String jsonString) throws SQLException {
     if (jsonString == null || jsonString.trim().isEmpty()) {
       return List.of();
     }
     try {
-      List<Map<String, Object>> raw = OBJECT_MAPPER.readValue(jsonString, List.class);
+      List<Map<String, Object>> raw =
+          OBJECT_MAPPER.readValue(jsonString, new TypeReference<List<Map<String, Object>>>() {});
       if (raw == null) return List.of();
       return raw.stream().filter(Objects::nonNull).map(BountyRewardItem::parseOne).toList();
     } catch (Exception e) {

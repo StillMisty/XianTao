@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.monster.BattleContext;
-import top.stillmisty.xiantao.domain.monster.BeastCombatant;
 import top.stillmisty.xiantao.domain.monster.Buff;
 import top.stillmisty.xiantao.domain.monster.BuffManager;
 import top.stillmisty.xiantao.domain.monster.CombatEngine;
@@ -18,6 +17,8 @@ import top.stillmisty.xiantao.domain.monster.Combatant;
 import top.stillmisty.xiantao.domain.monster.enums.BuffType;
 import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
 import top.stillmisty.xiantao.domain.monster.vo.CombatLogEntry;
+import top.stillmisty.xiantao.domain.monster.vo.HpChange;
+import top.stillmisty.xiantao.domain.monster.vo.SkillProc;
 import top.stillmisty.xiantao.domain.skill.entity.Skill;
 import top.stillmisty.xiantao.domain.skill.entity.SkillEffect;
 import top.stillmisty.xiantao.domain.skill.enums.EffectType;
@@ -452,51 +453,23 @@ public class DefaultCombatEngine implements CombatEngine {
       Map<String, Integer> damageDealt,
       Map<String, Integer> skillProcs,
       List<CombatLogEntry> combatLog) {
-    Map<String, Object> playerHpChange = new LinkedHashMap<>();
+    Map<String, HpChange> playerHpChange = new LinkedHashMap<>();
     for (Combatant c : teamA.members()) {
       Integer initial = initialHpA.get("member_" + c.getId());
       if (initial != null) {
-        playerHpChange.put(c.getName(), Map.of("before", initial, "after", c.getHp()));
+        playerHpChange.put(c.getName(), new HpChange(initial, c.getHp()));
       }
     }
 
-    List<Map<String, Object>> beastHpChanges = new ArrayList<>();
-    for (Combatant c : teamA.members()) {
-      if (c instanceof BeastCombatant) {
-        Map<String, Object> change = new LinkedHashMap<>();
-        Integer initial = initialHpA.get("member_" + c.getId());
-        change.put("name", c.getName());
-        change.put("before", initial != null ? initial : c.getHp());
-        change.put("after", c.getHp());
-        beastHpChanges.add(change);
-      }
-    }
-
-    List<Map<String, Object>> monsterHpChanges = new ArrayList<>();
-    for (Combatant c : teamB.members()) {
-      Map<String, Object> change = new LinkedHashMap<>();
-      change.put("name", c.getName());
-      change.put("after", c.getHp());
-      monsterHpChanges.add(change);
-    }
-
-    List<Map<String, Object>> damageList = new ArrayList<>();
-    for (var entry : damageDealt.entrySet()) {
-      damageList.add(Map.of("name", entry.getKey(), "total", entry.getValue()));
-    }
-
-    List<Map<String, Object>> skillProcList = new ArrayList<>();
+    List<SkillProc> skillProcList = new ArrayList<>();
     for (var entry : skillProcs.entrySet()) {
-      skillProcList.add(Map.of("key", entry.getKey(), "count", entry.getValue()));
+      skillProcList.add(new SkillProc(entry.getKey(), entry.getValue()));
     }
 
     return BattleResultVO.builder()
         .winner(winner)
         .rounds(round)
         .playerHpChange(playerHpChange)
-        .beastHpChanges(beastHpChanges)
-        .monsterHpChanges(monsterHpChanges)
-        .damageDealt(damageList)
         .skillProcs(skillProcList)
         .combatLog(combatLog)
         .build();

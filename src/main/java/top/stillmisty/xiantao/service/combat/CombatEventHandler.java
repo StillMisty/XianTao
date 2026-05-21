@@ -20,6 +20,8 @@ import top.stillmisty.xiantao.domain.monster.Monster;
 import top.stillmisty.xiantao.domain.monster.entity.MonsterTemplate;
 import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
 import top.stillmisty.xiantao.domain.monster.vo.CombatLogEntry;
+import top.stillmisty.xiantao.domain.monster.vo.DropItem;
+import top.stillmisty.xiantao.domain.monster.vo.SkillProc;
 import top.stillmisty.xiantao.domain.skill.entity.PlayerSkill;
 import top.stillmisty.xiantao.domain.skill.entity.Skill;
 import top.stillmisty.xiantao.domain.skill.repository.PlayerSkillRepository;
@@ -80,8 +82,7 @@ public class CombatEventHandler {
     boolean playerWon = result.winner().equals("Player");
 
     List<CombatLogEntry> logs = result.combatLog() != null ? result.combatLog() : List.of();
-    List<Map<String, Object>> skillProcs =
-        result.skillProcs() != null ? result.skillProcs() : List.of();
+    List<SkillProc> skillProcs = result.skillProcs() != null ? result.skillProcs() : List.of();
     HighlightBattleDetector.HighlightInfo highlightInfo =
         highlightBattleDetector.detectHighlight(result, encounterIndex);
     boolean isHighlight = highlightInfo != null;
@@ -91,12 +92,8 @@ public class CombatEventHandler {
     if (playerWon) {
       double levelModifier = calculateCombatExpModifier(user.getLevel(), tmpl.getBaseLevel());
       long expGained = (long) (tmpl.getExpReward() * count * levelModifier);
-      List<?> rawDrops = dropProcessor.processMonsterDrops(tmpl);
-      @SuppressWarnings("unchecked")
-      List<top.stillmisty.xiantao.domain.monster.vo.DropItem> drops =
-          rawDrops != null
-              ? new ArrayList<>((List<top.stillmisty.xiantao.domain.monster.vo.DropItem>) rawDrops)
-              : List.of();
+      List<DropItem> rawDrops = dropProcessor.processMonsterDrops(tmpl);
+      List<DropItem> drops = rawDrops != null ? new ArrayList<>(rawDrops) : List.of();
       encounterResult =
           new EncounterResult(
               true,

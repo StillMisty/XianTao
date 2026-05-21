@@ -5,6 +5,8 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
+import top.stillmisty.xiantao.domain.monster.vo.HpChange;
+import top.stillmisty.xiantao.domain.monster.vo.SkillProc;
 
 /** 高光战斗检测器 识别势均力敌、回合数多、稀有触发的战斗 */
 @Slf4j
@@ -30,7 +32,7 @@ public class HighlightBattleDetector {
     }
 
     int rounds = battleResult.rounds();
-    Map<String, Object> playerHpChange = battleResult.playerHpChange();
+    Map<String, HpChange> playerHpChange = battleResult.playerHpChange();
 
     // 检查回合数
     boolean isLongBattle = rounds >= HIGHLIGHT_ROUND_THRESHOLD;
@@ -39,25 +41,20 @@ public class HighlightBattleDetector {
     boolean isCloseBattle = false;
     if (playerHpChange != null && !playerHpChange.isEmpty()) {
       var hpEntry = playerHpChange.entrySet().iterator().next();
-      @SuppressWarnings("unchecked")
-      Map<String, Object> hpChange = (Map<String, Object>) hpEntry.getValue();
-      if (hpChange != null
-          && hpChange.get("before") instanceof Integer hpBefore
-          && hpChange.get("after") instanceof Integer hpAfter
-          && hpBefore > 0) {
-        double hpRatio = (double) hpAfter / hpBefore;
+      HpChange hpChange = hpEntry.getValue();
+      if (hpChange.before() > 0) {
+        double hpRatio = (double) hpChange.after() / hpChange.before();
         isCloseBattle = hpRatio <= HIGHLIGHT_HP_THRESHOLD;
       }
     }
 
     // 检查是否有稀有技能触发
     boolean hasRareSkillProc = false;
-    List<Map<String, Object>> skillProcs = battleResult.skillProcs();
+    List<SkillProc> skillProcs = battleResult.skillProcs();
     if (skillProcs != null) {
-      for (Map<String, Object> proc : skillProcs) {
-        int count = (int) proc.get("count");
+      for (SkillProc proc : skillProcs) {
         // 如果某个技能触发了多次，认为是高光
-        if (count >= 3) {
+        if (proc.count() >= 3) {
           hasRareSkillProc = true;
           break;
         }
