@@ -124,7 +124,7 @@ INSERT INTO xt_equipment_template (name, description, tags, slot, equip_level, b
 ('太极仙衣',   '太极八卦纹的仙衣，暗合天道，穿上后心魔不侵。',                '["armor","cloth","legendary","dao"]',          'ARMOR', 65,  0, 150, 0, 30, 20, 40, '{"EPIC":40,"LEGENDARY":60}'),
 -- 皮甲系列
 ('兽皮甲',     '妖兽皮缝制的皮甲，普通刀剑砍不透。',                        '["armor","leather","common","starter"]',      'ARMOR', 5,   0, 14,  3, 5,  2,  0, '{"BROKEN":60,"COMMON":30,"RARE":10}'),
-('犀皮铠',     '以犀妖兽皮鞣制的重皮甲，防御力不逊于铁甲而更轻。',           '["armor","leather","uncommon","basic"]',      'ARMOR', 15,  0, 30,  5, 12, 3,  0, '{"BROKEN":40,"COMMON":40,"RARE":15,"EPIC":5}'),
+('犀皮铠',     '以犀妖兽皮鞣制的重皮甲，防御不逊于铁甲而更轻。',           '["armor","leather","uncommon","basic"]',      'ARMOR', 15,  0, 30,  5, 12, 3,  0, '{"BROKEN":40,"COMMON":40,"RARE":15,"EPIC":5}'),
 ('云纹内甲',   '以云纹妖兽皮缝制的软皮内甲，贴身穿着外罩道袍，防不胜防。',      '["armor","leather","rare","intermediate"]',    'ARMOR', 25,  0, 45,  7, 18, 5,  0, '{"COMMON":30,"RARE":50,"EPIC":15,"LEGENDARY":5}'),
 ('龙鳞软甲',   '龙鳞嵌入的软甲，轻如无物却坚不可摧。',                       '["armor","leather","dragon","rare"]',          'ARMOR', 35,  0, 65,  10, 25, 8,  0, '{"COMMON":30,"RARE":50,"EPIC":15,"LEGENDARY":5}'),
 ('玄武甲',     '玄武神兽的甲壳所制，站立不动时防御翻倍。',                    '["armor","leather","defense","epic"]',         'ARMOR', 55,  0, 120, 15, 45, 5,  5, '{"RARE":40,"EPIC":40,"LEGENDARY":20}'),

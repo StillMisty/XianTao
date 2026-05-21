@@ -19,6 +19,7 @@ import top.stillmisty.xiantao.domain.skill.repository.PlayerSkillRepository;
 import top.stillmisty.xiantao.domain.skill.repository.SkillRepository;
 import top.stillmisty.xiantao.domain.skill.vo.SkillSlotResult;
 import top.stillmisty.xiantao.domain.skill.vo.SkillVO;
+import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
@@ -154,8 +155,10 @@ public class SkillService {
           .success(false)
           .message(
               String.format(
-                  "你的境界不足，需要第%d层才能学习「%s」（当前第%d层）",
-                  skill.getLevelRequirement(), skill.getName(), user.getLevel()))
+                  "你的境界不足，需要 %s 才能学习「%s」（当前 %s）",
+                  CultivationRealm.realmDisplay(skill.getLevelRequirement()),
+                  skill.getName(),
+                  CultivationRealm.realmDisplay(user.getLevel())))
           .build();
     }
     return null;

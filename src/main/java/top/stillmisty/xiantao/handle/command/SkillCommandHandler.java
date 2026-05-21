@@ -9,6 +9,7 @@ import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.skill.entity.SkillEffect;
 import top.stillmisty.xiantao.domain.skill.vo.SkillSlotResult;
 import top.stillmisty.xiantao.domain.skill.vo.SkillVO;
+import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
@@ -129,7 +130,10 @@ public class SkillCommandHandler implements CommandGroup {
 
     sb.append(
         fmt.listItem(
-            "CD：" + skill.cooldownSeconds() + "秒 | 等级要求：第" + skill.levelRequirement() + "层"));
+            "调息："
+                + skill.cooldownSeconds()
+                + "息 | 修为："
+                + CultivationRealm.realmDisplay(skill.levelRequirement())));
     if (skill.description() != null && !skill.description().isBlank()) {
       sb.append(fmt.listItem(skill.description()));
     }

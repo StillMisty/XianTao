@@ -49,7 +49,7 @@ INSERT INTO xt_item_template (name, type, properties, tags, description) VALUES
 ('寒玉丹',       'POTION', '{"effects":[{"type":"buff","attribute":"attack","amount":40,"duration_seconds":1800}]}', '["pill","buff","ice","uncommon"]', '以千年寒玉为引，服后寒气透骨、每次出手都如冰锥刺体。'),
 ('雷罡丹',       'POTION', '{"effects":[{"type":"buff","attribute":"attack","amount":50,"duration_seconds":1200}]}', '["pill","buff","thunder","rare"]', '天雷淬炼的刚猛丹药，服后攻击如雷霆炸裂，但事后浑身酥麻。'),
 ('木灵丹',       'POTION', '{"effects":[{"type":"buff","attribute":"defense","amount":40,"duration_seconds":1800}]}', '["pill","buff","wood","uncommon"]', '草木精华凝聚成丹，服后皮韧如古木，耐打翻倍。'),
-('暴击丹',       'POTION', '{"effects":[{"type":"buff","attribute":"attack","amount":60,"duration_seconds":900}]}', '["pill","buff","combat","rare"]', '短时间内攻击力暴涨的猛丹，出手如电招招要命。'),
+('暴击丹',       'POTION', '{"effects":[{"type":"buff","attribute":"attack","amount":60,"duration_seconds":900}]}', '["pill","buff","combat","rare"]', '短时间内攻击暴涨的猛丹，出手如电招招要命。'),
 ('闪避丹',       'POTION', '{"effects":[{"type":"buff","attribute":"speed","amount":40,"duration_seconds":1800}]}', '["pill","buff","combat","uncommon"]', '身法灵丹，服后身形如落叶飘忽，敌人连衣角都摸不到。'),
 ('双倍丹',       'POTION', '{"effects":[{"type":"buff","attribute":"speed","amount":60,"duration_seconds":1800}]}', '["pill","buff","utility","rare"]', '服后出手速度快到出现残影，一盏茶内攻速猛增。'),
 ('探宝丹',       'POTION', '{"effects":[{"type":"buff","attribute":"defense","amount":30,"duration_seconds":3600}]}', '["pill","buff","utility","uncommon"]', '服后周身灵气壁垒增强，可安全深入凶险之地采集珍材。'),
