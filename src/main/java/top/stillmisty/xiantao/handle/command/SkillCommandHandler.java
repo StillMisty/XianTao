@@ -37,7 +37,7 @@ public class SkillCommandHandler implements CommandGroup {
             fmt,
             skills -> formatLearnedSkills(skills, fmt),
             msg -> "❌ " + msg);
-    return equippedPart + "\n\n" + learnedPart;
+    return equippedPart + fmt.separator() + learnedPart;
   }
 
   public String handleEquipSkill(
@@ -68,7 +68,6 @@ public class SkillCommandHandler implements CommandGroup {
     sb.append(fmt.heading("已装载法决", "📿"));
     for (int i = 0; i < skills.size(); i++) {
       sb.append(formatSkillDetail(i + 1, skills.get(i), fmt));
-      if (i < skills.size() - 1) sb.append(fmt.separator());
     }
     return sb.toString();
   }
@@ -88,7 +87,6 @@ public class SkillCommandHandler implements CommandGroup {
       if (skill.equipped()) sb.append(" ◆");
       sb.append("\n");
     }
-    sb.append("\n◆ 标记表示已装载到槽位");
     return sb.toString();
   }
 
@@ -112,7 +110,6 @@ public class SkillCommandHandler implements CommandGroup {
       sb.append(index).append(". ");
     }
     sb.append(fmt.bold(skill.name()));
-    if (skill.equipped()) sb.append(" ◆");
     sb.append("\n");
 
     if (skill.effects() != null && !skill.effects().isEmpty()) {
@@ -134,7 +131,7 @@ public class SkillCommandHandler implements CommandGroup {
         fmt.listItem(
             "CD：" + skill.cooldownSeconds() + "秒 | 等级要求：第" + skill.levelRequirement() + "层"));
     if (skill.description() != null && !skill.description().isBlank()) {
-      sb.append(fmt.listItem("描述：" + skill.description()));
+      sb.append(fmt.listItem(skill.description()));
     }
     return sb.toString();
   }
