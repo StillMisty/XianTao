@@ -85,6 +85,19 @@ public class UserStateService {
         user.getId(), user.getHpCurrent(), user.getStatus().getCode(), user.getDyingStartTime());
   }
 
+  /** 历练结算后持久化：HP、修为、状态、濒死时间、活动字段。 */
+  public void saveTrainingEndState(User user) {
+    userRepository.completeTraining(
+        user.getId(),
+        user.getHpCurrent(),
+        user.getExp(),
+        user.getStatus().getCode(),
+        user.getDyingStartTime(),
+        user.getActivityType() != null ? user.getActivityType().getCode() : null,
+        user.getActivityStartTime(),
+        user.getActivityTargetId());
+  }
+
   // ===================== 状态解析 =====================
 
   private void resolveState(User user) {

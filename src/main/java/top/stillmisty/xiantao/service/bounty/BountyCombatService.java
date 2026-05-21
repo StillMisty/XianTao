@@ -264,7 +264,8 @@ public class BountyCombatService {
             itemNames,
             null,
             null,
-            eventDescription);
+            eventDescription,
+            null);
 
     try {
       var response = explorationDescriptionFunction.beautify(request);

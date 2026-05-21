@@ -119,7 +119,7 @@ public class PillConsumptionService {
     if (actualExp <= 0) return null;
     user.addExp(actualExp);
     pillResistanceRepository.incrementCount(user.getId(), templateId, quality);
-    return "获得 " + actualExp + " 经验值";
+    return "修为增进 " + actualExp;
   }
 
   private String applyHp(User user, ItemProperties.Effect.Hp e, double qualityMultiplier) {

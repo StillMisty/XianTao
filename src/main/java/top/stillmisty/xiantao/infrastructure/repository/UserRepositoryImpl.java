@@ -96,4 +96,25 @@ public class UserRepositoryImpl implements UserRepository {
       Long userId, int hpCurrent, String status, LocalDateTime dyingStartTime) {
     userMapper.updateHpStatus(userId, hpCurrent, status, dyingStartTime);
   }
+
+  @Override
+  public void completeTraining(
+      Long userId,
+      int hpCurrent,
+      long exp,
+      String status,
+      LocalDateTime dyingStartTime,
+      String activityType,
+      LocalDateTime activityStartTime,
+      Long activityTargetId) {
+    userMapper.completeTraining(
+        userId,
+        hpCurrent,
+        exp,
+        status,
+        dyingStartTime,
+        activityType,
+        activityStartTime,
+        activityTargetId);
+  }
 }

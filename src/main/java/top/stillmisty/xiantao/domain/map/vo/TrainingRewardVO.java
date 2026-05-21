@@ -30,7 +30,7 @@ public class TrainingRewardVO {
   /** 获得的灵石 */
   private Long spiritStones;
 
-  /** 获得的经验 */
+  /** 获得的修为 */
   private Long exp;
 
   /** 获得的物品（格式: [{"name": "毒龙草", "quantity": 5, "templateId": 1}]） */

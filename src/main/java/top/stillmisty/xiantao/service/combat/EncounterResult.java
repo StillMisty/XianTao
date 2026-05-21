@@ -15,7 +15,8 @@ public record EncounterResult(
     List<DropItem> drops,
     List<CombatLogEntry> logs,
     List<Map<String, Object>> skillProcs,
-    boolean isHighlight) {
+    boolean isHighlight,
+    String monsterName) {
 
   @SuppressWarnings("unchecked")
   public static EncounterResult won(
@@ -26,7 +27,8 @@ public record EncounterResult(
       Object dropsObj,
       List<CombatLogEntry> logs,
       List<Map<String, Object>> skillProcs,
-      boolean isHighlight) {
+      boolean isHighlight,
+      String monsterName) {
     List<DropItem> drops;
     try {
       drops = (List<DropItem>) dropsObj;
@@ -34,10 +36,19 @@ public record EncounterResult(
       drops = List.of();
     }
     return new EncounterResult(
-        true, expGained, kills, rounds, enlightenment, drops, logs, skillProcs, isHighlight);
+        true,
+        expGained,
+        kills,
+        rounds,
+        enlightenment,
+        drops,
+        logs,
+        skillProcs,
+        isHighlight,
+        monsterName);
   }
 
   public static EncounterResult lost() {
-    return new EncounterResult(false, 0, 0, 0, false, List.of(), List.of(), List.of(), false);
+    return new EncounterResult(false, 0, 0, 0, false, List.of(), List.of(), List.of(), false, null);
   }
 }

@@ -99,7 +99,7 @@ public class DungeonCommandHandler implements CommandGroup {
     sb.append(result.message()).append("\n");
 
     if (result.expGained() > 0) {
-      sb.append(fmt.listItem("经验 +" + result.expGained()));
+      sb.append(fmt.listItem("修为 +" + result.expGained()));
     }
     if (result.spiritStonesGained() > 0) {
       sb.append(fmt.listItem("灵石 +" + result.spiritStonesGained()));

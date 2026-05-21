@@ -38,7 +38,7 @@ public class User extends Model<User> {
   /** 角色等级 */
   private Integer level;
 
-  /** 当前经验值 */
+  /** 当前修为 */
   private Long exp;
 
   /** 货币 (灵石) — UPDATE 时不自写，由 SpiritStoneService 原子 SQL 控制 */
@@ -157,12 +157,12 @@ public class User extends Model<User> {
     this.statWis = (this.statWis != null ? this.statWis : 0) + amount;
   }
 
-  /** 计算升级到下一级所需经验 */
+  /** 计算升级到下一级所需修为 */
   public long calculateExpToNextLevel() {
     return 100L * level * level;
   }
 
-  /** 计算当前等级可存储的最大经验值 */
+  /** 计算当前等级可存储的最大修为 */
   public long calculateMaxExpStorage() {
     return calculateExpToNextLevel() * 5;
   }
@@ -185,7 +185,7 @@ public class User extends Model<User> {
     hpCurrent = Math.max(0, hpCurrent - amount);
   }
 
-  /** 添加经验值（考虑存储上限） */
+  /** 添加修为（考虑存储上限） */
   public void addExp(long expToAdd) {
     long maxStorage = calculateMaxExpStorage();
     long currentStorage = exp - (level > 1 ? calculateExpToPrevLevel() : 0);
@@ -194,7 +194,7 @@ public class User extends Model<User> {
     this.exp += actualAdd;
   }
 
-  /** 计算从上一级到当前级所需经验 */
+  /** 计算从上一级到当前级所需修为 */
   private long calculateExpToPrevLevel() {
     if (level <= 1) return 0;
     return 100L * (level - 1) * (level - 1);

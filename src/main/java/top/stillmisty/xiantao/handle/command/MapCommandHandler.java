@@ -158,7 +158,7 @@ public class MapCommandHandler implements CommandGroup {
     }
 
     if (rewards.getExp() != null && rewards.getExp() > 0) {
-      sb.append(fmt.listItem("经验+" + rewards.getExp()));
+      sb.append(fmt.listItem("修为+" + rewards.getExp()));
     }
     if (rewards.getItems() != null && !rewards.getItems().isEmpty()) {
       StringBuilder itemsStr = new StringBuilder();

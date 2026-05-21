@@ -49,6 +49,23 @@ public interface UserMapper extends BaseMapper<User> {
       @Param("status") String status,
       @Param("dyingStartTime") LocalDateTime dyingStartTime);
 
+  @Update(
+      """
+      UPDATE xt_user SET hp_current = #{hpCurrent}, exp = #{exp},
+      status = #{status}, dying_start_time = #{dyingStartTime},
+      activity_type = #{activityType}, activity_start_time = #{activityStartTime},
+      activity_target_id = #{activityTargetId}, update_time = now()
+      WHERE id = #{userId}""")
+  void completeTraining(
+      @Param("userId") Long userId,
+      @Param("hpCurrent") int hpCurrent,
+      @Param("exp") long exp,
+      @Param("status") String status,
+      @Param("dyingStartTime") LocalDateTime dyingStartTime,
+      @Param("activityType") String activityType,
+      @Param("activityStartTime") LocalDateTime activityStartTime,
+      @Param("activityTargetId") Long activityTargetId);
+
   @Select("SELECT * FROM xt_user WHERE id = #{id} FOR UPDATE")
   User selectByIdForUpdate(@Param("id") Long id);
 }

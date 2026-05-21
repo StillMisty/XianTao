@@ -15,13 +15,19 @@ public record CombatSummary(
     int enlightenmentCount,
     List<DropItem> allDrops,
     List<CombatLogEntry> allLogs,
-    List<Map<String, Object>> allSkillProcs) {
+    List<Map<String, Object>> allSkillProcs,
+    boolean hasHighlight,
+    String firstHighlightMonsterName,
+    List<CombatLogEntry> firstHighlightLogs,
+    List<Map<String, Object>> firstHighlightSkillProcs) {
 
   public static CombatSummary empty() {
-    return new CombatSummary(0, 0, 0, 0, 0, 0, List.of(), List.of(), List.of());
+    return new CombatSummary(
+        0, 0, 0, 0, 0, 0, List.of(), List.of(), List.of(), false, null, List.of(), List.of());
   }
 
   public CombatSummary merge(EncounterResult result) {
+    boolean isHighlight = result.isHighlight() && !this.hasHighlight;
     return new CombatSummary(
         expGained + result.expGained(),
         totalEncounters + 1,
@@ -31,7 +37,11 @@ public record CombatSummary(
         enlightenmentCount + (result.enlightenmentTriggered() ? 1 : 0),
         concat(allDrops, result.drops()),
         concat(allLogs, result.logs()),
-        concat(allSkillProcs, result.skillProcs()));
+        concat(allSkillProcs, result.skillProcs()),
+        this.hasHighlight || result.isHighlight(),
+        isHighlight ? result.monsterName() : firstHighlightMonsterName,
+        isHighlight ? result.logs() : firstHighlightLogs,
+        isHighlight ? result.skillProcs() : firstHighlightSkillProcs);
   }
 
   private static <T> List<T> concat(List<T> a, List<T> b) {

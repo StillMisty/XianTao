@@ -97,7 +97,7 @@ public class BeastCommandHandler implements CommandGroup {
     return CommandHandlerHelper.safeCall(
         () -> beastBreedingService.feedBeast(platform, openId, position, quantity),
         fmt,
-        exp -> "✅ 喂养成功！灵兽获得 %d 经验。".formatted(exp));
+        exp -> "✅ 喂养成功！灵兽获得 %d 修为。".formatted(exp));
   }
 
   // ===================== 格式化方法 =====================

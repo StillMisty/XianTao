@@ -191,7 +191,7 @@ public class CultivationCommandHandler implements CommandGroup {
 
   private String formatCharacterStatus(CharacterStatusResult status, TextFormat fmt) {
     StringBuilder sb = new StringBuilder();
-    sb.append(fmt.subHeading(status.nickname() + "的修仙状态"));
+    sb.append(fmt.subHeading(status.nickname()));
 
     if (status.locationName() != null) {
       sb.append(fmt.listItem("所在地：" + status.locationName()));

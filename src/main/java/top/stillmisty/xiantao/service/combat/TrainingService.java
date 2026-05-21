@@ -23,6 +23,7 @@ import top.stillmisty.xiantao.domain.map.vo.TrainingRewardVO;
 import top.stillmisty.xiantao.domain.map.vo.TrainingStartResult;
 import top.stillmisty.xiantao.domain.monster.entity.MonsterTemplate;
 import top.stillmisty.xiantao.domain.monster.repository.MonsterTemplateRepository;
+import top.stillmisty.xiantao.domain.monster.vo.CombatLogEntry;
 import top.stillmisty.xiantao.domain.skill.entity.Skill;
 import top.stillmisty.xiantao.domain.skill.repository.SkillRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
@@ -181,7 +182,7 @@ public class TrainingService {
     CombatSummary combatSummary = runUnifiedEventLoop(userId, user, mapNode, (int) minutesTraining);
     boolean diedInTraining = user.getStatus() == UserStatus.DYING;
 
-    // 子事件和隐藏事件优先于基础经验结算（避免溢出）
+    // 子事件和隐藏事件优先于基础修为结算（避免溢出）
     trainingCompleter.checkHiddenEvents(userId, user, mapNode);
 
     if (!diedInTraining && baseExp > 0) {
@@ -194,11 +195,11 @@ public class TrainingService {
       user.setStatus(UserStatus.IDLE);
       user.clearActivity();
       trainingCompleter.produceCompletionEvent(userId, user, mapNode, minutesTraining);
-      userStateService.saveActivity(user);
     } else {
       user.endActivity();
       trainingCompleter.produceInterruptedEvent(userId, mapNode);
     }
+    userStateService.saveTrainingEndState(user);
 
     long totalExp = baseExp + combatSummary.expGained();
     List<String> itemNames =
@@ -284,6 +285,7 @@ public class TrainingService {
       List<String> itemNames,
       CombatSummary combatSummary,
       String fallback) {
+    String combatHighlight = buildHighlightBattleText(combatSummary);
     var request =
         new ExplorationDescriptionFunction.Request(
             mapNode.getName(),
@@ -292,7 +294,8 @@ public class TrainingService {
             itemNames,
             totalExp > 0 ? totalExp : null,
             null,
-            buildCombatSummaryText(combatSummary));
+            buildCombatSummaryText(combatSummary),
+            combatHighlight);
     try {
       var response = explorationDescriptionFunction.beautify(request);
       if (response != null && response.description() != null && !response.description().isEmpty()) {
@@ -309,7 +312,35 @@ public class TrainingService {
     StringBuilder sb = new StringBuilder();
     sb.append(String.format("遇敌%d场 | 击杀%d只", cs.totalEncounters(), cs.totalKills()));
     if (cs.defeatCount() > 0) sb.append(String.format(" | 战败%d场", cs.defeatCount()));
-    if (cs.expGained() > 0) sb.append(String.format(" | 战斗经验+%d", cs.expGained()));
+    if (cs.expGained() > 0) sb.append(String.format(" | 修为+%d", cs.expGained()));
+    return sb.toString();
+  }
+
+  private String buildHighlightBattleText(CombatSummary cs) {
+    if (!cs.hasHighlight() || cs.firstHighlightLogs().isEmpty()) return null;
+    StringBuilder sb = new StringBuilder();
+    sb.append("你遭遇了").append(cs.firstHighlightMonsterName()).append("，这是一场苦战：\n");
+    for (var entry : cs.firstHighlightLogs()) {
+      sb.append(String.format("  [第%d回合] ", entry.round()));
+      sb.append(entry.attackerName()).append(" ");
+      sb.append(entry.attackType() == CombatLogEntry.AttackType.SKILL ? "施展" : "攻击");
+      if (entry.skillName() != null && !entry.skillName().isEmpty()) {
+        sb.append("「").append(entry.skillName()).append("」");
+      }
+      sb.append(" → ").append(entry.defenderName());
+      if (entry.damageDealt() > 0) {
+        sb.append(String.format("（%d点伤害", entry.damageDealt()));
+        sb.append("，HP ")
+            .append(entry.defenderHpBefore())
+            .append(" → ")
+            .append(entry.defenderHpAfter());
+        sb.append("）");
+      }
+      if (entry.isKill()) {
+        sb.append(" 击杀！");
+      }
+      sb.append("\n");
+    }
     return sb.toString();
   }
 
@@ -321,7 +352,7 @@ public class TrainingService {
       boolean diedInTraining) {
     StringBuilder summary = new StringBuilder();
     summary.append(String.format("历练时长: %d 分钟\n", minutesTraining));
-    if (totalExp > 0) summary.append(String.format("经验: +%d\n", totalExp));
+    if (totalExp > 0) summary.append(String.format("修为: +%d\n", totalExp));
     if (combatSummary.totalEncounters() > 0) {
       summary.append(buildCombatSummaryText(combatSummary)).append("\n");
     }

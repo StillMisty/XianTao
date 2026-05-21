@@ -46,4 +46,15 @@ public interface UserRepository {
 
   /** 更新 HP、状态、濒死时间 */
   void updateHpStatus(Long userId, int hpCurrent, String status, LocalDateTime dyingStartTime);
+
+  /** 历练结算后持久化：HP、修为、状态、濒死时间、活动字段 */
+  void completeTraining(
+      Long userId,
+      int hpCurrent,
+      long exp,
+      String status,
+      LocalDateTime dyingStartTime,
+      String activityType,
+      LocalDateTime activityStartTime,
+      Long activityTargetId);
 }

@@ -76,6 +76,7 @@ public class StackableItem {
     item.itemType = itemType;
     item.name = name;
     item.quantity = quantity;
+    item.tradable = true;
     item.createTime = LocalDateTime.now();
     item.propertiesHash = computeHash(item.properties);
     return item;

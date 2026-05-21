@@ -220,7 +220,7 @@ public class GmService {
     target.setExp(0L);
     userRepository.save(target);
     log.info("GM {} 设置 {} 等级（{} → {}）", gmUserId, targetNickname, before, level);
-    return String.format("已将 %s 等级设置为 %d（原等级：%d，经验已清零）", targetNickname, level, before);
+    return String.format("已将 %s 等级设置为 %d（原等级：%d，修为已清零）", targetNickname, level, before);
   }
 
   @Transactional

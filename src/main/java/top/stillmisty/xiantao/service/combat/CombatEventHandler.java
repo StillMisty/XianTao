@@ -86,6 +86,7 @@ public class CombatEventHandler {
         highlightBattleDetector.detectHighlight(result, encounterIndex);
     boolean isHighlight = highlightInfo != null;
 
+    String monsterName = tmpl.getName() + (count > 1 ? " x" + count : "");
     EncounterResult encounterResult;
     if (playerWon) {
       double levelModifier = calculateCombatExpModifier(user.getLevel(), tmpl.getBaseLevel());
@@ -98,11 +99,29 @@ public class CombatEventHandler {
               : List.of();
       encounterResult =
           new EncounterResult(
-              true, expGained, count, result.rounds(), false, drops, logs, skillProcs, isHighlight);
+              true,
+              expGained,
+              count,
+              result.rounds(),
+              false,
+              drops,
+              logs,
+              skillProcs,
+              isHighlight,
+              monsterName);
     } else {
       encounterResult =
           new EncounterResult(
-              false, 0, 0, result.rounds(), false, List.of(), logs, skillProcs, isHighlight);
+              false,
+              0,
+              0,
+              result.rounds(),
+              false,
+              List.of(),
+              logs,
+              skillProcs,
+              isHighlight,
+              monsterName);
     }
 
     postCombatProcessor.applyHpToUser(user, playerTeam);
@@ -130,7 +149,8 @@ public class CombatEventHandler {
               encounterResult.drops(),
               encounterResult.logs(),
               encounterResult.skillProcs(),
-              encounterResult.isHighlight());
+              encounterResult.isHighlight(),
+              encounterResult.monsterName());
     }
 
     return encounterResult;
@@ -173,7 +193,7 @@ public class CombatEventHandler {
       user.addExp(expBonus);
       args.put("exp", expBonus);
       gameEventService.createEvent(
-          userId, GameEventCategory.TRAINING_EVENT, "历练中灵光一闪，顿悟天道至理，获得 +{{exp}} exp。", args);
+          userId, GameEventCategory.TRAINING_EVENT, "历练中灵光一闪，顿悟天道至理，修为增进 +{{exp}}。", args);
     } else if (roll < 0.80) {
       Skill learned = tryLearnRandomSkill(userId, user);
       if (learned != null) {
@@ -186,7 +206,7 @@ public class CombatEventHandler {
         user.addExp(expBonus);
         args.put("exp", expBonus);
         gameEventService.createEvent(
-            userId, GameEventCategory.TRAINING_EVENT, "似有所悟，但未得要领，仅获 +{{exp}} exp。", args);
+            userId, GameEventCategory.TRAINING_EVENT, "似有所悟，但未得要领，仅获 +{{exp}} 修为。", args);
       }
     } else if (roll < 0.95) {
       expBonus = (long) (expToNextLevel * (0.08 + ThreadLocalRandom.current().nextDouble() * 0.12));
@@ -198,11 +218,11 @@ public class CombatEventHandler {
         gameEventService.createEvent(
             userId,
             GameEventCategory.TRAINING_EVENT,
-            "天机乍现，大彻大悟！获得 +{{exp}} exp，并悟得「{{skillName}}」！",
+            "天机乍现，大彻大悟！修为增进 +{{exp}}，并悟得「{{skillName}}」！",
             args);
       } else {
         gameEventService.createEvent(
-            userId, GameEventCategory.TRAINING_EVENT, "天机乍现，大彻大悟！获得 +{{exp}} exp。", args);
+            userId, GameEventCategory.TRAINING_EVENT, "天机乍现，大彻大悟！修为增进 +{{exp}}。", args);
       }
     } else {
       long maxStorage = user.calculateMaxExpStorage();
@@ -220,11 +240,11 @@ public class CombatEventHandler {
         gameEventService.createEvent(
             userId,
             GameEventCategory.TRAINING_EVENT,
-            "天人交感，道心通明！修为暴涨 +{{exp}} exp，悟得「{{skillName}}」！",
+            "天人交感，道心通明！修为暴涨 +{{exp}}，悟得「{{skillName}}」！",
             args);
       } else {
         gameEventService.createEvent(
-            userId, GameEventCategory.TRAINING_EVENT, "天人交感，道心通明！修为暴涨 +{{exp}} exp！", args);
+            userId, GameEventCategory.TRAINING_EVENT, "天人交感，道心通明！修为暴涨 +{{exp}}！", args);
       }
     }
     return true;

@@ -19,12 +19,13 @@ public class ExplorationDescriptionFunction {
   private static final String SYSTEM_PROMPT =
       """
             你是一个仙侠世界的旁白叙述者。
-            根据给出的探索信息，将其改写为一段身临其境的探索描述。
+            根据给出的探索/历练信息，将其改写为一段身临其境的描述。
 
             要求：
             1. 语言优美，充满仙侠意境与画面感
             2. 融入探索「从外围逐步深入核心」的推进感
-            3. 只返回描述文本，不要添加任何说明、标记或前缀
+            3. 如遇高光战斗，细致描绘战斗场景，突出技能交锋与命悬一线的紧张感
+            4. 只返回描述文本，不要添加任何说明、标记或前缀
             """;
   private final ChatClient chatClient;
 
@@ -62,7 +63,7 @@ public class ExplorationDescriptionFunction {
       sb.append("探索途中，").append(request.eventDescription()).append("。\n");
     }
     if (request.expGained() != null && request.expGained() > 0) {
-      sb.append("获得了").append(request.expGained()).append("点经验值");
+      sb.append("获得了").append(request.expGained()).append("点修为");
     }
     if (request.foundItems() != null && !request.foundItems().isEmpty()) {
       if (request.expGained() != null && request.expGained() > 0) {
@@ -76,7 +77,12 @@ public class ExplorationDescriptionFunction {
     if (request.recipeName() != null && !request.recipeName().isEmpty()) {
       sb.append("还意外发现了一份").append(request.recipeName()).append("。\n");
     }
-    sb.append("请将以上探索经历改写为一段优美的仙侠风格旁白：");
+    if (request.combatHighlight() != null && !request.combatHighlight().isEmpty()) {
+      sb.append("\n--- 高光战斗 ---\n");
+      sb.append(request.combatHighlight());
+      sb.append("\n--- 高光战斗结束 ---\n");
+    }
+    sb.append("请将以上经历改写为一段优美的仙侠风格旁白：");
     return sb.toString();
   }
 
@@ -97,7 +103,7 @@ public class ExplorationDescriptionFunction {
     }
 
     if (request.expGained() != null && request.expGained() > 0) {
-      sb.append("\n\n获得 ").append(request.expGained()).append(" 点经验值");
+      sb.append("\n\n获得 ").append(request.expGained()).append(" 点修为");
     }
 
     if (request.foundItems() != null && !request.foundItems().isEmpty()) {
@@ -129,11 +135,13 @@ public class ExplorationDescriptionFunction {
           String eventType,
       @JsonProperty(value = "foundItems") @JsonPropertyDescription("发现的物品名称列表，如['毒龙草', '铁矿石']")
           List<String> foundItems,
-      @JsonProperty(value = "expGained") @JsonPropertyDescription("获得的经验值（探索不获取经验时为空）")
+      @JsonProperty(value = "expGained") @JsonPropertyDescription("获得的修为（探索不获取修为时为空）")
           Long expGained,
       @JsonProperty(value = "recipeName") @JsonPropertyDescription("发现的配方名称（如有）") String recipeName,
       @JsonProperty(value = "eventDescription") @JsonPropertyDescription("探索中触发的事件描述（如有）")
-          String eventDescription) {}
+          String eventDescription,
+      @JsonProperty(value = "combatHighlight") @JsonPropertyDescription("高光战斗的详细描述（如有）")
+          String combatHighlight) {}
 
   @JsonInclude(JsonInclude.Include.NON_NULL)
   public record Response(@JsonPropertyDescription("美化的探索描述文本") String description) {}
