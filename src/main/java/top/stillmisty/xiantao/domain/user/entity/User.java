@@ -111,7 +111,7 @@ public class User extends Model<User> {
 
   /** 计算最大生命值（基于体质） */
   public int calculateMaxHp() {
-    int statCon = getStatCon();
+    int statCon = getEffectiveStatCon();
     return 100 + statCon * 20;
   }
 
