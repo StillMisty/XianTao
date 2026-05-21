@@ -172,7 +172,7 @@ public class ForgingCombinationFinder {
       }
     }
 
-    String name = rarity.randomPrefix() + equipTmpl.getName();
+    String name = equipTmpl.getName() + "-" + rarity.getName();
 
     Map<String, Integer> statBonus =
         Map.of(

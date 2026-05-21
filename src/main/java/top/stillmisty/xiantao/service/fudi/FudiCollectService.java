@@ -78,7 +78,7 @@ public class FudiCollectService {
         continue;
       }
 
-      int yield = farmService.calculateYield(farm.cropId(), fudi.getTribulationStage());
+      int yield = farmService.calculateYield(farm.cropId());
       farmService.grantHarvestItems(fudi.getUserId(), farm.cropId(), yield);
       int hCount = farm.harvestCount() + 1;
       int maxHarvest = farmService.getMaxHarvest(farm.cropId());

@@ -1,13 +1,19 @@
 package top.stillmisty.xiantao.infrastructure.mapper;
 
 import com.mybatisflex.core.BaseMapper;
+import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 
 @Mapper
 public interface StackableItemMapper extends BaseMapper<StackableItem> {
+
+  @Select("SELECT * FROM xt_inventory_item WHERE user_id = #{userId} AND name = #{name}")
+  List<StackableItem> selectByUserIdAndName(
+      @Param("userId") Long userId, @Param("name") String name);
 
   @Update(
       "UPDATE xt_inventory_item SET quantity = quantity - #{qty} WHERE id = #{id} AND user_id = #{userId} AND quantity >= #{qty}")
@@ -20,4 +26,7 @@ public interface StackableItemMapper extends BaseMapper<StackableItem> {
           + "#{item.tradable}, NOW(), NOW()) "
           + "ON CONFLICT (user_id, template_id, properties_hash) DO UPDATE SET quantity = xt_inventory_item.quantity + #{item.quantity}, update_time = NOW()")
   int upsertIncrementQuantity(@Param("item") StackableItem item);
+
+  @Update("DELETE FROM xt_inventory_item WHERE id = #{id} AND quantity <= 0")
+  int deleteIfZeroQuantity(@Param("id") Long id);
 }

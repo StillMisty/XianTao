@@ -6,7 +6,7 @@ import lombok.Getter;
 /** 物品类型枚举 */
 @Getter
 public enum ItemType {
-  MATERIAL("MATERIAL", "材料"),
+  MATERIAL("MATERIAL", "锻材"),
 
   SEED("SEED", "种子"),
 

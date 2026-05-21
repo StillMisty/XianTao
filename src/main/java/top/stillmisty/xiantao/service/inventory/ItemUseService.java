@@ -40,25 +40,25 @@ public class ItemUseService {
   /** 使用物品（内部API） */
   @Transactional
   public String useItem(Long userId, String itemName, String args) {
-    // 1. 查找物品 - 模糊匹配后精确优先
-    List<StackableItem> items =
-        stackableItemRepository.findByUserIdAndNameContaining(userId, itemName);
+    // 1. 精确名称匹配优先
+    List<StackableItem> exactMatches =
+        stackableItemRepository.findByUserIdAndName(userId, itemName);
     StackableItem matchedItem = null;
     ItemTemplate matchedTemplate = null;
 
-    // 精确名称匹配优先
-    for (StackableItem item : items) {
-      if (item.getName().equals(itemName)) {
-        ItemTemplate template = itemTemplateRepository.findById(item.getTemplateId()).orElse(null);
-        if (template != null) {
-          matchedItem = item;
-          matchedTemplate = template;
-          break;
-        }
+    for (StackableItem item : exactMatches) {
+      ItemTemplate template = itemTemplateRepository.findById(item.getTemplateId()).orElse(null);
+      if (template != null) {
+        matchedItem = item;
+        matchedTemplate = template;
+        break;
       }
     }
-    // 精确匹配失败时回退到任意匹配
+
+    // 精确匹配失败时回退到模糊匹配
     if (matchedItem == null) {
+      List<StackableItem> items =
+          stackableItemRepository.findByUserIdAndNameContaining(userId, itemName);
       for (StackableItem item : items) {
         ItemTemplate template = itemTemplateRepository.findById(item.getTemplateId()).orElse(null);
         if (template != null) {

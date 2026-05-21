@@ -185,7 +185,7 @@ public class FarmService {
     }
 
     String cropName = getCropName(farm.cropId());
-    int yield = calculateYield(farm.cropId(), fudi.getTribulationStage());
+    int yield = calculateYield(farm.cropId());
     grantHarvestItems(fudi.getUserId(), farm.cropId(), yield);
 
     int harvestCount = farm.harvestCount() + 1;
@@ -210,18 +210,45 @@ public class FarmService {
       return;
     }
     var props = seedTemplate.typedProperties();
-    if (props instanceof ItemProperties.Growth g) {
-      for (var item : g.productionItems()) {
-        String name =
-            itemTemplateRepository
-                .findById(item.templateId())
-                .map(ItemTemplate::getName)
-                .orElse("未知灵药");
-        stackableItemService.addStackableItem(
-            userId, item.templateId(), ItemType.HERB, name, yield);
-      }
-    } else {
+    if (!(props instanceof ItemProperties.Growth g)) {
       log.warn("收获作物时模板缺少Growth属性: cropId={}, userId={}", cropId, userId);
+      return;
+    }
+
+    double mutationChance = g.mutation() != null ? g.mutation().chance() : 0;
+    Long mutationTemplateId = g.mutation() != null ? g.mutation().templateId() : null;
+
+    for (var item : g.productionItems()) {
+      int normalCount = 0;
+      int mutationCount = 0;
+      for (int i = 0; i < yield; i++) {
+        if (mutationTemplateId != null
+            && mutationChance > 0
+            && ThreadLocalRandom.current().nextDouble() < mutationChance) {
+          mutationCount++;
+        } else {
+          normalCount++;
+        }
+      }
+
+      if (normalCount > 0) {
+        var prodTemplate = itemTemplateRepository.findById(item.templateId()).orElse(null);
+        String name = prodTemplate != null ? prodTemplate.getName() : "未知灵药";
+        ItemType prodType = prodTemplate != null ? prodTemplate.getType() : ItemType.HERB;
+        stackableItemService.addStackableItem(
+            userId, item.templateId(), prodType, name, normalCount);
+      }
+      if (mutationCount > 0) {
+        var mutationTemplate = itemTemplateRepository.findById(mutationTemplateId).orElse(null);
+        if (mutationTemplate != null) {
+          stackableItemService.addStackableItem(
+              userId,
+              mutationTemplateId,
+              mutationTemplate.getType(),
+              mutationTemplate.getName(),
+              mutationCount);
+        }
+      }
     }
   }
 
@@ -265,10 +292,16 @@ public class FarmService {
 
   // ===================== 辅助方法 =====================
 
-  public int calculateYield(Integer cropId, int tribulationStage) {
-    int baseYield = 1 + ThreadLocalRandom.current().nextInt(3);
-    int bonus = tribulationStage / 5;
-    return baseYield + bonus;
+  public int calculateYield(Integer cropId) {
+    var props =
+        itemTemplateRepository
+            .findById((long) cropId)
+            .map(ItemTemplate::typedProperties)
+            .orElse(null);
+    if (props instanceof ItemProperties.Growth g) {
+      return g.yieldMin() + ThreadLocalRandom.current().nextInt(g.yieldMax() - g.yieldMin() + 1);
+    }
+    return 1 + ThreadLocalRandom.current().nextInt(3);
   }
 
   public double getBaseGrowthHours(Integer cropId) {
@@ -317,7 +350,7 @@ public class FarmService {
             .map(ItemTemplate::typedProperties)
             .orElse(null);
     if (props instanceof ItemProperties.Growth g) {
-      return 1 + g.reharvest();
+      return g.maxHarvest();
     }
     return 1;
   }

@@ -35,14 +35,22 @@ public sealed interface ItemProperties {
 
   record Growth(
       @JsonProperty("grow_time") int growTime,
-      @JsonProperty("reharvest") int reharvest,
-      @JsonProperty("production_items") List<ProductionItem> productionItems)
+      @JsonProperty("max_harvest") int maxHarvest,
+      @JsonProperty("yield_min") int yieldMin,
+      @JsonProperty("yield_max") int yieldMax,
+      @JsonProperty("mutation") Mutation mutation,
+      @JsonProperty("production_items") List<SeedProduct> productionItems)
       implements ItemProperties {
     public Growth {
-      if (reharvest < 0) reharvest = 0;
+      if (maxHarvest <= 0) maxHarvest = 1;
+      if (yieldMin <= 0) yieldMin = 1;
+      if (yieldMax <= 0) yieldMax = 3;
       if (productionItems == null) productionItems = List.of();
     }
   }
+
+  record Mutation(
+      @JsonProperty("chance") double chance, @JsonProperty("template_id") long templateId) {}
 
   record BeastEgg(
       @JsonProperty("grow_time") int growTime,
@@ -83,4 +91,12 @@ public sealed interface ItemProperties {
         @JsonProperty("result_quantity") int resultQuantity,
         Map<String, ElementRange> requirements) {}
   }
+
+  record Herb(@JsonProperty("elements") Map<String, Integer> elements) implements ItemProperties {}
+
+  record Material(
+      @JsonProperty("RIGIDITY") int rigidity,
+      @JsonProperty("TOUGHNESS") int toughness,
+      @JsonProperty("SPIRIT") int spirit)
+      implements ItemProperties {}
 }

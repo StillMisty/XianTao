@@ -63,6 +63,11 @@ public class StackableItemRepositoryImpl implements StackableItemRepository {
   }
 
   @Override
+  public List<StackableItem> findByUserIdAndName(Long userId, String name) {
+    return stackableItemMapper.selectByUserIdAndName(userId, name);
+  }
+
+  @Override
   public List<StackableItem> findByUserIdAndNameContaining(Long userId, String name) {
     QueryWrapper query =
         new QueryWrapper().eq(StackableItem::getUserId, userId).like(StackableItem::getName, name);
@@ -82,5 +87,10 @@ public class StackableItemRepositoryImpl implements StackableItemRepository {
   @Override
   public int upsertIncrementQuantity(StackableItem item) {
     return stackableItemMapper.upsertIncrementQuantity(item);
+  }
+
+  @Override
+  public int deleteIfZeroQuantity(Long id) {
+    return stackableItemMapper.deleteIfZeroQuantity(id);
   }
 }

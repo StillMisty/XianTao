@@ -78,6 +78,10 @@ public class StackableItemService {
       throw new BusinessException(
           ErrorCode.ITEM_QUANTITY_INSUFFICIENT, quantity, item.getQuantity());
     }
+    var item = stackableItemRepository.findById(itemId);
+    if (item.isPresent() && item.get().getQuantity() != null && item.get().getQuantity() <= 0) {
+      stackableItemRepository.deleteIfZeroQuantity(itemId);
+    }
     log.debug("原子减少堆叠物品数量: userId={}, itemId={}, quantity={}", userId, itemId, quantity);
   }
 

@@ -34,7 +34,6 @@ INSERT INTO xt_item_template (name, type, properties, tags, description) VALUES
 ('蛇涎果',     'HERB', '{"elements":{"wood":2,"water":2}}', '["herb","poison","uncommon"]', '蛇妖唾液浇灌而生的果子，有毒但微量入药可治风痹。'),
 ('星月花',     'HERB', '{"elements":{"water":2,"metal":2}}', '["herb","star","uncommon"]', '花瓣如碎星般闪烁的奇花，只在月圆之夜开放，蕴含星月精华。'),
 ('九穗禾',     'HERB', '{"elements":{"earth":3}}', '["herb","grain","uncommon"]', '一茎九穗的灵禾，每一穗都饱满晶莹，蕴含大地精华。'),
--- 补充药材（兼顾炼丹系统五行匹配）
 ('寒露草',     'HERB', '{"elements":{"water":3,"metal":1}}', '["herb","uncommon"]', '晨露中生长的细叶草，触之冰凉，金水相生，是调和丹方常用的凉性药材。'),
 ('地髓芝',     'HERB', '{"elements":{"earth":3}}', '["herb","uncommon"]', '深埋三尺的土黄色灵芝，吸纳地气而生，土行纯粹不带杂味。'),
 ('金线莲',     'HERB', '{"elements":{"metal":3,"wood":1}}', '["herb","uncommon"]', '叶缘金线缠绕的小莲，生于矿脉旁溪流，金锐之气融于柔水。'),

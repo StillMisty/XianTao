@@ -25,16 +25,12 @@ public class ViewListener {
 
   @Listener
   @ContentTrim
-  @Filter("查看 {{targetNickname}}")
-  public void viewPlayer(
-      OneBotMessageEvent event, @FilterValue("targetNickname") String targetNickname) {
-    log.debug("[OneBot] 收到查看请求 - AuthorId: {}, Target: {}", event.getAuthorId(), targetNickname);
+  @Filter("查看 {{target}}")
+  public void view(OneBotMessageEvent event, @FilterValue("target") String target) {
+    log.debug("[OneBot] 收到查看请求 - AuthorId: {}, Target: {}", event.getAuthorId(), target);
     String response =
-        cultivationCommandHandler.handleViewPlayer(
-            PlatformType.ONE_BOT_V11,
-            event.getAuthorId().toString(),
-            targetNickname,
-            TextFormat.PLAIN);
+        cultivationCommandHandler.handleView(
+            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), target, TextFormat.PLAIN);
     replyHelper.replyOneBot(event, response);
   }
 
@@ -42,13 +38,12 @@ public class ViewListener {
 
   @Listener
   @ContentTrim
-  @Filter("查看 {{targetNickname}}")
-  public void viewPlayerQq(
-      QGGroupAtMessageCreateEvent event, @FilterValue("targetNickname") String targetNickname) {
-    log.debug("[QQ] 收到查看请求 - AuthorId: {}, Target: {}", event.getAuthorId(), targetNickname);
+  @Filter("查看 {{target}}")
+  public void viewQq(QGGroupAtMessageCreateEvent event, @FilterValue("target") String target) {
+    log.debug("[QQ] 收到查看请求 - AuthorId: {}, Target: {}", event.getAuthorId(), target);
     String response =
-        cultivationCommandHandler.handleViewPlayer(
-            PlatformType.QQ, event.getAuthorId().toString(), targetNickname, TextFormat.MARKDOWN);
+        cultivationCommandHandler.handleView(
+            PlatformType.QQ, event.getAuthorId().toString(), target, TextFormat.MARKDOWN);
     replyHelper.replyQQ(event, response);
   }
 }

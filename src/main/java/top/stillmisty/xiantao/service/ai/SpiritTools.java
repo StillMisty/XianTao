@@ -95,6 +95,13 @@ public class SpiritTools {
           if (list.isEmpty()) yield "背包中没有兽卵。";
           yield formatInventoryList("兽卵", list);
         }
+        default -> {
+          var type = category.toItemType();
+          if (type == null) yield "不支持的类别：" + category.getChineseName();
+          var list = inventoryService.getItemsByType(userId, type);
+          if (list.isEmpty()) yield "背包中没有" + category.getChineseName() + "。";
+          yield formatInventoryList(category.getChineseName(), list);
+        }
       };
     } catch (Exception e) {
       log.warn("查询背包失败: category={}", category, e);

@@ -142,7 +142,7 @@ public class PillCombinationFinder {
               userId,
               resultTemplate.getId(),
               resultTemplate.getType(),
-              resultTemplate.getName(),
+              resultTemplate.getName() + "-" + quality.getChineseName(),
               quantity);
       newItem.setProperties(properties);
       newItem.setPropertiesHash(hash);

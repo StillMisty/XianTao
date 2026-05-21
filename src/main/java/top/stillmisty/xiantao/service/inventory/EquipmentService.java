@@ -16,6 +16,7 @@ import top.stillmisty.xiantao.domain.item.repository.EquipmentTemplateRepository
 import top.stillmisty.xiantao.domain.item.vo.*;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
@@ -48,6 +49,29 @@ public class EquipmentService {
       PlatformType platform, String openId, String slotName) {
     Long userId = UserContext.getCurrentUserId();
     return new ServiceResult.Success<>(unequipItem(userId, slotName));
+  }
+
+  @Authenticated
+  public ServiceResult<EquipmentDetailVO> getEquipmentDetail(
+      PlatformType platform, String openId, String input) {
+    Long userId = UserContext.getCurrentUserId();
+    var result = itemResolver.resolveEquipment(userId, input);
+    if (result instanceof ItemResolver.Found<Equipment> found) {
+      EquipmentDetailVO detail = convertToEquipmentDetailVO(found.item());
+      return new ServiceResult.Success<>(detail);
+    }
+    if (result instanceof ItemResolver.Ambiguous<?> ambiguous) {
+      var sb = new StringBuilder("找到多个装备，请使用编号：\n");
+      for (var e : ambiguous.candidates()) {
+        sb.append(e.index()).append(". ").append(e.name());
+        if (!e.metadata().isBlank()) sb.append(" [").append(e.metadata()).append("]");
+        sb.append("\n");
+      }
+      return new ServiceResult.Failure<>(
+          ErrorCode.ITEM_MULTIPLE_MATCH.name(), sb.toString().strip());
+    }
+    return new ServiceResult.Failure<>(
+        ErrorCode.ITEM_NOT_FOUND.name(), ErrorCode.ITEM_NOT_FOUND.format(input));
   }
 
   // ===================== 内部 API（需预先完成认证） =====================
@@ -259,7 +283,7 @@ public class EquipmentService {
       }
     }
 
-    String name = rarity.randomPrefix() + equipTmpl.getName();
+    String name = equipTmpl.getName() + "-" + rarity.getName();
 
     Map<String, Integer> statBonus =
         Map.of(

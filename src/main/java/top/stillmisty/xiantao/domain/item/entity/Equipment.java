@@ -110,10 +110,7 @@ public class Equipment {
 
   /** 获取最终攻击力（包含品质波动和锻造加成） */
   public int getFinalAttack() {
-    int base = attackBonus != null ? attackBonus : 0;
-    int fluctuated = getFluctuatedAttack();
-    int forgeBonus = getForgeBonus();
-    return base + fluctuated + forgeBonus;
+    return getFluctuatedAttack() + getForgeBonus();
   }
 
   /** 获取波动后的攻击力 */
@@ -130,10 +127,7 @@ public class Equipment {
 
   /** 获取最终防御力（包含品质波动和锻造加成） */
   public int getFinalDefense() {
-    int base = defenseBonus != null ? defenseBonus : 0;
-    int fluctuated = getFluctuatedDefense();
-    int forgeBonus = getForgeBonus();
-    return base + fluctuated + forgeBonus;
+    return getFluctuatedDefense() + getForgeBonus();
   }
 
   /** 获取波动后的防御力 */
@@ -150,7 +144,7 @@ public class Equipment {
   /** 获取基础属性加成 */
   public int getBaseStatBonus(String statName) {
     if (statBonus == null) return 0;
-    return statBonus.getOrDefault(statName.toLowerCase(), 0);
+    return statBonus.getOrDefault(statName.toUpperCase(), 0);
   }
 
   /** 获取词条属性加成 */

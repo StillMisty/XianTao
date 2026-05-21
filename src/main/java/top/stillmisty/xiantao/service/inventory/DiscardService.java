@@ -74,6 +74,10 @@ public class DiscardService {
       throw new BusinessException(ErrorCode.ITEM_NOT_FOUND, itemName);
     }
     StackableItem item = items.getFirst();
+    if (item.getQuantity() == null || item.getQuantity() <= 0) {
+      stackableItemRepository.deleteIfZeroQuantity(item.getId());
+      throw new BusinessException(ErrorCode.ITEM_NOT_FOUND, itemName);
+    }
     int actualDiscard = Math.min(quantity, item.getQuantity());
     stackableItemService.reduceStackableItem(userId, item.getId(), actualDiscard);
     log.debug(

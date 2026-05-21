@@ -8,6 +8,8 @@ public interface MonsterTemplateRepository {
 
   Optional<MonsterTemplate> findById(Long id);
 
+  Optional<MonsterTemplate> findByName(String name);
+
   List<MonsterTemplate> findAll();
 
   List<MonsterTemplate> findByIds(List<Long> ids);

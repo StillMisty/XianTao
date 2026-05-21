@@ -118,7 +118,8 @@ public class StackableItem {
   /** 检查是否包含所有指定标签 */
   public boolean hasAllTags(List<String> requiredTags) {
     if (tags == null || tags.isEmpty()) return false;
-    return tags.containsAll(requiredTags.stream().map(String::toLowerCase).toList());
+    if (requiredTags == null || requiredTags.isEmpty()) return false;
+    return requiredTags.stream().allMatch(this::hasTag);
   }
 
   /**

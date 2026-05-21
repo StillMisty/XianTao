@@ -8,14 +8,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
+import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
+import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.domain.item.vo.InventorySummaryVO;
 import top.stillmisty.xiantao.domain.item.vo.ItemEntry;
+import top.stillmisty.xiantao.domain.item.vo.StackableItemDetailVO;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
@@ -30,6 +34,7 @@ public class InventoryService {
   private final UserStateService userStateService;
   private final EquipmentRepository equipmentRepository;
   private final StackableItemRepository stackableItemRepository;
+  private final ItemTemplateRepository itemTemplateRepository;
   private final ItemResolver itemResolver;
 
   // ===================== 公开 API（含认证） =====================
@@ -58,6 +63,52 @@ public class InventoryService {
   public ServiceResult<List<ItemEntry>> getEggInventory(PlatformType platform, String openId) {
     Long userId = UserContext.getCurrentUserId();
     return new ServiceResult.Success<>(getEggInventory(userId));
+  }
+
+  @Authenticated
+  public ServiceResult<List<ItemEntry>> getItemsByType(
+      PlatformType platform, String openId, ItemType type) {
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(getItemsByType(userId, type));
+  }
+
+  @Authenticated
+  public ServiceResult<StackableItemDetailVO> getItemDetail(
+      PlatformType platform, String openId, String input) {
+    Long userId = UserContext.getCurrentUserId();
+    var result = itemResolver.resolveStackableItem(userId, input);
+    if (result instanceof ItemResolver.Found<StackableItem> found) {
+      StackableItem item = found.item();
+      String description =
+          itemTemplateRepository
+              .findById(item.getTemplateId())
+              .map(ItemTemplate::getDescription)
+              .orElse(null);
+      return new ServiceResult.Success<>(
+          new StackableItemDetailVO(
+              item.getId(),
+              item.getTemplateId(),
+              item.getName(),
+              item.getItemType().getName(),
+              item.getQuantity() != null ? item.getQuantity() : 0,
+              item.getQuality(),
+              description,
+              item.getProperties(),
+              item.getTags()));
+    }
+    if (result instanceof ItemResolver.Ambiguous<?> ambiguous) {
+      var sb = new StringBuilder("找到多个物品，请使用更精确的名称：\n");
+      for (var e : ambiguous.candidates()) {
+        sb.append(e.name());
+        if (e.quantity() > 1) sb.append(" x").append(e.quantity());
+        if (!e.metadata().isBlank()) sb.append(" [").append(e.metadata()).append("]");
+        sb.append("\n");
+      }
+      return new ServiceResult.Failure<>(
+          ErrorCode.ITEM_MULTIPLE_MATCH.name(), sb.toString().strip());
+    }
+    return new ServiceResult.Failure<>(
+        ErrorCode.ITEM_NOT_FOUND.name(), ErrorCode.ITEM_NOT_FOUND.format(input));
   }
 
   // ===================== 内部 API（需预先完成认证） =====================
@@ -98,5 +149,14 @@ public class InventoryService {
   /** 获取兽卵列表（编号列表） */
   public List<ItemEntry> getEggInventory(Long userId) {
     return itemResolver.listEggs(userId);
+  }
+
+  /** 获取指定类型物品列表 */
+  public List<ItemEntry> getItemsByType(Long userId, ItemType type) {
+    return switch (type) {
+      case SEED -> itemResolver.listSeeds(userId);
+      case BEAST_EGG -> itemResolver.listEggs(userId);
+      default -> itemResolver.listItems(userId, type);
+    };
   }
 }

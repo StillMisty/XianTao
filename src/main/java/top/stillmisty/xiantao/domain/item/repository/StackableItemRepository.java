@@ -27,6 +27,9 @@ public interface StackableItemRepository {
   Optional<StackableItem> findByUserIdAndTemplateIdAndPropertiesHash(
       Long userId, Long templateId, int propertiesHash);
 
+  /** 根据用户ID和名称精确匹配查找物品 */
+  List<StackableItem> findByUserIdAndName(Long userId, String name);
+
   /** 根据用户ID和名称模糊匹配查找物品 */
   List<StackableItem> findByUserIdAndNameContaining(Long userId, String name);
 
@@ -38,4 +41,7 @@ public interface StackableItemRepository {
 
   /** UPSERT 原子增加堆叠物品数量（利用数据库唯一约束防并发重复） */
   int upsertIncrementQuantity(StackableItem item);
+
+  /** 删除数量已归零的物品行 */
+  int deleteIfZeroQuantity(Long id);
 }

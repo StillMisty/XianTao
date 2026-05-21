@@ -193,7 +193,7 @@ public class ForgingService {
           }
         }
 
-        String name = rarity.randomPrefix() + equipTmpl.getName();
+        String name = equipTmpl.getName() + "-" + rarity.getName();
 
         Map<String, Integer> statBonus = new HashMap<>();
         if (equipTmpl.getBaseStr() > 0) statBonus.put("STR", equipTmpl.getBaseStr());

@@ -15,6 +15,7 @@ import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.domain.item.vo.ItemEntry;
+import top.stillmisty.xiantao.domain.pill.enums.PillQuality;
 import top.stillmisty.xiantao.service.fudi.FudiHelper;
 
 @Component
@@ -73,12 +74,54 @@ public class ItemResolver {
         .toList();
   }
 
+  public List<ItemEntry> listItems(Long userId, ItemType type) {
+    var items = stackableItemRepository.findByUserIdAndType(userId, type);
+    var result = new ArrayList<ItemEntry>();
+    for (int i = 0; i < items.size(); i++) {
+      var item = items.get(i);
+      result.add(new ItemEntry(i + 1, item.getId(), item.getName(), item.getQuantity(), ""));
+    }
+    return result;
+  }
+
   public ResolveResult<ItemTemplate> resolveSeed(Long userId, String input) {
     return resolveStackable(sortedSeedEntries().apply(userId), input);
   }
 
   public ResolveResult<ItemTemplate> resolveEgg(Long userId, String input) {
     return resolveStackable(sortedEggEntries().apply(userId), input);
+  }
+
+  public ResolveResult<StackableItem> resolveStackableItem(Long userId, String input) {
+    var exactMatches = stackableItemRepository.findByUserIdAndName(userId, input);
+    if (exactMatches.size() == 1) return new Found<>(exactMatches.getFirst(), 0);
+    if (!exactMatches.isEmpty()) {
+      var candidates = exactMatches.stream().map(item -> buildAmbiguityEntry(item, 0)).toList();
+      return new Ambiguous<>(input, candidates);
+    }
+
+    var fuzzyMatches = stackableItemRepository.findByUserIdAndNameContaining(userId, input);
+    if (fuzzyMatches.isEmpty()) return new NotFound<>(input);
+    if (fuzzyMatches.size() == 1) return new Found<>(fuzzyMatches.getFirst(), 0);
+
+    var candidates = fuzzyMatches.stream().map(item -> buildAmbiguityEntry(item, 0)).toList();
+    return new Ambiguous<>(input, candidates);
+  }
+
+  private ItemEntry buildAmbiguityEntry(StackableItem item, int index) {
+    var meta = new StringBuilder();
+    Object gradeObj = item.getProperties() != null ? item.getProperties().get("grade") : null;
+    if (gradeObj instanceof Number n) {
+      meta.append(n.intValue()).append("级 ");
+    }
+    if (item.getQuality() != null && !item.getQuality().isEmpty()) {
+      try {
+        meta.append(PillQuality.fromCode(item.getQuality()).getChineseName());
+      } catch (IllegalArgumentException e) {
+        meta.append(item.getQuality());
+      }
+    }
+    return new ItemEntry(index, item.getId(), item.getName(), item.getQuantity(), meta.toString());
   }
 
   public ResolveResult<Equipment> resolveEquipment(Long userId, String input) {

@@ -22,6 +22,11 @@ public class MonsterTemplateRepositoryImpl implements MonsterTemplateRepository 
   }
 
   @Override
+  public Optional<MonsterTemplate> findByName(String name) {
+    return Optional.ofNullable(mapper.selectByName(name));
+  }
+
+  @Override
   public List<MonsterTemplate> findAll() {
     return mapper.selectAll();
   }

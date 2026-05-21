@@ -192,13 +192,12 @@ public class ShopService {
     double qualityMultiplier = rarity.randomQualityMultiplier();
     int affixCount = rarity.randomAffixCount();
     Map<String, Integer> affixes = rollAffixes(rarity, affixCount);
-    String prefix = rarity.randomPrefix();
 
     Equipment equipment =
         Equipment.create(
             userId,
             template.getId(),
-            prefix + template.getName(),
+            template.getName() + "-" + rarity.getName(),
             template.getSlot(),
             rarity,
             template.getWeaponType(),
