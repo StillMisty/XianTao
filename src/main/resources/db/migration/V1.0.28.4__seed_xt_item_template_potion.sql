@@ -44,7 +44,7 @@ INSERT INTO xt_item_template (name, type, properties, tags, description) VALUES
 ('定颜丹',       'POTION', '{"effects":[{"type":"buff","attribute":"defense","amount":100,"duration_seconds":31536000}]}', '["pill","special","cosmetic"]', '永葆青春的驻颜丹，女修界最畅销丹药没有之一。'),
 ('辟谷丹',       'POTION', '{"effects":[{"type":"buff","attribute":"defense","amount":100,"duration_seconds":86400}]}', '["pill","buff","utility"]', '服一粒可一日不食，闭关修炼必备，但味道不如真饭吃。'),
 ('延寿丹',       'POTION', '{"effects":[{"type":"buff","attribute":"defense","amount":10,"duration_seconds":31536000}]}', '["pill","special","lifespan","rare"]', '一颗延寿十年，凡人视若仙丹，修士视为保底续命之物。'),
-('天劫丹',       'POTION', '{"effects":[{"type":"buff","attribute":"defense","amount":30,"duration_seconds":3600}]}', '["pill","buff","tribulation","epic"]', '渡劫专用，可抵御三成天雷之力，但别指望它能扛第九道。'),
+('天劫丹',       'POTION', '{"effects":[{"type":"buff","attribute":"tribulation_resist","amount":25,"duration_seconds":3600}]}', '["pill","buff","tribulation","epic"]', '渡劫专用，可抵御二成半天雷之力，但别指望它能扛第九道。'),
 ('火灵丹',       'POTION', '{"effects":[{"type":"buff","attribute":"attack","amount":40,"duration_seconds":1800}]}', '["pill","buff","fire","uncommon"]', '引火灵气炼成，服后攻伐间附带灼烧之意。火修士战斗前必备。'),
 ('寒玉丹',       'POTION', '{"effects":[{"type":"buff","attribute":"attack","amount":40,"duration_seconds":1800}]}', '["pill","buff","ice","uncommon"]', '以千年寒玉为引，服后寒气透骨、每次出手都如冰锥刺体。'),
 ('雷罡丹',       'POTION', '{"effects":[{"type":"buff","attribute":"attack","amount":50,"duration_seconds":1200}]}', '["pill","buff","thunder","rare"]', '天雷淬炼的刚猛丹药，服后攻击如雷霆炸裂，但事后浑身酥麻。'),
@@ -57,4 +57,8 @@ INSERT INTO xt_item_template (name, type, properties, tags, description) VALUES
 ('淬骨丹',       'POTION', '{"effects":[{"type":"stat","statAttr":"CON","amount":15}]}', '["pill","stat","con","intermediate"]', '骨如金玉筋似蛟龙，淬骨之后更抗揍。'),
 ('疾风丹',       'POTION', '{"effects":[{"type":"stat","statAttr":"AGI","amount":15}]}', '["pill","stat","agi","intermediate"]', '服后脚下生风行步如飞，追风丹的亲民版。'),
 ('启灵丹',       'POTION', '{"effects":[{"type":"stat","statAttr":"WIS","amount":15}]}', '["pill","stat","wis","intermediate"]', '灵台渐明悟性渐开，配合菩提树下打坐效果更佳。'),
-('破境丹',       'POTION', '{"effects":[{"type":"stat","statAttr":"STR","amount":8},{"type":"stat","statAttr":"CON","amount":8},{"type":"stat","statAttr":"AGI","amount":8},{"type":"stat","statAttr":"WIS","amount":8}]}', '["pill","special","rare"]', '四象之力齐加身，攻防速智全面提升，突破前的底气也多了一分。');
+('破境丹',       'POTION', '{"effects":[{"type":"stat","statAttr":"STR","amount":8},{"type":"stat","statAttr":"CON","amount":8},{"type":"stat","statAttr":"AGI","amount":8},{"type":"stat","statAttr":"WIS","amount":8}]}', '["pill","special","rare"]', '四象之力齐加身，攻防速智全面提升，突破前的底气也多了一分。'),
+('避雷丹',       'POTION', '{"effects":[{"type":"buff","attribute":"tribulation_resist","amount":15,"duration_seconds":3600}]}', '["pill","buff","tribulation","basic"]', '服下后周身灵气化为薄薄雷盾，可在雷劫中减免一成半伤害。入门修士的渡劫必备。'),
+('化劫丹',       'POTION', '{"effects":[{"type":"buff","attribute":"tribulation_resist","amount":40,"duration_seconds":3600}]}', '["pill","buff","tribulation","rare"]', '以千年雷击木炼成，可将四成雷劫之力化为虚无，金丹以上渡劫常备。'),
+('渡厄金丹',     'POTION', '{"effects":[{"type":"buff","attribute":"tribulation_resist","amount":60,"duration_seconds":3600}]}', '["pill","buff","tribulation","legendary"]', '渡劫期修士疯抢的至宝，服下后能将六成天雷卸去，一颗难求如凤毛麟角。'),
+('招雷散',       'POTION', '{"effects":[{"type":"buff","attribute":"tribulation_resist","amount":-40,"duration_seconds":3600}]}', '["pill","buff","tribulation","rare"]', '以引雷木为主材的奇异丹药，服下后雷劫威力暴涨四成，但渡过则有额外修为奖励。高风险高回报。');

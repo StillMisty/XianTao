@@ -1,5 +1,6 @@
 package top.stillmisty.xiantao.service.combat;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -146,7 +147,7 @@ public class CombatService {
         case ATTACK -> attackBuff += buff.getValue();
         case DEFENSE -> defenseBuff += buff.getValue();
         case SPEED -> speedBuff += buff.getValue();
-        case BREAKTHROUGH -> {}
+        case BREAKTHROUGH, TRIBULATION_RESIST -> {}
       }
     }
     return new BuffValues(attackBuff, defenseBuff, speedBuff);
@@ -165,5 +166,49 @@ public class CombatService {
         .findById(weapon.getTemplateId())
         .map(template -> template.getAttackSpeed() != null ? template.getAttackSpeed() : 1.0)
         .orElse(1.0);
+  }
+
+  // ===================== 战斗后 HP 应用 =====================
+
+  /** 战后更新灵兽HP（死亡→取消部署+恢复计时，存活+自愈突变） */
+  public void applyCombatHpToBeasts(CombatTeam team) {
+    for (Combatant c : team.members()) {
+      if (c instanceof BeastCombatant bc) {
+        Beast beast = beastRepository.findById(c.getId()).orElse(null);
+        if (beast != null) {
+          beast.setHpCurrent(Math.max(0, c.getHp()));
+          if (c.getHp() <= 0) {
+            beast.setIsDeployed(false);
+            int recoveryMinutes = beast.getQuality().getRecoveryMinutes();
+            beast.setRecoveryUntil(LocalDateTime.now().plusMinutes(recoveryMinutes));
+          } else if (beast.getMutationTraits() != null
+              && beast.getMutationTraits().contains("SELF_HEAL")) {
+            int healAmount = (int) (beast.getMaxHp() * 0.10);
+            beast.setHpCurrent(Math.min(beast.getMaxHp(), beast.getHpCurrent() + healAmount));
+          }
+          beastRepository.save(beast);
+        }
+      }
+    }
+  }
+
+  /** 计算队伍属性统计 */
+  public record TeamStats(int totalMaxHp, int avgAttack, int avgDef, int avgSpeed) {}
+
+  public TeamStats calculateTeamStats(CombatTeam team) {
+    List<Combatant> members = team.members();
+    int totalMaxHp = 0, totalAtk = 0, totalDef = 0, totalSpd = 0;
+    int count = 0;
+    for (Combatant c : members) {
+      if (c.isAlive()) {
+        totalMaxHp += c.getMaxHp();
+        totalAtk += c.getAttack();
+        totalDef += c.getDefense();
+        totalSpd += c.getSpeed();
+        count++;
+      }
+    }
+    count = Math.max(1, count);
+    return new TeamStats(totalMaxHp, totalAtk / count, totalDef / count, totalSpd / count);
   }
 }

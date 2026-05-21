@@ -423,12 +423,34 @@ public class CultivationCommandHandler implements CommandGroup {
   private String formatBreakthroughResult(BreakthroughResult result, TextFormat fmt) {
     StringBuilder sb = new StringBuilder();
     sb.append(result.message()).append("\n\n");
-    if (result.successRate() != null)
-      sb.append(fmt.listItem(String.format("突破成功率：%.1f%%", result.successRate())));
-    if (result.newLevel() != null)
-      sb.append(fmt.listItem(String.format("当前境界：%s", result.realmDisplay())));
-    if (result.nextBreakthroughRate() != null)
-      sb.append(fmt.listItem(String.format("下次突破成功率：%.1f%%", result.nextBreakthroughRate())));
+
+    if (result.battleResult() != null) {
+      // 战斗突破：展示雷劫类型 + 战斗摘要
+      sb.append(fmt.heading("雷劫详情"));
+      sb.append(fmt.listItem("雷劫类型：" + result.tribulationTypeName()));
+      sb.append(fmt.listItem("战斗回合：" + result.battleResult().rounds()));
+      sb.append(fmt.listItem("胜负：" + result.battleResult().winner()));
+      if (result.newLevel() != null) sb.append(fmt.listItem("当前境界：" + result.realmDisplay()));
+
+      if (result.battleResult().playerHpChange() != null) {
+        result
+            .battleResult()
+            .playerHpChange()
+            .forEach(
+                (name, hp) ->
+                    sb.append(
+                        fmt.listItem(
+                            String.format("%s HP：%d → %d", name, hp.before(), hp.after()))));
+      }
+    } else {
+      // 小境界突破：现有格式
+      if (result.successRate() != null)
+        sb.append(fmt.listItem(String.format("突破成功率：%.1f%%", result.successRate())));
+      if (result.newLevel() != null)
+        sb.append(fmt.listItem(String.format("当前境界：%s", result.realmDisplay())));
+      if (result.nextBreakthroughRate() != null)
+        sb.append(fmt.listItem(String.format("下次突破成功率：%.1f%%", result.nextBreakthroughRate())));
+    }
     return sb.toString();
   }
 

@@ -7,8 +7,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import top.stillmisty.xiantao.domain.beast.entity.Beast;
-import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
 import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
 import top.stillmisty.xiantao.domain.fudi.entity.FudiCell;
 import top.stillmisty.xiantao.domain.fudi.enums.CellType;
@@ -17,7 +15,6 @@ import top.stillmisty.xiantao.domain.fudi.repository.FudiCellRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
 import top.stillmisty.xiantao.domain.monster.CombatTeam;
-import top.stillmisty.xiantao.domain.monster.Combatant;
 import top.stillmisty.xiantao.domain.monster.TribulationBoss;
 import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
 import top.stillmisty.xiantao.domain.user.entity.User;
@@ -36,7 +33,6 @@ public class TribulationService {
   private final FudiCellRepository fudiCellRepository;
   private final FudiRepository fudiRepository;
   private final SpiritRepository spiritRepository;
-  private final BeastRepository beastRepository;
   private final SpiritStoneService spiritStoneService;
   private final CombatService combatService;
   private final UserStateService userStateService;
@@ -79,7 +75,7 @@ public class TribulationService {
     }
 
     // 计算防守方队伍总属性（用于 Boss 缩放，天然支持未来多人组队）
-    TeamStats teamStats = calculateTeamStats(defendingTeam);
+    CombatService.TeamStats teamStats = combatService.calculateTeamStats(defendingTeam);
 
     // 检查是否触发怜悯
     var spirit = spiritRepository.findByFudiId(fudi.getId()).orElse(null);
@@ -108,7 +104,7 @@ public class TribulationService {
 
     // 应用 HP 变化到玩家和灵兽
     applyHpToUser(user, defendingTeam);
-    applyHpToBeasts(defendingTeam, user, playerWon);
+    combatService.applyCombatHpToBeasts(defendingTeam);
 
     String tribulationResult;
     if (playerWon) {
@@ -121,27 +117,6 @@ public class TribulationService {
 
     fudiRepository.save(fudi);
     return tribulationResult;
-  }
-
-  // ===================== 防守方队伍属性统计 =====================
-
-  private record TeamStats(int totalMaxHp, int avgAttack, int avgDef, int avgSpeed) {}
-
-  private TeamStats calculateTeamStats(CombatTeam team) {
-    List<Combatant> members = team.members();
-    int totalMaxHp = 0, totalAtk = 0, totalDef = 0, totalSpd = 0;
-    int count = 0;
-    for (Combatant c : members) {
-      if (c.isAlive()) {
-        totalMaxHp += c.getMaxHp();
-        totalAtk += c.getAttack();
-        totalDef += c.getDefense();
-        totalSpd += c.getSpeed();
-        count++;
-      }
-    }
-    count = Math.max(1, count);
-    return new TeamStats(totalMaxHp, totalAtk / count, totalDef / count, totalSpd / count);
   }
 
   // ===================== 战斗后 HP 应用 =====================
@@ -158,27 +133,6 @@ public class TribulationService {
               }
             });
     userStateService.saveHpStatus(user);
-  }
-
-  private void applyHpToBeasts(CombatTeam team, User user, boolean playerWon) {
-    for (Combatant c : team.members()) {
-      if (c instanceof top.stillmisty.xiantao.domain.monster.BeastCombatant bc) {
-        Beast beast = beastRepository.findById(c.getId()).orElse(null);
-        if (beast != null) {
-          beast.setHpCurrent(Math.max(0, c.getHp()));
-          if (c.getHp() <= 0) {
-            beast.setIsDeployed(false);
-            int recoveryMinutes = beast.getQuality().getRecoveryMinutes();
-            beast.setRecoveryUntil(LocalDateTime.now().plusMinutes(recoveryMinutes));
-          } else if (beast.getMutationTraits() != null
-              && beast.getMutationTraits().contains("SELF_HEAL")) {
-            int healAmount = (int) (beast.getMaxHp() * 0.10);
-            beast.setHpCurrent(Math.min(beast.getMaxHp(), beast.getHpCurrent() + healAmount));
-          }
-          beastRepository.save(beast);
-        }
-      }
-    }
   }
 
   // ===================== 天劫结果处理 =====================

@@ -203,9 +203,11 @@ public class PillConsumptionService {
       User user, ItemProperties.Effect.Buff e, double qualityMultiplier, int grade) {
     double gradeDecay = calcGradeDecay(user.getLevel(), grade, true);
     int actualValue = (int) (e.amount() * qualityMultiplier * gradeDecay);
-    if (actualValue <= 0) return null;
 
     PlayerBuffType buffType = PlayerBuffType.fromCode(e.attribute());
+
+    // 雷劫抗性允许负值（招雷散等高风险丹药）
+    if (actualValue <= 0 && buffType != PlayerBuffType.TRIBULATION_RESIST) return null;
 
     int activeCount = playerBuffRepository.countActiveByUserIdAndType(user.getId(), buffType);
     if (activeCount >= MAX_ACTIVE_BUFFS_PER_TYPE) {
@@ -216,9 +218,11 @@ public class PillConsumptionService {
     PlayerBuff buff = PlayerBuff.create(user.getId(), buffType, actualValue, expiresAt);
     playerBuffRepository.save(buff);
 
+    String sign = actualValue >= 0 ? "+" : "";
     return "获得 "
         + buffType.getDisplayName()
-        + " +"
+        + " "
+        + sign
         + actualValue
         + "（持续"
         + e.durationSeconds()

@@ -9,7 +9,8 @@ public enum PlayerBuffType {
   ATTACK("attack", "攻击"),
   DEFENSE("defense", "防御"),
   SPEED("speed", "速度"),
-  BREAKTHROUGH("breakthrough", "突破成功率");
+  BREAKTHROUGH("breakthrough", "突破成功率"),
+  TRIBULATION_RESIST("tribulation_resist", "雷劫抗性");
 
   @EnumValue private final String code;
 
