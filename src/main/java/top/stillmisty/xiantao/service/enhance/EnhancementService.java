@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.forge.vo.EnhanceResultVO;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
+import top.stillmisty.xiantao.domain.item.enums.MaterialAttribute;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
@@ -140,8 +141,8 @@ public class EnhancementService {
         throw new BusinessException(ErrorCode.FORGING_MATERIAL_NOT_ENOUGH, materialName);
       }
       top.stillmisty.xiantao.domain.item.entity.StackableItem mat = mats.getFirst();
-      for (String attr : EnhancementCore.FORGE_ATTRIBUTES) {
-        attributeTotals.merge(attr, mat.getMaterialValue(attr) * quantity, Integer::sum);
+      for (var attr : MaterialAttribute.values()) {
+        attributeTotals.merge(attr.getCode(), mat.getMaterialValue(attr) * quantity, Integer::sum);
       }
       usedMaterials.merge(mat.getName(), quantity, Integer::sum);
     }

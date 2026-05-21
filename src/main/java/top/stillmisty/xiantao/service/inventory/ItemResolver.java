@@ -11,10 +11,12 @@ import top.stillmisty.xiantao.domain.item.entity.Equipment;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
+import top.stillmisty.xiantao.domain.item.enums.MaterialAttribute;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.domain.item.vo.ItemEntry;
+import top.stillmisty.xiantao.domain.pill.enums.ElementType;
 import top.stillmisty.xiantao.domain.pill.enums.PillQuality;
 import top.stillmisty.xiantao.service.fudi.FudiHelper;
 
@@ -79,9 +81,39 @@ public class ItemResolver {
     var result = new ArrayList<ItemEntry>();
     for (int i = 0; i < items.size(); i++) {
       var item = items.get(i);
-      result.add(new ItemEntry(i + 1, item.getId(), item.getName(), item.getQuantity(), ""));
+      String metadata =
+          switch (type) {
+            case MATERIAL -> formatMaterialProperties(item);
+            case HERB -> formatHerbProperties(item);
+            default -> "";
+          };
+      result.add(new ItemEntry(i + 1, item.getId(), item.getName(), item.getQuantity(), metadata));
     }
     return result;
+  }
+
+  private String formatMaterialProperties(StackableItem item) {
+    var sb = new StringBuilder();
+    for (var attr : MaterialAttribute.values()) {
+      int value = item.getMaterialValue(attr);
+      if (value > 0) {
+        if (!sb.isEmpty()) sb.append(" ");
+        sb.append(attr.getName()).append(":").append(value);
+      }
+    }
+    return sb.toString();
+  }
+
+  private String formatHerbProperties(StackableItem item) {
+    var sb = new StringBuilder();
+    for (var elem : ElementType.values()) {
+      int value = item.getElementValue(elem);
+      if (value > 0) {
+        if (!sb.isEmpty()) sb.append(" ");
+        sb.append(elem.getName()).append(":").append(value);
+      }
+    }
+    return sb.toString();
   }
 
   public ResolveResult<ItemTemplate> resolveSeed(Long userId, String input) {

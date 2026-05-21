@@ -11,6 +11,7 @@ import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.domain.pill.entity.PlayerPillRecipe;
+import top.stillmisty.xiantao.domain.pill.enums.ElementType;
 import top.stillmisty.xiantao.domain.pill.enums.PillQuality;
 import top.stillmisty.xiantao.domain.pill.repository.PlayerPillRecipeRepository;
 import top.stillmisty.xiantao.domain.pill.vo.PillRefiningResultVO;
@@ -112,9 +113,9 @@ public class PillRefiningService {
     for (HerbInput input : parsedInputs) {
       StackableItem herb = input.herb();
       int quantity = input.quantity();
-      for (String element : List.of("METAL", "WOOD", "WATER", "FIRE", "EARTH")) {
+      for (var element : ElementType.values()) {
         int value = herb.getElementValue(element) * quantity;
-        elementTotals.merge(element, value, Integer::sum);
+        elementTotals.merge(element.getCode(), value, Integer::sum);
       }
       usedHerbs.put(herb.getName(), quantity);
     }

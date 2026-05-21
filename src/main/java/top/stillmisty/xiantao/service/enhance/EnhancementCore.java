@@ -8,6 +8,7 @@ import top.stillmisty.xiantao.domain.forge.vo.EnhanceResultVO;
 import top.stillmisty.xiantao.domain.item.entity.*;
 import top.stillmisty.xiantao.domain.item.enums.AffixType;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
+import top.stillmisty.xiantao.domain.item.enums.MaterialAttribute;
 import top.stillmisty.xiantao.domain.item.enums.Rarity;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
@@ -24,7 +25,8 @@ public class EnhancementCore {
   private final StackableItemService stackableItemService;
 
   static final int BASE_STONE_COST = 50;
-  public static final List<String> FORGE_ATTRIBUTES = List.of("RIGIDITY", "TOUGHNESS", "SPIRIT");
+  public static final List<String> FORGE_ATTRIBUTES =
+      Arrays.stream(MaterialAttribute.values()).map(MaterialAttribute::getCode).toList();
 
   public Equipment resolveEquipment(Long userId, String input) {
     var result = itemResolver.resolveEquipment(userId, input);

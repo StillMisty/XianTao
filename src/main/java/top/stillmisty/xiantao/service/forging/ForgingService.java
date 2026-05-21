@@ -13,6 +13,7 @@ import top.stillmisty.xiantao.domain.item.entity.ElementRange;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
+import top.stillmisty.xiantao.domain.item.enums.MaterialAttribute;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
@@ -139,9 +140,9 @@ public class ForgingService {
     for (MaterialInput input : parsedInputs) {
       StackableItem mat = input.material();
       int quantity = input.quantity();
-      for (String attr : List.of("RIGIDITY", "TOUGHNESS", "SPIRIT")) {
+      for (var attr : MaterialAttribute.values()) {
         int value = mat.getMaterialValue(attr) * quantity;
-        attributeTotals.merge(attr, value, Integer::sum);
+        attributeTotals.merge(attr.getCode(), value, Integer::sum);
       }
       usedMaterials.put(mat.getName(), quantity);
     }

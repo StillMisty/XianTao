@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.forge.vo.ForgingResultVO;
 import top.stillmisty.xiantao.domain.item.entity.*;
 import top.stillmisty.xiantao.domain.item.enums.AffixType;
+import top.stillmisty.xiantao.domain.item.enums.MaterialAttribute;
 import top.stillmisty.xiantao.domain.item.enums.Rarity;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
@@ -22,7 +23,8 @@ import top.stillmisty.xiantao.service.inventory.StackableItemService;
 @RequiredArgsConstructor
 public class ForgingCombinationFinder {
 
-  private static final List<String> FORGE_ATTRIBUTES = List.of("RIGIDITY", "TOUGHNESS", "SPIRIT");
+  private static final List<String> FORGE_ATTRIBUTES =
+      Arrays.stream(MaterialAttribute.values()).map(MaterialAttribute::getCode).toList();
 
   private final StackableItemService stackableItemService;
   private final ItemTemplateRepository itemTemplateRepository;

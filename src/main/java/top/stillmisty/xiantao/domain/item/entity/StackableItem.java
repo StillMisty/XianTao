@@ -12,6 +12,8 @@ import java.util.TreeMap;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
+import top.stillmisty.xiantao.domain.item.enums.MaterialAttribute;
+import top.stillmisty.xiantao.domain.pill.enums.ElementType;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
 
@@ -136,6 +138,16 @@ public class StackableItem {
   /**
    * 获取药材五行属性值（仅药材类）
    *
+   * @param element 五行属性
+   * @return 属性值，不存在返回0
+   */
+  public int getElementValue(ElementType element) {
+    return getElementValue(element != null ? element.getCode() : null);
+  }
+
+  /**
+   * 获取药材五行属性值（仅药材类）
+   *
    * @param elementCode 五行属性代码（METAL, WOOD, WATER, FIRE, EARTH）
    * @return 属性值，不存在返回0
    */
@@ -147,6 +159,16 @@ public class StackableItem {
       return val instanceof Number n ? n.intValue() : 0;
     }
     return 0;
+  }
+
+  /**
+   * 获取锻材三性属性值（仅材料类）
+   *
+   * @param attr 三性属性
+   * @return 属性值，不存在返回0
+   */
+  public int getMaterialValue(MaterialAttribute attr) {
+    return getMaterialValue(attr != null ? attr.getCode() : null);
   }
 
   /**

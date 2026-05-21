@@ -1,17 +1,15 @@
 package top.stillmisty.xiantao.service.inventory;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import top.stillmisty.xiantao.domain.item.entity.Equipment;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
-import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.domain.item.vo.InventorySummaryVO;
@@ -32,7 +30,6 @@ import top.stillmisty.xiantao.service.player.UserStateService;
 public class InventoryService {
 
   private final UserStateService userStateService;
-  private final EquipmentRepository equipmentRepository;
   private final StackableItemRepository stackableItemRepository;
   private final ItemTemplateRepository itemTemplateRepository;
   private final ItemResolver itemResolver;
@@ -113,27 +110,22 @@ public class InventoryService {
 
   // ===================== 内部 API（需预先完成认证） =====================
 
-  /** 获取背包摘要（按品质折叠装备，用于 #背包 命令防刷屏） */
+  /** 获取背包详情（装备列表 + 物品按类型分组 + 灵石） */
   public InventorySummaryVO getInventorySummary(Long userId) {
     User user = userStateService.loadUser(userId);
 
-    List<Equipment> allEquipments = equipmentRepository.findUnequippedByUserId(userId);
+    List<ItemEntry> equipment = itemResolver.listEquipment(userId);
+
     List<StackableItem> stackableItems = stackableItemRepository.findByUserId(userId);
-
-    Map<String, Integer> equipmentByQuality =
-        allEquipments.stream()
-            .collect(
-                Collectors.groupingBy(
-                    e -> e.getRarity().getName(),
-                    Collectors.collectingAndThen(Collectors.counting(), Long::intValue)));
-
-    Map<ItemType, Integer> stackableItemCount = new HashMap<>();
+    Map<ItemType, List<ItemEntry>> itemsByType = new LinkedHashMap<>();
     for (StackableItem item : stackableItems) {
       int qty = item.getQuantity() != null ? item.getQuantity() : 0;
-      stackableItemCount.merge(item.getItemType(), qty, Integer::sum);
+      itemsByType
+          .computeIfAbsent(item.getItemType(), k -> new ArrayList<>())
+          .add(new ItemEntry(0, item.getId(), item.getName(), qty, ""));
     }
 
-    return new InventorySummaryVO(equipmentByQuality, stackableItemCount, user.getSpiritStones());
+    return new InventorySummaryVO(equipment, itemsByType, user.getSpiritStones());
   }
 
   /** 获取种子列表（编号列表） */

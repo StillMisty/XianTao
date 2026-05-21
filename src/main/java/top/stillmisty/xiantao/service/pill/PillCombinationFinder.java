@@ -10,6 +10,7 @@ import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
+import top.stillmisty.xiantao.domain.pill.enums.ElementType;
 import top.stillmisty.xiantao.domain.pill.enums.PillQuality;
 import top.stillmisty.xiantao.domain.pill.vo.PillRefiningResultVO;
 import top.stillmisty.xiantao.service.BusinessException;
@@ -23,7 +24,7 @@ import top.stillmisty.xiantao.service.inventory.StackableItemService;
 public class PillCombinationFinder {
 
   private static final List<String> PILL_ELEMENTS =
-      List.of("METAL", "WOOD", "WATER", "FIRE", "EARTH");
+      Arrays.stream(ElementType.values()).map(ElementType::getCode).toList();
 
   private final StackableItemService stackableItemService;
   private final ItemTemplateRepository itemTemplateRepository;

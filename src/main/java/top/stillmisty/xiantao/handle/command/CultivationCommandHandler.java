@@ -421,21 +421,20 @@ public class CultivationCommandHandler implements CommandGroup {
   }
 
   private String formatInventorySummary(InventorySummaryVO inventory, TextFormat fmt) {
-    StringBuilder sb = new StringBuilder();
-    sb.append(fmt.heading("背包"));
-    if (inventory.equipmentByQuality() != null && !inventory.equipmentByQuality().isEmpty()) {
-      sb.append("\n");
-      sb.append(fmt.heading("装备"));
-      inventory
-          .equipmentByQuality()
-          .forEach((quality, count) -> sb.append(fmt.listItem(quality + " x" + count)));
+    var sb = new StringBuilder(fmt.heading("背包"));
+    if (inventory.equipment() != null && !inventory.equipment().isEmpty()) {
+      sb.append("\n").append(fmt.heading("装备"));
+      for (var e : inventory.equipment()) {
+        sb.append("\n").append(fmt.listItem(e.name() + " [" + e.metadata() + "]"));
+      }
     }
-    if (inventory.stackableItemCount() != null && !inventory.stackableItemCount().isEmpty()) {
-      sb.append("\n");
-      sb.append(fmt.heading("物品"));
-      inventory
-          .stackableItemCount()
-          .forEach((type, count) -> sb.append(fmt.listItem(type.getName() + " x" + count + "种")));
+    if (inventory.itemsByType() != null && !inventory.itemsByType().isEmpty()) {
+      for (var entry : inventory.itemsByType().entrySet()) {
+        sb.append("\n").append(fmt.heading(entry.getKey().getName()));
+        for (var e : entry.getValue()) {
+          sb.append("\n").append(fmt.listItem(e.name() + " x" + e.quantity()));
+        }
+      }
     }
     sb.append("\n").append(fmt.listItem("灵石：" + inventory.spiritStones()));
     return sb.toString();
