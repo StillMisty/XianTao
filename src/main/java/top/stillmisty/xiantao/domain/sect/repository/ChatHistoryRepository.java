@@ -7,8 +7,11 @@ import top.stillmisty.xiantao.domain.sect.enums.ChatType;
 public interface ChatHistoryRepository {
   ChatHistory save(ChatHistory history);
 
-  List<ChatHistory> findByChatTypeAndConversationIdAndUserIdOrderByCreateTimeDesc(
-      ChatType chatType, Long conversationId, Long userId, int limit);
+  List<ChatHistory> findAllByChatTypeAndConversationIdAndUserId(
+      ChatType chatType, Long conversationId, Long userId);
 
-  void deleteOldEntries(ChatType chatType, Long conversationId, Long userId, int keepCount);
+  void deleteByChatTypeAndConversationIdAndUserId(
+      ChatType chatType, Long conversationId, Long userId);
+
+  void deleteOldestEntries(ChatType chatType, Long conversationId, Long userId, int keepCount);
 }

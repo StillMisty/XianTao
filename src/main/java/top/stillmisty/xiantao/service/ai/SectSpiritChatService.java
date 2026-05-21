@@ -1,17 +1,12 @@
 package top.stillmisty.xiantao.service.ai;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.stereotype.Service;
-import top.stillmisty.xiantao.domain.sect.entity.ChatHistory;
 import top.stillmisty.xiantao.domain.sect.entity.Sect;
 import top.stillmisty.xiantao.domain.sect.entity.SectMember;
-import top.stillmisty.xiantao.domain.sect.enums.ChatRole;
 import top.stillmisty.xiantao.domain.sect.enums.ChatType;
-import top.stillmisty.xiantao.domain.sect.repository.ChatHistoryRepository;
 import top.stillmisty.xiantao.domain.sect.repository.SectMemberRepository;
 import top.stillmisty.xiantao.domain.sect.repository.SectRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
@@ -26,18 +21,30 @@ import top.stillmisty.xiantao.service.sect.SectBuildingService;
 
 /** 宗灵对话核心服务 宗灵是宗门意志的化身，LLM 驱动，成员通过自然语言与宗灵对话来执行所有宗门操作 */
 @Service
-@RequiredArgsConstructor
 @Slf4j
-public class SectSpiritChatService {
+public class SectSpiritChatService extends AbstractChatService {
 
-  private final ChatClient npcChatClient;
-  private final ChatMemory chatMemory;
   private final SectRepository sectRepository;
   private final SectMemberRepository sectMemberRepository;
-  private final ChatHistoryRepository chatHistoryRepository;
   private final SectSpiritTools sectSpiritTools;
   private final SectBuildingService sectBuildingService;
   private final UserRepository userRepository;
+
+  public SectSpiritChatService(
+      ChatClient sectChatClient,
+      ChatMemory chatMemory,
+      SectRepository sectRepository,
+      SectMemberRepository sectMemberRepository,
+      SectSpiritTools sectSpiritTools,
+      SectBuildingService sectBuildingService,
+      UserRepository userRepository) {
+    super(sectChatClient, chatMemory);
+    this.sectRepository = sectRepository;
+    this.sectMemberRepository = sectMemberRepository;
+    this.sectSpiritTools = sectSpiritTools;
+    this.sectBuildingService = sectBuildingService;
+    this.userRepository = userRepository;
+  }
 
   @Authenticated
   public ServiceResult<String> chatWithSectSpirit(
@@ -59,31 +66,16 @@ public class SectSpiritChatService {
               .findById(member.getSectId())
               .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_FOUND));
 
-      // 灵脉惰性结算
       sectBuildingService.settleSpiritVein(sect.getId());
 
-      String systemPrompt = buildPrompt(sect, member);
-      String conversationId = "sect:" + userId + ":" + sect.getId();
-
-      saveHistory(sect.getId(), userId, ChatRole.USER, userInput);
-
       String response =
-          npcChatClient
-              .prompt()
-              .system(systemPrompt)
-              .user(userInput)
-              .tools(sectSpiritTools)
-              .advisors(
-                  a ->
-                      a.param(ChatMemory.CONVERSATION_ID, conversationId)
-                          .advisors(MessageChatMemoryAdvisor.builder(chatMemory).build()))
-              .call()
-              .content();
-
-      // 保存助手回复
-      if (response != null && !response.isBlank()) {
-        saveHistory(sect.getId(), userId, ChatRole.ASSISTANT, response);
-      }
+          callLlm(
+              buildPrompt(sect, member),
+              userInput,
+              ChatType.SECT,
+              userId,
+              sect.getId(),
+              sectSpiritTools);
 
       log.debug("宗灵对话成功 - userId: {}, sect: {}, input: {}", userId, sect.getName(), userInput);
       return response != null ? response : "宗灵暂时无法回应，请稍后再试。";
@@ -153,15 +145,5 @@ public class SectSpiritChatService {
     }
 
     return prompt.toString();
-  }
-
-  private void saveHistory(Long sectId, Long userId, ChatRole role, String content) {
-    ChatHistory history = new ChatHistory();
-    history.setChatType(ChatType.SECT);
-    history.setConversationId(sectId);
-    history.setUserId(userId);
-    history.setRole(role);
-    history.setContent(content);
-    chatHistoryRepository.save(history);
   }
 }

@@ -13,14 +13,25 @@ public interface ChatHistoryMapper extends BaseMapper<ChatHistory> {
       """
       DELETE FROM xt_chat_history
       WHERE chat_type = #{chatType} AND conversation_id = #{conversationId} AND user_id = #{userId}
-      AND id NOT IN (
-        SELECT id FROM xt_chat_history
-        WHERE chat_type = #{chatType} AND conversation_id = #{conversationId} AND user_id = #{userId}
-        ORDER BY create_time DESC
-        LIMIT #{keepCount}
-      )
       """)
-  int deleteOldEntries(
+  int deleteByCompositeKey(
+      @Param("chatType") String chatType,
+      @Param("conversationId") Long conversationId,
+      @Param("userId") Long userId);
+
+  @Delete(
+      """
+      WITH to_keep AS (
+          SELECT id FROM xt_chat_history
+          WHERE chat_type = #{chatType} AND conversation_id = #{conversationId} AND user_id = #{userId}
+          ORDER BY create_time DESC, id DESC
+          LIMIT #{keepCount}
+      )
+      DELETE FROM xt_chat_history
+      WHERE chat_type = #{chatType} AND conversation_id = #{conversationId} AND user_id = #{userId}
+      AND id NOT IN (SELECT id FROM to_keep)
+      """)
+  int deleteOldestEntries(
       @Param("chatType") String chatType,
       @Param("conversationId") Long conversationId,
       @Param("userId") Long userId,

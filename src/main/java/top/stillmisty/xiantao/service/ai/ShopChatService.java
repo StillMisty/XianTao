@@ -1,16 +1,11 @@
 package top.stillmisty.xiantao.service.ai;
 
 import java.util.List;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.stereotype.Service;
-import top.stillmisty.xiantao.domain.sect.entity.ChatHistory;
-import top.stillmisty.xiantao.domain.sect.enums.ChatRole;
 import top.stillmisty.xiantao.domain.sect.enums.ChatType;
-import top.stillmisty.xiantao.domain.sect.repository.ChatHistoryRepository;
 import top.stillmisty.xiantao.domain.shop.entity.ShopNpc;
 import top.stillmisty.xiantao.domain.shop.entity.ShopProduct;
 import top.stillmisty.xiantao.domain.shop.entity.WorldEvent;
@@ -27,17 +22,29 @@ import top.stillmisty.xiantao.service.shop.ShopService;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
-public class ShopChatService {
+public class ShopChatService extends AbstractChatService {
 
-  private final ChatClient npcChatClient;
-  private final ChatMemory chatMemory;
   private final ShopService shopService;
   private final ShopTools shopTools;
   private final UserStateService userStateService;
-  private final ChatHistoryRepository chatHistoryRepository;
   private final ShopProductRepository shopProductRepository;
   private final WorldEventRepository worldEventRepository;
+
+  public ShopChatService(
+      ChatClient shopChatClient,
+      ChatMemory chatMemory,
+      ShopService shopService,
+      ShopTools shopTools,
+      UserStateService userStateService,
+      ShopProductRepository shopProductRepository,
+      WorldEventRepository worldEventRepository) {
+    super(shopChatClient, chatMemory);
+    this.shopService = shopService;
+    this.shopTools = shopTools;
+    this.userStateService = userStateService;
+    this.shopProductRepository = shopProductRepository;
+    this.worldEventRepository = worldEventRepository;
+  }
 
   @Authenticated
   public ServiceResult<String> chatWithShopkeeper(
@@ -50,29 +57,7 @@ public class ShopChatService {
     try {
       User user = userStateService.loadUser(userId);
       ShopNpc npc = shopService.findByLocation(user.getLocationId());
-
-      String systemPrompt = buildPrompt(npc);
-      String conversationId = "shop:" + userId + ":" + npc.getId();
-
-      saveHistory(userId, npc.getId(), ChatRole.USER, userInput);
-
-      String response =
-          npcChatClient
-              .prompt()
-              .system(systemPrompt)
-              .user(userInput)
-              .tools(shopTools)
-              .advisors(
-                  a ->
-                      a.param(ChatMemory.CONVERSATION_ID, conversationId)
-                          .advisors(MessageChatMemoryAdvisor.builder(chatMemory).build()))
-              .call()
-              .content();
-
-      saveHistory(userId, npc.getId(), ChatRole.ASSISTANT, response);
-
-      log.debug("商铺对话成功 - userId: {}, shopNpc: {}, input: {}", userId, npc.getName(), userInput);
-      return response;
+      return callLlm(buildPrompt(npc), userInput, ChatType.SHOP, userId, npc.getId(), shopTools);
     } catch (BusinessException e) {
       return e.getMessage();
     } catch (Exception e) {
@@ -115,15 +100,5 @@ public class ShopChatService {
     }
 
     return sb.toString();
-  }
-
-  private void saveHistory(Long userId, Long npcId, ChatRole role, String content) {
-    ChatHistory history = new ChatHistory();
-    history.setChatType(ChatType.SHOP);
-    history.setConversationId(npcId);
-    history.setUserId(userId);
-    history.setRole(role);
-    history.setContent(content);
-    chatHistoryRepository.save(history);
   }
 }

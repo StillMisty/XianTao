@@ -1,7 +1,10 @@
 package top.stillmisty.xiantao.service.ai;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Component;
@@ -10,10 +13,7 @@ import top.stillmisty.xiantao.domain.fudi.entity.Spirit;
 import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
-import top.stillmisty.xiantao.domain.sect.entity.ChatHistory;
-import top.stillmisty.xiantao.domain.sect.enums.ChatRole;
 import top.stillmisty.xiantao.domain.sect.enums.ChatType;
-import top.stillmisty.xiantao.domain.sect.repository.ChatHistoryRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.UserContext;
@@ -25,7 +25,7 @@ public class SpiritEmotionTools {
 
   private final SpiritRepository spiritRepository;
   private final FudiRepository fudiRepository;
-  private final ChatHistoryRepository chatHistoryRepository;
+  private final ChatMemory chatMemory;
 
   @Tool(description = "更新地灵的情绪状态")
   @Transactional
@@ -62,13 +62,8 @@ public class SpiritEmotionTools {
 
     try {
       Long fudiId = getFudiId(userId);
-      ChatHistory history = new ChatHistory();
-      history.setChatType(ChatType.SPIRIT);
-      history.setConversationId(fudiId);
-      history.setUserId(userId);
-      history.setRole(ChatRole.SYSTEM);
-      history.setContent(thought);
-      chatHistoryRepository.save(history);
+      String conversationId = new ConversationId(ChatType.SPIRIT, userId, fudiId).value();
+      chatMemory.add(conversationId, List.of(new SystemMessage(thought)));
 
       log.debug("地灵想法已记录 - userId: {}, thought: {}", userId, thought);
       return "想法已记录";

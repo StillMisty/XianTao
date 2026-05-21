@@ -22,20 +22,26 @@ public class ChatHistoryRepositoryImpl implements ChatHistoryRepository {
   }
 
   @Override
-  public List<ChatHistory> findByChatTypeAndConversationIdAndUserIdOrderByCreateTimeDesc(
-      ChatType chatType, Long conversationId, Long userId, int limit) {
+  public List<ChatHistory> findAllByChatTypeAndConversationIdAndUserId(
+      ChatType chatType, Long conversationId, Long userId) {
     QueryWrapper query =
         new QueryWrapper()
             .eq(ChatHistory::getChatType, chatType)
             .eq(ChatHistory::getConversationId, conversationId)
             .eq(ChatHistory::getUserId, userId)
-            .orderBy(ChatHistory::getCreateTime, false)
-            .limit(limit);
+            .orderBy(ChatHistory::getCreateTime, true);
     return mapper.selectListByQuery(query);
   }
 
   @Override
-  public void deleteOldEntries(ChatType chatType, Long conversationId, Long userId, int keepCount) {
-    mapper.deleteOldEntries(chatType.getCode(), conversationId, userId, keepCount);
+  public void deleteByChatTypeAndConversationIdAndUserId(
+      ChatType chatType, Long conversationId, Long userId) {
+    mapper.deleteByCompositeKey(chatType.getCode(), conversationId, userId);
+  }
+
+  @Override
+  public void deleteOldestEntries(
+      ChatType chatType, Long conversationId, Long userId, int keepCount) {
+    mapper.deleteOldestEntries(chatType.getCode(), conversationId, userId, keepCount);
   }
 }

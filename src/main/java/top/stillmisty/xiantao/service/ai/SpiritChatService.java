@@ -3,10 +3,8 @@ package top.stillmisty.xiantao.service.ai;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
@@ -17,11 +15,7 @@ import top.stillmisty.xiantao.domain.fudi.repository.FudiCellRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritFormRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
-import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
-import top.stillmisty.xiantao.domain.sect.entity.ChatHistory;
-import top.stillmisty.xiantao.domain.sect.enums.ChatRole;
 import top.stillmisty.xiantao.domain.sect.enums.ChatType;
-import top.stillmisty.xiantao.domain.sect.repository.ChatHistoryRepository;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
@@ -31,24 +25,45 @@ import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.fudi.FarmService;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
-public class SpiritChatService {
+public class SpiritChatService extends AbstractChatService {
 
-  private final ChatClient npcChatClient;
-  private final ChatMemory chatMemory;
   private final FudiRepository fudiRepository;
   private final FudiCellRepository fudiCellRepository;
   private final SpiritRepository spiritRepository;
-  private final ChatHistoryRepository chatHistoryRepository;
   private final SpiritFormRepository spiritFormRepository;
   private final SpiritPromptTemplates promptTemplates;
   private final SpiritTools spiritTools;
   private final SpiritEmotionTools spiritEmotionTools;
   private final FudiEventGenerator fudiEventGenerator;
   private final BeastRepository beastRepository;
-  private final ItemTemplateRepository itemTemplateRepository;
   private final FarmService farmService;
+
+  public SpiritChatService(
+      ChatClient spiritChatClient,
+      ChatMemory chatMemory,
+      FudiRepository fudiRepository,
+      FudiCellRepository fudiCellRepository,
+      SpiritRepository spiritRepository,
+      SpiritFormRepository spiritFormRepository,
+      SpiritPromptTemplates promptTemplates,
+      SpiritTools spiritTools,
+      SpiritEmotionTools spiritEmotionTools,
+      FudiEventGenerator fudiEventGenerator,
+      BeastRepository beastRepository,
+      FarmService farmService) {
+    super(spiritChatClient, chatMemory);
+    this.fudiRepository = fudiRepository;
+    this.fudiCellRepository = fudiCellRepository;
+    this.spiritRepository = spiritRepository;
+    this.spiritFormRepository = spiritFormRepository;
+    this.promptTemplates = promptTemplates;
+    this.spiritTools = spiritTools;
+    this.spiritEmotionTools = spiritEmotionTools;
+    this.fudiEventGenerator = fudiEventGenerator;
+    this.beastRepository = beastRepository;
+    this.farmService = farmService;
+  }
 
   @Authenticated
   public ServiceResult<String> chatWithSpirit(
@@ -78,25 +93,15 @@ public class SpiritChatService {
 
       List<FudiEvent> events = fudiEventGenerator.generateEvents(spirit.getLastEventTime());
 
-      String systemPrompt = buildPrompt(fudi, spirit, events);
-      String conversationId = "spirit:" + userId + ":" + fudi.getId();
-
-      saveHistory(fudi.getId(), userId, ChatRole.USER, userInput);
-
       String response =
-          npcChatClient
-              .prompt()
-              .system(systemPrompt)
-              .user(userInput)
-              .tools(spiritTools, spiritEmotionTools)
-              .advisors(
-                  a ->
-                      a.param(ChatMemory.CONVERSATION_ID, conversationId)
-                          .advisors(MessageChatMemoryAdvisor.builder(chatMemory).build()))
-              .call()
-              .content();
-
-      saveHistory(fudi.getId(), userId, ChatRole.ASSISTANT, response);
+          callLlm(
+              buildPrompt(fudi, spirit, events),
+              userInput,
+              ChatType.SPIRIT,
+              userId,
+              fudi.getId(),
+              spiritTools,
+              spiritEmotionTools);
 
       if (!events.isEmpty()) {
         spirit.setLastEventTime(LocalDateTime.now());
@@ -143,16 +148,6 @@ public class SpiritChatService {
             emotionState,
             formName)
         + eventContext;
-  }
-
-  private void saveHistory(Long fudiId, Long userId, ChatRole role, String content) {
-    ChatHistory history = new ChatHistory();
-    history.setChatType(ChatType.SPIRIT);
-    history.setConversationId(fudiId);
-    history.setUserId(userId);
-    history.setRole(role);
-    history.setContent(content);
-    chatHistoryRepository.save(history);
   }
 
   private String buildCellDetailForLLM(Fudi fudi) {
