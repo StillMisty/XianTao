@@ -30,7 +30,6 @@ import top.stillmisty.xiantao.infrastructure.util.WeightedRandom;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.FortuneService;
-import top.stillmisty.xiantao.service.GameEventService;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.activity.TrainingCompleter;
@@ -61,7 +60,6 @@ public class TrainingService {
   private final TrainingSettler trainingSettler;
   private final MonsterTemplateRepository monsterTemplateRepository;
   private final SkillRepository skillRepository;
-  private final GameEventService gameEventService;
   private final FortuneService fortuneService;
 
   @Authenticated

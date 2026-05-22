@@ -12,6 +12,7 @@ import top.stillmisty.xiantao.domain.event.enums.ActivityType;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
 import top.stillmisty.xiantao.domain.item.vo.CharacterStatusResult;
+import top.stillmisty.xiantao.domain.map.entity.MapNode;
 import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
 import top.stillmisty.xiantao.domain.shared.SharedKernel;
 import top.stillmisty.xiantao.domain.user.entity.DaoProtection;
@@ -24,7 +25,6 @@ import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
-import top.stillmisty.xiantao.service.map.MapService;
 
 /** 角色状态服务 负责：角色详情查询（HP、属性、装备、突破进度、护道信息） */
 @Slf4j
@@ -38,7 +38,6 @@ public class CharacterStatusService {
   private final UserRepository userRepository;
   private final EquipmentRepository equipmentRepository;
   private final DaoProtectionRepository daoProtectionRepository;
-  private final MapService mapService;
   private final MapNodeRepository mapNodeRepository;
 
   @Authenticated
@@ -188,7 +187,8 @@ public class CharacterStatusService {
   }
 
   private TravelData buildTravelData(User user) {
-    String locationName = mapService.getMapName(user.getLocationId());
+    String locationName =
+        mapNodeRepository.findById(user.getLocationId()).map(MapNode::getName).orElse("未知");
     Long travelDestinationId = null;
     String travelDestinationName = null;
     LocalDateTime travelStartTime = null;
@@ -201,7 +201,8 @@ public class CharacterStatusService {
         && user.getActivityType() == ActivityType.TRAVEL
         && user.getActivityTargetId() != null) {
       travelDestinationId = user.getActivityTargetId();
-      travelDestinationName = mapService.getMapName(user.getActivityTargetId());
+      travelDestinationName =
+          mapNodeRepository.findById(user.getActivityTargetId()).map(MapNode::getName).orElse("未知");
       travelStartTime = user.getActivityStartTime();
 
       var currentMap = mapNodeRepository.findById(user.getLocationId());
@@ -276,7 +277,10 @@ public class CharacterStatusService {
                   targetUser.getNickname(),
                   targetUser.getLevel(),
                   targetUser.getLocationId(),
-                  mapService.getMapName(targetUser.getLocationId()),
+                  mapNodeRepository
+                      .findById(targetUser.getLocationId())
+                      .map(MapNode::getName)
+                      .orElse("未知"),
                   inSameLocation,
                   bonus);
             })
@@ -311,7 +315,10 @@ public class CharacterStatusService {
                   protector.getNickname(),
                   protector.getLevel(),
                   protector.getLocationId(),
-                  mapService.getMapName(protector.getLocationId()),
+                  mapNodeRepository
+                      .findById(protector.getLocationId())
+                      .map(MapNode::getName)
+                      .orElse("未知"),
                   inSameLocation,
                   bonus);
             })
