@@ -125,7 +125,7 @@ public class BountyService {
     long seed = userId * 31 + mapNode.getId() * 17 + LocalDate.now().toEpochDay();
     Random rng = new Random(seed);
 
-    int count = rng.nextInt(4) + 5; // 5–8 bounties
+    int count = rng.nextInt(2) + 3; // 3–4 bounties
     count = Math.min(count, eligible.size());
 
     List<Bounty> selected =
