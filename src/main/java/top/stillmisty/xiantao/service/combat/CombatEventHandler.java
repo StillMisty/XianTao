@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
+import top.stillmisty.xiantao.domain.event.entity.GameEvent;
 import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.monster.CombatTeam;
 import top.stillmisty.xiantao.domain.monster.Monster;
@@ -193,21 +194,24 @@ public class CombatEventHandler {
       expBonus = (long) (expToNextLevel * (0.03 + ThreadLocalRandom.current().nextDouble() * 0.05));
       user.addExp(expBonus);
       args.put("exp", expBonus);
-      gameEventService.createEvent(
-          userId, GameEventCategory.TRAINING_EVENT, "历练中灵光一闪，顿悟天道至理，修为增进 +{{exp}}。", args);
+      gameEventService.save(
+          GameEvent.create(userId, GameEventCategory.TRAINING_EVENT)
+              .withNarrative("历练中灵光一闪，顿悟天道至理，修为增进 +{{exp}}。", args));
     } else if (roll < 0.80) {
       Skill learned = tryLearnRandomSkill(userId, user);
       if (learned != null) {
         args.put("skillName", learned.getName());
-        gameEventService.createEvent(
-            userId, GameEventCategory.TRAINING_EVENT, "心有所感，悟得绝学「{{skillName}}」！", args);
+        gameEventService.save(
+            GameEvent.create(userId, GameEventCategory.TRAINING_EVENT)
+                .withNarrative("心有所感，悟得绝学「{{skillName}}」！", args));
       } else {
         expBonus =
             (long) (expToNextLevel * (0.01 + ThreadLocalRandom.current().nextDouble() * 0.02));
         user.addExp(expBonus);
         args.put("exp", expBonus);
-        gameEventService.createEvent(
-            userId, GameEventCategory.TRAINING_EVENT, "似有所悟，但未得要领，仅获 +{{exp}} 修为。", args);
+        gameEventService.save(
+            GameEvent.create(userId, GameEventCategory.TRAINING_EVENT)
+                .withNarrative("似有所悟，但未得要领，仅获 +{{exp}} 修为。", args));
       }
     } else if (roll < 0.95) {
       expBonus = (long) (expToNextLevel * (0.08 + ThreadLocalRandom.current().nextDouble() * 0.12));
@@ -216,14 +220,13 @@ public class CombatEventHandler {
       args.put("exp", expBonus);
       if (learned != null) {
         args.put("skillName", learned.getName());
-        gameEventService.createEvent(
-            userId,
-            GameEventCategory.TRAINING_EVENT,
-            "天机乍现，大彻大悟！修为增进 +{{exp}}，并悟得「{{skillName}}」！",
-            args);
+        gameEventService.save(
+            GameEvent.create(userId, GameEventCategory.TRAINING_EVENT)
+                .withNarrative("天机乍现，大彻大悟！修为增进 +{{exp}}，并悟得「{{skillName}}」！", args));
       } else {
-        gameEventService.createEvent(
-            userId, GameEventCategory.TRAINING_EVENT, "天机乍现，大彻大悟！修为增进 +{{exp}}。", args);
+        gameEventService.save(
+            GameEvent.create(userId, GameEventCategory.TRAINING_EVENT)
+                .withNarrative("天机乍现，大彻大悟！修为增进 +{{exp}}。", args));
       }
     } else {
       long maxStorage = user.calculateMaxExpStorage();
@@ -238,14 +241,13 @@ public class CombatEventHandler {
       args.put("exp", expGiven);
       if (learned != null) {
         args.put("skillName", learned.getName());
-        gameEventService.createEvent(
-            userId,
-            GameEventCategory.TRAINING_EVENT,
-            "天人交感，道心通明！修为暴涨 +{{exp}}，悟得「{{skillName}}」！",
-            args);
+        gameEventService.save(
+            GameEvent.create(userId, GameEventCategory.TRAINING_EVENT)
+                .withNarrative("天人交感，道心通明！修为暴涨 +{{exp}}，悟得「{{skillName}}」！", args));
       } else {
-        gameEventService.createEvent(
-            userId, GameEventCategory.TRAINING_EVENT, "天人交感，道心通明！修为暴涨 +{{exp}}！", args);
+        gameEventService.save(
+            GameEvent.create(userId, GameEventCategory.TRAINING_EVENT)
+                .withNarrative("天人交感，道心通明！修为暴涨 +{{exp}}！", args));
       }
     }
     return true;

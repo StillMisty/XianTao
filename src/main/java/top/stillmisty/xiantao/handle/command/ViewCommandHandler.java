@@ -24,6 +24,7 @@ import top.stillmisty.xiantao.domain.skill.repository.SkillRepository;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.service.BusinessException;
+import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.inventory.EquipmentService;
 import top.stillmisty.xiantao.service.inventory.InventoryService;
@@ -67,7 +68,7 @@ public class ViewCommandHandler implements CommandGroup {
       return switch (call.get()) {
         case ServiceResult.Success<T> s -> onSuccess.apply(s.data());
         case ServiceResult.Failure<T> f -> {
-          if ("ITEM_MULTIPLE_MATCH".equals(f.errorCode())) yield f.errorMessage();
+          if (f.errorCode() == ErrorCode.ITEM_MULTIPLE_MATCH) yield f.errorMessage();
           yield null;
         }
       };

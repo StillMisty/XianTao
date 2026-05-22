@@ -10,6 +10,7 @@ import top.stillmisty.xiantao.domain.bounty.BountyRewardItem;
 import top.stillmisty.xiantao.domain.bounty.entity.UserBounty;
 import top.stillmisty.xiantao.domain.event.EventContextKeys;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
+import top.stillmisty.xiantao.domain.event.entity.GameEvent;
 import top.stillmisty.xiantao.domain.event.enums.ActivityType;
 import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.event.repository.HiddenCompletionRepository;
@@ -35,18 +36,18 @@ public class BountyCompleter {
   public void produceCompletionEvent(
       Long userId, String bountyName, List<BountyRewardItem> items, long spiritStones) {
     Map<String, Object> args = Map.of("bountyName", bountyName, "spiritStones", spiritStones);
-    gameEventService.createEvent(
-        userId,
-        GameEventCategory.BOUNTY_COMPLETE,
-        "委托「{{bountyName}}」已完成。\n你从发布人处领取了约定的报酬：\n✨ 灵石 +{{spiritStones}}",
-        args);
+    gameEventService.save(
+        GameEvent.create(userId, GameEventCategory.BOUNTY_COMPLETE)
+            .withNarrative(
+                "委托「{{bountyName}}」已完成。\n你从发布人处领取了约定的报酬：\n✨ 灵石 +{{spiritStones}}", args));
   }
 
   /** 悬赏已可领取提示 */
   public void produceReadyEvent(Long userId, String bountyName) {
     Map<String, Object> args = Map.of("bountyName", bountyName);
-    gameEventService.createEvent(
-        userId, GameEventCategory.BOUNTY_READY, "悬赏「{{bountyName}}」已完成，请使用「悬赏结算」领取奖励。", args);
+    gameEventService.save(
+        GameEvent.create(userId, GameEventCategory.BOUNTY_READY)
+            .withNarrative("悬赏「{{bountyName}}」已完成，请使用「悬赏结算」领取奖励。", args));
   }
 
   /** 悬赏子事件调节主奖励 — 通过 context 传出修改后的灵石数 */
@@ -61,8 +62,9 @@ public class BountyCompleter {
     EventContextKeys.FORTUNE.put(context, fortune);
     Map<String, Object> templateArgs = effectExecutor.execute(selected, userId, user, context);
     String narrativeKey = activityEventHelper.resolveNarrativeKey(selected.getCode());
-    gameEventService.createEvent(
-        userId, GameEventCategory.BOUNTY_SIDE_MODIFIER, narrativeKey, templateArgs);
+    gameEventService.save(
+        GameEvent.create(userId, GameEventCategory.BOUNTY_SIDE_MODIFIER)
+            .withNarrative(narrativeKey, templateArgs));
   }
 
   /** 检查悬赏隐藏事件 */
@@ -87,8 +89,9 @@ public class BountyCompleter {
       EventContextKeys.FORTUNE.put(hiddenContext, fortune);
       Map<String, Object> templateArgs = effectExecutor.execute(event, userId, user, hiddenContext);
       String narrativeKey = activityEventHelper.resolveNarrativeKey(event.getCode());
-      gameEventService.createEvent(
-          userId, GameEventCategory.BOUNTY_HIDDEN, narrativeKey, templateArgs);
+      gameEventService.save(
+          GameEvent.create(userId, GameEventCategory.BOUNTY_HIDDEN)
+              .withNarrative(narrativeKey, templateArgs));
     }
   }
 }

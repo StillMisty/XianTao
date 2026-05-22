@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.event.EventContextKeys;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
+import top.stillmisty.xiantao.domain.event.entity.GameEvent;
 import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.event.repository.ActivityEventRepository;
 import top.stillmisty.xiantao.domain.event.vo.FortuneVO;
@@ -56,7 +57,8 @@ public class TrainingSettler {
   public void fireChoiceEvent(Long userId, String eventCode, Map<String, Object> params) {
     Map<String, Object> choiceData = new HashMap<>();
     choiceData.put("choice", params);
-    gameEventService.createEvent(userId, GameEventCategory.TRAINING_EVENT, choiceData);
+    gameEventService.save(
+        GameEvent.create(userId, GameEventCategory.TRAINING_EVENT).withEffects(choiceData));
   }
 
   private CombatSummary runUnifiedEventLoop(

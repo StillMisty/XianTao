@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.event.EventContextKeys;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
+import top.stillmisty.xiantao.domain.event.entity.GameEvent;
 import top.stillmisty.xiantao.domain.event.enums.ActivityType;
 import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.event.repository.HiddenCompletionRepository;
@@ -56,8 +57,9 @@ public class TravelCompleter {
             toMap.getName(),
             "mapDescription",
             toMap.getDescription() != null ? toMap.getDescription() : "");
-    gameEventService.createEvent(
-        userId, GameEventCategory.TRAVEL_ARRIVED, "你经过一路跋涉，终于抵达了{{to}}。", arrivalArgs);
+    gameEventService.save(
+        GameEvent.create(userId, GameEventCategory.TRAVEL_ARRIVED)
+            .withNarrative("你经过一路跋涉，终于抵达了{{to}}。", arrivalArgs));
 
     rollSubEvents(userId, user, toMap);
     checkHiddenEvents(userId, user, toMap);
@@ -76,8 +78,9 @@ public class TravelCompleter {
     EventContextKeys.FORTUNE.put(context, fortune);
     Map<String, Object> templateArgs = effectExecutor.execute(selected, userId, user, context);
     String narrativeKey = activityEventHelper.resolveNarrativeKey(selected.getCode());
-    gameEventService.createEvent(
-        userId, GameEventCategory.TRAVEL_EVENT, narrativeKey, templateArgs);
+    gameEventService.save(
+        GameEvent.create(userId, GameEventCategory.TRAVEL_EVENT)
+            .withNarrative(narrativeKey, templateArgs));
   }
 
   private void checkHiddenEvents(Long userId, User user, MapNode mapNode) {
@@ -102,8 +105,9 @@ public class TravelCompleter {
       EventContextKeys.FORTUNE.put(hiddenContext, fortune);
       Map<String, Object> templateArgs = effectExecutor.execute(event, userId, user, hiddenContext);
       String narrativeKey = activityEventHelper.resolveNarrativeKey(event.getCode());
-      gameEventService.createEvent(
-          userId, GameEventCategory.TRAVEL_HIDDEN, narrativeKey, templateArgs);
+      gameEventService.save(
+          GameEvent.create(userId, GameEventCategory.TRAVEL_HIDDEN)
+              .withNarrative(narrativeKey, templateArgs));
     }
   }
 }

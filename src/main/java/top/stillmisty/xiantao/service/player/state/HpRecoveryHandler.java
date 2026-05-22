@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import top.stillmisty.xiantao.domain.event.entity.GameEvent;
 import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
@@ -46,8 +47,9 @@ class HpRecoveryHandler implements StateHandler {
     user.setLastHpRecoveryTime(lastRecovery.plusMinutes(ticks * HP_RECOVERY_INTERVAL_MINUTES));
 
     if (user.getHpCurrent() >= maxHp) {
-      gameEventService.createEvent(
-          user.getId(), GameEventCategory.HP_RECOVERED, "你的生命值已完全恢复。", null);
+      gameEventService.save(
+          GameEvent.create(user.getId(), GameEventCategory.HP_RECOVERED)
+              .withNarrative("你的生命值已完全恢复。", null));
     }
 
     log.debug("玩家 {} HP 自然恢复 {} 格，当前 {}/{}", user.getId(), ticks, user.getHpCurrent(), maxHp);

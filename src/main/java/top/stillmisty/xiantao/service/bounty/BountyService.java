@@ -73,7 +73,7 @@ public class BountyService {
     try {
       id = Long.parseLong(bountyId);
     } catch (NumberFormatException e) {
-      return new ServiceResult.Failure<>(BOUNTY_ID_INVALID.name(), "请输入有效的悬赏编号");
+      return new ServiceResult.Failure<>(BOUNTY_ID_INVALID, "请输入有效的悬赏编号");
     }
     return new ServiceResult.Success<>(startBounty(userId, id));
   }

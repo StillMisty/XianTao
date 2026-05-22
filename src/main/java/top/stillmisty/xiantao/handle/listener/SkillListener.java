@@ -1,7 +1,6 @@
 package top.stillmisty.xiantao.handle.listener;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import love.forte.simbot.component.onebot.v11.core.event.message.OneBotMessageEvent;
 import love.forte.simbot.component.qguild.event.QGGroupAtMessageCreateEvent;
 import love.forte.simbot.component.qguild.message.QGMarkdown;
@@ -12,7 +11,6 @@ import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.handle.command.SkillCommandHandler;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class SkillListener {
@@ -25,32 +23,29 @@ public class SkillListener {
   @ContentTrim
   @Filter("法决装载 {{skill}}")
   public void equipSkill(OneBotMessageEvent event, @FilterValue("skill") String skill) {
-    log.debug("[OneBot] 收到法决装载请求 - AuthorId: {}, Skill: {}", event.getAuthorId(), skill);
     if (skill == null || skill.isEmpty()) {
       event.replyBlocking("用法：法决装载 [法决名称或编号]\n示例：法决装载 御剑术");
       return;
     }
-    replyHelper.oneBot(event, skill, skillCommandHandler::handleEquipSkill);
+    replyHelper.oneBot(event, "法决装载", skill, skillCommandHandler::handleEquipSkill);
   }
 
   @Listener
   @ContentTrim
   @Filter("法决卸下 {{skill}}")
   public void unequipSkill(OneBotMessageEvent event, @FilterValue("skill") String skill) {
-    log.debug("[OneBot] 收到法决卸下请求 - AuthorId: {}, Skill: {}", event.getAuthorId(), skill);
     if (skill == null || skill.isEmpty()) {
       event.replyBlocking("用法：法决卸下 [法决名称或编号]\n示例：法决卸下 御剑术");
       return;
     }
-    replyHelper.oneBot(event, skill, skillCommandHandler::handleUnequipSkill);
+    replyHelper.oneBot(event, "法决卸下", skill, skillCommandHandler::handleUnequipSkill);
   }
 
   @Listener
   @ContentTrim
   @Filter("法决")
   public void skills(OneBotMessageEvent event) {
-    log.debug("[OneBot] 收到法决查询请求 - AuthorId: {}", event.getAuthorId());
-    replyHelper.oneBot(event, skillCommandHandler::handleSkills);
+    replyHelper.oneBot(event, "法决查询", skillCommandHandler::handleSkills);
   }
 
   // === QQ ===
@@ -59,12 +54,11 @@ public class SkillListener {
   @ContentTrim
   @Filter("法决装载 {{skill}}")
   public void equipSkillQq(QGGroupAtMessageCreateEvent event, @FilterValue("skill") String skill) {
-    log.debug("[QQ] 收到法决装载请求 - AuthorId: {}, Skill: {}", event.getAuthorId(), skill);
     if (skill == null || skill.isEmpty()) {
       event.replyBlocking(QGMarkdown.create("用法：法决装载 [法决名称或编号]\n示例：法决装载 御剑术"));
       return;
     }
-    replyHelper.qq(event, skill, skillCommandHandler::handleEquipSkill);
+    replyHelper.qq(event, "法决装载", skill, skillCommandHandler::handleEquipSkill);
   }
 
   @Listener
@@ -72,19 +66,17 @@ public class SkillListener {
   @Filter("法决卸下 {{skill}}")
   public void unequipSkillQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("skill") String skill) {
-    log.debug("[QQ] 收到法决卸下请求 - AuthorId: {}, Skill: {}", event.getAuthorId(), skill);
     if (skill == null || skill.isEmpty()) {
       event.replyBlocking(QGMarkdown.create("用法：法决卸下 [法决名称或编号]\n示例：法决卸下 御剑术"));
       return;
     }
-    replyHelper.qq(event, skill, skillCommandHandler::handleUnequipSkill);
+    replyHelper.qq(event, "法决卸下", skill, skillCommandHandler::handleUnequipSkill);
   }
 
   @Listener
   @ContentTrim
   @Filter("法决")
   public void skillsQq(QGGroupAtMessageCreateEvent event) {
-    log.debug("[QQ] 收到法决查询请求 - AuthorId: {}", event.getAuthorId());
-    replyHelper.qq(event, skillCommandHandler::handleSkills);
+    replyHelper.qq(event, "法决查询", skillCommandHandler::handleSkills);
   }
 }

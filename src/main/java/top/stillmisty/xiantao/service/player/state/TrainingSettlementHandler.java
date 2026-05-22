@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import top.stillmisty.xiantao.domain.event.entity.GameEvent;
 import top.stillmisty.xiantao.domain.event.enums.ActivityType;
 import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
@@ -48,11 +49,11 @@ class TrainingSettlementHandler implements StateHandler {
     while (nextSettled <= minutesElapsed) {
       if (user.getStatus() == UserStatus.DYING) break;
       trainingSettler.settleChunk(user.getId(), user, mapNode, lastSettled, nextSettled);
-      gameEventService.createEvent(
-          user.getId(),
-          GameEventCategory.TRAINING_EVENT,
-          "历练进行中：已修炼 {{from}}~{{to}} 分钟，在 {{mapName}} 继续精进。",
-          Map.of("from", lastSettled, "to", nextSettled, "mapName", mapNode.getName()));
+      gameEventService.save(
+          GameEvent.create(user.getId(), GameEventCategory.TRAINING_EVENT)
+              .withNarrative(
+                  "历练进行中：已修炼 {{from}}~{{to}} 分钟，在 {{mapName}} 继续精进。",
+                  Map.of("from", lastSettled, "to", nextSettled, "mapName", mapNode.getName())));
       lastSettled = nextSettled;
       nextSettled += interval;
     }

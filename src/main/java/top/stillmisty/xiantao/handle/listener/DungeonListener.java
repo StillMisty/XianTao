@@ -1,7 +1,6 @@
 package top.stillmisty.xiantao.handle.listener;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import love.forte.simbot.component.onebot.v11.core.event.message.OneBotMessageEvent;
 import love.forte.simbot.component.qguild.event.QGGroupAtMessageCreateEvent;
 import love.forte.simbot.quantcat.common.annotations.ContentTrim;
@@ -11,7 +10,6 @@ import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.handle.command.DungeonCommandHandler;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class DungeonListener {
@@ -25,16 +23,14 @@ public class DungeonListener {
   @ContentTrim
   @Filter("秘境")
   public void dungeonList(OneBotMessageEvent event) {
-    log.debug("[OneBot] 收到秘境列表请求 - AuthorId: {}", event.getAuthorId());
-    replyHelper.oneBot(event, dungeonCommandHandler::handleDungeon);
+    replyHelper.oneBot(event, "秘境列表", dungeonCommandHandler::handleDungeon);
   }
 
   @Listener
   @ContentTrim
   @Filter("秘境")
   public void dungeonListQq(QGGroupAtMessageCreateEvent event) {
-    log.debug("[QQ] 收到秘境列表请求 - AuthorId: {}", event.getAuthorId());
-    replyHelper.qq(event, dungeonCommandHandler::handleDungeon);
+    replyHelper.qq(event, "秘境列表", dungeonCommandHandler::handleDungeon);
   }
 
   // === 秘境进入 ===
@@ -44,8 +40,7 @@ public class DungeonListener {
   @Filter("秘境 {{dungeonName}}")
   public void dungeonEnter(
       OneBotMessageEvent event, @FilterValue("dungeonName") String dungeonName) {
-    log.debug("[OneBot] 收到进入秘境请求 - AuthorId: {}, Dungeon: {}", event.getAuthorId(), dungeonName);
-    replyHelper.oneBot(event, dungeonName, dungeonCommandHandler::handleDungeonEnter);
+    replyHelper.oneBot(event, "进入秘境", dungeonName, dungeonCommandHandler::handleDungeonEnter);
   }
 
   @Listener
@@ -53,8 +48,7 @@ public class DungeonListener {
   @Filter("秘境 {{dungeonName}}")
   public void dungeonEnterQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("dungeonName") String dungeonName) {
-    log.debug("[QQ] 收到进入秘境请求 - AuthorId: {}, Dungeon: {}", event.getAuthorId(), dungeonName);
-    replyHelper.qq(event, dungeonName, dungeonCommandHandler::handleDungeonEnter);
+    replyHelper.qq(event, "进入秘境", dungeonName, dungeonCommandHandler::handleDungeonEnter);
   }
 
   // === 秘境探索 ===
@@ -63,16 +57,14 @@ public class DungeonListener {
   @ContentTrim
   @Filter("秘境探索")
   public void dungeonExplore(OneBotMessageEvent event) {
-    log.debug("[OneBot] 收到秘境探索请求 - AuthorId: {}", event.getAuthorId());
-    replyHelper.oneBot(event, dungeonCommandHandler::handleDungeonExplore);
+    replyHelper.oneBot(event, "秘境探索", dungeonCommandHandler::handleDungeonExplore);
   }
 
   @Listener
   @ContentTrim
   @Filter("秘境探索")
   public void dungeonExploreQq(QGGroupAtMessageCreateEvent event) {
-    log.debug("[QQ] 收到秘境探索请求 - AuthorId: {}", event.getAuthorId());
-    replyHelper.qq(event, dungeonCommandHandler::handleDungeonExplore);
+    replyHelper.qq(event, "秘境探索", dungeonCommandHandler::handleDungeonExplore);
   }
 
   // === 秘境继续 ===
@@ -81,16 +73,14 @@ public class DungeonListener {
   @ContentTrim
   @Filter("秘境继续")
   public void dungeonContinue(OneBotMessageEvent event) {
-    log.debug("[OneBot] 收到秘境继续请求 - AuthorId: {}", event.getAuthorId());
-    replyHelper.oneBot(event, dungeonCommandHandler::handleDungeonContinue);
+    replyHelper.oneBot(event, "秘境继续", dungeonCommandHandler::handleDungeonContinue);
   }
 
   @Listener
   @ContentTrim
   @Filter("秘境继续")
   public void dungeonContinueQq(QGGroupAtMessageCreateEvent event) {
-    log.debug("[QQ] 收到秘境继续请求 - AuthorId: {}", event.getAuthorId());
-    replyHelper.qq(event, dungeonCommandHandler::handleDungeonContinue);
+    replyHelper.qq(event, "秘境继续", dungeonCommandHandler::handleDungeonContinue);
   }
 
   // === 秘境撤退 ===
@@ -99,15 +89,13 @@ public class DungeonListener {
   @ContentTrim
   @Filter("秘境撤退")
   public void dungeonRetreat(OneBotMessageEvent event) {
-    log.debug("[OneBot] 收到秘境撤退请求 - AuthorId: {}", event.getAuthorId());
-    replyHelper.oneBot(event, dungeonCommandHandler::handleDungeonRetreat);
+    replyHelper.oneBot(event, "秘境撤退", dungeonCommandHandler::handleDungeonRetreat);
   }
 
   @Listener
   @ContentTrim
   @Filter("秘境撤退")
   public void dungeonRetreatQq(QGGroupAtMessageCreateEvent event) {
-    log.debug("[QQ] 收到秘境撤退请求 - AuthorId: {}", event.getAuthorId());
-    replyHelper.qq(event, dungeonCommandHandler::handleDungeonRetreat);
+    replyHelper.qq(event, "秘境撤退", dungeonCommandHandler::handleDungeonRetreat);
   }
 }

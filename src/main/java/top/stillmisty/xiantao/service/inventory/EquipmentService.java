@@ -77,11 +77,10 @@ public class EquipmentService {
         if (!e.metadata().isBlank()) sb.append(" [").append(e.metadata()).append("]");
         sb.append("\n");
       }
-      return new ServiceResult.Failure<>(
-          ErrorCode.ITEM_MULTIPLE_MATCH.name(), sb.toString().strip());
+      return new ServiceResult.Failure<>(ErrorCode.ITEM_MULTIPLE_MATCH, sb.toString().strip());
     }
     return new ServiceResult.Failure<>(
-        ErrorCode.ITEM_NOT_FOUND.name(), ErrorCode.ITEM_NOT_FOUND.format(input));
+        ErrorCode.ITEM_NOT_FOUND, ErrorCode.ITEM_NOT_FOUND.format(input));
   }
 
   // ===================== 内部 API（需预先完成认证） =====================

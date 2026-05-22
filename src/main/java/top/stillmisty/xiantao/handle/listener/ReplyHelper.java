@@ -30,7 +30,36 @@ public class ReplyHelper {
     String execute(PlatformType platform, String openId, String arg, TextFormat fmt);
   }
 
-  // ===================== 便捷 dispatch 方法（封装 platform/openId/fmt 常量的提取） =====================
+  // ===================== 便捷 dispatch 方法（封装 platform/openId/fmt 常量的提取 + 日志） =====================
+
+  public void oneBot(OneBotMessageEvent event, String command, CommandFn fn) {
+    log.debug("[OneBot] {}请求 - AuthorId: {}", command, event.getAuthorId());
+    String text =
+        fn.execute(PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
+    replyOneBot(event, text);
+  }
+
+  public void oneBot(OneBotMessageEvent event, String command, String arg, CommandFn1 fn) {
+    log.debug("[OneBot] {}请求 - AuthorId: {}, Arg: {}", command, event.getAuthorId(), arg);
+    String text =
+        fn.execute(PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), arg, TextFormat.PLAIN);
+    replyOneBot(event, text);
+  }
+
+  public void qq(QGGroupAtMessageCreateEvent event, String command, CommandFn fn) {
+    log.debug("[QQ] {}请求 - AuthorId: {}", command, event.getAuthorId());
+    String text = fn.execute(PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
+    replyQQ(event, text);
+  }
+
+  public void qq(QGGroupAtMessageCreateEvent event, String command, String arg, CommandFn1 fn) {
+    log.debug("[QQ] {}请求 - AuthorId: {}, Arg: {}", command, event.getAuthorId(), arg);
+    String text =
+        fn.execute(PlatformType.QQ, event.getAuthorId().toString(), arg, TextFormat.MARKDOWN);
+    replyQQ(event, text);
+  }
+
+  // ===================== 无日志便捷方法（向后兼容/特殊场景） =====================
 
   public void oneBot(OneBotMessageEvent event, CommandFn fn) {
     String text =

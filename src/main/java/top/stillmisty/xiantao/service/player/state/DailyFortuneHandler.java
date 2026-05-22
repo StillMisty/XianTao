@@ -5,6 +5,7 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import top.stillmisty.xiantao.domain.event.entity.GameEvent;
 import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.service.FortuneService;
@@ -25,8 +26,9 @@ class DailyFortuneHandler implements StateHandler {
 
     user.setLastFortuneDate(today);
     String display = fortuneService.buildDisplay(user.getId());
-    gameEventService.createEvent(
-        user.getId(), GameEventCategory.FORTUNE, "{{fortuneText}}", Map.of("fortuneText", display));
+    gameEventService.save(
+        GameEvent.create(user.getId(), GameEventCategory.FORTUNE)
+            .withNarrative("{{fortuneText}}", Map.of("fortuneText", display)));
     return true;
   }
 }

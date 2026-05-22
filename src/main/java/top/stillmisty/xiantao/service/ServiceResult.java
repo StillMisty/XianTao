@@ -14,13 +14,13 @@ public sealed interface ServiceResult<T> permits ServiceResult.Success, ServiceR
 
   record Success<T>(T data) implements ServiceResult<T> {}
 
-  record Failure<T>(String errorCode, String errorMessage) implements ServiceResult<T> {}
+  record Failure<T>(ErrorCode errorCode, String errorMessage) implements ServiceResult<T> {}
 
   static <T> ServiceResult<T> authFailure(String message) {
-    return new Failure<>("AUTH_FAILED", message);
+    return new Failure<>(ErrorCode.AUTH_FAILED, message);
   }
 
   static <T> ServiceResult<T> businessFailure(String message) {
-    return new Failure<>("BUSINESS_ERROR", message);
+    return new Failure<>(ErrorCode.BUSINESS_ERROR, message);
   }
 }

@@ -1,16 +1,14 @@
 package top.stillmisty.xiantao.service;
 
 import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.event.entity.GameEvent;
-import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.event.repository.GameEventRepository;
 
-/** 游戏事件服务 — 插入事件、查询未投递、标记已投递 */
+/** 游戏事件服务 — 保存事件、查询未投递、标记已投递 */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -18,44 +16,9 @@ public class GameEventService {
 
   private final GameEventRepository gameEventRepository;
 
-  /** 创建并保存一个事件 */
+  /** 保存单个事件 */
   @Transactional
-  public GameEvent createEvent(Long userId, GameEventCategory category) {
-    GameEvent event = GameEvent.create(userId, category);
-    return gameEventRepository.save(event);
-  }
-
-  /** 创建带叙事的事件 */
-  @Transactional
-  public GameEvent createEvent(
-      Long userId,
-      GameEventCategory category,
-      String narrativeKey,
-      Map<String, Object> narrativeArgs) {
-    GameEvent event = GameEvent.create(userId, category).withNarrative(narrativeKey, narrativeArgs);
-    return gameEventRepository.save(event);
-  }
-
-  /** 创建带效果的事件（无叙事） */
-  @Transactional
-  public GameEvent createEvent(
-      Long userId, GameEventCategory category, Map<String, Object> effects) {
-    GameEvent event = GameEvent.create(userId, category).withEffects(effects);
-    return gameEventRepository.save(event);
-  }
-
-  /** 创建带叙事和效果的事件 */
-  @Transactional
-  public GameEvent createEvent(
-      Long userId,
-      GameEventCategory category,
-      String narrativeKey,
-      Map<String, Object> narrativeArgs,
-      Map<String, Object> effects) {
-    GameEvent event =
-        GameEvent.create(userId, category)
-            .withNarrative(narrativeKey, narrativeArgs)
-            .withEffects(effects);
+  public GameEvent save(GameEvent event) {
     return gameEventRepository.save(event);
   }
 

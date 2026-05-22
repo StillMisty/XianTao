@@ -1,7 +1,6 @@
 package top.stillmisty.xiantao.handle.listener;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import love.forte.simbot.component.onebot.v11.core.event.message.OneBotMessageEvent;
 import love.forte.simbot.component.qguild.event.QGGroupAtMessageCreateEvent;
 import love.forte.simbot.quantcat.common.annotations.ContentTrim;
@@ -10,7 +9,6 @@ import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.handle.command.LeaderboardCommandHandler;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class LeaderboardListener {
@@ -23,16 +21,14 @@ public class LeaderboardListener {
   @ContentTrim
   @Filter("排行榜")
   public void levelLeaderboard(OneBotMessageEvent event) {
-    log.debug("[OneBot] 收到排行榜请求 - AuthorId: {}", event.getAuthorId());
-    replyHelper.oneBot(event, leaderboardCommandHandler::handleLevelLeaderboard);
+    replyHelper.oneBot(event, "排行榜", leaderboardCommandHandler::handleLevelLeaderboard);
   }
 
   @Listener
   @ContentTrim
   @Filter("排行榜 灵石")
   public void spiritStoneLeaderboard(OneBotMessageEvent event) {
-    log.debug("[OneBot] 收到灵石排行榜请求 - AuthorId: {}", event.getAuthorId());
-    replyHelper.oneBot(event, leaderboardCommandHandler::handleSpiritStoneLeaderboard);
+    replyHelper.oneBot(event, "灵石排行榜", leaderboardCommandHandler::handleSpiritStoneLeaderboard);
   }
 
   // === QQ ===
@@ -41,15 +37,13 @@ public class LeaderboardListener {
   @ContentTrim
   @Filter("排行榜")
   public void levelLeaderboardQq(QGGroupAtMessageCreateEvent event) {
-    log.debug("[QQ] 收到排行榜请求 - AuthorId: {}", event.getAuthorId());
-    replyHelper.qq(event, leaderboardCommandHandler::handleLevelLeaderboard);
+    replyHelper.qq(event, "排行榜", leaderboardCommandHandler::handleLevelLeaderboard);
   }
 
   @Listener
   @ContentTrim
   @Filter("排行榜 灵石")
   public void spiritStoneLeaderboardQq(QGGroupAtMessageCreateEvent event) {
-    log.debug("[QQ] 收到灵石排行榜请求 - AuthorId: {}", event.getAuthorId());
-    replyHelper.qq(event, leaderboardCommandHandler::handleSpiritStoneLeaderboard);
+    replyHelper.qq(event, "灵石排行榜", leaderboardCommandHandler::handleSpiritStoneLeaderboard);
   }
 }

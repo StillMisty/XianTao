@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import top.stillmisty.xiantao.domain.event.entity.GameEvent;
 import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
@@ -42,11 +43,9 @@ class DyingRecoveryHandler implements StateHandler {
     user.clearActivity();
     user.setDyingStartTime(null);
 
-    gameEventService.createEvent(
-        user.getId(),
-        GameEventCategory.DYING_RECOVERED,
-        "你从重伤中恢复了过来，HP 恢复到 {{hp}}。",
-        Map.of("hp", recoveryHp));
+    gameEventService.save(
+        GameEvent.create(user.getId(), GameEventCategory.DYING_RECOVERED)
+            .withNarrative("你从重伤中恢复了过来，HP 恢复到 {{hp}}。", Map.of("hp", recoveryHp)));
 
     log.info("玩家 {} 濒死超时自动恢复，HP 恢复到 {}", user.getId(), recoveryHp);
     return true;

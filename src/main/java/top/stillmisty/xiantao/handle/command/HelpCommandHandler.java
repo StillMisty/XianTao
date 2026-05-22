@@ -48,12 +48,7 @@ public class HelpCommandHandler {
         sb.append(fmt.listItem(fmt.bold(cmd.trigger()) + " — " + cmd.description()));
       }
     }
-    if (fmt == TextFormat.MARKDOWN) {
-      sb.append("\n💡 ");
-    } else {
-      sb.append("\n");
-    }
-    sb.append("输入「帮助 [命令]」查看详细用法");
+    sb.append(fmt.tip("输入「帮助 [命令]」查看详细用法"));
     return sb.toString();
   }
 

@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.event.EventContextKeys;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
+import top.stillmisty.xiantao.domain.event.entity.GameEvent;
 import top.stillmisty.xiantao.domain.event.enums.ActivityType;
 import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.event.repository.HiddenCompletionRepository;
@@ -32,14 +33,16 @@ public class TrainingCompleter {
   public void produceCompletionEvent(
       Long userId, User user, MapNode mapNode, long minutesTraining) {
     Map<String, Object> args = Map.of("mapName", mapNode.getName(), "minutes", minutesTraining);
-    gameEventService.createEvent(
-        userId, GameEventCategory.TRAINING_COMPLETE, "你在{{mapName}}历练了 {{minutes}} 分钟，有所收获。", args);
+    gameEventService.save(
+        GameEvent.create(userId, GameEventCategory.TRAINING_COMPLETE)
+            .withNarrative("你在{{mapName}}历练了 {{minutes}} 分钟，有所收获。", args));
   }
 
   public void produceInterruptedEvent(Long userId, MapNode mapNode) {
     Map<String, Object> args = Map.of("mapName", mapNode.getName());
-    gameEventService.createEvent(
-        userId, GameEventCategory.TRAINING_INTERRUPTED, "你在{{mapName}}的历练因重伤而中断。", args);
+    gameEventService.save(
+        GameEvent.create(userId, GameEventCategory.TRAINING_INTERRUPTED)
+            .withNarrative("你在{{mapName}}的历练因重伤而中断。", args));
   }
 
   /** 处理单个非 COMBAT 事件（由统一循环调用） */
@@ -47,8 +50,9 @@ public class TrainingCompleter {
       Long userId, User user, ActivityEvent event, Map<String, Object> context) {
     Map<String, Object> templateArgs = effectExecutor.execute(event, userId, user, context);
     String narrativeKey = activityEventHelper.resolveNarrativeKey(event.getCode());
-    gameEventService.createEvent(
-        userId, GameEventCategory.TRAINING_EVENT, narrativeKey, templateArgs);
+    gameEventService.save(
+        GameEvent.create(userId, GameEventCategory.TRAINING_EVENT)
+            .withNarrative(narrativeKey, templateArgs));
   }
 
   /** 检查历练隐藏事件 */
@@ -74,8 +78,9 @@ public class TrainingCompleter {
       EventContextKeys.FORTUNE.put(context, fortune);
       Map<String, Object> templateArgs = effectExecutor.execute(event, userId, user, context);
       String narrativeKey = activityEventHelper.resolveNarrativeKey(event.getCode());
-      gameEventService.createEvent(
-          userId, GameEventCategory.TRAINING_HIDDEN, narrativeKey, templateArgs);
+      gameEventService.save(
+          GameEvent.create(userId, GameEventCategory.TRAINING_HIDDEN)
+              .withNarrative(narrativeKey, templateArgs));
     }
   }
 }

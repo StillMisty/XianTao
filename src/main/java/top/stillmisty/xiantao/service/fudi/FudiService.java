@@ -86,7 +86,7 @@ public class FudiService {
       type = CellType.fromChineseName(cellTypeName);
     } catch (IllegalArgumentException e) {
       return new ServiceResult.Failure<>(
-          "INVALID_INPUT", "不支持的地块类型：" + cellTypeName + "（可选：灵田、兽栏）");
+          ErrorCode.CELL_TYPE_INVALID, "不支持的地块类型：" + cellTypeName + "（可选：灵田、兽栏）");
     }
     return new ServiceResult.Success<>(buildCell(userId, position, type));
   }

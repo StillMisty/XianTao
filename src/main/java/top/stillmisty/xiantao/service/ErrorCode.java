@@ -24,6 +24,7 @@ public enum ErrorCode {
   CELL_OUT_OF_RANGE("地块编号超出范围（1-%d），当前劫数仅开放到 %d 号地块"),
   CELL_NO_COLLECTIBLE("地块 %s 无可收取内容"),
   CELL_TYPE_MISMATCH("地块 %s 已有其他类型建筑"),
+  CELL_TYPE_INVALID("不支持的地块类型：%s（可选：灵田、兽栏）"),
 
   // ===== Beast =====
   BEAST_NOT_FOUND("未找到灵兽"),
@@ -207,7 +208,11 @@ public enum ErrorCode {
   USER_CONTEXT_MISSING("未找到用户上下文，请先设置 UserContext"),
 
   // ===== General =====
-  PARAM_INVALID("参数无效：%s");
+  PARAM_INVALID("参数无效：%s"),
+
+  // ===== System =====
+  AUTH_FAILED("认证失败：%s"),
+  BUSINESS_ERROR("系统繁忙：%s");
 
   private final String template;
 
