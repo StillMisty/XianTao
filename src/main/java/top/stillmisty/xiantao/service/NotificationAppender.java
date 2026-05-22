@@ -89,7 +89,7 @@ public class NotificationAppender {
       String sectionTitle = entry.getKey();
       List<GameEvent> group = entry.getValue();
 
-      if (sectionTitle != null) {
+      if (!sectionTitle.isEmpty()) {
         sb.append("\n━━━ ").append(sectionTitle).append(" ━━━\n");
         for (GameEvent event : group) {
           sb.append(formatSingleEvent(event)).append("\n");
@@ -105,8 +105,8 @@ public class NotificationAppender {
   }
 
   private String getSectionGroup(GameEventCategory category) {
-    if (category == null) return null;
-    return category.getSectionTitle();
+    if (category == null) return "";
+    return category.getSectionTitle() != null ? category.getSectionTitle() : "";
   }
 
   private String formatSingleEvent(GameEvent event) {

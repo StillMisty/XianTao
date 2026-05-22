@@ -19,11 +19,14 @@ import com.openai.services.blocking.chat.completions.MessageService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import org.jspecify.annotations.NonNull;
 
 public class ReasoningPreservingChatCompletionService implements ChatCompletionService {
+
+  static final ConcurrentHashMap<String, String> CONVERSATION_REASONING = new ConcurrentHashMap<>();
 
   private final ChatCompletionService delegate;
 
@@ -34,6 +37,12 @@ public class ReasoningPreservingChatCompletionService implements ChatCompletionS
   private static AtomicReference<String> reasoningHolder() {
     return ReasoningScopeAdvisor.REASONING_HOLDER.isBound()
         ? ReasoningScopeAdvisor.REASONING_HOLDER.get()
+        : null;
+  }
+
+  private static String conversationId() {
+    return ReasoningScopeAdvisor.CONVERSATION_ID.isBound()
+        ? ReasoningScopeAdvisor.CONVERSATION_ID.get()
         : null;
   }
 
@@ -55,13 +64,7 @@ public class ReasoningPreservingChatCompletionService implements ChatCompletionS
 
   private ChatCompletionCreateParams injectReasoning(ChatCompletionCreateParams params) {
     AtomicReference<String> holder = reasoningHolder();
-    if (holder == null) {
-      return params;
-    }
-    String reasoning = holder.get();
-    if (reasoning == null) {
-      return params;
-    }
+    String convId = conversationId();
 
     ChatCompletionCreateParams.Body body = params._body();
     List<ChatCompletionMessageParam> messages = body.messages();
@@ -72,21 +75,26 @@ public class ReasoningPreservingChatCompletionService implements ChatCompletionS
     for (ChatCompletionMessageParam msg : messages) {
       if (msg.isAssistant()) {
         ChatCompletionAssistantMessageParam assistant = msg.asAssistant();
-        if (assistant.toolCalls().isPresent()
-            && !assistant._additionalProperties().containsKey("reasoning_content")) {
-          ChatCompletionAssistantMessageParam param =
-              assistant.toBuilder()
-                  .putAdditionalProperty("reasoning_content", JsonValue.from(reasoning))
-                  .build();
-          newMessages.add(ChatCompletionMessageParam.ofAssistant(param));
-          modified = true;
-          holder.set(null);
-        } else {
-          newMessages.add(msg);
+        if (!assistant._additionalProperties().containsKey("reasoning_content")) {
+          String reasoning = null;
+          if (holder != null) {
+            reasoning = holder.getAndSet(null);
+          }
+          if (reasoning == null && convId != null) {
+            reasoning = CONVERSATION_REASONING.get(convId);
+          }
+          if (reasoning != null) {
+            ChatCompletionAssistantMessageParam param =
+                assistant.toBuilder()
+                    .putAdditionalProperty("reasoning_content", JsonValue.from(reasoning))
+                    .build();
+            newMessages.add(ChatCompletionMessageParam.ofAssistant(param));
+            modified = true;
+            continue;
+          }
         }
-      } else {
-        newMessages.add(msg);
       }
+      newMessages.add(msg);
     }
 
     if (!modified) {
@@ -108,6 +116,10 @@ public class ReasoningPreservingChatCompletionService implements ChatCompletionS
         String reasoning = value.convert(String.class);
         if (reasoning != null && !reasoning.isEmpty()) {
           holder.set(reasoning);
+          String convId = conversationId();
+          if (convId != null) {
+            CONVERSATION_REASONING.put(convId, reasoning);
+          }
           return;
         }
       }

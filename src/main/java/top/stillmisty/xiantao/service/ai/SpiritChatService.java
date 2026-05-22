@@ -114,6 +114,8 @@ public class SpiritChatService extends AbstractChatService {
       log.debug(
           "地灵对话成功 - userId: {}, mbti: {}, input: {}", userId, spirit.getMbtiType(), userInput);
       return response;
+    } catch (BusinessException e) {
+      return e.getMessage();
     } catch (Exception e) {
       log.error("地灵对话失败 - userId: {}, error: {}", userId, e.getMessage(), e);
       return "地灵暂时无法回应，请稍后再试。";

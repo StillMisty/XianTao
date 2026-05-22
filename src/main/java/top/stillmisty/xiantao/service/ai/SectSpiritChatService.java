@@ -79,6 +79,8 @@ public class SectSpiritChatService extends AbstractChatService {
 
       log.debug("宗灵对话成功 - userId: {}, sect: {}, input: {}", userId, sect.getName(), userInput);
       return response != null ? response : "宗灵暂时无法回应，请稍后再试。";
+    } catch (BusinessException e) {
+      return e.getMessage();
     } catch (Exception e) {
       log.error("宗灵对话失败 - userId: {}, error: {}", userId, e.getMessage(), e);
       return "宗灵暂时无法回应，请稍后再试。";

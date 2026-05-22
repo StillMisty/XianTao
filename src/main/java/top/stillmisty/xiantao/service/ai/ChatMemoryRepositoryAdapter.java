@@ -1,12 +1,16 @@
 package top.stillmisty.xiantao.service.ai;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.memory.ChatMemoryRepository;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.MessageType;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.context.annotation.Primary;
@@ -38,8 +42,19 @@ public class ChatMemoryRepositoryAdapter implements ChatMemoryRepository {
             cid.chatType(), cid.entityId(), cid.userId());
 
     List<Message> messages = new ArrayList<>();
+    String lastReasoning = null;
     for (ChatHistory entry : entries) {
       messages.add(toMessage(entry));
+      if (entry.isFromAssistant() && entry.getExtraData() != null) {
+        Object reasoning = entry.getExtraData().get(ChatRole.REASONING_CONTENT.getCode());
+        if (reasoning instanceof String s && !s.isEmpty()) {
+          lastReasoning = s;
+        }
+      }
+    }
+    if (lastReasoning != null) {
+      ReasoningPreservingChatCompletionService.CONVERSATION_REASONING.put(
+          conversationId, lastReasoning);
     }
     return messages;
   }
@@ -48,6 +63,13 @@ public class ChatMemoryRepositoryAdapter implements ChatMemoryRepository {
   @Transactional
   public void saveAll(String conversationId, List<Message> messages) {
     ConversationId cid = ConversationId.from(conversationId);
+
+    String reasoning = null;
+    if (ReasoningScopeAdvisor.REASONING_HOLDER.isBound()) {
+      AtomicReference<String> ref = ReasoningScopeAdvisor.REASONING_HOLDER.get();
+      reasoning = ref != null ? ref.get() : null;
+    }
+
     for (Message message : messages) {
       ChatHistory entry = new ChatHistory();
       entry.setChatType(cid.chatType());
@@ -55,6 +77,13 @@ public class ChatMemoryRepositoryAdapter implements ChatMemoryRepository {
       entry.setUserId(cid.userId());
       entry.setRole(toRole(message));
       entry.setContent(message.getText());
+
+      if (message.getMessageType() == MessageType.ASSISTANT && reasoning != null) {
+        Map<String, Object> extraData = new HashMap<>();
+        extraData.put(ChatRole.REASONING_CONTENT.getCode(), reasoning);
+        entry.setExtraData(extraData);
+      }
+
       chatHistoryRepository.save(entry);
     }
     chatHistoryRepository.deleteOldestEntries(
@@ -81,7 +110,16 @@ public class ChatMemoryRepositoryAdapter implements ChatMemoryRepository {
   private static Message toMessage(ChatHistory entry) {
     return switch (entry.getRole()) {
       case USER -> new UserMessage(entry.getContent());
-      case ASSISTANT -> new AssistantMessage(entry.getContent());
+      case ASSISTANT -> {
+        Map<String, Object> metadata = new HashMap<>();
+        Map<String, Object> extraData = entry.getExtraData();
+        if (extraData != null && !extraData.isEmpty()) {
+          metadata.putAll(extraData);
+        }
+        yield metadata.isEmpty()
+            ? new AssistantMessage(entry.getContent())
+            : AssistantMessage.builder().content(entry.getContent()).properties(metadata).build();
+      }
       case SYSTEM -> new SystemMessage(entry.getContent());
       default -> new SystemMessage(entry.getContent());
     };
