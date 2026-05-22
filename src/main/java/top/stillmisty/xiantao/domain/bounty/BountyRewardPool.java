@@ -17,11 +17,12 @@ import java.util.function.Function;
   @JsonSubTypes.Type(value = BountyRewardPool.SpiritStones.class, name = "spirit_stones"),
   @JsonSubTypes.Type(value = BountyRewardPool.BeastEgg.class, name = "beast_egg"),
   @JsonSubTypes.Type(value = BountyRewardPool.EquipmentReward.class, name = "equipment"),
-  @JsonSubTypes.Type(value = BountyRewardPool.SkillJade.class, name = "skill_jade")
+  @JsonSubTypes.Type(value = BountyRewardPool.SkillJade.class, name = "skill_jade"),
+  @JsonSubTypes.Type(value = BountyRewardPool.Potion.class, name = "potion"),
+  @JsonSubTypes.Type(value = BountyRewardPool.RecipeScroll.class, name = "recipe_scroll"),
+  @JsonSubTypes.Type(value = BountyRewardPool.ForgingBlueprint.class, name = "forging_blueprint")
 })
 public sealed interface BountyRewardPool {
-
-  int weight();
 
   String label();
 
@@ -40,7 +41,6 @@ public sealed interface BountyRewardPool {
   @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
   @JsonIgnoreProperties(ignoreUnknown = true)
   record RareItem(
-      int weight,
       @JsonProperty("min") int minCount,
       @JsonProperty("max") int maxCount,
       @JsonProperty("template_id") long templateId)
@@ -77,8 +77,7 @@ public sealed interface BountyRewardPool {
 
   @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
   @JsonIgnoreProperties(ignoreUnknown = true)
-  record SpiritStones(
-      int weight, @JsonProperty("min") long minAmount, @JsonProperty("max") long maxAmount)
+  record SpiritStones(@JsonProperty("min") long minAmount, @JsonProperty("max") long maxAmount)
       implements BountyRewardPool {
     @Override
     public String label() {
@@ -96,7 +95,8 @@ public sealed interface BountyRewardPool {
 
   @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
   @JsonIgnoreProperties(ignoreUnknown = true)
-  record BeastEgg(int weight, @JsonProperty("name") String label) implements BountyRewardPool {
+  record BeastEgg(@JsonProperty("name") String label, @JsonProperty("template_id") Long templateId)
+      implements BountyRewardPool {
     @Override
     public String displayText() {
       return label;
@@ -105,8 +105,7 @@ public sealed interface BountyRewardPool {
 
   @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
   @JsonIgnoreProperties(ignoreUnknown = true)
-  record EquipmentReward(int weight, @JsonProperty("template_id") long templateId)
-      implements BountyRewardPool {
+  record EquipmentReward(@JsonProperty("template_id") long templateId) implements BountyRewardPool {
     @Override
     public String label() {
       return "装备";
@@ -132,8 +131,7 @@ public sealed interface BountyRewardPool {
 
   @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
   @JsonIgnoreProperties(ignoreUnknown = true)
-  record SkillJade(int weight, @JsonProperty("template_id") long templateId)
-      implements BountyRewardPool {
+  record SkillJade(@JsonProperty("template_id") long templateId) implements BountyRewardPool {
     @Override
     public String label() {
       return "法决玉简";
@@ -142,6 +140,85 @@ public sealed interface BountyRewardPool {
     @Override
     public String displayText() {
       return "法决玉简";
+    }
+
+    @Override
+    public String label(
+        Function<Long, String> itemNameResolver, Function<Long, String> equipNameResolver) {
+      return itemNameResolver.apply(templateId);
+    }
+
+    @Override
+    public String displayText(
+        Function<Long, String> itemNameResolver, Function<Long, String> equipNameResolver) {
+      return itemNameResolver.apply(templateId);
+    }
+  }
+
+  @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+  @JsonIgnoreProperties(ignoreUnknown = true)
+  record Potion(@JsonProperty("template_id") long templateId) implements BountyRewardPool {
+    @Override
+    public String label() {
+      return "丹药";
+    }
+
+    @Override
+    public String displayText() {
+      return "丹药";
+    }
+
+    @Override
+    public String label(
+        Function<Long, String> itemNameResolver, Function<Long, String> equipNameResolver) {
+      return itemNameResolver.apply(templateId);
+    }
+
+    @Override
+    public String displayText(
+        Function<Long, String> itemNameResolver, Function<Long, String> equipNameResolver) {
+      return itemNameResolver.apply(templateId);
+    }
+  }
+
+  @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+  @JsonIgnoreProperties(ignoreUnknown = true)
+  record RecipeScroll(@JsonProperty("template_id") long templateId) implements BountyRewardPool {
+    @Override
+    public String label() {
+      return "丹方";
+    }
+
+    @Override
+    public String displayText() {
+      return "丹方";
+    }
+
+    @Override
+    public String label(
+        Function<Long, String> itemNameResolver, Function<Long, String> equipNameResolver) {
+      return itemNameResolver.apply(templateId);
+    }
+
+    @Override
+    public String displayText(
+        Function<Long, String> itemNameResolver, Function<Long, String> equipNameResolver) {
+      return itemNameResolver.apply(templateId);
+    }
+  }
+
+  @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+  @JsonIgnoreProperties(ignoreUnknown = true)
+  record ForgingBlueprint(@JsonProperty("template_id") long templateId)
+      implements BountyRewardPool {
+    @Override
+    public String label() {
+      return "锻造图纸";
+    }
+
+    @Override
+    public String displayText() {
+      return "锻造图纸";
     }
 
     @Override

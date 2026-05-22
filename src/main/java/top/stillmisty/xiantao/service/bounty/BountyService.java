@@ -264,43 +264,73 @@ public class BountyService {
     List<BountyRewardPool> pool = bounty.getRewards();
     if (pool.isEmpty()) return List.of();
 
-    BountyRewardPool selected = WeightedRandom.select(pool, BountyRewardPool::weight, rng);
-    if (selected == null) return List.of();
-
-    return switch (selected) {
-      case BountyRewardPool.RareItem(_, var minCount, var maxCount, _) -> {
-        int count = minCount + rng.nextInt(maxCount - minCount + 1);
-        yield findRareItems(mapNode, count, rng);
-      }
-      case BountyRewardPool.SpiritStones(_, var minAmount, var maxAmount) -> {
-        long amount =
-            minAmount + (minAmount == maxAmount ? 0 : (rng.nextLong(maxAmount - minAmount + 1)));
-        yield List.of(new BountyRewardItem.SpiritStonesReward(amount));
-      }
-      case BountyRewardPool.BeastEgg _ -> {
-        List<ItemTemplate> eggs = itemTemplateRepository.findByType(ItemType.BEAST_EGG);
-        if (!eggs.isEmpty()) {
-          int idx = rng.nextInt(eggs.size());
-          yield List.of(
-              new BountyRewardItem.BeastEggReward(eggs.get(idx).getId(), eggs.get(idx).getName()));
-        }
-        yield List.of();
-      }
-      case BountyRewardPool.EquipmentReward(_, var templateId) -> {
-        EquipmentTemplate equipmentTemplate =
-            equipmentTemplateRepository.findById(templateId).orElse(null);
-        yield equipmentTemplate != null
-            ? List.of(
-                new BountyRewardItem.EquipmentRewardItem(templateId, equipmentTemplate.getName()))
-            : List.of();
-      }
-      case BountyRewardPool.SkillJade(_, var templateId) -> {
-        ItemTemplate skillJade = itemTemplateRepository.findById(templateId).orElse(null);
-        yield skillJade != null
-            ? List.of(new BountyRewardItem.SkillJadeRewardItem(templateId, skillJade.getName()))
-            : List.of();
-      }
-    };
+    List<BountyRewardItem> allRewards = new ArrayList<>();
+    for (BountyRewardPool entry : pool) {
+      allRewards.addAll(
+          switch (entry) {
+            case BountyRewardPool.RareItem(var minCount, var maxCount, _) -> {
+              int count = minCount + rng.nextInt(maxCount - minCount + 1);
+              yield findRareItems(mapNode, count, rng);
+            }
+            case BountyRewardPool.SpiritStones(var minAmount, var maxAmount) -> {
+              long amount =
+                  minAmount
+                      + (minAmount == maxAmount ? 0 : (rng.nextLong(maxAmount - minAmount + 1)));
+              yield List.of(new BountyRewardItem.SpiritStonesReward(amount));
+            }
+            case BountyRewardPool.BeastEgg(_, var templateId) -> {
+              if (templateId != null) {
+                ItemTemplate egg = itemTemplateRepository.findById(templateId).orElse(null);
+                yield egg != null
+                    ? List.of(new BountyRewardItem.BeastEggReward(templateId, egg.getName()))
+                    : List.of();
+              }
+              List<ItemTemplate> eggs = itemTemplateRepository.findByType(ItemType.BEAST_EGG);
+              if (!eggs.isEmpty()) {
+                int idx = rng.nextInt(eggs.size());
+                yield List.of(
+                    new BountyRewardItem.BeastEggReward(
+                        eggs.get(idx).getId(), eggs.get(idx).getName()));
+              }
+              yield List.of();
+            }
+            case BountyRewardPool.EquipmentReward(var templateId) -> {
+              EquipmentTemplate equipmentTemplate =
+                  equipmentTemplateRepository.findById(templateId).orElse(null);
+              yield equipmentTemplate != null
+                  ? List.of(
+                      new BountyRewardItem.EquipmentRewardItem(
+                          templateId, equipmentTemplate.getName()))
+                  : List.of();
+            }
+            case BountyRewardPool.SkillJade(var templateId) -> {
+              ItemTemplate skillJade = itemTemplateRepository.findById(templateId).orElse(null);
+              yield skillJade != null
+                  ? List.of(
+                      new BountyRewardItem.SkillJadeRewardItem(templateId, skillJade.getName()))
+                  : List.of();
+            }
+            case BountyRewardPool.Potion(var templateId) -> {
+              ItemTemplate potion = itemTemplateRepository.findById(templateId).orElse(null);
+              yield potion != null
+                  ? List.of(new BountyRewardItem.ItemReward(templateId, potion.getName(), 1))
+                  : List.of();
+            }
+            case BountyRewardPool.RecipeScroll(var templateId) -> {
+              ItemTemplate scroll = itemTemplateRepository.findById(templateId).orElse(null);
+              yield scroll != null
+                  ? List.of(new BountyRewardItem.ItemReward(templateId, scroll.getName(), 1))
+                  : List.of();
+            }
+            case BountyRewardPool.ForgingBlueprint(var templateId) -> {
+              ItemTemplate bp = itemTemplateRepository.findById(templateId).orElse(null);
+              yield bp != null
+                  ? List.of(new BountyRewardItem.ItemReward(templateId, bp.getName(), 1))
+                  : List.of();
+            }
+          });
+    }
+    return allRewards;
   }
 
   private List<BountyRewardItem> findRareItems(MapNode mapNode, int count, Random rng) {

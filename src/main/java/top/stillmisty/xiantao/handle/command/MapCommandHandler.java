@@ -187,9 +187,15 @@ public class MapCommandHandler implements CommandGroup {
     Set<Long> equipIds = new HashSet<>();
     for (BountyRewardPool reward : allRewards) {
       switch (reward) {
-        case BountyRewardPool.RareItem(_, _, _, var tid) -> itemIds.add(tid);
-        case BountyRewardPool.EquipmentReward(_, var tid) -> equipIds.add(tid);
-        case BountyRewardPool.SkillJade(_, var tid) -> itemIds.add(tid);
+        case BountyRewardPool.RareItem(_, _, var tid) -> itemIds.add(tid);
+        case BountyRewardPool.EquipmentReward(var tid) -> equipIds.add(tid);
+        case BountyRewardPool.SkillJade(var tid) -> itemIds.add(tid);
+        case BountyRewardPool.Potion(var tid) -> itemIds.add(tid);
+        case BountyRewardPool.RecipeScroll(var tid) -> itemIds.add(tid);
+        case BountyRewardPool.ForgingBlueprint(var tid) -> itemIds.add(tid);
+        case BountyRewardPool.BeastEgg(_, var tid) -> {
+          if (tid != null) itemIds.add(tid);
+        }
         default -> {}
       }
     }
