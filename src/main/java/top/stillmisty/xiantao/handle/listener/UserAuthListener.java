@@ -9,8 +9,6 @@ import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
-import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.handle.command.CultivationCommandHandler;
 
 @Slf4j
@@ -29,13 +27,7 @@ public class UserAuthListener {
   public void changeNickname(
       OneBotMessageEvent event, @FilterValue("newNickname") String newNickname) {
     log.info("[OneBot] 收到改号请求 - AuthorId: {}, NewNickname: {}", event.getAuthorId(), newNickname);
-    String response =
-        cultivationCommandHandler.handleChangeNickname(
-            PlatformType.ONE_BOT_V11,
-            event.getAuthorId().toString(),
-            newNickname,
-            TextFormat.PLAIN);
-    replyHelper.replyOneBot(event, response);
+    replyHelper.oneBot(event, newNickname, cultivationCommandHandler::handleChangeNickname);
   }
 
   @Listener
@@ -43,10 +35,7 @@ public class UserAuthListener {
   @Filter(value = "我要修仙 {{nickname}}")
   public void register(OneBotMessageEvent event, @FilterValue("nickname") String nickname) {
     log.info("[OneBot] 收到注册请求 - AuthorId: {}, Nickname: {}", event.getAuthorId(), nickname);
-    String response =
-        cultivationCommandHandler.handleRegister(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), nickname, TextFormat.PLAIN);
-    replyHelper.replyOneBot(event, response);
+    replyHelper.oneBot(event, nickname, cultivationCommandHandler::handleRegister);
   }
 
   // === QQ ===
@@ -57,10 +46,7 @@ public class UserAuthListener {
   public void changeNicknameQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("newNickname") String newNickname) {
     log.debug("[QQ] 收到改号请求 - AuthorId: {}, NewNickname: {}", event.getAuthorId(), newNickname);
-    String response =
-        cultivationCommandHandler.handleChangeNickname(
-            PlatformType.QQ, event.getAuthorId().toString(), newNickname, TextFormat.MARKDOWN);
-    replyHelper.replyQQ(event, response);
+    replyHelper.qq(event, newNickname, cultivationCommandHandler::handleChangeNickname);
   }
 
   @Listener
@@ -69,9 +55,6 @@ public class UserAuthListener {
   public void registerQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("nickname") String nickname) {
     log.info("[QQ] 收到注册请求 - AuthorId: {}, Nickname: {}", event.getAuthorId(), nickname);
-    String response =
-        cultivationCommandHandler.handleRegister(
-            PlatformType.QQ, event.getAuthorId().toString(), nickname, TextFormat.MARKDOWN);
-    replyHelper.replyQQ(event, response);
+    replyHelper.qq(event, nickname, cultivationCommandHandler::handleRegister);
   }
 }

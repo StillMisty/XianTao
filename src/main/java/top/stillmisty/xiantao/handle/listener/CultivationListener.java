@@ -9,8 +9,6 @@ import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
-import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.handle.command.CultivationCommandHandler;
 
 @Slf4j
@@ -28,10 +26,7 @@ public class CultivationListener {
   @Filter("突破")
   public void breakthrough(OneBotMessageEvent event) {
     log.debug("[OneBot] 收到突破请求 - AuthorId: {}", event.getAuthorId());
-    String response =
-        cultivationCommandHandler.handleBreakthrough(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
-    replyHelper.replyOneBot(event, response);
+    replyHelper.oneBot(event, cultivationCommandHandler::handleBreakthrough);
   }
 
   @Listener
@@ -40,10 +35,7 @@ public class CultivationListener {
   public void establishProtection(
       OneBotMessageEvent event, @FilterValue("nickname") String nickname) {
     log.debug("[OneBot] 收到护道请求 - AuthorId: {}, Content: {}", event.getAuthorId(), nickname);
-    String response =
-        cultivationCommandHandler.handleEstablishProtection(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), nickname, TextFormat.PLAIN);
-    replyHelper.replyOneBot(event, response);
+    replyHelper.oneBot(event, nickname, cultivationCommandHandler::handleEstablishProtection);
   }
 
   @Listener
@@ -51,10 +43,7 @@ public class CultivationListener {
   @Filter("护道解除 {{nickname}}")
   public void removeProtection(OneBotMessageEvent event, @FilterValue("nickname") String nickname) {
     log.debug("[OneBot] 收到护道解除请求 - AuthorId: {}, Content: {}", event.getAuthorId(), nickname);
-    String response =
-        cultivationCommandHandler.handleRemoveProtection(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), nickname, TextFormat.PLAIN);
-    replyHelper.replyOneBot(event, response);
+    replyHelper.oneBot(event, nickname, cultivationCommandHandler::handleRemoveProtection);
   }
 
   @Listener
@@ -62,10 +51,7 @@ public class CultivationListener {
   @Filter("护道查询")
   public void queryProtection(OneBotMessageEvent event) {
     log.debug("[OneBot] 收到护道查询请求 - AuthorId: {}", event.getAuthorId());
-    String response =
-        cultivationCommandHandler.handleQueryProtection(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
-    replyHelper.replyOneBot(event, response);
+    replyHelper.oneBot(event, cultivationCommandHandler::handleQueryProtection);
   }
 
   // === QQ ===
@@ -75,10 +61,7 @@ public class CultivationListener {
   @Filter("突破")
   public void breakthroughQq(QGGroupAtMessageCreateEvent event) {
     log.debug("[QQ] 收到突破请求 - AuthorId: {}", event.getAuthorId());
-    String response =
-        cultivationCommandHandler.handleBreakthrough(
-            PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
-    replyHelper.replyQQ(event, response);
+    replyHelper.qq(event, cultivationCommandHandler::handleBreakthrough);
   }
 
   @Listener
@@ -87,10 +70,7 @@ public class CultivationListener {
   public void establishProtectionQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("nickname") String nickname) {
     log.debug("[QQ] 收到护道请求 - AuthorId: {}, Content: {}", event.getAuthorId(), nickname);
-    String response =
-        cultivationCommandHandler.handleEstablishProtection(
-            PlatformType.QQ, event.getAuthorId().toString(), nickname, TextFormat.MARKDOWN);
-    replyHelper.replyQQ(event, response);
+    replyHelper.qq(event, nickname, cultivationCommandHandler::handleEstablishProtection);
   }
 
   @Listener
@@ -99,10 +79,7 @@ public class CultivationListener {
   public void removeProtectionQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("nickname") String nickname) {
     log.debug("[QQ] 收到护道解除请求 - AuthorId: {}, Content: {}", event.getAuthorId(), nickname);
-    String response =
-        cultivationCommandHandler.handleRemoveProtection(
-            PlatformType.QQ, event.getAuthorId().toString(), nickname, TextFormat.MARKDOWN);
-    replyHelper.replyQQ(event, response);
+    replyHelper.qq(event, nickname, cultivationCommandHandler::handleRemoveProtection);
   }
 
   @Listener
@@ -110,9 +87,6 @@ public class CultivationListener {
   @Filter("护道查询")
   public void queryProtectionQq(QGGroupAtMessageCreateEvent event) {
     log.debug("[QQ] 收到护道查询请求 - AuthorId: {}", event.getAuthorId());
-    String response =
-        cultivationCommandHandler.handleQueryProtection(
-            PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
-    replyHelper.replyQQ(event, response);
+    replyHelper.qq(event, cultivationCommandHandler::handleQueryProtection);
   }
 }

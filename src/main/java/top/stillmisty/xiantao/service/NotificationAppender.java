@@ -20,15 +20,13 @@ import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 public class NotificationAppender {
 
   private final GameEventService gameEventService;
-  private final AuthenticationService authenticationService;
 
-  /** 根据平台和 openId 解析 userId，查询 events，格式化拼接 */
+  /** 根据平台和 openId 解析 userId（通过 UserContext 降级通道，无需重复认证），查询 events，格式化拼接 */
   public AppendResult prepareAppend(PlatformType platform, String openId, String response) {
-    ServiceResult<Long> authResult = authenticationService.authenticate(platform, openId);
-    if (authResult instanceof ServiceResult.Failure) {
+    Long userId = UserContext.getUserId();
+    if (userId == null) {
       return new AppendResult(response, List.of(), null);
     }
-    Long userId = ((ServiceResult.Success<Long>) authResult).data();
 
     List<GameEvent> events = gameEventService.findUndelivered(userId);
     if (events.isEmpty()) {

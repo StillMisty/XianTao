@@ -10,8 +10,6 @@ import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
-import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.handle.command.SkillCommandHandler;
 
 @Slf4j
@@ -32,10 +30,7 @@ public class SkillListener {
       event.replyBlocking("用法：法决装载 [法决名称或编号]\n示例：法决装载 御剑术");
       return;
     }
-    String response =
-        skillCommandHandler.handleEquipSkill(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), skill, TextFormat.PLAIN);
-    replyHelper.replyOneBot(event, response);
+    replyHelper.oneBot(event, skill, skillCommandHandler::handleEquipSkill);
   }
 
   @Listener
@@ -47,10 +42,7 @@ public class SkillListener {
       event.replyBlocking("用法：法决卸下 [法决名称或编号]\n示例：法决卸下 御剑术");
       return;
     }
-    String response =
-        skillCommandHandler.handleUnequipSkill(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), skill, TextFormat.PLAIN);
-    replyHelper.replyOneBot(event, response);
+    replyHelper.oneBot(event, skill, skillCommandHandler::handleUnequipSkill);
   }
 
   @Listener
@@ -58,10 +50,7 @@ public class SkillListener {
   @Filter("法决")
   public void skills(OneBotMessageEvent event) {
     log.debug("[OneBot] 收到法决查询请求 - AuthorId: {}", event.getAuthorId());
-    String response =
-        skillCommandHandler.handleSkills(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
-    replyHelper.replyOneBot(event, response);
+    replyHelper.oneBot(event, skillCommandHandler::handleSkills);
   }
 
   // === QQ ===
@@ -75,10 +64,7 @@ public class SkillListener {
       event.replyBlocking(QGMarkdown.create("用法：法决装载 [法决名称或编号]\n示例：法决装载 御剑术"));
       return;
     }
-    String response =
-        skillCommandHandler.handleEquipSkill(
-            PlatformType.QQ, event.getAuthorId().toString(), skill, TextFormat.MARKDOWN);
-    replyHelper.replyQQ(event, response);
+    replyHelper.qq(event, skill, skillCommandHandler::handleEquipSkill);
   }
 
   @Listener
@@ -91,10 +77,7 @@ public class SkillListener {
       event.replyBlocking(QGMarkdown.create("用法：法决卸下 [法决名称或编号]\n示例：法决卸下 御剑术"));
       return;
     }
-    String response =
-        skillCommandHandler.handleUnequipSkill(
-            PlatformType.QQ, event.getAuthorId().toString(), skill, TextFormat.MARKDOWN);
-    replyHelper.replyQQ(event, response);
+    replyHelper.qq(event, skill, skillCommandHandler::handleUnequipSkill);
   }
 
   @Listener
@@ -102,9 +85,6 @@ public class SkillListener {
   @Filter("法决")
   public void skillsQq(QGGroupAtMessageCreateEvent event) {
     log.debug("[QQ] 收到法决查询请求 - AuthorId: {}", event.getAuthorId());
-    String response =
-        skillCommandHandler.handleSkills(
-            PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
-    replyHelper.replyQQ(event, response);
+    replyHelper.qq(event, skillCommandHandler::handleSkills);
   }
 }

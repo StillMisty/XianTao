@@ -8,8 +8,6 @@ import love.forte.simbot.quantcat.common.annotations.ContentTrim;
 import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
-import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.handle.command.LeaderboardCommandHandler;
 
 @Slf4j
@@ -26,10 +24,7 @@ public class LeaderboardListener {
   @Filter("排行榜")
   public void levelLeaderboard(OneBotMessageEvent event) {
     log.debug("[OneBot] 收到排行榜请求 - AuthorId: {}", event.getAuthorId());
-    String response =
-        leaderboardCommandHandler.handleLevelLeaderboard(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
-    replyHelper.replyOneBot(event, response);
+    replyHelper.oneBot(event, leaderboardCommandHandler::handleLevelLeaderboard);
   }
 
   @Listener
@@ -37,10 +32,7 @@ public class LeaderboardListener {
   @Filter("排行榜 灵石")
   public void spiritStoneLeaderboard(OneBotMessageEvent event) {
     log.debug("[OneBot] 收到灵石排行榜请求 - AuthorId: {}", event.getAuthorId());
-    String response =
-        leaderboardCommandHandler.handleSpiritStoneLeaderboard(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
-    replyHelper.replyOneBot(event, response);
+    replyHelper.oneBot(event, leaderboardCommandHandler::handleSpiritStoneLeaderboard);
   }
 
   // === QQ ===
@@ -50,10 +42,7 @@ public class LeaderboardListener {
   @Filter("排行榜")
   public void levelLeaderboardQq(QGGroupAtMessageCreateEvent event) {
     log.debug("[QQ] 收到排行榜请求 - AuthorId: {}", event.getAuthorId());
-    String response =
-        leaderboardCommandHandler.handleLevelLeaderboard(
-            PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
-    replyHelper.replyQQ(event, response);
+    replyHelper.qq(event, leaderboardCommandHandler::handleLevelLeaderboard);
   }
 
   @Listener
@@ -61,9 +50,6 @@ public class LeaderboardListener {
   @Filter("排行榜 灵石")
   public void spiritStoneLeaderboardQq(QGGroupAtMessageCreateEvent event) {
     log.debug("[QQ] 收到灵石排行榜请求 - AuthorId: {}", event.getAuthorId());
-    String response =
-        leaderboardCommandHandler.handleSpiritStoneLeaderboard(
-            PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
-    replyHelper.replyQQ(event, response);
+    replyHelper.qq(event, leaderboardCommandHandler::handleSpiritStoneLeaderboard);
   }
 }

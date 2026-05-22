@@ -9,8 +9,6 @@ import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
-import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.handle.command.SectCommandHandler;
 
 @Slf4j
@@ -27,10 +25,7 @@ public class SectListener {
   @ContentTrim
   @Filter("宗门")
   public void overviewOneBot(OneBotMessageEvent event) {
-    String response =
-        sectCommandHandler.handleOverview(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
-    replyHelper.replyOneBot(event, response);
+    replyHelper.oneBot(event, sectCommandHandler::handleOverview);
   }
 
   @Listener
@@ -40,54 +35,36 @@ public class SectListener {
       OneBotMessageEvent event,
       @FilterValue("name") String name,
       @FilterValue("ethosDesc") String ethosDesc) {
-    String response =
-        sectCommandHandler.handleCreate(
-            PlatformType.ONE_BOT_V11,
-            event.getAuthorId().toString(),
-            name,
-            ethosDesc,
-            TextFormat.PLAIN);
-    replyHelper.replyOneBot(event, response);
+    replyHelper.oneBot(
+        event, (p, o, f) -> sectCommandHandler.handleCreate(p, o, name, ethosDesc, f));
   }
 
   @Listener
   @ContentTrim
   @Filter("宗门创建 {{name,[\\S]+}}")
   public void createOneBot(OneBotMessageEvent event, @FilterValue("name") String name) {
-    String response =
-        sectCommandHandler.handleCreate(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), name, null, TextFormat.PLAIN);
-    replyHelper.replyOneBot(event, response);
+    replyHelper.oneBot(event, (p, o, f) -> sectCommandHandler.handleCreate(p, o, name, null, f));
   }
 
   @Listener
   @ContentTrim
   @Filter("宗灵 {{content,.+}}")
   public void sectSpiritOneBot(OneBotMessageEvent event, @FilterValue("content") String content) {
-    String response =
-        sectCommandHandler.handleSectSpiritChat(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), content, TextFormat.PLAIN);
-    replyHelper.replyOneBot(event, response);
+    replyHelper.oneBot(event, content, sectCommandHandler::handleSectSpiritChat);
   }
 
   @Listener
   @ContentTrim
   @Filter("宗门退出")
   public void leaveOneBot(OneBotMessageEvent event) {
-    String response =
-        sectCommandHandler.handleLeave(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
-    replyHelper.replyOneBot(event, response);
+    replyHelper.oneBot(event, sectCommandHandler::handleLeave);
   }
 
   @Listener
   @ContentTrim
   @Filter("宗门解散")
   public void dismissOneBot(OneBotMessageEvent event) {
-    String response =
-        sectCommandHandler.handleDismiss(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
-    replyHelper.replyOneBot(event, response);
+    replyHelper.oneBot(event, sectCommandHandler::handleDismiss);
   }
 
   // === QQ ===
@@ -96,10 +73,7 @@ public class SectListener {
   @ContentTrim
   @Filter("宗门")
   public void overviewQq(QGGroupAtMessageCreateEvent event) {
-    String response =
-        sectCommandHandler.handleOverview(
-            PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
-    replyHelper.replyQQ(event, response);
+    replyHelper.qq(event, sectCommandHandler::handleOverview);
   }
 
   @Listener
@@ -109,20 +83,14 @@ public class SectListener {
       QGGroupAtMessageCreateEvent event,
       @FilterValue("name") String name,
       @FilterValue("ethosDesc") String ethosDesc) {
-    String response =
-        sectCommandHandler.handleCreate(
-            PlatformType.QQ, event.getAuthorId().toString(), name, ethosDesc, TextFormat.MARKDOWN);
-    replyHelper.replyQQ(event, response);
+    replyHelper.qq(event, (p, o, f) -> sectCommandHandler.handleCreate(p, o, name, ethosDesc, f));
   }
 
   @Listener
   @ContentTrim
   @Filter("宗门创建 {{name,[\\S]+}}")
   public void createQq(QGGroupAtMessageCreateEvent event, @FilterValue("name") String name) {
-    String response =
-        sectCommandHandler.handleCreate(
-            PlatformType.QQ, event.getAuthorId().toString(), name, null, TextFormat.MARKDOWN);
-    replyHelper.replyQQ(event, response);
+    replyHelper.qq(event, (p, o, f) -> sectCommandHandler.handleCreate(p, o, name, null, f));
   }
 
   @Listener
@@ -130,29 +98,20 @@ public class SectListener {
   @Filter("宗灵 {{content,.+}}")
   public void sectSpiritQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("content") String content) {
-    String response =
-        sectCommandHandler.handleSectSpiritChat(
-            PlatformType.QQ, event.getAuthorId().toString(), content, TextFormat.MARKDOWN);
-    replyHelper.replyQQ(event, response);
+    replyHelper.qq(event, content, sectCommandHandler::handleSectSpiritChat);
   }
 
   @Listener
   @ContentTrim
   @Filter("宗门退出")
   public void leaveQq(QGGroupAtMessageCreateEvent event) {
-    String response =
-        sectCommandHandler.handleLeave(
-            PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
-    replyHelper.replyQQ(event, response);
+    replyHelper.qq(event, sectCommandHandler::handleLeave);
   }
 
   @Listener
   @ContentTrim
   @Filter("宗门解散")
   public void dismissQq(QGGroupAtMessageCreateEvent event) {
-    String response =
-        sectCommandHandler.handleDismiss(
-            PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
-    replyHelper.replyQQ(event, response);
+    replyHelper.qq(event, sectCommandHandler::handleDismiss);
   }
 }

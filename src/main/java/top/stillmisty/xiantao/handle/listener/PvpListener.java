@@ -9,8 +9,6 @@ import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
-import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.handle.command.PvpCommandHandler;
 
 @Slf4j
@@ -27,13 +25,7 @@ public class PvpListener {
   @Filter("切磋 {{targetNickname}}")
   public void spar(OneBotMessageEvent event, @FilterValue("targetNickname") String targetNickname) {
     log.debug("[OneBot] 收到切磋请求 - AuthorId: {}, Target: {}", event.getAuthorId(), targetNickname);
-    String response =
-        pvpCommandHandler.handleSpar(
-            PlatformType.ONE_BOT_V11,
-            event.getAuthorId().toString(),
-            targetNickname,
-            TextFormat.PLAIN);
-    replyHelper.replyOneBot(event, response);
+    replyHelper.oneBot(event, targetNickname, pvpCommandHandler::handleSpar);
   }
 
   // === QQ ===
@@ -44,9 +36,6 @@ public class PvpListener {
   public void sparQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("targetNickname") String targetNickname) {
     log.debug("[QQ] 收到切磋请求 - AuthorId: {}, Target: {}", event.getAuthorId(), targetNickname);
-    String response =
-        pvpCommandHandler.handleSpar(
-            PlatformType.QQ, event.getAuthorId().toString(), targetNickname, TextFormat.MARKDOWN);
-    replyHelper.replyQQ(event, response);
+    replyHelper.qq(event, targetNickname, pvpCommandHandler::handleSpar);
   }
 }

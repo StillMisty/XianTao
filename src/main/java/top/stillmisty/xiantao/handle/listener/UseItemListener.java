@@ -9,8 +9,6 @@ import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
-import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.handle.command.UseItemCommandHandler;
 
 @Slf4j
@@ -35,14 +33,8 @@ public class UseItemListener {
         event.getAuthorId(),
         itemName,
         args);
-    String response =
-        useItemCommandHandler.handleUseItem(
-            PlatformType.ONE_BOT_V11,
-            event.getAuthorId().toString(),
-            itemName,
-            args,
-            TextFormat.PLAIN);
-    replyHelper.replyOneBot(event, response);
+    replyHelper.oneBot(
+        event, (p, o, f) -> useItemCommandHandler.handleUseItem(p, o, itemName, args, f));
   }
 
   @Listener
@@ -50,14 +42,8 @@ public class UseItemListener {
   @Filter("使用 {{itemName}}")
   public void useItem(OneBotMessageEvent event, @FilterValue("itemName") String itemName) {
     log.debug("[OneBot] 收到使用物品请求 - AuthorId: {}, ItemName: {}", event.getAuthorId(), itemName);
-    String response =
-        useItemCommandHandler.handleUseItem(
-            PlatformType.ONE_BOT_V11,
-            event.getAuthorId().toString(),
-            itemName,
-            null,
-            TextFormat.PLAIN);
-    replyHelper.replyOneBot(event, response);
+    replyHelper.oneBot(
+        event, (p, o, f) -> useItemCommandHandler.handleUseItem(p, o, itemName, null, f));
   }
 
   // === QQ ===
@@ -74,10 +60,8 @@ public class UseItemListener {
         event.getAuthorId(),
         itemName,
         args);
-    String response =
-        useItemCommandHandler.handleUseItem(
-            PlatformType.QQ, event.getAuthorId().toString(), itemName, args, TextFormat.MARKDOWN);
-    replyHelper.replyQQ(event, response);
+    replyHelper.qq(
+        event, (p, o, f) -> useItemCommandHandler.handleUseItem(p, o, itemName, args, f));
   }
 
   @Listener
@@ -86,9 +70,7 @@ public class UseItemListener {
   public void useItemQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("itemName") String itemName) {
     log.debug("[QQ] 收到使用物品请求 - AuthorId: {}, ItemName: {}", event.getAuthorId(), itemName);
-    String response =
-        useItemCommandHandler.handleUseItem(
-            PlatformType.QQ, event.getAuthorId().toString(), itemName, null, TextFormat.MARKDOWN);
-    replyHelper.replyQQ(event, response);
+    replyHelper.qq(
+        event, (p, o, f) -> useItemCommandHandler.handleUseItem(p, o, itemName, null, f));
   }
 }

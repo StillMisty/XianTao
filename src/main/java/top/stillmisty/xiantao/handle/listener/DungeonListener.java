@@ -9,8 +9,6 @@ import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
-import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.handle.command.DungeonCommandHandler;
 
 @Slf4j
@@ -28,10 +26,7 @@ public class DungeonListener {
   @Filter("秘境")
   public void dungeonList(OneBotMessageEvent event) {
     log.debug("[OneBot] 收到秘境列表请求 - AuthorId: {}", event.getAuthorId());
-    String response =
-        dungeonCommandHandler.handleDungeon(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
-    replyHelper.replyOneBot(event, response);
+    replyHelper.oneBot(event, dungeonCommandHandler::handleDungeon);
   }
 
   @Listener
@@ -39,10 +34,7 @@ public class DungeonListener {
   @Filter("秘境")
   public void dungeonListQq(QGGroupAtMessageCreateEvent event) {
     log.debug("[QQ] 收到秘境列表请求 - AuthorId: {}", event.getAuthorId());
-    String response =
-        dungeonCommandHandler.handleDungeon(
-            PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
-    replyHelper.replyQQ(event, response);
+    replyHelper.qq(event, dungeonCommandHandler::handleDungeon);
   }
 
   // === 秘境进入 ===
@@ -53,13 +45,7 @@ public class DungeonListener {
   public void dungeonEnter(
       OneBotMessageEvent event, @FilterValue("dungeonName") String dungeonName) {
     log.debug("[OneBot] 收到进入秘境请求 - AuthorId: {}, Dungeon: {}", event.getAuthorId(), dungeonName);
-    String response =
-        dungeonCommandHandler.handleDungeonEnter(
-            PlatformType.ONE_BOT_V11,
-            event.getAuthorId().toString(),
-            dungeonName,
-            TextFormat.PLAIN);
-    replyHelper.replyOneBot(event, response);
+    replyHelper.oneBot(event, dungeonName, dungeonCommandHandler::handleDungeonEnter);
   }
 
   @Listener
@@ -68,10 +54,7 @@ public class DungeonListener {
   public void dungeonEnterQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("dungeonName") String dungeonName) {
     log.debug("[QQ] 收到进入秘境请求 - AuthorId: {}, Dungeon: {}", event.getAuthorId(), dungeonName);
-    String response =
-        dungeonCommandHandler.handleDungeonEnter(
-            PlatformType.QQ, event.getAuthorId().toString(), dungeonName, TextFormat.MARKDOWN);
-    replyHelper.replyQQ(event, response);
+    replyHelper.qq(event, dungeonName, dungeonCommandHandler::handleDungeonEnter);
   }
 
   // === 秘境探索 ===
@@ -81,10 +64,7 @@ public class DungeonListener {
   @Filter("秘境探索")
   public void dungeonExplore(OneBotMessageEvent event) {
     log.debug("[OneBot] 收到秘境探索请求 - AuthorId: {}", event.getAuthorId());
-    String response =
-        dungeonCommandHandler.handleDungeonExplore(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
-    replyHelper.replyOneBot(event, response);
+    replyHelper.oneBot(event, dungeonCommandHandler::handleDungeonExplore);
   }
 
   @Listener
@@ -92,10 +72,7 @@ public class DungeonListener {
   @Filter("秘境探索")
   public void dungeonExploreQq(QGGroupAtMessageCreateEvent event) {
     log.debug("[QQ] 收到秘境探索请求 - AuthorId: {}", event.getAuthorId());
-    String response =
-        dungeonCommandHandler.handleDungeonExplore(
-            PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
-    replyHelper.replyQQ(event, response);
+    replyHelper.qq(event, dungeonCommandHandler::handleDungeonExplore);
   }
 
   // === 秘境继续 ===
@@ -105,10 +82,7 @@ public class DungeonListener {
   @Filter("秘境继续")
   public void dungeonContinue(OneBotMessageEvent event) {
     log.debug("[OneBot] 收到秘境继续请求 - AuthorId: {}", event.getAuthorId());
-    String response =
-        dungeonCommandHandler.handleDungeonContinue(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
-    replyHelper.replyOneBot(event, response);
+    replyHelper.oneBot(event, dungeonCommandHandler::handleDungeonContinue);
   }
 
   @Listener
@@ -116,10 +90,7 @@ public class DungeonListener {
   @Filter("秘境继续")
   public void dungeonContinueQq(QGGroupAtMessageCreateEvent event) {
     log.debug("[QQ] 收到秘境继续请求 - AuthorId: {}", event.getAuthorId());
-    String response =
-        dungeonCommandHandler.handleDungeonContinue(
-            PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
-    replyHelper.replyQQ(event, response);
+    replyHelper.qq(event, dungeonCommandHandler::handleDungeonContinue);
   }
 
   // === 秘境撤退 ===
@@ -129,10 +100,7 @@ public class DungeonListener {
   @Filter("秘境撤退")
   public void dungeonRetreat(OneBotMessageEvent event) {
     log.debug("[OneBot] 收到秘境撤退请求 - AuthorId: {}", event.getAuthorId());
-    String response =
-        dungeonCommandHandler.handleDungeonRetreat(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
-    replyHelper.replyOneBot(event, response);
+    replyHelper.oneBot(event, dungeonCommandHandler::handleDungeonRetreat);
   }
 
   @Listener
@@ -140,9 +108,6 @@ public class DungeonListener {
   @Filter("秘境撤退")
   public void dungeonRetreatQq(QGGroupAtMessageCreateEvent event) {
     log.debug("[QQ] 收到秘境撤退请求 - AuthorId: {}", event.getAuthorId());
-    String response =
-        dungeonCommandHandler.handleDungeonRetreat(
-            PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
-    replyHelper.replyQQ(event, response);
+    replyHelper.qq(event, dungeonCommandHandler::handleDungeonRetreat);
   }
 }

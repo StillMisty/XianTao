@@ -8,16 +8,24 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.event.enums.FortuneLevel;
 import top.stillmisty.xiantao.domain.event.vo.FortuneVO;
+import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.service.annotation.Authenticated;
 
 @Slf4j
-@Component
+@Service
 public class FortuneService {
 
   private static final int BAR_COUNT = 10;
   private static final int DISPLAY_WIDTH = 18;
+
+  @Authenticated
+  public ServiceResult<FortuneVO> getFortune(PlatformType platform, String openId) {
+    Long userId = UserContext.getCurrentUserId();
+    return new ServiceResult.Success<>(calculate(userId));
+  }
 
   public FortuneVO calculate(Long userId) {
     long[] seeds = generateSeeds(userId, LocalDate.now());

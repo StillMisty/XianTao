@@ -9,8 +9,6 @@ import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
-import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.handle.command.MasterApprenticeCommandHandler;
 
 @Slf4j
@@ -28,13 +26,7 @@ public class MasterApprenticeListener {
   @Filter("拜师 {{targetNickname,[\\S]+}}")
   public void requestMentor(
       OneBotMessageEvent event, @FilterValue("targetNickname") String targetNickname) {
-    String response =
-        masterApprenticeCommandHandler.handleRequestMentor(
-            PlatformType.ONE_BOT_V11,
-            event.getAuthorId().toString(),
-            targetNickname,
-            TextFormat.PLAIN);
-    replyHelper.replyOneBot(event, response);
+    replyHelper.oneBot(event, targetNickname, masterApprenticeCommandHandler::handleRequestMentor);
   }
 
   @Listener
@@ -42,23 +34,15 @@ public class MasterApprenticeListener {
   @Filter("收徒 {{targetNickname,[\\S]+}}")
   public void requestApprentice(
       OneBotMessageEvent event, @FilterValue("targetNickname") String targetNickname) {
-    String response =
-        masterApprenticeCommandHandler.handleRequestApprentice(
-            PlatformType.ONE_BOT_V11,
-            event.getAuthorId().toString(),
-            targetNickname,
-            TextFormat.PLAIN);
-    replyHelper.replyOneBot(event, response);
+    replyHelper.oneBot(
+        event, targetNickname, masterApprenticeCommandHandler::handleRequestApprentice);
   }
 
   @Listener
   @ContentTrim
   @Filter("师徒")
   public void status(OneBotMessageEvent event) {
-    String response =
-        masterApprenticeCommandHandler.handleStatus(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
-    replyHelper.replyOneBot(event, response);
+    replyHelper.oneBot(event, masterApprenticeCommandHandler::handleStatus);
   }
 
   @Listener
@@ -66,23 +50,14 @@ public class MasterApprenticeListener {
   @Filter("逐出师门 {{targetNickname,[\\S]+}}")
   public void dismiss(
       OneBotMessageEvent event, @FilterValue("targetNickname") String targetNickname) {
-    String response =
-        masterApprenticeCommandHandler.handleDismiss(
-            PlatformType.ONE_BOT_V11,
-            event.getAuthorId().toString(),
-            targetNickname,
-            TextFormat.PLAIN);
-    replyHelper.replyOneBot(event, response);
+    replyHelper.oneBot(event, targetNickname, masterApprenticeCommandHandler::handleDismiss);
   }
 
   @Listener
   @ContentTrim
   @Filter("叛师")
   public void renounce(OneBotMessageEvent event) {
-    String response =
-        masterApprenticeCommandHandler.handleRenounce(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
-    replyHelper.replyOneBot(event, response);
+    replyHelper.oneBot(event, masterApprenticeCommandHandler::handleRenounce);
   }
 
   // === QQ ===
@@ -92,10 +67,7 @@ public class MasterApprenticeListener {
   @Filter("拜师 {{targetNickname,[\\S]+}}")
   public void requestMentorQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("targetNickname") String targetNickname) {
-    String response =
-        masterApprenticeCommandHandler.handleRequestMentor(
-            PlatformType.QQ, event.getAuthorId().toString(), targetNickname, TextFormat.MARKDOWN);
-    replyHelper.replyQQ(event, response);
+    replyHelper.qq(event, targetNickname, masterApprenticeCommandHandler::handleRequestMentor);
   }
 
   @Listener
@@ -103,20 +75,14 @@ public class MasterApprenticeListener {
   @Filter("收徒 {{targetNickname,[\\S]+}}")
   public void requestApprenticeQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("targetNickname") String targetNickname) {
-    String response =
-        masterApprenticeCommandHandler.handleRequestApprentice(
-            PlatformType.QQ, event.getAuthorId().toString(), targetNickname, TextFormat.MARKDOWN);
-    replyHelper.replyQQ(event, response);
+    replyHelper.qq(event, targetNickname, masterApprenticeCommandHandler::handleRequestApprentice);
   }
 
   @Listener
   @ContentTrim
   @Filter("师徒")
   public void statusQq(QGGroupAtMessageCreateEvent event) {
-    String response =
-        masterApprenticeCommandHandler.handleStatus(
-            PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
-    replyHelper.replyQQ(event, response);
+    replyHelper.qq(event, masterApprenticeCommandHandler::handleStatus);
   }
 
   @Listener
@@ -124,19 +90,13 @@ public class MasterApprenticeListener {
   @Filter("逐出师门 {{targetNickname,[\\S]+}}")
   public void dismissQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("targetNickname") String targetNickname) {
-    String response =
-        masterApprenticeCommandHandler.handleDismiss(
-            PlatformType.QQ, event.getAuthorId().toString(), targetNickname, TextFormat.MARKDOWN);
-    replyHelper.replyQQ(event, response);
+    replyHelper.qq(event, targetNickname, masterApprenticeCommandHandler::handleDismiss);
   }
 
   @Listener
   @ContentTrim
   @Filter("叛师")
   public void renounceQq(QGGroupAtMessageCreateEvent event) {
-    String response =
-        masterApprenticeCommandHandler.handleRenounce(
-            PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
-    replyHelper.replyQQ(event, response);
+    replyHelper.qq(event, masterApprenticeCommandHandler::handleRenounce);
   }
 }

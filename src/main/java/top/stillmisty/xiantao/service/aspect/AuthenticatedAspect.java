@@ -49,6 +49,7 @@ public class AuthenticatedAspect {
 
     Long userId = ((ServiceResult.Success<Long>) auth).data();
 
+    UserContext.setDownstreamUserId(userId);
     try {
       return UserContext.withUser(userId, pjp::proceed);
     } catch (InterruptedException e) {

@@ -11,8 +11,6 @@ import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
-import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.handle.command.ForgingCommandHandler;
 
 @Slf4j
@@ -28,56 +26,39 @@ public class ForgingListener {
   @ContentTrim
   @Filter("锻造列表")
   public void recipeList(OneBotMessageEvent event) {
-    String response =
-        forgingCommandHandler.handleForgingRecipeList(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), TextFormat.PLAIN);
-    replyHelper.replyOneBot(event, response);
+    replyHelper.oneBot(event, forgingCommandHandler::handleForgingRecipeList);
   }
 
   @Listener
   @ContentTrim
   @Filter("锻造 {{input}}")
   public void forge(OneBotMessageEvent event, @FilterValue("input") String input) {
-    String response;
     if (input.contains("×") || input.contains("x") || input.contains("X")) {
       List<String> materialInputs = Arrays.asList(input.split("\\s+"));
-      response =
-          forgingCommandHandler.handleForgeManual(
-              PlatformType.ONE_BOT_V11,
-              event.getAuthorId().toString(),
-              materialInputs,
-              TextFormat.PLAIN);
+      replyHelper.oneBot(
+          event, (p, o, f) -> forgingCommandHandler.handleForgeManual(p, o, materialInputs, f));
     } else {
-      response =
-          forgingCommandHandler.handleForgeAuto(
-              PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), input, TextFormat.PLAIN);
+      replyHelper.oneBot(event, (p, o, f) -> forgingCommandHandler.handleForgeAuto(p, o, input, f));
     }
-    replyHelper.replyOneBot(event, response);
   }
 
   @Listener
   @ContentTrim
   @Filter("强化 {{input}}")
   public void enhance(OneBotMessageEvent event, @FilterValue("input") String input) {
-    String response;
     String[] parts = input.split("\\s+");
     if (parts.length > 1
         && (parts[1].contains("×") || parts[1].contains("x") || parts[1].contains("X"))) {
       String equipmentInput = parts[0];
       List<String> materialInputs = Arrays.asList(Arrays.copyOfRange(parts, 1, parts.length));
-      response =
-          forgingCommandHandler.handleEnhanceManual(
-              PlatformType.ONE_BOT_V11,
-              event.getAuthorId().toString(),
-              equipmentInput,
-              materialInputs,
-              TextFormat.PLAIN);
+      replyHelper.oneBot(
+          event,
+          (p, o, f) ->
+              forgingCommandHandler.handleEnhanceManual(p, o, equipmentInput, materialInputs, f));
     } else {
-      response =
-          forgingCommandHandler.handleEnhanceAuto(
-              PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), input, TextFormat.PLAIN);
+      replyHelper.oneBot(
+          event, (p, o, f) -> forgingCommandHandler.handleEnhanceAuto(p, o, input, f));
     }
-    replyHelper.replyOneBot(event, response);
   }
 
   // === QQ ===
@@ -86,52 +67,37 @@ public class ForgingListener {
   @ContentTrim
   @Filter("锻造列表")
   public void recipeListQq(QGGroupAtMessageCreateEvent event) {
-    String response =
-        forgingCommandHandler.handleForgingRecipeList(
-            PlatformType.QQ, event.getAuthorId().toString(), TextFormat.MARKDOWN);
-    replyHelper.replyQQ(event, response);
+    replyHelper.qq(event, forgingCommandHandler::handleForgingRecipeList);
   }
 
   @Listener
   @ContentTrim
   @Filter("锻造 {{input}}")
   public void forgeQq(QGGroupAtMessageCreateEvent event, @FilterValue("input") String input) {
-    String response;
     if (input.contains("×") || input.contains("x") || input.contains("X")) {
       List<String> materialInputs = Arrays.asList(input.split("\\s+"));
-      response =
-          forgingCommandHandler.handleForgeManual(
-              PlatformType.QQ, event.getAuthorId().toString(), materialInputs, TextFormat.MARKDOWN);
+      replyHelper.qq(
+          event, (p, o, f) -> forgingCommandHandler.handleForgeManual(p, o, materialInputs, f));
     } else {
-      response =
-          forgingCommandHandler.handleForgeAuto(
-              PlatformType.QQ, event.getAuthorId().toString(), input, TextFormat.MARKDOWN);
+      replyHelper.qq(event, (p, o, f) -> forgingCommandHandler.handleForgeAuto(p, o, input, f));
     }
-    replyHelper.replyQQ(event, response);
   }
 
   @Listener
   @ContentTrim
   @Filter("强化 {{input}}")
   public void enhanceQq(QGGroupAtMessageCreateEvent event, @FilterValue("input") String input) {
-    String response;
     String[] parts = input.split("\\s+");
     if (parts.length > 1
         && (parts[1].contains("×") || parts[1].contains("x") || parts[1].contains("X"))) {
       String equipmentInput = parts[0];
       List<String> materialInputs = Arrays.asList(Arrays.copyOfRange(parts, 1, parts.length));
-      response =
-          forgingCommandHandler.handleEnhanceManual(
-              PlatformType.QQ,
-              event.getAuthorId().toString(),
-              equipmentInput,
-              materialInputs,
-              TextFormat.MARKDOWN);
+      replyHelper.qq(
+          event,
+          (p, o, f) ->
+              forgingCommandHandler.handleEnhanceManual(p, o, equipmentInput, materialInputs, f));
     } else {
-      response =
-          forgingCommandHandler.handleEnhanceAuto(
-              PlatformType.QQ, event.getAuthorId().toString(), input, TextFormat.MARKDOWN);
+      replyHelper.qq(event, (p, o, f) -> forgingCommandHandler.handleEnhanceAuto(p, o, input, f));
     }
-    replyHelper.replyQQ(event, response);
   }
 }

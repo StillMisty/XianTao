@@ -13,9 +13,9 @@ import top.stillmisty.xiantao.domain.dungeon.vo.LootPoolEntry;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.infrastructure.util.WeightedRandom;
 import top.stillmisty.xiantao.service.SpiritStoneService;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
-import top.stillmisty.xiantao.util.WeightedRandom;
 
 @Component
 @RequiredArgsConstructor
@@ -81,8 +81,8 @@ public class DungeonLootHelper {
 
     for (int i = 0; i < rollCount; i++) {
       LootPoolEntry entry =
-          WeightedRandom.weightedRandom(
-              poi.getLootPool(), LootPoolEntry::weight, poi.getLootWeightTotal());
+          WeightedRandom.select(
+              poi.getLootPool(), LootPoolEntry::weight, ThreadLocalRandom.current());
       if (entry == null) continue;
 
       int qty = ThreadLocalRandom.current().nextInt(entry.minQty(), entry.maxQty() + 1);

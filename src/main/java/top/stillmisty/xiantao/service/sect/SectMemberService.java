@@ -6,7 +6,6 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,8 +52,6 @@ public class SectMemberService {
   private final ChatClient npcChatClient;
   @Lazy private final MasterApprenticeService masterApprenticeService;
   private final SpiritStoneService spiritStoneService;
-
-  @Lazy @Autowired private SectMemberService self;
 
   // ===================== 公开 API =====================
 
@@ -703,7 +700,7 @@ public class SectMemberService {
   void executeLeave(Long userId, SectMember member) {
     sectMemberRepository.deleteByUserId(userId);
 
-    self.forgetSharedSkills(userId);
+    forgetSharedSkills(userId);
 
     sectMemberRepository.save(
         SectMember.create()

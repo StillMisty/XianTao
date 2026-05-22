@@ -9,8 +9,6 @@ import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
-import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.handle.command.HelpCommandHandler;
 
 @Slf4j
@@ -28,10 +26,7 @@ public class HelpListener {
   @Filter("帮助")
   public void help(OneBotMessageEvent event) {
     log.debug("[OneBot] 收到帮助请求 - AuthorId: {}", event.getAuthorId());
-    String response =
-        helpCommandHandler.handleHelp(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), null, TextFormat.PLAIN);
-    replyHelper.replyOneBot(event, response);
+    replyHelper.oneBot(event, (p, o, f) -> helpCommandHandler.handleHelp(p, o, null, f));
   }
 
   @Listener
@@ -39,10 +34,7 @@ public class HelpListener {
   @Filter("帮助 {{command}}")
   public void helpDetail(OneBotMessageEvent event, @FilterValue("command") String command) {
     log.debug("[OneBot] 收到命令详情请求 - AuthorId: {}, Command: {}", event.getAuthorId(), command);
-    String response =
-        helpCommandHandler.handleHelp(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), command, TextFormat.PLAIN);
-    replyHelper.replyOneBot(event, response);
+    replyHelper.oneBot(event, command, helpCommandHandler::handleHelp);
   }
 
   // === QQ ===
@@ -52,10 +44,7 @@ public class HelpListener {
   @Filter("帮助")
   public void helpQq(QGGroupAtMessageCreateEvent event) {
     log.debug("[QQ] 收到帮助请求 - AuthorId: {}", event.getAuthorId());
-    String response =
-        helpCommandHandler.handleHelp(
-            PlatformType.QQ, event.getAuthorId().toString(), null, TextFormat.MARKDOWN);
-    replyHelper.replyQQ(event, response);
+    replyHelper.qq(event, (p, o, f) -> helpCommandHandler.handleHelp(p, o, null, f));
   }
 
   @Listener
@@ -64,9 +53,6 @@ public class HelpListener {
   public void helpDetailQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("command") String command) {
     log.debug("[QQ] 收到命令详情请求 - AuthorId: {}, Command: {}", event.getAuthorId(), command);
-    String response =
-        helpCommandHandler.handleHelp(
-            PlatformType.QQ, event.getAuthorId().toString(), command, TextFormat.MARKDOWN);
-    replyHelper.replyQQ(event, response);
+    replyHelper.qq(event, command, helpCommandHandler::handleHelp);
   }
 }

@@ -9,8 +9,6 @@ import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
-import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.handle.command.ShopCommandHandler;
 
 @Slf4j
@@ -27,20 +25,14 @@ public class ShopListener {
   @ContentTrim
   @Filter("掌柜 {{content}}")
   public void shopkeeper(OneBotMessageEvent event, @FilterValue("content") String content) {
-    String response =
-        shopCommandHandler.handleShopkeeper(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), content, TextFormat.PLAIN);
-    replyHelper.replyOneBot(event, response);
+    replyHelper.oneBot(event, content, shopCommandHandler::handleShopkeeper);
   }
 
   @Listener
   @ContentTrim
   @Filter("回收 {{itemName}}")
   public void quickSell(OneBotMessageEvent event, @FilterValue("itemName") String itemName) {
-    String response =
-        shopCommandHandler.handleQuickSell(
-            PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), itemName, TextFormat.PLAIN);
-    replyHelper.replyOneBot(event, response);
+    replyHelper.oneBot(event, itemName, shopCommandHandler::handleQuickSell);
   }
 
   // === QQ ===
@@ -50,10 +42,7 @@ public class ShopListener {
   @Filter("掌柜 {{content}}")
   public void shopkeeperQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("content") String content) {
-    String response =
-        shopCommandHandler.handleShopkeeper(
-            PlatformType.QQ, event.getAuthorId().toString(), content, TextFormat.MARKDOWN);
-    replyHelper.replyQQ(event, response);
+    replyHelper.qq(event, content, shopCommandHandler::handleShopkeeper);
   }
 
   @Listener
@@ -61,9 +50,6 @@ public class ShopListener {
   @Filter("回收 {{itemName}}")
   public void quickSellQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("itemName") String itemName) {
-    String response =
-        shopCommandHandler.handleQuickSell(
-            PlatformType.QQ, event.getAuthorId().toString(), itemName, TextFormat.MARKDOWN);
-    replyHelper.replyQQ(event, response);
+    replyHelper.qq(event, itemName, shopCommandHandler::handleQuickSell);
   }
 }

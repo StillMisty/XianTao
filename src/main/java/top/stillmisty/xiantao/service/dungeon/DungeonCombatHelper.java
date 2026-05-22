@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,12 +22,12 @@ import top.stillmisty.xiantao.domain.monster.repository.MonsterTemplateRepositor
 import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
+import top.stillmisty.xiantao.infrastructure.util.WeightedRandom;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.combat.CombatService;
 import top.stillmisty.xiantao.service.combat.PostCombatProcessor;
 import top.stillmisty.xiantao.service.player.UserStateService;
-import top.stillmisty.xiantao.util.WeightedRandom;
 
 @Component
 @RequiredArgsConstructor
@@ -51,8 +52,8 @@ public class DungeonCombatHelper {
       List<Long> memberIds) {
 
     MonsterPoolEntry monsterEntry =
-        WeightedRandom.weightedRandom(
-            poi.getMonsterPool(), MonsterPoolEntry::weight, poi.getMonsterWeightTotal());
+        WeightedRandom.select(
+            poi.getMonsterPool(), MonsterPoolEntry::weight, ThreadLocalRandom.current());
     if (monsterEntry == null) {
       throw new BusinessException(ErrorCode.DUNGEON_POI_NOT_FOUND);
     }
