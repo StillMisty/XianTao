@@ -17,6 +17,15 @@ public class UserContext {
     return CURRENT_USER.isBound() ? CURRENT_USER.get() : null;
   }
 
+  /** 获取当前用户 ID，未绑定时抛出 BusinessException */
+  public static Long requireCurrentUserId() {
+    Long userId = getCurrentUserId();
+    if (userId == null) {
+      throw new BusinessException(ErrorCode.USER_CONTEXT_MISSING);
+    }
+    return userId;
+  }
+
   /** 获取当前用户 ID：优先 ScopedValue（auth 方法内），次选 ThreadLocal（下游模块） */
   public static Long getUserId() {
     if (CURRENT_USER.isBound()) return CURRENT_USER.get();

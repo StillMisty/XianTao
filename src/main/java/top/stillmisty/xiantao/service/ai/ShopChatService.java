@@ -7,9 +7,7 @@ import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.sect.enums.ChatType;
 import top.stillmisty.xiantao.domain.shop.entity.ShopNpc;
-import top.stillmisty.xiantao.domain.shop.entity.ShopProduct;
 import top.stillmisty.xiantao.domain.shop.entity.WorldEvent;
-import top.stillmisty.xiantao.domain.shop.repository.ShopProductRepository;
 import top.stillmisty.xiantao.domain.shop.repository.WorldEventRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
@@ -27,7 +25,6 @@ public class ShopChatService extends AbstractChatService {
   private final ShopService shopService;
   private final ShopTools shopTools;
   private final UserStateService userStateService;
-  private final ShopProductRepository shopProductRepository;
   private final WorldEventRepository worldEventRepository;
 
   public ShopChatService(
@@ -36,13 +33,11 @@ public class ShopChatService extends AbstractChatService {
       ShopService shopService,
       ShopTools shopTools,
       UserStateService userStateService,
-      ShopProductRepository shopProductRepository,
       WorldEventRepository worldEventRepository) {
     super(shopChatClient, chatMemory);
     this.shopService = shopService;
     this.shopTools = shopTools;
     this.userStateService = userStateService;
-    this.shopProductRepository = shopProductRepository;
     this.worldEventRepository = worldEventRepository;
   }
 
@@ -67,38 +62,43 @@ public class ShopChatService extends AbstractChatService {
   }
 
   private String buildPrompt(ShopNpc npc) {
-    StringBuilder sb = new StringBuilder();
+    String customPrompt =
+        (npc.getSystemPrompt() != null && !npc.getSystemPrompt().isBlank())
+            ? npc.getSystemPrompt() + "\n\n"
+            : "";
 
-    if (npc.getSystemPrompt() != null && !npc.getSystemPrompt().isBlank()) {
-      sb.append(npc.getSystemPrompt()).append("\n\n");
-    }
+    String eventsInfo = buildEventsInfo();
 
-    sb.append("你是一个修仙世界的商铺掌柜。\n");
-    sb.append("你只能收购和出售物品，不能进行其他操作（如修炼、战斗、炼丹等）。\n");
-    sb.append("所有物品的价格由系统函数计算，你不能自己编造价格。\n");
-    sb.append("同一笔交易中，玩家最多只能砍一次价——如果玩家第二次要求降价，请拒绝。\n");
-    sb.append("首次报价必须等于估价工具返回的 basePrice，不能高于或低于它。\n");
-    sb.append("如果玩家提供的物品不可回收（tradable=false），直接拒绝。\n");
-    sb.append("对话要简短自然，像一位古代商铺掌柜。\n");
+    String promptTemplate =
+        """
+            %s你是「%s」的掌柜，一位修仙世界的商人。
+            玩家是你的顾客，你的职责是收购和出售物品，不能进行修炼、战斗、炼丹等操作。
+            所有物品价格由工具函数计算，你不可自行编造价格。
+            同一笔交易中，玩家最多只能砍一次价——第二次再要求降价时直接拒绝。
+            如果玩家提供的物品不可交易（tradable=false），直接拒绝。
+            对话要简短自然，像一位古代商铺掌柜。
+            如果玩家只是聊天，不涉及买卖，直接以掌柜身份回复即可，不要调用任何工具。
 
-    List<ShopProduct> products = shopProductRepository.findByShopNpcId(npc.getId());
-    if (!products.isEmpty()) {
-      sb.append("\n当前在售商品（仅供参考，实际以工具查询为准）：\n");
-      sb.append("商品数量：").append(products.size()).append(" 种\n");
-    }
+            %s
+            """
+            .stripIndent();
 
+    return String.format(promptTemplate, customPrompt, npc.getName(), eventsInfo);
+  }
+
+  private String buildEventsInfo() {
     List<WorldEvent> activeEvents = worldEventRepository.findActiveEvents();
-    if (!activeEvents.isEmpty()) {
-      sb.append("\n当前世界事件（可能影响物品价格）：\n");
-      for (WorldEvent event : activeEvents) {
-        sb.append("- ")
-            .append(event.getTitle())
-            .append("：")
-            .append(event.getDescription())
-            .append("\n");
-      }
+    if (activeEvents.isEmpty()) {
+      return "";
     }
-
+    StringBuilder sb = new StringBuilder("当前世界事件（可能影响物品价格）：\n");
+    for (WorldEvent event : activeEvents) {
+      sb.append("- ")
+          .append(event.getTitle())
+          .append("：")
+          .append(event.getDescription())
+          .append("\n");
+    }
     return sb.toString();
   }
 }
