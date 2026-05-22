@@ -34,7 +34,11 @@ INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
 ('BOUNTY_SIDE', 'bounty_witness_arrives', '目击者登场', '一个自称是目击者的NPC出现，带来了关于悬赏目标的新情报。'),
 ('BOUNTY_SIDE', 'bounty_rival_hunter', '竞争者登场', '另一个赏金猎人也盯上了你的目标——看谁先得手。'),
 ('BOUNTY_SIDE', 'bounty_monster_interference', '妖兽搅局', '正追着目标呢突然窜出一只妖兽打乱了局面。'),
-('BOUNTY_SIDE', 'bounty_cultivation_boost', '悬赏中的顿悟', '在执行悬赏的激烈战斗中竟意外地突破了修为瓶颈。');
+('BOUNTY_SIDE', 'bounty_cultivation_boost', '悬赏中的顿悟', '在执行悬赏的激烈战斗中竟意外地突破了修为瓶颈。'),
+('BOUNTY_SIDE', 'bounty_ancient_secret', '上古秘藏', '在你仔细搜查现场时，无意间触动了一个被忽略的机关——轰隆声中，一扇隐藏的石门缓缓打开，露出了一间尘封千年的密室。'),
+('BOUNTY_SIDE', 'bounty_spirit_revelation', '灵机一现', '正当你准备离开时，天地间的灵气突然出现了异样的波动——冥冥之中似乎有什么在指引你走向一个意想不到的方向。'),
+('BOUNTY_SIDE', 'bounty_fateful_encounter', '命运邂逅', '一位神秘修士突然出现在你面前，他似乎一直在等你——"你就是接了这个悬赏的人？很好，我有些话要单独对你说……"'),
+('BOUNTY_SIDE', 'bounty_environmental_insight', '天时地利', '你敏锐地察觉到周围环境的异常——原来此地暗藏玄机，只有真正用心观察的人才能发现其中的奥妙。');
 
 -- ============ xt_activity_event (活动事件关联) ============
 -- TRAVEL events (owner_id = map_id)
@@ -103,26 +107,32 @@ INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight
 
 -- BOUNTY_SIDE events (owner_id = bounty_id, using codes from event_type)
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, is_hidden, trigger_type, trigger_params, params) VALUES
-('BOUNTY_SIDE', 1, 'bounty_clue_found', 'NUMERIC', 20, false, NULL, '{}', '{}'),
-('BOUNTY_SIDE', 5, 'bounty_monster_interference', 'NUMERIC', 15, false, NULL, '{}', '{}'),
-('BOUNTY_SIDE', 10, 'bounty_extra_target', 'NUMERIC', 12, false, NULL, '{}', '{}'),
-('BOUNTY_SIDE', 15, 'bounty_hidden_cache', 'NUMERIC', 10, false, NULL, '{}', jsonb_build_object('effects', jsonb_build_array(jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name='聚灵丹'), 'count', 3)))),
-('BOUNTY_SIDE', 20, 'bounty_rival_hunter', 'NUMERIC', 12, false, NULL, '{}', '{}'),
-('BOUNTY_SIDE', 25, 'bounty_witness_arrives', 'NUMERIC', 10, false, NULL, '{}', '{}'),
-('BOUNTY_SIDE', 30, 'bounty_betrayal', 'NUMERIC', 8, true, NULL, '{}', '{}'),
-('BOUNTY_SIDE', 40, 'bounty_clue_found', 'NUMERIC', 15, false, NULL, '{}', '{}'),
-('BOUNTY_SIDE', 50, 'bounty_monster_interference', 'NUMERIC', 15, false, NULL, '{}', '{}'),
-('BOUNTY_SIDE', 60, 'bounty_cultivation_boost', 'NUMERIC', 10, false, NULL, '{}', '{"effects": [{"type": "ADD_EXP", "amount": 100}]}'),
-('BOUNTY_SIDE', 70, 'bounty_extra_target', 'NUMERIC', 12, false, NULL, '{}', '{}'),
-('BOUNTY_SIDE', 80, 'bounty_hidden_cache', 'NUMERIC', 10, false, NULL, '{}', '{}'),
-('BOUNTY_SIDE', 100, 'bounty_betrayal', 'NUMERIC', 8, true, NULL, '{}', '{"effects": [{"type": "MULTIPLY_BOUNTY_REWARD", "multiplier": 2}]}'),
-('BOUNTY_SIDE', 120, 'bounty_rival_hunter', 'NUMERIC', 12, false, NULL, '{}', '{}'),
-('BOUNTY_SIDE', 150, 'bounty_witness_arrives', 'NUMERIC', 10, false, NULL, '{}', '{}'),
-('BOUNTY_SIDE', 200, 'bounty_cultivation_boost', 'NUMERIC', 8, false, NULL, '{}', '{"effects": [{"type": "ADD_EXP", "amount": 300}]}'),
-('BOUNTY_SIDE', 250, 'bounty_clue_found', 'NUMERIC', 15, false, NULL, '{}', '{}'),
-('BOUNTY_SIDE', 300, 'bounty_monster_interference', 'NUMERIC', 12, false, NULL, '{}', '{}'),
-('BOUNTY_SIDE', 350, 'bounty_extra_target', 'NUMERIC', 10, false, NULL, '{}', '{}'),
-('BOUNTY_SIDE', 400, 'bounty_cultivation_boost', 'NUMERIC', 5, true, NULL, '{}', '{"effects": [{"type": "ADD_EXP", "amount": 1000}]}');
+('BOUNTY_SIDE', 1, 'bounty_clue_found', 'NUMERIC', 20, false, NULL, '{}', jsonb_build_object('effects', jsonb_build_array(jsonb_build_object('type', 'ADD_EXP', 'amount', 80), jsonb_build_object('type', 'ADD_SPIRIT_STONES', 'amount', 30)))),
+('BOUNTY_SIDE', 5, 'bounty_monster_interference', 'NUMERIC', 15, false, NULL, '{}', jsonb_build_object('effects', jsonb_build_array(jsonb_build_object('type', 'ADD_SPIRIT_STONES', 'amount', 50)))),
+('BOUNTY_SIDE', 10, 'bounty_extra_target', 'NUMERIC', 12, false, NULL, '{}', jsonb_build_object('effects', jsonb_build_array(jsonb_build_object('type', 'ADD_EXP', 'amount', 150), jsonb_build_object('type', 'ADD_SPIRIT_STONES', 'amount', 60)))),
+('BOUNTY_SIDE', 15, 'bounty_hidden_cache', 'NUMERIC', 10, false, NULL, '{}', jsonb_build_object('effects', jsonb_build_array(jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name='聚灵丹'), 'count', 3), jsonb_build_object('type', 'ADD_SPIRIT_STONES', 'amount', 100)))),
+('BOUNTY_SIDE', 20, 'bounty_rival_hunter', 'NUMERIC', 12, false, NULL, '{}', jsonb_build_object('effects', jsonb_build_array(jsonb_build_object('type', 'ADD_EXP', 'amount', 200), jsonb_build_object('type', 'ADD_SPIRIT_STONES', 'amount', 80)))),
+('BOUNTY_SIDE', 25, 'bounty_witness_arrives', 'NUMERIC', 10, false, NULL, '{}', jsonb_build_object('effects', jsonb_build_array(jsonb_build_object('type', 'ADD_EXP', 'amount', 100), jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name='兽骨'), 'count', 1)))),
+('BOUNTY_SIDE', 40, 'bounty_clue_found', 'NUMERIC', 15, false, NULL, '{}', jsonb_build_object('effects', jsonb_build_array(jsonb_build_object('type', 'ADD_EXP', 'amount', 150), jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name='玄铁矿石'), 'count', 2)))),
+('BOUNTY_SIDE', 50, 'bounty_monster_interference', 'NUMERIC', 15, false, NULL, '{}', jsonb_build_object('effects', jsonb_build_array(jsonb_build_object('type', 'ADD_EXP', 'amount', 300), jsonb_build_object('type', 'ADD_SPIRIT_STONES', 'amount', 150)))),
+('BOUNTY_SIDE', 60, 'bounty_cultivation_boost', 'NUMERIC', 10, false, NULL, '{}', jsonb_build_object('effects', jsonb_build_array(jsonb_build_object('type', 'ADD_EXP', 'amount', 800), jsonb_build_object('type', 'ADD_SPIRIT_STONES', 'amount', 200)))),
+('BOUNTY_SIDE', 70, 'bounty_extra_target', 'NUMERIC', 12, false, NULL, '{}', jsonb_build_object('effects', jsonb_build_array(jsonb_build_object('type', 'ADD_EXP', 'amount', 400), jsonb_build_object('type', 'ADD_SPIRIT_STONES', 'amount', 200)))),
+('BOUNTY_SIDE', 80, 'bounty_hidden_cache', 'NUMERIC', 10, false, NULL, '{}', jsonb_build_object('effects', jsonb_build_array(jsonb_build_object('type', 'ADD_EXP', 'amount', 500), jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name='灵芝'), 'count', 2)))),
+('BOUNTY_SIDE', 120, 'bounty_rival_hunter', 'NUMERIC', 12, false, NULL, '{}', jsonb_build_object('effects', jsonb_build_array(jsonb_build_object('type', 'ADD_EXP', 'amount', 600), jsonb_build_object('type', 'ADD_SPIRIT_STONES', 'amount', 300)))),
+('BOUNTY_SIDE', 150, 'bounty_witness_arrives', 'NUMERIC', 10, false, NULL, '{}', jsonb_build_object('effects', jsonb_build_array(jsonb_build_object('type', 'ADD_EXP', 'amount', 1000), jsonb_build_object('type', 'ADD_SPIRIT_STONES', 'amount', 500)))),
+('BOUNTY_SIDE', 200, 'bounty_cultivation_boost', 'NUMERIC', 8, false, NULL, '{}', jsonb_build_object('effects', jsonb_build_array(jsonb_build_object('type', 'ADD_EXP', 'amount', 2000), jsonb_build_object('type', 'ADD_SPIRIT_STONES', 'amount', 800)))),
+('BOUNTY_SIDE', 250, 'bounty_clue_found', 'NUMERIC', 15, false, NULL, '{}', jsonb_build_object('effects', jsonb_build_array(jsonb_build_object('type', 'ADD_EXP', 'amount', 800), jsonb_build_object('type', 'ADD_SPIRIT_STONES', 'amount', 400)))),
+('BOUNTY_SIDE', 300, 'bounty_monster_interference', 'NUMERIC', 12, false, NULL, '{}', jsonb_build_object('effects', jsonb_build_array(jsonb_build_object('type', 'ADD_EXP', 'amount', 800), jsonb_build_object('type', 'ADD_SPIRIT_STONES', 'amount', 400)))),
+('BOUNTY_SIDE', 350, 'bounty_extra_target', 'NUMERIC', 10, false, NULL, '{}', jsonb_build_object('effects', jsonb_build_array(jsonb_build_object('type', 'ADD_EXP', 'amount', 1200), jsonb_build_object('type', 'ADD_SPIRIT_STONES', 'amount', 600)))),
+('BOUNTY_SIDE', 400, 'bounty_cultivation_boost', 'NUMERIC', 5, true, NULL, '{}', jsonb_build_object('effects', jsonb_build_array(jsonb_build_object('type', 'ADD_EXP', 'amount', 10000), jsonb_build_object('type', 'ADD_SPIRIT_STONES', 'amount', 5000), jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name='大悟道丹'), 'count', 1), jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name='青鸾卵'), 'count', 1), jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name='天人感应玉简'), 'count', 1)))),
+('BOUNTY_SIDE', 6, 'bounty_hidden_cache', 'NUMERIC', 6, true, NULL, '{}', jsonb_build_object('effects', jsonb_build_array(jsonb_build_object('type', 'ADD_EXP', 'amount', 1500), jsonb_build_object('type', 'ADD_SPIRIT_STONES', 'amount', 500), jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name='小聚灵丹'), 'count', 3)))),
+('BOUNTY_SIDE', 20, 'bounty_extra_target', 'NUMERIC', 6, true, NULL, '{}', jsonb_build_object('effects', jsonb_build_array(jsonb_build_object('type', 'ADD_EXP', 'amount', 2000), jsonb_build_object('type', 'ADD_SPIRIT_STONES', 'amount', 800), jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name='灵芝妖卵'), 'count', 1), jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name='青木诀玉简'), 'count', 1)))),
+('BOUNTY_SIDE', 51, 'bounty_ancient_secret', 'NUMERIC', 5, true, NULL, '{}', jsonb_build_object('effects', jsonb_build_array(jsonb_build_object('type', 'ADD_EXP', 'amount', 2000), jsonb_build_object('type', 'ADD_SPIRIT_STONES', 'amount', 800), jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name='冰魄花'), 'count', 1), jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name='雪狐卵'), 'count', 1), jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name='聚灵丹'), 'count', 1)))),
+('BOUNTY_SIDE', 91, 'bounty_fateful_encounter', 'NUMERIC', 5, true, NULL, '{}', jsonb_build_object('effects', jsonb_build_array(jsonb_build_object('type', 'ADD_EXP', 'amount', 3000), jsonb_build_object('type', 'ADD_SPIRIT_STONES', 'amount', 1500), jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name='朱砂'), 'count', 3), jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name='火蟾卵'), 'count', 1), jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name='大聚灵丹'), 'count', 1)))),
+('BOUNTY_SIDE', 101, 'bounty_cultivation_boost', 'NUMERIC', 5, true, 'STAT_THRESHOLD', jsonb_build_object('stat', 'WIS', 'min', 45), jsonb_build_object('effects', jsonb_build_array(jsonb_build_object('type', 'ADD_EXP', 'amount', 5000), jsonb_build_object('type', 'ADD_SPIRIT_STONES', 'amount', 2000), jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name='碧鳞蛇卵'), 'count', 1), jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name='水镜术玉简'), 'count', 1)))),
+('BOUNTY_SIDE', 165, 'bounty_spirit_revelation', 'NUMERIC', 5, true, 'STAT_THRESHOLD', jsonb_build_object('stat', 'WIS', 'min', 55), jsonb_build_object('effects', jsonb_build_array(jsonb_build_object('type', 'ADD_EXP', 'amount', 8000), jsonb_build_object('type', 'ADD_SPIRIT_STONES', 'amount', 3000), jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name='白泽卵'), 'count', 1), jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name='太乙金丹'), 'count', 1)))),
+('BOUNTY_SIDE', 191, 'bounty_ancient_secret', 'NUMERIC', 5, true, 'HAS_SKILL', jsonb_build_object('skill_id', (SELECT id FROM xt_skill WHERE name='轩辕剑法')), jsonb_build_object('effects', jsonb_build_array(jsonb_build_object('type', 'ADD_EXP', 'amount', 10000), jsonb_build_object('type', 'ADD_SPIRIT_STONES', 'amount', 5000), jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name='轩辕剑法玉简'), 'count', 1), jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name='九转仙灵丹'), 'count', 1)))),
+('BOUNTY_SIDE', 247, 'bounty_extra_target', 'NUMERIC', 5, true, NULL, '{}', jsonb_build_object('effects', jsonb_build_array(jsonb_build_object('type', 'ADD_EXP', 'amount', 4000), jsonb_build_object('type', 'ADD_SPIRIT_STONES', 'amount', 2000), jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name='金翼雕卵'), 'count', 1), jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name='龙力丹'), 'count', 1))));
 
 -- COMBAT event type definitions (migrated from xt_map_node.monster_encounters)
 
