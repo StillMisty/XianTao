@@ -22,6 +22,9 @@ import top.stillmisty.xiantao.domain.dungeon.repository.DungeonPoiConfigReposito
 import top.stillmisty.xiantao.domain.dungeon.repository.DungeonProgressRepository;
 import top.stillmisty.xiantao.domain.dungeon.repository.DungeonTemplateRepository;
 import top.stillmisty.xiantao.domain.dungeon.vo.DropItemVO;
+import top.stillmisty.xiantao.domain.dungeon.vo.DungeonContinueResult;
+import top.stillmisty.xiantao.domain.dungeon.vo.DungeonEnterResult;
+import top.stillmisty.xiantao.domain.dungeon.vo.DungeonEnterResult.DungeonPoiEntry;
 import top.stillmisty.xiantao.domain.dungeon.vo.DungeonListVO;
 import top.stillmisty.xiantao.domain.dungeon.vo.ExploreResultVO;
 import top.stillmisty.xiantao.domain.event.enums.ActivityType;
@@ -67,7 +70,7 @@ public class DungeonService {
 
   @Authenticated
   @Transactional
-  public ServiceResult<String> enterDungeon(
+  public ServiceResult<DungeonEnterResult> enterDungeon(
       PlatformType platform, String openId, String dungeonName) {
     Long userId = UserContext.getCurrentUserId();
     return new ServiceResult.Success<>(enterDungeon(userId, dungeonName));
@@ -82,7 +85,8 @@ public class DungeonService {
 
   @Authenticated
   @Transactional
-  public ServiceResult<String> continueDungeon(PlatformType platform, String openId) {
+  public ServiceResult<DungeonContinueResult> continueDungeon(
+      PlatformType platform, String openId) {
     Long userId = UserContext.getCurrentUserId();
     return new ServiceResult.Success<>(continueDungeon(userId));
   }
@@ -124,7 +128,7 @@ public class DungeonService {
     return result;
   }
 
-  public String enterDungeon(Long userId, String dungeonName) {
+  public DungeonEnterResult enterDungeon(Long userId, String dungeonName) {
     User user = userStateService.loadUserForUpdate(userId);
     DungeonTemplate dungeon =
         dungeonTemplateRepository
@@ -210,15 +214,18 @@ public class DungeonService {
     }
 
     log.info("玩家 {} 率队 {} 人进入秘境 {}", userId, memberIds.size(), dungeonName);
-    StringBuilder sb = new StringBuilder();
-    sb.append("你们进入了【").append(dungeonName).append("】的外围区域。\n");
-    if (memberIds.size() > 1) {
-      sb.append("队伍人数: ").append(memberIds.size()).append("人\n");
-    }
-    sb.append("紫气弥漫，天地间充斥着锋锐的金行道韵。\n\n");
-    appendBuildingPrompt(sb, outerPois);
-    sb.append("\n输入「秘境探索」开始探索。");
-    return sb.toString();
+    return new DungeonEnterResult(
+        dungeonName,
+        DungeonArea.OUTER.getName(),
+        memberIds.size(),
+        outerPois.stream()
+            .map(
+                poi ->
+                    new DungeonPoiEntry(
+                        poi.getName(),
+                        poi.getPoiType().getName(),
+                        poi.getUnlockCondition() != null && !poi.getUnlockCondition().isBlank()))
+            .toList());
   }
 
   public ExploreResultVO exploreDungeon(Long userId) {
@@ -272,7 +279,7 @@ public class DungeonService {
     return exploreResult;
   }
 
-  public String continueDungeon(Long userId) {
+  public DungeonContinueResult continueDungeon(Long userId) {
     User user = userStateService.loadUser(userId);
     DungeonInstance instance = findActiveInstance(userId);
 
@@ -293,7 +300,7 @@ public class DungeonService {
 
     DungeonArea nextArea = getNextArea(instance.getCurrentArea());
     if (nextArea == null) {
-      return settleAllMembers(instance);
+      return new DungeonContinueResult.Completed(settleAllMembers(instance));
     }
 
     DungeonTemplate dungeon =
@@ -308,15 +315,21 @@ public class DungeonService {
     instance.setPassagePoiId(passagePoiId);
     instanceRepository.save(instance);
 
-    StringBuilder sb = new StringBuilder();
-    sb.append("你们进入了【")
-        .append(dungeon.getName())
-        .append("】的")
-        .append(instance.getCurrentArea().getName())
-        .append("区域。\n\n");
-    appendBuildingPrompt(sb, pois);
-    sb.append("\n输入「秘境探索」继续探索。");
-    return sb.toString();
+    DungeonEnterResult areaView =
+        new DungeonEnterResult(
+            dungeon.getName(),
+            instance.getCurrentArea().getName(),
+            getTeamMemberIds(instance).size(),
+            pois.stream()
+                .map(
+                    poi ->
+                        new DungeonPoiEntry(
+                            poi.getName(),
+                            poi.getPoiType().getName(),
+                            poi.getUnlockCondition() != null
+                                && !poi.getUnlockCondition().isBlank()))
+                .toList());
+    return new DungeonContinueResult.AreaView(areaView);
   }
 
   public String retreatDungeon(Long userId) {

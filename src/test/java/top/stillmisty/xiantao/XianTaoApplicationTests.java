@@ -1,6 +1,11 @@
 package top.stillmisty.xiantao;
 
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.Test;
 
-@SpringBootTest
-class XianTaoApplicationTests {}
+class XianTaoApplicationTests {
+
+  @Test
+  void contextLoads() {
+    // placeholder — actual tests will be added as the codebase evolves
+  }
+}

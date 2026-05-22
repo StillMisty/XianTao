@@ -7,6 +7,8 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.dungeon.vo.DropItemVO;
+import top.stillmisty.xiantao.domain.dungeon.vo.DungeonContinueResult;
+import top.stillmisty.xiantao.domain.dungeon.vo.DungeonEnterResult;
 import top.stillmisty.xiantao.domain.dungeon.vo.DungeonListVO;
 import top.stillmisty.xiantao.domain.dungeon.vo.ExploreResultVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
@@ -21,8 +23,6 @@ public class DungeonCommandHandler implements CommandGroup {
 
   private final DungeonService dungeonService;
 
-  // ===================== 统一处理方法 =====================
-
   public String handleDungeon(PlatformType platform, String openId, TextFormat fmt) {
     log.debug("处理秘境列表 - Platform: {}, OpenId: {}", platform, openId);
     return CommandHandlerHelper.safeCall(
@@ -33,7 +33,9 @@ public class DungeonCommandHandler implements CommandGroup {
       PlatformType platform, String openId, String dungeonName, TextFormat fmt) {
     log.debug("处理进入秘境 - Platform: {}, OpenId: {}, Dungeon: {}", platform, openId, dungeonName);
     return CommandHandlerHelper.safeCall(
-        () -> dungeonService.enterDungeon(platform, openId, dungeonName), fmt, msg -> msg);
+        () -> dungeonService.enterDungeon(platform, openId, dungeonName),
+        fmt,
+        vo -> formatDungeonEnterResult(vo, "紫气弥漫，天地间充斥着锋锐的金行道韵。", fmt));
   }
 
   public String handleDungeonExplore(PlatformType platform, String openId, TextFormat fmt) {
@@ -47,7 +49,14 @@ public class DungeonCommandHandler implements CommandGroup {
   public String handleDungeonContinue(PlatformType platform, String openId, TextFormat fmt) {
     log.debug("处理秘境继续 - Platform: {}, OpenId: {}", platform, openId);
     return CommandHandlerHelper.safeCall(
-        () -> dungeonService.continueDungeon(platform, openId), fmt, msg -> msg);
+        () -> dungeonService.continueDungeon(platform, openId),
+        fmt,
+        result ->
+            switch (result) {
+              case DungeonContinueResult.AreaView av ->
+                  formatDungeonEnterResult(av.enterResult(), "紫气弥漫，天地间充斥着锋锐的金行道韵。", fmt);
+              case DungeonContinueResult.Completed c -> c.settlementMessage();
+            });
   }
 
   public String handleDungeonRetreat(PlatformType platform, String openId, TextFormat fmt) {
@@ -57,6 +66,27 @@ public class DungeonCommandHandler implements CommandGroup {
   }
 
   // ===================== 格式化方法 =====================
+
+  private String formatDungeonEnterResult(
+      DungeonEnterResult result, String flavorText, TextFormat fmt) {
+    StringBuilder sb = new StringBuilder();
+    sb.append("你们进入了【")
+        .append(result.dungeonName())
+        .append("】的")
+        .append(result.areaName())
+        .append("区域。\n");
+    if (result.memberCount() > 1) {
+      sb.append("队伍人数: ").append(result.memberCount()).append("人\n");
+    }
+    sb.append(flavorText).append("\n\n");
+    sb.append(fmt.heading("可探索的建筑："));
+    for (var poi : result.pois()) {
+      String locked = poi.locked() ? " 🔒" : "";
+      sb.append(fmt.listItem(poi.name() + " [" + poi.typeName() + "]" + locked));
+    }
+    sb.append("\n输入「秘境探索」开始探索。");
+    return sb.toString();
+  }
 
   private String formatDungeonList(List<DungeonListVO> dungeons, TextFormat fmt) {
     if (dungeons.isEmpty()) {
@@ -123,8 +153,6 @@ public class DungeonCommandHandler implements CommandGroup {
 
     return sb.toString();
   }
-
-  // ===================== CommandGroup =====================
 
   @Override
   public String groupName() {

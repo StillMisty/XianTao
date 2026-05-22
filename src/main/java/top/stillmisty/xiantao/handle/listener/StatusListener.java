@@ -8,14 +8,14 @@ import love.forte.simbot.quantcat.common.annotations.ContentTrim;
 import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
-import top.stillmisty.xiantao.handle.command.CultivationCommandHandler;
+import top.stillmisty.xiantao.handle.command.StatusCommandHandler;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class StatusListener {
 
-  private final CultivationCommandHandler cultivationCommandHandler;
+  private final StatusCommandHandler statusCommandHandler;
   private final ReplyHelper replyHelper;
 
   // === OneBotV11 ===
@@ -25,7 +25,7 @@ public class StatusListener {
   @Filter("状态")
   public void status(OneBotMessageEvent event) {
     log.debug("[OneBot] 收到状态查询请求 - AuthorId: {}", event.getAuthorId());
-    replyHelper.oneBot(event, cultivationCommandHandler::handleStatus);
+    replyHelper.oneBot(event, statusCommandHandler::handleStatus);
   }
 
   // === QQ ===
@@ -35,6 +35,6 @@ public class StatusListener {
   @Filter("状态")
   public void statusQq(QGGroupAtMessageCreateEvent event) {
     log.debug("[QQ] 收到状态查询请求 - AuthorId: {}", event.getAuthorId());
-    replyHelper.qq(event, cultivationCommandHandler::handleStatus);
+    replyHelper.qq(event, statusCommandHandler::handleStatus);
   }
 }

@@ -2,7 +2,7 @@ package top.stillmisty.xiantao.handle.command;
 
 import top.stillmisty.xiantao.domain.skill.entity.SkillEffect;
 
-/** 技能效果格式化，供 SkillCommandHandler 和 CultivationCommandHandler 共用 */
+/** 技能效果格式化，供 SkillCommandHandler 和 ViewCommandHandler 共用 */
 final class SkillFormatter {
 
   private SkillFormatter() {}

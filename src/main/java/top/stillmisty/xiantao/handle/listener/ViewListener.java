@@ -9,14 +9,14 @@ import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
-import top.stillmisty.xiantao.handle.command.CultivationCommandHandler;
+import top.stillmisty.xiantao.handle.command.ViewCommandHandler;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class ViewListener {
 
-  private final CultivationCommandHandler cultivationCommandHandler;
+  private final ViewCommandHandler viewCommandHandler;
   private final ReplyHelper replyHelper;
 
   // === OneBotV11 ===
@@ -26,7 +26,7 @@ public class ViewListener {
   @Filter("查看 {{target}}")
   public void view(OneBotMessageEvent event, @FilterValue("target") String target) {
     log.debug("[OneBot] 收到查看请求 - AuthorId: {}, Target: {}", event.getAuthorId(), target);
-    replyHelper.oneBot(event, target, cultivationCommandHandler::handleView);
+    replyHelper.oneBot(event, target, viewCommandHandler::handleView);
   }
 
   // === QQ ===
@@ -36,6 +36,6 @@ public class ViewListener {
   @Filter("查看 {{target}}")
   public void viewQq(QGGroupAtMessageCreateEvent event, @FilterValue("target") String target) {
     log.debug("[QQ] 收到查看请求 - AuthorId: {}, Target: {}", event.getAuthorId(), target);
-    replyHelper.qq(event, target, cultivationCommandHandler::handleView);
+    replyHelper.qq(event, target, viewCommandHandler::handleView);
   }
 }

@@ -25,6 +25,11 @@ java {
     }
 }
 
+tasks.withType<Test> {
+    useJUnitPlatform()
+    systemProperty("junit.jupiter.execution.parallel.enabled", "false")
+}
+
 configurations {
     compileOnly {
         extendsFrom(configurations.annotationProcessor.get())
