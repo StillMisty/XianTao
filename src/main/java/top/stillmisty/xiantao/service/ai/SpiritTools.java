@@ -18,13 +18,13 @@ import top.stillmisty.xiantao.domain.fudi.vo.PenCellVO;
 import top.stillmisty.xiantao.domain.fudi.vo.UpgradeCellVO;
 import top.stillmisty.xiantao.domain.item.enums.InventoryCategory;
 import top.stillmisty.xiantao.domain.item.vo.ItemEntry;
-import top.stillmisty.xiantao.service.*;
+import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.beast.BeastBreedingService;
 import top.stillmisty.xiantao.service.fudi.FarmService;
 import top.stillmisty.xiantao.service.fudi.FudiService;
 import top.stillmisty.xiantao.service.inventory.InventoryService;
 
-/** 地灵可用的工具函数（Function Calling） 这些工具会被 LLM 调用，以执行福地相关的操作 */
+/** 地灵可用的工具函数（Function Calling） */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -35,93 +35,50 @@ public class SpiritTools {
   private final BeastBreedingService beastBreedingService;
   private final InventoryService inventoryService;
 
-  /** 查询福地地块状态工具 */
   @Tool(description = "查询福地地块状态，返回空位编号。种植/建造前必调")
   public GetCellStatusResponse getCellStatus() {
     try {
       Long userId = UserContext.requireCurrentUserId();
       CellStatusVO result = fudiService.getCellStatus(userId);
-
-      String message;
-      if (result.emptyCount() == 0) {
-        message = String.format("福地已满（共%d个地块，全部占用）。", result.totalCells());
-      } else {
-        message =
-            String.format(
-                "福地共 %d 个地块，已占用 %d 个，还有 %d 个空位。可用地块编号：%s",
-                result.totalCells(),
-                result.occupiedCount(),
-                result.emptyCount(),
-                result.emptyCellIds().toString());
-      }
-
       return new GetCellStatusResponse(
-          true,
-          message,
           result.totalCells(),
           result.occupiedCount(),
           result.emptyCount(),
-          result.emptyCellIds());
+          result.emptyCellIds(),
+          null);
     } catch (Exception e) {
       log.error("查询地块状态失败", e);
-      return new GetCellStatusResponse(
-          false, "查询失败：" + e.getMessage(), 0, 0, 0, java.util.List.of());
+      return new GetCellStatusResponse(0, 0, 0, List.of(), e.getMessage());
     }
   }
 
-  /** 查询玩家背包工具 */
   @Tool(description = "查询背包物品。返回编号列表，后续可用编号进行种植/孵化等操作")
   public QueryBagResponse queryBag(@ToolParam(description = "要查询的类别") InventoryCategory category) {
     try {
       Long userId = UserContext.requireCurrentUserId();
-      String message =
-          switch (category) {
-            case SEED -> {
-              var list = inventoryService.getSeedInventory(userId);
-              if (list.isEmpty()) yield "背包中没有种子。";
-              yield formatInventoryList("种子", list);
-            }
-            case EQUIPMENT -> {
-              var list = inventoryService.getEquipmentInventory(userId);
-              if (list.isEmpty()) yield "背包中没有可装备的物品。";
-              var sb = new StringBuilder("【装备列表】\n");
-              for (var e : list) {
-                sb.append(e.index()).append(". ").append(e.name());
-                sb.append(" [").append(e.metadata()).append("]\n");
-              }
-              yield sb.toString().strip();
-            }
-            case BEAST_EGG -> {
-              var list = inventoryService.getEggInventory(userId);
-              if (list.isEmpty()) yield "背包中没有兽卵。";
-              yield formatInventoryList("兽卵", list);
-            }
-            default -> {
-              var type = category.toItemType();
-              if (type == null) yield "不支持的类别：" + category.getChineseName();
-              var list = inventoryService.getItemsByType(userId, type);
-              if (list.isEmpty()) yield "背包中没有" + category.getChineseName() + "。";
-              yield formatInventoryList(category.getChineseName(), list);
-            }
-          };
-      return new QueryBagResponse(true, message, category.getChineseName());
+      List<ItemEntry> items;
+      String bagError = null;
+      switch (category) {
+        case SEED -> items = inventoryService.getSeedInventory(userId);
+        case EQUIPMENT -> items = inventoryService.getEquipmentInventory(userId);
+        case BEAST_EGG -> items = inventoryService.getEggInventory(userId);
+        default -> {
+          var type = category.toItemType();
+          if (type == null) {
+            items = List.of();
+            bagError = "不支持的类别：" + category.getChineseName();
+          } else {
+            items = inventoryService.getItemsByType(userId, type);
+          }
+        }
+      }
+      return new QueryBagResponse(category.getChineseName(), items, bagError);
     } catch (Exception e) {
       log.error("查询背包失败: category={}", category, e);
-      return new QueryBagResponse(false, "查询背包失败：" + e.getMessage(), category.getChineseName());
+      return new QueryBagResponse(category.getChineseName(), List.of(), e.getMessage());
     }
   }
 
-  private static String formatInventoryList(String category, List<ItemEntry> list) {
-    var sb = new StringBuilder("【" + category + "列表】\n");
-    for (var e : list) {
-      sb.append(e.index()).append(". ").append(e.name());
-      if (e.quantity() > 1) sb.append(" x").append(e.quantity());
-      sb.append(" [").append(e.metadata()).append("]\n");
-    }
-    return sb.toString().strip();
-  }
-
-  /** 种植灵药工具 */
   @Tool(description = "在地块编号种植灵药。先调getCellStatus确认空位，再调queryBag选种子")
   @Transactional
   public PlantCropResponse plantCrop(
@@ -129,22 +86,14 @@ public class SpiritTools {
       @ToolParam(description = "种子编号或名称") String cropName) {
     try {
       Long userId = UserContext.requireCurrentUserId();
-
       FarmCellVO result = farmService.plantCropByInput(userId, position, cropName);
-
-      return new PlantCropResponse(
-          true,
-          String.format(
-              "已在地块 %s 种植%s，预计 %.1f 小时后成熟。", position, cropName, result.getBaseGrowthHours()),
-          position,
-          cropName);
+      return new PlantCropResponse(position, cropName, result.getBaseGrowthHours(), null);
     } catch (Exception e) {
       log.error("种植灵药失败: position={}, cropName={}", position, cropName, e);
-      return new PlantCropResponse(false, "种植失败：" + e.getMessage(), position, cropName);
+      return new PlantCropResponse(position, cropName, 0, e.getMessage());
     }
   }
 
-  /** 建造地块工具 */
   @Tool(description = "在地块编号建造灵田或兽栏")
   @Transactional
   public BuildCellResponse buildCell(
@@ -152,22 +101,14 @@ public class SpiritTools {
       @ToolParam(description = "地块类型") CellType cellType) {
     try {
       Long userId = UserContext.requireCurrentUserId();
-
       fudiService.buildCell(userId, position, cellType);
-
-      return new BuildCellResponse(
-          true,
-          String.format("已在地块 %s 建造%s。", position, cellType.getChineseName()),
-          position,
-          cellType.getChineseName());
+      return new BuildCellResponse(position, cellType.getChineseName(), null);
     } catch (Exception e) {
       log.error("建造地块失败: position={}, cellType={}", position, cellType, e);
-      return new BuildCellResponse(
-          false, "建造失败：" + e.getMessage(), position, cellType.getChineseName());
+      return new BuildCellResponse(position, cellType.getChineseName(), e.getMessage());
     }
   }
 
-  /** 孵化兽卵工具 */
   @Tool(description = "在兽栏地块孵化兽卵。先建兽栏，再调queryBag('兽卵')选卵")
   @Transactional
   public HatchBeastResponse hatchBeast(
@@ -175,129 +116,81 @@ public class SpiritTools {
       @ToolParam(description = "兽卵编号或名称") String eggName) {
     try {
       Long userId = UserContext.requireCurrentUserId();
-
       PenCellVO result = beastBreedingService.hatchBeastByInput(userId, position, eggName);
-
       long hours =
           java.time.Duration.between(java.time.LocalDateTime.now(), result.getMatureTime())
               .toHours();
       return new HatchBeastResponse(
-          true,
-          String.format(
-              "已在地块 %s 孵化%s（%s/T%d），预计 %d 小时后成熟。",
-              position, result.getBeastName(), result.getQuality(), result.getTier(), hours),
-          position,
-          result.getBeastName());
+          position, result.getBeastName(), result.getQuality(), result.getTier(), hours, null);
     } catch (Exception e) {
       log.error("孵化兽卵失败: position={}, eggName={}", position, eggName, e);
-      return new HatchBeastResponse(false, "孵化失败：" + e.getMessage(), position, eggName);
+      return new HatchBeastResponse(position, eggName, null, 0, 0, e.getMessage());
     }
   }
 
-  /** 拆除地块工具 */
   @Tool(description = "拆除地块建筑，腾出空位。种错了作物或需要换类型时用。")
   @Transactional
   public RemoveCellResponse removeCell(@ToolParam(description = "地块编号") String position) {
     try {
       Long userId = UserContext.requireCurrentUserId();
       var result = fudiService.removeCell(userId, position);
-
-      return new RemoveCellResponse(
-          true, String.format("已拆除地块 %s 的%s。", position, result.type()), position);
+      return new RemoveCellResponse(position, result.type(), null);
     } catch (Exception e) {
       log.error("拆除地块失败: position={}", position, e);
-      return new RemoveCellResponse(false, "拆除失败：" + e.getMessage(), position);
+      return new RemoveCellResponse(position, "", e.getMessage());
     }
   }
 
-  /** 收取地块产出的统一工具（灵田收获 + 兽栏收取） */
   @Tool(description = "收取地块产出（作物/兽栏）。传'all'全部收取")
   @Transactional
   public CollectProduceResponse collectProduce(
       @ToolParam(description = "地块编号或'all'") String position) {
     try {
       Long userId = UserContext.requireCurrentUserId();
-
       if ("all".equalsIgnoreCase(position)) {
         CollectAllVO result = fudiService.collectAll(userId);
-
-        if (result.totalItems() == 0) {
-          return new CollectProduceResponse(true, "现在没有可收取的内容。", position, 0);
-        }
         return new CollectProduceResponse(
-            true,
-            String.format(
-                "已收获 %d 块灵田、收取 %d 个兽栏，共获得 %d 份物资。",
-                result.harvested(), result.collected(), result.totalItems()),
-            position,
-            result.totalItems());
+            "all", result.harvested(), result.collected(), result.totalItems(), null);
       } else {
         CollectVO result = fudiService.collect(userId, position);
-        int items;
-        String message;
-        if ("FARM".equals(result.type())) {
-          items = result.yield();
-          message = String.format("已收获地块 %s 的%s，获得 %d 份。", position, result.cropName(), items);
-        } else {
-          items = result.totalItems();
-          message = String.format("已从地块 %s 收取了 %d 件%s产出。", position, items, result.beastName());
-        }
-
-        return new CollectProduceResponse(true, message, position, items);
+        boolean isFarm = "FARM".equals(result.type());
+        int harvested = isFarm ? 1 : 0;
+        int collected = isFarm ? 0 : 1;
+        int items = isFarm ? result.yield() : result.totalItems();
+        return new CollectProduceResponse(position, harvested, collected, items, null);
       }
     } catch (Exception e) {
       log.error("收取产出失败: position={}", position, e);
-      return new CollectProduceResponse(false, "收取失败：" + e.getMessage(), position, 0);
+      return new CollectProduceResponse(position, 0, 0, 0, e.getMessage());
     }
   }
 
-  /** 升级地块工具 */
   @Tool(description = "升级地块等级，需消耗灵石和材料。等级越高消耗越大")
   @Transactional
   public UpgradeCellResponse upgradeCell(@ToolParam(description = "地块编号") String position) {
     try {
       Long userId = UserContext.requireCurrentUserId();
       UpgradeCellVO result = fudiService.upgradeCell(userId, position);
-      return new UpgradeCellResponse(
-          true,
-          String.format(
-              "已将地块 %s 的%s从 Lv%d 升级至 Lv%d。",
-              position, result.type(), result.oldLevel(), result.newLevel()),
-          position,
-          result.oldLevel(),
-          result.newLevel());
+      return new UpgradeCellResponse(position, result.oldLevel(), result.newLevel(), null);
     } catch (Exception e) {
       log.error("升级地块失败: position={}", position, e);
-      return new UpgradeCellResponse(false, "升级失败：" + e.getMessage(), position, 0, 0);
+      return new UpgradeCellResponse(position, 0, 0, e.getMessage());
     }
   }
 
-  /** 赠送礼物工具 */
   @Tool(description = "赠送物品给地灵")
   @Transactional
   public GiveGiftResponse giveGift(@ToolParam(description = "物品名称") String itemName) {
     try {
       Long userId = UserContext.requireCurrentUserId();
       GiveGiftVO result = fudiService.giveGift(userId, itemName);
-
-      String message;
-      if (result.isLiked()) {
-        message = String.format("地灵收到%s，非常开心！好感度 %+d", result.itemName(), result.change());
-      } else if (result.isDisliked()) {
-        message = String.format("地灵嫌弃地看了一眼%s，好感度 %d", result.itemName(), result.change());
-      } else {
-        message = String.format("地灵礼貌地收下了%s，好感度 %+d", result.itemName(), result.change());
-      }
-
-      return new GiveGiftResponse(
-          true, message, result.itemName(), result.change(), result.reaction());
+      return new GiveGiftResponse(result.itemName(), result.change(), result.reaction(), null);
     } catch (Exception e) {
       log.error("赠送礼物失败: itemName={}", itemName, e);
-      return new GiveGiftResponse(false, "送礼失败：" + e.getMessage(), itemName, 0, "");
+      return new GiveGiftResponse(itemName, 0, "", e.getMessage());
     }
   }
 
-  /** 冒犯上报工具（由 LLM 主动调用） */
   @Tool(description = "玩家冒犯时调用。地灵自主判断")
   @Transactional
   public ReportOffenseResponse reportPlayerOffense(
@@ -307,73 +200,70 @@ public class SpiritTools {
       Long userId = UserContext.requireCurrentUserId();
       int clampedSeverity = Math.clamp(severity, 1, 5);
       fudiService.adjustSpiritAffection(userId, -clampedSeverity);
-      return new ReportOffenseResponse(true, reason, clampedSeverity);
+      return new ReportOffenseResponse(reason, clampedSeverity, null);
     } catch (Exception e) {
       log.error("冒犯上报失败: reason={}", reason, e);
-      return new ReportOffenseResponse(false, reason, 0);
+      return new ReportOffenseResponse(reason, 0, e.getMessage());
     }
   }
 
-  // ===================== 响应 Record 定义 =====================
+  public record GetCellStatusResponse(
+      @JsonPropertyDescription("总地块数") int totalCells,
+      @JsonPropertyDescription("已占用数") int occupiedCount,
+      @JsonPropertyDescription("空闲数") int emptyCount,
+      @JsonPropertyDescription("空闲地块编号列表") List<Integer> emptyCellIds,
+      @JsonPropertyDescription("错误信息，null 表示成功") String error) {}
 
   public record QueryBagResponse(
-      @JsonPropertyDescription("是否成功") boolean success,
-      @JsonPropertyDescription("物品列表文本") String message,
-      @JsonPropertyDescription("查询的类别") String category) {}
-
-  public record GetCellStatusResponse(
-      @JsonPropertyDescription("是否成功") boolean success,
-      @JsonPropertyDescription("结果消息") String message,
-      @JsonPropertyDescription("地块总数") int totalCells,
-      @JsonPropertyDescription("已占地块数") int occupiedCount,
-      @JsonPropertyDescription("空位数") int emptyCount,
-      @JsonPropertyDescription("可用地块编号列表") java.util.List<Integer> emptyCellIds) {}
+      @JsonPropertyDescription("查询类别") String category,
+      @JsonPropertyDescription("物品列表") List<ItemEntry> items,
+      @JsonPropertyDescription("错误信息，null 表示成功") String error) {}
 
   public record PlantCropResponse(
-      @JsonPropertyDescription("是否成功") boolean success,
-      @JsonPropertyDescription("结果消息") String message,
-      @JsonPropertyDescription("种植地块编号") String position,
-      @JsonPropertyDescription("作物名称") String cropName) {}
+      @JsonPropertyDescription("地块编号") String position,
+      @JsonPropertyDescription("作物名称") String cropName,
+      @JsonPropertyDescription("基础生长时间（小时）") double baseGrowthHours,
+      @JsonPropertyDescription("错误信息，null 表示成功") String error) {}
 
   public record BuildCellResponse(
-      @JsonPropertyDescription("是否成功") boolean success,
-      @JsonPropertyDescription("结果消息") String message,
-      @JsonPropertyDescription("建造地块编号") String position,
-      @JsonPropertyDescription("地块类型") String cellType) {}
+      @JsonPropertyDescription("地块编号") String position,
+      @JsonPropertyDescription("地块类型") String cellType,
+      @JsonPropertyDescription("错误信息，null 表示成功") String error) {}
 
   public record HatchBeastResponse(
-      @JsonPropertyDescription("是否成功") boolean success,
-      @JsonPropertyDescription("结果消息") String message,
-      @JsonPropertyDescription("孵化地块编号") String position,
-      @JsonPropertyDescription("灵兽名称") String beastName) {}
+      @JsonPropertyDescription("地块编号") String position,
+      @JsonPropertyDescription("兽名") String beastName,
+      @JsonPropertyDescription("品质") String quality,
+      @JsonPropertyDescription("阶位") int tier,
+      @JsonPropertyDescription("成熟所需小时") long matureHours,
+      @JsonPropertyDescription("错误信息，null 表示成功") String error) {}
 
   public record RemoveCellResponse(
-      @JsonPropertyDescription("是否成功") boolean success,
-      @JsonPropertyDescription("结果消息") String message,
-      @JsonPropertyDescription("拆除地块编号") String position) {}
+      @JsonPropertyDescription("地块编号") String position,
+      @JsonPropertyDescription("地块类型") String type,
+      @JsonPropertyDescription("错误信息，null 表示成功") String error) {}
 
   public record CollectProduceResponse(
-      @JsonPropertyDescription("是否成功") boolean success,
-      @JsonPropertyDescription("结果消息") String message,
-      @JsonPropertyDescription("收取地块编号") String position,
-      @JsonPropertyDescription("收取数量") int collected) {}
+      @JsonPropertyDescription("地块编号或'all'") String position,
+      @JsonPropertyDescription("收获的灵田数") int harvested,
+      @JsonPropertyDescription("收取的兽栏数") int collected,
+      @JsonPropertyDescription("总产出数") int totalItems,
+      @JsonPropertyDescription("错误信息，null 表示成功") String error) {}
 
   public record GiveGiftResponse(
-      @JsonPropertyDescription("是否成功") boolean success,
-      @JsonPropertyDescription("结果消息") String message,
       @JsonPropertyDescription("物品名称") String itemName,
       @JsonPropertyDescription("好感度变化") int affectionChange,
-      @JsonPropertyDescription("地灵反应") String reaction) {}
+      @JsonPropertyDescription("地灵反应") String reaction,
+      @JsonPropertyDescription("错误信息，null 表示成功") String error) {}
 
   public record UpgradeCellResponse(
-      @JsonPropertyDescription("是否成功") boolean success,
-      @JsonPropertyDescription("结果消息") String message,
       @JsonPropertyDescription("地块编号") String position,
-      @JsonPropertyDescription("旧等级") int oldLevel,
-      @JsonPropertyDescription("新等级") int newLevel) {}
+      @JsonPropertyDescription("升级前等级") int oldLevel,
+      @JsonPropertyDescription("升级后等级") int newLevel,
+      @JsonPropertyDescription("错误信息，null 表示成功") String error) {}
 
   public record ReportOffenseResponse(
-      @JsonPropertyDescription("是否成功") boolean success,
       @JsonPropertyDescription("冒犯原因") String reason,
-      @JsonPropertyDescription("冒犯程度 1~5") int severity) {}
+      @JsonPropertyDescription("冒犯程度（1~5）") int severity,
+      @JsonPropertyDescription("错误信息，null 表示成功") String error) {}
 }

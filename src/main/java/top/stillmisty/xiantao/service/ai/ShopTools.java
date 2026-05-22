@@ -125,7 +125,7 @@ public class ShopTools {
       ShopNpc npc = shopService.findByLocation(user.getLocationId());
 
       if (itemId == null || itemId.isBlank()) {
-        return new SellResult(false, 0, itemName, "需要提供物品ID");
+        return new SellResult(0, itemName, "需要提供物品ID");
       }
 
       try {
@@ -136,17 +136,17 @@ public class ShopTools {
           try {
             return shopService.sellStackableItem(userId, npc, id, confirmedPrice);
           } catch (BusinessException e2) {
-            return new SellResult(false, 0, itemName, e2.getMessage());
+            return new SellResult(0, itemName, e2.getMessage());
           }
         }
       } catch (NumberFormatException e) {
-        return new SellResult(false, 0, itemName, "物品ID格式错误");
+        return new SellResult(0, itemName, "物品ID格式错误");
       }
     } catch (BusinessException e) {
-      return new SellResult(false, 0, itemName, e.getMessage());
+      return new SellResult(0, itemName, e.getMessage());
     } catch (Exception e) {
       log.error("出售失败: itemName={}, itemId={}", itemName, itemId, e);
-      return new SellResult(false, 0, itemName, "出售失败：" + e.getMessage());
+      return new SellResult(0, itemName, "出售失败：" + e.getMessage());
     }
   }
 
@@ -180,10 +180,10 @@ public class ShopTools {
 
       return shopService.purchaseItem(userId, npc, template.getId(), quantity);
     } catch (BusinessException e) {
-      return new PurchaseResult(false, templateName, quantity, 0, e.getMessage());
+      return new PurchaseResult(templateName, quantity, 0, e.getMessage());
     } catch (Exception e) {
       log.error("购买物品失败: templateName={}, quantity={}", templateName, quantity, e);
-      return new PurchaseResult(false, templateName, quantity, 0, "购买失败：" + e.getMessage());
+      return new PurchaseResult(templateName, quantity, 0, "购买失败：" + e.getMessage());
     }
   }
 
@@ -198,17 +198,15 @@ public class ShopTools {
 
       var template = equipmentTemplateRepository.findByName(templateName).orElse(null);
       if (template == null) {
-        return new EquipmentPurchaseResult(
-            false, templateName, "COMMON", 0, "未找到装备：" + templateName);
+        return new EquipmentPurchaseResult(templateName, "COMMON", 0, "", "未找到装备：" + templateName);
       }
 
       return shopService.purchaseEquipment(userId, npc, template.getId());
     } catch (BusinessException e) {
-      return new EquipmentPurchaseResult(false, templateName, "COMMON", 0, e.getMessage());
+      return new EquipmentPurchaseResult(templateName, "COMMON", 0, "", e.getMessage());
     } catch (Exception e) {
       log.error("购买装备失败: templateName={}", templateName, e);
-      return new EquipmentPurchaseResult(
-          false, templateName, "COMMON", 0, "购买失败：" + e.getMessage());
+      return new EquipmentPurchaseResult(templateName, "COMMON", 0, "", "购买失败：" + e.getMessage());
     }
   }
 

@@ -153,12 +153,7 @@ public class ShopService {
 
     addStackableItem(userId, template, quantity);
 
-    return new PurchaseResult(
-        true,
-        template.getName(),
-        quantity,
-        totalPrice,
-        "购买成功！获得 " + template.getName() + " x" + quantity + "，花费 " + totalPrice + " 灵石");
+    return new PurchaseResult(template.getName(), quantity, totalPrice, null);
   }
 
   @Transactional
@@ -227,7 +222,7 @@ public class ShopService {
     }
 
     return new EquipmentPurchaseResult(
-        true, equipment.getName(), rarity.getCode(), price, description);
+        equipment.getName(), rarity.getCode(), price, description, null);
   }
 
   @Transactional
@@ -264,8 +259,7 @@ public class ShopService {
 
     double acceptanceRate = 1.0 - (confirmedPrice - minPrice) / (double) (maxPrice - minPrice);
     if (Math.random() > acceptanceRate) {
-      return new SellResult(
-          false, confirmedPrice, itemName, "掌柜对你的报价不满意：" + itemName + " 未能售出，试着多降些价吧");
+      return new SellResult(confirmedPrice, itemName, "掌柜对你的报价不满意：" + itemName + " 未能售出，试着多降些价吧");
     }
 
     if (item.reduceQuantity(1)) {
@@ -276,16 +270,7 @@ public class ShopService {
 
     userRepository.addSpiritStonesAtomically(userId, confirmedPrice);
 
-    return new SellResult(
-        true,
-        confirmedPrice,
-        itemName,
-        "出售成功！"
-            + itemName
-            + " 售出 "
-            + confirmedPrice
-            + " 灵石"
-            + (quantity > 1 ? "（剩余 " + item.getQuantity() + " 个）" : ""));
+    return new SellResult(confirmedPrice, itemName, null);
   }
 
   @Transactional
@@ -322,11 +307,7 @@ public class ShopService {
     userRepository.addSpiritStonesAtomically(userId, confirmedPrice);
     equipmentRepository.deleteById(equipment.getId());
 
-    return new SellResult(
-        true,
-        confirmedPrice,
-        equipmentName,
-        "出售成功！" + equipmentName + " 售出 " + confirmedPrice + " 灵石");
+    return new SellResult(confirmedPrice, equipmentName, null);
   }
 
   public AppraisalResult appraiseStackableItem(Long userId, ShopNpc npc, Long itemId) {

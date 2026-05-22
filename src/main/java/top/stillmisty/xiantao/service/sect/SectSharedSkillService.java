@@ -19,6 +19,11 @@ import top.stillmisty.xiantao.domain.sect.enums.SectSharedSkillStatus;
 import top.stillmisty.xiantao.domain.sect.repository.SectMemberRepository;
 import top.stillmisty.xiantao.domain.sect.repository.SectRepository;
 import top.stillmisty.xiantao.domain.sect.repository.SectSharedSkillRepository;
+import top.stillmisty.xiantao.domain.sect.vo.LearnSkillResultVO;
+import top.stillmisty.xiantao.domain.sect.vo.SectSharedSkillVO;
+import top.stillmisty.xiantao.domain.sect.vo.SharedSkillsQueryVO;
+import top.stillmisty.xiantao.domain.sect.vo.SkillOperationResultVO;
+import top.stillmisty.xiantao.domain.sect.vo.SubmitJadeResultVO;
 import top.stillmisty.xiantao.domain.skill.entity.PlayerSkill;
 import top.stillmisty.xiantao.domain.skill.entity.Skill;
 import top.stillmisty.xiantao.domain.skill.repository.PlayerSkillRepository;
@@ -55,7 +60,8 @@ public class SectSharedSkillService {
   @Authenticated
   public ServiceResult<String> getSharedSkills(PlatformType platform, String openId) {
     Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(getSharedSkills(userId));
+    SharedSkillsQueryVO vo = getSharedSkills(userId);
+    return new ServiceResult.Success<>(formatSharedSkillsText(vo));
   }
 
   @Authenticated
@@ -63,7 +69,15 @@ public class SectSharedSkillService {
   public ServiceResult<String> learnSharedSkill(
       PlatformType platform, String openId, long sharedSkillId) {
     Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(learnSharedSkill(userId, sharedSkillId));
+    LearnSkillResultVO vo = learnSharedSkill(userId, sharedSkillId);
+    return new ServiceResult.Success<>(
+        "成功学会「"
+            + vo.skillName()
+            + "」！消耗 "
+            + vo.cost()
+            + " 贡献，剩余贡献: "
+            + vo.remainingContribution()
+            + "。");
   }
 
   @Authenticated
@@ -71,7 +85,9 @@ public class SectSharedSkillService {
   public ServiceResult<String> submitSkillJade(
       PlatformType platform, String openId, String jadeName) {
     Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(submitSkillJade(userId, jadeName));
+    SubmitJadeResultVO vo = submitSkillJade(userId, jadeName);
+    return new ServiceResult.Success<>(
+        "已提交「" + vo.skillName() + "」到宗门，获得 " + vo.contributionGained() + " 贡献。需长老/宗主上架后方可学习。");
   }
 
   @Authenticated
@@ -79,7 +95,8 @@ public class SectSharedSkillService {
   public ServiceResult<String> removeSharedSkill(
       PlatformType platform, String openId, long sharedSkillId) {
     Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(removeSharedSkill(userId, sharedSkillId));
+    SkillOperationResultVO vo = removeSharedSkill(userId, sharedSkillId);
+    return new ServiceResult.Success<>("已下架「" + vo.skillName() + "」，已学习的成员不受影响。");
   }
 
   @Authenticated
@@ -87,13 +104,14 @@ public class SectSharedSkillService {
   public ServiceResult<String> listSharedSkill(
       PlatformType platform, String openId, long sharedSkillId) {
     Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(listSharedSkill(userId, sharedSkillId));
+    SkillOperationResultVO vo = listSharedSkill(userId, sharedSkillId);
+    return new ServiceResult.Success<>("已上架「" + vo.skillName() + "」，宗门成员可以学习了。");
   }
 
   // ===================== 内部 API =====================
 
   @Cacheable(cacheNames = "sect_shared_skills", key = "#userId")
-  public String getSharedSkills(Long userId) {
+  public SharedSkillsQueryVO getSharedSkills(Long userId) {
     SectMember member = requireMember(userId);
     Sect sect =
         sectRepository
@@ -104,57 +122,44 @@ public class SectSharedSkillService {
     List<SectSharedSkill> listedSkills =
         sectSharedSkillRepository.findBySectIdAndStatus(
             member.getSectId(), SectSharedSkillStatus.LISTED);
-    long listedCount = listedSkills.size();
 
-    StringBuilder sb = new StringBuilder();
-    sb.append("=== 宗门共享功法 ===\n");
-    sb.append("功法位: ").append(listedCount).append("/").append(maxSlots);
+    List<SectSharedSkillVO> skillVOs =
+        listedSkills.stream()
+            .map(
+                ss -> {
+                  Skill skill = skillRepository.findById(ss.getSkillId()).orElse(null);
+                  String skillName = skill != null ? skill.getName() : "[未知]";
+                  int reqLevel =
+                      skill != null && skill.getLevelRequirement() != null
+                          ? skill.getLevelRequirement()
+                          : 0;
+                  int cost = reqLevel * 50;
+                  return new SectSharedSkillVO(
+                      ss.getId(),
+                      ss.getSkillId(),
+                      skillName,
+                      null,
+                      reqLevel,
+                      cost,
+                      ss.getStatus(),
+                      null);
+                })
+            .toList();
+
+    int pendingCount = 0;
     if (member.getPosition().canManageSkills()) {
-      List<SectSharedSkill> pendingSkills =
-          sectSharedSkillRepository.findBySectIdAndStatus(
-              member.getSectId(), SectSharedSkillStatus.PENDING);
-      if (!pendingSkills.isEmpty()) {
-        sb.append(" (待上架: ").append(pendingSkills.size()).append(")");
-      }
-    }
-    sb.append("\n我的贡献: ").append(member.getContribution()).append("\n");
-    sb.append("（学习消耗: 功法等级 × 50 贡献）\n\n");
-
-    if (listedSkills.isEmpty()) {
-      sb.append("暂无可学的共享功法。");
-      if (member.getPosition().canManageSkills()) {
-        List<SectSharedSkill> pendingSkills =
-            sectSharedSkillRepository.findBySectIdAndStatus(
-                member.getSectId(), SectSharedSkillStatus.PENDING);
-        if (!pendingSkills.isEmpty()) {
-          sb.append("\n有 ").append(pendingSkills.size()).append(" 本待上架功法。");
-        }
-      }
-      return sb.toString();
+      pendingCount =
+          (int)
+              sectSharedSkillRepository.countBySectIdAndStatus(
+                  member.getSectId(), SectSharedSkillStatus.PENDING);
     }
 
-    for (SectSharedSkill ss : listedSkills) {
-      Skill skill = skillRepository.findById(ss.getSkillId()).orElse(null);
-      String skillName = skill != null ? skill.getName() : "[未知]";
-      int reqLevel =
-          skill != null && skill.getLevelRequirement() != null ? skill.getLevelRequirement() : 0;
-      int cost = reqLevel * 50;
-      sb.append("  [#")
-          .append(ss.getId())
-          .append("] ")
-          .append(skillName)
-          .append(" (Lv")
-          .append(reqLevel)
-          .append("+ | ")
-          .append(cost)
-          .append("贡献)\n");
-    }
-
-    return sb.toString();
+    return new SharedSkillsQueryVO(
+        member.getContribution(), listedSkills.size(), maxSlots, skillVOs, pendingCount);
   }
 
   @Transactional
-  public String learnSharedSkill(Long userId, long sharedSkillId) {
+  public LearnSkillResultVO learnSharedSkill(Long userId, long sharedSkillId) {
     SectMember member = requireMember(userId);
 
     SectSharedSkill sharedSkill =
@@ -198,20 +203,14 @@ public class SectSharedSkillService {
     playerSkillRepository.save(playerSkill);
 
     log.info("玩家 {} 从宗门 {} 学习共享功法 {}", userId, member.getSectId(), skill.getName());
-    return "成功学会「"
-        + skill.getName()
-        + "」！消耗 "
-        + cost
-        + " 贡献，剩余贡献: "
-        + member.getContribution()
-        + "。";
+    return new LearnSkillResultVO(skill.getName(), cost, member.getContribution());
   }
 
   @Transactional
-  public String submitSkillJade(Long userId, String jadeName) {
+  public SubmitJadeResultVO submitSkillJade(Long userId, String jadeName) {
     SectMember member = requireMember(userId);
 
-    List<top.stillmisty.xiantao.domain.item.entity.StackableItem> jadeItems =
+    List<StackableItem> jadeItems =
         stackableItemRepository.findByUserId(userId).stream()
             .filter(si -> si.getItemType() == ItemType.SKILL_JADE)
             .toList();
@@ -266,16 +265,16 @@ public class SectSharedSkillService {
     sectMemberRepository.save(member);
 
     log.info("玩家 {} 提交功法玉简 {} 到宗门 {}", userId, skill.getName(), member.getSectId());
-    return "已提交「" + skill.getName() + "」到宗门，获得 " + SKILL_SUBMIT_CONTRIBUTION + " 贡献。需长老/宗主上架后方可学习。";
+    return new SubmitJadeResultVO(skill.getName(), SKILL_SUBMIT_CONTRIBUTION);
   }
 
   @Transactional
-  public String removeSharedSkill(Long userId, long sharedSkillId) {
+  public SkillOperationResultVO removeSharedSkill(Long userId, long sharedSkillId) {
     SectMember member = requireMember(userId);
     SectSharedSkill sharedSkill = requireManageableSharedSkill(member, sharedSkillId);
 
     if (sharedSkill.getStatus() != SectSharedSkillStatus.LISTED) {
-      return "该功法尚未上架。";
+      throw new BusinessException(ErrorCode.SECT_SHARED_SKILL_NOT_LISTED);
     }
 
     sharedSkill.setStatus(SectSharedSkillStatus.PENDING);
@@ -283,16 +282,16 @@ public class SectSharedSkillService {
 
     Skill skill = skillRepository.findById(sharedSkill.getSkillId()).orElse(null);
     String skillName = skill != null ? skill.getName() : "[" + sharedSkillId + "]";
-    return "已下架「" + skillName + "」，已学习的成员不受影响。";
+    return new SkillOperationResultVO(skillName);
   }
 
   @Transactional
-  public String listSharedSkill(Long userId, long sharedSkillId) {
+  public SkillOperationResultVO listSharedSkill(Long userId, long sharedSkillId) {
     SectMember member = requireMember(userId);
     SectSharedSkill sharedSkill = requireManageableSharedSkill(member, sharedSkillId);
 
     if (sharedSkill.getStatus() != SectSharedSkillStatus.PENDING) {
-      return "该功法已上架或状态异常。";
+      throw new BusinessException(ErrorCode.SECT_SHARED_SKILL_ALREADY_LISTED);
     }
 
     int maxSlots = sectBuildingService.getScriptureSlotCount(member.getSectId());
@@ -308,7 +307,41 @@ public class SectSharedSkillService {
 
     Skill skill = skillRepository.findById(sharedSkill.getSkillId()).orElse(null);
     String skillName = skill != null ? skill.getName() : "[" + sharedSkillId + "]";
-    return "已上架「" + skillName + "」，宗门成员可以学习了。";
+    return new SkillOperationResultVO(skillName);
+  }
+
+  // ===================== 格式化 =====================
+
+  private static String formatSharedSkillsText(SharedSkillsQueryVO vo) {
+    StringBuilder sb = new StringBuilder();
+    sb.append("=== 宗门共享功法 ===\n");
+    sb.append("功法位: ").append(vo.usedSlots()).append("/").append(vo.maxSlots());
+    if (vo.pendingCount() > 0) {
+      sb.append(" (待上架: ").append(vo.pendingCount()).append(")");
+    }
+    sb.append("\n我的贡献: ").append(vo.myContribution()).append("\n");
+    sb.append("（学习消耗: 功法等级 × 50 贡献）\n\n");
+
+    if (vo.skills().isEmpty()) {
+      sb.append("暂无可学的共享功法。");
+      if (vo.pendingCount() > 0) {
+        sb.append("\n有 ").append(vo.pendingCount()).append(" 本待上架功法。");
+      }
+    } else {
+      for (var s : vo.skills()) {
+        sb.append("  [#")
+            .append(s.sharedSkillId())
+            .append("] ")
+            .append(s.skillName())
+            .append(" (Lv")
+            .append(s.levelRequirement())
+            .append("+ | ")
+            .append(s.contributionCost())
+            .append("贡献)\n");
+      }
+    }
+
+    return sb.toString();
   }
 
   private SectSharedSkill requireManageableSharedSkill(SectMember member, long sharedSkillId) {
@@ -326,8 +359,6 @@ public class SectSharedSkillService {
     }
     return sharedSkill;
   }
-
-  // ===================== 工具方法 =====================
 
   private SectMember requireMember(Long userId) {
     return sectMemberRepository

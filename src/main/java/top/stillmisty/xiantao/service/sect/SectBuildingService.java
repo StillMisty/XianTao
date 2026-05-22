@@ -17,6 +17,9 @@ import top.stillmisty.xiantao.domain.sect.enums.SectBuildingType;
 import top.stillmisty.xiantao.domain.sect.repository.SectBuildingRepository;
 import top.stillmisty.xiantao.domain.sect.repository.SectMemberRepository;
 import top.stillmisty.xiantao.domain.sect.repository.SectRepository;
+import top.stillmisty.xiantao.domain.sect.vo.BuildResultVO;
+import top.stillmisty.xiantao.domain.sect.vo.BuildingsQueryVO;
+import top.stillmisty.xiantao.domain.sect.vo.UpgradeBuildingResultVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
@@ -41,7 +44,8 @@ public class SectBuildingService {
   @Authenticated
   public ServiceResult<String> getBuildings(PlatformType platform, String openId) {
     Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(getBuildings(userId));
+    BuildingsQueryVO vo = getBuildings(userId);
+    return new ServiceResult.Success<>(formatBuildingsText(vo));
   }
 
   @Authenticated
@@ -49,7 +53,17 @@ public class SectBuildingService {
   public ServiceResult<String> buildStructure(
       PlatformType platform, String openId, String buildingTypeCode) {
     Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(buildStructure(userId, buildingTypeCode));
+    BuildResultVO vo = buildStructure(userId, buildingTypeCode);
+    return new ServiceResult.Success<>(
+        "已建造"
+            + vo.buildingName()
+            + " Lv."
+            + vo.level()
+            + "，消耗资金 "
+            + vo.cost()
+            + "（剩余 "
+            + vo.remainingFunds()
+            + "）。");
   }
 
   @Authenticated
@@ -57,49 +71,53 @@ public class SectBuildingService {
   public ServiceResult<String> upgradeBuilding(
       PlatformType platform, String openId, String buildingTypeCode) {
     Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(upgradeBuilding(userId, buildingTypeCode));
+    UpgradeBuildingResultVO vo = upgradeBuilding(userId, buildingTypeCode);
+    return new ServiceResult.Success<>(
+        "已将"
+            + vo.buildingName()
+            + " 从 Lv."
+            + vo.oldLevel()
+            + " 升级至 Lv."
+            + vo.newLevel()
+            + "，消耗资金 "
+            + vo.cost()
+            + "（剩余 "
+            + vo.remainingFunds()
+            + "）。");
   }
 
   // ===================== 内部 API =====================
 
   @Cacheable(cacheNames = "sect_buildings", key = "#userId")
-  public String getBuildings(Long userId) {
+  public BuildingsQueryVO getBuildings(Long userId) {
     SectMember member = requireMember(userId);
     List<SectBuilding> buildings = sectBuildingRepository.findBySectId(member.getSectId());
 
-    StringBuilder sb = new StringBuilder();
-    sb.append("=== 宗门建筑 ===\n");
+    List<BuildingsQueryVO.BuildingEntry> built =
+        buildings.stream()
+            .map(
+                b -> {
+                  var type = b.getBuildingType();
+                  return new BuildingsQueryVO.BuildingEntry(
+                      type.getCode(),
+                      type.getName(),
+                      b.getLevel(),
+                      type.getMaxLevel(),
+                      type.upgradeCost(),
+                      0);
+                })
+            .toList();
 
-    if (buildings.isEmpty()) {
-      sb.append("暂无建筑，宗主可消耗宗门资金建造。\n\n");
-    } else {
-      for (SectBuilding b : buildings) {
-        sb.append("  ")
-            .append(b.getBuildingType().getName())
-            .append(" Lv.")
-            .append(b.getLevel())
-            .append("/")
-            .append(b.getBuildingType().getMaxLevel())
-            .append(" | 升级: ")
-            .append(b.getBuildingType().upgradeCost())
-            .append(" 灵石\n");
-      }
-      sb.append("\n");
-    }
+    List<BuildingsQueryVO.BuildingEntry> buildable =
+        java.util.Arrays.stream(SectBuildingType.values())
+            .filter(type -> buildings.stream().noneMatch(b -> b.getBuildingType() == type))
+            .map(
+                type ->
+                    new BuildingsQueryVO.BuildingEntry(
+                        type.getCode(), type.getName(), 0, 0, 0, type.getBuildCost()))
+            .toList();
 
-    sb.append("可建造建筑：\n");
-    for (SectBuildingType type : SectBuildingType.values()) {
-      boolean built = buildings.stream().anyMatch(b -> b.getBuildingType() == type);
-      if (!built) {
-        sb.append("  ")
-            .append(type.getName())
-            .append(" | 建造: ")
-            .append(type.getBuildCost())
-            .append(" 灵石\n");
-      }
-    }
-
-    return sb.toString();
+    return new BuildingsQueryVO(built, buildable);
   }
 
   @Transactional
@@ -108,7 +126,7 @@ public class SectBuildingService {
         @CacheEvict(cacheNames = "sect_buildings", allEntries = true),
         @CacheEvict(cacheNames = "sect_overview", allEntries = true)
       })
-  public String buildStructure(Long userId, String buildingTypeCode) {
+  public BuildResultVO buildStructure(Long userId, String buildingTypeCode) {
     SectMember member = requireMember(userId);
     if (!member.getPosition().canManage()) {
       throw new BusinessException(ErrorCode.SECT_NOT_LEADER);
@@ -125,9 +143,9 @@ public class SectBuildingService {
             .findById(member.getSectId())
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_FOUND));
 
-    if (!sect.deductFunds(type.getBuildCost())) {
-      throw new BusinessException(
-          ErrorCode.SECT_FUNDS_INSUFFICIENT, type.getBuildCost(), sect.getFunds());
+    long cost = type.getBuildCost();
+    if (!sect.deductFunds(cost)) {
+      throw new BusinessException(ErrorCode.SECT_FUNDS_INSUFFICIENT, cost, sect.getFunds());
     }
     sectRepository.save(sect);
 
@@ -136,7 +154,7 @@ public class SectBuildingService {
     sectBuildingRepository.save(building);
 
     log.info("宗门 {} 建造建筑 {} Lv.1", sect.getId(), type.getName());
-    return "已建造" + type.getName() + " Lv.1，消耗资金 " + type.getBuildCost() + "。";
+    return new BuildResultVO(type.getCode(), type.getName(), 1, cost, sect.getFunds());
   }
 
   @Transactional
@@ -145,7 +163,7 @@ public class SectBuildingService {
         @CacheEvict(cacheNames = "sect_buildings", allEntries = true),
         @CacheEvict(cacheNames = "sect_overview", allEntries = true)
       })
-  public String upgradeBuilding(Long userId, String buildingTypeCode) {
+  public UpgradeBuildingResultVO upgradeBuilding(Long userId, String buildingTypeCode) {
     SectMember member = requireMember(userId);
     if (!member.getPosition().canManage()) {
       throw new BusinessException(ErrorCode.SECT_NOT_LEADER);
@@ -183,15 +201,8 @@ public class SectBuildingService {
         type.getName(),
         oldLevel,
         building.getLevel());
-    return "已将"
-        + type.getName()
-        + "从 Lv."
-        + oldLevel
-        + " 升级至 Lv."
-        + building.getLevel()
-        + "，消耗资金 "
-        + cost
-        + "。";
+    return new UpgradeBuildingResultVO(
+        type.getCode(), type.getName(), oldLevel, building.getLevel(), cost, sect.getFunds());
   }
 
   // ===================== 建筑加成查询 =====================
@@ -259,6 +270,37 @@ public class SectBuildingService {
     }
   }
 
+  // ===================== 格式化 =====================
+
+  private static String formatBuildingsText(BuildingsQueryVO vo) {
+    StringBuilder sb = new StringBuilder();
+    sb.append("=== 宗门建筑 ===\n");
+
+    if (vo.built().isEmpty()) {
+      sb.append("暂无建筑，宗主可消耗宗门资金建造。\n\n");
+    } else {
+      for (var b : vo.built()) {
+        sb.append("  ")
+            .append(b.name())
+            .append(" Lv.")
+            .append(b.level())
+            .append("/")
+            .append(b.maxLevel())
+            .append(" | 升级: ")
+            .append(b.upgradeCost())
+            .append(" 灵石\n");
+      }
+      sb.append("\n");
+    }
+
+    sb.append("可建造建筑：\n");
+    for (var b : vo.buildable()) {
+      sb.append("  ").append(b.name()).append(" | 建造: ").append(b.buildCost()).append(" 灵石\n");
+    }
+
+    return sb.toString();
+  }
+
   private SectBuildingType resolveBuildingType(String buildingTypeCode) {
     try {
       return SectBuildingType.fromCode(buildingTypeCode);
@@ -266,8 +308,6 @@ public class SectBuildingService {
       throw new BusinessException(ErrorCode.SECT_BUILDING_NOT_FOUND);
     }
   }
-
-  // ===================== 工具方法 =====================
 
   private SectMember requireMember(Long userId) {
     return sectMemberRepository

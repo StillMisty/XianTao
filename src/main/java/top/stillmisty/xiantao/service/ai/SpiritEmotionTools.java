@@ -1,6 +1,5 @@
 package top.stillmisty.xiantao.service.ai;
 
-import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,11 +42,10 @@ public class SpiritEmotionTools {
       spiritRepository.save(spirit);
 
       log.debug("地灵情绪更新 - userId: {}, emotion: {}", userId, emotionState);
-      return new UpdateEmotionResponse(
-          true, "情绪已更新为：" + emotionState.getDescription(), emotionState.name());
+      return new UpdateEmotionResponse(emotionState.name(), null);
     } catch (Exception e) {
       log.error("更新情绪失败 - error: {}", e.getMessage());
-      return new UpdateEmotionResponse(false, "更新情绪失败：" + e.getMessage(), "");
+      return new UpdateEmotionResponse("", e.getMessage());
     }
   }
 
@@ -61,10 +59,10 @@ public class SpiritEmotionTools {
       chatMemory.add(conversationId, List.of(new SystemMessage(thought)));
 
       log.debug("地灵想法已记录 - userId: {}, thought: {}", userId, thought);
-      return new AddThoughtResponse(true, "想法已记录");
+      return new AddThoughtResponse(null);
     } catch (Exception e) {
       log.error("记录想法失败 - error: {}", e.getMessage());
-      return new AddThoughtResponse(false, "记录想法失败：" + e.getMessage());
+      return new AddThoughtResponse(e.getMessage());
     }
   }
 
@@ -75,14 +73,7 @@ public class SpiritEmotionTools {
         .getId();
   }
 
-  // ===================== 响应 Record 定义 =====================
+  public record UpdateEmotionResponse(String emotionState, String error) {}
 
-  public record UpdateEmotionResponse(
-      @JsonPropertyDescription("是否成功") boolean success,
-      @JsonPropertyDescription("结果消息") String message,
-      @JsonPropertyDescription("当前情绪状态") String emotionState) {}
-
-  public record AddThoughtResponse(
-      @JsonPropertyDescription("是否成功") boolean success,
-      @JsonPropertyDescription("结果消息") String message) {}
+  public record AddThoughtResponse(String error) {}
 }

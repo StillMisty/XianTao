@@ -12,6 +12,9 @@ import top.stillmisty.xiantao.domain.sect.entity.SectMember;
 import top.stillmisty.xiantao.domain.sect.entity.SectShopItem;
 import top.stillmisty.xiantao.domain.sect.repository.SectMemberRepository;
 import top.stillmisty.xiantao.domain.sect.repository.SectShopItemRepository;
+import top.stillmisty.xiantao.domain.sect.vo.ExchangeResultVO;
+import top.stillmisty.xiantao.domain.sect.vo.SectShopItemVO;
+import top.stillmisty.xiantao.domain.sect.vo.ShopQueryVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
@@ -34,7 +37,8 @@ public class SectShopService {
   @Authenticated
   public ServiceResult<String> getShop(PlatformType platform, String openId) {
     Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(getShop(userId));
+    ShopQueryVO vo = getShop(userId);
+    return new ServiceResult.Success<>(formatShopText(vo));
   }
 
   @Authenticated
@@ -42,46 +46,38 @@ public class SectShopService {
   public ServiceResult<String> exchangeShopItem(
       PlatformType platform, String openId, long shopItemId) {
     Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(exchangeShopItem(userId, shopItemId));
+    ExchangeResultVO vo = exchangeShopItem(userId, shopItemId);
+    return new ServiceResult.Success<>(
+        "兑换成功！获得 " + vo.itemName() + "，剩余贡献: " + vo.remainingContribution() + "。");
   }
 
   // ===================== 内部 API =====================
 
   @Cacheable(cacheNames = "sect_shop", key = "#userId")
-  public String getShop(Long userId) {
+  public ShopQueryVO getShop(Long userId) {
     SectMember member = requireMember(userId);
     List<SectShopItem> items = sectShopItemRepository.findBySectId(member.getSectId());
 
-    if (items.isEmpty()) {
-      return "宗门贡献商店暂无商品。";
-    }
+    List<SectShopItemVO> itemVOs =
+        items.stream()
+            .map(
+                item -> {
+                  ItemTemplate template =
+                      itemTemplateRepository.findById(item.getItemTemplateId()).orElse(null);
+                  return new SectShopItemVO(
+                      item.getId(),
+                      template != null ? template.getName() : "[未知]",
+                      item.getPriceContribution(),
+                      item.getStock());
+                })
+            .toList();
 
-    StringBuilder sb = new StringBuilder();
-    sb.append("=== 宗门贡献商店 ===\n");
-    sb.append("我的贡献: ").append(member.getContribution()).append("\n\n");
-
-    for (SectShopItem item : items) {
-      ItemTemplate template =
-          itemTemplateRepository.findById(item.getItemTemplateId()).orElse(null);
-      String itemName = template != null ? template.getName() : "[未知]";
-      sb.append("  [#").append(item.getId()).append("] ").append(itemName);
-      sb.append(" | 贡献: ").append(item.getPriceContribution());
-      if (item.getStock() == -1) {
-        sb.append(" (无限)");
-      } else if (item.getStock() == 0) {
-        sb.append(" (售罄)");
-      } else {
-        sb.append(" (库存: ").append(item.getStock()).append(")");
-      }
-      sb.append("\n");
-    }
-
-    return sb.toString();
+    return new ShopQueryVO(member.getContribution(), itemVOs);
   }
 
   @Transactional
-  @CacheEvict(cacheNames = "sect_shop", key = "#userId")
-  public String exchangeShopItem(Long userId, long shopItemId) {
+  @CacheEvict(cacheNames = "sect_shop", allEntries = true)
+  public ExchangeResultVO exchangeShopItem(Long userId, long shopItemId) {
     SectMember member = requireMember(userId);
 
     SectShopItem shopItem =
@@ -120,10 +116,37 @@ public class SectShopService {
     stackableItemService.addStackableItem(
         userId, template.getId(), template.getType(), template.getName(), 1);
 
-    return "兑换成功！获得 " + template.getName() + "，剩余贡献: " + member.getContribution() + "。";
+    return new ExchangeResultVO(template.getName(), member.getContribution());
   }
 
   // ===================== 工具方法 =====================
+
+  private static String formatShopText(ShopQueryVO vo) {
+    List<SectShopItemVO> items = vo.items();
+    if (items.isEmpty()) {
+      return "宗门贡献商店暂无商品。";
+    }
+
+    StringBuilder sb = new StringBuilder();
+    sb.append("=== 宗门贡献商店 ===\n");
+    sb.append("我的贡献: ").append(vo.myContribution()).append("\n\n");
+
+    for (SectShopItemVO item : items) {
+      sb.append("  [#").append(item.id()).append("] ").append(item.itemName());
+      sb.append(" | 贡献: ").append(item.priceContribution());
+      int stock = item.stock();
+      if (stock == -1) {
+        sb.append(" (无限)");
+      } else if (stock == 0) {
+        sb.append(" (售罄)");
+      } else {
+        sb.append(" (库存: ").append(stock).append(")");
+      }
+      sb.append("\n");
+    }
+
+    return sb.toString();
+  }
 
   private SectMember requireMember(Long userId) {
     return sectMemberRepository

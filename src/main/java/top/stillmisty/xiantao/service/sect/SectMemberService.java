@@ -21,6 +21,10 @@ import top.stillmisty.xiantao.domain.sect.repository.SectMemberRepository;
 import top.stillmisty.xiantao.domain.sect.repository.SectRepository;
 import top.stillmisty.xiantao.domain.sect.repository.SectSharedSkillRepository;
 import top.stillmisty.xiantao.domain.sect.repository.SectShopItemRepository;
+import top.stillmisty.xiantao.domain.sect.vo.DonateResultVO;
+import top.stillmisty.xiantao.domain.sect.vo.ExpandMembersResultVO;
+import top.stillmisty.xiantao.domain.sect.vo.TasksQueryVO;
+import top.stillmisty.xiantao.domain.sect.vo.UpgradeSectResultVO;
 import top.stillmisty.xiantao.domain.skill.repository.PlayerSkillRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
@@ -129,27 +133,51 @@ public class SectMemberService {
   @Transactional
   public ServiceResult<String> donateStones(PlatformType platform, String openId, long amount) {
     Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(donateStones(userId, amount));
+    DonateResultVO vo = donateStones(userId, amount);
+    return new ServiceResult.Success<>(
+        "捐献成功！消耗 " + amount + " 灵石，获得 " + vo.contributionGained() + " 贡献值，宗门资金 +" + amount + "。");
   }
 
   @Authenticated
   public ServiceResult<String> getTasks(PlatformType platform, String openId) {
     Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(getTasks(userId));
+    TasksQueryVO vo = getTasks(userId);
+    return new ServiceResult.Success<>(
+        vo.tasks().isEmpty() ? "暂无进行中的宗门事件任务。" : "有 " + vo.tasks().size() + " 个进行中的任务。");
   }
 
   @Authenticated
   @Transactional
   public ServiceResult<String> upgradeSect(PlatformType platform, String openId) {
     Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(upgradeSect(userId));
+    UpgradeSectResultVO vo = upgradeSect(userId);
+    return new ServiceResult.Success<>(
+        "宗门升级成功！当前等级 Lv."
+            + vo.newLevel()
+            + "，成员上限 "
+            + vo.newMaxMembers()
+            + "，消耗资金 "
+            + vo.cost()
+            + "（剩余 "
+            + vo.remainingFunds()
+            + "）。");
   }
 
   @Authenticated
   @Transactional
   public ServiceResult<String> expandMembers(PlatformType platform, String openId) {
     Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(expandMembers(userId));
+    ExpandMembersResultVO vo = expandMembers(userId);
+    return new ServiceResult.Success<>(
+        "扩充成功！成员上限 +"
+            + vo.addedSlots()
+            + "（当前 "
+            + vo.newMaxMembers()
+            + "），消耗资金 "
+            + vo.cost()
+            + "（剩余 "
+            + vo.remainingFunds()
+            + "）。");
   }
 
   // ===================== 内部 API =====================
@@ -541,7 +569,7 @@ public class SectMemberService {
   }
 
   @Transactional
-  public String donateStones(Long userId, long amount) {
+  public DonateResultVO donateStones(Long userId, long amount) {
     SectMember member = requireMember(userId);
 
     if (amount <= 0) {
@@ -561,17 +589,17 @@ public class SectMemberService {
     member.setContribution(member.getContribution() + contributionGain);
     sectMemberRepository.save(member);
 
-    return "捐献成功！消耗 " + amount + " 灵石，获得 " + contributionGain + " 贡献值，宗门资金 +" + amount + "。";
+    return new DonateResultVO(contributionGain);
   }
 
-  public String getTasks(Long userId) {
+  public TasksQueryVO getTasks(Long userId) {
     requireMember(userId);
-    return "暂无进行中的宗门事件任务。";
+    return new TasksQueryVO(java.util.List.of());
   }
 
   @Transactional
   @CacheEvict(cacheNames = "sect_overview", allEntries = true)
-  public String upgradeSect(Long userId) {
+  public UpgradeSectResultVO upgradeSect(Long userId) {
     SectMember member = requireMember(userId);
     if (member.getPosition().canManage()) {
       throw new BusinessException(ErrorCode.SECT_NOT_LEADER);
@@ -583,7 +611,7 @@ public class SectMemberService {
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_FOUND));
 
     if (sect.isMaxLevel()) {
-      return "宗门已达最高等级 Lv.5。";
+      throw new BusinessException(ErrorCode.SECT_UPGRADE_MAX_LEVEL);
     }
 
     long cost =
@@ -599,25 +627,18 @@ public class SectMemberService {
       throw new BusinessException(ErrorCode.SECT_FUNDS_INSUFFICIENT, cost, sect.getFunds());
     }
 
-    sect.setLevel(sect.getLevel() + 1);
+    int oldLevel = sect.getLevel();
+    sect.setLevel(oldLevel + 1);
     sect.setMaxMembers(sect.getMaxMembers() + 5);
     sectRepository.save(sect);
 
     log.info("宗门 {} 升级至 Lv.{}，消耗 {} 资金", sect.getId(), sect.getLevel(), cost);
-    return "宗门升级成功！当前等级 Lv."
-        + sect.getLevel()
-        + "，成员上限 +5（"
-        + sect.getMaxMembers()
-        + "），消耗资金 "
-        + cost
-        + "（剩余 "
-        + sect.getFunds()
-        + "）。";
+    return new UpgradeSectResultVO(sect.getLevel(), sect.getMaxMembers(), cost, sect.getFunds());
   }
 
   @Transactional
   @CacheEvict(cacheNames = "sect_overview", allEntries = true)
-  public String expandMembers(Long userId) {
+  public ExpandMembersResultVO expandMembers(Long userId) {
     SectMember member = requireMember(userId);
     if (member.getPosition().canManage()) {
       throw new BusinessException(ErrorCode.SECT_NOT_LEADER);
@@ -639,7 +660,7 @@ public class SectMemberService {
     sectRepository.save(sect);
 
     log.info("宗门 {} 扩充成员上限至 {}", sect.getId(), sect.getMaxMembers());
-    return "扩充成功！成员上限 +" + slots + "（当前 " + sect.getMaxMembers() + "），消耗资金 " + cost + "。";
+    return new ExpandMembersResultVO(slots, sect.getMaxMembers(), cost, sect.getFunds());
   }
 
   // ===================== 跨服务接口 =====================
