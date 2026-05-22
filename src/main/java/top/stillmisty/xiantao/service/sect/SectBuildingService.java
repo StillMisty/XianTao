@@ -5,6 +5,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.sect.entity.Sect;
@@ -59,6 +62,7 @@ public class SectBuildingService {
 
   // ===================== 内部 API =====================
 
+  @Cacheable(cacheNames = "sect_buildings", key = "#userId")
   public String getBuildings(Long userId) {
     SectMember member = requireMember(userId);
     List<SectBuilding> buildings = sectBuildingRepository.findBySectId(member.getSectId());
@@ -99,6 +103,11 @@ public class SectBuildingService {
   }
 
   @Transactional
+  @Caching(
+      evict = {
+        @CacheEvict(cacheNames = "sect_buildings", allEntries = true),
+        @CacheEvict(cacheNames = "sect_overview", allEntries = true)
+      })
   public String buildStructure(Long userId, String buildingTypeCode) {
     SectMember member = requireMember(userId);
     if (!member.getPosition().canManage()) {
@@ -131,6 +140,11 @@ public class SectBuildingService {
   }
 
   @Transactional
+  @Caching(
+      evict = {
+        @CacheEvict(cacheNames = "sect_buildings", allEntries = true),
+        @CacheEvict(cacheNames = "sect_overview", allEntries = true)
+      })
   public String upgradeBuilding(Long userId, String buildingTypeCode) {
     SectMember member = requireMember(userId);
     if (!member.getPosition().canManage()) {
@@ -182,6 +196,7 @@ public class SectBuildingService {
 
   // ===================== 建筑加成查询 =====================
 
+  @Cacheable(cacheNames = "sect_buildings", key = "'level:' + #sectId + ':' + #type.code")
   public int getBuildingLevel(Long sectId, SectBuildingType type) {
     return sectBuildingRepository
         .findBySectIdAndType(sectId, type)

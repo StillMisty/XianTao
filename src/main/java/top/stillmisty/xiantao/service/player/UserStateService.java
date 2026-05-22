@@ -34,6 +34,7 @@ public class UserStateService {
     return user;
   }
 
+  @Transactional
   public User loadUserForUpdate(Long userId) {
     User user =
         userRepository

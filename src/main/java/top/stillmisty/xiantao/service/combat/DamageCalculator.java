@@ -88,15 +88,17 @@ public class DamageCalculator {
               .replaceAll("\\s+", "");
       return evaluateExpression(expr);
     } catch (Exception e) {
+      int fallback = Math.max(1, pc.getAttack());
       log.warn(
-          "公式计算失败: formula={}, wis={}, str={}, agi={}, atk={}",
+          "公式计算失败, 使用攻击力作为兜底值 {}: formula={}, wis={}, str={}, agi={}, atk={}",
+          fallback,
           formula,
           pc.getWis(),
           pc.getStr(),
           pc.getAgi(),
           pc.getAttack(),
           e);
-      return 10;
+      return fallback;
     }
   }
 

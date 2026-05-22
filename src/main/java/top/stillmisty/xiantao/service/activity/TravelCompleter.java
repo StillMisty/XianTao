@@ -5,6 +5,7 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.event.EventContextKeys;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
 import top.stillmisty.xiantao.domain.event.entity.GameEvent;
@@ -46,6 +47,7 @@ public class TravelCompleter {
     this.activityEventHelper = activityEventHelper;
   }
 
+  @Transactional
   public void completeTravel(Long userId, User user, MapNode fromMap, MapNode toMap) {
     Map<String, Object> arrivalArgs =
         Map.of(

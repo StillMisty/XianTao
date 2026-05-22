@@ -7,6 +7,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -100,6 +101,7 @@ public class DungeonService {
 
   // ===================== 内部 API =====================
 
+  @Cacheable(cacheNames = "dungeon_list", key = "#userId")
   public List<DungeonListVO> listDungeons(Long userId) {
     User user = userStateService.loadUser(userId);
     List<DungeonTemplate> templates = dungeonTemplateRepository.findActive();

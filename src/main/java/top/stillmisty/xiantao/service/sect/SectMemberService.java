@@ -2,10 +2,14 @@ package top.stillmisty.xiantao.service.sect;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -150,6 +154,7 @@ public class SectMemberService {
 
   // ===================== 内部 API =====================
 
+  @Cacheable(cacheNames = "sect_overview", key = "#userId")
   public String getSectOverview(Long userId) {
     User user = userStateService.loadUser(userId);
     SectMember member = requireMember(userId);
@@ -182,8 +187,15 @@ public class SectMemberService {
     }
 
     sb.append("\n成员列表:\n");
+    List<Long> memberUserIds = members.stream().map(SectMember::getUserId).distinct().toList();
+    Map<Long, User> memberUserMap =
+        memberUserIds.isEmpty()
+            ? Map.of()
+            : userRepository.findByIds(memberUserIds).stream()
+                .collect(Collectors.toMap(User::getId, u -> u));
     for (SectMember m : members) {
-      User memberUser = userStateService.loadUser(m.getUserId());
+      User memberUser = memberUserMap.get(m.getUserId());
+      if (memberUser == null) continue;
       sb.append("  ")
           .append(m.getPosition().getName())
           .append(" ")
@@ -200,6 +212,7 @@ public class SectMemberService {
   }
 
   @Transactional
+  @CacheEvict(cacheNames = "sect_overview", allEntries = true)
   public String createSect(Long userId, String name, String ethosDesc) {
     User user = userStateService.loadUserForUpdate(userId);
 
@@ -368,6 +381,7 @@ public class SectMemberService {
   }
 
   @Transactional
+  @CacheEvict(cacheNames = "sect_overview", allEntries = true)
   public String kickMember(Long userId, String targetNickname) {
     SectMember actorMember = requireMember(userId);
 
@@ -405,6 +419,7 @@ public class SectMemberService {
   }
 
   @Transactional
+  @CacheEvict(cacheNames = "sect_overview", allEntries = true)
   public String leaveSect(Long userId) {
     SectMember member = requireMember(userId);
 
@@ -477,6 +492,7 @@ public class SectMemberService {
   }
 
   @Transactional
+  @CacheEvict(cacheNames = "sect_overview", allEntries = true)
   public String dismissSect(Long userId) {
     SectMember member = requireMember(userId);
     if (member.getPosition().canManage()) {
@@ -554,6 +570,7 @@ public class SectMemberService {
   }
 
   @Transactional
+  @CacheEvict(cacheNames = "sect_overview", allEntries = true)
   public String upgradeSect(Long userId) {
     SectMember member = requireMember(userId);
     if (member.getPosition().canManage()) {
@@ -599,6 +616,7 @@ public class SectMemberService {
   }
 
   @Transactional
+  @CacheEvict(cacheNames = "sect_overview", allEntries = true)
   public String expandMembers(Long userId) {
     SectMember member = requireMember(userId);
     if (member.getPosition().canManage()) {

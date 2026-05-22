@@ -2,6 +2,8 @@ package top.stillmisty.xiantao.service.sect;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
@@ -45,6 +47,7 @@ public class SectShopService {
 
   // ===================== 内部 API =====================
 
+  @Cacheable(cacheNames = "sect_shop", key = "#userId")
   public String getShop(Long userId) {
     SectMember member = requireMember(userId);
     List<SectShopItem> items = sectShopItemRepository.findBySectId(member.getSectId());
@@ -77,6 +80,7 @@ public class SectShopService {
   }
 
   @Transactional
+  @CacheEvict(cacheNames = "sect_shop", key = "#userId")
   public String exchangeShopItem(Long userId, long shopItemId) {
     SectMember member = requireMember(userId);
 

@@ -5,6 +5,7 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.event.EventContextKeys;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
 import top.stillmisty.xiantao.domain.event.entity.GameEvent;
@@ -30,6 +31,7 @@ public class TrainingCompleter {
   private final ActivityEventHelper activityEventHelper;
   private final FortuneService fortuneService;
 
+  @Transactional
   public void produceCompletionEvent(
       Long userId, User user, MapNode mapNode, long minutesTraining) {
     Map<String, Object> args = Map.of("mapName", mapNode.getName(), "minutes", minutesTraining);
@@ -38,6 +40,7 @@ public class TrainingCompleter {
             .withNarrative("你在{{mapName}}历练了 {{minutes}} 分钟，有所收获。", args));
   }
 
+  @Transactional
   public void produceInterruptedEvent(Long userId, MapNode mapNode) {
     Map<String, Object> args = Map.of("mapName", mapNode.getName());
     gameEventService.save(
@@ -46,6 +49,7 @@ public class TrainingCompleter {
   }
 
   /** 处理单个非 COMBAT 事件（由统一循环调用） */
+  @Transactional
   public void handleNumericEvent(
       Long userId, User user, ActivityEvent event, Map<String, Object> context) {
     Map<String, Object> templateArgs = effectExecutor.execute(event, userId, user, context);
@@ -56,6 +60,7 @@ public class TrainingCompleter {
   }
 
   /** 检查历练隐藏事件 */
+  @Transactional
   public void checkHiddenEvents(Long userId, User user, MapNode mapNode) {
     var fortune = fortuneService.calculate(userId);
     var hiddenEvents =

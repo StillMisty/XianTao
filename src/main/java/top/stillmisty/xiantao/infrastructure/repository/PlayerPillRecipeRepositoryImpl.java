@@ -51,8 +51,11 @@ public class PlayerPillRecipeRepositoryImpl implements PlayerPillRecipeRepositor
 
   @Override
   public void deleteByUserIdAndRecipeTemplateId(Long userId, Long recipeTemplateId) {
-    mapper
-        .selectByUserIdAndRecipeTemplateId(userId, recipeTemplateId)
-        .ifPresent(recipe -> mapper.deleteById(recipe.getId()));
+    mapper.deleteByQuery(
+        com.mybatisflex.core.query.QueryWrapper.create()
+            .eq(top.stillmisty.xiantao.domain.pill.entity.PlayerPillRecipe::getUserId, userId)
+            .eq(
+                top.stillmisty.xiantao.domain.pill.entity.PlayerPillRecipe::getRecipeTemplateId,
+                recipeTemplateId));
   }
 }

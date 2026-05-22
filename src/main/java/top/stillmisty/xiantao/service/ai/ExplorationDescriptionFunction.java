@@ -44,7 +44,7 @@ public class ExplorationDescriptionFunction {
 
       return new Response(description != null ? description.trim() : buildFallback(request));
     } catch (Exception e) {
-      log.error("LLM 生成探索描述失败，使用兜底描述", e);
+      log.warn("LLM 生成探索描述失败，使用兜底描述", e);
       return new Response(buildFallback(request));
     }
   }

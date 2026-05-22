@@ -8,6 +8,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.bounty.BountyRewardItem;
@@ -94,6 +95,7 @@ public class BountyService {
 
   // ===================== 内部 API =====================
 
+  @Cacheable(cacheNames = "bounties", key = "#userId")
   public List<BountyVO> listBounties(Long userId) {
     User user = userStateService.loadUser(userId);
     MapNode mapNode =
@@ -146,6 +148,7 @@ public class BountyService {
         .toList();
   }
 
+  @Cacheable(cacheNames = "bounties", key = "'status:' + #userId")
   public BountyStatusVO getBountyStatus(Long userId) {
     UserBounty record = userBountyRepository.findActiveByUserId(userId).orElse(null);
     if (record == null) {

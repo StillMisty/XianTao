@@ -3,10 +3,13 @@ package top.stillmisty.xiantao.service.ai;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.stereotype.Service;
+import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
 import top.stillmisty.xiantao.domain.fudi.entity.*;
 import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
@@ -188,6 +191,9 @@ public class SpiritChatService extends AbstractChatService {
     }
 
     sb.append("【已占地块详情】\n");
+    Map<Long, Beast> beastCache =
+        beastRepository.findByFudiId(fudi.getId()).stream()
+            .collect(Collectors.toMap(Beast::getId, b -> b));
     for (FudiCell cell : farmCells) {
       sb.append("- [").append(cell.getCellId()).append("] FARM");
       if (cell.getConfig() instanceof CellConfig.FarmConfig farm) {
@@ -207,9 +213,8 @@ public class SpiritChatService extends AbstractChatService {
     for (FudiCell cell : penCells) {
       sb.append("- [").append(cell.getCellId()).append("] PEN");
       if (cell.getConfig() instanceof CellConfig.PenConfig pen) {
-        beastRepository
-            .findById(pen.beastId())
-            .ifPresent(beast -> sb.append(" 饲养:").append(beast.getBeastName()));
+        Beast beast = beastCache.get(pen.beastId());
+        if (beast != null) sb.append(" 饲养:").append(beast.getBeastName());
       }
       sb.append("\n");
     }

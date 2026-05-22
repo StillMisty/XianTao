@@ -3,8 +3,9 @@ package top.stillmisty.xiantao.service.player;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -170,10 +171,12 @@ public class CharacterStatusService {
     List<DaoProtection> protectingList = daoProtectionRepository.findByProtectorId(userId);
     List<DaoProtection> protectedByList = daoProtectionRepository.findByProtegeId(userId);
 
+    Map<Long, User> userCache = buildUserCache(protectingList, protectedByList);
+
     List<CharacterStatusResult.ProtectionInfoVO> protectingVOList =
-        convertToProtectionInfoVO(protectingList, user);
+        convertToProtectionInfoVO(protectingList, user, userCache);
     List<CharacterStatusResult.ProtectionInfoVO> protectedByVOList =
-        convertToProtectionInfoVOWithBonus(protectedByList, user);
+        convertToProtectionInfoVOWithBonus(protectedByList, user, userCache);
 
     double totalProtectionBonus =
         protectedByVOList.stream()
@@ -254,8 +257,17 @@ public class CharacterStatusService {
         equipment.getFinalDefense());
   }
 
+  private Map<Long, User> buildUserCache(
+      List<DaoProtection> protectingList, List<DaoProtection> protectedByList) {
+    var ids = new java.util.ArrayList<Long>();
+    protectingList.forEach(p -> ids.add(p.getProtegeId()));
+    protectedByList.forEach(p -> ids.add(p.getProtectorId()));
+    if (ids.isEmpty()) return Map.of();
+    return userRepository.findByIds(ids).stream().collect(Collectors.toMap(User::getId, u -> u));
+  }
+
   private List<CharacterStatusResult.ProtectionInfoVO> convertToProtectionInfoVO(
-      List<DaoProtection> protections, User currentUser) {
+      List<DaoProtection> protections, User currentUser, Map<Long, User> userCache) {
     if (protections == null || protections.isEmpty()) {
       return List.of();
     }
@@ -263,12 +275,11 @@ public class CharacterStatusService {
     return protections.stream()
         .map(
             protection -> {
-              Optional<User> targetUserOpt = userRepository.findById(protection.getProtegeId());
-              if (targetUserOpt.isEmpty()) {
+              User targetUser = userCache.get(protection.getProtegeId());
+              if (targetUser == null) {
                 return null;
               }
 
-              User targetUser = targetUserOpt.get();
               boolean inSameLocation = SharedKernel.isInSameLocation(currentUser, targetUser);
               double bonus = SharedKernel.calculateSingleProtectorBonus(currentUser, targetUser);
 
@@ -289,7 +300,7 @@ public class CharacterStatusService {
   }
 
   private List<CharacterStatusResult.ProtectionInfoVO> convertToProtectionInfoVOWithBonus(
-      List<DaoProtection> protections, User currentUser) {
+      List<DaoProtection> protections, User currentUser, Map<Long, User> userCache) {
     if (protections == null || protections.isEmpty()) {
       return List.of();
     }
@@ -297,12 +308,11 @@ public class CharacterStatusService {
     return protections.stream()
         .map(
             protection -> {
-              Optional<User> protectorOpt = userRepository.findById(protection.getProtectorId());
-              if (protectorOpt.isEmpty()) {
+              User protector = userCache.get(protection.getProtectorId());
+              if (protector == null) {
                 return null;
               }
 
-              User protector = protectorOpt.get();
               boolean inSameLocation = SharedKernel.isInSameLocation(currentUser, protector);
 
               double bonus = 0.0;

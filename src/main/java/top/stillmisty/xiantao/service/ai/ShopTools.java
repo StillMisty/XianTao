@@ -254,6 +254,7 @@ public class ShopTools {
     try {
       return shopService.appraiseEquipment(userId, npc, equipmentId);
     } catch (Exception e) {
+      log.debug("鉴定装备失败, fallback: equipmentId={}", equipmentId, e);
       return null;
     }
   }
@@ -262,6 +263,7 @@ public class ShopTools {
     try {
       return shopService.appraiseStackableItem(userId, npc, itemId);
     } catch (Exception e) {
+      log.debug("鉴定堆叠物品失败, fallback: itemId={}", itemId, e);
       return null;
     }
   }

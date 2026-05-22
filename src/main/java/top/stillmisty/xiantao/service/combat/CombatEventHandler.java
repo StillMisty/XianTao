@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
@@ -53,6 +54,7 @@ public class CombatEventHandler {
 
   private volatile List<Skill> allSkillsCache;
 
+  @Transactional
   public EncounterResult handle(
       ActivityEvent event,
       Long userId,
@@ -281,8 +283,12 @@ public class CombatEventHandler {
   private List<Skill> getAllSkills() {
     List<Skill> cache = allSkillsCache;
     if (cache == null) {
-      cache = skillRepository.findAll();
-      allSkillsCache = cache;
+      synchronized (this) {
+        if (allSkillsCache == null) {
+          allSkillsCache = skillRepository.findAll();
+        }
+      }
+      cache = allSkillsCache;
     }
     return cache;
   }

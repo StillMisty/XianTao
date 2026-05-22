@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.forge.vo.EnhanceResultVO;
 import top.stillmisty.xiantao.domain.item.entity.*;
 import top.stillmisty.xiantao.domain.item.enums.AffixType;
@@ -135,6 +136,7 @@ public class EnhancementCore {
     return false;
   }
 
+  @Transactional
   EnhanceResultVO applyEnhanceSuccess(
       Equipment equipment,
       int targetLevel,
@@ -164,6 +166,7 @@ public class EnhancementCore {
         milestoneReward);
   }
 
+  @Transactional
   EnhanceResultVO applyEnhanceFailure(
       Equipment equipment,
       int currentLevel,

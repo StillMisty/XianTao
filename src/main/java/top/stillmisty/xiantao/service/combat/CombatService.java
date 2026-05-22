@@ -6,6 +6,7 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
@@ -171,6 +172,7 @@ public class CombatService {
   // ===================== 战斗后 HP 应用 =====================
 
   /** 战后更新灵兽HP（死亡→取消部署+恢复计时，存活+自愈突变） */
+  @Transactional
   public void applyCombatHpToBeasts(CombatTeam team) {
     for (Combatant c : team.members()) {
       if (c instanceof BeastCombatant bc) {

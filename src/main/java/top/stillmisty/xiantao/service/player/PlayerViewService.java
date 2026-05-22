@@ -3,6 +3,7 @@ package top.stillmisty.xiantao.service.player;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
@@ -34,6 +35,7 @@ public class PlayerViewService {
     return new ServiceResult.Success<>(viewPlayer(userId, targetNickname));
   }
 
+  @Cacheable(cacheNames = "player_view", key = "#targetNickname")
   public PlayerViewVO viewPlayer(Long userId, String targetNickname) {
     User target =
         userRepository

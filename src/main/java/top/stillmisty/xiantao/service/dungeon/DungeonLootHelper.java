@@ -1,10 +1,11 @@
 package top.stillmisty.xiantao.service.dungeon;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonPoiConfig;
 import top.stillmisty.xiantao.domain.dungeon.enums.PoiType;
 import top.stillmisty.xiantao.domain.dungeon.vo.DropItemVO;
@@ -25,6 +26,7 @@ public class DungeonLootHelper {
   private final StackableItemService stackableItemService;
   private final SpiritStoneService spiritStoneService;
 
+  @Transactional
   public ExploreResultVO executeGather(User user, DungeonPoiConfig poi) {
     List<DropItemVO> drops = rollLoot(poi);
     long spiritStones = ThreadLocalRandom.current().nextInt(10, 31);
@@ -43,6 +45,7 @@ public class DungeonLootHelper {
         "你在" + poi.getName() + "中采集到了一些物资。");
   }
 
+  @Transactional
   public ExploreResultVO executeSearch(User user, DungeonPoiConfig poi) {
     List<DropItemVO> drops = rollLoot(poi);
     long spiritStones = ThreadLocalRandom.current().nextInt(20, 81);
@@ -79,18 +82,23 @@ public class DungeonLootHelper {
                     poi.getPoiType() == PoiType.BOSS ? 3 : 1,
                     poi.getPoiType() == PoiType.BOSS ? 5 : 2);
 
+    List<LootPoolEntry> entries = new ArrayList<>();
     for (int i = 0; i < rollCount; i++) {
       LootPoolEntry entry =
           WeightedRandom.select(
               poi.getLootPool(), LootPoolEntry::weight, ThreadLocalRandom.current());
-      if (entry == null) continue;
+      if (entry != null) entries.add(entry);
+    }
+    if (entries.isEmpty()) return drops;
 
+    List<Long> templateIds = entries.stream().map(LootPoolEntry::templateId).distinct().toList();
+    Map<Long, String> nameLookup =
+        itemTemplateRepository.findByIds(templateIds).stream()
+            .collect(Collectors.toMap(ItemTemplate::getId, ItemTemplate::getName));
+
+    for (LootPoolEntry entry : entries) {
       int qty = ThreadLocalRandom.current().nextInt(entry.minQty(), entry.maxQty() + 1);
-      String itemName =
-          itemTemplateRepository
-              .findById(entry.templateId())
-              .map(ItemTemplate::getName)
-              .orElse("未知物品");
+      String itemName = nameLookup.getOrDefault(entry.templateId(), "未知物品");
       drops.add(new DropItemVO(itemName, qty));
     }
     return drops;
@@ -98,15 +106,16 @@ public class DungeonLootHelper {
 
   public void giveDrops(Long userId, List<DropItemVO> drops, long spiritStones) {
     for (DropItemVO drop : drops) {
-      var template = itemTemplateRepository.findByName(drop.name());
-      template.ifPresent(
-          itemTemplate ->
-              stackableItemService.addStackableItem(
-                  userId,
-                  itemTemplate.getId(),
-                  itemTemplate.getType(),
-                  itemTemplate.getName(),
-                  drop.quantity()));
+      itemTemplateRepository
+          .findByName(drop.name())
+          .ifPresent(
+              template ->
+                  stackableItemService.addStackableItem(
+                      userId,
+                      template.getId(),
+                      template.getType(),
+                      template.getName(),
+                      drop.quantity()));
     }
     if (spiritStones > 0) {
       spiritStoneService.deposit(userId, spiritStones);

@@ -6,6 +6,7 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.bounty.BountyRewardItem;
 import top.stillmisty.xiantao.domain.bounty.entity.UserBounty;
 import top.stillmisty.xiantao.domain.event.EventContextKeys;
@@ -33,6 +34,7 @@ public class BountyCompleter {
   private final FortuneService fortuneService;
 
   /** 悬赏完成叙事 */
+  @Transactional
   public void produceCompletionEvent(
       Long userId, String bountyName, List<BountyRewardItem> items, long spiritStones) {
     Map<String, Object> args = Map.of("bountyName", bountyName, "spiritStones", spiritStones);
@@ -43,6 +45,7 @@ public class BountyCompleter {
   }
 
   /** 悬赏已可领取提示 */
+  @Transactional
   public void produceReadyEvent(Long userId, String bountyName) {
     Map<String, Object> args = Map.of("bountyName", bountyName);
     gameEventService.save(
@@ -51,6 +54,7 @@ public class BountyCompleter {
   }
 
   /** 悬赏子事件调节主奖励 — 通过 context 传出修改后的灵石数 */
+  @Transactional
   public void rollBountySideEvent(
       Long userId, User user, Long bountyId, String bountyName, Map<String, Object> context) {
     ActivityEvent selected =
@@ -68,6 +72,7 @@ public class BountyCompleter {
   }
 
   /** 检查悬赏隐藏事件 */
+  @Transactional
   public void checkHiddenEvents(Long userId, User user, UserBounty record) {
     var fortune = fortuneService.calculate(userId);
     var hiddenEvents =

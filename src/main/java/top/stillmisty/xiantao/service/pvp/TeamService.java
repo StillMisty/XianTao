@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.team.entity.Team;
@@ -76,6 +77,7 @@ public class TeamService {
 
   // ===================== 内部 API =====================
 
+  @Cacheable(cacheNames = "team_status", key = "#userId")
   public String getTeamStatus(Long userId) {
     User user = userStateService.loadUser(userId);
     StringBuilder sb = new StringBuilder();

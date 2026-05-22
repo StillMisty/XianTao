@@ -11,6 +11,8 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
@@ -100,12 +102,15 @@ public class ShopService {
 
   // ===================== 内部 API（供 Tools 调用） =====================
 
+  @Cacheable(cacheNames = "shop_products", key = "#userId")
   public ProductListVO listProducts(Long userId) {
     User user = userStateService.loadUser(userId);
     ShopNpc npc = findByLocation(user.getLocationId());
     return listProducts(npc);
   }
 
+  @Transactional
+  @CacheEvict(cacheNames = "shop_products", key = "#userId")
   public PurchaseResult purchaseItem(Long userId, ShopNpc npc, Long templateId, int quantity) {
     if (quantity <= 0) {
       throw new BusinessException(ErrorCode.PARAM_INVALID, "数量必须大于0");
@@ -157,6 +162,7 @@ public class ShopService {
   }
 
   @Transactional
+  @CacheEvict(cacheNames = "shop_products", key = "#userId")
   public EquipmentPurchaseResult purchaseEquipment(Long userId, ShopNpc npc, Long templateId) {
     ShopProduct product =
         shopProductRepository
@@ -407,6 +413,7 @@ public class ShopService {
         true, newPrice, discount, "罢了罢了，看你诚心，让利 " + discount + " 灵石，算你 " + newPrice + " 灵石吧");
   }
 
+  @Cacheable(cacheNames = "shop_player_items", key = "'equipment:' + #userId")
   public EquipmentListVO queryPlayerEquipment(Long userId) {
     List<Equipment> unequipped = equipmentRepository.findUnequippedByUserId(userId);
     List<EquipmentListVO.EquipmentEntry> entries =
@@ -427,6 +434,7 @@ public class ShopService {
     return new EquipmentListVO(entries);
   }
 
+  @Cacheable(cacheNames = "shop_player_items", key = "'items:' + #userId")
   public PlayerItemsVO queryPlayerItems(Long userId) {
     List<Equipment> unequipped = equipmentRepository.findUnequippedByUserId(userId);
     List<StackableItem> items = stackableItemRepository.findByUserId(userId);
@@ -464,12 +472,14 @@ public class ShopService {
 
   // ===================== 辅助方法 =====================
 
+  @Cacheable(cacheNames = "shop_locations", key = "#locationId")
   public ShopNpc findByLocation(Long locationId) {
     return shopNpcRepository
         .findByMapNodeId(locationId)
         .orElseThrow(() -> new BusinessException(ErrorCode.SHOP_NOT_FOUND));
   }
 
+  @Cacheable(cacheNames = "shop_locations", key = "'exists:' + #locationId")
   public boolean hasShopAtLocation(Long locationId) {
     return shopNpcRepository.findByMapNodeId(locationId).isPresent();
   }

@@ -9,6 +9,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.fudi.entity.CellConfig;
 import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
@@ -36,6 +37,7 @@ public class BeastProductionService {
   private final FudiHelper fudiHelper;
   private final BeastDisplayHelper beastDisplayHelper;
 
+  @Transactional
   public CollectVO collectBeastProduce(Fudi fudi, FudiCell cell, Integer cellId) {
     if (beastDisplayHelper.isIncubating(cell)) {
       throw new BusinessException(BEAST_HATCHING);

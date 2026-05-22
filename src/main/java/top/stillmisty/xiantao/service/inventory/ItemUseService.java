@@ -3,6 +3,7 @@ package top.stillmisty.xiantao.service.inventory;
 import java.util.List;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,6 +66,7 @@ public class ItemUseService {
   }
 
   @Transactional
+  @CacheEvict(cacheNames = "player_inventory", allEntries = true)
   public String useItem(Long userId, String itemName, String args) {
     List<StackableItem> exactMatches =
         stackableItemRepository.findByUserIdAndName(userId, itemName);

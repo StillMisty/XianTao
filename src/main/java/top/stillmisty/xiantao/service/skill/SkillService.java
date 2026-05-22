@@ -6,6 +6,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.item.entity.ItemProperties;
@@ -80,6 +82,7 @@ public class SkillService {
   // ===================== 内部 API（需预先完成认证） =====================
 
   @Transactional
+  @CacheEvict(cacheNames = "player_skills", key = "#userId")
   public SkillSlotResult learnFromJade(Long userId, String jadeInput) {
     var jadeItems =
         stackableItemRepository.findByUserId(userId).stream()
@@ -173,10 +176,12 @@ public class SkillService {
         skillId);
   }
 
+  @Cacheable(cacheNames = "player_skills", key = "'learned:' + #userId")
   public List<SkillVO> getLearnedSkills(Long userId) {
     return toSkillVOList(playerSkillRepository.findByUserId(userId));
   }
 
+  @Cacheable(cacheNames = "player_skills", key = "'equipped:' + #userId")
   public List<SkillVO> getEquippedSkills(Long userId) {
     return toSkillVOList(playerSkillRepository.findEquippedByUserId(userId));
   }
@@ -196,6 +201,7 @@ public class SkillService {
   }
 
   @Transactional
+  @CacheEvict(cacheNames = "player_skills", key = "#userId")
   public SkillSlotResult equipSkill(Long userId, String skillInput) {
     // 1. 获取已学法决
     var playerSkills = playerSkillRepository.findByUserId(userId);
@@ -255,6 +261,7 @@ public class SkillService {
   }
 
   @Transactional
+  @CacheEvict(cacheNames = "player_skills", key = "#userId")
   public SkillSlotResult unequipSkill(Long userId, String skillInput) {
     // 1. 获取已装载法决
     var equippedSkills = playerSkillRepository.findEquippedByUserId(userId);

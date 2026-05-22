@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
@@ -24,6 +25,7 @@ public class ItemTemplateRepositoryImpl implements ItemTemplateRepository {
   }
 
   @Override
+  @Cacheable(value = "itemTemplate", key = "'name:' + #name")
   public Optional<ItemTemplate> findByName(String name) {
     return Optional.ofNullable(mapper.selectByName(name));
   }

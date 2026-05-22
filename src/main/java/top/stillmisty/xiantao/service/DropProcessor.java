@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.item.entity.EquipmentTemplate;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
@@ -86,6 +87,7 @@ public class DropProcessor {
     return drops;
   }
 
+  @Transactional
   public void distributeDrops(Long userId, List<DropItem> drops) {
     for (DropItem drop : drops) {
       if (drop.type() == DropType.EQUIPMENT) {

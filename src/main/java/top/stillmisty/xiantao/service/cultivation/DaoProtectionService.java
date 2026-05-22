@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.shared.SharedKernel;
@@ -32,6 +34,7 @@ public class DaoProtectionService {
   private final DaoProtectionRepository daoProtectionRepository;
 
   @Transactional
+  @CacheEvict(cacheNames = "dao_protection", allEntries = true)
   public DaoProtectionResult establishProtection(Long protectorId, String protegeNickname) {
     User protector = userStateService.loadUserForUpdate(protectorId);
 
@@ -127,6 +130,7 @@ public class DaoProtectionService {
   }
 
   @Transactional
+  @CacheEvict(cacheNames = "dao_protection", allEntries = true)
   public DaoProtectionResult removeProtection(Long protectorId, String protegeNickname) {
     Optional<User> protegeOpt = findUserByNickname(protegeNickname);
     if (protegeOpt.isEmpty()) {
@@ -179,6 +183,7 @@ public class DaoProtectionService {
         null);
   }
 
+  @Cacheable(cacheNames = "dao_protection", key = "#userId")
   public DaoProtectionQueryResult queryProtectionInfo(Long userId) {
     User user = userStateService.loadUser(userId);
 

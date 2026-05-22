@@ -11,6 +11,7 @@ import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.sect.entity.ChatHistory;
 import top.stillmisty.xiantao.domain.sect.enums.ChatRole;
 import top.stillmisty.xiantao.domain.sect.enums.ChatType;
@@ -44,6 +45,7 @@ public class ChatMemoryRepositoryAdapter implements ChatMemoryRepository {
   }
 
   @Override
+  @Transactional
   public void saveAll(String conversationId, List<Message> messages) {
     ConversationId cid = ConversationId.from(conversationId);
     for (Message message : messages) {
@@ -69,6 +71,7 @@ public class ChatMemoryRepositoryAdapter implements ChatMemoryRepository {
   }
 
   @Override
+  @Transactional
   public void deleteByConversationId(String conversationId) {
     ConversationId cid = ConversationId.from(conversationId);
     chatHistoryRepository.deleteByChatTypeAndConversationIdAndUserId(

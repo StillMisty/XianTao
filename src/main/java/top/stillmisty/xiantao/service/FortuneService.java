@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.event.enums.FortuneLevel;
 import top.stillmisty.xiantao.domain.event.vo.FortuneVO;
@@ -27,6 +28,7 @@ public class FortuneService {
     return new ServiceResult.Success<>(calculate(userId));
   }
 
+  @Cacheable(cacheNames = "fortunes", key = "#userId + '-' + T(java.time.LocalDate).now()")
   public FortuneVO calculate(Long userId) {
     long[] seeds = generateSeeds(userId, LocalDate.now());
     int wealth = (int) (Math.abs(seeds[0]) % 101);

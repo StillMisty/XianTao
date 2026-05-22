@@ -484,6 +484,9 @@ public class FudiService {
     List<Integer> emptyCellIds = new ArrayList<>();
 
     List<FudiCell> cells = fudiCellRepository.findByFudiId(fudi.getId());
+    Map<Long, Beast> beastCache =
+        beastRepository.findByFudiId(fudi.getId()).stream()
+            .collect(java.util.stream.Collectors.toMap(Beast::getId, b -> b));
     for (FudiCell cell : cells) {
       if (cell.isEmpty()) {
         emptyCellIds.add(cell.getCellId());
@@ -508,7 +511,10 @@ public class FudiService {
           builder.isMature(progress != null && progress >= 1.0);
         }
         case PEN -> {
-          Beast beast = beastDisplayHelper.findBeastByCell(cell);
+          Beast beast =
+              cell.getConfig() instanceof CellConfig.PenConfig pen && pen.beastId() != null
+                  ? beastCache.get(pen.beastId())
+                  : null;
           builder.name(beast != null ? beast.getBeastName() : "空兽栏");
           builder.level(beast != null ? beast.getTier() : 0);
           builder.quality(beast != null ? beast.getQuality().getCode() : null);

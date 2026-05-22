@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonFirstClear;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonInstance;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonProgress;
@@ -29,6 +30,7 @@ public class DungeonProgressHelper {
   private final UserStateService userStateService;
   private final SpiritStoneService spiritStoneService;
 
+  @Transactional
   public String completeDungeon(Long userId, DungeonInstance instance) {
     DungeonTemplate dungeon =
         dungeonTemplateRepository

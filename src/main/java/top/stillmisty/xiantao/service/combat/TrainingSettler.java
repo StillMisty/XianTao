@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.event.EventContextKeys;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
 import top.stillmisty.xiantao.domain.event.entity.GameEvent;
@@ -54,6 +55,7 @@ public class TrainingSettler {
   }
 
   /** 触发一个 CHOICE 事件，将选项写入 xt_game_event.effects */
+  @Transactional
   public void fireChoiceEvent(Long userId, String eventCode, Map<String, Object> params) {
     Map<String, Object> choiceData = new HashMap<>();
     choiceData.put("choice", params);

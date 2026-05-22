@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
 import top.stillmisty.xiantao.domain.event.repository.ActivityEventRepository;
@@ -50,6 +51,7 @@ public class MapService {
   // ===================== 内部 API（需预先完成认证） =====================
 
   /** 获取所有地图 */
+  @Cacheable(cacheNames = "map_data", key = "'all'")
   public List<MapInfoVO> getAllMaps() {
     var maps = mapNodeRepository.findAll();
     List<Long> mapIds = maps.stream().map(MapNode::getId).toList();
@@ -65,6 +67,7 @@ public class MapService {
   }
 
   /** 获取当前所在地图详情 */
+  @Cacheable(cacheNames = "map_data", key = "'current:' + #userId")
   public MapInfoVO getCurrentMapInfo(Long userId) {
     User user = userStateService.loadUser(userId);
     MapNode mapNode =
@@ -79,6 +82,7 @@ public class MapService {
   }
 
   /** 根据地图ID获取地图名称 */
+  @Cacheable(cacheNames = "map_data", key = "'name:' + #mapId")
   public String getMapName(Long mapId) {
     if (mapId == null) return "未知";
     return mapNodeRepository.findById(mapId).map(MapNode::getName).orElse("未知");

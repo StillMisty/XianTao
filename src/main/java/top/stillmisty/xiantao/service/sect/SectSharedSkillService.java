@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.item.entity.ItemProperties;
@@ -91,6 +92,7 @@ public class SectSharedSkillService {
 
   // ===================== 内部 API =====================
 
+  @Cacheable(cacheNames = "sect_shared_skills", key = "#userId")
   public String getSharedSkills(Long userId) {
     SectMember member = requireMember(userId);
     Sect sect =

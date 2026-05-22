@@ -3,6 +3,9 @@ package top.stillmisty.xiantao.service.inventory;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -87,6 +90,13 @@ public class EquipmentService {
 
   /** 装备穿戴（装备 [物品名/编号]） */
   @Transactional
+  @Caching(
+      evict = {
+        @CacheEvict(cacheNames = "player_equipment", key = "'list:' + #userId"),
+        @CacheEvict(cacheNames = "player_inventory", key = "'equipment:' + #userId"),
+        @CacheEvict(cacheNames = "player_inventory", key = "'summary:' + #userId"),
+        @CacheEvict(cacheNames = "player_status", key = "#userId")
+      })
   public EquipResult equipItem(Long userId, String input) {
     userStateService.loadUser(userId);
 
@@ -183,6 +193,13 @@ public class EquipmentService {
 
   /** 装备卸下（卸下 [部位/物品名/编号]） */
   @Transactional
+  @Caching(
+      evict = {
+        @CacheEvict(cacheNames = "player_equipment", key = "'list:' + #userId"),
+        @CacheEvict(cacheNames = "player_inventory", key = "'equipment:' + #userId"),
+        @CacheEvict(cacheNames = "player_inventory", key = "'summary:' + #userId"),
+        @CacheEvict(cacheNames = "player_status", key = "#userId")
+      })
   public UnequipResult unequipItem(Long userId, String input) {
     EquipmentSlot slot = EquipmentSlot.fromChineseName(input);
     if (slot == null) {
@@ -265,6 +282,12 @@ public class EquipmentService {
 
   /** 创建装备实例（稀有度加权随机） */
   @Transactional
+  @Caching(
+      evict = {
+        @CacheEvict(cacheNames = "player_equipment", key = "'list:' + #userId"),
+        @CacheEvict(cacheNames = "player_inventory", key = "'equipment:' + #userId"),
+        @CacheEvict(cacheNames = "player_inventory", key = "'summary:' + #userId")
+      })
   public void createEquipment(Long userId, Long templateId) {
     var equipTmpl = equipmentTemplateRepository.findById(templateId).orElse(null);
     if (equipTmpl == null) {
@@ -318,6 +341,7 @@ public class EquipmentService {
   }
 
   /** 获取装备列表（展开显示） */
+  @Cacheable(cacheNames = "player_equipment", key = "'list:' + #userId")
   public EquipmentListResult getEquipmentList(Long userId) {
     userStateService.loadUser(userId);
 
@@ -346,6 +370,7 @@ public class EquipmentService {
   }
 
   /** 查看装备详细属性 */
+  @Cacheable(cacheNames = "player_equipment", key = "'detail:' + #equipmentId")
   public EquipmentDetailVO getEquipmentDetail(Long userId, Long equipmentId) {
     return equipmentRepository
         .findById(equipmentId)
