@@ -1,5 +1,6 @@
 package top.stillmisty.xiantao.service.activity;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -7,12 +8,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.bounty.BountyRewardItem;
 import top.stillmisty.xiantao.domain.bounty.entity.UserBounty;
+import top.stillmisty.xiantao.domain.event.EventContextKeys;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
 import top.stillmisty.xiantao.domain.event.enums.ActivityType;
 import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.event.repository.EventTypeRepository;
 import top.stillmisty.xiantao.domain.event.repository.HiddenCompletionRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.service.FortuneService;
 import top.stillmisty.xiantao.service.GameEventService;
 
 /** 悬赏完成器 — 悬赏领奖的子事件调节和隐藏事件 */
@@ -27,6 +30,7 @@ public class BountyCompleter {
   private final HiddenCompletionRepository hiddenCompletionRepository;
   private final EventTypeRepository eventTypeRepository;
   private final TriggerConditionChecker triggerConditionChecker;
+  private final FortuneService fortuneService;
 
   /** 悬赏完成叙事 */
   public void produceCompletionEvent(
@@ -50,10 +54,12 @@ public class BountyCompleter {
   public void rollBountySideEvent(
       Long userId, User user, Long bountyId, String bountyName, Map<String, Object> context) {
     ActivityEvent selected =
-        subEventSelector.selectSubEvent(ActivityType.BOUNTY_SIDE.getCode(), bountyId, 1.0);
+        subEventSelector.selectSubEvent(ActivityType.BOUNTY_SIDE.getCode(), bountyId, 1.0, userId);
     if (selected == null) return;
 
-    context.put("bountyName", bountyName);
+    EventContextKeys.BOUNTY_NAME.put(context, bountyName);
+    var fortune = fortuneService.calculate(userId);
+    EventContextKeys.FORTUNE.put(context, fortune);
     Map<String, Object> templateArgs = effectExecutor.execute(selected, userId, user, context);
     gameEventService.createEvent(
         userId, GameEventCategory.BOUNTY_SIDE_MODIFIER, selected.getCode(), templateArgs);
@@ -61,6 +67,7 @@ public class BountyCompleter {
 
   /** 检查悬赏隐藏事件 */
   public void checkHiddenEvents(Long userId, User user, UserBounty record) {
+    var fortune = fortuneService.calculate(userId);
     var hiddenEvents =
         subEventSelector.findHiddenEvents(ActivityType.BOUNTY_SIDE.getCode(), record.getBountyId());
     for (ActivityEvent event : hiddenEvents) {
@@ -74,8 +81,10 @@ public class BountyCompleter {
           top.stillmisty.xiantao.domain.event.entity.HiddenCompletion.create(
               userId, ActivityType.BOUNTY_SIDE.getCode(), record.getBountyId(), event.getCode()));
 
-      Map<String, Object> templateArgs =
-          effectExecutor.execute(event, userId, user, Map.of("bountyName", record.getBountyName()));
+      Map<String, Object> hiddenContext = new HashMap<>();
+      EventContextKeys.BOUNTY_NAME.put(hiddenContext, record.getBountyName());
+      EventContextKeys.FORTUNE.put(hiddenContext, fortune);
+      Map<String, Object> templateArgs = effectExecutor.execute(event, userId, user, hiddenContext);
       String narrativeKey =
           eventTypeRepository
               .findByCode(event.getCode())

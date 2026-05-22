@@ -15,6 +15,7 @@ import top.stillmisty.xiantao.domain.bounty.entity.UserBounty;
 import top.stillmisty.xiantao.domain.bounty.enums.BountyStatus;
 import top.stillmisty.xiantao.domain.bounty.repository.UserBountyRepository;
 import top.stillmisty.xiantao.domain.bounty.vo.BountyRewardVO;
+import top.stillmisty.xiantao.domain.event.EventContextKeys;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
@@ -23,6 +24,7 @@ import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.service.BusinessException;
+import top.stillmisty.xiantao.service.FortuneService;
 import top.stillmisty.xiantao.service.SpiritStoneService;
 import top.stillmisty.xiantao.service.activity.BountyCompleter;
 import top.stillmisty.xiantao.service.ai.ExplorationDescriptionFunction;
@@ -44,6 +46,7 @@ public class BountyCombatService {
   private final EquipmentService equipmentService;
   private final BountyCompleter bountyCompleter;
   private final SpiritStoneService spiritStoneService;
+  private final FortuneService fortuneService;
 
   @Transactional
   public BountyRewardVO completeBounty(Long userId) {
@@ -80,12 +83,16 @@ public class BountyCombatService {
 
     // Apply bounty side modifier (子事件调节主奖励)
     Map<String, Object> sideContext = new HashMap<>();
-    sideContext.put("bountyName", record.getBountyName());
+    EventContextKeys.BOUNTY_NAME.put(sideContext, record.getBountyName());
     long[] rewardHolder = new long[] {stats.spiritStones};
-    sideContext.put("bountyReward", rewardHolder);
+    EventContextKeys.BOUNTY_REWARD.put(sideContext, rewardHolder);
     bountyCompleter.rollBountySideEvent(
         userId, user, record.getBountyId(), record.getBountyName(), sideContext);
     long finalSpiritStones = rewardHolder[0];
+
+    var fortune = fortuneService.calculate(userId);
+    finalSpiritStones =
+        (long) (finalSpiritStones * fortuneService.getWealthMultiplier(fortune.wealth()));
 
     if (finalSpiritStones > 0) {
       spiritStoneService.deposit(userId, finalSpiritStones);

@@ -110,6 +110,7 @@ public class NotificationAppender {
       case BOUNTY_READY -> "悬赏任务已完成，请使用「悬赏结算」领取奖励。";
       case TRAINING_INTERRUPTED -> "你在历练中受了重伤，不得不中断。";
       case LEVEL_UP -> "你突破了！";
+      case FORTUNE -> narrativeKey != null ? narrativeKey : "今日运势已更新";
       default -> "";
     };
   }

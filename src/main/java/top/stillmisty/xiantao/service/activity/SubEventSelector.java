@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
 import top.stillmisty.xiantao.domain.event.repository.ActivityEventRepository;
 import top.stillmisty.xiantao.infrastructure.util.WeightedRandom;
+import top.stillmisty.xiantao.service.FortuneService;
 
 /** 子事件选择器 — 共享的加权随机抽取机制 */
 @Component
@@ -14,6 +15,7 @@ import top.stillmisty.xiantao.infrastructure.util.WeightedRandom;
 public class SubEventSelector {
 
   private final ActivityEventRepository activityEventRepository;
+  private final FortuneService fortuneService;
 
   /**
    * 从活动池中加权随机选择一个子事件
@@ -21,10 +23,15 @@ public class SubEventSelector {
    * @param activityType 活动类型 (TRAVEL / TRAINING / BOUNTY_SIDE)
    * @param ownerId 归属 ID (map_id 或 bounty_id)
    * @param triggerChance 触发概率 (0.0 ~ 1.0)
+   * @param userId 用户 ID (用于运势修正)
    * @return 选中的事件，或 null (未触发)
    */
-  public ActivityEvent selectSubEvent(String activityType, Long ownerId, double triggerChance) {
-    if (ThreadLocalRandom.current().nextDouble() >= triggerChance) return null;
+  public ActivityEvent selectSubEvent(
+      String activityType, Long ownerId, double triggerChance, Long userId) {
+    var fortune = fortuneService.calculate(userId);
+    double adjustedChance = triggerChance * fortuneService.getFateMultiplier(fortune.fate());
+    adjustedChance = Math.clamp(adjustedChance, 0.0, 1.0);
+    if (ThreadLocalRandom.current().nextDouble() >= adjustedChance) return null;
 
     List<ActivityEvent> subEvents = activityEventRepository.findSubEvents(activityType, ownerId);
     if (subEvents.isEmpty()) return null;

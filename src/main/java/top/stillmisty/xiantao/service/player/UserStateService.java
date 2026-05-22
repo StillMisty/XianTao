@@ -1,6 +1,7 @@
 package top.stillmisty.xiantao.service.player;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
+import top.stillmisty.xiantao.service.FortuneService;
 import top.stillmisty.xiantao.service.GameEventService;
 import top.stillmisty.xiantao.service.activity.TravelCompleter;
 
@@ -32,6 +34,7 @@ public class UserStateService {
   private final PlayerBuffRepository playerBuffRepository;
   private final GameEventService gameEventService;
   private final TravelCompleter travelCompleter;
+  private final FortuneService fortuneService;
 
   /** 加载用户并自动解析过期状态。使用行锁防止并发状态更新。 */
   @Transactional
@@ -45,9 +48,14 @@ public class UserStateService {
   }
 
   public User loadUserForUpdate(Long userId) {
-    return userRepository
-        .findByIdForUpdate(userId)
-        .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+    User user =
+        userRepository
+            .findByIdForUpdate(userId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+    if (tryDailyFortune(user)) {
+      userRepository.save(user);
+    }
+    return user;
   }
 
   /** 根据道号加载用户，不解析状态。 */
@@ -107,6 +115,7 @@ public class UserStateService {
     dirty |= tryDyingRecovery(user);
     dirty |= tryHpRecovery(user);
     dirty |= tryExpireBuffs(user);
+    dirty |= tryDailyFortune(user);
 
     if (dirty) {
       userRepository.save(user);
@@ -232,6 +241,20 @@ public class UserStateService {
         java.util.Map.of("hp", recoveryHp));
 
     log.info("玩家 {} 濒死超时自动恢复，HP 恢复到 {}", user.getId(), recoveryHp);
+    return true;
+  }
+
+  private boolean tryDailyFortune(User user) {
+    LocalDate today = LocalDate.now();
+    if (today.equals(user.getLastFortuneDate())) return false;
+
+    user.setLastFortuneDate(today);
+    String display = fortuneService.buildDisplay(user.getId());
+    gameEventService.createEvent(
+        user.getId(),
+        GameEventCategory.FORTUNE,
+        "{{fortuneText}}",
+        java.util.Map.of("fortuneText", display));
     return true;
   }
 }

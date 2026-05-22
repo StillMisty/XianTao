@@ -9,9 +9,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import top.stillmisty.xiantao.domain.event.EventContextKeys;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
 import top.stillmisty.xiantao.domain.event.enums.ActivityType;
 import top.stillmisty.xiantao.domain.event.repository.ActivityEventRepository;
+import top.stillmisty.xiantao.domain.event.vo.FortuneVO;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
@@ -33,6 +35,7 @@ import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.util.WeightedRandom;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
+import top.stillmisty.xiantao.service.FortuneService;
 import top.stillmisty.xiantao.service.GameEventService;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
@@ -65,6 +68,7 @@ public class TrainingService {
   private final MonsterTemplateRepository monsterTemplateRepository;
   private final SkillRepository skillRepository;
   private final GameEventService gameEventService;
+  private final FortuneService fortuneService;
 
   @Authenticated
   @Transactional
@@ -175,11 +179,15 @@ public class TrainingService {
             (long) (Math.sqrt(user.getEffectiveStatWis()) * 12));
     long baseExp =
         (long) (baseExpPerMinute * minutesTraining * efficiencyMultiplier * levelDecayMultiplier);
+
+    var fortune = fortuneService.calculate(userId);
+    baseExp = (long) (baseExp * fortuneService.getLuckMultiplier(fortune.luck()));
     List<DropItem> trainingItems =
         calculateItemsReward(minutesTraining, efficiencyMultiplier, mapNode);
 
     // 统一事件循环: COMBAT + NUMERIC 一个池子里加权抽
-    CombatSummary combatSummary = runUnifiedEventLoop(userId, user, mapNode, (int) minutesTraining);
+    CombatSummary combatSummary =
+        runUnifiedEventLoop(userId, user, mapNode, (int) minutesTraining, fortune);
     boolean diedInTraining = user.getStatus() == UserStatus.DYING;
 
     // 子事件和隐藏事件优先于基础修为结算（避免溢出）
@@ -227,7 +235,7 @@ public class TrainingService {
 
   /** 统一事件循环: COMBAT + NUMERIC 同一池子加权随机 */
   private CombatSummary runUnifiedEventLoop(
-      Long userId, User user, MapNode mapNode, int minutesTraining) {
+      Long userId, User user, MapNode mapNode, int minutesTraining, FortuneVO fortune) {
     List<ActivityEvent> pool = activityEventRepository.findSubEvents("TRAINING", mapNode.getId());
     if (pool.isEmpty()) return CombatSummary.empty();
 
@@ -257,10 +265,16 @@ public class TrainingService {
             : skillRepository.findByIds(new ArrayList<>(skillIds)).stream()
                 .collect(Collectors.toMap(Skill::getId, s -> s));
 
-    Map<String, Object> context = Map.of("mapNode", mapNode, "mapName", mapNode.getName());
+    Map<String, Object> context = new HashMap<>();
+    EventContextKeys.MAP_NODE.put(context, mapNode);
+    EventContextKeys.MAP_NAME.put(context, mapNode.getName());
+    EventContextKeys.FORTUNE.put(context, fortune);
+
+    double fateMultiplier = fortuneService.getFateMultiplier(fortune.fate());
+    double adjustedPerRollChance = Math.min(1.0, params.perRollChance() * fateMultiplier);
 
     for (int i = 0; i < params.slots(); i++) {
-      if (ThreadLocalRandom.current().nextDouble() >= params.perRollChance()) continue;
+      if (ThreadLocalRandom.current().nextDouble() >= adjustedPerRollChance) continue;
 
       ActivityEvent event =
           WeightedRandom.select(pool, ActivityEvent::getWeight, ThreadLocalRandom.current());

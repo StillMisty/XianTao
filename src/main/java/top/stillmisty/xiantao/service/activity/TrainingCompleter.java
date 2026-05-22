@@ -1,9 +1,11 @@
 package top.stillmisty.xiantao.service.activity;
 
+import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import top.stillmisty.xiantao.domain.event.EventContextKeys;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
 import top.stillmisty.xiantao.domain.event.enums.ActivityType;
 import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
@@ -11,6 +13,7 @@ import top.stillmisty.xiantao.domain.event.repository.EventTypeRepository;
 import top.stillmisty.xiantao.domain.event.repository.HiddenCompletionRepository;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
 import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.service.FortuneService;
 import top.stillmisty.xiantao.service.GameEventService;
 
 /** 历练完成器 — 产出完成叙事、代理子事件/隐藏事件执行 */
@@ -25,6 +28,7 @@ public class TrainingCompleter {
   private final HiddenCompletionRepository hiddenCompletionRepository;
   private final EventTypeRepository eventTypeRepository;
   private final TriggerConditionChecker triggerConditionChecker;
+  private final FortuneService fortuneService;
 
   public void produceCompletionEvent(
       Long userId, User user, MapNode mapNode, long minutesTraining) {
@@ -50,6 +54,7 @@ public class TrainingCompleter {
 
   /** 检查历练隐藏事件 */
   public void checkHiddenEvents(Long userId, User user, MapNode mapNode) {
+    var fortune = fortuneService.calculate(userId);
     var hiddenEvents =
         subEventSelector.findHiddenEvents(ActivityType.TRAINING.getCode(), mapNode.getId());
     for (ActivityEvent event : hiddenEvents) {
@@ -63,9 +68,11 @@ public class TrainingCompleter {
           top.stillmisty.xiantao.domain.event.entity.HiddenCompletion.create(
               userId, ActivityType.TRAINING.getCode(), mapNode.getId(), event.getCode()));
 
-      Map<String, Object> templateArgs =
-          effectExecutor.execute(
-              event, userId, user, Map.of("mapNode", mapNode, "mapName", mapNode.getName()));
+      Map<String, Object> context = new HashMap<>();
+      EventContextKeys.MAP_NODE.put(context, mapNode);
+      EventContextKeys.MAP_NAME.put(context, mapNode.getName());
+      EventContextKeys.FORTUNE.put(context, fortune);
+      Map<String, Object> templateArgs = effectExecutor.execute(event, userId, user, context);
       String narrativeKey = resolveNarrativeKey(event.getCode());
       gameEventService.createEvent(
           userId, GameEventCategory.TRAINING_HIDDEN, narrativeKey, templateArgs);

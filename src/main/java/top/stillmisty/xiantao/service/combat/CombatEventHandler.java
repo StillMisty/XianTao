@@ -29,6 +29,7 @@ import top.stillmisty.xiantao.domain.skill.repository.SkillRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.infrastructure.util.WeightedRandom;
 import top.stillmisty.xiantao.service.DropProcessor;
+import top.stillmisty.xiantao.service.FortuneService;
 import top.stillmisty.xiantao.service.GameEventService;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
@@ -49,6 +50,7 @@ public class CombatEventHandler {
   private final PlayerSkillRepository playerSkillRepository;
   private final BeastRepository beastRepository;
   private final GameEventService gameEventService;
+  private final FortuneService fortuneService;
 
   private volatile List<Skill> allSkillsCache;
 
@@ -76,7 +78,7 @@ public class CombatEventHandler {
     user.setHpCurrent(Math.min(user.calculateMaxHp(), user.getHpCurrent() + recoveryAmount));
 
     CombatTeam playerTeam = combatService.buildPlayerTeam(user, skillMap);
-    CombatTeam monsterTeam = buildMonsterTeam(tmpl, count, skillMap);
+    CombatTeam monsterTeam = buildMonsterTeam(tmpl, count, skillMap, userId);
 
     BattleResultVO result = combatService.simulate(playerTeam, monsterTeam, DEFAULT_MAX_ROUNDS);
     boolean playerWon = result.winner().equals("Player");
@@ -92,7 +94,7 @@ public class CombatEventHandler {
     if (playerWon) {
       double levelModifier = calculateCombatExpModifier(user.getLevel(), tmpl.getBaseLevel());
       long expGained = (long) (tmpl.getExpReward() * count * levelModifier);
-      List<DropItem> rawDrops = dropProcessor.processMonsterDrops(tmpl);
+      List<DropItem> rawDrops = dropProcessor.processMonsterDrops(tmpl, userId);
       List<DropItem> drops = rawDrops != null ? new ArrayList<>(rawDrops) : List.of();
       encounterResult =
           new EncounterResult(
@@ -153,7 +155,10 @@ public class CombatEventHandler {
     return encounterResult;
   }
 
-  private CombatTeam buildMonsterTeam(MonsterTemplate tmpl, int count, Map<Long, Skill> skillMap) {
+  private CombatTeam buildMonsterTeam(
+      MonsterTemplate tmpl, int count, Map<Long, Skill> skillMap, Long userId) {
+    var fortune = fortuneService.calculate(userId);
+    int luckOffset = fortuneService.getMonsterLevelOffset(fortune.luck());
     CombatTeam team = new CombatTeam(0L, "Monsters");
     for (int i = 0; i < count; i++) {
       List<Skill> monsterSkills = List.of();
@@ -161,7 +166,8 @@ public class CombatEventHandler {
         monsterSkills =
             tmpl.getSkills().stream().map(skillMap::get).filter(Objects::nonNull).toList();
       }
-      int monsterLevel = tmpl.getBaseLevel() + ThreadLocalRandom.current().nextInt(-2, 3);
+      int monsterLevel =
+          tmpl.getBaseLevel() + ThreadLocalRandom.current().nextInt(-2, 3) + luckOffset;
       monsterLevel = Math.max(1, monsterLevel);
       team.addMember(new Monster(tmpl, monsterLevel, monsterSkills));
     }

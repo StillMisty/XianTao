@@ -15,6 +15,7 @@ CREATE TABLE xt_user
     hp_current               INT         NOT NULL DEFAULT 200,
     status                   VARCHAR(32) NOT NULL DEFAULT 'IDLE',
     location_id              BIGINT      NOT NULL DEFAULT 1,
+    last_fortune_date        DATE,
     -- 通用活动字段（旅行/历练/悬赏共享）
     activity_type            VARCHAR(16),
     activity_start_time      TIMESTAMP,
@@ -46,3 +47,5 @@ CREATE TABLE xt_user
 
 CREATE INDEX idx_xt_user_status ON xt_user (status);
 CREATE INDEX idx_xt_user_location ON xt_user (location_id);
+
+COMMENT ON COLUMN xt_user.last_fortune_date IS '上次运势生成日期，用于每日自动刷新';

@@ -30,8 +30,11 @@ public class DropProcessor {
   private final EquipmentTemplateRepository equipmentTemplateRepository;
   private final EquipmentService equipmentService;
   private final StackableItemService stackableItemService;
+  private final FortuneService fortuneService;
 
-  public List<DropItem> processMonsterDrops(MonsterTemplate tmpl) {
+  public List<DropItem> processMonsterDrops(MonsterTemplate tmpl, Long userId) {
+    var fortune = fortuneService.calculate(userId);
+    double wealthMultiplier = fortuneService.getWealthMultiplier(fortune.wealth());
     List<DropItem> drops = new ArrayList<>();
     List<DropTableEntry> dropTable = tmpl.getDropTable();
     if (dropTable == null || dropTable.isEmpty()) return drops;
@@ -47,7 +50,8 @@ public class DropProcessor {
     List<DropItem> candidates = new ArrayList<>();
 
     for (var entry : equipmentDrops) {
-      if (ThreadLocalRandom.current().nextInt(100) < entry.weight()) {
+      if (ThreadLocalRandom.current().nextInt(100)
+          < Math.max(1, (int) (entry.weight() * wealthMultiplier))) {
         EquipmentTemplate tmplEquip = equipTmplMap.get(entry.templateId());
         if (tmplEquip != null) {
           candidates.add(
@@ -57,7 +61,8 @@ public class DropProcessor {
     }
 
     for (var entry : itemDrops) {
-      if (ThreadLocalRandom.current().nextInt(100) < entry.weight()) {
+      if (ThreadLocalRandom.current().nextInt(100)
+          < Math.max(1, (int) (entry.weight() * wealthMultiplier))) {
         ItemTemplate tmplItem = itemTmplMap.get(entry.templateId());
         if (tmplItem != null) {
           int qty = 1 + ThreadLocalRandom.current().nextInt(3);

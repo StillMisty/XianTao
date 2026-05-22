@@ -23,7 +23,8 @@ public enum GameEventCategory {
   HP_RECOVERED("HP_RECOVERED", null),
   BUFF_EXPIRED("BUFF_EXPIRED", null),
   DYING_RECOVERED("DYING_RECOVERED", null),
-  LEVEL_UP("LEVEL_UP", "突破");
+  LEVEL_UP("LEVEL_UP", "突破"),
+  FORTUNE("FORTUNE", null);
 
   @EnumValue private final String code;
 

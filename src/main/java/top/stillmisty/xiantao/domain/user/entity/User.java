@@ -7,6 +7,7 @@ import com.mybatisflex.annotation.Table;
 import com.mybatisflex.core.activerecord.Model;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -83,6 +84,9 @@ public class User extends Model<User> {
 
   /** 突破失败次数 (影响下一次突破成功率) */
   private Integer breakthroughFailCount;
+
+  /** 上次运势生成日期 */
+  private LocalDate lastFortuneDate;
 
   // ===================== 境界显示方法 =====================
 

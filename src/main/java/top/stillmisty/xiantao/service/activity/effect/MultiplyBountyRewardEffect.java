@@ -2,6 +2,7 @@ package top.stillmisty.xiantao.service.activity.effect;
 
 import java.util.Map;
 import org.springframework.stereotype.Component;
+import top.stillmisty.xiantao.domain.event.EventContextKeys;
 import top.stillmisty.xiantao.domain.user.entity.User;
 
 @Component
@@ -16,7 +17,7 @@ public class MultiplyBountyRewardEffect implements SubEventEffect {
   public Map<String, Object> execute(
       Long userId, User user, Map<String, Object> params, Map<String, Object> context) {
     double multiplier = ((Number) params.get("multiplier")).doubleValue();
-    long[] holder = (long[]) context.get("bountyReward");
+    long[] holder = EventContextKeys.BOUNTY_REWARD.get(context);
     if (holder != null) {
       holder[0] = (long) (holder[0] * multiplier);
     }
