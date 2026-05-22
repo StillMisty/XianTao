@@ -31,7 +31,6 @@ import top.stillmisty.xiantao.infrastructure.util.WeightedRandom;
 import top.stillmisty.xiantao.service.DropProcessor;
 import top.stillmisty.xiantao.service.FortuneService;
 import top.stillmisty.xiantao.service.GameEventService;
-import top.stillmisty.xiantao.service.player.UserStateService;
 
 /** COMBAT 事件处理器 — 单次遇怪战斗 */
 @Slf4j
@@ -41,7 +40,6 @@ public class CombatEventHandler {
 
   private static final int DEFAULT_MAX_ROUNDS = 20;
 
-  private final UserStateService userStateService;
   private final CombatService combatService;
   private final PostCombatProcessor postCombatProcessor;
   private final HighlightBattleDetector highlightBattleDetector;

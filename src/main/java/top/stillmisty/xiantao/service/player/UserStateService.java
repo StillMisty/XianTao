@@ -3,8 +3,8 @@ package top.stillmisty.xiantao.service.player;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.event.enums.ActivityType;
@@ -24,7 +24,6 @@ import top.stillmisty.xiantao.service.combat.TrainingSettler;
 /** 用户状态服务 统一入口：加载用户实体并自动解析过期的运行时状态（旅行结算、HP 恢复、buff 清理等）。 */
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class UserStateService {
 
   private static final long HP_RECOVERY_INTERVAL_MINUTES = 5;
@@ -39,6 +38,23 @@ public class UserStateService {
   private final TravelCompleter travelCompleter;
   private final TrainingSettler trainingSettler;
   private final FortuneService fortuneService;
+
+  public UserStateService(
+      UserRepository userRepository,
+      MapNodeRepository mapNodeRepository,
+      PlayerBuffRepository playerBuffRepository,
+      GameEventService gameEventService,
+      TravelCompleter travelCompleter,
+      @Lazy TrainingSettler trainingSettler,
+      FortuneService fortuneService) {
+    this.userRepository = userRepository;
+    this.mapNodeRepository = mapNodeRepository;
+    this.playerBuffRepository = playerBuffRepository;
+    this.gameEventService = gameEventService;
+    this.travelCompleter = travelCompleter;
+    this.trainingSettler = trainingSettler;
+    this.fortuneService = fortuneService;
+  }
 
   /** 加载用户并自动解析过期状态。使用行锁防止并发状态更新。 */
   @Transactional

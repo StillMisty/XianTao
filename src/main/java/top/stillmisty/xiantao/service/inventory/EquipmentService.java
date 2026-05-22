@@ -2,8 +2,8 @@ package top.stillmisty.xiantao.service.inventory;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
@@ -25,13 +25,23 @@ import top.stillmisty.xiantao.service.player.UserStateService;
 /** 装备服务 负责：装备穿戴/卸下、装备生成、装备列表/详情查询 */
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class EquipmentService {
 
   private final UserStateService userStateService;
   private final EquipmentRepository equipmentRepository;
   private final EquipmentTemplateRepository equipmentTemplateRepository;
   private final ItemResolver itemResolver;
+
+  public EquipmentService(
+      @Lazy UserStateService userStateService,
+      EquipmentRepository equipmentRepository,
+      EquipmentTemplateRepository equipmentTemplateRepository,
+      ItemResolver itemResolver) {
+    this.userStateService = userStateService;
+    this.equipmentRepository = equipmentRepository;
+    this.equipmentTemplateRepository = equipmentTemplateRepository;
+    this.itemResolver = itemResolver;
+  }
 
   // ===================== 公开 API（含认证） =====================
 

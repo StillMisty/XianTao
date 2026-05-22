@@ -18,7 +18,7 @@ import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.domain.item.vo.ItemEntry;
 import top.stillmisty.xiantao.domain.pill.enums.ElementType;
 import top.stillmisty.xiantao.domain.pill.enums.PillQuality;
-import top.stillmisty.xiantao.service.fudi.FudiHelper;
+import top.stillmisty.xiantao.domain.shared.SharedKernel;
 
 @Component
 @RequiredArgsConstructor
@@ -27,12 +27,11 @@ public class ItemResolver {
   private final StackableItemRepository stackableItemRepository;
   private final ItemTemplateRepository itemTemplateRepository;
   private final EquipmentRepository equipmentRepository;
-  private final FudiHelper fudiHelper;
 
   // ===================== Result Types =====================
 
   private int tier(ItemTemplate template) {
-    return fudiHelper.getCropTier(template.getGrowTime() != null ? template.getGrowTime() : 0);
+    return SharedKernel.getCropTier(template.getGrowTime() != null ? template.getGrowTime() : 0);
   }
 
   private String tierMetadata(ItemTemplate template) {

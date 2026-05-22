@@ -2,8 +2,8 @@ package top.stillmisty.xiantao.service.inventory;
 
 import java.util.List;
 import java.util.Map;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
@@ -18,12 +18,20 @@ import top.stillmisty.xiantao.service.player.UserStateService;
 /** 堆叠物品服务 负责：堆叠物品的增删查（添加/减少/检查数量）及按标签/类型搜索 仅供其他 Service 内部调用 */
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class StackableItemService {
 
   private final UserStateService userStateService;
   private final StackableItemRepository stackableItemRepository;
   private final ItemTemplateRepository itemTemplateRepository;
+
+  public StackableItemService(
+      @Lazy UserStateService userStateService,
+      StackableItemRepository stackableItemRepository,
+      ItemTemplateRepository itemTemplateRepository) {
+    this.userStateService = userStateService;
+    this.stackableItemRepository = stackableItemRepository;
+    this.itemTemplateRepository = itemTemplateRepository;
+  }
 
   /** 添加堆叠物品到背包 */
   @Transactional
