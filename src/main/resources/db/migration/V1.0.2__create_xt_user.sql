@@ -23,6 +23,7 @@ CREATE TABLE xt_user
     breakthrough_fail_count  INT         NOT NULL DEFAULT 0,
     last_hp_recovery_time   TIMESTAMP,
     dying_start_time        TIMESTAMP,
+    last_settlement_minute  BIGINT      NOT NULL DEFAULT 0,
     -- GM
     gm                       BOOLEAN     NOT NULL DEFAULT FALSE,
     -- 时间戳
@@ -49,3 +50,4 @@ CREATE INDEX idx_xt_user_status ON xt_user (status);
 CREATE INDEX idx_xt_user_location ON xt_user (location_id);
 
 COMMENT ON COLUMN xt_user.last_fortune_date IS '上次运势生成日期，用于每日自动刷新';
+COMMENT ON COLUMN xt_user.last_settlement_minute IS '历练中途结算的已处理分钟数，避免重复结算';

@@ -42,4 +42,13 @@ public class HiddenCompletionRepositoryImpl implements HiddenCompletionRepositor
             .eq(HiddenCompletion::getCode, code);
     return hiddenCompletionMapper.selectCountByQuery(query) > 0;
   }
+
+  @Override
+  public boolean existsByCode(Long userId, String code) {
+    QueryWrapper query =
+        new QueryWrapper()
+            .eq(HiddenCompletion::getUserId, userId)
+            .eq(HiddenCompletion::getCode, code);
+    return hiddenCompletionMapper.selectCountByQuery(query) > 0;
+  }
 }

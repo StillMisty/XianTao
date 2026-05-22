@@ -1,5 +1,6 @@
 package top.stillmisty.xiantao.service;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,18 +26,30 @@ public class NotificationAppender {
   public AppendResult prepareAppend(PlatformType platform, String openId, String response) {
     ServiceResult<Long> authResult = authenticationService.authenticate(platform, openId);
     if (authResult instanceof ServiceResult.Failure) {
-      return new AppendResult(response, List.of());
+      return new AppendResult(response, List.of(), null);
     }
     Long userId = ((ServiceResult.Success<Long>) authResult).data();
 
     List<GameEvent> events = gameEventService.findUndelivered(userId);
     if (events.isEmpty()) {
-      return new AppendResult(response, List.of());
+      return new AppendResult(response, List.of(), null);
     }
 
     String notificationText = formatEvents(events);
+
+    // 检测是否有 CHOICE 事件未决，有则只投递到 choice 之前的事件
+    Long pendingChoiceEventId = null;
+    List<Long> deliverableIds = new ArrayList<>();
+    for (GameEvent event : events) {
+      if (isChoiceEvent(event)) {
+        pendingChoiceEventId = event.getId();
+        break;
+      }
+      deliverableIds.add(event.getId());
+    }
+
     if (notificationText.isEmpty()) {
-      return new AppendResult(response, List.of());
+      return new AppendResult(response, List.of(), null);
     }
 
     String combined = response;
@@ -45,8 +58,7 @@ public class NotificationAppender {
     }
     combined += notificationText;
 
-    List<Long> eventIds = events.stream().map(GameEvent::getId).toList();
-    return new AppendResult(combined, eventIds);
+    return new AppendResult(combined, deliverableIds, pendingChoiceEventId);
   }
 
   /** 发送成功后标记事件为已投递 */
@@ -55,6 +67,11 @@ public class NotificationAppender {
     if (eventIds != null && !eventIds.isEmpty()) {
       gameEventService.markDelivered(eventIds);
     }
+  }
+
+  public boolean isChoiceEvent(GameEvent event) {
+    Map<String, Object> effects = event.getEffects();
+    return effects != null && effects.containsKey("choice");
   }
 
   // ===================== 格式化 =====================
@@ -97,9 +114,18 @@ public class NotificationAppender {
   private String formatSingleEvent(GameEvent event) {
     String narrativeKey = event.getNarrativeKey();
     Map<String, Object> args = event.getNarrativeArgs();
+    Map<String, Object> effects = event.getEffects();
 
-    if (narrativeKey != null && args != null && !args.isEmpty()) {
-      return renderTemplate(narrativeKey, args);
+    if (narrativeKey != null && args != null) {
+      String rendered = renderTemplate(narrativeKey, args);
+      if (effects != null && effects.containsKey("choice")) {
+        return rendered + "\n" + renderChoiceOptions(effects);
+      }
+      return rendered;
+    }
+
+    if (effects != null && effects.containsKey("choice")) {
+      return renderChoiceOptions(effects);
     }
 
     return switch (event.getCategory()) {
@@ -115,6 +141,21 @@ public class NotificationAppender {
     };
   }
 
+  @SuppressWarnings("unchecked")
+  private String renderChoiceOptions(Map<String, Object> effects) {
+    Map<String, Object> choice = (Map<String, Object>) effects.get("choice");
+    if (choice == null) return "";
+    List<Map<String, Object>> options = (List<Map<String, Object>>) choice.get("options");
+    if (options == null || options.isEmpty()) return "";
+    StringBuilder sb = new StringBuilder("\n请选择：\n");
+    for (Map<String, Object> option : options) {
+      String key = (String) option.get("key");
+      String text = (String) option.get("text");
+      sb.append("【").append(key).append("】").append(text).append("\n");
+    }
+    return sb.toString();
+  }
+
   private String renderTemplate(String template, Map<String, Object> args) {
     String result = template;
     for (Map.Entry<String, Object> entry : args.entrySet()) {
@@ -123,5 +164,5 @@ public class NotificationAppender {
     return result;
   }
 
-  public record AppendResult(String text, List<Long> eventIds) {}
+  public record AppendResult(String text, List<Long> eventIds, Long pendingChoiceEventId) {}
 }

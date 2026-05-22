@@ -14,4 +14,7 @@ public interface HiddenCompletionRepository {
 
   /** 检查是否已存在 (COUNT) */
   boolean exists(Long userId, String activityType, Long ownerId, String code);
+
+  /** 检查玩家是否完成过某 code 的隐藏事件（跨活动/跨地图，用于事件链前置条件） */
+  boolean existsByCode(Long userId, String code);
 }

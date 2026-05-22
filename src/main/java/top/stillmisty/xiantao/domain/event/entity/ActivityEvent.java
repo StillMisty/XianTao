@@ -43,6 +43,9 @@ public class ActivityEvent {
   @Column(typeHandler = JsonbTypeHandler.class)
   private Map<String, Object> params;
 
+  /** 前置事件 code（需完成该隐藏事件后才解锁当前事件） */
+  private String prerequisiteCode;
+
   @Column(onInsertValue = "now()")
   private LocalDateTime createTime;
 

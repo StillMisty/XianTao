@@ -85,6 +85,9 @@ public class User extends Model<User> {
   /** 突破失败次数 (影响下一次突破成功率) */
   private Integer breakthroughFailCount;
 
+  /** 历练中途结算的已处理分钟数 */
+  private Long lastSettlementMinute;
+
   /** 上次运势生成日期 */
   private LocalDate lastFortuneDate;
 

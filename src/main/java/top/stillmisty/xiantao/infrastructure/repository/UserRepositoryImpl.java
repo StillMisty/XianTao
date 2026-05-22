@@ -117,4 +117,10 @@ public class UserRepositoryImpl implements UserRepository {
         activityStartTime,
         activityTargetId);
   }
+
+  @Override
+  public void updateTrainingSettlement(
+      Long userId, int hpCurrent, long exp, long lastSettlementMinute) {
+    userMapper.updateTrainingSettlement(userId, hpCurrent, exp, lastSettlementMinute);
+  }
 }

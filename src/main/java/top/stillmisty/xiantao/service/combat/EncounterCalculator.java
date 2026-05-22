@@ -2,7 +2,6 @@ package top.stillmisty.xiantao.service.combat;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
 import top.stillmisty.xiantao.domain.user.entity.User;
 
@@ -25,12 +24,6 @@ public class EncounterCalculator {
 
   /** 最大间隔 */
   private static final double MAX_INTERVAL = 20.0;
-
-  private final EquipmentRepository equipmentRepository;
-
-  public EncounterCalculator(EquipmentRepository equipmentRepository) {
-    this.equipmentRepository = equipmentRepository;
-  }
 
   public record EncounterParams(int slots, double perRollChance) {}
 

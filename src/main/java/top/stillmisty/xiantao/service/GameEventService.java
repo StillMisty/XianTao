@@ -36,6 +36,14 @@ public class GameEventService {
     return gameEventRepository.save(event);
   }
 
+  /** 创建带效果的事件（无叙事） */
+  @Transactional
+  public GameEvent createEvent(
+      Long userId, GameEventCategory category, Map<String, Object> effects) {
+    GameEvent event = GameEvent.create(userId, category).withEffects(effects);
+    return gameEventRepository.save(event);
+  }
+
   /** 创建带叙事和效果的事件 */
   @Transactional
   public GameEvent createEvent(

@@ -57,4 +57,7 @@ public interface UserRepository {
       String activityType,
       LocalDateTime activityStartTime,
       Long activityTargetId);
+
+  /** 历练中途结算持久化：HP、修为、已处理分钟数 */
+  void updateTrainingSettlement(Long userId, int hpCurrent, long exp, long lastSettlementMinute);
 }

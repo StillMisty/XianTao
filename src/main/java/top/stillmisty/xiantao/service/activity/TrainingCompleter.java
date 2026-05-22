@@ -9,7 +9,6 @@ import top.stillmisty.xiantao.domain.event.EventContextKeys;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
 import top.stillmisty.xiantao.domain.event.enums.ActivityType;
 import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
-import top.stillmisty.xiantao.domain.event.repository.EventTypeRepository;
 import top.stillmisty.xiantao.domain.event.repository.HiddenCompletionRepository;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
 import top.stillmisty.xiantao.domain.user.entity.User;
@@ -26,8 +25,8 @@ public class TrainingCompleter {
   private final SubEventSelector subEventSelector;
   private final SubEventEffectExecutor effectExecutor;
   private final HiddenCompletionRepository hiddenCompletionRepository;
-  private final EventTypeRepository eventTypeRepository;
   private final TriggerConditionChecker triggerConditionChecker;
+  private final ActivityEventHelper activityEventHelper;
   private final FortuneService fortuneService;
 
   public void produceCompletionEvent(
@@ -47,7 +46,7 @@ public class TrainingCompleter {
   public void handleNumericEvent(
       Long userId, User user, ActivityEvent event, Map<String, Object> context) {
     Map<String, Object> templateArgs = effectExecutor.execute(event, userId, user, context);
-    String narrativeKey = resolveNarrativeKey(event.getCode());
+    String narrativeKey = activityEventHelper.resolveNarrativeKey(event.getCode());
     gameEventService.createEvent(
         userId, GameEventCategory.TRAINING_EVENT, narrativeKey, templateArgs);
   }
@@ -58,6 +57,7 @@ public class TrainingCompleter {
     var hiddenEvents =
         subEventSelector.findHiddenEvents(ActivityType.TRAINING.getCode(), mapNode.getId());
     for (ActivityEvent event : hiddenEvents) {
+      if (!activityEventHelper.checkPrerequisite(userId, event)) continue;
       boolean alreadyDone =
           hiddenCompletionRepository.exists(
               userId, ActivityType.TRAINING.getCode(), mapNode.getId(), event.getCode());
@@ -73,13 +73,9 @@ public class TrainingCompleter {
       EventContextKeys.MAP_NAME.put(context, mapNode.getName());
       EventContextKeys.FORTUNE.put(context, fortune);
       Map<String, Object> templateArgs = effectExecutor.execute(event, userId, user, context);
-      String narrativeKey = resolveNarrativeKey(event.getCode());
+      String narrativeKey = activityEventHelper.resolveNarrativeKey(event.getCode());
       gameEventService.createEvent(
           userId, GameEventCategory.TRAINING_HIDDEN, narrativeKey, templateArgs);
     }
-  }
-
-  private String resolveNarrativeKey(String code) {
-    return eventTypeRepository.findByCode(code).map(e -> e.getDescription()).orElse(code);
   }
 }

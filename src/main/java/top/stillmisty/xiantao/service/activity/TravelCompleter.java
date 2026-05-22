@@ -25,6 +25,7 @@ public class TravelCompleter {
   private final SubEventEffectExecutor effectExecutor;
   private final HiddenCompletionRepository hiddenCompletionRepository;
   private final TriggerConditionChecker triggerConditionChecker;
+  private final ActivityEventHelper activityEventHelper;
   private final FortuneService fortuneService;
 
   public TravelCompleter(
@@ -33,13 +34,15 @@ public class TravelCompleter {
       @Lazy SubEventEffectExecutor effectExecutor,
       HiddenCompletionRepository hiddenCompletionRepository,
       TriggerConditionChecker triggerConditionChecker,
-      FortuneService fortuneService) {
+      FortuneService fortuneService,
+      ActivityEventHelper activityEventHelper) {
     this.gameEventService = gameEventService;
     this.subEventSelector = subEventSelector;
     this.effectExecutor = effectExecutor;
     this.hiddenCompletionRepository = hiddenCompletionRepository;
     this.triggerConditionChecker = triggerConditionChecker;
     this.fortuneService = fortuneService;
+    this.activityEventHelper = activityEventHelper;
   }
 
   public void completeTravel(Long userId, User user, MapNode fromMap, MapNode toMap) {
@@ -72,8 +75,9 @@ public class TravelCompleter {
     EventContextKeys.MAP_NAME.put(context, mapNode.getName());
     EventContextKeys.FORTUNE.put(context, fortune);
     Map<String, Object> templateArgs = effectExecutor.execute(selected, userId, user, context);
+    String narrativeKey = activityEventHelper.resolveNarrativeKey(selected.getCode());
     gameEventService.createEvent(
-        userId, GameEventCategory.TRAVEL_EVENT, selected.getCode(), templateArgs);
+        userId, GameEventCategory.TRAVEL_EVENT, narrativeKey, templateArgs);
   }
 
   private void checkHiddenEvents(Long userId, User user, MapNode mapNode) {
@@ -81,6 +85,7 @@ public class TravelCompleter {
     var hiddenEvents =
         subEventSelector.findHiddenEvents(ActivityType.TRAVEL.getCode(), mapNode.getId());
     for (ActivityEvent event : hiddenEvents) {
+      if (!activityEventHelper.checkPrerequisite(userId, event)) continue;
       boolean alreadyDone =
           hiddenCompletionRepository.exists(
               userId, ActivityType.TRAVEL.getCode(), mapNode.getId(), event.getCode());
@@ -96,11 +101,9 @@ public class TravelCompleter {
       EventContextKeys.MAP_NAME.put(hiddenContext, mapNode.getName());
       EventContextKeys.FORTUNE.put(hiddenContext, fortune);
       Map<String, Object> templateArgs = effectExecutor.execute(event, userId, user, hiddenContext);
+      String narrativeKey = activityEventHelper.resolveNarrativeKey(event.getCode());
       gameEventService.createEvent(
-          userId,
-          GameEventCategory.TRAVEL_HIDDEN,
-          "你在{{mapName}}发现了隐藏的秘密：{{eventName}}。",
-          Map.of("mapName", mapNode.getName(), "eventName", event.getCode()));
+          userId, GameEventCategory.TRAVEL_HIDDEN, narrativeKey, templateArgs);
     }
   }
 }

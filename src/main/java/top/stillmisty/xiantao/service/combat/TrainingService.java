@@ -9,11 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import top.stillmisty.xiantao.domain.event.EventContextKeys;
-import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
 import top.stillmisty.xiantao.domain.event.enums.ActivityType;
-import top.stillmisty.xiantao.domain.event.repository.ActivityEventRepository;
-import top.stillmisty.xiantao.domain.event.vo.FortuneVO;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
@@ -23,11 +19,9 @@ import top.stillmisty.xiantao.domain.map.enums.MapType;
 import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
 import top.stillmisty.xiantao.domain.map.vo.TrainingRewardVO;
 import top.stillmisty.xiantao.domain.map.vo.TrainingStartResult;
-import top.stillmisty.xiantao.domain.monster.entity.MonsterTemplate;
 import top.stillmisty.xiantao.domain.monster.repository.MonsterTemplateRepository;
 import top.stillmisty.xiantao.domain.monster.vo.CombatLogEntry;
 import top.stillmisty.xiantao.domain.monster.vo.DropItem;
-import top.stillmisty.xiantao.domain.skill.entity.Skill;
 import top.stillmisty.xiantao.domain.skill.repository.SkillRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
@@ -62,9 +56,9 @@ public class TrainingService {
   private final StackableItemService stackableItemService;
   private final TrainingCompleter trainingCompleter;
   private final ExplorationDescriptionFunction explorationDescriptionFunction;
-  private final ActivityEventRepository activityEventRepository;
   private final EncounterCalculator encounterCalculator;
   private final CombatEventHandler combatEventHandler;
+  private final TrainingSettler trainingSettler;
   private final MonsterTemplateRepository monsterTemplateRepository;
   private final SkillRepository skillRepository;
   private final GameEventService gameEventService;
@@ -109,6 +103,7 @@ public class TrainingService {
     user.setActivityStartTime(LocalDateTime.now());
     user.setActivityTargetId(mapNode.getId());
     user.setStatus(UserStatus.TRAINING);
+    user.setLastSettlementMinute(0L);
     userStateService.saveActivity(user);
     log.info("玩家 {} 开始在 {} 历练", userId, mapNode.getName());
     return TrainingStartResult.builder().success(true).mapName(mapNode.getName()).build();
@@ -170,27 +165,38 @@ public class TrainingService {
 
   private TrainingRewardVO processNormalTrainingEnd(
       Long userId, User user, long minutesTraining, MapNode mapNode) {
-    double efficiencyMultiplier = calculateEfficiencyMultiplier(user.getEffectiveStatAgi());
-    double levelDecayMultiplier =
-        calculateLevelDecayMultiplier(user.getLevel(), mapNode.getLevelRequirement());
-    long baseExpPerMinute =
-        Math.max(
-            mapNode.getLevelRequirement() * 5L,
-            (long) (Math.sqrt(user.getEffectiveStatWis()) * 12));
-    long baseExp =
-        (long) (baseExpPerMinute * minutesTraining * efficiencyMultiplier * levelDecayMultiplier);
+    long lastSettled = user.getLastSettlementMinute() != null ? user.getLastSettlementMinute() : 0;
+    long remainingMinutes = Math.max(0, minutesTraining - lastSettled);
 
-    var fortune = fortuneService.calculate(userId);
-    baseExp = (long) (baseExp * fortuneService.getLuckMultiplier(fortune.luck()));
-    List<DropItem> trainingItems =
-        calculateItemsReward(minutesTraining, efficiencyMultiplier, mapNode);
+    CombatSummary combatSummary = CombatSummary.empty();
+    long baseExp = 0;
+    List<DropItem> trainingItems = List.of();
 
-    // 统一事件循环: COMBAT + NUMERIC 一个池子里加权抽
-    CombatSummary combatSummary =
-        runUnifiedEventLoop(userId, user, mapNode, (int) minutesTraining, fortune);
+    double efficiencyMultiplier = 1.0;
+    double levelDecayMultiplier = 1.0;
+
+    if (remainingMinutes > 0) {
+      efficiencyMultiplier = calculateEfficiencyMultiplier(user.getEffectiveStatAgi());
+      levelDecayMultiplier =
+          calculateLevelDecayMultiplier(user.getLevel(), mapNode.getLevelRequirement());
+      long baseExpPerMinute =
+          Math.max(
+              mapNode.getLevelRequirement() * 5L,
+              (long) (Math.sqrt(user.getEffectiveStatWis()) * 12));
+      baseExp =
+          (long)
+              (baseExpPerMinute * remainingMinutes * efficiencyMultiplier * levelDecayMultiplier);
+
+      var fortune = fortuneService.calculate(userId);
+      baseExp = (long) (baseExp * fortuneService.getLuckMultiplier(fortune.luck()));
+      trainingItems = calculateItemsReward(remainingMinutes, efficiencyMultiplier, mapNode);
+
+      combatSummary =
+          trainingSettler.settleChunk(userId, user, mapNode, lastSettled, minutesTraining);
+    }
+
     boolean diedInTraining = user.getStatus() == UserStatus.DYING;
 
-    // 子事件和隐藏事件优先于基础修为结算（避免溢出）
     trainingCompleter.checkHiddenEvents(userId, user, mapNode);
 
     if (!diedInTraining && baseExp > 0) {
@@ -233,65 +239,7 @@ public class TrainingService {
         .build();
   }
 
-  /** 统一事件循环: COMBAT + NUMERIC 同一池子加权随机 */
-  private CombatSummary runUnifiedEventLoop(
-      Long userId, User user, MapNode mapNode, int minutesTraining, FortuneVO fortune) {
-    List<ActivityEvent> pool = activityEventRepository.findSubEvents("TRAINING", mapNode.getId());
-    if (pool.isEmpty()) return CombatSummary.empty();
-
-    var params = encounterCalculator.compute(userId, user, mapNode, minutesTraining);
-    CombatSummary combatSummary = CombatSummary.empty();
-
-    // 预加载 COMBAT 事件需要的怪物数据
-    List<Long> combatTemplateIds =
-        pool.stream()
-            .filter(e -> "COMBAT".equals(e.getEventType()))
-            .map(e -> ((Number) e.getParams().get("monster_template_id")).longValue())
-            .distinct()
-            .toList();
-    Map<Long, MonsterTemplate> templateMap =
-        combatTemplateIds.isEmpty()
-            ? Map.of()
-            : monsterTemplateRepository.findByIds(combatTemplateIds).stream()
-                .collect(Collectors.toMap(MonsterTemplate::getId, t -> t));
-    Set<Long> skillIds =
-        templateMap.values().stream()
-            .flatMap(
-                t -> t.getSkills() != null ? t.getSkills().stream() : java.util.stream.Stream.of())
-            .collect(Collectors.toSet());
-    Map<Long, Skill> skillMap =
-        skillIds.isEmpty()
-            ? Map.of()
-            : skillRepository.findByIds(new ArrayList<>(skillIds)).stream()
-                .collect(Collectors.toMap(Skill::getId, s -> s));
-
-    Map<String, Object> context = new HashMap<>();
-    EventContextKeys.MAP_NODE.put(context, mapNode);
-    EventContextKeys.MAP_NAME.put(context, mapNode.getName());
-    EventContextKeys.FORTUNE.put(context, fortune);
-
-    double fateMultiplier = fortuneService.getFateMultiplier(fortune.fate());
-    double adjustedPerRollChance = Math.min(1.0, params.perRollChance() * fateMultiplier);
-
-    for (int i = 0; i < params.slots(); i++) {
-      if (ThreadLocalRandom.current().nextDouble() >= adjustedPerRollChance) continue;
-
-      ActivityEvent event =
-          WeightedRandom.select(pool, ActivityEvent::getWeight, ThreadLocalRandom.current());
-      if (event == null) continue;
-
-      if ("COMBAT".equals(event.getEventType())) {
-        EncounterResult result =
-            combatEventHandler.handle(event, userId, user, templateMap, skillMap, i);
-        combatSummary = combatSummary.merge(result);
-        if (user.getStatus() == UserStatus.DYING) break;
-      } else {
-        trainingCompleter.handleNumericEvent(userId, user, event, context);
-      }
-    }
-    return combatSummary;
-  }
-
+  // ===================== 物品与经验计算 =====================
   private String beautifyTrainingSummary(
       MapNode mapNode,
       long minutesTraining,

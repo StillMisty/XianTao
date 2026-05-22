@@ -48,7 +48,7 @@ public class SubEventEffectExecutor {
   }
 
   @SuppressWarnings("unchecked")
-  private Map<String, Object> executeEffects(
+  public Map<String, Object> executeEffects(
       Map<String, Object> container, Long userId, User user, Map<String, Object> context) {
     List<Map<String, Object>> effectList = (List<Map<String, Object>>) container.get("effects");
     if (effectList == null || effectList.isEmpty()) return Map.of();

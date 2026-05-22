@@ -19,10 +19,11 @@ public class ReplyHelper {
 
   public void replyOneBot(OneBotMessageEvent event, String text) {
     try {
-      event.replyBlocking(
-          notificationAppender
-              .prepareAppend(PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), text)
-              .text());
+      var result =
+          notificationAppender.prepareAppend(
+              PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), text);
+      event.replyBlocking(result.text());
+      notificationAppender.markDelivered(result.eventIds());
     } catch (Exception e) {
       log.warn("OneBot 回复失败: {}", e.getMessage());
     }

@@ -19,6 +19,7 @@ import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.FortuneService;
 import top.stillmisty.xiantao.service.GameEventService;
 import top.stillmisty.xiantao.service.activity.TravelCompleter;
+import top.stillmisty.xiantao.service.combat.TrainingSettler;
 
 /** 用户状态服务 统一入口：加载用户实体并自动解析过期的运行时状态（旅行结算、HP 恢复、buff 清理等）。 */
 @Slf4j
@@ -29,11 +30,14 @@ public class UserStateService {
   private static final long HP_RECOVERY_INTERVAL_MINUTES = 5;
   private static final long DYING_RECOVERY_TIMEOUT_MINUTES = 30;
 
+  private static final long TRAINING_SETTLEMENT_INTERVAL_MINUTES = 10;
+
   private final UserRepository userRepository;
   private final MapNodeRepository mapNodeRepository;
   private final PlayerBuffRepository playerBuffRepository;
   private final GameEventService gameEventService;
   private final TravelCompleter travelCompleter;
+  private final TrainingSettler trainingSettler;
   private final FortuneService fortuneService;
 
   /** 加载用户并自动解析过期状态。使用行锁防止并发状态更新。 */
@@ -115,6 +119,7 @@ public class UserStateService {
     dirty |= tryDyingRecovery(user);
     dirty |= tryHpRecovery(user);
     dirty |= tryExpireBuffs(user);
+    dirty |= tryTrainingSettlement(user);
     dirty |= tryDailyFortune(user);
 
     if (dirty) {
@@ -242,6 +247,48 @@ public class UserStateService {
 
     log.info("玩家 {} 濒死超时自动恢复，HP 恢复到 {}", user.getId(), recoveryHp);
     return true;
+  }
+
+  /** 历练中途结算：每固定间隔自动处理已完成的历练时间块 */
+  private boolean tryTrainingSettlement(User user) {
+    if (user.getStatus() != UserStatus.TRAINING) return false;
+    if (user.getActivityType() != ActivityType.TRAINING) return false;
+    if (user.getActivityStartTime() == null) return false;
+
+    long minutesElapsed =
+        Duration.between(user.getActivityStartTime(), LocalDateTime.now()).toMinutes();
+    long lastSettled = user.getLastSettlementMinute() != null ? user.getLastSettlementMinute() : 0;
+    long interval = TRAINING_SETTLEMENT_INTERVAL_MINUTES;
+    if (lastSettled + interval > minutesElapsed) return false;
+
+    var mapNode = mapNodeRepository.findById(user.getLocationId()).orElse(null);
+    if (mapNode == null) return false;
+
+    long nextSettled = lastSettled + interval;
+    while (nextSettled <= minutesElapsed) {
+      if (user.getStatus() == UserStatus.DYING) break;
+      trainingSettler.settleChunk(user.getId(), user, mapNode, lastSettled, nextSettled);
+      gameEventService.createEvent(
+          user.getId(),
+          GameEventCategory.TRAINING_EVENT,
+          "历练进行中：已修炼 {{from}}~{{to}} 分钟，在 {{mapName}} 继续精进。",
+          java.util.Map.of("from", lastSettled, "to", nextSettled, "mapName", mapNode.getName()));
+      lastSettled = nextSettled;
+      nextSettled += interval;
+    }
+
+    user.setLastSettlementMinute(lastSettled);
+    saveTrainingSettlement(user);
+    return true;
+  }
+
+  /** 历练中途结算持久化（不修改活动字段，保留 TRAINING 状态） */
+  public void saveTrainingSettlement(User user) {
+    userRepository.updateTrainingSettlement(
+        user.getId(),
+        user.getHpCurrent(),
+        user.getExp(),
+        user.getLastSettlementMinute() != null ? user.getLastSettlementMinute() : 0);
   }
 
   private boolean tryDailyFortune(User user) {
