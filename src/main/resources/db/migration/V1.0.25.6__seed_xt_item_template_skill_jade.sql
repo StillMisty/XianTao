@@ -1,0 +1,1763 @@
+-- 法决玉简种子数据 (xt_item_template, type=SKILL_JADE)
+INSERT
+    INTO
+        xt_item_template(
+            name,
+            TYPE,
+            properties,
+            tags,
+            description
+        )
+    VALUES(
+        '破风斩玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '破风斩'
+            )
+        ),
+        '["skill_jade","blade","damage"]' ::jsonb,
+        '刀法基础篇，以迅捷之势破开罡风的一斩。'
+    ),
+    (
+        '清风剑法玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '清风剑法'
+            )
+        ),
+        '["skill_jade","sword","damage"]' ::jsonb,
+        '入门剑法，飘逸灵动如清风拂面，实则剑气暗藏。'
+    ),
+    (
+        '万剑归宗玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '万剑归宗'
+            )
+        ),
+        '["skill_jade","sword","aoe"]' ::jsonb,
+        '御剑生万千，归宗化归一。剑修梦寐以求的群杀绝学。'
+    ),
+    (
+        '金刚体玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '金刚体'
+            )
+        ),
+        '["skill_jade","passive","defense"]' ::jsonb,
+        '金刚体法决的玉简，提升防御，简单粗暴。'
+    ),
+    (
+        '轻身术玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '轻身术'
+            )
+        ),
+        '["skill_jade","passive","agi"]' ::jsonb,
+        '让身体变轻的法术，跑得快跳得高，实战逃命两不误。'
+    ),
+    (
+        '蛮牛劲玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '蛮牛劲'
+            )
+        ),
+        '["skill_jade","passive","str"]' ::jsonb,
+        '模仿蛮牛之力的体术，力大无穷但不是变成牛。'
+    ),
+    (
+        '静心诀玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '静心诀'
+            )
+        ),
+        '["skill_jade","passive","wis"]' ::jsonb,
+        '静中见真境，淡中识本然。增加悟性的基础心法。'
+    ),
+    (
+        '烈火掌玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '烈火掌'
+            )
+        ),
+        '["skill_jade","fire","damage"]' ::jsonb,
+        '聚火气于掌间，催发炽热掌力。火属性法决入门。'
+    ),
+    (
+        '寒冰掌玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '寒冰掌'
+            )
+        ),
+        '["skill_jade","water","ice","damage"]' ::jsonb,
+        '寒气凝于手，触之冻三尺。水属性入门法决。'
+    ),
+    (
+        '青木诀玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '青木诀'
+            )
+        ),
+        '["skill_jade","wood","heal"]' ::jsonb,
+        '引木行生气滋养自身，可恢复伤势。长途历练必备。'
+    ),
+    (
+        '金灵剑气玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '金灵剑气'
+            )
+        ),
+        '["skill_jade","metal","damage"]' ::jsonb,
+        '以金行道韵化为剑气，锋锐不可挡。'
+    ),
+    (
+        '霸刀诀玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '霸刀诀'
+            )
+        ),
+        '["skill_jade","blade","damage","armor_break"]' ::jsonb,
+        '霸道无我的刀法，一刀之下，管你什么甲胄统统劈开。'
+    ),
+    (
+        '诛仙剑诀玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '诛仙剑诀'
+            )
+        ),
+        '["skill_jade","sword","execute"]' ::jsonb,
+        '传闻中可屠仙的剑诀——但也得你修炼到那个境界。'
+    ),
+    (
+        '焚天诀玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '焚天诀'
+            )
+        ),
+        '["skill_jade","fire","aoe","dot"]' ::jsonb,
+        '焚天之火，燎原之势，持续灼烧敌人。'
+    ),
+    (
+        '轩辕剑法玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '轩辕剑法'
+            )
+        ),
+        '["skill_jade","sword","legendary"]' ::jsonb,
+        '相传是黄帝轩辕氏的战剑之法，剑出则万灵俱灭。'
+    ),
+    (
+        '霸下真身玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '霸下真身'
+            )
+        ),
+        '["skill_jade","passive","con","legendary"]' ::jsonb,
+        '龙九子之首霸下的不灭真身，修炼到顶无人能破防。'
+    ),
+    (
+        '蟠桃仙术玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '蟠桃仙术'
+            )
+        ),
+        '["skill_jade","heal","legendary"]' ::jsonb,
+        '以西王母蟠桃仙根所化的疗愈术，生死人肉白骨。'
+    ),
+    (
+        '射日弓玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '射日弓'
+            )
+        ),
+        '["skill_jade","bow","execute"]' ::jsonb,
+        '后羿射日遗留下的箭法奥义，一箭穿九日。'
+    ),
+    (
+        '莲华涅槃玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '莲华涅槃'
+            )
+        ),
+        '["skill_jade","heal","defense","legendary"]' ::jsonb,
+        '莲台涅槃之法，濒死之际可浴火重生一次。'
+    ),
+    (
+        '横刀断岳玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '横刀断岳'
+            )
+        ),
+        '["skill_jade","blade","damage"]' ::jsonb,
+        '一刀劈出可断山岳之势，刀法之中正大道的体现。'
+    ),
+    (
+        '剑心通明玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '剑心通明'
+            )
+        ),
+        '["skill_jade","sword","damage","defense_buff"]' ::jsonb,
+        '剑心透彻则万法不惑，攻守兼备的中阶剑法。'
+    ),
+    (
+        '开山斧玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '开山斧'
+            )
+        ),
+        '["skill_jade","axe","damage"]' ::jsonb,
+        '以破竹之势劈山开石的斧法，力大者尤爱。'
+    ),
+    (
+        '穿云枪玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '穿云枪'
+            )
+        ),
+        '["skill_jade","spear","damage"]' ::jsonb,
+        '枪尖破云而出，迅猛无匹的枪法。'
+    ),
+    (
+        '伏魔棍玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '伏魔棍'
+            )
+        ),
+        '["skill_jade","staff","damage"]' ::jsonb,
+        '降妖伏魔的基础棍法，简单实用。'
+    ),
+    (
+        '穿杨箭玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '穿杨箭'
+            )
+        ),
+        '["skill_jade","bow","damage"]' ::jsonb,
+        '百步穿杨的精准箭术，弓手入门必学。'
+    ),
+    (
+        '灵蛇鞭玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '灵蛇鞭'
+            )
+        ),
+        '["skill_jade","whip","damage","slow"]' ::jsonb,
+        '如灵蛇吐信的鞭法，可减缓敌速。'
+    ),
+    (
+        '方天画戟玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '方天画戟'
+            )
+        ),
+        '["skill_jade","halberd","damage"]' ::jsonb,
+        '方天画戟的基础用法，威风凛凛。'
+    ),
+    (
+        '震地锤玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '震地锤'
+            )
+        ),
+        '["skill_jade","hammer","damage","stun"]' ::jsonb,
+        '一锤震地的蛮横锤法，运气好能砸晕对手。'
+    ),
+    (
+        '影刺玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '影刺'
+            )
+        ),
+        '["skill_jade","dagger","damage"]' ::jsonb,
+        '从暗影中发起的致命一击，刺客入门。'
+    ),
+    (
+        '清风拂柳玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '清风拂柳'
+            )
+        ),
+        '["skill_jade","fan","heal"]' ::jsonb,
+        '以扇引生机，疗愈自身或友方的风雅之术。'
+    ),
+    (
+        '拂尘净心玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '拂尘净心'
+            )
+        ),
+        '["skill_jade","flywhisk","heal","speed_buff"]' ::jsonb,
+        '拂尘轻扫，净心凝神，增加速度。'
+    ),
+    (
+        '金刚圈玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '金刚圈'
+            )
+        ),
+        '["skill_jade","ring","damage","stun"]' ::jsonb,
+        '乾坤圈之术的筑基版，专敲脑门。'
+    ),
+    (
+        '伏魔钟玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '伏魔钟'
+            )
+        ),
+        '["skill_jade","bell","damage","silence"]' ::jsonb,
+        '钟声震荡，魔音贯耳，可封人法决。'
+    ), -- ============ 缺失补充：PASSIVE ============('通明心法玉简','SKILL_JADE',
+    jsonb_build_object(
+        'skill_id',
+        (
+            SELECT
+                id
+            FROM
+                xt_skill
+            WHERE
+                name = '通明心法'
+        )
+    ),
+    '["skill_jade","passive","wis"]' ::jsonb,
+    '静心诀的进阶心法，心通大道慧眼如炬，防御更上层楼。' ),
+    (
+        '天人感应玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '天人感应'
+            )
+        ),
+        '["skill_jade","passive","wis"]' ::jsonb,
+        '感天悟地道法自然，通明心法之后方能参悟的中阶心法。'
+    ),
+    (
+        '道心通明玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '道心通明'
+            )
+        ),
+        '["skill_jade","passive","wis","advanced","epic"]' ::jsonb,
+        '道心坚定明悟天地至理，被动防御心法的至高境界。'
+    ), -- ============ 缺失补充：BLADE (刀法) ============('刀光如练玉简','SKILL_JADE',
+    jsonb_build_object(
+        'skill_id',
+        (
+            SELECT
+                id
+            FROM
+                xt_skill
+            WHERE
+                name = '刀光如练'
+        )
+    ),
+    '["skill_jade","blade","multi_hit"]' ::jsonb,
+    '刀势连绵不绝如白练飞舞，三刀连斩令敌措手不及。' ),
+    (
+        '天刀九式玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '天刀九式'
+            )
+        ),
+        '["skill_jade","blade","execute","multi_hit","epic"]' ::jsonb,
+        '九式合一刀意纵横，连斩斩杀的刀法极致奥义。'
+    ), -- ============ 缺失补充：SWORD (剑法) ============('飞仙剑法玉简','SKILL_JADE',
+    jsonb_build_object(
+        'skill_id',
+        (
+            SELECT
+                id
+            FROM
+                xt_skill
+            WHERE
+                name = '飞仙剑法'
+        )
+    ),
+    '["skill_jade","sword","damage"]' ::jsonb,
+    '剑气如飞仙凌空，灵逸中蕴含致命杀机的剑法。' ),
+    (
+        '青莲剑歌玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '青莲剑歌'
+            )
+        ),
+        '["skill_jade","sword","multi_hit","lifesteal","epic"]' ::jsonb,
+        '剑舞如莲华绽放，五连剑影中汲取敌血，美而致命。'
+    ), -- ============ 缺失补充：AXE (斧法) ============('旋风斧玉简','SKILL_JADE',
+    jsonb_build_object(
+        'skill_id',
+        (
+            SELECT
+                id
+            FROM
+                xt_skill
+            WHERE
+                name = '旋风斧'
+        )
+    ),
+    '["skill_jade","axe","aoe"]' ::jsonb,
+    '旋转横扫如旋风过境，群战中碾碎敌阵的斧法。' ),
+    (
+        '碎星斧玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '碎星斧'
+            )
+        ),
+        '["skill_jade","axe","armor_break"]' ::jsonb,
+        '一斧碎星辰，破甲猛攻的中阶斧法，专破硬壳。'
+    ),
+    (
+        '刑天斧法玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '刑天斧法'
+            )
+        ),
+        '["skill_jade","axe","execute","advanced"]' ::jsonb,
+        '仿上古刑天舞干戚之势，对半血以下敌人无情斩杀。'
+    ),
+    (
+        '盘古开天玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '盘古开天'
+            )
+        ),
+        '["skill_jade","axe","damage","legendary"]' ::jsonb,
+        '传说中盘古开天辟地之力化为一斧，至刚至猛的传奇斧法。'
+    ), -- ============ 缺失补充：SPEAR (枪法) ============('游龙枪法玉简','SKILL_JADE',
+    jsonb_build_object(
+        'skill_id',
+        (
+            SELECT
+                id
+            FROM
+                xt_skill
+            WHERE
+                name = '游龙枪法'
+        )
+    ),
+    '["skill_jade","spear","damage"]' ::jsonb,
+    '枪势如游龙盘旋翻腾，刚柔并济的枪法进阶。' ),
+    (
+        '寒芒点星玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '寒芒点星'
+            )
+        ),
+        '["skill_jade","spear","multi_hit"]' ::jsonb,
+        '枪尖寒芒如寒星点点，连刺三枪密不透风。'
+    ),
+    (
+        '回马枪玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '回马枪'
+            )
+        ),
+        '["skill_jade","spear","execute","advanced"]' ::jsonb,
+        '佯退诱敌回身刺，致命回马枪专杀残血之敌。'
+    ),
+    (
+        '霸王枪玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '霸王枪'
+            )
+        ),
+        '["skill_jade","spear","aoe","advanced"]' ::jsonb,
+        '横扫千军的霸道枪法，一枪扫倒一片敌。'
+    ),
+    (
+        '破阵枪诀玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '破阵枪诀'
+            )
+        ),
+        '["skill_jade","spear","armor_break","epic"]' ::jsonb,
+        '专破阵法坚甲的枪诀，撕碎一切防御。'
+    ), -- ============ 缺失补充：STAFF (棍法) ============('横扫千军玉简','SKILL_JADE',
+    jsonb_build_object(
+        'skill_id',
+        (
+            SELECT
+                id
+            FROM
+                xt_skill
+            WHERE
+                name = '横扫千军'
+        )
+    ),
+    '["skill_jade","staff","aoe"]' ::jsonb,
+    '棍扫一大片的基础群攻棍法，横扫八方。' ),
+    (
+        '定海神针玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '定海神针'
+            )
+        ),
+        '["skill_jade","staff","stun"]' ::jsonb,
+        '重击如定海神针镇压，运气好能把敌敲晕。'
+    ),
+    (
+        '翻天棍法玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '翻天棍法'
+            )
+        ),
+        '["skill_jade","staff","aoe","armor_break","advanced"]' ::jsonb,
+        '翻天覆地一套棍，群攻破甲两不误的进阶棍法。'
+    ),
+    (
+        '菩提棍意玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '菩提棍意'
+            )
+        ),
+        '["skill_jade","staff","lifesteal","epic"]' ::jsonb,
+        '以菩提之心运棍，重击敌人的同时汲取生命之力。'
+    ), -- ============ 缺失补充：BOW (弓法) ============('连珠箭玉简','SKILL_JADE',
+    jsonb_build_object(
+        'skill_id',
+        (
+            SELECT
+                id
+            FROM
+                xt_skill
+            WHERE
+                name = '连珠箭'
+        )
+    ),
+    '["skill_jade","bow","multi_hit"]' ::jsonb,
+    '连珠三箭如流星赶月，弓手基础连射技法。' ),
+    (
+        '穿心箭玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '穿心箭'
+            )
+        ),
+        '["skill_jade","bow","armor_break"]' ::jsonb,
+        '一箭穿心破甲入体，穿透防御的精准箭法。'
+    ),
+    (
+        '流星箭雨玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '流星箭雨'
+            )
+        ),
+        '["skill_jade","bow","aoe","advanced"]' ::jsonb,
+        '箭如流星雨般倾泻而下，远程群杀的进阶弓术。'
+    ),
+    (
+        '追魂箭玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '追魂箭'
+            )
+        ),
+        '["skill_jade","bow","execute","epic"]' ::jsonb,
+        '一箭追魂索命不散，对垂死之敌一击必杀的绝箭。'
+    ), -- ============ 缺失补充：WHIP (鞭法) ============('缚龙索玉简','SKILL_JADE',
+    jsonb_build_object(
+        'skill_id',
+        (
+            SELECT
+                id
+            FROM
+                xt_skill
+            WHERE
+                name = '缚龙索'
+        )
+    ),
+    '["skill_jade","whip","stun","control"]' ::jsonb,
+    '鞭化缚龙之索困敌身形，控场眩晕的妙法。' ),
+    (
+        '天魔鞭法玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '天魔鞭法'
+            )
+        ),
+        '["skill_jade","whip","aoe","dot","advanced"]' ::jsonb,
+        '天魔乱舞之鞭，横扫群敌并留下持续侵蚀的魔气。'
+    ),
+    (
+        '修罗鞭玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '修罗鞭'
+            )
+        ),
+        '["skill_jade","whip","lifesteal","epic"]' ::jsonb,
+        '修罗道的狂鞭，鞭鞭到肉鞭鞭回血，凶残至极。'
+    ), -- ============ 缺失补充：HALBERD (戟法) ============('戟破苍穹玉简','SKILL_JADE',
+    jsonb_build_object(
+        'skill_id',
+        (
+            SELECT
+                id
+            FROM
+                xt_skill
+            WHERE
+                name = '戟破苍穹'
+        )
+    ),
+    '["skill_jade","halberd","armor_break"]' ::jsonb,
+    '一戟破空撕裂苍穹，附带强大破甲之力的戟法。' ),
+    (
+        '裂天戟玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '裂天戟'
+            )
+        ),
+        '["skill_jade","halberd","aoe","execute","epic"]' ::jsonb,
+        '一戟分裂天地，群杀之中对残血之敌无情收割。'
+    ), -- ============ 缺失补充：HAMMER (锤法) ============('轰天锤玉简','SKILL_JADE',
+    jsonb_build_object(
+        'skill_id',
+        (
+            SELECT
+                id
+            FROM
+                xt_skill
+            WHERE
+                name = '轰天锤'
+        )
+    ),
+    '["skill_jade","hammer","aoe"]' ::jsonb,
+    '一锤轰天震四野，群伤型的蛮横锤法。' ),
+    (
+        '碎虚锤玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '碎虚锤'
+            )
+        ),
+        '["skill_jade","hammer","armor_break","execute","legendary"]' ::jsonb,
+        '一锤碎虚空，破甲斩杀双绝的传奇锤法。'
+    ), -- ============ 缺失补充：DAGGER (匕首) ============('暗影杀玉简','SKILL_JADE',
+    jsonb_build_object(
+        'skill_id',
+        (
+            SELECT
+                id
+            FROM
+                xt_skill
+            WHERE
+                name = '暗影杀'
+        )
+    ),
+    '["skill_jade","dagger","execute"]' ::jsonb,
+    '暗影中一击致命，对半血以下目标发动绝杀的刺杀术。' ),
+    (
+        '千幻刺杀玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '千幻刺杀'
+            )
+        ),
+        '["skill_jade","dagger","multi_hit","dot","advanced"]' ::jsonb,
+        '幻化千影连续刺杀，附带持续毒伤的残暴连击。'
+    ),
+    (
+        '瞬狱杀玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '瞬狱杀'
+            )
+        ),
+        '["skill_jade","dagger","execute","stun","epic"]' ::jsonb,
+        '瞬移至敌后发动致命一击，晕杀斩三合一的终极刺杀。'
+    ), -- ============ 缺失补充：FAN (扇法) ============('霓裳扇舞玉简','SKILL_JADE',
+    jsonb_build_object(
+        'skill_id',
+        (
+            SELECT
+                id
+            FROM
+                xt_skill
+            WHERE
+                name = '霓裳扇舞'
+        )
+    ),
+    '["skill_jade","fan","aoe","slow"]' ::jsonb,
+    '扇舞如霓裳飘摇，群伤减速的优雅扇法。' ),
+    (
+        '天罡扇玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '天罡扇'
+            )
+        ),
+        '["skill_jade","fan","attack_buff","advanced"]' ::jsonb,
+        '天罡之力入扇，攻其不备并大幅提升自身战力。'
+    ), -- ============ 缺失补充：FLYWHISK (拂尘) ============('三千烦恼玉简','SKILL_JADE',
+    jsonb_build_object(
+        'skill_id',
+        (
+            SELECT
+                id
+            FROM
+                xt_skill
+            WHERE
+                name = '三千烦恼'
+        )
+    ),
+    '["skill_jade","flywhisk","aoe","silence"]' ::jsonb,
+    '尘丝化三千烦恼，群伤同时禁言敌人的玄妙之法。' ),
+    (
+        '太虚拂尘玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '太虚拂尘'
+            )
+        ),
+        '["skill_jade","flywhisk","defense_buff","advanced"]' ::jsonb,
+        '太虚之境化拂尘，攻敌之际铸就不破之防。'
+    ), -- ============ 缺失补充：RING (圈法) ============('乾坤圈玉简','SKILL_JADE',
+    jsonb_build_object(
+        'skill_id',
+        (
+            SELECT
+                id
+            FROM
+                xt_skill
+            WHERE
+                name = '乾坤圈'
+        )
+    ),
+    '["skill_jade","ring","aoe"]' ::jsonb,
+    '乾坤一圈定八方，中阶群攻圈法。' ),
+    (
+        '日月双环玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '日月双环'
+            )
+        ),
+        '["skill_jade","ring","multi_hit","advanced"]' ::jsonb,
+        '日月齐出双环飞转，双击中暗藏暴击的连环圈法。'
+    ), -- ============ 缺失补充：BELL (钟法) ============('镇魂钟声玉简','SKILL_JADE',
+    jsonb_build_object(
+        'skill_id',
+        (
+            SELECT
+                id
+            FROM
+                xt_skill
+            WHERE
+                name = '镇魂钟声'
+        )
+    ),
+    '["skill_jade","bell","aoe","stun"]' ::jsonb,
+    '钟声镇魂震荡四方，群伤并有概率震晕敌人。' ),
+    (
+        '混沌钟玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '混沌钟'
+            )
+        ),
+        '["skill_jade","bell","execute","epic"]' ::jsonb,
+        '混沌初开的钟声回荡，重击残血之敌的史诗钟法。'
+    ), -- ============ 缺失补充：WEAPON_CATEGORY — MELEE (近战大类) ============('兵锋诀玉简','SKILL_JADE',
+    jsonb_build_object(
+        'skill_id',
+        (
+            SELECT
+                id
+            FROM
+                xt_skill
+            WHERE
+                name = '兵锋诀'
+        )
+    ),
+    '["skill_jade","melee","attack_buff"]' ::jsonb,
+    '运灵力强化兵刃锋芒，提升攻击的通用近战术。' ),
+    (
+        '刀剑无双玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '刀剑无双'
+            )
+        ),
+        '["skill_jade","melee","aoe"]' ::jsonb,
+        '刀剑齐出横扫群敌，近战通用群攻之法。'
+    ),
+    (
+        '兵主杀伐玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '兵主杀伐'
+            )
+        ),
+        '["skill_jade","melee","lifesteal","advanced"]' ::jsonb,
+        '杀伐之气纵横，重击吸血的高阶近战杀招。'
+    ), -- ============ 缺失补充：WEAPON_CATEGORY — POLEARM (长兵大类) ============('长驱直入玉简','SKILL_JADE',
+    jsonb_build_object(
+        'skill_id',
+        (
+            SELECT
+                id
+            FROM
+                xt_skill
+            WHERE
+                name = '长驱直入'
+        )
+    ),
+    '["skill_jade","polearm","damage"]' ::jsonb,
+    '以长兵之势直捣黄龙，基础长兵技法。' ),
+    (
+        '横扫八荒玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '横扫八荒'
+            )
+        ),
+        '["skill_jade","polearm","aoe"]' ::jsonb,
+        '长兵横扫八荒六合，群战中的不二之选。'
+    ),
+    (
+        '枪出如龙玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '枪出如龙'
+            )
+        ),
+        '["skill_jade","polearm","execute","advanced"]' ::jsonb,
+        '全力一击如苍龙出海，对残血一枪穿心的斩杀技。'
+    ), -- ============ 缺失补充：WEAPON_CATEGORY — RANGED (远程大类) ============('鹰眼术玉简','SKILL_JADE',
+    jsonb_build_object(
+        'skill_id',
+        (
+            SELECT
+                id
+            FROM
+                xt_skill
+            WHERE
+                name = '鹰眼术'
+        )
+    ),
+    '["skill_jade","ranged","attack_buff"]' ::jsonb,
+    '凝神聚目如鹰隼，大幅提升远程攻击的辅助术。' ),
+    (
+        '百步穿杨玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '百步穿杨'
+            )
+        ),
+        '["skill_jade","ranged","armor_break"]' ::jsonb,
+        '百步之外一击穿甲，远程精准破防的中阶技法。'
+    ),
+    (
+        '后羿射日玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '后羿射日'
+            )
+        ),
+        '["skill_jade","ranged","damage","legendary"]' ::jsonb,
+        '远古箭神之力再现，至强至远的传奇一击。'
+    ), -- ============ 缺失补充：WEAPON_CATEGORY — EXOTIC (奇门大类) ============('奇门遁甲玉简','SKILL_JADE',
+    jsonb_build_object(
+        'skill_id',
+        (
+            SELECT
+                id
+            FROM
+                xt_skill
+            WHERE
+                name = '奇门遁甲'
+        )
+    ),
+    '["skill_jade","exotic","slow"]' ::jsonb,
+    '奇兵八门变化莫测，伤敌同时拖慢其速度。' ),
+    (
+        '八门金锁玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '八门金锁'
+            )
+        ),
+        '["skill_jade","exotic","aoe","silence"]' ::jsonb,
+        '八门金锁阵展开，群伤禁言困敌于阵中。'
+    ),
+    (
+        '逆乱阴阳玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '逆乱阴阳'
+            )
+        ),
+        '["skill_jade","exotic","execute","epic"]' ::jsonb,
+        '逆转阴阳颠乱五行，对残血之敌一击斩杀的奇门奥义。'
+    ), -- ============ 缺失补充：ELEMENT — METAL (金行) ============('金钟罩玉简','SKILL_JADE',
+    jsonb_build_object(
+        'skill_id',
+        (
+            SELECT
+                id
+            FROM
+                xt_skill
+            WHERE
+                name = '金钟罩'
+        )
+    ),
+    '["skill_jade","metal","defense_buff"]' ::jsonb,
+    '以金行灵力凝聚钟罩护体，大幅提升防御的护身法。' ),
+    (
+        '太白斩魔玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '太白斩魔'
+            )
+        ),
+        '["skill_jade","metal","armor_break","advanced"]' ::jsonb,
+        '太白金星之力斩妖除魔，金行攻击附带强力破甲。'
+    ), -- ============ 缺失补充：ELEMENT — WOOD (木行) ============('荆棘缠绕玉简','SKILL_JADE',
+    jsonb_build_object(
+        'skill_id',
+        (
+            SELECT
+                id
+            FROM
+                xt_skill
+            WHERE
+                name = '荆棘缠绕'
+        )
+    ),
+    '["skill_jade","wood","dot","slow"]' ::jsonb,
+    '荆棘藤蔓缠绕敌身，持续侵蚀并拖慢其身形。' ),
+    (
+        '万木逢春玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '万木逢春'
+            )
+        ),
+        '["skill_jade","wood","heal","aoe","advanced"]' ::jsonb,
+        '百花齐放万木逢春，全员疗愈的木行高阶仙术。'
+    ), -- ============ 缺失补充：ELEMENT — WATER (水行) ============('水镜术玉简','SKILL_JADE',
+    jsonb_build_object(
+        'skill_id',
+        (
+            SELECT
+                id
+            FROM
+                xt_skill
+            WHERE
+                name = '水镜术'
+        )
+    ),
+    '["skill_jade","water","defense_buff"]' ::jsonb,
+    '水镜映万物化攻为守，中阶水行防御术法。' ),
+    (
+        '冰封万里玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '冰封万里'
+            )
+        ),
+        '["skill_jade","water","ice","aoe","freeze","advanced"]' ::jsonb,
+        '万里冰封遍地寒，群伤冰冻的高阶水行禁术。'
+    ), -- ============ 缺失补充：ELEMENT — FIRE (火行) ============('三昧真火玉简','SKILL_JADE',
+    jsonb_build_object(
+        'skill_id',
+        (
+            SELECT
+                id
+            FROM
+                xt_skill
+            WHERE
+                name = '三昧真火'
+        )
+    ),
+    '["skill_jade","fire","armor_break","epic"]' ::jsonb,
+    '三昧真火焚万物，火行极致攻杀附带破甲的史诗术法。' ), -- ============ 缺失补充：ELEMENT — EARTH (土行) ============('厚土盾玉简','SKILL_JADE',
+    jsonb_build_object(
+        'skill_id',
+        (
+            SELECT
+                id
+            FROM
+                xt_skill
+            WHERE
+                name = '厚土盾'
+        )
+    ),
+    '["skill_jade","earth","defense_buff"]' ::jsonb,
+    '以大地之力凝聚盾甲，土行基础防御术法。' ),
+    (
+        '地动术玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '地动术'
+            )
+        ),
+        '["skill_jade","earth","aoe","slow"]' ::jsonb,
+        '震动大地颠翻敌阵，群伤减速的中阶土行术法。'
+    ),
+    (
+        '泰山压顶玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '泰山压顶'
+            )
+        ),
+        '["skill_jade","earth","stun","epic"]' ::jsonb,
+        '泰山之力从天而降，重压眩晕的土行史诗术法。'
+    ), -- ============ 缺失补充：LEGENDARY / UNIVERSAL (传说/通用) ============('一气化三清玉简','SKILL_JADE',
+    jsonb_build_object(
+        'skill_id',
+        (
+            SELECT
+                id
+            FROM
+                xt_skill
+            WHERE
+                name = '一气化三清'
+        )
+    ),
+    '["skill_jade","multi_hit","legendary","dao"]' ::jsonb,
+    '道祖神通化身三清，一气三分连击的至高道法。' ),
+    (
+        '天罡北斗阵玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '天罡北斗阵'
+            )
+        ),
+        '["skill_jade","aoe","buff","legendary"]' ::jsonb,
+        '天罡北斗七星之力灌注，全员攻防双增的传奇阵诀。'
+    ),
+    (
+        '袖里乾坤玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '袖里乾坤'
+            )
+        ),
+        '["skill_jade","control","legendary","aoe"]' ::jsonb,
+        '五庄观镇元大仙秘术，袖中天地禁锢群敌的控场神通。'
+    ),
+    (
+        '五雷正法玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '五雷正法'
+            )
+        ),
+        '["skill_jade","thunder","aoe","stun","epic"]' ::jsonb,
+        '召唤五方神雷从天而降，雷击群伤附带眩晕的史诗雷法。'
+    ),
+    (
+        '血魔真经玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '血魔真经'
+            )
+        ),
+        '["skill_jade","lifesteal","attack_buff","evil","epic"]' ::jsonb,
+        '燃血换战力的魔道真经，狂攻猛吸的凶残血术。'
+    ),
+    (
+        '太乙遁甲玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '太乙遁甲'
+            )
+        ),
+        '["skill_jade","speed_buff","defense","dodge","epic"]' ::jsonb,
+        '以先天演算预判攻势，闪避提速的玄妙遁甲之术。'
+    ),
+    (
+        '九天魔音玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '九天魔音'
+            )
+        ),
+        '["skill_jade","aoe","control","evil","epic"]' ::jsonb,
+        '九天之外降临的魔音贯脑，群攻晕禁双控的魔道绝音。'
+    ),
+    (
+        '养剑术玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '养剑术'
+            )
+        ),
+        '["skill_jade","sword","stack","unique"]' ::jsonb,
+        '养一口先天剑意在丹田，层层累积后爆发的奇异剑术。'
+    ),
+    (
+        '混元功玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '混元功'
+            )
+        ),
+        '["skill_jade","passive","heal","shield","unique"]' ::jsonb,
+        '混元一中包容万象，溢出治疗化护盾的独特心法。'
+    ),
+    (
+        '踏波行玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '踏波行'
+            )
+        ),
+        '["skill_jade","passive","speed","mobility"]' ::jsonb,
+        '水上起飞无视减速，战斗中灵动飘逸的轻功被动。'
+    ),
+    (
+        '逆转丹行玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '逆转丹行'
+            )
+        ),
+        '["skill_jade","heal","boost","unique"]' ::jsonb,
+        '逆转丹道药性，将下次治疗翻倍的奇妙丹术。'
+    ),
+    (
+        '偷天换日玉简',
+        'SKILL_JADE',
+        jsonb_build_object(
+            'skill_id',
+            (
+                SELECT
+                    id
+                FROM
+                    xt_skill
+                WHERE
+                    name = '偷天换日'
+            )
+        ),
+        '["skill_jade","control","legendary"]' ::jsonb,
+        '偷天之力加持，令敌方下一次法决效果减半的阴损奇术。'
+    );

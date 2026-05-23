@@ -1,0 +1,950 @@
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_野狼',
+        '野狼',
+        '遭遇野狼'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_毒蛇',
+        '毒蛇',
+        '遭遇毒蛇'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_山魈',
+        '山魈',
+        '遭遇山魈'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_妖鼠',
+        '妖鼠',
+        '遭遇妖鼠'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_食人花',
+        '食人花',
+        '遭遇食人花'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_石灵',
+        '石灵',
+        '遭遇石灵'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_野猪妖',
+        '野猪妖',
+        '遭遇野猪妖'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_骷髅兵',
+        '骷髅兵',
+        '遭遇骷髅兵'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_风狼',
+        '风狼',
+        '遭遇风狼'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_树精',
+        '树精',
+        '遭遇树精'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_冰狼',
+        '冰狼',
+        '遭遇冰狼'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_石甲龟',
+        '石甲龟',
+        '遭遇石甲龟'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_火焰蜥',
+        '火焰蜥',
+        '遭遇火焰蜥'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_幽魂',
+        '幽魂',
+        '遭遇幽魂'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_螳螂妖',
+        '螳螂妖',
+        '遭遇螳螂妖'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_山贼',
+        '山贼',
+        '遭遇山贼'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_蝙蝠妖',
+        '蝙蝠妖',
+        '遭遇蝙蝠妖'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_铁甲虫',
+        '铁甲虫',
+        '遭遇铁甲虫'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_水鬼',
+        '水鬼',
+        '遭遇水鬼'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_妖狐',
+        '妖狐',
+        '遭遇妖狐'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_怨灵',
+        '怨灵',
+        '遭遇怨灵'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_血蝠',
+        '血蝠',
+        '遭遇血蝠'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_石魔',
+        '石魔',
+        '遭遇石魔'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_妖道',
+        '妖道',
+        '遭遇妖道'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_冰蚕',
+        '冰蚕',
+        '遭遇冰蚕'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_猿妖',
+        '猿妖',
+        '遭遇猿妖'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_毒蟾',
+        '毒蟾',
+        '遭遇毒蟾'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_蛇妖',
+        '蛇妖',
+        '遭遇蛇妖'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_摄魂妖',
+        '摄魂妖',
+        '遭遇摄魂妖'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_飞头蛮',
+        '飞头蛮',
+        '遭遇飞头蛮'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_熔岩巨兽',
+        '熔岩巨兽',
+        '遭遇熔岩巨兽'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_雪女',
+        '雪女',
+        '遭遇雪女'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_夜叉',
+        '夜叉',
+        '遭遇夜叉'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_金甲尸',
+        '金甲尸',
+        '遭遇金甲尸'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_狮鹫',
+        '狮鹫',
+        '遭遇狮鹫'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_千年树妖',
+        '千年树妖',
+        '遭遇千年树妖'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_雷鹰',
+        '雷鹰',
+        '遭遇雷鹰'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_修罗',
+        '修罗',
+        '遭遇修罗'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_黑风老妖',
+        '黑风老妖',
+        '遭遇黑风老妖'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_九尾妖狐',
+        '九尾妖狐',
+        '遭遇九尾妖狐'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_火凤雏',
+        '火凤雏',
+        '遭遇火凤雏'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_山鬼',
+        '山鬼',
+        '遭遇山鬼'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_蜚廉',
+        '蜚廉',
+        '遭遇蜚廉'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_幽冥骑士',
+        '幽冥骑士',
+        '遭遇幽冥骑士'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_蛟龙',
+        '蛟龙',
+        '遭遇蛟龙'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_天罗蛛',
+        '天罗蛛',
+        '遭遇天罗蛛'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_梼杌',
+        '梼杌',
+        '遭遇梼杌'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_夔牛',
+        '夔牛',
+        '遭遇夔牛'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_金乌',
+        '金乌',
+        '遭遇金乌'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_旱魃',
+        '旱魃',
+        '遭遇旱魃'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_白泽',
+        '白泽',
+        '遭遇白泽'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_烛龙',
+        '烛龙',
+        '遭遇烛龙'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_天魔王',
+        '天魔王',
+        '遭遇天魔王'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_麒麟',
+        '麒麟',
+        '遭遇麒麟'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_相柳',
+        '相柳',
+        '遭遇相柳'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_刑天',
+        '刑天',
+        '遭遇刑天'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_毕方',
+        '毕方',
+        '遭遇毕方'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_应龙',
+        '应龙',
+        '遭遇应龙'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_守鹤',
+        '守鹤',
+        '遭遇守鹤'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_鲲鹏',
+        '鲲鹏',
+        '遭遇鲲鹏'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_神龙',
+        '神龙',
+        '遭遇神龙'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_阎罗天子',
+        '阎罗天子',
+        '遭遇阎罗天子'
+    );
+
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'TRAINING',
+        'combat_monster_原始天魔',
+        '原始天魔',
+        '遭遇原始天魔'
+    ),
+    (
+        'TRAINING',
+        'combat_monster_混沌',
+        '混沌',
+        '遭遇混沌'
+    );

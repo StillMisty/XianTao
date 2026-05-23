@@ -13,6 +13,12 @@ spotless {
         trimTrailingWhitespace()
         endWithNewline()
     }
+    sql {
+        target("src/main/resources/db/migration/*.sql")
+        dbeaver()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
 }
 
 group = "top.stillmisty"
