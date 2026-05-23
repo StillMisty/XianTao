@@ -515,7 +515,6 @@ public class ShopService {
         .orElseThrow(() -> new BusinessException(ErrorCode.SHOP_NOT_FOUND));
   }
 
-  @Cacheable(cacheNames = "shop_locations", key = "'exists:' + #locationId")
   public boolean hasShopAtLocation(Long locationId) {
     return shopNpcRepository.findByMapNodeId(locationId).isPresent();
   }

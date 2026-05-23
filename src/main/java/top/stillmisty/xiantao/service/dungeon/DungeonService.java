@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -144,6 +145,7 @@ public class DungeonService {
     return result;
   }
 
+  @CacheEvict(cacheNames = "dungeon_list", key = "#userId")
   public DungeonEnterResult enterDungeon(Long userId, String dungeonName) {
     User user = userStateService.loadUserForUpdate(userId);
     DungeonTemplate dungeon =
@@ -304,6 +306,7 @@ public class DungeonService {
     return exploreResult;
   }
 
+  @CacheEvict(cacheNames = "dungeon_list", key = "#userId")
   public DungeonContinueResult continueDungeon(Long userId) {
     userStateService.loadUser(userId);
     DungeonInstance instance = findActiveInstance(userId);
@@ -368,6 +371,7 @@ public class DungeonService {
     return new DungeonContinueResult.AreaView(areaView);
   }
 
+  @CacheEvict(cacheNames = "dungeon_list", key = "#userId")
   public String retreatDungeon(Long userId) {
     userStateService.loadUser(userId);
     DungeonInstance instance = findActiveInstance(userId);

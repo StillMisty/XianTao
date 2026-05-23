@@ -526,7 +526,7 @@ public class SectMemberService {
   }
 
   @Transactional
-  @CacheEvict(cacheNames = "sect_overview", allEntries = true)
+  @CacheEvict(cacheNames = "sect_overview", key = "#userId")
   public String dismissSect(Long userId) {
     SectMember member = requireMember(userId);
     if (member.getPosition().canManage()) {

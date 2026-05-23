@@ -123,8 +123,8 @@ public class SectBuildingService {
   @Transactional
   @Caching(
       evict = {
-        @CacheEvict(cacheNames = "sect_buildings", allEntries = true),
-        @CacheEvict(cacheNames = "sect_overview", allEntries = true)
+        @CacheEvict(cacheNames = "sect_buildings", key = "#userId"),
+        @CacheEvict(cacheNames = "sect_overview", key = "#userId")
       })
   public BuildResultVO buildStructure(Long userId, String buildingTypeCode) {
     SectMember member = requireMember(userId);
@@ -160,8 +160,8 @@ public class SectBuildingService {
   @Transactional
   @Caching(
       evict = {
-        @CacheEvict(cacheNames = "sect_buildings", allEntries = true),
-        @CacheEvict(cacheNames = "sect_overview", allEntries = true)
+        @CacheEvict(cacheNames = "sect_buildings", key = "#userId"),
+        @CacheEvict(cacheNames = "sect_overview", key = "#userId")
       })
   public UpgradeBuildingResultVO upgradeBuilding(Long userId, String buildingTypeCode) {
     SectMember member = requireMember(userId);
@@ -207,7 +207,6 @@ public class SectBuildingService {
 
   // ===================== 建筑加成查询 =====================
 
-  @Cacheable(cacheNames = "sect_buildings", key = "'level:' + #sectId + ':' + #type.code")
   public int getBuildingLevel(Long sectId, SectBuildingType type) {
     return sectBuildingRepository
         .findBySectIdAndType(sectId, type)

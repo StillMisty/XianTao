@@ -94,8 +94,7 @@ public class EquipmentService {
       evict = {
         @CacheEvict(cacheNames = "player_equipment", key = "'list:' + #userId"),
         @CacheEvict(cacheNames = "player_inventory", key = "'equipment:' + #userId"),
-        @CacheEvict(cacheNames = "player_inventory", key = "'summary:' + #userId"),
-        @CacheEvict(cacheNames = "player_status", key = "#userId")
+        @CacheEvict(cacheNames = "player_inventory", key = "'summary:' + #userId")
       })
   public EquipResult equipItem(Long userId, String input) {
     userStateService.loadUser(userId);
@@ -197,8 +196,7 @@ public class EquipmentService {
       evict = {
         @CacheEvict(cacheNames = "player_equipment", key = "'list:' + #userId"),
         @CacheEvict(cacheNames = "player_inventory", key = "'equipment:' + #userId"),
-        @CacheEvict(cacheNames = "player_inventory", key = "'summary:' + #userId"),
-        @CacheEvict(cacheNames = "player_status", key = "#userId")
+        @CacheEvict(cacheNames = "player_inventory", key = "'summary:' + #userId")
       })
   public UnequipResult unequipItem(Long userId, String input) {
     EquipmentSlot slot = EquipmentSlot.fromChineseName(input);

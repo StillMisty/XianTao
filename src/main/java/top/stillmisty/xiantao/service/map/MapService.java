@@ -72,7 +72,6 @@ public class MapService {
   }
 
   /** 获取当前所在地图详情 */
-  @Cacheable(cacheNames = "map_data", key = "'current:' + #userId")
   public MapInfoVO getCurrentMapInfo(Long userId) {
     User user = userStateService.loadUser(userId);
     MapNode mapNode =
@@ -87,7 +86,6 @@ public class MapService {
   }
 
   /** 根据地图ID获取地图名称 */
-  @Cacheable(cacheNames = "map_data", key = "'name:' + #mapId")
   public String getMapName(Long mapId) {
     if (mapId == null) return "未知";
     return mapNodeRepository.findById(mapId).map(MapNode::getName).orElse("未知");

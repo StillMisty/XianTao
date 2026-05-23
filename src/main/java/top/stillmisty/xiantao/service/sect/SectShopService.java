@@ -76,7 +76,7 @@ public class SectShopService {
   }
 
   @Transactional
-  @CacheEvict(cacheNames = "sect_shop", allEntries = true)
+  @CacheEvict(cacheNames = "sect_shop", key = "#userId")
   public ExchangeResultVO exchangeShopItem(Long userId, long shopItemId) {
     SectMember member = requireMember(userId);
 

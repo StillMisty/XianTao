@@ -8,7 +8,9 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.bounty.BountyRewardItem;
@@ -174,6 +176,7 @@ public class BountyService {
         record.getParsedRewardItems());
   }
 
+  @CacheEvict(cacheNames = "bounties", key = "'status:' + #userId")
   public String startBounty(Long userId, Long bountyId) {
     User user = userStateService.loadUserForUpdate(userId);
 
@@ -235,11 +238,17 @@ public class BountyService {
     return String.format("已接取悬赏「%s」，预计 %d 分钟后完成。", bounty.getName(), bounty.getDurationMinutes());
   }
 
+  @Caching(
+      evict = {
+        @CacheEvict(cacheNames = "bounties", key = "#userId"),
+        @CacheEvict(cacheNames = "bounties", key = "'status:' + #userId")
+      })
   public BountyRewardVO completeBounty(Long userId) {
     return bountyCombatService.completeBounty(userId);
   }
 
   @Transactional
+  @CacheEvict(cacheNames = "bounties", key = "'status:' + #userId")
   public String abandonBounty(Long userId) {
     User user = userStateService.loadUserForUpdate(userId);
     if (user.getStatus() != UserStatus.BOUNTY) {

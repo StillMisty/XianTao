@@ -34,7 +34,7 @@ public class DaoProtectionService {
   private final DaoProtectionRepository daoProtectionRepository;
 
   @Transactional
-  @CacheEvict(cacheNames = "dao_protection", allEntries = true)
+  @CacheEvict(cacheNames = "dao_protection", key = "#protectorId")
   public DaoProtectionResult establishProtection(Long protectorId, String protegeNickname) {
     User protector = userStateService.loadUserForUpdate(protectorId);
 
@@ -130,7 +130,7 @@ public class DaoProtectionService {
   }
 
   @Transactional
-  @CacheEvict(cacheNames = "dao_protection", allEntries = true)
+  @CacheEvict(cacheNames = "dao_protection", key = "#protectorId")
   public DaoProtectionResult removeProtection(Long protectorId, String protegeNickname) {
     Optional<User> protegeOpt = findUserByNickname(protegeNickname);
     if (protegeOpt.isEmpty()) {
@@ -310,7 +310,7 @@ public class DaoProtectionService {
     return userRepository.findByNickname(nickname);
   }
 
-  @CacheEvict(cacheNames = "dao_protection", allEntries = true)
+  @CacheEvict(cacheNames = "dao_protection", key = "#protegeId")
   public void clearProtegeRelations(Long protegeId) {
     daoProtectionRepository.deleteByProtegeId(protegeId);
   }
