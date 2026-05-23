@@ -15,6 +15,9 @@ CREATE
             CONSTRAINT fk_dungeon_template_map_node FOREIGN KEY(map_node_id) REFERENCES xt_map_node(id)
         );
 
+CREATE INDEX idx_dungeon_template_active
+    ON dungeon_template (is_active);
+
 COMMENT ON
 TABLE
     dungeon_template IS '秘境模板表';

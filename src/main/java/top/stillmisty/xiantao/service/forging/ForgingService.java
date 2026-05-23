@@ -1,6 +1,7 @@
 package top.stillmisty.xiantao.service.forging;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -86,11 +87,11 @@ public class ForgingService {
 
   public ForgingResultVO forgeAuto(Long userId, String blueprintName) {
     List<PlayerForgingRecipe> recipes = playerForgingRecipeRepository.findByUserId(userId);
+    Map<Long, ItemTemplate> templateMap = loadBlueprintTemplates(recipes);
     PlayerForgingRecipe targetRecipe = null;
     ItemTemplate blueprintTemplate = null;
     for (PlayerForgingRecipe recipe : recipes) {
-      ItemTemplate template =
-          itemTemplateRepository.findById(recipe.getBlueprintTemplateId()).orElse(null);
+      ItemTemplate template = templateMap.get(recipe.getBlueprintTemplateId());
       if (template != null && template.getName().contains(blueprintName)) {
         targetRecipe = recipe;
         blueprintTemplate = template;
@@ -148,9 +149,9 @@ public class ForgingService {
     }
 
     List<PlayerForgingRecipe> recipes = playerForgingRecipeRepository.findByUserId(userId);
+    Map<Long, ItemTemplate> templateMap = loadBlueprintTemplates(recipes);
     for (PlayerForgingRecipe recipe : recipes) {
-      ItemTemplate blueprintTemplate =
-          itemTemplateRepository.findById(recipe.getBlueprintTemplateId()).orElse(null);
+      ItemTemplate blueprintTemplate = templateMap.get(recipe.getBlueprintTemplateId());
       if (blueprintTemplate == null) continue;
 
       var blueprint = combinationFinder.getForgingBlueprint(blueprintTemplate);
@@ -233,15 +234,14 @@ public class ForgingService {
 
   public List<ForgingRecipeVO> getForgingRecipes(Long userId) {
     List<PlayerForgingRecipe> recipes = playerForgingRecipeRepository.findByUserId(userId);
+    Map<Long, ItemTemplate> blueprintMap = loadBlueprintTemplates(recipes);
+    Map<Long, top.stillmisty.xiantao.domain.item.entity.EquipmentTemplate> equipMap =
+        loadEquipmentTemplates(recipes);
     return recipes.stream()
         .map(
             recipe -> {
-              ItemTemplate blueprintTemplate =
-                  itemTemplateRepository.findById(recipe.getBlueprintTemplateId()).orElse(null);
-              var equipTmpl =
-                  equipmentTemplateRepository
-                      .findById(recipe.getEquipmentTemplateId())
-                      .orElse(null);
+              ItemTemplate blueprintTemplate = blueprintMap.get(recipe.getBlueprintTemplateId());
+              var equipTmpl = equipMap.get(recipe.getEquipmentTemplateId());
               if (blueprintTemplate == null || equipTmpl == null) return null;
               return convertToForgingRecipeVO(recipe, blueprintTemplate, equipTmpl);
             })
@@ -251,12 +251,13 @@ public class ForgingService {
 
   public ForgingRecipeVO getForgingRecipeDetail(Long userId, String recipeName) {
     List<PlayerForgingRecipe> recipes = playerForgingRecipeRepository.findByUserId(userId);
+    Map<Long, ItemTemplate> blueprintMap = loadBlueprintTemplates(recipes);
+    Map<Long, top.stillmisty.xiantao.domain.item.entity.EquipmentTemplate> equipMap =
+        loadEquipmentTemplates(recipes);
     for (PlayerForgingRecipe recipe : recipes) {
-      ItemTemplate blueprintTemplate =
-          itemTemplateRepository.findById(recipe.getBlueprintTemplateId()).orElse(null);
+      ItemTemplate blueprintTemplate = blueprintMap.get(recipe.getBlueprintTemplateId());
       if (blueprintTemplate != null && blueprintTemplate.getName().contains(recipeName)) {
-        var equipTmpl =
-            equipmentTemplateRepository.findById(recipe.getEquipmentTemplateId()).orElse(null);
+        var equipTmpl = equipMap.get(recipe.getEquipmentTemplateId());
         if (equipTmpl != null) {
           return convertToForgingRecipeVO(recipe, blueprintTemplate, equipTmpl);
         }
@@ -350,6 +351,10 @@ public class ForgingService {
 
   private List<MaterialInput> parseMaterialInputs(Long userId, List<String> materialInputs) {
     List<MaterialInput> result = new ArrayList<>();
+    List<StackableItem> allMaterials =
+        stackableItemRepository.findByUserId(userId).stream()
+            .filter(item -> item.getItemType() == ItemType.MATERIAL)
+            .toList();
     for (String input : materialInputs) {
       ParsedMaterial parsed = MaterialParser.parse(input);
       if (parsed == null) continue;
@@ -357,18 +362,32 @@ public class ForgingService {
       String materialName = parsed.name();
       int quantity = parsed.quantity();
 
-      List<StackableItem> materials =
-          stackableItemRepository.findByUserId(userId).stream()
-              .filter(
-                  item ->
-                      item.getItemType() == ItemType.MATERIAL
-                          && item.getName().contains(materialName))
-              .toList();
+      List<StackableItem> matched =
+          allMaterials.stream().filter(item -> item.getName().contains(materialName)).toList();
 
-      if (!materials.isEmpty()) {
-        result.add(new MaterialInput(materials.getFirst(), quantity));
+      if (!matched.isEmpty()) {
+        result.add(new MaterialInput(matched.getFirst(), quantity));
       }
     }
     return result;
+  }
+
+  private Map<Long, ItemTemplate> loadBlueprintTemplates(List<PlayerForgingRecipe> recipes) {
+    List<Long> ids =
+        recipes.stream().map(PlayerForgingRecipe::getBlueprintTemplateId).distinct().toList();
+    if (ids.isEmpty()) return Map.of();
+    return itemTemplateRepository.findByIds(ids).stream()
+        .collect(Collectors.toMap(ItemTemplate::getId, t -> t));
+  }
+
+  private Map<Long, top.stillmisty.xiantao.domain.item.entity.EquipmentTemplate>
+      loadEquipmentTemplates(List<PlayerForgingRecipe> recipes) {
+    List<Long> ids =
+        recipes.stream().map(PlayerForgingRecipe::getEquipmentTemplateId).distinct().toList();
+    if (ids.isEmpty()) return Map.of();
+    return equipmentTemplateRepository.findByIds(ids).stream()
+        .collect(
+            Collectors.toMap(
+                top.stillmisty.xiantao.domain.item.entity.EquipmentTemplate::getId, t -> t));
   }
 }

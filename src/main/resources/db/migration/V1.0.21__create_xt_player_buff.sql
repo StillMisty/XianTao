@@ -31,6 +31,9 @@ CREATE
     INDEX idx_player_buff_user ON
     xt_player_buff(user_id);
 
+CREATE INDEX idx_player_buff_user_type_expires
+    ON xt_player_buff (user_id, buff_type, expires_at);
+
 COMMENT ON
 TABLE
     xt_player_buff IS '玩家增益/突破Buff表 — 有时效的增益效果';

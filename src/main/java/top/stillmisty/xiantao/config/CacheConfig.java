@@ -25,9 +25,9 @@ public class CacheConfig {
     SimpleCacheManager manager = new SimpleCacheManager();
     manager.setCaches(
         Arrays.asList(
-            cache("player_inventory", VOLATILE_TTL_MINUTES, 200),
-            cache("player_equipment", VOLATILE_TTL_MINUTES, 200),
-            cache("player_skills", VOLATILE_TTL_MINUTES, 200),
+            cache("player_inventory", DEFAULT_TTL_MINUTES, 200),
+            cache("player_equipment", DEFAULT_TTL_MINUTES, 200),
+            cache("player_skills", DEFAULT_TTL_MINUTES, 200),
             cache("player_status", VOLATILE_TTL_MINUTES, 200),
             cache("player_view", DEFAULT_TTL_MINUTES, 200),
             cache("fortunes", 1440, 200),
@@ -36,15 +36,15 @@ public class CacheConfig {
             cache("bounties", DEFAULT_TTL_MINUTES, 100),
             cache("shop_products", DEFAULT_TTL_MINUTES, 100),
             cache("shop_locations", STATIC_TTL_MINUTES, 50),
-            cache("shop_player_items", VOLATILE_TTL_MINUTES, 200),
+            cache("shop_player_items", DEFAULT_TTL_MINUTES, 200),
             cache("sect_overview", DEFAULT_TTL_MINUTES, 100),
             cache("sect_buildings", DEFAULT_TTL_MINUTES, 100),
             cache("sect_shared_skills", DEFAULT_TTL_MINUTES, 100),
             cache("sect_shop", DEFAULT_TTL_MINUTES, 100),
             cache("team_status", VOLATILE_TTL_MINUTES, 200),
-            cache("leaderboard", DEFAULT_TTL_MINUTES, 10),
+            cache("leaderboard", DEFAULT_TTL_MINUTES, 50),
             cache("dao_protection", DEFAULT_TTL_MINUTES, 100),
-            cache("userAuth", DEFAULT_TTL_MINUTES, 5000),
+            cache("userAuth", DEFAULT_TTL_MINUTES, 2000),
             cache("itemTemplate", STATIC_TTL_MINUTES, 2000),
             cache("mapNodes", STATIC_TTL_MINUTES, 200)));
     return manager;

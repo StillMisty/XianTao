@@ -35,6 +35,9 @@ CREATE
                 )
         );
 
+CREATE INDEX idx_sect_leader
+    ON xt_sect (leader_id);
+
 COMMENT ON
 TABLE
     xt_sect IS '宗门表';

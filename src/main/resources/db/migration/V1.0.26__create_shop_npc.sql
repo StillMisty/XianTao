@@ -27,6 +27,9 @@ CREATE
             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
         );
 
+CREATE INDEX idx_shop_npc_map_node
+    ON shop_npc (map_node_id);
+
 COMMENT ON
 TABLE
     shop_npc IS '商铺掌柜模板';

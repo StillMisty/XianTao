@@ -2,6 +2,7 @@ package top.stillmisty.xiantao.service.fudi;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -106,6 +107,30 @@ public class FudiCollectService {
     int collectedCount = 0;
     int totalItems = 0;
 
+    var allTemplateIds = new java.util.HashSet<Long>();
+    for (FudiCell cell : cells) {
+      if (cell.getCellType() != CellType.PEN) continue;
+      if (beastDisplayHelper.isIncubating(cell)) continue;
+      beastProductionService.updateBeastProduction(cell, fudi);
+      List<CellConfig.ProductionItem> productionStored =
+          beastProductionService.getProductionStoredList(cell);
+      for (CellConfig.ProductionItem item : productionStored) {
+        if (item.quantity() > 0) {
+          allTemplateIds.add(item.templateId());
+        }
+      }
+    }
+
+    Map<Long, ItemType> templateTypeMap;
+    if (allTemplateIds.isEmpty()) {
+      templateTypeMap = Map.of();
+    } else {
+      templateTypeMap =
+          itemTemplateRepository.findByIds(new ArrayList<>(allTemplateIds)).stream()
+              .collect(
+                  java.util.stream.Collectors.toMap(ItemTemplate::getId, ItemTemplate::getType));
+    }
+
     for (FudiCell cell : cells) {
       if (cell.getCellType() != CellType.PEN) continue;
       if (beastDisplayHelper.isIncubating(cell)) continue;
@@ -119,11 +144,7 @@ public class FudiCollectService {
       int cellTotalItems = 0;
       for (CellConfig.ProductionItem item : productionStored) {
         if (item.quantity() > 0) {
-          ItemType itemType =
-              itemTemplateRepository
-                  .findById(item.templateId())
-                  .map(ItemTemplate::getType)
-                  .orElse(ItemType.HERB);
+          ItemType itemType = templateTypeMap.getOrDefault(item.templateId(), ItemType.HERB);
           stackableItemService.addStackableItem(
               fudi.getUserId(), item.templateId(), itemType, item.name(), item.quantity());
           cellTotalItems += item.quantity();

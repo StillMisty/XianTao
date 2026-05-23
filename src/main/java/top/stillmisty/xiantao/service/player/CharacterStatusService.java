@@ -2,6 +2,7 @@ package top.stillmisty.xiantao.service.player;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -272,6 +273,9 @@ public class CharacterStatusService {
       return List.of();
     }
 
+    Map<Long, String> locationNameMap =
+        buildLocationNameMap(protections, DaoProtection::getProtegeId);
+
     return protections.stream()
         .map(
             protection -> {
@@ -288,10 +292,7 @@ public class CharacterStatusService {
                   targetUser.getNickname(),
                   targetUser.getLevel(),
                   targetUser.getLocationId(),
-                  mapNodeRepository
-                      .findById(targetUser.getLocationId())
-                      .map(MapNode::getName)
-                      .orElse("未知"),
+                  locationNameMap.getOrDefault(targetUser.getLocationId(), "未知"),
                   inSameLocation,
                   bonus);
             })
@@ -304,6 +305,9 @@ public class CharacterStatusService {
     if (protections == null || protections.isEmpty()) {
       return List.of();
     }
+
+    Map<Long, String> locationNameMap =
+        buildLocationNameMap(protections, DaoProtection::getProtectorId);
 
     return protections.stream()
         .map(
@@ -325,14 +329,34 @@ public class CharacterStatusService {
                   protector.getNickname(),
                   protector.getLevel(),
                   protector.getLocationId(),
-                  mapNodeRepository
-                      .findById(protector.getLocationId())
-                      .map(MapNode::getName)
-                      .orElse("未知"),
+                  locationNameMap.getOrDefault(protector.getLocationId(), "未知"),
                   inSameLocation,
                   bonus);
             })
         .filter(Objects::nonNull)
         .toList();
+  }
+
+  private Map<Long, String> buildLocationNameMap(
+      List<DaoProtection> protections,
+      java.util.function.Function<DaoProtection, Long> targetUserIdExtractor) {
+    var locationIds = protections.stream().map(targetUserIdExtractor).collect(Collectors.toSet());
+    Map<Long, User> users = buildUserCacheFromIds(locationIds);
+    return users.values().stream()
+        .collect(
+            Collectors.toMap(
+                User::getLocationId,
+                u ->
+                    mapNodeRepository
+                        .findById(u.getLocationId())
+                        .map(MapNode::getName)
+                        .orElse("未知"),
+                (a, b) -> a));
+  }
+
+  private Map<Long, User> buildUserCacheFromIds(java.util.Set<Long> ids) {
+    if (ids.isEmpty()) return Map.of();
+    return userRepository.findByIds(new ArrayList<>(ids)).stream()
+        .collect(Collectors.toMap(User::getId, u -> u));
   }
 }

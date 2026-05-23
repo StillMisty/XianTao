@@ -242,7 +242,7 @@ public class SectMemberService {
   }
 
   @Transactional
-  @CacheEvict(cacheNames = "sect_overview", allEntries = true)
+  @CacheEvict(cacheNames = "sect_overview", key = "#userId")
   public String createSect(Long userId, String name, String ethosDesc) {
     User user = userStateService.loadUserForUpdate(userId);
 
@@ -415,7 +415,7 @@ public class SectMemberService {
   }
 
   @Transactional
-  @CacheEvict(cacheNames = "sect_overview", allEntries = true)
+  @CacheEvict(cacheNames = "sect_overview", key = "#userId")
   public String kickMember(Long userId, String targetNickname) {
     SectMember actorMember = requireMember(userId);
 
@@ -453,7 +453,7 @@ public class SectMemberService {
   }
 
   @Transactional
-  @CacheEvict(cacheNames = "sect_overview", allEntries = true)
+  @CacheEvict(cacheNames = "sect_overview", key = "#userId")
   public String leaveSect(Long userId) {
     SectMember member = requireMember(userId);
 
@@ -604,7 +604,7 @@ public class SectMemberService {
   }
 
   @Transactional
-  @CacheEvict(cacheNames = "sect_overview", allEntries = true)
+  @CacheEvict(cacheNames = "sect_overview", key = "#userId")
   public UpgradeSectResultVO upgradeSect(Long userId) {
     SectMember member = requireMember(userId);
     if (member.getPosition().canManage()) {
@@ -643,7 +643,7 @@ public class SectMemberService {
   }
 
   @Transactional
-  @CacheEvict(cacheNames = "sect_overview", allEntries = true)
+  @CacheEvict(cacheNames = "sect_overview", key = "#userId")
   public ExpandMembersResultVO expandMembers(Long userId) {
     SectMember member = requireMember(userId);
     if (member.getPosition().canManage()) {

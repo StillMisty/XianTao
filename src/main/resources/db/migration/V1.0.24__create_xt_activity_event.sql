@@ -31,6 +31,12 @@ CREATE
             create_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
         );
 
+CREATE INDEX idx_activity_event_lookup
+    ON xt_activity_event (activity_type, owner_id, is_hidden);
+
+CREATE INDEX idx_activity_event_type_lookup
+    ON xt_activity_event (activity_type, owner_id, event_type, is_hidden);
+
 COMMENT ON
 TABLE
     xt_activity_event IS '活动事件关联表 — 子事件/隐藏事件的权重和触发条件配置';

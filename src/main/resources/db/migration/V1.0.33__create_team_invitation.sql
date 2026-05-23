@@ -27,6 +27,15 @@ CREATE
     INDEX idx_team_invitation_invitee ON
     team_invitation(invitee_id);
 
+CREATE INDEX idx_team_invitation_invitee_status
+    ON team_invitation (invitee_id, status);
+
+CREATE INDEX idx_team_invitation_team_id
+    ON team_invitation (team_id);
+
+CREATE INDEX idx_team_invitation_inviter
+    ON team_invitation (inviter_id);
+
 COMMENT ON
 TABLE
     team_invitation IS '组队邀请表';

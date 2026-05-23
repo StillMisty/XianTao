@@ -54,3 +54,6 @@ COLUMN xt_sect_shared_skill.created_at IS '提交时间';
 CREATE
     INDEX idx_sect_shared_skill_sect ON
     xt_sect_shared_skill(sect_id);
+
+CREATE INDEX idx_sect_shared_skill_sect_status
+    ON xt_sect_shared_skill (sect_id, status);

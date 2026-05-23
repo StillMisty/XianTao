@@ -34,6 +34,9 @@ CREATE
             CONSTRAINT fk_dungeon_instance_team FOREIGN KEY(team_id) REFERENCES team(id)
         );
 
+CREATE INDEX idx_dungeon_instance_dungeon
+    ON dungeon_instance (dungeon_id);
+
 CREATE
     INDEX idx_dungeon_instance_leader ON
     dungeon_instance(leader_id);

@@ -19,6 +19,9 @@ CREATE
     INDEX idx_team_leader_id ON
     team(leader_id);
 
+CREATE INDEX idx_team_leader_status
+    ON team (leader_id, status);
+
 COMMENT ON
 TABLE
     team IS '队伍表';

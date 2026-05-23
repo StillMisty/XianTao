@@ -44,6 +44,9 @@ CREATE
     INDEX idx_shop_product_npc ON
     shop_product(shop_npc_id);
 
+CREATE INDEX idx_shop_product_npc_template
+    ON shop_product (shop_npc_id, template_id);
+
 COMMENT ON
 TABLE
     shop_product IS '商铺出售的商品，控制卖什么和库存价格';

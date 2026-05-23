@@ -1,6 +1,7 @@
 package top.stillmisty.xiantao.service.sect;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -123,11 +124,20 @@ public class SectSharedSkillService {
         sectSharedSkillRepository.findBySectIdAndStatus(
             member.getSectId(), SectSharedSkillStatus.LISTED);
 
+    Map<Long, Skill> skillCache =
+        listedSkills.isEmpty()
+            ? Map.of()
+            : skillRepository
+                .findByIds(
+                    listedSkills.stream().map(SectSharedSkill::getSkillId).distinct().toList())
+                .stream()
+                .collect(java.util.stream.Collectors.toMap(Skill::getId, s -> s));
+
     List<SectSharedSkillVO> skillVOs =
         listedSkills.stream()
             .map(
                 ss -> {
-                  Skill skill = skillRepository.findById(ss.getSkillId()).orElse(null);
+                  Skill skill = skillCache.get(ss.getSkillId());
                   String skillName = skill != null ? skill.getName() : "[未知]";
                   int reqLevel =
                       skill != null && skill.getLevelRequirement() != null

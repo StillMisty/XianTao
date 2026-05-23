@@ -42,4 +42,9 @@ public class UserContext {
   public static void setDownstreamUserId(Long userId) {
     DOWNSTREAM_USER.set(userId);
   }
+
+  /** 清理下游 ThreadLocal，由 AuthenticatedAspect 在 finally 块中调用 */
+  public static void clearDownstreamUserId() {
+    DOWNSTREAM_USER.remove();
+  }
 }

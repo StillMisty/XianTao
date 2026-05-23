@@ -522,17 +522,38 @@ public class ShopService {
   private ProductListVO listProducts(ShopNpc npc) {
     List<ShopProduct> products = shopProductRepository.findByShopNpcId(npc.getId());
     List<ProductListVO.ProductEntry> entries = new ArrayList<>();
+
+    List<Long> itemTemplateIds = new ArrayList<>();
+    List<Long> equipTemplateIds = new ArrayList<>();
     for (ShopProduct product : products) {
       priceEngine.applyLazyRestock(product);
+      if (product.getProductType() == ProductType.ITEM) {
+        itemTemplateIds.add(product.getTemplateId());
+      } else {
+        equipTemplateIds.add(product.getTemplateId());
+      }
+    }
+    Map<Long, ItemTemplate> itemMap =
+        itemTemplateIds.isEmpty()
+            ? Map.of()
+            : itemTemplateRepository.findByIds(itemTemplateIds).stream()
+                .collect(Collectors.toMap(ItemTemplate::getId, t -> t));
+    Map<Long, EquipmentTemplate> equipMap =
+        equipTemplateIds.isEmpty()
+            ? Map.of()
+            : equipmentTemplateRepository.findByIds(equipTemplateIds).stream()
+                .collect(Collectors.toMap(EquipmentTemplate::getId, t -> t));
+
+    for (ShopProduct product : products) {
       String name;
       String extra = "";
       if (product.getProductType() == ProductType.ITEM) {
-        var t = itemTemplateRepository.findById(product.getTemplateId());
-        name = t.map(ItemTemplate::getName).orElse("未知物品");
+        var t = itemMap.get(product.getTemplateId());
+        name = t != null ? t.getName() : "未知物品";
       } else {
-        var t = equipmentTemplateRepository.findById(product.getTemplateId());
-        name = t.map(EquipmentTemplate::getName).orElse("未知装备");
-        extra = t.map(et -> et.getSlot() != null ? et.getSlot().getName() : "").orElse("");
+        var t = equipMap.get(product.getTemplateId());
+        name = t != null ? t.getName() : "未知装备";
+        extra = t != null && t.getSlot() != null ? t.getSlot().getName() : "";
       }
       entries.add(
           new ProductListVO.ProductEntry(

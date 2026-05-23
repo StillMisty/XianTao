@@ -61,6 +61,8 @@ public class AuthenticatedAspect {
     } catch (RuntimeException e) {
       log.error("服务异常 - userId={}: {}", userId, e.getMessage(), e);
       return ServiceResult.businessFailure("系统繁忙，请稍后再试");
+    } finally {
+      UserContext.clearDownstreamUserId();
     }
   }
 }

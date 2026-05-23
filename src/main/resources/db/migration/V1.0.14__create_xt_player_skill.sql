@@ -27,3 +27,6 @@ COLUMN xt_player_skill.source_sect_id IS '来源宗门ID，退宗时按此列删
 CREATE
     INDEX idx_player_skill_source_sect ON
     xt_player_skill(source_sect_id);
+
+CREATE INDEX idx_player_skill_user_sect
+    ON xt_player_skill (user_id, source_sect_id);

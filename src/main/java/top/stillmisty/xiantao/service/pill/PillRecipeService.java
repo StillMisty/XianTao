@@ -1,5 +1,6 @@
 package top.stillmisty.xiantao.service.pill;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -60,13 +61,12 @@ public class PillRecipeService {
 
   public List<PillRecipeVO> getLearnedRecipes(Long userId) {
     List<PlayerPillRecipe> recipes = playerPillRecipeRepository.findByUserId(userId);
+    Map<Long, ItemTemplate> templateMap = loadPillTemplates(recipes);
     return recipes.stream()
         .map(
             recipe -> {
-              ItemTemplate recipeTemplate =
-                  itemTemplateRepository.findById(recipe.getRecipeTemplateId()).orElse(null);
-              ItemTemplate resultTemplate =
-                  itemTemplateRepository.findById(recipe.getResultItemId()).orElse(null);
+              ItemTemplate recipeTemplate = templateMap.get(recipe.getRecipeTemplateId());
+              ItemTemplate resultTemplate = templateMap.get(recipe.getResultItemId());
               if (recipeTemplate == null || resultTemplate == null) return null;
               return convertToPillRecipeVO(recipe, recipeTemplate, resultTemplate);
             })
@@ -76,12 +76,11 @@ public class PillRecipeService {
 
   public PillRecipeVO getRecipeDetail(Long userId, String recipeName) {
     List<PlayerPillRecipe> recipes = playerPillRecipeRepository.findByUserId(userId);
+    Map<Long, ItemTemplate> templateMap = loadPillTemplates(recipes);
     for (PlayerPillRecipe recipe : recipes) {
-      ItemTemplate recipeTemplate =
-          itemTemplateRepository.findById(recipe.getRecipeTemplateId()).orElse(null);
+      ItemTemplate recipeTemplate = templateMap.get(recipe.getRecipeTemplateId());
       if (recipeTemplate != null && recipeTemplate.getName().contains(recipeName)) {
-        ItemTemplate resultTemplate =
-            itemTemplateRepository.findById(recipe.getResultItemId()).orElse(null);
+        ItemTemplate resultTemplate = templateMap.get(recipe.getResultItemId());
         if (resultTemplate != null) {
           return convertToPillRecipeVO(recipe, recipeTemplate, resultTemplate);
         }
@@ -155,5 +154,16 @@ public class PillRecipeService {
         resultTemplate.getName(),
         recipeScroll.resultQuantity(),
         recipeScroll.requirements());
+  }
+
+  private Map<Long, ItemTemplate> loadPillTemplates(List<PlayerPillRecipe> recipes) {
+    var ids = new java.util.HashSet<Long>();
+    for (var r : recipes) {
+      ids.add(r.getRecipeTemplateId());
+      ids.add(r.getResultItemId());
+    }
+    if (ids.isEmpty()) return Map.of();
+    return itemTemplateRepository.findByIds(new ArrayList<>(ids)).stream()
+        .collect(java.util.stream.Collectors.toMap(ItemTemplate::getId, t -> t));
   }
 }
