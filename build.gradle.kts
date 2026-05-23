@@ -15,7 +15,6 @@ spotless {
     }
     sql {
         target("src/main/resources/db/migration/*.sql")
-        dbeaver()
         trimTrailingWhitespace()
         endWithNewline()
     }

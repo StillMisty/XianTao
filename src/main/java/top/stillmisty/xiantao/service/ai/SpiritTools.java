@@ -18,7 +18,6 @@ import top.stillmisty.xiantao.domain.item.enums.InventoryCategory;
 import top.stillmisty.xiantao.domain.item.vo.ItemEntry;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.ai.spirit.*;
-import top.stillmisty.xiantao.service.beast.BeastBreedingService;
 import top.stillmisty.xiantao.service.fudi.FarmService;
 import top.stillmisty.xiantao.service.fudi.FudiService;
 import top.stillmisty.xiantao.service.inventory.InventoryService;
@@ -31,7 +30,6 @@ public class SpiritTools {
   private final ToolExecutor toolExecutor;
   private final FudiService fudiService;
   private final FarmService farmService;
-  private final BeastBreedingService beastBreedingService;
   private final InventoryService inventoryService;
 
   // ===================== 地块查询 =====================

@@ -568,7 +568,9 @@ INSERT
         ),
         '["skill_jade","bell","damage","silence"]' ::jsonb,
         '钟声震荡，魔音贯耳，可封人法决。'
-    ), -- ============ 缺失补充：PASSIVE ============('通明心法玉简','SKILL_JADE',
+    ),
+-- ============ 缺失补充：PASSIVE ============
+('通明心法玉简','SKILL_JADE',
     jsonb_build_object(
         'skill_id',
         (
@@ -615,7 +617,9 @@ INSERT
         ),
         '["skill_jade","passive","wis","advanced","epic"]' ::jsonb,
         '道心坚定明悟天地至理，被动防御心法的至高境界。'
-    ), -- ============ 缺失补充：BLADE (刀法) ============('刀光如练玉简','SKILL_JADE',
+    ),
+-- ============ 缺失补充：BLADE (刀法) ============
+('刀光如练玉简','SKILL_JADE',
     jsonb_build_object(
         'skill_id',
         (
@@ -645,7 +649,9 @@ INSERT
         ),
         '["skill_jade","blade","execute","multi_hit","epic"]' ::jsonb,
         '九式合一刀意纵横，连斩斩杀的刀法极致奥义。'
-    ), -- ============ 缺失补充：SWORD (剑法) ============('飞仙剑法玉简','SKILL_JADE',
+    ),
+-- ============ 缺失补充：SWORD (剑法) ============
+('飞仙剑法玉简','SKILL_JADE',
     jsonb_build_object(
         'skill_id',
         (
@@ -675,7 +681,9 @@ INSERT
         ),
         '["skill_jade","sword","multi_hit","lifesteal","epic"]' ::jsonb,
         '剑舞如莲华绽放，五连剑影中汲取敌血，美而致命。'
-    ), -- ============ 缺失补充：AXE (斧法) ============('旋风斧玉简','SKILL_JADE',
+    ),
+-- ============ 缺失补充：AXE (斧法) ============
+('旋风斧玉简','SKILL_JADE',
     jsonb_build_object(
         'skill_id',
         (
@@ -739,7 +747,9 @@ INSERT
         ),
         '["skill_jade","axe","damage","legendary"]' ::jsonb,
         '传说中盘古开天辟地之力化为一斧，至刚至猛的传奇斧法。'
-    ), -- ============ 缺失补充：SPEAR (枪法) ============('游龙枪法玉简','SKILL_JADE',
+    ),
+-- ============ 缺失补充：SPEAR (枪法) ============
+('游龙枪法玉简','SKILL_JADE',
     jsonb_build_object(
         'skill_id',
         (
@@ -820,7 +830,9 @@ INSERT
         ),
         '["skill_jade","spear","armor_break","epic"]' ::jsonb,
         '专破阵法坚甲的枪诀，撕碎一切防御。'
-    ), -- ============ 缺失补充：STAFF (棍法) ============('横扫千军玉简','SKILL_JADE',
+    ),
+-- ============ 缺失补充：STAFF (棍法) ============
+('横扫千军玉简','SKILL_JADE',
     jsonb_build_object(
         'skill_id',
         (
@@ -884,7 +896,9 @@ INSERT
         ),
         '["skill_jade","staff","lifesteal","epic"]' ::jsonb,
         '以菩提之心运棍，重击敌人的同时汲取生命之力。'
-    ), -- ============ 缺失补充：BOW (弓法) ============('连珠箭玉简','SKILL_JADE',
+    ),
+-- ============ 缺失补充：BOW (弓法) ============
+('连珠箭玉简','SKILL_JADE',
     jsonb_build_object(
         'skill_id',
         (
@@ -948,7 +962,9 @@ INSERT
         ),
         '["skill_jade","bow","execute","epic"]' ::jsonb,
         '一箭追魂索命不散，对垂死之敌一击必杀的绝箭。'
-    ), -- ============ 缺失补充：WHIP (鞭法) ============('缚龙索玉简','SKILL_JADE',
+    ),
+-- ============ 缺失补充：WHIP (鞭法) ============
+('缚龙索玉简','SKILL_JADE',
     jsonb_build_object(
         'skill_id',
         (
@@ -995,7 +1011,9 @@ INSERT
         ),
         '["skill_jade","whip","lifesteal","epic"]' ::jsonb,
         '修罗道的狂鞭，鞭鞭到肉鞭鞭回血，凶残至极。'
-    ), -- ============ 缺失补充：HALBERD (戟法) ============('戟破苍穹玉简','SKILL_JADE',
+    ),
+-- ============ 缺失补充：HALBERD (戟法) ============
+('戟破苍穹玉简','SKILL_JADE',
     jsonb_build_object(
         'skill_id',
         (
@@ -1025,7 +1043,9 @@ INSERT
         ),
         '["skill_jade","halberd","aoe","execute","epic"]' ::jsonb,
         '一戟分裂天地，群杀之中对残血之敌无情收割。'
-    ), -- ============ 缺失补充：HAMMER (锤法) ============('轰天锤玉简','SKILL_JADE',
+    ),
+-- ============ 缺失补充：HAMMER (锤法) ============
+('轰天锤玉简','SKILL_JADE',
     jsonb_build_object(
         'skill_id',
         (
@@ -1055,7 +1075,9 @@ INSERT
         ),
         '["skill_jade","hammer","armor_break","execute","legendary"]' ::jsonb,
         '一锤碎虚空，破甲斩杀双绝的传奇锤法。'
-    ), -- ============ 缺失补充：DAGGER (匕首) ============('暗影杀玉简','SKILL_JADE',
+    ),
+-- ============ 缺失补充：DAGGER (匕首) ============
+('暗影杀玉简','SKILL_JADE',
     jsonb_build_object(
         'skill_id',
         (
@@ -1102,7 +1124,9 @@ INSERT
         ),
         '["skill_jade","dagger","execute","stun","epic"]' ::jsonb,
         '瞬移至敌后发动致命一击，晕杀斩三合一的终极刺杀。'
-    ), -- ============ 缺失补充：FAN (扇法) ============('霓裳扇舞玉简','SKILL_JADE',
+    ),
+-- ============ 缺失补充：FAN (扇法) ============
+('霓裳扇舞玉简','SKILL_JADE',
     jsonb_build_object(
         'skill_id',
         (
@@ -1132,7 +1156,9 @@ INSERT
         ),
         '["skill_jade","fan","attack_buff","advanced"]' ::jsonb,
         '天罡之力入扇，攻其不备并大幅提升自身战力。'
-    ), -- ============ 缺失补充：FLYWHISK (拂尘) ============('三千烦恼玉简','SKILL_JADE',
+    ),
+-- ============ 缺失补充：FLYWHISK (拂尘) ============
+('三千烦恼玉简','SKILL_JADE',
     jsonb_build_object(
         'skill_id',
         (
@@ -1162,7 +1188,9 @@ INSERT
         ),
         '["skill_jade","flywhisk","defense_buff","advanced"]' ::jsonb,
         '太虚之境化拂尘，攻敌之际铸就不破之防。'
-    ), -- ============ 缺失补充：RING (圈法) ============('乾坤圈玉简','SKILL_JADE',
+    ),
+-- ============ 缺失补充：RING (圈法) ============
+('乾坤圈玉简','SKILL_JADE',
     jsonb_build_object(
         'skill_id',
         (
@@ -1192,7 +1220,9 @@ INSERT
         ),
         '["skill_jade","ring","multi_hit","advanced"]' ::jsonb,
         '日月齐出双环飞转，双击中暗藏暴击的连环圈法。'
-    ), -- ============ 缺失补充：BELL (钟法) ============('镇魂钟声玉简','SKILL_JADE',
+    ),
+-- ============ 缺失补充：BELL (钟法) ============
+('镇魂钟声玉简','SKILL_JADE',
     jsonb_build_object(
         'skill_id',
         (
@@ -1222,7 +1252,9 @@ INSERT
         ),
         '["skill_jade","bell","execute","epic"]' ::jsonb,
         '混沌初开的钟声回荡，重击残血之敌的史诗钟法。'
-    ), -- ============ 缺失补充：WEAPON_CATEGORY — MELEE (近战大类) ============('兵锋诀玉简','SKILL_JADE',
+    ),
+-- ============ 缺失补充：WEAPON_CATEGORY — MELEE (近战大类) ============
+('兵锋诀玉简','SKILL_JADE',
     jsonb_build_object(
         'skill_id',
         (
@@ -1269,7 +1301,9 @@ INSERT
         ),
         '["skill_jade","melee","lifesteal","advanced"]' ::jsonb,
         '杀伐之气纵横，重击吸血的高阶近战杀招。'
-    ), -- ============ 缺失补充：WEAPON_CATEGORY — POLEARM (长兵大类) ============('长驱直入玉简','SKILL_JADE',
+    ),
+-- ============ 缺失补充：WEAPON_CATEGORY — POLEARM (长兵大类) ============
+('长驱直入玉简','SKILL_JADE',
     jsonb_build_object(
         'skill_id',
         (
@@ -1316,7 +1350,9 @@ INSERT
         ),
         '["skill_jade","polearm","execute","advanced"]' ::jsonb,
         '全力一击如苍龙出海，对残血一枪穿心的斩杀技。'
-    ), -- ============ 缺失补充：WEAPON_CATEGORY — RANGED (远程大类) ============('鹰眼术玉简','SKILL_JADE',
+    ),
+-- ============ 缺失补充：WEAPON_CATEGORY — RANGED (远程大类) ============
+('鹰眼术玉简','SKILL_JADE',
     jsonb_build_object(
         'skill_id',
         (
@@ -1363,7 +1399,9 @@ INSERT
         ),
         '["skill_jade","ranged","damage","legendary"]' ::jsonb,
         '远古箭神之力再现，至强至远的传奇一击。'
-    ), -- ============ 缺失补充：WEAPON_CATEGORY — EXOTIC (奇门大类) ============('奇门遁甲玉简','SKILL_JADE',
+    ),
+-- ============ 缺失补充：WEAPON_CATEGORY — EXOTIC (奇门大类) ============
+('奇门遁甲玉简','SKILL_JADE',
     jsonb_build_object(
         'skill_id',
         (
@@ -1410,7 +1448,9 @@ INSERT
         ),
         '["skill_jade","exotic","execute","epic"]' ::jsonb,
         '逆转阴阳颠乱五行，对残血之敌一击斩杀的奇门奥义。'
-    ), -- ============ 缺失补充：ELEMENT — METAL (金行) ============('金钟罩玉简','SKILL_JADE',
+    ),
+-- ============ 缺失补充：ELEMENT — METAL (金行) ============
+('金钟罩玉简','SKILL_JADE',
     jsonb_build_object(
         'skill_id',
         (
@@ -1440,7 +1480,9 @@ INSERT
         ),
         '["skill_jade","metal","armor_break","advanced"]' ::jsonb,
         '太白金星之力斩妖除魔，金行攻击附带强力破甲。'
-    ), -- ============ 缺失补充：ELEMENT — WOOD (木行) ============('荆棘缠绕玉简','SKILL_JADE',
+    ),
+-- ============ 缺失补充：ELEMENT — WOOD (木行) ============
+('荆棘缠绕玉简','SKILL_JADE',
     jsonb_build_object(
         'skill_id',
         (
@@ -1470,7 +1512,9 @@ INSERT
         ),
         '["skill_jade","wood","heal","aoe","advanced"]' ::jsonb,
         '百花齐放万木逢春，全员疗愈的木行高阶仙术。'
-    ), -- ============ 缺失补充：ELEMENT — WATER (水行) ============('水镜术玉简','SKILL_JADE',
+    ),
+-- ============ 缺失补充：ELEMENT — WATER (水行) ============
+('水镜术玉简','SKILL_JADE',
     jsonb_build_object(
         'skill_id',
         (
@@ -1500,7 +1544,9 @@ INSERT
         ),
         '["skill_jade","water","ice","aoe","freeze","advanced"]' ::jsonb,
         '万里冰封遍地寒，群伤冰冻的高阶水行禁术。'
-    ), -- ============ 缺失补充：ELEMENT — FIRE (火行) ============('三昧真火玉简','SKILL_JADE',
+    ),
+-- ============ 缺失补充：ELEMENT — FIRE (火行) ============
+('三昧真火玉简','SKILL_JADE',
     jsonb_build_object(
         'skill_id',
         (
@@ -1513,7 +1559,9 @@ INSERT
         )
     ),
     '["skill_jade","fire","armor_break","epic"]' ::jsonb,
-    '三昧真火焚万物，火行极致攻杀附带破甲的史诗术法。' ), -- ============ 缺失补充：ELEMENT — EARTH (土行) ============('厚土盾玉简','SKILL_JADE',
+    '三昧真火焚万物，火行极致攻杀附带破甲的史诗术法。' ),
+-- ============ 缺失补充：ELEMENT — EARTH (土行) ============
+('厚土盾玉简','SKILL_JADE',
     jsonb_build_object(
         'skill_id',
         (
@@ -1560,7 +1608,9 @@ INSERT
         ),
         '["skill_jade","earth","stun","epic"]' ::jsonb,
         '泰山之力从天而降，重压眩晕的土行史诗术法。'
-    ), -- ============ 缺失补充：LEGENDARY / UNIVERSAL (传说/通用) ============('一气化三清玉简','SKILL_JADE',
+    ),
+-- ============ 缺失补充：LEGENDARY / UNIVERSAL (传说/通用) ============
+('一气化三清玉简','SKILL_JADE',
     jsonb_build_object(
         'skill_id',
         (
