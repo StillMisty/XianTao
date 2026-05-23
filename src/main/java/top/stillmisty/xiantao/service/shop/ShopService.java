@@ -15,6 +15,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import top.stillmisty.xiantao.domain.event.vo.FortuneVO;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
 import top.stillmisty.xiantao.domain.item.entity.EquipmentTemplate;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
@@ -42,8 +43,10 @@ import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
+import top.stillmisty.xiantao.service.FortuneService;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
+import top.stillmisty.xiantao.service.ai.ShopChatContext;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
 import top.stillmisty.xiantao.service.player.UserStateService;
@@ -63,6 +66,7 @@ public class ShopService {
   private final UserStateService userStateService;
   private final PriceEngine priceEngine;
   private final StackableItemService stackableItemService;
+  private final FortuneService fortuneService;
 
   // ===================== 公开 API（含认证） =====================
 
@@ -104,6 +108,10 @@ public class ShopService {
 
   @Cacheable(cacheNames = "shop_products", key = "#userId")
   public ProductListVO listProducts(Long userId) {
+    ShopChatContext chatCtx = ShopChatContext.current();
+    if (chatCtx != null) {
+      return listProducts(chatCtx.npc());
+    }
     User user = userStateService.loadUser(userId);
     ShopNpc npc = findByLocation(user.getLocationId());
     return listProducts(npc);
@@ -255,7 +263,7 @@ public class ShopService {
 
     String itemName = item.getName();
     double acceptanceRate = 1.0 - (confirmedPrice - minPrice) / (double) (maxPrice - minPrice);
-    if (Math.random() > acceptanceRate) {
+    if (ThreadLocalRandom.current().nextDouble() > acceptanceRate) {
       throw new BusinessException(
           ErrorCode.SELL_PRICE_MISMATCH, "掌柜对你的报价不满意：" + itemName + " 未能售出，试着多降些价吧");
     }
@@ -301,6 +309,12 @@ public class ShopService {
     }
 
     String equipmentName = equipment.getName();
+
+    double acceptanceRate = 1.0 - (confirmedPrice - minPrice) / (double) (maxPrice - minPrice);
+    if (ThreadLocalRandom.current().nextDouble() > acceptanceRate) {
+      throw new BusinessException(
+          ErrorCode.SELL_PRICE_MISMATCH, "掌柜对你的报价不满意：" + equipmentName + " 未能售出，试着多降些价吧");
+    }
 
     userRepository.addSpiritStonesAtomically(userId, confirmedPrice);
     equipmentRepository.deleteById(equipment.getId());
@@ -363,33 +377,57 @@ public class ShopService {
     return new AppraisalResult(true, basePrice, minPrice, maxPrice, equipment.getName(), desc);
   }
 
-  public HaggleResult haggleItem(Long userId, ShopNpc npc, long currentPrice) {
-    User user = userStateService.loadUser(userId);
-    double charmFactor = Math.clamp((user.getEffectiveStatWis() - 10) / 20.0, 0, 0.3);
-    double personalityFactor = 0.1;
-    if (npc.getPersonality() != null && npc.getPersonality().toUpperCase().contains("TOUGH")) {
-      personalityFactor = 0.2;
+  public HaggleResult haggleItem(
+      Long userId, ShopNpc npc, long currentPrice, long basePrice, boolean isBuying) {
+    User user;
+    ShopChatContext chatCtx = ShopChatContext.current();
+    if (chatCtx != null) {
+      user = chatCtx.user();
+    } else {
+      user = userStateService.loadUser(userId);
     }
+    double charmFactor = Math.clamp((user.getEffectiveStatWis() - 10) / 20.0, 0, 0.3);
+    double difficulty = npc.getHaggleDifficulty();
 
-    double successRate = 0.3 + charmFactor * 0.3 - personalityFactor;
-    successRate = Math.clamp(successRate, 0.05, 0.7);
+    FortuneVO fortune = fortuneService.calculate(userId);
+    double wealthMultiplier = fortuneService.getWealthMultiplier(fortune.wealth());
 
-    boolean success = ThreadLocalRandom.current().nextDouble() < successRate;
+    double successRate = (0.3 + charmFactor * 0.3 - difficulty) * wealthMultiplier;
+    successRate = Math.clamp(successRate, 0.05, 0.85);
+
+    double roll = ThreadLocalRandom.current().nextDouble();
+    boolean success = roll < successRate;
 
     if (!success) {
-      return new HaggleResult(false, currentPrice, 0, "客官，这价已经是最低了，再降老朽要亏本了");
+      String refusalMsg = isBuying ? "客官，这价已经是最低了，再降老朽要亏本了" : "客官，这价已经是最多了，再加老朽只能喝西北风了";
+      return new HaggleResult(false, currentPrice, 0, refusalMsg);
     }
 
-    long discount = (long) Math.ceil(currentPrice * 0.05);
-    long newPrice = currentPrice - discount;
-    long minPrice = (long) (currentPrice * 0.5);
+    double successMargin = successRate - roll;
+    double amountRatio = (0.03 + successMargin * 0.12) * wealthMultiplier;
+    amountRatio = Math.clamp(amountRatio, 0.01, 0.20);
+    long amount = Math.max(1L, (long) Math.ceil(currentPrice * amountRatio));
+    long newPrice = isBuying ? currentPrice - amount : currentPrice + amount;
 
-    if (newPrice < minPrice) {
-      return new HaggleResult(false, currentPrice, 0, "客官，再降老朽只能喝西北风了！");
+    long minPrice = priceEngine.getMinPrice(basePrice);
+    long maxPrice = priceEngine.getMaxPrice(basePrice);
+    if (isBuying && newPrice < minPrice) {
+      newPrice = minPrice;
+      amount = currentPrice - newPrice;
+    }
+    if (!isBuying && newPrice > maxPrice) {
+      newPrice = maxPrice;
+      amount = newPrice - currentPrice;
+    }
+    if (amount <= 0) {
+      return new HaggleResult(false, currentPrice, 0, "客官，这价已经是极限了！");
     }
 
-    return new HaggleResult(
-        true, newPrice, discount, "罢了罢了，看你诚心，让利 " + discount + " 灵石，算你 " + newPrice + " 灵石吧");
+    String msg =
+        isBuying
+            ? "罢了罢了，看你诚心，让利 " + amount + " 灵石，算你 " + newPrice + " 灵石吧"
+            : "罢了罢了，看这品质确实不错，加 " + amount + " 灵石， " + newPrice + " 灵石收了";
+    return new HaggleResult(true, newPrice, amount, msg);
   }
 
   @Cacheable(cacheNames = "shop_player_items", key = "'equipment:' + #userId")
@@ -450,6 +488,14 @@ public class ShopService {
   }
 
   // ===================== 辅助方法 =====================
+
+  public long getMinPrice(long basePrice) {
+    return priceEngine.getMinPrice(basePrice);
+  }
+
+  public long getMaxPrice(long basePrice) {
+    return priceEngine.getMaxPrice(basePrice);
+  }
 
   @Cacheable(cacheNames = "shop_locations", key = "#locationId")
   public ShopNpc findByLocation(Long locationId) {

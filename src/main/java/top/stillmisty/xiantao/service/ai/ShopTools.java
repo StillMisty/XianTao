@@ -36,6 +36,19 @@ public class ShopTools {
   private final EquipmentTemplateRepository equipmentTemplateRepository;
   private final UserStateService userStateService;
 
+  private UserAndNpc resolveUserAndNpc() {
+    ShopChatContext ctx = ShopChatContext.current();
+    if (ctx != null) {
+      return new UserAndNpc(ctx.user(), ctx.npc());
+    }
+    Long userId = UserContext.requireCurrentUserId();
+    User user = userStateService.loadUser(userId);
+    ShopNpc npc = shopService.findByLocation(user.getLocationId());
+    return new UserAndNpc(user, npc);
+  }
+
+  private record UserAndNpc(User user, ShopNpc npc) {}
+
   /**
    * 查看商品列表：当前所在店铺的所有可购买商品及其价格和库存。
    *
@@ -101,15 +114,14 @@ public class ShopTools {
       @ToolParam(description = "物品编号，首次留空，重名时由客人指定") String itemId) {
     try {
       Long userId = UserContext.requireCurrentUserId();
-      User user = userStateService.loadUser(userId);
-      ShopNpc npc = shopService.findByLocation(user.getLocationId());
+      UserAndNpc resolved = resolveUserAndNpc();
 
       if (itemId != null && !itemId.isBlank()) {
         try {
           long id = Long.parseLong(itemId);
-          var equipResult = tryAppraiseEquipment(userId, npc, id);
+          var equipResult = tryAppraiseEquipment(userId, resolved.npc(), id);
           if (equipResult != null) return equipResult;
-          var stackResult = tryAppraiseStackable(userId, npc, id);
+          var stackResult = tryAppraiseStackable(userId, resolved.npc(), id);
           if (stackResult != null) return stackResult;
         } catch (NumberFormatException ignored) {
           log.trace("估价: itemId \"{}\" 不是数字，尝试按名称查找", itemId);
@@ -145,9 +157,11 @@ public class ShopTools {
       }
 
       if (!matchingEquipment.isEmpty()) {
-        return shopService.appraiseEquipment(userId, npc, matchingEquipment.getFirst().getId());
+        return shopService.appraiseEquipment(
+            userId, resolved.npc(), matchingEquipment.getFirst().getId());
       }
-      return shopService.appraiseStackableItem(userId, npc, matchingItems.getFirst().getId());
+      return shopService.appraiseStackableItem(
+          userId, resolved.npc(), matchingItems.getFirst().getId());
     } catch (BusinessException e) {
       return new AppraisalResult(false, 0, 0, 0, itemName, e.getMessage());
     } catch (Exception e) {
@@ -157,22 +171,50 @@ public class ShopTools {
   }
 
   /**
-   * 讨价还价：客人要求降价。
+   * 讨价还价：客人要求更有利的价格。
    *
-   * <p>每笔交易仅限砍一次价——若同一笔交易中已砍过价，直接拒绝。 砍价成功降约 5%，失败则维持原价并拒绝继续降价。
+   * <p>每轮对话仅允许讨价还价一次——若已讨价过，直接拒绝。 买家砍价（isBuying=true）：尝试降价约 3%~15%；卖家抬价（isBuying=false）：尝试提价约
+   * 3%~15%。
    *
-   * @param currentPrice 当前报价（灵石），通常是 appraiseItem 返回的 basePrice
+   * @param currentPrice 当前的灵石报价
+   * @param basePrice 商品的基准价格（从 showGoods 或 appraiseItem 获取，用于校验价格范围）
+   * @param isBuying true=客人在买东西想降价，false=客人在卖东西想提价
    */
-  @Tool(description = "与客人讨价还价，每笔交易限一次。成功约降5%，失败维持原价。currentPrice 为当前灵石报价")
+  @Tool(
+      description =
+          "与客人讨价还价，每轮对话限一次。isBuying=true=砍价(降价)，false=抬价(提价)。currentPrice 为当前灵石报价，basePrice 为基准价")
   @Transactional
-  public HaggleResult negotiatePrice(@ToolParam(description = "当前报价（灵石）") long currentPrice) {
+  public HaggleResult negotiatePrice(
+      @ToolParam(description = "当前报价（灵石）") long currentPrice,
+      @ToolParam(description = "基准价格（灵石），从 showGoods 或 appraiseItem 结果中获取") long basePrice,
+      @ToolParam(description = "客人是否在买东西(ture=买家砍价，false=卖家抬价)") boolean isBuying) {
     return toolExecutor.execute(
         "negotiatePrice",
         () -> {
+          ShopChatContext chatCtx = ShopChatContext.current();
+          if (chatCtx != null && chatCtx.isHaggleUsed()) {
+            return new HaggleResult(
+                false, currentPrice, 0, isBuying ? "客官，方才已让过利了，这价不能再降了" : "客官，方才已加过价了，这价不能再升了");
+          }
+
+          long minValid = shopService.getMinPrice(basePrice);
+          long maxValid = shopService.getMaxPrice(basePrice);
+          if (currentPrice < minValid || currentPrice > maxValid) {
+            return new HaggleResult(
+                false,
+                currentPrice,
+                0,
+                "客官，你报的 " + currentPrice + " 灵石不在合理范围（" + minValid + "~" + maxValid + "），请重新确认价格");
+          }
+
           Long userId = UserContext.requireCurrentUserId();
-          User user = userStateService.loadUser(userId);
-          ShopNpc npc = shopService.findByLocation(user.getLocationId());
-          return shopService.haggleItem(userId, npc, currentPrice);
+          UserAndNpc resolved = resolveUserAndNpc();
+          HaggleResult result =
+              shopService.haggleItem(userId, resolved.npc(), currentPrice, basePrice, isBuying);
+          if (chatCtx != null) {
+            chatCtx.markHaggled();
+          }
+          return result;
         });
   }
 
@@ -193,8 +235,7 @@ public class ShopTools {
       @ToolParam(description = "成交价格（灵石），必须在对估价/砍价得到的价格") long confirmedPrice) {
     try {
       Long userId = UserContext.requireCurrentUserId();
-      User user = userStateService.loadUser(userId);
-      ShopNpc npc = shopService.findByLocation(user.getLocationId());
+      UserAndNpc resolved = resolveUserAndNpc();
 
       if (itemId == null || itemId.isBlank()) {
         throw new IllegalArgumentException("需要提供物品编号");
@@ -203,9 +244,12 @@ public class ShopTools {
       try {
         long id = Long.parseLong(itemId);
         try {
-          return shopService.sellEquipment(userId, npc, id, confirmedPrice);
+          return shopService.sellEquipment(userId, resolved.npc(), id, confirmedPrice);
         } catch (BusinessException e) {
-          return shopService.sellStackableItem(userId, npc, id, confirmedPrice);
+          if (e.getErrorCode() == ErrorCode.EQUIPMENT_NOT_FOUND) {
+            return shopService.sellStackableItem(userId, resolved.npc(), id, confirmedPrice);
+          }
+          throw e;
         }
       } catch (NumberFormatException e) {
         throw new IllegalArgumentException("物品编号格式错误");
@@ -233,15 +277,14 @@ public class ShopTools {
         "sellGoods",
         () -> {
           Long userId = UserContext.requireCurrentUserId();
-          User user = userStateService.loadUser(userId);
-          ShopNpc npc = shopService.findByLocation(user.getLocationId());
+          UserAndNpc resolved = resolveUserAndNpc();
 
           var template =
               itemTemplateRepository
                   .findByName(templateName)
                   .orElseThrow(() -> new BusinessException(ErrorCode.SHOP_PRODUCT_NOT_FOUND));
 
-          return shopService.purchaseItem(userId, npc, template.getId(), quantity);
+          return shopService.purchaseItem(userId, resolved.npc(), template.getId(), quantity);
         });
   }
 
@@ -260,15 +303,14 @@ public class ShopTools {
         "sellEquipment",
         () -> {
           Long userId = UserContext.requireCurrentUserId();
-          User user = userStateService.loadUser(userId);
-          ShopNpc npc = shopService.findByLocation(user.getLocationId());
+          UserAndNpc resolved = resolveUserAndNpc();
 
           var template = equipmentTemplateRepository.findByName(templateName).orElse(null);
           if (template == null) {
             throw new IllegalArgumentException("未找到装备：" + templateName);
           }
 
-          return shopService.purchaseEquipment(userId, npc, template.getId());
+          return shopService.purchaseEquipment(userId, resolved.npc(), template.getId());
         });
   }
 

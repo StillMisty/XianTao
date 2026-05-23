@@ -10,9 +10,6 @@ import org.springframework.ai.chat.observation.ChatModelObservationConvention;
 import org.springframework.ai.model.openai.autoconfigure.OpenAiAutoConfigurationUtil;
 import org.springframework.ai.model.openai.autoconfigure.OpenAiChatProperties;
 import org.springframework.ai.model.openai.autoconfigure.OpenAiCommonProperties;
-import org.springframework.ai.model.tool.DefaultToolExecutionEligibilityPredicate;
-import org.springframework.ai.model.tool.ToolCallingManager;
-import org.springframework.ai.model.tool.ToolExecutionEligibilityPredicate;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.openai.setup.OpenAiSetup;
@@ -42,10 +39,8 @@ public class SpringAiConfig {
   public OpenAiChatModel openAiChatModel(
       OpenAiCommonProperties commonProperties,
       OpenAiChatProperties chatProperties,
-      ToolCallingManager toolCallingManager,
       ObjectProvider<ObservationRegistry> observationRegistry,
-      ObjectProvider<ChatModelObservationConvention> observationConvention,
-      ObjectProvider<ToolExecutionEligibilityPredicate> toolExecutionEligibilityPredicate) {
+      ObjectProvider<ChatModelObservationConvention> observationConvention) {
 
     var resolved =
         OpenAiAutoConfigurationUtil.resolveCommonProperties(commonProperties, chatProperties);
@@ -88,11 +83,7 @@ public class SpringAiConfig {
             .openAiClient(openAIClient)
             .openAiClientAsync(openAIClientAsync)
             .options(chatProperties.toOptions())
-            .toolCallingManager(toolCallingManager)
             .observationRegistry(observationRegistry.getIfUnique(() -> ObservationRegistry.NOOP))
-            .toolExecutionEligibilityPredicate(
-                toolExecutionEligibilityPredicate.getIfUnique(
-                    DefaultToolExecutionEligibilityPredicate::new))
             .build();
 
     observationConvention.ifAvailable(chatModel::setObservationConvention);

@@ -52,7 +52,13 @@ public class ShopChatService extends AbstractChatService {
     try {
       User user = userStateService.loadUser(userId);
       ShopNpc npc = shopService.findByLocation(user.getLocationId());
-      return callLlm(buildPrompt(npc), userInput, ChatType.SHOP, userId, npc.getId(), shopTools);
+      List<WorldEvent> activeEvents = worldEventRepository.findActiveEvents();
+      return ShopChatContext.with(
+          user,
+          npc,
+          activeEvents,
+          () ->
+              callLlm(buildPrompt(npc), userInput, ChatType.SHOP, userId, npc.getId(), shopTools));
     } catch (BusinessException e) {
       return e.getMessage();
     } catch (Exception e) {
@@ -74,7 +80,8 @@ public class ShopChatService extends AbstractChatService {
             %s你是「%s」的掌柜，一位修仙世界的商人。
             玩家是你的顾客，你的职责是收购和出售物品，不能进行修炼、战斗、炼丹等操作。
             所有物品价格由工具函数计算，你不可自行编造价格。
-            同一笔交易中，玩家最多只能砍一次价——第二次再要求降价时直接拒绝。
+            当客人要求降价或抬价时，必须调用 negotiatePrice 工具，不要自己口头拒绝或接受。
+            isBuying=true 表示客人在买东西想降价，isBuying=false 表示客人在卖东西想提价。
             如果玩家提供的物品不可交易（tradable=false），直接拒绝。
             对话要简短自然，像一位古代商铺掌柜。
             如果玩家只是聊天，不涉及买卖，直接以掌柜身份回复即可，不要调用任何工具。
@@ -87,7 +94,9 @@ public class ShopChatService extends AbstractChatService {
   }
 
   private String buildEventsInfo() {
-    List<WorldEvent> activeEvents = worldEventRepository.findActiveEvents();
+    ShopChatContext ctx = ShopChatContext.current();
+    List<WorldEvent> activeEvents =
+        ctx != null ? ctx.activeEvents() : worldEventRepository.findActiveEvents();
     if (activeEvents.isEmpty()) {
       return "";
     }

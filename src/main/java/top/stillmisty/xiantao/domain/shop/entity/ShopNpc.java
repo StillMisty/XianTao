@@ -44,4 +44,15 @@ public class ShopNpc {
     var multiplier = categoryMultiplier.get(itemTypeCode);
     return multiplier != null ? multiplier.doubleValue() : 1.0;
   }
+
+  public double getHaggleDifficulty() {
+    if (personality == null || personality.isBlank()) return 0.1;
+    return switch (personality.toUpperCase()) {
+      case "ESFJ" -> 0.0; // 热情好客
+      case "ISFJ" -> 0.05; // 温和良善
+      case "INTJ" -> 0.1; // 疏离冷静
+      case "ESTP" -> 0.15; // 粗犷霸道
+      default -> 0.1;
+    };
+  }
 }

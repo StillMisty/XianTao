@@ -14,6 +14,7 @@ import top.stillmisty.xiantao.domain.shop.entity.ShopProduct;
 import top.stillmisty.xiantao.domain.worldevent.entity.WorldEvent;
 import top.stillmisty.xiantao.domain.worldevent.enums.WorldEventCategory;
 import top.stillmisty.xiantao.domain.worldevent.repository.WorldEventRepository;
+import top.stillmisty.xiantao.service.ai.ShopChatContext;
 
 @Component
 @RequiredArgsConstructor
@@ -106,7 +107,9 @@ public class PriceEngine {
   }
 
   private double getWorldEventMultiplier(Set<String> tags) {
-    List<WorldEvent> activeEvents = worldEventRepository.findActiveEvents();
+    ShopChatContext ctx = ShopChatContext.current();
+    List<WorldEvent> activeEvents =
+        ctx != null ? ctx.activeEvents() : worldEventRepository.findActiveEvents();
     double multiplier = 1.0;
     for (WorldEvent event : activeEvents) {
       if (event.getCategory() == WorldEventCategory.ECONOMIC) {
