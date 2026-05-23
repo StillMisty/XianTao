@@ -42,7 +42,6 @@ public class SpiritChatService extends AbstractChatService {
   private final SpiritFormRepository spiritFormRepository;
   private final SpiritPromptTemplates promptTemplates;
   private final SpiritTools spiritTools;
-  private final SpiritEmotionTools spiritEmotionTools;
   private final FudiEventGenerator fudiEventGenerator;
   private final BeastRepository beastRepository;
   private final FarmService farmService;
@@ -59,7 +58,6 @@ public class SpiritChatService extends AbstractChatService {
       SpiritFormRepository spiritFormRepository,
       SpiritPromptTemplates promptTemplates,
       SpiritTools spiritTools,
-      SpiritEmotionTools spiritEmotionTools,
       FudiEventGenerator fudiEventGenerator,
       BeastRepository beastRepository,
       FarmService farmService,
@@ -73,7 +71,6 @@ public class SpiritChatService extends AbstractChatService {
     this.spiritFormRepository = spiritFormRepository;
     this.promptTemplates = promptTemplates;
     this.spiritTools = spiritTools;
-    this.spiritEmotionTools = spiritEmotionTools;
     this.fudiEventGenerator = fudiEventGenerator;
     this.beastRepository = beastRepository;
     this.farmService = farmService;
@@ -117,8 +114,7 @@ public class SpiritChatService extends AbstractChatService {
               ChatType.SPIRIT,
               userId,
               fudi.getId(),
-              spiritTools,
-              spiritEmotionTools);
+              spiritTools);
 
       if (!events.isEmpty()) {
         spirit.setLastEventTime(LocalDateTime.now());

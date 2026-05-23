@@ -133,7 +133,7 @@ protected String callLlm(
 ### 5.1 地灵 (SpiritChatService)
 
 - 入口：`地灵 [自然语言]`
-- 工具：`SpiritTools`（8个福地操作工具）+ `SpiritEmotionTools`（2个情绪工具）
+- 工具：`SpiritTools`（9个工具，含福地操作 + 情绪控制）
 - Prompt：MBTI 人格 + 形态 + 情绪 + 福地状态 + 地块详情 + 事件
 - 详见 [地灵对话](./地灵对话.md)
 

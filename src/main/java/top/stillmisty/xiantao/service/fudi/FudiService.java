@@ -526,4 +526,17 @@ public class FudiService {
     spiritRepository.save(spirit);
     log.info("玩家 {} 地灵好感度变化 {} -> {}", userId, delta, spirit.getAffection());
   }
+
+  @Transactional
+  public void updateSpiritEmotion(Long userId, EmotionState emotionState) {
+    Fudi fudi =
+        findAndTouchFudi(userId).orElseThrow(() -> new BusinessException(ErrorCode.FUDI_NOT_FOUND));
+    Spirit spirit =
+        spiritRepository
+            .findByFudiId(fudi.getId())
+            .orElseThrow(() -> new BusinessException(ErrorCode.SPIRIT_NOT_FOUND));
+    spirit.setEmotionState(emotionState);
+    spiritRepository.save(spirit);
+    log.info("玩家 {} 地灵情绪更新 -> {}", userId, emotionState);
+  }
 }

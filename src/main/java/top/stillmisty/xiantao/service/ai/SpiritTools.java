@@ -9,6 +9,7 @@ import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.fudi.enums.CellType;
+import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
 import top.stillmisty.xiantao.domain.fudi.vo.CellStatusVO;
 import top.stillmisty.xiantao.domain.fudi.vo.CollectAllVO;
 import top.stillmisty.xiantao.domain.fudi.vo.CollectVO;
@@ -207,6 +208,21 @@ public class SpiritTools {
     }
   }
 
+  @Tool(description = "更新地灵的情绪状态")
+  @Transactional
+  public UpdateEmotionResponse updateEmotion(
+      @ToolParam(description = "新的情绪状态") EmotionState emotionState) {
+    try {
+      Long userId = UserContext.requireCurrentUserId();
+      fudiService.updateSpiritEmotion(userId, emotionState);
+      log.debug("地灵情绪更新 - userId: {}, emotion: {}", userId, emotionState);
+      return new UpdateEmotionResponse(emotionState.name(), null);
+    } catch (Exception e) {
+      log.error("更新情绪失败 - error: {}", e.getMessage());
+      return new UpdateEmotionResponse("", e.getMessage());
+    }
+  }
+
   public record GetCellStatusResponse(
       @JsonPropertyDescription("总地块数") int totalCells,
       @JsonPropertyDescription("已占用数") int occupiedCount,
@@ -265,5 +281,9 @@ public class SpiritTools {
   public record ReportOffenseResponse(
       @JsonPropertyDescription("冒犯原因") String reason,
       @JsonPropertyDescription("冒犯程度（1~5）") int severity,
+      @JsonPropertyDescription("错误信息，null 表示成功") String error) {}
+
+  public record UpdateEmotionResponse(
+      @JsonPropertyDescription("更新后的情绪状态") String emotionState,
       @JsonPropertyDescription("错误信息，null 表示成功") String error) {}
 }
