@@ -89,11 +89,22 @@ public class DropProcessor {
 
   @Transactional
   public void distributeDrops(Long userId, List<DropItem> drops) {
+    List<Long> itemTemplateIds =
+        drops.stream()
+            .filter(d -> d.type() != DropType.EQUIPMENT)
+            .map(DropItem::templateId)
+            .distinct()
+            .toList();
+    Map<Long, ItemTemplate> templateMap =
+        itemTemplateIds.isEmpty()
+            ? Map.of()
+            : itemTemplateRepository.findByIds(itemTemplateIds).stream()
+                .collect(Collectors.toMap(ItemTemplate::getId, t -> t));
     for (DropItem drop : drops) {
       if (drop.type() == DropType.EQUIPMENT) {
         equipmentService.createEquipment(userId, drop.templateId());
       } else {
-        ItemTemplate tmpl = itemTemplateRepository.findById(drop.templateId()).orElse(null);
+        ItemTemplate tmpl = templateMap.get(drop.templateId());
         ItemType type = tmpl != null ? tmpl.getType() : ItemType.MATERIAL;
         stackableItemService.addStackableItem(
             userId, drop.templateId(), type, drop.name(), drop.quantity());

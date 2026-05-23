@@ -371,16 +371,15 @@ public class TrainingService {
 
   private void addTrainingItemsToInventory(Long userId, List<DropItem> items) {
     if (items == null || items.isEmpty()) return;
+    List<Long> templateIds = items.stream().map(DropItem::templateId).distinct().toList();
+    Map<Long, ItemTemplate> templateMap =
+        itemTemplateRepository.findByIds(templateIds).stream()
+            .collect(Collectors.toMap(ItemTemplate::getId, t -> t));
     for (DropItem item : items) {
-      Long templateId = item.templateId();
-      String name = item.name();
-      int quantity = item.quantity();
-      ItemType itemType =
-          itemTemplateRepository
-              .findById(templateId)
-              .map(ItemTemplate::getType)
-              .orElse(ItemType.MATERIAL);
-      stackableItemService.addStackableItem(userId, templateId, itemType, name, quantity);
+      ItemTemplate template = templateMap.get(item.templateId());
+      ItemType itemType = template != null ? template.getType() : ItemType.MATERIAL;
+      stackableItemService.addStackableItem(
+          userId, item.templateId(), itemType, item.name(), item.quantity());
     }
   }
 }

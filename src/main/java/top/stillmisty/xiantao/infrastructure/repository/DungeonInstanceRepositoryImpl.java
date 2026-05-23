@@ -1,6 +1,7 @@
 package top.stillmisty.xiantao.infrastructure.repository;
 
 import com.mybatisflex.core.query.QueryWrapper;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -43,6 +44,18 @@ public class DungeonInstanceRepositoryImpl implements DungeonInstanceRepository 
             .eq(DungeonInstance::getDungeonId, dungeonId)
             .eq(DungeonInstance::getStatus, status);
     return Optional.ofNullable(mapper.selectOneByQuery(qw));
+  }
+
+  @Override
+  public List<DungeonInstance> findByLeaderIdAndDungeonIdsAndStatus(
+      Long leaderId, List<Long> dungeonIds, DungeonStatus status) {
+    if (dungeonIds == null || dungeonIds.isEmpty()) return List.of();
+    QueryWrapper qw =
+        new QueryWrapper()
+            .eq(DungeonInstance::getLeaderId, leaderId)
+            .in(DungeonInstance::getDungeonId, dungeonIds)
+            .eq(DungeonInstance::getStatus, status);
+    return mapper.selectListByQuery(qw);
   }
 
   @Override

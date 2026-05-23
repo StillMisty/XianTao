@@ -57,3 +57,9 @@ CREATE
 
 CREATE INDEX idx_sect_shared_skill_sect_status
     ON xt_sect_shared_skill (sect_id, status);
+
+CREATE INDEX idx_sect_shared_skill_submitter
+    ON xt_sect_shared_skill (submitter_user_id);
+
+CREATE INDEX idx_sect_shared_skill_skill
+    ON xt_sect_shared_skill (skill_id);

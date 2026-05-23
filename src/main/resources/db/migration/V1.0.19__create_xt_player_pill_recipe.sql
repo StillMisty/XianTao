@@ -27,6 +27,10 @@ CREATE
     INDEX idx_player_pill_recipe_template_id ON
     xt_player_pill_recipe(recipe_template_id);
 
+CREATE
+    INDEX idx_player_pill_recipe_result ON
+    xt_player_pill_recipe(result_item_id);
+
 -- 注释
 
 COMMENT ON

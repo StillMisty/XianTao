@@ -340,17 +340,24 @@ public class CharacterStatusService {
   private Map<Long, String> buildLocationNameMap(
       List<DaoProtection> protections,
       java.util.function.Function<DaoProtection, Long> targetUserIdExtractor) {
-    var locationIds = protections.stream().map(targetUserIdExtractor).collect(Collectors.toSet());
-    Map<Long, User> users = buildUserCacheFromIds(locationIds);
+    var userIds = protections.stream().map(targetUserIdExtractor).collect(Collectors.toSet());
+    Map<Long, User> users = buildUserCacheFromIds(userIds);
+    List<Long> locationIds =
+        users.values().stream()
+            .map(User::getLocationId)
+            .filter(Objects::nonNull)
+            .distinct()
+            .toList();
+    Map<Long, String> locationNameMap =
+        locationIds.isEmpty()
+            ? Map.of()
+            : mapNodeRepository.findByIds(locationIds).stream()
+                .collect(Collectors.toMap(MapNode::getId, MapNode::getName));
     return users.values().stream()
         .collect(
             Collectors.toMap(
                 User::getLocationId,
-                u ->
-                    mapNodeRepository
-                        .findById(u.getLocationId())
-                        .map(MapNode::getName)
-                        .orElse("未知"),
+                u -> locationNameMap.getOrDefault(u.getLocationId(), "未知"),
                 (a, b) -> a));
   }
 

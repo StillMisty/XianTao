@@ -35,6 +35,9 @@ CREATE INDEX idx_special_order_player_status
 CREATE INDEX idx_special_order_shop_npc
     ON shop_special_order (shop_npc_id);
 
+CREATE INDEX idx_special_order_template
+    ON shop_special_order (template_id);
+
 COMMENT ON
 TABLE
     shop_special_order IS '特殊调货订单：本店无货时 LLM 可提议调货';

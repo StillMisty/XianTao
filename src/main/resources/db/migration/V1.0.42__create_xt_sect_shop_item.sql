@@ -51,3 +51,7 @@ COLUMN xt_sect_shop_item.last_refresh IS '上次刷新时间';
 CREATE
     INDEX idx_sect_shop_item_sect ON
     xt_sect_shop_item(sect_id);
+
+CREATE
+    INDEX idx_sect_shop_item_template ON
+    xt_sect_shop_item(item_template_id);

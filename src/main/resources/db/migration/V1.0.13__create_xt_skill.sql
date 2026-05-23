@@ -43,6 +43,18 @@ CREATE
     INDEX idx_xt_skill_prerequisite ON
     xt_skill(require_skill_id);
 
+CREATE
+    INDEX idx_xt_skill_type ON
+    xt_skill(skill_type);
+
+CREATE
+    INDEX idx_xt_skill_learnable ON
+    xt_skill(level_requirement, require_wis, require_skill_id);
+
+CREATE
+    INDEX idx_xt_skill_binding ON
+    xt_skill(binding_type, binding_value);
+
 COMMENT ON
 TABLE
     xt_skill IS '法决定义表';

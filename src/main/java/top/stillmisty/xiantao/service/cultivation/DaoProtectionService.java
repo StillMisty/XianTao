@@ -310,6 +310,7 @@ public class DaoProtectionService {
     return userRepository.findByNickname(nickname);
   }
 
+  @CacheEvict(cacheNames = "dao_protection", allEntries = true)
   public void clearProtegeRelations(Long protegeId) {
     daoProtectionRepository.deleteByProtegeId(protegeId);
   }

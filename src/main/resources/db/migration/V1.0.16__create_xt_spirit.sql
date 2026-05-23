@@ -29,6 +29,10 @@ CREATE
     INDEX idx_spirit_fudi_id ON
     xt_spirit(fudi_id);
 
+CREATE
+    INDEX idx_spirit_form_id ON
+    xt_spirit(form_id);
+
 COMMENT ON
 TABLE
     xt_spirit IS '地灵实例表（与福地1:1绑定）';

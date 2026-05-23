@@ -49,6 +49,10 @@ CREATE
             )
         );
 
+CREATE
+    INDEX idx_monster_template_type_level ON
+    xt_monster_template(monster_type, base_level);
+
 COMMENT ON
 TABLE
     xt_monster_template IS '怪物模板表';

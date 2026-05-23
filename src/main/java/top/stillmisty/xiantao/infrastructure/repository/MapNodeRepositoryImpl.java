@@ -51,4 +51,12 @@ public class MapNodeRepositoryImpl implements MapNodeRepository {
     QueryWrapper query = new QueryWrapper().eq(MapNode::getMapType, mapType);
     return mapNodeMapper.selectListByQuery(query);
   }
+
+  @Override
+  public List<MapNode> findByIds(List<Long> ids) {
+    if (ids == null || ids.isEmpty()) {
+      return List.of();
+    }
+    return mapNodeMapper.selectListByIds(ids);
+  }
 }

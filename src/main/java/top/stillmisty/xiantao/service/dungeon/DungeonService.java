@@ -3,7 +3,9 @@ package top.stillmisty.xiantao.service.dungeon;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,10 +67,10 @@ public class DungeonService {
   // ===================== 公开 API =====================
 
   @Authenticated
-  @Transactional
+  @Transactional(readOnly = true)
   public ServiceResult<List<DungeonListVO>> listDungeons(PlatformType platform, String openId) {
     Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(listDungeons(userId));
+    return new ServiceResult.Success<>(self.listDungeons(userId));
   }
 
   @Authenticated
@@ -108,10 +110,20 @@ public class DungeonService {
     User user = userStateService.loadUser(userId);
     List<DungeonTemplate> templates = dungeonTemplateRepository.findActive();
 
+    List<Long> templateIds = templates.stream().map(DungeonTemplate::getId).toList();
+    Map<Long, DungeonProgress> progressMap =
+        progressRepository.findByUserIdAndDungeonIds(userId, templateIds).stream()
+            .collect(Collectors.toMap(DungeonProgress::getDungeonId, p -> p, (a, b) -> a));
+    Map<Long, DungeonInstance> activeInstances =
+        instanceRepository
+            .findByLeaderIdAndDungeonIdsAndStatus(userId, templateIds, DungeonStatus.ACTIVE)
+            .stream()
+            .collect(Collectors.toMap(DungeonInstance::getDungeonId, i -> i, (a, b) -> a));
+
     List<DungeonListVO> result = new ArrayList<>();
     for (DungeonTemplate tmpl : templates) {
-      var progress = progressRepository.findByUserIdAndDungeonId(userId, tmpl.getId());
-      DungeonInstance activeInstance = findActiveInstanceRaw(userId, tmpl.getId());
+      DungeonProgress progress = progressMap.get(tmpl.getId());
+      DungeonInstance activeInstance = activeInstances.get(tmpl.getId());
 
       result.add(
           new DungeonListVO(
@@ -123,11 +135,11 @@ public class DungeonService {
               activeInstance != null,
               activeInstance != null ? activeInstance.getStatus() : null,
               activeInstance != null ? activeInstance.getCurrentArea() : null,
-              progress.map(DungeonProgress::getRewardCount).orElse(0),
-              progress
-                  .map(DungeonProgress::getDailyLimit)
-                  .orElse(DungeonProgress.calculateDailyLimit(user.getLevel())),
-              progress.map(p -> p.getFirstClear() != null && p.getFirstClear()).orElse(false)));
+              progress != null ? progress.getRewardCount() : 0,
+              progress != null
+                  ? progress.getDailyLimit()
+                  : DungeonProgress.calculateDailyLimit(user.getLevel()),
+              progress != null && progress.getFirstClear() != null && progress.getFirstClear()));
     }
     return result;
   }
@@ -459,12 +471,13 @@ public class DungeonService {
   }
 
   private ExploreResultVO executeGatherForTeam(DungeonInstance instance, DungeonPoiConfig poi) {
-    List<DropItemVO> drops = lootHelper.rollLoot(poi);
+    DungeonLootHelper.LootRollResult rollResult = lootHelper.rollLoot(poi);
+    List<DropItemVO> drops = rollResult.drops();
     long spiritStones = ThreadLocalRandom.current().nextInt(10, 31);
     List<Long> memberIds = getTeamMemberIds(instance);
 
     for (Long memberId : memberIds) {
-      lootHelper.giveDrops(memberId, drops, spiritStones);
+      lootHelper.giveDrops(memberId, drops, spiritStones, rollResult.nameToTemplate());
     }
 
     StringBuilder msg = new StringBuilder("队伍在" + poi.getName() + "中采集到了一些物资。");
@@ -476,7 +489,8 @@ public class DungeonService {
   }
 
   private ExploreResultVO executeSearchForTeam(DungeonInstance instance, DungeonPoiConfig poi) {
-    List<DropItemVO> drops = lootHelper.rollLoot(poi);
+    DungeonLootHelper.LootRollResult rollResult = lootHelper.rollLoot(poi);
+    List<DropItemVO> drops = rollResult.drops();
     long spiritStones = ThreadLocalRandom.current().nextInt(20, 81);
 
     boolean triggerCombat = ThreadLocalRandom.current().nextDouble() < 0.2;
@@ -488,7 +502,7 @@ public class DungeonService {
 
     List<Long> memberIds = getTeamMemberIds(instance);
     for (Long memberId : memberIds) {
-      lootHelper.giveDrops(memberId, drops, spiritStones);
+      lootHelper.giveDrops(memberId, drops, spiritStones, rollResult.nameToTemplate());
     }
 
     StringBuilder msg = new StringBuilder("队伍在" + poi.getName() + "中仔细搜索了一番。");
@@ -532,11 +546,12 @@ public class DungeonService {
           "部分成员阵亡，队伍继续前进...");
     }
 
-    List<DropItemVO> drops = lootHelper.rollLoot(poi);
+    DungeonLootHelper.LootRollResult rollResult = lootHelper.rollLoot(poi);
+    List<DropItemVO> drops = rollResult.drops();
     long spiritStones = ThreadLocalRandom.current().nextInt(isBoss ? 100 : 30, isBoss ? 500 : 150);
 
     for (Long memberId : memberIds) {
-      lootHelper.giveDrops(memberId, drops, spiritStones);
+      lootHelper.giveDrops(memberId, drops, spiritStones, rollResult.nameToTemplate());
     }
 
     return new ExploreResultVO(

@@ -54,3 +54,11 @@ COLUMN xt_sect_task.created_at IS '创建时间';
 CREATE
     INDEX idx_sect_task_sect ON
     xt_sect_task(sect_id);
+
+CREATE
+    INDEX idx_sect_task_target ON
+    xt_sect_task(target_id);
+
+CREATE
+    INDEX idx_sect_task_sect_type ON
+    xt_sect_task(sect_id, task_type);

@@ -22,4 +22,7 @@ public interface MapNodeRepository {
 
   /** 根据类型查找地图节点 */
   List<MapNode> findByType(MapType mapType);
+
+  /** 根据 ID 列表批量查找地图节点 */
+  List<MapNode> findByIds(List<Long> ids);
 }

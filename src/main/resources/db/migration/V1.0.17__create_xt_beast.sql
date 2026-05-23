@@ -116,3 +116,15 @@ CREATE
 CREATE
     INDEX idx_beast_deployed ON
     xt_beast(is_deployed);
+
+CREATE
+    INDEX idx_beast_template_id ON
+    xt_beast(template_id);
+
+CREATE
+    INDEX idx_beast_penned_cell ON
+    xt_beast(penned_cell_id);
+
+CREATE
+    INDEX idx_beast_user_quality ON
+    xt_beast(user_id, quality);

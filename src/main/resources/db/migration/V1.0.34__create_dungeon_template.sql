@@ -18,6 +18,9 @@ CREATE
 CREATE INDEX idx_dungeon_template_active
     ON dungeon_template (is_active);
 
+CREATE INDEX idx_dungeon_template_map_node
+    ON dungeon_template (map_node_id);
+
 COMMENT ON
 TABLE
     dungeon_template IS '秘境模板表';

@@ -28,10 +28,11 @@ public class DungeonLootHelper {
 
   @Transactional
   public ExploreResultVO executeGather(User user, DungeonPoiConfig poi) {
-    List<DropItemVO> drops = rollLoot(poi);
+    LootRollResult rollResult = rollLoot(poi);
+    List<DropItemVO> drops = rollResult.drops();
     long spiritStones = ThreadLocalRandom.current().nextInt(10, 31);
 
-    giveDrops(user.getId(), drops, spiritStones);
+    giveDrops(user.getId(), drops, spiritStones, rollResult.nameToTemplate());
 
     return new ExploreResultVO(
         poi.getName(),
@@ -47,7 +48,8 @@ public class DungeonLootHelper {
 
   @Transactional
   public ExploreResultVO executeSearch(User user, DungeonPoiConfig poi) {
-    List<DropItemVO> drops = rollLoot(poi);
+    LootRollResult rollResult = rollLoot(poi);
+    List<DropItemVO> drops = rollResult.drops();
     long spiritStones = ThreadLocalRandom.current().nextInt(20, 81);
 
     boolean triggerCombat = ThreadLocalRandom.current().nextDouble() < 0.2;
@@ -57,7 +59,7 @@ public class DungeonLootHelper {
       spiritStones += ThreadLocalRandom.current().nextInt(20, 61);
     }
 
-    giveDrops(user.getId(), drops, spiritStones);
+    giveDrops(user.getId(), drops, spiritStones, rollResult.nameToTemplate());
 
     return new ExploreResultVO(
         poi.getName(),
@@ -71,9 +73,9 @@ public class DungeonLootHelper {
         "你在" + poi.getName() + "中仔细搜索了一番。");
   }
 
-  public List<DropItemVO> rollLoot(DungeonPoiConfig poi) {
+  public LootRollResult rollLoot(DungeonPoiConfig poi) {
     List<DropItemVO> drops = new ArrayList<>();
-    if (!poi.hasLootPool()) return drops;
+    if (!poi.hasLootPool()) return new LootRollResult(drops, Map.of());
 
     int rollCount =
         1
@@ -89,36 +91,42 @@ public class DungeonLootHelper {
               poi.getLootPool(), LootPoolEntry::weight, ThreadLocalRandom.current());
       if (entry != null) entries.add(entry);
     }
-    if (entries.isEmpty()) return drops;
+    if (entries.isEmpty()) return new LootRollResult(drops, Map.of());
 
     List<Long> templateIds = entries.stream().map(LootPoolEntry::templateId).distinct().toList();
-    Map<Long, String> nameLookup =
+    Map<Long, ItemTemplate> templateLookup =
         itemTemplateRepository.findByIds(templateIds).stream()
-            .collect(Collectors.toMap(ItemTemplate::getId, ItemTemplate::getName));
+            .collect(Collectors.toMap(ItemTemplate::getId, t -> t));
 
+    Map<String, ItemTemplate> nameToTemplate = new HashMap<>();
     for (LootPoolEntry entry : entries) {
       int qty = ThreadLocalRandom.current().nextInt(entry.minQty(), entry.maxQty() + 1);
-      String itemName = nameLookup.getOrDefault(entry.templateId(), "未知物品");
+      ItemTemplate template = templateLookup.get(entry.templateId());
+      String itemName = template != null ? template.getName() : "未知物品";
       drops.add(new DropItemVO(itemName, qty));
+      if (template != null) {
+        nameToTemplate.put(itemName, template);
+      }
     }
-    return drops;
+    return new LootRollResult(drops, nameToTemplate);
   }
 
-  public void giveDrops(Long userId, List<DropItemVO> drops, long spiritStones) {
+  public void giveDrops(
+      Long userId,
+      List<DropItemVO> drops,
+      long spiritStones,
+      Map<String, ItemTemplate> nameToTemplate) {
     for (DropItemVO drop : drops) {
-      itemTemplateRepository
-          .findByName(drop.name())
-          .ifPresent(
-              template ->
-                  stackableItemService.addStackableItem(
-                      userId,
-                      template.getId(),
-                      template.getType(),
-                      template.getName(),
-                      drop.quantity()));
+      ItemTemplate template = nameToTemplate.get(drop.name());
+      if (template != null) {
+        stackableItemService.addStackableItem(
+            userId, template.getId(), template.getType(), template.getName(), drop.quantity());
+      }
     }
     if (spiritStones > 0) {
       spiritStoneService.deposit(userId, spiritStones);
     }
   }
+
+  public record LootRollResult(List<DropItemVO> drops, Map<String, ItemTemplate> nameToTemplate) {}
 }

@@ -259,7 +259,14 @@ public class BeastCombatService {
   public void addExpToDeployedBeasts(Long userId, long expToAdd) {
     List<Beast> deployedBeasts = beastRepository.findByUserIdAndIsDeployed(userId, true);
     for (Beast beast : deployedBeasts) {
-      addBeastExp(beast.getId(), expToAdd);
+      long actualExp = expToAdd;
+      if (beast.getMutationTraits() != null
+          && beast.getMutationTraits().contains("SPIRIT_DEVOUR")) {
+        actualExp = (long) (expToAdd * 1.25);
+      }
+      long consumed = beast.addExp(actualExp);
+      beastRepository.save(beast);
+      log.debug("灵兽 {} 获得 {} 经验", beast.getId(), consumed);
     }
   }
 }

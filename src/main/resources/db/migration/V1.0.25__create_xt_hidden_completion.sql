@@ -23,6 +23,9 @@ CREATE
 CREATE INDEX idx_hidden_completion_user_code
     ON xt_hidden_completion (user_id, code);
 
+CREATE INDEX idx_hidden_completion_lookup
+    ON xt_hidden_completion(activity_type, owner_id);
+
 COMMENT ON
 TABLE
     xt_hidden_completion IS '隐藏事件完成记录表 — 保证每人每个隐藏事件只触发一次';

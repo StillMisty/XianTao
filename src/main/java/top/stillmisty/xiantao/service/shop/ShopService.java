@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.event.vo.FortuneVO;
@@ -118,7 +119,11 @@ public class ShopService {
   }
 
   @Transactional
-  @CacheEvict(cacheNames = "shop_products", key = "#userId")
+  @Caching(
+      evict = {
+        @CacheEvict(cacheNames = "shop_products", key = "#userId"),
+        @CacheEvict(cacheNames = "shop_player_items", key = "'items:' + #userId")
+      })
   public PurchaseResult purchaseItem(Long userId, ShopNpc npc, Long templateId, int quantity) {
     if (quantity <= 0) {
       throw new BusinessException(ErrorCode.PARAM_INVALID, "数量必须大于0");
@@ -165,7 +170,11 @@ public class ShopService {
   }
 
   @Transactional
-  @CacheEvict(cacheNames = "shop_products", key = "#userId")
+  @Caching(
+      evict = {
+        @CacheEvict(cacheNames = "shop_products", key = "#userId"),
+        @CacheEvict(cacheNames = "shop_player_items", key = "'equipment:' + #userId")
+      })
   public EquipmentPurchaseResult purchaseEquipment(Long userId, ShopNpc npc, Long templateId) {
     ShopProduct product =
         shopProductRepository
@@ -232,6 +241,7 @@ public class ShopService {
     return new EquipmentPurchaseResult(equipment.getName(), rarity.getCode(), price, description);
   }
 
+  @CacheEvict(cacheNames = "shop_player_items", key = "'items:' + #userId")
   @Transactional
   public SellResult sellStackableItem(Long userId, ShopNpc npc, Long itemId, long confirmedPrice) {
     StackableItem item =
@@ -279,6 +289,7 @@ public class ShopService {
     return new SellResult(confirmedPrice, itemName);
   }
 
+  @CacheEvict(cacheNames = "shop_player_items", key = "'equipment:' + #userId")
   @Transactional
   public SellResult sellEquipment(Long userId, ShopNpc npc, Long equipmentId, long confirmedPrice) {
     Equipment equipment =

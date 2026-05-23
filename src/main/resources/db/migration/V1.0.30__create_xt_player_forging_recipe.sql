@@ -26,6 +26,10 @@ CREATE
     INDEX idx_player_forging_recipe_blueprint_id ON
     xt_player_forging_recipe(blueprint_template_id);
 
+CREATE
+    INDEX idx_player_forging_recipe_equip_tmpl ON
+    xt_player_forging_recipe(equipment_template_id);
+
 COMMENT ON
 TABLE
     xt_player_forging_recipe IS '玩家已学锻造图纸表';

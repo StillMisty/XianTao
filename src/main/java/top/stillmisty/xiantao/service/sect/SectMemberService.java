@@ -544,7 +544,7 @@ public class SectMemberService {
 
     List<SectMember> members = sectMemberRepository.findBySectId(sect.getId());
     for (SectMember m : members) {
-      forgetSharedSkills(m.getUserId());
+      forgetSharedSkills(m.getUserId(), sect.getId());
       masterApprenticeService.handleMasterSectLeave(m.getUserId());
     }
     for (SectMember m : members) {
@@ -734,10 +734,7 @@ public class SectMemberService {
   }
 
   @Transactional
-  public void forgetSharedSkills(Long userId) {
-    var memberOpt = sectMemberRepository.findByUserId(userId);
-    if (memberOpt.isEmpty() || memberOpt.get().getSectId() == null) return;
-    Long sectId = memberOpt.get().getSectId();
+  public void forgetSharedSkills(Long userId, Long sectId) {
     playerSkillRepository.deleteByUserIdAndSourceSectId(userId, sectId);
   }
 
@@ -745,7 +742,7 @@ public class SectMemberService {
   void executeLeave(Long userId, SectMember member) {
     sectMemberRepository.deleteByUserId(userId);
 
-    forgetSharedSkills(userId);
+    forgetSharedSkills(userId, member.getSectId());
 
     sectMemberRepository.save(
         SectMember.create()

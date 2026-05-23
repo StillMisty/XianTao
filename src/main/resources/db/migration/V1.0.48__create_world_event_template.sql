@@ -41,6 +41,10 @@ CREATE
     INDEX idx_world_event_template_category ON
     world_event_template(category);
 
+CREATE
+    INDEX idx_world_event_template_chain ON
+    world_event_template(chained_template_id);
+
 COMMENT ON
 TABLE
     world_event_template IS '世界事件模板池，用于 AI 或定时任务随机选取生成事件';

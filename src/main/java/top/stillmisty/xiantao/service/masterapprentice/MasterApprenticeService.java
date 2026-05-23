@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -219,6 +220,7 @@ public class MasterApprenticeService {
         apprentices);
   }
 
+  @CacheEvict(cacheNames = "dao_protection", allEntries = true)
   public String dismissApprentice(Long userId, String targetNickname) {
     User target = userStateService.loadUserByNickname(targetNickname);
     if (target == null) {
@@ -250,6 +252,7 @@ public class MasterApprenticeService {
     return "已将【" + targetNickname + "】逐出师门。";
   }
 
+  @CacheEvict(cacheNames = "dao_protection", allEntries = true)
   public String renounceMaster(Long userId) {
     Optional<MasterApprentice> relationOpt = masterApprenticeRepository.findByApprenticeId(userId);
     if (relationOpt.isEmpty() || !relationOpt.get().isActive()) {
@@ -322,6 +325,7 @@ public class MasterApprenticeService {
 
   /** 检测并执行自动出师（由升级/突破时调用） */
   @Transactional
+  @CacheEvict(cacheNames = "dao_protection", allEntries = true)
   public void checkAndGraduate(Long userId) {
     Optional<MasterApprentice> relationOpt = masterApprenticeRepository.findByApprenticeId(userId);
     if (relationOpt.isEmpty() || !relationOpt.get().isActive()) {
@@ -365,6 +369,7 @@ public class MasterApprenticeService {
   }
 
   /** 师傅退出/被踢出宗门时处理所有徒弟叛师 */
+  @CacheEvict(cacheNames = "dao_protection", allEntries = true)
   @Transactional
   public void handleMasterSectLeave(Long masterId) {
     List<MasterApprentice> relations = masterApprenticeRepository.findByMasterId(masterId);

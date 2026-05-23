@@ -77,6 +77,16 @@ CREATE
 WHERE
     parent_event_id IS NOT NULL;
 
+CREATE
+    INDEX idx_world_event_category ON
+    world_event(category);
+
+CREATE
+    INDEX idx_world_event_upcoming ON
+    world_event(start_time)
+WHERE
+    status = 'UPCOMING';
+
 COMMENT ON
 TABLE
     world_event IS '世界事件：影响经济、环境、叙事和玩家参与';

@@ -51,6 +51,8 @@ CREATE TABLE xt_user(
 
 CREATE INDEX idx_xt_user_status ON xt_user(status);
 CREATE INDEX idx_xt_user_location ON xt_user(location_id);
+CREATE INDEX idx_xt_user_activity_type ON xt_user(activity_type);
+CREATE INDEX idx_xt_user_level_exp ON xt_user(level DESC, exp DESC);
 
 COMMENT ON COLUMN xt_user.last_fortune_date IS '上次运势生成日期，用于每日自动刷新';
 COMMENT ON COLUMN xt_user.last_settlement_minute IS '历练中途结算的已处理分钟数，避免重复结算';

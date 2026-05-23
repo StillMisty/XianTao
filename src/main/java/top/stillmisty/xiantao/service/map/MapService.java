@@ -5,12 +5,15 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
 import top.stillmisty.xiantao.domain.event.enums.EventTypeEnum;
 import top.stillmisty.xiantao.domain.event.repository.ActivityEventRepository;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
+import top.stillmisty.xiantao.domain.map.entity.NeighborEntry;
 import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
 import top.stillmisty.xiantao.domain.map.vo.MapInfoVO;
 import top.stillmisty.xiantao.domain.monster.entity.MonsterTemplate;
@@ -35,17 +38,19 @@ public class MapService {
   private final UserStateService userStateService;
   private final ActivityEventRepository activityEventRepository;
 
+  @Lazy @Autowired private MapService self;
+
   // ===================== 公开 API（含认证） =====================
 
   @Authenticated
   public ServiceResult<List<MapInfoVO>> getAllMaps(PlatformType platform, String openId) {
-    return new ServiceResult.Success<>(getAllMaps());
+    return new ServiceResult.Success<>(self.getAllMaps());
   }
 
   @Authenticated
   public ServiceResult<MapInfoVO> getCurrentMapInfo(PlatformType platform, String openId) {
     Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(getCurrentMapInfo(userId));
+    return new ServiceResult.Success<>(self.getCurrentMapInfo(userId));
   }
 
   // ===================== 内部 API（需预先完成认证） =====================
@@ -96,10 +101,12 @@ public class MapService {
     var neighbors = mapNode.getNeighbors();
     List<String> adjacentMapNames;
     if (neighbors != null && !neighbors.isEmpty()) {
+      List<Long> neighborIds = neighbors.stream().map(NeighborEntry::targetId).toList();
+      Map<Long, String> neighborNameMap =
+          mapNodeRepository.findByIds(neighborIds).stream()
+              .collect(Collectors.toMap(MapNode::getId, MapNode::getName));
       adjacentMapNames =
-          neighbors.stream()
-              .map(n -> mapNodeRepository.findById(n.targetId()).map(MapNode::getName).orElse("未知"))
-              .toList();
+          neighborIds.stream().map(id -> neighborNameMap.getOrDefault(id, "未知")).toList();
     } else {
       adjacentMapNames = List.of();
     }
