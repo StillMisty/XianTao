@@ -1,6 +1,5 @@
 package top.stillmisty.xiantao.service.ai;
 
-import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.tool.annotation.Tool;
@@ -9,105 +8,120 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.sect.vo.SkillOperationResultVO;
 import top.stillmisty.xiantao.service.UserContext;
+import top.stillmisty.xiantao.service.ai.sect.*;
 import top.stillmisty.xiantao.service.sect.SectMemberService;
 import top.stillmisty.xiantao.service.sect.SectSharedSkillService;
 
-/** 宗门长老及以上可用的管理工具 */
+/**
+ * 宗门长老/执事专属工具（权限高于普通弟子）。
+ *
+ * <p>仅有 ELDER 或 LEADER 职位时才会注册这些工具。 与 {@link SectMemberTools} 组合使用。
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class SectElderTools {
 
+  private final ToolExecutor toolExecutor;
   private final SectMemberService sectMemberService;
   private final SectSharedSkillService sectSharedSkillService;
 
-  @Tool(description = "邀请散修加入宗门，需对方未加入任何宗门")
+  /**
+   * 邀请散修加入宗门。
+   *
+   * <p>仅长老/执事可操作。目标必须是未加入任何宗门的散修。 若目标已有所属宗门，操作会被拒绝。
+   *
+   * @param targetNickname 目标道号（玩家昵称）
+   */
+  @Tool(description = "邀请散修加入宗门。目标必须未加入任何宗门，否则操作被拒绝")
   @Transactional
   public InviteMemberResponse inviteMember(@ToolParam(description = "目标道号") String targetNickname) {
-    try {
-      Long userId = UserContext.requireCurrentUserId();
-      sectMemberService.inviteMember(userId, targetNickname);
-      return new InviteMemberResponse(targetNickname, null);
-    } catch (Exception e) {
-      log.error("邀请成员失败: targetNickname={}", targetNickname, e);
-      return new InviteMemberResponse(targetNickname, e.getMessage());
-    }
+    return toolExecutor.execute(
+        "inviteMember",
+        () -> {
+          Long userId = UserContext.requireCurrentUserId();
+          sectMemberService.inviteMember(userId, targetNickname);
+          return new InviteMemberResponse(targetNickname);
+        });
   }
 
-  @Tool(description = "将下级成员踢出宗门，不可踢出同级或上级")
+  /**
+   * 将成员逐出宗门。
+   *
+   * <p>仅长老/执事可操作。不可逐出职位高于或等于自己的成员。 被逐出者将恢复散修状态。
+   *
+   * @param targetNickname 目标道号
+   */
+  @Tool(description = "逐出宗门成员。不可逐出职位高于或等于自己的成员")
   @Transactional
-  public KickMemberResponse kickMember(@ToolParam(description = "成员道号") String targetNickname) {
-    try {
-      Long userId = UserContext.requireCurrentUserId();
-      sectMemberService.kickMember(userId, targetNickname);
-      return new KickMemberResponse(targetNickname, null);
-    } catch (Exception e) {
-      log.error("踢出成员失败: targetNickname={}", targetNickname, e);
-      return new KickMemberResponse(targetNickname, e.getMessage());
-    }
+  public ExpelMemberResponse expelMember(
+      @ToolParam(description = "要逐出的成员道号") String targetNickname) {
+    return toolExecutor.execute(
+        "expelMember",
+        () -> {
+          Long userId = UserContext.requireCurrentUserId();
+          sectMemberService.kickMember(userId, targetNickname);
+          return new ExpelMemberResponse(targetNickname);
+        });
   }
 
-  @Tool(description = "发布宗门公告，所有成员可见，覆盖旧公告")
+  /**
+   * 发布宗门公告，全员可见。
+   *
+   * <p>仅长老/执事可操作。新公告覆盖旧公告，建议简洁明了。
+   *
+   * @param content 公告正文
+   */
+  @Tool(description = "发布宗门公告，全员可见，覆盖旧公告")
   @Transactional
   public PostNoticeResponse postNotice(@ToolParam(description = "公告内容") String content) {
-    try {
-      Long userId = UserContext.requireCurrentUserId();
-      sectMemberService.setNotice(userId, content);
-      return new PostNoticeResponse(null);
-    } catch (Exception e) {
-      log.error("发布公告失败", e);
-      return new PostNoticeResponse(e.getMessage());
-    }
+    return toolExecutor.execute(
+        "postNotice",
+        () -> {
+          Long userId = UserContext.requireCurrentUserId();
+          sectMemberService.setNotice(userId, content);
+          return new PostNoticeResponse();
+        });
   }
 
-  @Tool(description = "下架共享功法，使其不可被成员学习")
+  /**
+   * 从功法库下架指定共享功法。
+   *
+   * <p>仅长老/执事可操作。下架后弟子无法学习该功法。
+   *
+   * @param sharedSkillId 共享功法编号（从 checkSharedSkills 返回的 skills 列表中获取）
+   */
+  @Tool(description = "从功法库下架共享功法。下架后弟子无法学习此功法")
   @Transactional
   public RemoveSharedSkillResponse removeSharedSkill(
       @ToolParam(description = "共享功法编号") long sharedSkillId) {
-    try {
-      Long userId = UserContext.requireCurrentUserId();
-      SkillOperationResultVO result =
-          sectSharedSkillService.removeSharedSkill(userId, sharedSkillId);
-      return new RemoveSharedSkillResponse(sharedSkillId, result.skillName(), null);
-    } catch (Exception e) {
-      log.error("下架共享功法失败: sharedSkillId={}", sharedSkillId, e);
-      return new RemoveSharedSkillResponse(sharedSkillId, null, e.getMessage());
-    }
+    return toolExecutor.execute(
+        "removeSharedSkill",
+        () -> {
+          Long userId = UserContext.requireCurrentUserId();
+          SkillOperationResultVO r =
+              sectSharedSkillService.removeSharedSkill(userId, sharedSkillId);
+          return new RemoveSharedSkillResponse(sharedSkillId, r.skillName());
+        });
   }
 
-  @Tool(description = "上架共享功法到宗门功法库，供成员学习")
+  /**
+   * 将待上架功法发布到功法库，供弟子学习。
+   *
+   * <p>仅长老/执事可操作。待上架的功法来自弟子献上的功法玉简。
+   *
+   * @param sharedSkillId 共享功法编号（来自 checkSharedSkills，status 为 PENDING 的功法）
+   */
+  @Tool(description = "将待上架功法发布到功法库，供弟子学习。编号来自 checkSharedSkills 中的待上架功法")
   @Transactional
   public PublishSharedSkillResponse publishSharedSkill(
-      @ToolParam(description = "功法编号") long sharedSkillId) {
-    try {
-      Long userId = UserContext.requireCurrentUserId();
-      SkillOperationResultVO result = sectSharedSkillService.listSharedSkill(userId, sharedSkillId);
-      return new PublishSharedSkillResponse(sharedSkillId, result.skillName(), null);
-    } catch (Exception e) {
-      log.error("上架共享功法失败: sharedSkillId={}", sharedSkillId, e);
-      return new PublishSharedSkillResponse(sharedSkillId, null, e.getMessage());
-    }
+      @ToolParam(description = "待上架的共享功法编号") long sharedSkillId) {
+    return toolExecutor.execute(
+        "publishSharedSkill",
+        () -> {
+          Long userId = UserContext.requireCurrentUserId();
+          SkillOperationResultVO r = sectSharedSkillService.listSharedSkill(userId, sharedSkillId);
+          return new PublishSharedSkillResponse(sharedSkillId, r.skillName());
+        });
   }
-
-  // ===================== 响应 Record =====================
-
-  public record InviteMemberResponse(
-      @JsonPropertyDescription("目标道号") String targetNickname,
-      @JsonPropertyDescription("错误信息，null 表示成功") String error) {}
-
-  public record KickMemberResponse(
-      @JsonPropertyDescription("目标道号") String targetNickname,
-      @JsonPropertyDescription("错误信息，null 表示成功") String error) {}
-
-  public record PostNoticeResponse(@JsonPropertyDescription("错误信息，null 表示成功") String error) {}
-
-  public record RemoveSharedSkillResponse(
-      @JsonPropertyDescription("共享功法编号") long sharedSkillId,
-      @JsonPropertyDescription("功法名称") String skillName,
-      @JsonPropertyDescription("错误信息，null 表示成功") String error) {}
-
-  public record PublishSharedSkillResponse(
-      @JsonPropertyDescription("共享功法编号") long sharedSkillId,
-      @JsonPropertyDescription("功法名称") String skillName,
-      @JsonPropertyDescription("错误信息，null 表示成功") String error) {}
 }

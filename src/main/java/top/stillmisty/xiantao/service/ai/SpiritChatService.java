@@ -14,7 +14,6 @@ import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
 import top.stillmisty.xiantao.domain.event.entity.GameEvent;
 import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.fudi.entity.*;
-import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiCellRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritFormRepository;
@@ -98,11 +97,6 @@ public class SpiritChatService extends AbstractChatService {
               .orElseThrow(() -> new BusinessException(ErrorCode.SPIRIT_NOT_FOUND));
 
       fudi.touchOnlineTime();
-      if (spirit.getEmotionState() != EmotionState.EXCITED
-          && spirit.getEmotionState() != EmotionState.ANGRY
-          && spirit.getEmotionState() != EmotionState.EXHAUSTED) {
-        spirit.updateEmotionState();
-      }
       spiritRepository.save(spirit);
 
       List<FudiEventTemplate> events = fudiEventGenerator.generateEvents(spirit.getLastEventTime());
@@ -168,7 +162,6 @@ public class SpiritChatService extends AbstractChatService {
 
   private String buildPrompt(Fudi fudi, Spirit spirit, List<FudiEventTemplate> events) {
     String cellDetail = buildCellDetailForLLM(fudi);
-    String emotionState = spirit.getEmotionState().getDescription();
     String formName = null;
     if (spirit.getFormId() != null) {
       formName =
@@ -194,7 +187,6 @@ public class SpiritChatService extends AbstractChatService {
             fudi.getTribulationStage(),
             spirit.getAffection(),
             cellDetail,
-            emotionState,
             formName)
         + eventContext;
   }

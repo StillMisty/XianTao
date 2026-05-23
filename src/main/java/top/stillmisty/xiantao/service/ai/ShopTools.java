@@ -1,6 +1,5 @@
 package top.stillmisty.xiantao.service.ai;
 
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.tool.annotation.Tool;
@@ -31,15 +30,75 @@ import top.stillmisty.xiantao.service.shop.ShopService;
 @RequiredArgsConstructor
 public class ShopTools {
 
+  private final ToolExecutor toolExecutor;
   private final ShopService shopService;
   private final ItemTemplateRepository itemTemplateRepository;
   private final EquipmentTemplateRepository equipmentTemplateRepository;
   private final UserStateService userStateService;
 
-  @Tool(description = "估价物品，返回基准收购价。不可回收则拒绝。")
+  /**
+   * 查看商品列表：当前所在店铺的所有可购买商品及其价格和库存。
+   *
+   * <p>在客人询问"有什么卖的"时调用。返回店铺名称和商品清单。 每个商品含编号(id)、类型、名称、价格(灵石)和库存。
+   */
+  @Tool(description = "展示店铺所有可购商品清单，含商品编号、名称、价格(灵石)和库存")
+  public ProductListVO showGoods() {
+    return toolExecutor.execute(
+        "showGoods",
+        () -> {
+          Long userId = UserContext.requireCurrentUserId();
+          return shopService.listProducts(userId);
+        });
+  }
+
+  /**
+   * 查看客人背包中可供出售的物品。
+   *
+   * <p>返回两类物品：
+   *
+   * <ul>
+   *   <li>装备列表（未装备的装备，含编号、名称、稀有度、锻造等级）
+   *   <li>堆叠物品列表（含编号、名称、数量、类型、是否可交易）
+   * </ul>
+   *
+   * <p>tradable=false 的物品不可回收，掌柜应拒绝收购。
+   */
+  @Tool(description = "查看客人背包中可出售/可回收的物品清单，含编号和是否可交易")
+  public PlayerItemsVO checkPlayerItems() {
+    return toolExecutor.execute(
+        "checkPlayerItems",
+        () -> {
+          Long userId = UserContext.requireCurrentUserId();
+          return shopService.queryPlayerItems(userId);
+        });
+  }
+
+  /**
+   * 估价物品：查看客人出售物品能卖多少灵石。
+   *
+   * <p>两阶段查找逻辑（无需客人参与，由代码自动处理）：
+   *
+   * <ol>
+   *   <li>若 itemId 为空或 blank，按名称搜索：找到唯一匹配则直接估价；找到多个则列出所有匹配让客人指定编号
+   *   <li>若 itemId 不为空，直接用编号估价
+   * </ol>
+   *
+   * <p>返回结果：
+   *
+   * <ul>
+   *   <li>tradable=false：物品不可交易，拒绝收购
+   *   <li>tradable=true：basePrice=掌柜首次报价（必须以此报价开始），minPrice/maxPrice=砍价范围
+   * </ul>
+   *
+   * <p>重要：报价必须等于 basePrice，不可自行编造价格。
+   *
+   * @param itemName 物品名称（客人表述的物品名）
+   * @param itemId 物品编号（若有多个重名物品时客人指定；首次留空即可）
+   */
+  @Tool(description = "估价客人要出售的物品，返回收购价范围。首次报价必须等于 basePrice，不可自行编造")
   public AppraisalResult appraiseItem(
       @ToolParam(description = "物品名称") String itemName,
-      @ToolParam(description = "物品ID（可选，首次留空）") String itemId) {
+      @ToolParam(description = "物品编号，首次留空，重名时由客人指定") String itemId) {
     try {
       Long userId = UserContext.requireCurrentUserId();
       User user = userStateService.loadUser(userId);
@@ -53,12 +112,12 @@ public class ShopTools {
           var stackResult = tryAppraiseStackable(userId, npc, id);
           if (stackResult != null) return stackResult;
         } catch (NumberFormatException ignored) {
-          log.trace("鉴定: itemId \"{}\" 不是数字，尝试按名称查找", itemId);
+          log.trace("估价: itemId \"{}\" 不是数字，尝试按名称查找", itemId);
         }
       }
 
-      List<Equipment> matchingEquipment = shopService.findEquipmentByName(userId, itemName);
-      List<StackableItem> matchingItems = shopService.findStackableItemsByName(userId, itemName);
+      var matchingEquipment = shopService.findEquipmentByName(userId, itemName);
+      var matchingItems = shopService.findStackableItemsByName(userId, itemName);
 
       if (matchingEquipment.isEmpty() && matchingItems.isEmpty()) {
         return new AppraisalResult(false, 0, 0, 0, itemName, "背包中未找到名为「" + itemName + "」的物品");
@@ -66,7 +125,7 @@ public class ShopTools {
 
       int totalMatches = matchingEquipment.size() + matchingItems.size();
       if (totalMatches > 1) {
-        StringBuilder sb = new StringBuilder("找到多个匹配物品：\n");
+        var sb = new StringBuilder("找到多个匹配物品，请客人确认具体是哪一个：\n");
         for (Equipment e : matchingEquipment) {
           sb.append("  [装备] ID:").append(e.getId()).append(" ").append(e.getName());
           if (e.getRarity() != null) sb.append(" (").append(e.getRarity().getName()).append(")");
@@ -81,7 +140,7 @@ public class ShopTools {
               .append(s.getQuantity())
               .append("\n");
         }
-        sb.append("请告知具体的编号（ID）");
+        sb.append("请告知具体编号。");
         return new AppraisalResult(false, 0, 0, 0, itemName, sb.toString());
       }
 
@@ -97,35 +156,48 @@ public class ShopTools {
     }
   }
 
-  @Tool(description = "砍价。每笔交易限一次，成功约降5%。")
+  /**
+   * 讨价还价：客人要求降价。
+   *
+   * <p>每笔交易仅限砍一次价——若同一笔交易中已砍过价，直接拒绝。 砍价成功降约 5%，失败则维持原价并拒绝继续降价。
+   *
+   * @param currentPrice 当前报价（灵石），通常是 appraiseItem 返回的 basePrice
+   */
+  @Tool(description = "与客人讨价还价，每笔交易限一次。成功约降5%，失败维持原价。currentPrice 为当前灵石报价")
   @Transactional
-  public HaggleResult haggle(@ToolParam(description = "当前报价（灵石）") long currentPrice) {
-    try {
-      Long userId = UserContext.requireCurrentUserId();
-      User user = userStateService.loadUser(userId);
-      ShopNpc npc = shopService.findByLocation(user.getLocationId());
-      return shopService.haggleItem(userId, npc, currentPrice);
-    } catch (BusinessException e) {
-      return new HaggleResult(false, currentPrice, 0, e.getMessage());
-    } catch (Exception e) {
-      log.error("砍价失败: currentPrice={}", currentPrice, e);
-      return new HaggleResult(false, currentPrice, 0, "砍价失败：" + e.getMessage());
-    }
+  public HaggleResult negotiatePrice(@ToolParam(description = "当前报价（灵石）") long currentPrice) {
+    return toolExecutor.execute(
+        "negotiatePrice",
+        () -> {
+          Long userId = UserContext.requireCurrentUserId();
+          User user = userStateService.loadUser(userId);
+          ShopNpc npc = shopService.findByLocation(user.getLocationId());
+          return shopService.haggleItem(userId, npc, currentPrice);
+        });
   }
 
-  @Tool(description = "执行收购，扣除物品加灵石。价格限 appraisal/haggle 范围内。")
+  /**
+   * 收购客人出售的物品，付灵石给对方。
+   *
+   * <p>成交价格必须在估价范围（appraiseItem 的 minPrice~maxPrice）内。 若经过砍价（negotiatePrice），以砍价后的价格为准。
+   *
+   * @param itemName 物品名称
+   * @param itemId 物品编号（从 checkPlayerItems 或 appraiseItem 的结果中获取）
+   * @param confirmedPrice 成交价格（灵石），必须在估价/砍价范围内的价格
+   */
+  @Tool(description = "从客人手里收购物品。itemId 是物品编号，confirmedPrice 必须均在估价/砍价的价格范围内")
   @Transactional
-  public SellResult sellItem(
+  public SellResult buyItem(
       @ToolParam(description = "物品名称") String itemName,
-      @ToolParam(description = "物品ID") String itemId,
-      @ToolParam(description = "成交价格（灵石）") long confirmedPrice) {
+      @ToolParam(description = "物品编号") String itemId,
+      @ToolParam(description = "成交价格（灵石），必须在对估价/砍价得到的价格") long confirmedPrice) {
     try {
       Long userId = UserContext.requireCurrentUserId();
       User user = userStateService.loadUser(userId);
       ShopNpc npc = shopService.findByLocation(user.getLocationId());
 
       if (itemId == null || itemId.isBlank()) {
-        return new SellResult(0, itemName, "需要提供物品ID");
+        throw new IllegalArgumentException("需要提供物品编号");
       }
 
       try {
@@ -133,99 +205,80 @@ public class ShopTools {
         try {
           return shopService.sellEquipment(userId, npc, id, confirmedPrice);
         } catch (BusinessException e) {
-          try {
-            return shopService.sellStackableItem(userId, npc, id, confirmedPrice);
-          } catch (BusinessException e2) {
-            return new SellResult(0, itemName, e2.getMessage());
-          }
+          return shopService.sellStackableItem(userId, npc, id, confirmedPrice);
         }
       } catch (NumberFormatException e) {
-        return new SellResult(0, itemName, "物品ID格式错误");
+        throw new IllegalArgumentException("物品编号格式错误");
       }
     } catch (BusinessException e) {
-      return new SellResult(0, itemName, e.getMessage());
-    } catch (Exception e) {
-      log.error("出售失败: itemName={}, itemId={}", itemName, itemId, e);
-      return new SellResult(0, itemName, "出售失败：" + e.getMessage());
+      log.error("收购失败: itemName={}, itemId={}", itemName, itemId, e);
+      throw e;
     }
   }
 
-  @Tool(description = "列出在售商品、价格、库存")
-  public ProductListVO listProducts() {
-    try {
-      Long userId = UserContext.requireCurrentUserId();
-      return shopService.listProducts(userId);
-    } catch (BusinessException e) {
-      return new ProductListVO("未知", List.of());
-    } catch (Exception e) {
-      log.error("列出商品失败", e);
-      return new ProductListVO("未知", List.of());
-    }
-  }
-
-  @Tool(description = "购买堆叠物品（丹药/材料等）。扣灵石，添物品到背包")
+  /**
+   * 出售堆叠物品（丹药、材料等）给客人，扣灵石后将物品放入客人背包。
+   *
+   * <p>前提：客人有足够灵石、店铺有足够库存。
+   *
+   * @param templateName 商品名称（必须与 showGoods 结果中的 name 完全一致）
+   * @param quantity 购买数量
+   */
+  @Tool(description = "卖给客人丹药/材料等堆叠物品。templateName 必须与 showGoods 商品名称一致")
   @Transactional
-  public PurchaseResult purchaseItem(
+  public PurchaseResult sellGoods(
       @ToolParam(description = "商品名称") String templateName,
-      @ToolParam(description = "数量") int quantity) {
-    try {
-      Long userId = UserContext.requireCurrentUserId();
-      User user = userStateService.loadUser(userId);
-      ShopNpc npc = shopService.findByLocation(user.getLocationId());
+      @ToolParam(description = "购买数量") int quantity) {
+    return toolExecutor.execute(
+        "sellGoods",
+        () -> {
+          Long userId = UserContext.requireCurrentUserId();
+          User user = userStateService.loadUser(userId);
+          ShopNpc npc = shopService.findByLocation(user.getLocationId());
 
-      var template =
-          itemTemplateRepository
-              .findByName(templateName)
-              .orElseThrow(() -> new BusinessException(ErrorCode.SHOP_PRODUCT_NOT_FOUND));
+          var template =
+              itemTemplateRepository
+                  .findByName(templateName)
+                  .orElseThrow(() -> new BusinessException(ErrorCode.SHOP_PRODUCT_NOT_FOUND));
 
-      return shopService.purchaseItem(userId, npc, template.getId(), quantity);
-    } catch (BusinessException e) {
-      return new PurchaseResult(templateName, quantity, 0, e.getMessage());
-    } catch (Exception e) {
-      log.error("购买物品失败: templateName={}, quantity={}", templateName, quantity, e);
-      return new PurchaseResult(templateName, quantity, 0, "购买失败：" + e.getMessage());
-    }
+          return shopService.purchaseItem(userId, npc, template.getId(), quantity);
+        });
   }
 
-  @Tool(description = "购买装备，随机品质和词缀。扣灵石，分配装备给玩家")
+  /**
+   * 出售装备给客人。装备品质和词缀随机生成，扣灵石后分配给客人。
+   *
+   * <p>品质范围：COMMON/UNCOMMON/RARE/EPIC/LEGENDARY，不可人为指定品质。
+   *
+   * @param templateName 装备名称（必须与 showGoods 商品名称一致）
+   */
+  @Tool(description = "卖给客人装备，品质随机。templateName 必须与 showGoods 商品名称一致")
   @Transactional
-  public EquipmentPurchaseResult purchaseEquipment(
+  public EquipmentPurchaseResult sellEquipment(
       @ToolParam(description = "装备名称") String templateName) {
-    try {
-      Long userId = UserContext.requireCurrentUserId();
-      User user = userStateService.loadUser(userId);
-      ShopNpc npc = shopService.findByLocation(user.getLocationId());
+    return toolExecutor.execute(
+        "sellEquipment",
+        () -> {
+          Long userId = UserContext.requireCurrentUserId();
+          User user = userStateService.loadUser(userId);
+          ShopNpc npc = shopService.findByLocation(user.getLocationId());
 
-      var template = equipmentTemplateRepository.findByName(templateName).orElse(null);
-      if (template == null) {
-        return new EquipmentPurchaseResult(templateName, "COMMON", 0, "", "未找到装备：" + templateName);
-      }
+          var template = equipmentTemplateRepository.findByName(templateName).orElse(null);
+          if (template == null) {
+            throw new IllegalArgumentException("未找到装备：" + templateName);
+          }
 
-      return shopService.purchaseEquipment(userId, npc, template.getId());
-    } catch (BusinessException e) {
-      return new EquipmentPurchaseResult(templateName, "COMMON", 0, "", e.getMessage());
-    } catch (Exception e) {
-      log.error("购买装备失败: templateName={}", templateName, e);
-      return new EquipmentPurchaseResult(templateName, "COMMON", 0, "", "购买失败：" + e.getMessage());
-    }
+          return shopService.purchaseEquipment(userId, npc, template.getId());
+        });
   }
 
-  @Tool(description = "查看背包所有可出售物品")
-  public PlayerItemsVO queryPlayerItems() {
-    try {
-      Long userId = UserContext.requireCurrentUserId();
-      return shopService.queryPlayerItems(userId);
-    } catch (Exception e) {
-      log.error("批量查询玩家物品失败", e);
-      return new PlayerItemsVO(List.of(), List.of());
-    }
-  }
+  // ===================== 私有辅助方法 =====================
 
   private AppraisalResult tryAppraiseEquipment(Long userId, ShopNpc npc, Long equipmentId) {
     try {
       return shopService.appraiseEquipment(userId, npc, equipmentId);
     } catch (Exception e) {
-      log.debug("鉴定装备失败, fallback: equipmentId={}", equipmentId, e);
+      log.debug("估价装备失败, fallback: equipmentId={}", equipmentId, e);
       return null;
     }
   }
@@ -234,7 +287,7 @@ public class ShopTools {
     try {
       return shopService.appraiseStackableItem(userId, npc, itemId);
     } catch (Exception e) {
-      log.debug("鉴定堆叠物品失败, fallback: itemId={}", itemId, e);
+      log.debug("估价堆叠物品失败, fallback: itemId={}", itemId, e);
       return null;
     }
   }

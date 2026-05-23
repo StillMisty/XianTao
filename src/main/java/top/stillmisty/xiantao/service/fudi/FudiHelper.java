@@ -35,11 +35,7 @@ public class FudiHelper {
           fudi.touchOnlineTime();
           spiritRepository
               .findByFudiId(fudi.getId())
-              .ifPresent(
-                  spirit -> {
-                    spirit.updateEmotionState();
-                    spiritRepository.save(spirit);
-                  });
+              .ifPresent(spirit -> spiritRepository.save(spirit));
           fudiRepository.save(fudi);
         });
     return fudiOpt;

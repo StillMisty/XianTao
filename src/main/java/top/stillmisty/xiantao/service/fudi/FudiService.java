@@ -15,7 +15,6 @@ import top.stillmisty.xiantao.domain.fudi.entity.FudiCell;
 import top.stillmisty.xiantao.domain.fudi.entity.Spirit;
 import top.stillmisty.xiantao.domain.fudi.entity.SpiritForm;
 import top.stillmisty.xiantao.domain.fudi.enums.CellType;
-import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
 import top.stillmisty.xiantao.domain.fudi.enums.MBTIPersonality;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiCellRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
@@ -153,7 +152,6 @@ public class FudiService {
     spirit.setFudiId(fudi.getId());
     spirit.setAffection(0);
     spirit.setAffectionMax(1000);
-    spirit.setEmotionState(EmotionState.NEUTRAL);
     spirit.setMbtiType(mbtiType);
 
     if (allForms != null && !allForms.isEmpty()) {
@@ -264,7 +262,6 @@ public class FudiService {
         .spiritFormName(formName)
         .likedTags(likedTags)
         .dislikedTags(dislikedTags)
-        .emotionState(spirit != null ? spirit.getEmotionState() : null)
         .occupiedCells(getOccupiedCellCount(fudi))
         .tribulationWinStreak(fudi.getTribulationWinStreak())
         .lastTribulationTime(fudi.getLastTribulationTime())
@@ -525,18 +522,5 @@ public class FudiService {
     spirit.addAffection(delta);
     spiritRepository.save(spirit);
     log.info("玩家 {} 地灵好感度变化 {} -> {}", userId, delta, spirit.getAffection());
-  }
-
-  @Transactional
-  public void updateSpiritEmotion(Long userId, EmotionState emotionState) {
-    Fudi fudi =
-        findAndTouchFudi(userId).orElseThrow(() -> new BusinessException(ErrorCode.FUDI_NOT_FOUND));
-    Spirit spirit =
-        spiritRepository
-            .findByFudiId(fudi.getId())
-            .orElseThrow(() -> new BusinessException(ErrorCode.SPIRIT_NOT_FOUND));
-    spirit.setEmotionState(emotionState);
-    spiritRepository.save(spirit);
-    log.info("玩家 {} 地灵情绪更新 -> {}", userId, emotionState);
   }
 }

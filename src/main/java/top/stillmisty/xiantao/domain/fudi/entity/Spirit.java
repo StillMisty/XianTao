@@ -10,7 +10,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
 import top.stillmisty.xiantao.domain.fudi.enums.MBTIPersonality;
 
 @EqualsAndHashCode(callSuper = true)
@@ -35,8 +34,6 @@ public class Spirit extends Model<Spirit> {
 
   private Integer affectionMax;
 
-  private EmotionState emotionState;
-
   private MBTIPersonality mbtiType;
 
   private LocalDateTime lastGiftTime;
@@ -52,20 +49,5 @@ public class Spirit extends Model<Spirit> {
   public void addAffection(int amount) {
     int maxAff = affectionMax != null ? affectionMax : 1000;
     affection = Math.clamp((affection != null ? affection : 0) + amount, 0, maxAff);
-  }
-
-  public void updateEmotionState() {
-    int aff = affection != null ? affection : 0;
-    if (aff >= 800) {
-      emotionState = EmotionState.AFFECTIONATE;
-    } else if (aff >= 500) {
-      emotionState = EmotionState.JOYFUL;
-    } else if (aff >= 200) {
-      emotionState = EmotionState.CONTENT;
-    } else if (aff >= 50) {
-      emotionState = EmotionState.NEUTRAL;
-    } else {
-      emotionState = EmotionState.DISTANT;
-    }
   }
 }

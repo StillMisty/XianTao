@@ -153,7 +153,7 @@ public class ShopService {
 
     addStackableItem(userId, template, quantity);
 
-    return new PurchaseResult(template.getName(), quantity, totalPrice, null);
+    return new PurchaseResult(template.getName(), quantity, totalPrice);
   }
 
   @Transactional
@@ -221,8 +221,7 @@ public class ShopService {
       description += "，含 " + affixCount + " 条词缀";
     }
 
-    return new EquipmentPurchaseResult(
-        equipment.getName(), rarity.getCode(), price, description, null);
+    return new EquipmentPurchaseResult(equipment.getName(), rarity.getCode(), price, description);
   }
 
   @Transactional
@@ -257,7 +256,8 @@ public class ShopService {
     String itemName = item.getName();
     double acceptanceRate = 1.0 - (confirmedPrice - minPrice) / (double) (maxPrice - minPrice);
     if (Math.random() > acceptanceRate) {
-      return new SellResult(confirmedPrice, itemName, "掌柜对你的报价不满意：" + itemName + " 未能售出，试着多降些价吧");
+      throw new BusinessException(
+          ErrorCode.SELL_PRICE_MISMATCH, "掌柜对你的报价不满意：" + itemName + " 未能售出，试着多降些价吧");
     }
 
     if (item.reduceQuantity(1)) {
@@ -268,7 +268,7 @@ public class ShopService {
 
     userRepository.addSpiritStonesAtomically(userId, confirmedPrice);
 
-    return new SellResult(confirmedPrice, itemName, null);
+    return new SellResult(confirmedPrice, itemName);
   }
 
   @Transactional
@@ -305,7 +305,7 @@ public class ShopService {
     userRepository.addSpiritStonesAtomically(userId, confirmedPrice);
     equipmentRepository.deleteById(equipment.getId());
 
-    return new SellResult(confirmedPrice, equipmentName, null);
+    return new SellResult(confirmedPrice, equipmentName);
   }
 
   public AppraisalResult appraiseStackableItem(Long userId, ShopNpc npc, Long itemId) {

@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Builder;
 import lombok.Data;
-import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
 import top.stillmisty.xiantao.domain.fudi.enums.MBTIPersonality;
 
 /** 福地整体状态值对象 */
@@ -22,7 +21,6 @@ public class FudiStatusVO {
   private String spiritFormName;
   private List<String> likedTags;
   private List<String> dislikedTags;
-  private EmotionState emotionState;
   private Integer occupiedCells;
   private Integer tribulationWinStreak;
   private LocalDateTime lastTribulationTime;

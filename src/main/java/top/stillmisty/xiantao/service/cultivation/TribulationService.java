@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
 import top.stillmisty.xiantao.domain.fudi.entity.FudiCell;
 import top.stillmisty.xiantao.domain.fudi.enums.CellType;
-import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiCellRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
@@ -162,7 +161,6 @@ public class TribulationService {
     int oldAffection = spirit != null ? spirit.getAffection() : 0;
     if (spirit != null) {
       spirit.addAffection(5);
-      spirit.setEmotionState(EmotionState.EXCITED);
       spiritRepository.save(spirit);
     }
 
@@ -184,7 +182,6 @@ public class TribulationService {
       Fudi fudi, top.stillmisty.xiantao.domain.fudi.entity.Spirit spirit, TribulationBoss boss) {
     TribulationProgress p = advanceTribulation(fudi);
 
-    spirit.setEmotionState(EmotionState.EXHAUSTED);
     spiritRepository.save(spirit);
 
     return """
@@ -235,7 +232,6 @@ public class TribulationService {
     int oldAffection = spirit != null ? spirit.getAffection() : 0;
     if (spirit != null) {
       spirit.addAffection(-clearCount);
-      spirit.setEmotionState(EmotionState.ANGRY);
       spiritRepository.save(spirit);
     }
 

@@ -67,13 +67,6 @@ public class FudiCommandHandler implements CommandGroup {
     if (status.getMbtiType() != null) {
       sb.append("🎭 地灵人格：").append(status.getMbtiType().getCode()).append("\n");
     }
-    if (status.getEmotionState() != null) {
-      sb.append("😊 地灵情绪：")
-          .append(status.getEmotionState().getEmoji())
-          .append(" ")
-          .append(status.getEmotionState().getDescription())
-          .append("\n");
-    }
     sb.append("🏗️ 已占地块：")
         .append(status.getOccupiedCells())
         .append("/")
