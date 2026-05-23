@@ -77,4 +77,52 @@ INSERT
         'bounty_environmental_insight',
         '天时地利',
         '你敏锐地察觉到周围环境的异常——原来此地暗藏玄机，只有真正用心观察的人才能发现其中的奥妙。'
+    ),
+    (
+        'BOUNTY_SIDE',
+        'bounty_target_messages',
+        '目标传讯',
+        '悬赏目标竟主动留下了一段传音——别怕，是你该怕的人来了。跟踪此线索反而获得了一些意外发现。'
+    ),
+    (
+        'BOUNTY_SIDE',
+        'bounty_local_help',
+        '本地义助',
+        '一位当地老猎户听闻你在追猎目标，主动提供了地形情报和补给。'
+    ),
+    (
+        'BOUNTY_SIDE',
+        'bounty_unexpected_delay',
+        '意外耽搁',
+        '追踪途中中了目标布下的陷阱，耽误了一些时间——好在陷阱中也藏了东西。'
+    ),
+    (
+        'BOUNTY_SIDE',
+        'bounty_weather_turn',
+        '天时骤变',
+        '天公不作美，原本追寻多时的悬赏在最好的天气里忽然变故频生，但也带来了新的契机。'
+    ),
+    (
+        'BOUNTY_SIDE',
+        'bounty_target_cornered',
+        '目标穷途',
+        '悬赏目标被逼入绝境不打算束手就擒——垂死挣扎虽然凶险但你也不是吃素的。'
+    ),
+    (
+        'BOUNTY_SIDE',
+        'bounty_mysterious_benefactor',
+        '神秘助力',
+        '一个戴着斗笠的神秘人悄悄留下了一处藏宝点：这些东西是给你的——不要辜负委托人。'
+    ),
+    (
+        'BOUNTY_SIDE',
+        'bounty_treasure_trail',
+        '追宝线索',
+        '盘问目标喽啰得到一条额外线索：他们还在附近埋了一处藏宝。'
+    ),
+    (
+        'BOUNTY_SIDE',
+        'bounty_sabotage',
+        '克扣报酬',
+        '委托人在你执行任务时偷偷篡改了报酬份额——但你还是发现了他留在公告板上的原始约定。'
     );

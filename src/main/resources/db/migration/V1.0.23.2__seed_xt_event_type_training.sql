@@ -65,4 +65,52 @@ INSERT
         'training_beast_den_found',
         '发现妖兽巢穴',
         '发现妖兽巢穴，翻找到妖兽藏匿的宝贝。'
+    ),
+    (
+        'TRAINING',
+        'training_elemental_whisper',
+        '元素低语',
+        '天地间游离的元素之力在你身边低语，似乎可以将其中一缕凝聚为实体。'
+    ),
+    (
+        'TRAINING',
+        'training_sword_intent',
+        '剑意余韵',
+        '岩壁上残留着一道不知多少年前刻下的剑痕，剑意竟至今未散，愣神的功夫天人感应涌入脑海，获得 {{exp}} 修为。'
+    ),
+    (
+        'TRAINING',
+        'training_heavenly_fruit',
+        '天降灵果',
+        '历练中一株奇异的古树突然结果，一枚灵果正好掉在你脚边——来得早不如来得巧。'
+    ),
+    (
+        'TRAINING',
+        'training_deep_insight',
+        '深入感悟',
+        '沉浸在修炼中多时，对天地法则有了更深一层的领悟。'
+    ),
+    (
+        'TRAINING',
+        'training_moon_tide',
+        '月汐之力',
+        '月光如练洒在身上，天地的灵气突然浓烈了数倍，获得 {{exp}} 修为，并恢复了一些伤势。'
+    ),
+    (
+        'TRAINING',
+        'training_ancient_talisman',
+        '古符启示',
+        '在旧战场上捡到一枚未燃尽的古符——符篆虽残但其中记载的一鳞半爪依然让你灵感乍现。'
+    ),
+    (
+        'TRAINING',
+        'training_beast_training',
+        '驯兽奇缘',
+        '在历练中遇到一只灵性极强的小兽，成功将其驯服，获得了意外的收获。'
+    ),
+    (
+        'TRAINING',
+        'training_forgotten_alchemy',
+        '遗失丹方',
+        '在一处古老的修炼洞府中发现了前人留下的丹方残页，上面记载着地火芝的培育秘法。'
     );
