@@ -15,7 +15,6 @@ import top.stillmisty.xiantao.domain.event.entity.GameEvent;
 import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.fudi.entity.*;
 import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
-import top.stillmisty.xiantao.domain.fudi.enums.FudiEvent;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiCellRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritFormRepository;
@@ -109,7 +108,7 @@ public class SpiritChatService extends AbstractChatService {
       }
       spiritRepository.save(spirit);
 
-      List<FudiEvent> events = fudiEventGenerator.generateEvents(spirit.getLastEventTime());
+      List<FudiEventTemplate> events = fudiEventGenerator.generateEvents(spirit.getLastEventTime());
 
       String response =
           callLlm(
@@ -124,7 +123,7 @@ public class SpiritChatService extends AbstractChatService {
       if (!events.isEmpty()) {
         spirit.setLastEventTime(LocalDateTime.now());
         spiritRepository.save(spirit);
-        applyFudiEventEffects(userId, events);
+        applyFudiEventTemplateEffects(userId, events);
       }
 
       log.debug(
@@ -138,9 +137,9 @@ public class SpiritChatService extends AbstractChatService {
     }
   }
 
-  private void applyFudiEventEffects(Long userId, List<FudiEvent> events) {
+  private void applyFudiEventTemplateEffects(Long userId, List<FudiEventTemplate> events) {
     List<Map<String, Object>> allEffects = new ArrayList<>();
-    for (FudiEvent event : events) {
+    for (FudiEventTemplate event : events) {
       if (event.hasEffects()) {
         allEffects.addAll(event.getEffects());
       }
@@ -154,7 +153,7 @@ public class SpiritChatService extends AbstractChatService {
               Map.of("effects", allEffects), userId, user, Map.of());
 
       List<GameEvent> gameEvents = new ArrayList<>();
-      for (FudiEvent event : events) {
+      for (FudiEventTemplate event : events) {
         if (event.hasEffects()) {
           GameEvent gameEvent =
               GameEvent.create(userId, GameEventCategory.WORLD_EVENT)
@@ -171,7 +170,7 @@ public class SpiritChatService extends AbstractChatService {
     }
   }
 
-  private String buildPrompt(Fudi fudi, Spirit spirit, List<FudiEvent> events) {
+  private String buildPrompt(Fudi fudi, Spirit spirit, List<FudiEventTemplate> events) {
     String cellDetail = buildCellDetailForLLM(fudi);
     String emotionState = spirit.getEmotionState().getDescription();
     String formName = null;
@@ -183,7 +182,7 @@ public class SpiritChatService extends AbstractChatService {
     String eventContext = "";
     if (!events.isEmpty()) {
       StringBuilder eventSb = new StringBuilder("\n【最近发生的事件】\n");
-      for (FudiEvent event : events) {
+      for (FudiEventTemplate event : events) {
         eventSb
             .append("- ")
             .append(event.getName())

@@ -1,5 +1,4 @@
 -- 世界事件表
-DROP TABLE IF EXISTS world_event;
 CREATE TABLE world_event (
     id                      BIGSERIAL PRIMARY KEY,
     category                VARCHAR(32) NOT NULL CHECK (category IN ('ECONOMIC', 'ENVIRONMENTAL', 'NARRATIVE', 'PARTICIPATORY')),
