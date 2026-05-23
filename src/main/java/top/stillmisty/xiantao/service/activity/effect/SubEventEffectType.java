@@ -1,5 +1,7 @@
 package top.stillmisty.xiantao.service.activity.effect;
 
+import java.util.Arrays;
+
 public enum SubEventEffectType {
   ADD_EXP,
   ADD_EXP_PERCENT,
@@ -12,5 +14,9 @@ public enum SubEventEffectType {
   DROP_SPECIALTY,
   ADD_SPIRIT_STONES,
   MULTIPLY_BOUNTY_REWARD,
-  PURE_NARRATIVE
+  PURE_NARRATIVE;
+
+  public static SubEventEffectType fromCode(String code) {
+    return Arrays.stream(values()).filter(t -> t.name().equals(code)).findFirst().orElse(null);
+  }
 }

@@ -9,14 +9,14 @@ import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.map.entity.SpecialtyEntry;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.infrastructure.util.WeightedRandom;
-import top.stillmisty.xiantao.service.inventory.StackableItemService;
+import top.stillmisty.xiantao.service.inventory.SimpleItemAdder;
 
 @Component
 @RequiredArgsConstructor
 public class DropSpecialtyEffect implements SubEventEffect {
 
   private final ItemTemplateRepository itemTemplateRepository;
-  private final StackableItemService stackableItemService;
+  private final SimpleItemAdder simpleItemAdder;
 
   @Override
   public SubEventEffectType type() {
@@ -32,17 +32,21 @@ public class DropSpecialtyEffect implements SubEventEffect {
     if (specialties == null || specialties.isEmpty()) return Map.of();
 
     int count = params.containsKey("count") ? ((Number) params.get("count")).intValue() : 1;
+    String firstName = null;
+    int dropped = 0;
     for (int i = 0; i < count; i++) {
       SpecialtyEntry entry =
           WeightedRandom.select(specialties, SpecialtyEntry::weight, ThreadLocalRandom.current());
       if (entry == null) continue;
-      itemTemplateRepository
-          .findById(entry.templateId())
-          .ifPresent(
-              template ->
-                  stackableItemService.addStackableItem(
-                      userId, entry.templateId(), template.getType(), template.getName(), 1));
+      var template = itemTemplateRepository.findById(entry.templateId()).orElse(null);
+      if (template == null) continue;
+      simpleItemAdder.addItem(userId, template, template.getName(), 1);
+      dropped++;
+      if (firstName == null) {
+        firstName = template.getName();
+      }
     }
-    return Map.of();
+    if (dropped == 0) return Map.of();
+    return Map.of("herb", firstName != null ? firstName : "", "count", dropped);
   }
 }

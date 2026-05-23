@@ -63,4 +63,8 @@ public class GameEvent {
     this.effects = effects != null ? effects : Map.of();
     return this;
   }
+
+  public boolean isChoiceEvent() {
+    return effects != null && effects.containsKey("choice");
+  }
 }

@@ -9,6 +9,7 @@ import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import top.stillmisty.xiantao.domain.event.enums.EventTypeEnum;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
 
 /** 活动事件关联实体 — 子事件/隐藏事件配置 */
@@ -29,7 +30,7 @@ public class ActivityEvent {
   private String code;
 
   /** 事件类型: NUMERIC(数值效果) / COMBAT(遇怪战斗) */
-  private String eventType;
+  private EventTypeEnum eventType;
 
   private Integer weight;
 

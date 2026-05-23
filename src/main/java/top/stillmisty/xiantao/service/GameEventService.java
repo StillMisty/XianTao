@@ -3,6 +3,7 @@ package top.stillmisty.xiantao.service;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.event.entity.GameEvent;
@@ -29,6 +30,7 @@ public class GameEventService {
   }
 
   /** 查询用户所有未投递事件 */
+  @Transactional(readOnly = true)
   public List<GameEvent> findUndelivered(Long userId) {
     return gameEventRepository.findUndeliveredByUserId(userId);
   }
@@ -44,5 +46,15 @@ public class GameEventService {
   @Transactional
   public int cleanupDelivered(int retentionDays) {
     return gameEventRepository.deleteDeliveredBefore(retentionDays);
+  }
+
+  /** 定时清理任务：每天凌晨3点清理7天前的已投递事件 */
+  @Scheduled(cron = "0 0 3 * * ?")
+  @Transactional
+  public void scheduledCleanup() {
+    int deleted = cleanupDelivered(7);
+    if (deleted > 0) {
+      log.info("清理已投递事件 {} 条", deleted);
+    }
   }
 }

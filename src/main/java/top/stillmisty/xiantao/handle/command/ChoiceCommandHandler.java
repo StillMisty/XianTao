@@ -36,6 +36,6 @@ public class ChoiceCommandHandler implements CommandGroup {
 
   @Override
   public List<CommandEntry> commands() {
-    return List.of(new CommandEntry("选 [A/B/C]", "对游戏中的选择事件做出抉择（A/B/C）", "选 A"));
+    return List.of(new CommandEntry("选 「A/B/C」", "对游戏中的选择事件做出抉择（A/B/C）", "选 A"));
   }
 }

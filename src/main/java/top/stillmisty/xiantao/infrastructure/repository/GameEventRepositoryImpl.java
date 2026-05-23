@@ -23,9 +23,7 @@ public class GameEventRepositoryImpl implements GameEventRepository {
   @Override
   public List<GameEvent> saveAll(List<GameEvent> events) {
     if (events == null || events.isEmpty()) return List.of();
-    for (GameEvent event : events) {
-      gameEventMapper.insertOrUpdateSelective(event);
-    }
+    gameEventMapper.insertBatch(events);
     return events;
   }
 

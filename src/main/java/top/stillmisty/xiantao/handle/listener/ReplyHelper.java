@@ -92,11 +92,7 @@ public class ReplyHelper {
           notificationAppender.prepareAppend(
               PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), text);
       event.replyBlocking(result.text());
-      try {
-        notificationAppender.markDelivered(result.eventIds());
-      } catch (Exception e) {
-        log.error("OneBot 消息已发送但标记投递失败, 将导致重复推送: {}", e.getMessage(), e);
-      }
+      notificationAppender.markDelivered(result.eventIds());
     } catch (Exception e) {
       log.warn("OneBot 回复失败: {}", e.getMessage(), e);
     }
@@ -107,11 +103,7 @@ public class ReplyHelper {
       var result =
           notificationAppender.prepareAppend(PlatformType.QQ, event.getAuthorId().toString(), text);
       event.replyBlocking(QGMarkdown.create(result.text()));
-      try {
-        notificationAppender.markDelivered(result.eventIds());
-      } catch (Exception e) {
-        log.error("QQ 消息已发送但标记投递失败, 将导致重复推送: {}", e.getMessage(), e);
-      }
+      notificationAppender.markDelivered(result.eventIds());
     } catch (Exception e) {
       log.warn("QQ 回复失败: {}", e.getMessage(), e);
     }

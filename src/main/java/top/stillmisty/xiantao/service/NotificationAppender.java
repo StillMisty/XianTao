@@ -22,6 +22,7 @@ public class NotificationAppender {
   private final GameEventService gameEventService;
 
   /** 根据平台和 openId 解析 userId（通过 UserContext 降级通道，无需重复认证），查询 events，格式化拼接 */
+  @Transactional(readOnly = true)
   public AppendResult prepareAppend(PlatformType platform, String openId, String response) {
     Long userId = UserContext.getUserId();
     if (userId == null) {
@@ -39,7 +40,7 @@ public class NotificationAppender {
     Long pendingChoiceEventId = null;
     List<Long> deliverableIds = new ArrayList<>();
     for (GameEvent event : events) {
-      if (isChoiceEvent(event)) {
+      if (event.isChoiceEvent()) {
         pendingChoiceEventId = event.getId();
         break;
       }
@@ -65,11 +66,6 @@ public class NotificationAppender {
     if (eventIds != null && !eventIds.isEmpty()) {
       gameEventService.markDelivered(eventIds);
     }
-  }
-
-  public boolean isChoiceEvent(GameEvent event) {
-    Map<String, Object> effects = event.getEffects();
-    return effects != null && effects.containsKey("choice");
   }
 
   // ===================== 格式化 =====================
@@ -116,13 +112,13 @@ public class NotificationAppender {
 
     if (narrativeKey != null && args != null) {
       String rendered = renderTemplate(narrativeKey, args);
-      if (effects != null && effects.containsKey("choice")) {
+      if (event.isChoiceEvent()) {
         return rendered + "\n" + renderChoiceOptions(effects);
       }
       return rendered;
     }
 
-    if (effects != null && effects.containsKey("choice")) {
+    if (event.isChoiceEvent()) {
       return renderChoiceOptions(effects);
     }
 

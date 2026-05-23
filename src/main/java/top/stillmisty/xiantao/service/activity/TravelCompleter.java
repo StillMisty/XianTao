@@ -2,13 +2,14 @@ package top.stillmisty.xiantao.service.activity;
 
 import java.util.HashMap;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.event.EventContextKeys;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
 import top.stillmisty.xiantao.domain.event.entity.GameEvent;
+import top.stillmisty.xiantao.domain.event.entity.HiddenCompletion;
 import top.stillmisty.xiantao.domain.event.enums.ActivityType;
 import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.event.repository.HiddenCompletionRepository;
@@ -20,6 +21,7 @@ import top.stillmisty.xiantao.service.GameEventService;
 /** 旅行完成器 — 旅行到达时的子事件和隐藏事件 */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class TravelCompleter {
 
   private final GameEventService gameEventService;
@@ -29,23 +31,6 @@ public class TravelCompleter {
   private final TriggerConditionChecker triggerConditionChecker;
   private final ActivityEventHelper activityEventHelper;
   private final FortuneService fortuneService;
-
-  public TravelCompleter(
-      GameEventService gameEventService,
-      SubEventSelector subEventSelector,
-      @Lazy SubEventEffectExecutor effectExecutor,
-      HiddenCompletionRepository hiddenCompletionRepository,
-      TriggerConditionChecker triggerConditionChecker,
-      FortuneService fortuneService,
-      ActivityEventHelper activityEventHelper) {
-    this.gameEventService = gameEventService;
-    this.subEventSelector = subEventSelector;
-    this.effectExecutor = effectExecutor;
-    this.hiddenCompletionRepository = hiddenCompletionRepository;
-    this.triggerConditionChecker = triggerConditionChecker;
-    this.fortuneService = fortuneService;
-    this.activityEventHelper = activityEventHelper;
-  }
 
   @Transactional
   public void completeTravel(Long userId, User user, MapNode fromMap, MapNode toMap) {
@@ -98,7 +83,7 @@ public class TravelCompleter {
       if (!triggerConditionChecker.check(event, userId, user)) continue;
 
       hiddenCompletionRepository.save(
-          top.stillmisty.xiantao.domain.event.entity.HiddenCompletion.create(
+          HiddenCompletion.create(
               userId, ActivityType.TRAVEL.getCode(), mapNode.getId(), event.getCode()));
 
       Map<String, Object> hiddenContext = new HashMap<>();

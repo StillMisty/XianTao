@@ -15,6 +15,7 @@ import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.domain.user.repository.UserRepository;
 import top.stillmisty.xiantao.service.GameEventService;
+import top.stillmisty.xiantao.service.combat.CombatSummary;
 import top.stillmisty.xiantao.service.combat.TrainingSettler;
 
 @Slf4j
@@ -23,7 +24,7 @@ import top.stillmisty.xiantao.service.combat.TrainingSettler;
 @Order(5)
 class TrainingSettlementHandler implements StateHandler {
 
-  private static final long TRAINING_SETTLEMENT_INTERVAL_MINUTES = 10;
+  private static final long TRAINING_SETTLEMENT_INTERVAL_MINUTES = 60;
 
   private final MapNodeRepository mapNodeRepository;
   private final TrainingSettler trainingSettler;
@@ -39,31 +40,36 @@ class TrainingSettlementHandler implements StateHandler {
     long minutesElapsed =
         Duration.between(user.getActivityStartTime(), LocalDateTime.now()).toMinutes();
     long lastSettled = user.getLastSettlementMinute() != null ? user.getLastSettlementMinute() : 0;
-    long interval = TRAINING_SETTLEMENT_INTERVAL_MINUTES;
-    if (lastSettled + interval > minutesElapsed) return false;
+    if (lastSettled + TRAINING_SETTLEMENT_INTERVAL_MINUTES > minutesElapsed) return false;
 
     var mapNode = mapNodeRepository.findById(user.getLocationId()).orElse(null);
     if (mapNode == null) return false;
 
-    long nextSettled = lastSettled + interval;
-    while (nextSettled <= minutesElapsed) {
-      if (user.getStatus() == UserStatus.DYING) break;
-      trainingSettler.settleChunk(user.getId(), user, mapNode, lastSettled, nextSettled);
+    CombatSummary combatSummary =
+        trainingSettler.settleChunk(user.getId(), user, mapNode, lastSettled, minutesElapsed);
+
+    long durationMinutes = minutesElapsed;
+    if (combatSummary.totalEncounters() > 0) {
       gameEventService.save(
           GameEvent.create(user.getId(), GameEventCategory.TRAINING_EVENT)
               .withNarrative(
-                  "历练进行中：已修炼 {{from}}~{{to}} 分钟，在 {{mapName}} 继续精进。",
-                  Map.of("from", lastSettled, "to", nextSettled, "mapName", mapNode.getName())));
-      lastSettled = nextSettled;
-      nextSettled += interval;
+                  "你在{{mapName}}已修炼 {{duration}} 分钟，期间遭遇 {{encounters}} 场战斗，获得 +{{exp}} 经验，继续精进中。",
+                  Map.of(
+                      "mapName", mapNode.getName(),
+                      "duration", durationMinutes,
+                      "encounters", combatSummary.totalEncounters(),
+                      "exp", combatSummary.expGained())));
+    } else {
+      gameEventService.save(
+          GameEvent.create(user.getId(), GameEventCategory.TRAINING_EVENT)
+              .withNarrative(
+                  "你在{{mapName}}已修炼 {{duration}} 分钟，继续精进中。",
+                  Map.of("mapName", mapNode.getName(), "duration", durationMinutes)));
     }
 
-    user.setLastSettlementMinute(lastSettled);
+    user.setLastSettlementMinute(minutesElapsed);
     userRepository.updateTrainingSettlement(
-        user.getId(),
-        user.getHpCurrent(),
-        user.getExp(),
-        user.getLastSettlementMinute() != null ? user.getLastSettlementMinute() : 0);
+        user.getId(), user.getHpCurrent(), user.getExp(), minutesElapsed);
     return true;
   }
 }

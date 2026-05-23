@@ -4,18 +4,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
-import lombok.RequiredArgsConstructor;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.service.activity.effect.SubEventEffect;
+import top.stillmisty.xiantao.service.activity.effect.SubEventEffectType;
 
 /** 子事件效果执行引擎 — 读 params JSONB，分发到对应 effect handler */
 @Component
-@RequiredArgsConstructor
 public class SubEventEffectExecutor {
 
-  private final List<SubEventEffect> effectHandlers;
+  private final Map<SubEventEffectType, SubEventEffect> handlerMap;
+
+  public SubEventEffectExecutor(List<SubEventEffect> effectHandlers) {
+    this.handlerMap =
+        effectHandlers.stream()
+            .collect(Collectors.toMap(SubEventEffect::type, Function.identity()));
+  }
 
   /** 执行一个 ActivityEvent 的所有效果，返回叙事模板参数 */
   public Map<String, Object> execute(
@@ -57,13 +64,13 @@ public class SubEventEffectExecutor {
     for (Map<String, Object> effectConfig : effectList) {
       String typeStr = (String) effectConfig.get("type");
       if (typeStr == null) continue;
-      for (SubEventEffect handler : effectHandlers) {
-        if (handler.type().name().equals(typeStr)) {
-          Map<String, Object> result = handler.execute(userId, user, effectConfig, context);
-          if (result != null) {
-            templateArgs.putAll(result);
-          }
-          break;
+      SubEventEffectType effectType = SubEventEffectType.fromCode(typeStr);
+      if (effectType == null) continue;
+      SubEventEffect handler = handlerMap.get(effectType);
+      if (handler != null) {
+        Map<String, Object> result = handler.execute(userId, user, effectConfig, context);
+        if (result != null) {
+          templateArgs.putAll(result);
         }
       }
     }

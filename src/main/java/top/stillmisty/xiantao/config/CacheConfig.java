@@ -9,9 +9,11 @@ import org.springframework.cache.caffeine.CaffeineCache;
 import org.springframework.cache.support.SimpleCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @Configuration
 @EnableCaching
+@EnableScheduling
 public class CacheConfig {
 
   private static final long DEFAULT_TTL_MINUTES = 5;

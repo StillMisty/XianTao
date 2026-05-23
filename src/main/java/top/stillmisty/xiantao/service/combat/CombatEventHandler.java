@@ -52,8 +52,6 @@ public class CombatEventHandler {
   private final GameEventService gameEventService;
   private final FortuneService fortuneService;
 
-  private volatile List<Skill> allSkillsCache;
-
   @Transactional
   public EncounterResult handle(
       ActivityEvent event,
@@ -264,13 +262,7 @@ public class CombatEventHandler {
     int wis = user.getEffectiveStatWis();
     int level = user.getLevel();
 
-    List<Skill> learnable =
-        getAllSkills().stream()
-            .filter(s -> s.meetsWisRequirement(wis))
-            .filter(s -> s.meetsLevelRequirement(level))
-            .filter(s -> s.getRequireSkillId() == null)
-            .filter(s -> !learnedSkillIds.contains(s.getId()))
-            .toList();
+    List<Skill> learnable = skillRepository.findLearnable(wis, level, learnedSkillIds);
 
     if (learnable.isEmpty()) return null;
 
@@ -278,18 +270,5 @@ public class CombatEventHandler {
     PlayerSkill playerSkill = PlayerSkill.create(userId, chosen.getId(), false);
     playerSkillRepository.save(playerSkill);
     return chosen;
-  }
-
-  private List<Skill> getAllSkills() {
-    List<Skill> cache = allSkillsCache;
-    if (cache == null) {
-      synchronized (this) {
-        if (allSkillsCache == null) {
-          allSkillsCache = skillRepository.findAll();
-        }
-      }
-      cache = allSkillsCache;
-    }
-    return cache;
   }
 }

@@ -16,7 +16,6 @@ INSERT INTO xt_event_type (activity_type, code, name, description) VALUES
 ('TRAVEL', 'travel_spring_of_spirit', '灵泉偶遇', '路边突然出现一汪灵气四溢的泉水，看起来可以喝。'),
 -- TRAINING 事件
 ('TRAINING', 'training_rare_herb_found', '发现珍稀药草', '在历练时偶然发现了一株{{herb}}，采集到 ×{{count}}，运气不错！'),
-('TRAINING', 'training_monster_swarm', '遭遇妖兽群', '一群妖兽突然从四面八方冒出来，多了{{count}}只妖兽！你奋力击退兽群，获得 +{{exp}} exp。'),
 ('TRAINING', 'training_ancient_ruins', '发现远古遗迹', '在历练地发现了一个此前不为人知的远古遗迹入口。'),
 ('TRAINING', 'training_meditation_epiphany', '静坐顿悟', '在历练中突有所感，就地打坐悟出些许天道碎片，获得 +{{exp}} exp。'),
 ('TRAINING', 'training_rival_encounter', '遇到竞争对手', '另一个修士也在同一片区域历练——他好像不太友善。'),
@@ -70,26 +69,24 @@ INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight
 -- TRAINING events (owner_id = map_id)
 INSERT INTO xt_activity_event (activity_type, owner_id, code, event_type, weight, is_hidden, trigger_type, trigger_params, params) VALUES
 ('TRAINING', 2, 'training_rare_herb_found', 'NUMERIC', 15, false, NULL, '{}', jsonb_build_object('effects', jsonb_build_array(jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name='灵芝'), 'min', 2, 'max', 4)))),
-('TRAINING', 2, 'training_monster_swarm', 'NUMERIC', 15, false, NULL, '{}', '{}'),
 ('TRAINING', 3, 'training_buried_treasure', 'NUMERIC', 10, false, NULL, '{}', jsonb_build_object('effects', jsonb_build_array(jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name='玄铁矿石'), 'count', 2)))),
 ('TRAINING', 3, 'training_strange_stone', 'NUMERIC', 8, false, NULL, '{}', jsonb_build_object('effects', jsonb_build_array(jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name='赤铜矿'), 'count', 1)))),
 ('TRAINING', 4, 'training_qi_storm', 'NUMERIC', 10, false, NULL, '{}', '{"effects": [{"type": "ADD_EXP", "amount": 50}]}'),
 ('TRAINING', 5, 'training_rival_encounter', 'NUMERIC', 10, false, NULL, '{}', '{}'),
 ('TRAINING', 7, 'training_rare_herb_found', 'NUMERIC', 12, false, NULL, '{}', jsonb_build_object('effects', jsonb_build_array(jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name='地火芝'), 'min', 1, 'max', 3)))),
-('TRAINING', 8, 'training_evil_presence', 'NUMERIC', 12, false, NULL, '{}', '{}'),
+('TRAINING', 8, 'training_evil_presence', 'NUMERIC', 12, false, NULL, '{}', '{"effects": [{"type": "TAKE_DAMAGE_FLAT", "amount": 30}]}'),
 ('TRAINING', 9, 'training_ancient_ruins', 'NUMERIC', 15, false, NULL, '{}', '{}'),
-('TRAINING', 12, 'training_monster_swarm', 'NUMERIC', 15, false, NULL, '{}', '{}'),
 ('TRAINING', 12, 'training_beast_den_found', 'NUMERIC', 10, false, NULL, '{}', '{}'),
 ('TRAINING', 14, 'training_meditation_epiphany', 'NUMERIC', 15, false, NULL, '{}', '{"effects": [{"type": "ADD_EXP", "amount": 200}]}'),
 ('TRAINING', 15, 'training_ancient_ruins', 'NUMERIC', 12, false, 'HAS_SKILL', jsonb_build_object('skill_id', (SELECT id FROM xt_skill WHERE name='青莲剑歌')), '{}'),
 ('TRAINING', 16, 'training_rare_herb_found', 'NUMERIC', 15, false, NULL, '{}', jsonb_build_object('effects', jsonb_build_array(jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name='地火芝'), 'min', 2, 'max', 5)))),
 ('TRAINING', 20, 'training_strange_stone', 'NUMERIC', 10, false, NULL, '{}', jsonb_build_object('effects', jsonb_build_array(jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name='紫金砂'), 'count', 2)))),
-('TRAINING', 23, 'training_spirit_guide', 'NUMERIC', 10, false, NULL, '{}', '{}'),
-('TRAINING', 27, 'training_evil_presence', 'NUMERIC', 15, false, NULL, '{}', '{}'),
+('TRAINING', 23, 'training_spirit_guide', 'NUMERIC', 10, false, NULL, '{}', '{"effects": [{"type": "ADD_EXP", "amount": 150}]}'),
+('TRAINING', 27, 'training_evil_presence', 'NUMERIC', 15, false, NULL, '{}', '{"effects": [{"type": "TAKE_DAMAGE_FLAT", "amount": 80}]}'),
 ('TRAINING', 29, 'training_meditation_epiphany', 'NUMERIC', 15, false, NULL, '{}', '{"effects": [{"type": "ADD_EXP", "amount": 500}]}'),
 ('TRAINING', 32, 'training_qi_storm', 'NUMERIC', 20, false, NULL, '{}', '{"effects": [{"type": "ADD_EXP", "amount": 300}]}'),
 ('TRAINING', 34, 'training_meditation_epiphany', 'NUMERIC', 20, false, NULL, '{}', '{"effects": [{"type": "ADD_EXP", "amount": 800}]}'),
-('TRAINING', 38, 'training_spirit_guide', 'NUMERIC', 12, false, NULL, '{}', '{}'),
+('TRAINING', 38, 'training_spirit_guide', 'NUMERIC', 12, false, NULL, '{}', '{"effects": [{"type": "ADD_EXP", "amount": 500}]}'),
 ('TRAINING', 39, 'training_meditation_epiphany', 'NUMERIC', 15, false, NULL, '{}', '{"effects": [{"type": "ADD_EXP", "amount": 1000}]}'),
 ('TRAINING', 41, 'training_qi_storm', 'NUMERIC', 15, false, NULL, '{}', '{"effects": [{"type": "ADD_EXP", "amount": 500}]}');
 

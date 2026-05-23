@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
+import top.stillmisty.xiantao.domain.event.enums.EventTypeEnum;
 import top.stillmisty.xiantao.domain.event.repository.ActivityEventRepository;
 import top.stillmisty.xiantao.infrastructure.mapper.ActivityEventMapper;
 
@@ -43,7 +44,8 @@ public class ActivityEventRepositoryImpl implements ActivityEventRepository {
   }
 
   @Override
-  public List<ActivityEvent> findByType(String activityType, Long ownerId, String eventType) {
+  public List<ActivityEvent> findByType(
+      String activityType, Long ownerId, EventTypeEnum eventType) {
     QueryWrapper query =
         new QueryWrapper()
             .eq(ActivityEvent::getActivityType, activityType)
@@ -55,7 +57,7 @@ public class ActivityEventRepositoryImpl implements ActivityEventRepository {
 
   @Override
   public Map<Long, List<ActivityEvent>> findByOwnerIdsAndType(
-      String activityType, List<Long> ownerIds, String eventType) {
+      String activityType, List<Long> ownerIds, EventTypeEnum eventType) {
     if (ownerIds == null || ownerIds.isEmpty()) return Map.of();
     QueryWrapper query =
         new QueryWrapper()

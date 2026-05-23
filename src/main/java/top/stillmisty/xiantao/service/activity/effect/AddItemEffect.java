@@ -1,23 +1,21 @@
 package top.stillmisty.xiantao.service.activity.effect;
 
 import java.util.Map;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
-import top.stillmisty.xiantao.service.inventory.StackableItemService;
+import top.stillmisty.xiantao.service.inventory.SimpleItemAdder;
 
 @Component
 public class AddItemEffect implements SubEventEffect {
 
   private final ItemTemplateRepository itemTemplateRepository;
-  private final StackableItemService stackableItemService;
+  private final SimpleItemAdder simpleItemAdder;
 
   public AddItemEffect(
-      ItemTemplateRepository itemTemplateRepository,
-      @Lazy StackableItemService stackableItemService) {
+      ItemTemplateRepository itemTemplateRepository, SimpleItemAdder simpleItemAdder) {
     this.itemTemplateRepository = itemTemplateRepository;
-    this.stackableItemService = stackableItemService;
+    this.simpleItemAdder = simpleItemAdder;
   }
 
   @Override
@@ -34,13 +32,10 @@ public class AddItemEffect implements SubEventEffect {
             ? ((Number) params.get("count")).intValue()
             : resolveCount(params);
     if (count <= 0) return Map.of();
-    itemTemplateRepository
-        .findById(templateId)
-        .ifPresent(
-            template ->
-                stackableItemService.addStackableItem(
-                    userId, templateId, template.getType(), template.getName(), count));
-    return Map.of();
+    var template = itemTemplateRepository.findById(templateId).orElse(null);
+    if (template == null) return Map.of();
+    simpleItemAdder.addItem(userId, template, template.getName(), count);
+    return Map.of("item", template.getName(), "herb", template.getName(), "count", count);
   }
 
   static int resolveCount(Map<String, Object> params) {

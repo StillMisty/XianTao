@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
+import top.stillmisty.xiantao.domain.event.enums.EventTypeEnum;
 import top.stillmisty.xiantao.domain.event.repository.ActivityEventRepository;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
 import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
@@ -56,7 +57,7 @@ public class MapService {
     var maps = mapNodeRepository.findAll();
     List<Long> mapIds = maps.stream().map(MapNode::getId).toList();
     Map<Long, List<ActivityEvent>> combatEventsByMap =
-        activityEventRepository.findByOwnerIdsAndType("TRAINING", mapIds, "COMBAT");
+        activityEventRepository.findByOwnerIdsAndType("TRAINING", mapIds, EventTypeEnum.COMBAT);
     Map<Long, MonsterTemplate> templateMap = buildMonsterTemplateMap(combatEventsByMap);
     return maps.stream()
         .map(
@@ -75,7 +76,7 @@ public class MapService {
             .findById(user.getLocationId())
             .orElseThrow(() -> new BusinessException(ErrorCode.MAP_CURRENT_NOT_FOUND));
     List<ActivityEvent> combatEvents =
-        activityEventRepository.findByType("TRAINING", mapNode.getId(), "COMBAT");
+        activityEventRepository.findByType("TRAINING", mapNode.getId(), EventTypeEnum.COMBAT);
     Map<Long, MonsterTemplate> templateMap =
         buildMonsterTemplateMap(Map.of(mapNode.getId(), combatEvents));
     return convertToMapInfoVO(mapNode, combatEvents, templateMap);

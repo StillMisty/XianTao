@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.event.EventContextKeys;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
 import top.stillmisty.xiantao.domain.event.entity.GameEvent;
+import top.stillmisty.xiantao.domain.event.enums.EventTypeEnum;
 import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.event.repository.ActivityEventRepository;
 import top.stillmisty.xiantao.domain.event.vo.FortuneVO;
@@ -73,7 +74,7 @@ public class TrainingSettler {
 
     List<Long> combatTemplateIds =
         pool.stream()
-            .filter(e -> "COMBAT".equals(e.getEventType()))
+            .filter(e -> e.getEventType() == EventTypeEnum.COMBAT)
             .map(e -> ((Number) e.getParams().get("monster_template_id")).longValue())
             .distinct()
             .toList();
@@ -108,12 +109,12 @@ public class TrainingSettler {
           WeightedRandom.select(pool, ActivityEvent::getWeight, ThreadLocalRandom.current());
       if (event == null) continue;
 
-      if ("COMBAT".equals(event.getEventType())) {
+      if (event.getEventType() == EventTypeEnum.COMBAT) {
         EncounterResult result =
             combatEventHandler.handle(event, userId, user, templateMap, skillMap, i);
         combatSummary = combatSummary.merge(result);
         if (user.getStatus() == UserStatus.DYING) break;
-      } else if ("CHOICE".equals(event.getEventType())) {
+      } else if (event.getEventType() == EventTypeEnum.CHOICE) {
         fireChoiceEvent(userId, event.getCode(), event.getParams());
       } else {
         trainingCompleter.handleNumericEvent(userId, user, event, context);

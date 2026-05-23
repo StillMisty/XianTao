@@ -3,23 +3,21 @@ package top.stillmisty.xiantao.service.activity.effect;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
-import top.stillmisty.xiantao.service.inventory.StackableItemService;
+import top.stillmisty.xiantao.service.inventory.SimpleItemAdder;
 
 @Component
 public class AddRandomItemEffect implements SubEventEffect {
 
   private final ItemTemplateRepository itemTemplateRepository;
-  private final StackableItemService stackableItemService;
+  private final SimpleItemAdder simpleItemAdder;
 
   public AddRandomItemEffect(
-      ItemTemplateRepository itemTemplateRepository,
-      @Lazy StackableItemService stackableItemService) {
+      ItemTemplateRepository itemTemplateRepository, SimpleItemAdder simpleItemAdder) {
     this.itemTemplateRepository = itemTemplateRepository;
-    this.stackableItemService = stackableItemService;
+    this.simpleItemAdder = simpleItemAdder;
   }
 
   @Override
@@ -40,12 +38,9 @@ public class AddRandomItemEffect implements SubEventEffect {
 
     long templateId =
         templateIds.get(ThreadLocalRandom.current().nextInt(templateIds.size())).longValue();
-    itemTemplateRepository
-        .findById(templateId)
-        .ifPresent(
-            template ->
-                stackableItemService.addStackableItem(
-                    userId, templateId, template.getType(), template.getName(), 1));
-    return Map.of();
+    var template = itemTemplateRepository.findById(templateId).orElse(null);
+    if (template == null) return Map.of();
+    simpleItemAdder.addItem(userId, template, template.getName(), 1);
+    return Map.of("item", template.getName(), "herb", template.getName(), "count", 1);
   }
 }

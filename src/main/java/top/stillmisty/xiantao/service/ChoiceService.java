@@ -40,7 +40,7 @@ public class ChoiceService {
     var events = gameEventService.findUndelivered(userId);
     GameEvent choiceEvent = null;
     for (GameEvent event : events) {
-      if (isChoiceEvent(event)) {
+      if (event.isChoiceEvent()) {
         choiceEvent = event;
         break;
       }
@@ -81,11 +81,6 @@ public class ChoiceService {
 
     String optionText = (String) selectedOption.get("text");
     return "你选择了【" + key + "】" + optionText + "。\n" + formatEffectResults(templateArgs);
-  }
-
-  private boolean isChoiceEvent(GameEvent event) {
-    Map<String, Object> effects = event.getEffects();
-    return effects != null && effects.containsKey("choice");
   }
 
   @SuppressWarnings("unchecked")

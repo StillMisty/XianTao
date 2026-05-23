@@ -12,6 +12,7 @@ import top.stillmisty.xiantao.domain.bounty.entity.UserBounty;
 import top.stillmisty.xiantao.domain.event.EventContextKeys;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
 import top.stillmisty.xiantao.domain.event.entity.GameEvent;
+import top.stillmisty.xiantao.domain.event.entity.HiddenCompletion;
 import top.stillmisty.xiantao.domain.event.enums.ActivityType;
 import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.event.repository.HiddenCompletionRepository;
@@ -86,7 +87,7 @@ public class BountyCompleter {
       if (!triggerConditionChecker.check(event, userId, user)) continue;
 
       hiddenCompletionRepository.save(
-          top.stillmisty.xiantao.domain.event.entity.HiddenCompletion.create(
+          HiddenCompletion.create(
               userId, ActivityType.BOUNTY_SIDE.getCode(), record.getBountyId(), event.getCode()));
 
       Map<String, Object> hiddenContext = new HashMap<>();
