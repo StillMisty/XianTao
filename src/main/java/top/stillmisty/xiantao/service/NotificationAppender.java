@@ -155,6 +155,8 @@ public class NotificationAppender {
     for (Map.Entry<String, Object> entry : args.entrySet()) {
       result = result.replace("{{" + entry.getKey() + "}}", String.valueOf(entry.getValue()));
     }
+    // 未替换的 {{xxx}} 占位符替换为 ？，避免暴露内部变量名
+    result = result.replaceAll("\\{\\{[^}]+}}", "？");
     return result;
   }
 

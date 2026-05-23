@@ -39,6 +39,7 @@ import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
+import top.stillmisty.xiantao.service.activity.DungeonEventCompleter;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
@@ -55,6 +56,7 @@ public class DungeonService {
   private final DungeonCombatHelper combatHelper;
   private final DungeonLootHelper lootHelper;
   private final DungeonProgressHelper progressHelper;
+  private final DungeonEventCompleter dungeonEventCompleter;
   private final TeamRepository teamRepository;
   private final TeamMemberRepository teamMemberRepository;
 
@@ -215,6 +217,13 @@ public class DungeonService {
       userStateService.saveActivity(memberUser);
     }
 
+    for (Long memberId : memberIds) {
+      User memberUser =
+          memberId.equals(userId) ? user : userStateService.loadUserForUpdate(memberId);
+      dungeonEventCompleter.onAreaAdvance(
+          memberId, memberUser, dungeon.getId(), dungeon.getName(), DungeonArea.OUTER.getName());
+    }
+
     log.info("玩家 {} 率队 {} 人进入秘境 {}", userId, memberIds.size(), dungeonName);
     return new DungeonEnterResult(
         dungeonName,
@@ -267,6 +276,8 @@ public class DungeonService {
     ExploreResultVO exploreResult = executePoi(user, instance, nextPoi);
     instance.addExploredPoi(nextPoi.getId());
 
+    dungeonEventCompleter.rollExploreEvent(userId, user, dungeon.getId());
+
     if (nextPoi.getId().equals(instance.getPassagePoiId())) {
       instance.setPassageUnlocked(true);
     }
@@ -316,6 +327,17 @@ public class DungeonService {
     instance.advanceArea();
     instance.setPassagePoiId(passagePoiId);
     instanceRepository.save(instance);
+
+    List<Long> memberIds = getTeamMemberIds(instance);
+    for (Long memberId : memberIds) {
+      User memberUser = userStateService.loadUser(memberId);
+      dungeonEventCompleter.onAreaAdvance(
+          memberId,
+          memberUser,
+          dungeon.getId(),
+          dungeon.getName(),
+          instance.getCurrentArea().getName());
+    }
 
     DungeonEnterResult areaView =
         new DungeonEnterResult(
@@ -561,6 +583,11 @@ public class DungeonService {
     instance.markCompleted();
     instanceRepository.save(instance);
 
+    DungeonTemplate dungeon =
+        dungeonTemplateRepository
+            .findById(instance.getDungeonId())
+            .orElseThrow(() -> new BusinessException(ErrorCode.DUNGEON_NOT_FOUND, ""));
+
     List<Long> memberIds = getTeamMemberIds(instance);
     StringBuilder sb = new StringBuilder();
 
@@ -568,6 +595,8 @@ public class DungeonService {
       User member = userStateService.loadUser(memberId);
       member.clearActivity();
       userStateService.saveActivity(member);
+
+      dungeonEventCompleter.onComplete(memberId, member, dungeon.getName());
 
       String result = progressHelper.completeDungeon(memberId, instance);
       if (memberIds.size() > 1) {

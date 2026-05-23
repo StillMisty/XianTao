@@ -7,7 +7,8 @@ CREATE
                 activity_type IN(
                     'TRAVEL',
                     'TRAINING',
-                    'BOUNTY_SIDE'
+                    'BOUNTY_SIDE',
+                    'DUNGEON'
                 )
             ),
             owner_id BIGINT NOT NULL,
@@ -35,10 +36,10 @@ TABLE
     xt_activity_event IS '活动事件关联表 — 子事件/隐藏事件的权重和触发条件配置';
 
 COMMENT ON
-COLUMN xt_activity_event.activity_type IS '所属活动: TRAVEL / TRAINING / BOUNTY_SIDE';
+COLUMN xt_activity_event.activity_type IS '所属活动: TRAVEL / TRAINING / BOUNTY_SIDE / DUNGEON';
 
 COMMENT ON
-COLUMN xt_activity_event.owner_id IS '事件归属: map_id(TRAVEL/TRAINING) 或 bounty_id(BOUNTY_SIDE)';
+COLUMN xt_activity_event.owner_id IS '事件归属: map_id(TRAVEL/TRAINING) 或 dungeon_id(DUNGEON) 或 bounty_id(BOUNTY_SIDE)';
 
 COMMENT ON
 COLUMN xt_activity_event.code IS '事件 code (引用 xt_event_type)';

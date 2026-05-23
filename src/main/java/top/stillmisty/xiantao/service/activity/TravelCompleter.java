@@ -59,10 +59,15 @@ public class TravelCompleter {
     worldEventEnvApplier.apply(userId, user, mapNode);
   }
 
+  // 旅行事件设计为"低频高风险高回报"：
+  // 基础触发概率 0.30，经命运修正后 0.21~0.39。不触发时无事发生。
+  // 触发后效果比历练事件大得多（ADD_EXP_PERCENT 代替 ADD_EXP、TAKE_DAMAGE_PERCENT 代替 FLAT）。
+  // 每个 ActivityEvent 的 params.effects 必须覆盖 EventType.description 中所有 {{key}} 模板变量，
+  // 遗漏会导致 NotificationAppender 渲染出 ？。
   private void rollSubEvents(Long userId, User user, MapNode mapNode) {
     ActivityEvent selected =
         subEventSelector.selectSubEvent(
-            ActivityType.TRAVEL.getCode(), mapNode.getId(), 1.0, userId);
+            ActivityType.TRAVEL.getCode(), mapNode.getId(), 0.30, userId);
     if (selected == null) return;
 
     var fortune = fortuneService.calculate(userId);

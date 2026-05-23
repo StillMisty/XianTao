@@ -1,0 +1,45 @@
+-- DUNGEON 事件类型种子
+INSERT
+    INTO
+        xt_event_type(
+            activity_type,
+            code,
+            name,
+            description
+        )
+    VALUES(
+        'DUNGEON',
+        'dungeon_area_advance',
+        '深入秘境',
+        '踏入{{area}}，眼前的景象与外围截然不同，灵气浓度明显提升。'
+    ),
+    (
+        'DUNGEON',
+        'dungeon_trap_triggered',
+        '触发陷阱',
+        '探索中不慎触发了远古禁制，受到 {{damage}} 点伤害，但禁制崩解的瞬间灵气外泄，意外获得了 +{{exp}} 修为。'
+    ),
+    (
+        'DUNGEON',
+        'dungeon_treasure_found',
+        '发现秘藏',
+        '在角落发现了一个隐蔽的暗格，里面放着被人遗忘的宝物。'
+    ),
+    (
+        'DUNGEON',
+        'dungeon_lore_discovery',
+        '洞悉玄机',
+        '墙壁上的古老铭文突然发出微光，你从中领悟到了一些天道至理，获得 +{{exp}} 修为。'
+    ),
+    (
+        'DUNGEON',
+        'dungeon_secret_chamber',
+        '秘境密室',
+        '在探索过程中无意触动了一个被忽视的机关——轰隆声中，一扇隐藏的石门缓缓打开。'
+    ),
+    (
+        'DUNGEON',
+        'dungeon_completed',
+        '秘境通关',
+        '秘境探索圆满完成！你在秘境中历练归来，修为大有精进。'
+    );

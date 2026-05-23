@@ -1,3 +1,13 @@
+-- =====================================================================
+-- 旅行事件种子数据 — "低频高风险高回报"
+-- 设计规则：
+--   1. 每个 ActivityEvent.params.effects 必须覆盖 EventType.description 中所有 {{key}} 模板变量
+--   2. 空效果事件必须补齐效果（叙事暗示了 reward 就不能什么都不给）
+--   3. 高风险：部分事件带 TAKE_DAMAGE_PERCENT（5-15% 最大生命）
+--   4. 高回报：使用 ADD_EXP_PERCENT（2-8% 升级经验）代替固定 ADD_EXP
+--   5. TravelCompleter.rollSubEvents 基础触发概率 0.30，命运修正后 0.21~0.39
+-- =====================================================================
+
 INSERT
     INTO
         xt_activity_event(
@@ -20,7 +30,23 @@ INSERT
         FALSE,
         NULL,
         '{}',
-        '{}'
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'TAKE_DAMAGE_PERCENT',
+                    'amount',
+                    0.08
+                ),
+                jsonb_build_object(
+                    'type',
+                    'ADD_EXP',
+                    'amount',
+                    30
+                )
+            )
+        )
     ),
     (
         'TRAVEL',
@@ -71,7 +97,36 @@ INSERT
         FALSE,
         NULL,
         '{}',
-        '{}'
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'ADD_RANDOM_ITEM',
+                    'template_ids',
+                    jsonb_build_array(
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_item_template
+                            WHERE
+                                name = '灵芝'
+                        ),
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_item_template
+                            WHERE
+                                name = '灵木'
+                        )
+                    ),
+                    'chance',
+                    0.5
+                )
+            )
+        )
     ),
     (
         'TRAVEL',
@@ -82,7 +137,23 @@ INSERT
         FALSE,
         NULL,
         '{}',
-        '{}'
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'TAKE_DAMAGE_FLAT',
+                    'amount',
+                    15
+                ),
+                jsonb_build_object(
+                    'type',
+                    'ADD_SPIRIT_STONES',
+                    'amount',
+                    20
+                )
+            )
+        )
     ),
     (
         'TRAVEL',
@@ -93,7 +164,23 @@ INSERT
         FALSE,
         NULL,
         '{}',
-        '{"effects": [{"type": "ADD_EXP", "amount": 50}]}'
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'ADD_EXP_PERCENT',
+                    'percent',
+                    0.03
+                ),
+                jsonb_build_object(
+                    'type',
+                    'HEAL_FLAT',
+                    'amount',
+                    50
+                )
+            )
+        )
     ),
     (
         'TRAVEL',
@@ -145,7 +232,36 @@ INSERT
         FALSE,
         NULL,
         '{}',
-        '{}'
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'ADD_RANDOM_ITEM',
+                    'template_ids',
+                    jsonb_build_array(
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_item_template
+                            WHERE
+                                name = '玄铁矿石'
+                        ),
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_item_template
+                            WHERE
+                                name = '兽骨'
+                        )
+                    ),
+                    'chance',
+                    0.4
+                )
+            )
+        )
     ),
     (
         'TRAVEL',
@@ -156,7 +272,17 @@ INSERT
         FALSE,
         NULL,
         '{}',
-        '{}'
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'TAKE_DAMAGE_PERCENT',
+                    'amount',
+                    0.05
+                )
+            )
+        )
     ),
     (
         'TRAVEL',
@@ -167,7 +293,50 @@ INSERT
         FALSE,
         NULL,
         '{}',
-        '{}'
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'ADD_RANDOM_ITEM',
+                    'template_ids',
+                    jsonb_build_array(
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_item_template
+                            WHERE
+                                name = '灵芝'
+                        ),
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_item_template
+                            WHERE
+                                name = '玄铁矿石'
+                        ),
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_item_template
+                            WHERE
+                                name = '灵木'
+                        )
+                    ),
+                    'chance',
+                    0.5
+                ),
+                jsonb_build_object(
+                    'type',
+                    'ADD_SPIRIT_STONES',
+                    'amount',
+                    30
+                )
+            )
+        )
     ),
     (
         'TRAVEL',
@@ -178,7 +347,17 @@ INSERT
         FALSE,
         'STAT_THRESHOLD',
         '{"stat":"WIS","min":20}',
-        '{}'
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'ADD_EXP_PERCENT',
+                    'percent',
+                    0.03
+                )
+            )
+        )
     ),
     (
         'TRAVEL',
@@ -189,7 +368,44 @@ INSERT
         FALSE,
         NULL,
         '{}',
-        '{}'
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'ADD_RANDOM_ITEM',
+                    'template_ids',
+                    jsonb_build_array(
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_item_template
+                            WHERE
+                                name = '玄铁矿石'
+                        ),
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_item_template
+                            WHERE
+                                name = '寒铁'
+                        ),
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_item_template
+                            WHERE
+                                name = '朱砂'
+                        )
+                    ),
+                    'chance',
+                    0.6
+                )
+            )
+        )
     ),
     (
         'TRAVEL',
@@ -200,7 +416,23 @@ INSERT
         FALSE,
         NULL,
         '{}',
-        '{}'
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'TAKE_DAMAGE_PERCENT',
+                    'amount',
+                    0.08
+                ),
+                jsonb_build_object(
+                    'type',
+                    'ADD_EXP_PERCENT',
+                    'percent',
+                    0.02
+                )
+            )
+        )
     ),
     (
         'TRAVEL',
@@ -211,7 +443,29 @@ INSERT
         FALSE,
         NULL,
         '{}',
-        '{}'
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'TAKE_DAMAGE_PERCENT',
+                    'amount',
+                    0.10
+                ),
+                jsonb_build_object(
+                    'type',
+                    'ADD_SPIRIT_STONES',
+                    'amount',
+                    50
+                ),
+                jsonb_build_object(
+                    'type',
+                    'ADD_EXP',
+                    'amount',
+                    40
+                )
+            )
+        )
     ),
     (
         'TRAVEL',
@@ -222,7 +476,50 @@ INSERT
         FALSE,
         NULL,
         '{}',
-        '{}'
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'ADD_RANDOM_ITEM',
+                    'template_ids',
+                    jsonb_build_array(
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_item_template
+                            WHERE
+                                name = '地火芝'
+                        ),
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_item_template
+                            WHERE
+                                name = '寒铁'
+                        ),
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_item_template
+                            WHERE
+                                name = '朱砂'
+                        )
+                    ),
+                    'chance',
+                    0.6
+                ),
+                jsonb_build_object(
+                    'type',
+                    'ADD_SPIRIT_STONES',
+                    'amount',
+                    60
+                )
+            )
+        )
     ),
     (
         'TRAVEL',
@@ -233,7 +530,17 @@ INSERT
         FALSE,
         'STAT_THRESHOLD',
         '{"stat":"WIS","min":45}',
-        '{}'
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'ADD_EXP_PERCENT',
+                    'percent',
+                    0.05
+                )
+            )
+        )
     ),
     (
         'TRAVEL',
@@ -244,7 +551,23 @@ INSERT
         FALSE,
         NULL,
         '{}',
-        '{}'
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'TAKE_DAMAGE_PERCENT',
+                    'amount',
+                    0.12
+                ),
+                jsonb_build_object(
+                    'type',
+                    'ADD_EXP_PERCENT',
+                    'percent',
+                    0.04
+                )
+            )
+        )
     ),
     (
         'TRAVEL',
@@ -336,7 +659,29 @@ INSERT
                     name = '魂玉碎片'
             )
         ),
-        '{}'
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'TAKE_DAMAGE_PERCENT',
+                    'amount',
+                    0.10
+                ),
+                jsonb_build_object(
+                    'type',
+                    'ADD_EXP_PERCENT',
+                    'percent',
+                    0.06
+                ),
+                jsonb_build_object(
+                    'type',
+                    'ADD_SPIRIT_STONES',
+                    'amount',
+                    200
+                )
+            )
+        )
     ),
     (
         'TRAVEL',
@@ -347,7 +692,32 @@ INSERT
         FALSE,
         NULL,
         '{}',
-        '{}'
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'ADD_ITEM',
+                    'template_id',
+                    (
+                        SELECT
+                            id
+                        FROM
+                            xt_item_template
+                        WHERE
+                            name = '天外陨铁'
+                    ),
+                    'count',
+                    1
+                ),
+                jsonb_build_object(
+                    'type',
+                    'ADD_EXP_PERCENT',
+                    'percent',
+                    0.03
+                )
+            )
+        )
     ),
     (
         'TRAVEL',
@@ -358,9 +728,831 @@ INSERT
         FALSE,
         NULL,
         '{}',
-        '{"effects": [{"type": "ADD_EXP", "amount": 50}]}'
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'ADD_EXP_PERCENT',
+                    'percent',
+                    0.06
+                )
+            )
+        )
+    ),
+    -- =================================================================
+    -- 以下为之前缺失旅行事件的地图新增
+    -- =================================================================
+    (
+        'TRAVEL',
+        12,
+        'travel_ambush_beast',
+        'NUMERIC',
+        15,
+        FALSE,
+        NULL,
+        '{}',
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'TAKE_DAMAGE_PERCENT',
+                    'amount',
+                    0.12
+                ),
+                jsonb_build_object(
+                    'type',
+                    'ADD_EXP_PERCENT',
+                    'percent',
+                    0.04
+                )
+            )
+        )
+    ),
+    (
+        'TRAVEL',
+        12,
+        'travel_spring_of_spirit',
+        'NUMERIC',
+        8,
+        FALSE,
+        NULL,
+        '{}',
+        '{"effects": [{"type": "HEAL_FLAT", "amount": 300}]}'
+    ),
+    (
+        'TRAVEL',
+        13,
+        'travel_strange_fog',
+        'NUMERIC',
+        15,
+        FALSE,
+        NULL,
+        '{}',
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'TAKE_DAMAGE_PERCENT',
+                    'amount',
+                    0.10
+                ),
+                jsonb_build_object(
+                    'type',
+                    'ADD_SPIRIT_STONES',
+                    'amount',
+                    100
+                ),
+                jsonb_build_object(
+                    'type',
+                    'ADD_EXP',
+                    'amount',
+                    60
+                )
+            )
+        )
+    ),
+    (
+        'TRAVEL',
+        13,
+        'travel_fallen_star',
+        'NUMERIC',
+        10,
+        FALSE,
+        NULL,
+        '{}',
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'ADD_ITEM',
+                    'template_id',
+                    (
+                        SELECT
+                            id
+                        FROM
+                            xt_item_template
+                        WHERE
+                            name = '玄铁矿石'
+                    ),
+                    'count',
+                    3
+                )
+            )
+        )
+    ),
+    (
+        'TRAVEL',
+        15,
+        'travel_injured_cultivator',
+        'NUMERIC',
+        10,
+        FALSE,
+        NULL,
+        '{}',
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'ADD_EXP_PERCENT',
+                    'percent',
+                    0.04
+                ),
+                jsonb_build_object(
+                    'type',
+                    'HEAL_FLAT',
+                    'amount',
+                    100
+                )
+            )
+        )
+    ),
+    (
+        'TRAVEL',
+        15,
+        'travel_friendly_merchant',
+        'NUMERIC',
+        12,
+        FALSE,
+        NULL,
+        '{}',
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'ADD_RANDOM_ITEM',
+                    'template_ids',
+                    jsonb_build_array(
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_item_template
+                            WHERE
+                                name = '玄铁矿石'
+                        ),
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_item_template
+                            WHERE
+                                name = '寒铁'
+                        )
+                    ),
+                    'chance',
+                    0.5
+                ),
+                jsonb_build_object(
+                    'type',
+                    'ADD_SPIRIT_STONES',
+                    'amount',
+                    50
+                )
+            )
+        )
+    ),
+    (
+        'TRAVEL',
+        16,
+        'travel_rainstorm',
+        'NUMERIC',
+        12,
+        FALSE,
+        NULL,
+        '{}',
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'TAKE_DAMAGE_PERCENT',
+                    'amount',
+                    0.08
+                ),
+                jsonb_build_object(
+                    'type',
+                    'ADD_EXP_PERCENT',
+                    'percent',
+                    0.03
+                )
+            )
+        )
+    ),
+    (
+        'TRAVEL',
+        16,
+        'travel_fallen_star',
+        'NUMERIC',
+        10,
+        FALSE,
+        NULL,
+        '{}',
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'ADD_ITEM',
+                    'template_id',
+                    (
+                        SELECT
+                            id
+                        FROM
+                            xt_item_template
+                        WHERE
+                            name = '朱砂'
+                    ),
+                    'count',
+                    2
+                )
+            )
+        )
+    ),
+    (
+        'TRAVEL',
+        19,
+        'travel_bandit_roadblock',
+        'NUMERIC',
+        15,
+        FALSE,
+        NULL,
+        '{}',
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'TAKE_DAMAGE_PERCENT',
+                    'amount',
+                    0.12
+                ),
+                jsonb_build_object(
+                    'type',
+                    'ADD_SPIRIT_STONES',
+                    'amount',
+                    150
+                ),
+                jsonb_build_object(
+                    'type',
+                    'ADD_EXP_PERCENT',
+                    'percent',
+                    0.04
+                )
+            )
+        )
+    ),
+    (
+        'TRAVEL',
+        19,
+        'travel_strange_fog',
+        'NUMERIC',
+        12,
+        FALSE,
+        NULL,
+        '{}',
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'TAKE_DAMAGE_PERCENT',
+                    'amount',
+                    0.08
+                ),
+                jsonb_build_object(
+                    'type',
+                    'ADD_EXP_PERCENT',
+                    'percent',
+                    0.03
+                )
+            )
+        )
+    ),
+    (
+        'TRAVEL',
+        20,
+        'travel_wandering_elder',
+        'NUMERIC',
+        8,
+        FALSE,
+        NULL,
+        '{}',
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'ADD_EXP_PERCENT',
+                    'percent',
+                    0.06
+                )
+            )
+        )
+    ),
+    (
+        'TRAVEL',
+        20,
+        'travel_spring_of_spirit',
+        'NUMERIC',
+        10,
+        FALSE,
+        NULL,
+        '{}',
+        '{"effects": [{"type": "HEAL_FLAT", "amount": 500}]}'
+    ),
+    (
+        'TRAVEL',
+        22,
+        'travel_rainstorm',
+        'NUMERIC',
+        15,
+        FALSE,
+        NULL,
+        '{}',
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'TAKE_DAMAGE_PERCENT',
+                    'amount',
+                    0.10
+                )
+            )
+        )
+    ),
+    (
+        'TRAVEL',
+        22,
+        'travel_broken_cart',
+        'NUMERIC',
+        10,
+        FALSE,
+        NULL,
+        '{}',
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'ADD_RANDOM_ITEM',
+                    'template_ids',
+                    jsonb_build_array(
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_item_template
+                            WHERE
+                                name = '玄铁矿石'
+                        ),
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_item_template
+                            WHERE
+                                name = '紫金砂'
+                        )
+                    ),
+                    'chance',
+                    0.4
+                )
+            )
+        )
+    ),
+    (
+        'TRAVEL',
+        23,
+        'travel_spring_of_spirit',
+        'NUMERIC',
+        12,
+        FALSE,
+        NULL,
+        '{}',
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'HEAL_FLAT',
+                    'amount',
+                    600
+                ),
+                jsonb_build_object(
+                    'type',
+                    'ADD_EXP_PERCENT',
+                    'percent',
+                    0.02
+                )
+            )
+        )
+    ),
+    (
+        'TRAVEL',
+        23,
+        'travel_friendly_merchant',
+        'NUMERIC',
+        10,
+        FALSE,
+        NULL,
+        '{}',
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'ADD_RANDOM_ITEM',
+                    'template_ids',
+                    jsonb_build_array(
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_item_template
+                            WHERE
+                                name = '灵芝'
+                        ),
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_item_template
+                            WHERE
+                                name = '地火芝'
+                        ),
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_item_template
+                            WHERE
+                                name = '灵木'
+                        )
+                    ),
+                    'chance',
+                    0.5
+                )
+            )
+        )
+    ),
+    (
+        'TRAVEL',
+        25,
+        'travel_strange_fog',
+        'NUMERIC',
+        18,
+        FALSE,
+        NULL,
+        '{}',
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'TAKE_DAMAGE_PERCENT',
+                    'amount',
+                    0.12
+                ),
+                jsonb_build_object(
+                    'type',
+                    'ADD_SPIRIT_STONES',
+                    'amount',
+                    150
+                )
+            )
+        )
+    ),
+    (
+        'TRAVEL',
+        25,
+        'travel_ambush_beast',
+        'NUMERIC',
+        12,
+        FALSE,
+        NULL,
+        '{}',
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'TAKE_DAMAGE_PERCENT',
+                    'amount',
+                    0.10
+                ),
+                jsonb_build_object(
+                    'type',
+                    'ADD_EXP_PERCENT',
+                    'percent',
+                    0.04
+                )
+            )
+        )
+    ),
+    (
+        'TRAVEL',
+        32,
+        'travel_rainstorm',
+        'NUMERIC',
+        15,
+        FALSE,
+        NULL,
+        '{}',
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'TAKE_DAMAGE_PERCENT',
+                    'amount',
+                    0.15
+                ),
+                jsonb_build_object(
+                    'type',
+                    'ADD_EXP_PERCENT',
+                    'percent',
+                    0.05
+                )
+            )
+        )
+    ),
+    (
+        'TRAVEL',
+        32,
+        'travel_fallen_star',
+        'NUMERIC',
+        8,
+        FALSE,
+        NULL,
+        '{}',
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'ADD_ITEM',
+                    'template_id',
+                    (
+                        SELECT
+                            id
+                        FROM
+                            xt_item_template
+                        WHERE
+                            name = '天外陨铁'
+                    ),
+                    'count',
+                    2
+                ),
+                jsonb_build_object(
+                    'type',
+                    'ADD_EXP_PERCENT',
+                    'percent',
+                    0.04
+                )
+            )
+        )
+    ),
+    (
+        'TRAVEL',
+        34,
+        'travel_wandering_elder',
+        'NUMERIC',
+        10,
+        FALSE,
+        NULL,
+        '{}',
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'ADD_EXP_PERCENT',
+                    'percent',
+                    0.08
+                )
+            )
+        )
+    ),
+    (
+        'TRAVEL',
+        36,
+        'travel_ambush_beast',
+        'NUMERIC',
+        18,
+        FALSE,
+        NULL,
+        '{}',
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'TAKE_DAMAGE_PERCENT',
+                    'amount',
+                    0.15
+                ),
+                jsonb_build_object(
+                    'type',
+                    'ADD_EXP_PERCENT',
+                    'percent',
+                    0.06
+                )
+            )
+        )
+    ),
+    (
+        'TRAVEL',
+        36,
+        'travel_bandit_roadblock',
+        'NUMERIC',
+        12,
+        FALSE,
+        NULL,
+        '{}',
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'TAKE_DAMAGE_PERCENT',
+                    'amount',
+                    0.10
+                ),
+                jsonb_build_object(
+                    'type',
+                    'ADD_SPIRIT_STONES',
+                    'amount',
+                    300
+                )
+            )
+        )
+    ),
+    (
+        'TRAVEL',
+        37,
+        'travel_strange_fog',
+        'NUMERIC',
+        18,
+        FALSE,
+        NULL,
+        '{}',
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'TAKE_DAMAGE_PERCENT',
+                    'amount',
+                    0.15
+                ),
+                jsonb_build_object(
+                    'type',
+                    'ADD_EXP_PERCENT',
+                    'percent',
+                    0.05
+                ),
+                jsonb_build_object(
+                    'type',
+                    'ADD_SPIRIT_STONES',
+                    'amount',
+                    200
+                )
+            )
+        )
+    ),
+    (
+        'TRAVEL',
+        37,
+        'travel_rainstorm',
+        'NUMERIC',
+        12,
+        FALSE,
+        NULL,
+        '{}',
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'TAKE_DAMAGE_PERCENT',
+                    'amount',
+                    0.12
+                )
+            )
+        )
+    ),
+    (
+        'TRAVEL',
+        38,
+        'travel_wandering_elder',
+        'NUMERIC',
+        10,
+        FALSE,
+        NULL,
+        '{}',
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'ADD_EXP_PERCENT',
+                    'percent',
+                    0.08
+                )
+            )
+        )
+    ),
+    (
+        'TRAVEL',
+        38,
+        'travel_spring_of_spirit',
+        'NUMERIC',
+        10,
+        FALSE,
+        NULL,
+        '{}',
+        '{"effects": [{"type": "HEAL_FLAT", "amount": 1500}]}'
+    ),
+    (
+        'TRAVEL',
+        43,
+        'travel_strange_fog',
+        'NUMERIC',
+        15,
+        FALSE,
+        NULL,
+        '{}',
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'TAKE_DAMAGE_PERCENT',
+                    'amount',
+                    0.15
+                ),
+                jsonb_build_object(
+                    'type',
+                    'ADD_EXP_PERCENT',
+                    'percent',
+                    0.06
+                ),
+                jsonb_build_object(
+                    'type',
+                    'ADD_SPIRIT_STONES',
+                    'amount',
+                    400
+                )
+            )
+        )
+    ),
+    (
+        'TRAVEL',
+        43,
+        'travel_treasure_map',
+        'NUMERIC',
+        8,
+        FALSE,
+        NULL,
+        '{}',
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'ADD_ITEM',
+                    'template_id',
+                    (
+                        SELECT
+                            id
+                        FROM
+                            xt_item_template
+                        WHERE
+                            name = '天外陨铁'
+                    ),
+                    'count',
+                    2
+                ),
+                jsonb_build_object(
+                    'type',
+                    'ADD_EXP_PERCENT',
+                    'percent',
+                    0.05
+                )
+            )
+        )
     );
 
+-- =================================================================
+-- 隐藏事件
+-- =================================================================
 INSERT
     INTO
         xt_activity_event(
@@ -423,7 +1615,23 @@ INSERT
                     name = '九转金莲'
             )
         ),
-        '{}'
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'HEAL_FLAT',
+                    'amount',
+                    2000
+                ),
+                jsonb_build_object(
+                    'type',
+                    'ADD_EXP_PERCENT',
+                    'percent',
+                    0.05
+                )
+            )
+        )
     ),
     (
         'TRAVEL',
@@ -444,5 +1652,27 @@ INSERT
                     name = '刑天斧法'
             )
         ),
-        '{}'
+        jsonb_build_object(
+            'effects',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'type',
+                    'TAKE_DAMAGE_PERCENT',
+                    'amount',
+                    0.10
+                ),
+                jsonb_build_object(
+                    'type',
+                    'ADD_SPIRIT_STONES',
+                    'amount',
+                    800
+                ),
+                jsonb_build_object(
+                    'type',
+                    'ADD_EXP_PERCENT',
+                    'percent',
+                    0.08
+                )
+            )
+        )
     );
