@@ -58,11 +58,6 @@ public class CultivationCommandHandler implements CommandGroup {
 
   // ===================== 格式化方法 =====================
 
-  private String locationStatusText(Boolean isInSameLocation, TextFormat fmt) {
-    boolean same = Boolean.TRUE.equals(isInSameLocation);
-    return same ? fmt.emoji("📍", "") + "同地点" : fmt.emoji("📌", "") + "异地";
-  }
-
   private String formatBreakthroughResult(BreakthroughResult result, TextFormat fmt) {
     StringBuilder sb = new StringBuilder();
     sb.append(result.message()).append("\n\n");
@@ -126,7 +121,7 @@ public class CultivationCommandHandler implements CommandGroup {
                   "你正在为以下道友护道 (%d/%d)",
                   result.getProtectingCount(), result.getMaxProtectingCount())));
       for (var info : result.getProtectingList()) {
-        String locationStatus = locationStatusText(info.getIsInSameLocation(), fmt);
+        String locationStatus = fmt.locationStatus(info.getIsInSameLocation());
         sb.append(
             fmt.subListItem(
                 String.format(
@@ -147,7 +142,7 @@ public class CultivationCommandHandler implements CommandGroup {
       sb.append(
           fmt.heading(String.format("以下道友正在为你护道（总加成：%.1f%%）", result.getTotalBonusPercentage())));
       for (var info : result.getProtectedByList()) {
-        String locationStatus = locationStatusText(info.getIsInSameLocation(), fmt);
+        String locationStatus = fmt.locationStatus(info.getIsInSameLocation());
         String bonusText =
             info.getIsInSameLocation()
                 ? String.format("加成%.1f%%", info.getBonusPercentage())

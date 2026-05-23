@@ -39,6 +39,12 @@ public sealed interface TextFormat {
   /** 提示文本（平台差异化样式） */
   String tip(String text);
 
+  /** 位置状态文本（同地点/异地） */
+  default String locationStatus(Boolean isInSameLocation) {
+    boolean same = Boolean.TRUE.equals(isInSameLocation);
+    return same ? emoji("📍", "") + "同地点" : emoji("📌", "") + "异地";
+  }
+
   /** 错误前缀 */
   String error(String text);
 

@@ -8,7 +8,6 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.monster.CombatTeam;
-import top.stillmisty.xiantao.domain.monster.PlayerCombatant;
 import top.stillmisty.xiantao.domain.monster.TribulationBoss;
 import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
 import top.stillmisty.xiantao.domain.monster.vo.CombatLogEntry;
@@ -26,6 +25,7 @@ import top.stillmisty.xiantao.service.SpiritStoneService;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.combat.CombatService;
+import top.stillmisty.xiantao.service.combat.PostCombatProcessor;
 import top.stillmisty.xiantao.service.masterapprentice.MasterApprenticeService;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
@@ -45,6 +45,7 @@ public class CultivationService {
   private final ChatClient chatClient;
   private final MasterApprenticeService masterApprenticeService;
   private final CombatService combatService;
+  private final PostCombatProcessor postCombatProcessor;
 
   // ===================== 公开 API（含认证） =====================
 
@@ -218,8 +219,9 @@ public class CultivationService {
     boolean playerWon = "Player".equals(result.winner());
 
     // 应用 HP 变化
-    applyHpToUser(user, defendingTeam);
-    combatService.applyCombatHpToBeasts(defendingTeam);
+    postCombatProcessor.applyHpToUser(user, defendingTeam);
+    userStateService.saveHpStatus(user);
+    postCombatProcessor.applyCombatHpToBeasts(defendingTeam, user, playerWon);
 
     // 清除 buff 和护道关系
     daoProtectionService.clearProtegeRelations(user.getId());
@@ -231,20 +233,6 @@ public class CultivationService {
     } else {
       return handleCombatBreakthroughFailure(user, oldLevel, isMajor, tribulationType, result);
     }
-  }
-
-  private void applyHpToUser(User user, CombatTeam team) {
-    team.members().stream()
-        .filter(c -> c instanceof PlayerCombatant)
-        .findFirst()
-        .ifPresent(
-            c -> {
-              user.setHpCurrent(Math.max(0, c.getHp()));
-              if (c.getHp() <= 0) {
-                user.setDying();
-              }
-            });
-    userStateService.saveHpStatus(user);
   }
 
   private BreakthroughResult handleCombatBreakthroughSuccess(

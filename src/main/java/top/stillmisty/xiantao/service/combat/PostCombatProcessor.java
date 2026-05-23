@@ -1,10 +1,12 @@
 package top.stillmisty.xiantao.service.combat;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
 import top.stillmisty.xiantao.domain.monster.BeastCombatant;
@@ -63,5 +65,12 @@ public class PostCombatProcessor {
         }
       }
     }
+  }
+
+  @Transactional
+  public void applyCombatHpToBeasts(CombatTeam team, User user, boolean playerWon) {
+    Map<Long, Beast> beastCache = new HashMap<>();
+    applyHpToBeasts(team, user, playerWon, false, beastCache);
+    beastCache.values().forEach(beastRepository::save);
   }
 }

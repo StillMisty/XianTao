@@ -19,6 +19,7 @@ import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.service.SpiritStoneService;
 import top.stillmisty.xiantao.service.combat.CombatService;
+import top.stillmisty.xiantao.service.combat.PostCombatProcessor;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
 @Service
@@ -35,6 +36,7 @@ public class TribulationService {
   private final SpiritStoneService spiritStoneService;
   private final CombatService combatService;
   private final UserStateService userStateService;
+  private final PostCombatProcessor postCombatProcessor;
 
   /**
    * 触发天劫 — 使用战斗引擎进行回合制战斗（玩家于福地手动触发）
@@ -102,8 +104,9 @@ public class TribulationService {
     boolean compassionUsed = compassionTriggered && !playerWon;
 
     // 应用 HP 变化到玩家和灵兽
-    applyHpToUser(user, defendingTeam);
-    combatService.applyCombatHpToBeasts(defendingTeam);
+    postCombatProcessor.applyHpToUser(user, defendingTeam);
+    userStateService.saveHpStatus(user);
+    postCombatProcessor.applyCombatHpToBeasts(defendingTeam, user, playerWon);
 
     String tribulationResult;
     if (playerWon) {
@@ -116,22 +119,6 @@ public class TribulationService {
 
     fudiRepository.save(fudi);
     return tribulationResult;
-  }
-
-  // ===================== 战斗后 HP 应用 =====================
-
-  private void applyHpToUser(User user, CombatTeam team) {
-    team.members().stream()
-        .filter(c -> c instanceof top.stillmisty.xiantao.domain.monster.PlayerCombatant)
-        .findFirst()
-        .ifPresent(
-            c -> {
-              user.setHpCurrent(Math.max(0, c.getHp()));
-              if (c.getHp() <= 0) {
-                user.setDying();
-              }
-            });
-    userStateService.saveHpStatus(user);
   }
 
   // ===================== 天劫结果处理 =====================

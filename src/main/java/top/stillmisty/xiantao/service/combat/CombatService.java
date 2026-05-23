@@ -1,12 +1,10 @@
 package top.stillmisty.xiantao.service.combat;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
@@ -170,29 +168,6 @@ public class CombatService {
   }
 
   // ===================== 战斗后 HP 应用 =====================
-
-  /** 战后更新灵兽HP（死亡→取消部署+恢复计时，存活+自愈突变） */
-  @Transactional
-  public void applyCombatHpToBeasts(CombatTeam team) {
-    for (Combatant c : team.members()) {
-      if (c instanceof BeastCombatant _) {
-        Beast beast = beastRepository.findById(c.getId()).orElse(null);
-        if (beast != null) {
-          beast.setHpCurrent(Math.max(0, c.getHp()));
-          if (c.getHp() <= 0) {
-            beast.setIsDeployed(false);
-            int recoveryMinutes = beast.getQuality().getRecoveryMinutes();
-            beast.setRecoveryUntil(LocalDateTime.now().plusMinutes(recoveryMinutes));
-          } else if (beast.getMutationTraits() != null
-              && beast.getMutationTraits().contains("SELF_HEAL")) {
-            int healAmount = (int) (beast.getMaxHp() * 0.10);
-            beast.setHpCurrent(Math.min(beast.getMaxHp(), beast.getHpCurrent() + healAmount));
-          }
-          beastRepository.save(beast);
-        }
-      }
-    }
-  }
 
   /** 计算队伍属性统计 */
   public record TeamStats(int totalMaxHp, int avgAttack, int avgDef, int avgSpeed) {}

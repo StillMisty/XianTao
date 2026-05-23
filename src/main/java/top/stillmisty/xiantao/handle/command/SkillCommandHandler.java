@@ -42,6 +42,9 @@ public class SkillCommandHandler implements CommandGroup {
 
   public String handleEquipSkill(
       PlatformType platform, String openId, String skillInput, TextFormat fmt) {
+    if (skillInput == null || skillInput.isBlank()) {
+      return "用法：法决装载 [法决名称或编号]\n示例：法决装载 御剑术";
+    }
     log.debug("装载法决 - Platform: {}, OpenId: {}, SkillInput: {}", platform, openId, skillInput);
     return CommandHandlerHelper.safeCall(
         () -> skillService.equipSkill(platform, openId, skillInput),
@@ -51,6 +54,9 @@ public class SkillCommandHandler implements CommandGroup {
 
   public String handleUnequipSkill(
       PlatformType platform, String openId, String skillInput, TextFormat fmt) {
+    if (skillInput == null || skillInput.isBlank()) {
+      return "用法：法决卸下 [法决名称或编号]\n示例：法决卸下 御剑术";
+    }
     log.debug("卸下法决 - Platform: {}, OpenId: {}, SkillInput: {}", platform, openId, skillInput);
     return CommandHandlerHelper.safeCall(
         () -> skillService.unequipSkill(platform, openId, skillInput),

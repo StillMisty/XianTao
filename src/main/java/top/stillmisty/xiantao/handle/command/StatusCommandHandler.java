@@ -99,7 +99,7 @@ public class StatusCommandHandler implements CommandGroup {
                 String.format(
                     "你正在为 %d/%d 位道友护道", status.protectorCount(), status.maxProtectorCount())));
         for (var info : status.protectingList()) {
-          String locationStatus = locationStatusText(info.isInSameLocation(), fmt);
+          String locationStatus = fmt.locationStatus(info.isInSameLocation());
           sb.append(
               fmt.subListItem(
                   String.format(
@@ -126,7 +126,7 @@ public class StatusCommandHandler implements CommandGroup {
                     status.protectedByList().size(),
                     status.totalProtectionBonus() != null ? status.totalProtectionBonus() : 0.0)));
         for (var info : status.protectedByList()) {
-          String locationStatus = locationStatusText(info.isInSameLocation(), fmt);
+          String locationStatus = fmt.locationStatus(info.isInSameLocation());
           String bonusText =
               Boolean.TRUE.equals(info.isInSameLocation())
                   ? String.format("加成%.1f%%", info.bonusPercentage())
@@ -160,11 +160,6 @@ public class StatusCommandHandler implements CommandGroup {
                               "%s：%s [%s]", item.slotName(), item.name(), item.rarityName()))));
     }
     return sb.toString();
-  }
-
-  private String locationStatusText(Boolean isInSameLocation, TextFormat fmt) {
-    boolean same = Boolean.TRUE.equals(isInSameLocation);
-    return same ? fmt.emoji("📍", "") + "同地点" : fmt.emoji("📌", "") + "异地";
   }
 
   private String formatAttrWithBonus(int base, int bonus) {

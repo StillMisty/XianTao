@@ -15,6 +15,9 @@ import top.stillmisty.xiantao.domain.masterapprentice.enums.MasterApprenticeStat
 import top.stillmisty.xiantao.domain.masterapprentice.repository.MasterApprenticeRepository;
 import top.stillmisty.xiantao.domain.masterapprentice.vo.ApprenticeInfoVO;
 import top.stillmisty.xiantao.domain.masterapprentice.vo.MasterApprenticeInfoVO;
+import top.stillmisty.xiantao.domain.sect.entity.SectMember;
+import top.stillmisty.xiantao.domain.sect.enums.SectPosition;
+import top.stillmisty.xiantao.domain.sect.repository.SectMemberRepository;
 import top.stillmisty.xiantao.domain.user.entity.DaoProtection;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
@@ -27,7 +30,6 @@ import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.player.UserStateService;
-import top.stillmisty.xiantao.service.sect.SectMemberService;
 
 @Slf4j
 @Service
@@ -40,8 +42,7 @@ public class MasterApprenticeService {
   private final DaoProtectionRepository daoProtectionRepository;
   private final UserRepository userRepository;
   private final UserStateService userStateService;
-
-  @Lazy private final SectMemberService sectMemberService;
+  private final SectMemberRepository sectMemberRepository;
 
   @Lazy @Autowired private MasterApprenticeService self;
 
@@ -50,12 +51,12 @@ public class MasterApprenticeService {
       DaoProtectionRepository daoProtectionRepository,
       UserRepository userRepository,
       UserStateService userStateService,
-      @Lazy SectMemberService sectMemberService) {
+      SectMemberRepository sectMemberRepository) {
     this.masterApprenticeRepository = masterApprenticeRepository;
     this.daoProtectionRepository = daoProtectionRepository;
     this.userRepository = userRepository;
     this.userStateService = userStateService;
-    this.sectMemberService = sectMemberService;
+    this.sectMemberRepository = sectMemberRepository;
   }
 
   // ===================== 公开 API =====================
@@ -123,7 +124,7 @@ public class MasterApprenticeService {
     if (isOnCooldown(userId)) {
       throw new BusinessException(ErrorCode.MASTER_COOLDOWN, COOLDOWN_HOURS);
     }
-    if (sectMemberService.isInSameSect(userId, master.getId())) {
+    if (isInSameSect(userId, master.getId())) {
       throw new BusinessException(ErrorCode.MASTER_NOT_SAME_SECT);
     }
 
@@ -157,7 +158,7 @@ public class MasterApprenticeService {
     if (isOnCooldown(apprentice.getId())) {
       throw new BusinessException(ErrorCode.MASTER_COOLDOWN, COOLDOWN_HOURS);
     }
-    if (sectMemberService.isInSameSect(userId, apprentice.getId())) {
+    if (isInSameSect(userId, apprentice.getId())) {
       throw new BusinessException(ErrorCode.MASTER_NOT_SAME_SECT);
     }
 
@@ -244,8 +245,8 @@ public class MasterApprenticeService {
 
     clearDaoProtection(userId, target.getId());
 
-    if (sectMemberService.isInSect(target.getId())) {
-      sectMemberService.leaveSectInternal(target.getId());
+    if (isInSect(target.getId())) {
+      leaveSectInternal(target.getId());
     }
 
     log.info("玩家 {} 被师傅 {} 逐出师门", target.getId(), userId);
@@ -266,8 +267,8 @@ public class MasterApprenticeService {
 
     clearDaoProtection(relation.getMasterId(), userId);
 
-    if (sectMemberService.isInSect(userId)) {
-      sectMemberService.leaveSectInternal(userId);
+    if (isInSect(userId)) {
+      leaveSectInternal(userId);
     }
 
     log.info("玩家 {} 叛师", userId);
@@ -362,7 +363,7 @@ public class MasterApprenticeService {
     List<MasterApprentice> relations = masterApprenticeRepository.findByMasterId(masterId);
     for (MasterApprentice relation : relations) {
       if (relation.isActive()) {
-        sectMemberService.joinSectInternal(relation.getApprenticeId(), targetSectId);
+        joinSectInternal(relation.getApprenticeId(), targetSectId);
         log.info("徒弟 {} 跟随师傅 {} 加入宗门 {}", relation.getApprenticeId(), masterId, targetSectId);
       }
     }
@@ -378,8 +379,8 @@ public class MasterApprenticeService {
         relation.setStatus(MasterApprenticeStatus.RENEGED);
         masterApprenticeRepository.save(relation);
         clearDaoProtection(masterId, relation.getApprenticeId());
-        if (sectMemberService.isInSect(relation.getApprenticeId())) {
-          sectMemberService.leaveSectInternal(relation.getApprenticeId());
+        if (isInSect(relation.getApprenticeId())) {
+          leaveSectInternal(relation.getApprenticeId());
         }
         log.info("徒弟 {} 因师傅 {} 退出宗门而叛师", relation.getApprenticeId(), masterId);
       }
@@ -410,5 +411,34 @@ public class MasterApprenticeService {
     Optional<DaoProtection> protection =
         daoProtectionRepository.findByProtectorAndProtege(protectorId, protegeId);
     protection.ifPresent(p -> daoProtectionRepository.deleteById(p.getId()));
+  }
+
+  private boolean isInSect(Long userId) {
+    return sectMemberRepository.findByUserId(userId).filter(m -> m.getSectId() != null).isPresent();
+  }
+
+  private void leaveSectInternal(Long userId) {
+    sectMemberRepository.deleteByUserId(userId);
+  }
+
+  private void joinSectInternal(Long userId, Long sectId) {
+    sectMemberRepository.deleteByUserId(userId);
+    SectMember member =
+        SectMember.create()
+            .setSectId(sectId)
+            .setUserId(userId)
+            .setPosition(SectPosition.MEMBER)
+            .setContribution(0);
+    sectMemberRepository.save(member);
+  }
+
+  private boolean isInSameSect(Long userIdA, Long userIdB) {
+    Optional<SectMember> memberA = sectMemberRepository.findByUserId(userIdA);
+    Optional<SectMember> memberB = sectMemberRepository.findByUserId(userIdB);
+    if (memberA.isEmpty() && memberB.isEmpty()) return false;
+    if (memberA.isEmpty() || memberB.isEmpty()) return true;
+    Long sectA = memberA.get().getSectId();
+    Long sectB = memberB.get().getSectId();
+    return sectA.equals(sectB);
   }
 }
