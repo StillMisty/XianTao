@@ -20,7 +20,6 @@ import top.stillmisty.xiantao.service.annotation.Authenticated;
 public class FortuneService {
 
   private static final int BAR_COUNT = 10;
-  private static final int DISPLAY_WIDTH = 18;
 
   @Authenticated
   public ServiceResult<FortuneVO> getFortune(PlatformType platform, String openId) {
@@ -136,7 +135,7 @@ public class FortuneService {
       return new long[] {
         ByteBuffer.wrap(digest, 0, 4).getInt(),
         ByteBuffer.wrap(digest, 4, 4).getInt(),
-        ByteBuffer.wrap(digest, 8, 4).getInt()
+        ByteBuffer.wrap(digest, 8, 4).getInt(),
       };
     } catch (NoSuchAlgorithmException e) {
       int h = input.hashCode();

@@ -183,16 +183,6 @@ public class FudiService {
 
   private record CellContext(Fudi fudi, FudiCell cell, Integer cellId) {}
 
-  private CellContext getCellContext(Long userId, String position) {
-    Integer cellId = fudiHelper.parseCellId(position);
-    Fudi fudi = getFudiOrThrow(userId);
-    FudiCell cell =
-        fudiCellRepository
-            .findByFudiIdAndCellId(fudi.getId(), cellId)
-            .orElseThrow(() -> new BusinessException(ErrorCode.CELL_NOT_FOUND, cellId));
-    return new CellContext(fudi, cell, cellId);
-  }
-
   /** 使用行锁获取地块上下文，用于收取、升级等并发敏感操作 */
   private CellContext getCellContextForUpdate(Long userId, String position) {
     Integer cellId = fudiHelper.parseCellId(position);
@@ -202,12 +192,6 @@ public class FudiService {
             .findByFudiIdAndCellIdForUpdate(fudi.getId(), cellId)
             .orElseThrow(() -> new BusinessException(ErrorCode.CELL_NOT_FOUND, cellId));
     return new CellContext(fudi, cell, cellId);
-  }
-
-  private FudiCell getCellOrNull(Long userId, String position) {
-    Integer cellId = fudiHelper.parseCellId(position);
-    Fudi fudi = getFudiOrThrow(userId);
-    return fudiCellRepository.findByFudiIdAndCellId(fudi.getId(), cellId).orElse(null);
   }
 
   private void autoExpandCells(Fudi fudi) {

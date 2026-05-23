@@ -24,7 +24,10 @@ public enum GameEventCategory {
   BUFF_EXPIRED("BUFF_EXPIRED", null),
   DYING_RECOVERED("DYING_RECOVERED", null),
   LEVEL_UP("LEVEL_UP", "突破"),
-  FORTUNE("FORTUNE", null);
+  FORTUNE("FORTUNE", null),
+
+  WORLD_EVENT("WORLD_EVENT", "世界事件"),
+  WORLD_EVENT_PARTICIPATION("WORLD_EVENT_PARTICIPATION", "世界事件");
 
   @EnumValue private final String code;
 

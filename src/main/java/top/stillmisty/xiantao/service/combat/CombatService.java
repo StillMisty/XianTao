@@ -175,7 +175,7 @@ public class CombatService {
   @Transactional
   public void applyCombatHpToBeasts(CombatTeam team) {
     for (Combatant c : team.members()) {
-      if (c instanceof BeastCombatant bc) {
+      if (c instanceof BeastCombatant _) {
         Beast beast = beastRepository.findById(c.getId()).orElse(null);
         if (beast != null) {
           beast.setHpCurrent(Math.max(0, c.getHp()));

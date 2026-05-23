@@ -4,7 +4,9 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -18,7 +20,6 @@ public class FudiEventGenerator {
   private static final int MIN_EVENTS = 1;
   private static final int MAX_EVENTS = 6;
   private static final int MIN_HOURS_BETWEEN_EVENTS = 4;
-  private static final int MAX_HOURS_BETWEEN_EVENTS = 8;
 
   /**
    * 生成福地事件列表
@@ -32,14 +33,12 @@ public class FudiEventGenerator {
     if (lastEventTime != null) {
       long hoursSinceLastEvent = ChronoUnit.HOURS.between(lastEventTime, now);
       if (hoursSinceLastEvent < MIN_HOURS_BETWEEN_EVENTS) {
-        return List.of(); // 时间间隔太短，不生成事件
+        return List.of();
       }
     }
 
-    // 计算应该生成的事件数量
     int eventCount = calculateEventCount(lastEventTime, now);
 
-    // 随机选择不重复的事件
     List<FudiEvent> allEvents = new ArrayList<>(List.of(FudiEvent.values()));
     Collections.shuffle(allEvents);
     int limit = Math.min(eventCount, allEvents.size());
@@ -49,27 +48,38 @@ public class FudiEventGenerator {
     return selectedEvents;
   }
 
-  /** 计算事件数量 根据距离上次事件的时间间隔决定 */
   private int calculateEventCount(LocalDateTime lastEventTime, LocalDateTime now) {
     if (lastEventTime == null) {
-      // 首次对话，生成1-2个事件
       return MIN_EVENTS + ThreadLocalRandom.current().nextInt(2);
     }
 
     long hoursSinceLastEvent = ChronoUnit.HOURS.between(lastEventTime, now);
 
-    // 每4-8小时生成一个事件
     int baseCount =
         (int)
             (hoursSinceLastEvent
                 / (MIN_HOURS_BETWEEN_EVENTS + ThreadLocalRandom.current().nextInt(5)));
 
-    // 限制在1-6之间
     return Math.clamp(baseCount, MIN_EVENTS, MAX_EVENTS);
   }
 
-  /** 获取事件描述列表（用于注入到Prompt中） */
   public List<String> getEventDescriptions(List<FudiEvent> events) {
     return events.stream().map(event -> event.getName() + "：" + event.getDescription()).toList();
+  }
+
+  /** 提取有机制效果的事件列表 */
+  public List<FudiEvent> getEventsWithEffects(List<FudiEvent> events) {
+    return events.stream().filter(FudiEvent::hasEffects).toList();
+  }
+
+  /** 收集所有事件的效果摘要（用于通知文本描述） */
+  public Map<String, List<Map<String, Object>>> collectEffects(List<FudiEvent> events) {
+    Map<String, List<Map<String, Object>>> result = new HashMap<>();
+    for (FudiEvent event : events) {
+      if (event.hasEffects()) {
+        result.put(event.getName(), event.getEffects());
+      }
+    }
+    return result;
   }
 }

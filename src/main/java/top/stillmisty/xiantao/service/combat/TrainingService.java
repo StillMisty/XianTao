@@ -19,10 +19,8 @@ import top.stillmisty.xiantao.domain.map.enums.MapType;
 import top.stillmisty.xiantao.domain.map.repository.MapNodeRepository;
 import top.stillmisty.xiantao.domain.map.vo.TrainingRewardVO;
 import top.stillmisty.xiantao.domain.map.vo.TrainingStartResult;
-import top.stillmisty.xiantao.domain.monster.repository.MonsterTemplateRepository;
 import top.stillmisty.xiantao.domain.monster.vo.CombatLogEntry;
 import top.stillmisty.xiantao.domain.monster.vo.DropItem;
-import top.stillmisty.xiantao.domain.skill.repository.SkillRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
@@ -55,11 +53,7 @@ public class TrainingService {
   private final StackableItemService stackableItemService;
   private final TrainingCompleter trainingCompleter;
   private final ExplorationDescriptionFunction explorationDescriptionFunction;
-  private final EncounterCalculator encounterCalculator;
-  private final CombatEventHandler combatEventHandler;
   private final TrainingSettler trainingSettler;
-  private final MonsterTemplateRepository monsterTemplateRepository;
-  private final SkillRepository skillRepository;
   private final FortuneService fortuneService;
 
   @Authenticated
@@ -207,6 +201,7 @@ public class TrainingService {
       user.setStatus(UserStatus.IDLE);
       user.clearActivity();
       trainingCompleter.produceCompletionEvent(userId, user, mapNode, minutesTraining);
+      trainingCompleter.applyEnvironmentalEvents(userId, user, mapNode);
     } else {
       user.endActivity();
       trainingCompleter.produceInterruptedEvent(userId, mapNode);
@@ -327,7 +322,7 @@ public class TrainingService {
   }
 
   private double calculateEfficiencyMultiplier(int agility) {
-    return 1.0 + Math.min(agility * AGILITY_EFFICIENCY_COEFFICIENT, MAX_EFFICIENCY_BOOST);
+    return (1.0 + Math.min(agility * AGILITY_EFFICIENCY_COEFFICIENT, MAX_EFFICIENCY_BOOST));
   }
 
   private double calculateLevelDecayMultiplier(int playerLevel, int mapLevel) {
@@ -345,7 +340,7 @@ public class TrainingService {
             .findByIds(specialties.stream().map(SpecialtyEntry::templateId).toList())
             .stream()
             .collect(Collectors.toMap(ItemTemplate::getId, t -> t));
-    int dropChances = Math.max(1, (int) (minutesTraining / 10.0 * efficiencyMultiplier));
+    int dropChances = Math.max(1, (int) ((minutesTraining / 10.0) * efficiencyMultiplier));
     Map<Long, DropItem> merged = new LinkedHashMap<>();
     for (int i = 0; i < dropChances; i++) {
       SpecialtyEntry selectedEntry =

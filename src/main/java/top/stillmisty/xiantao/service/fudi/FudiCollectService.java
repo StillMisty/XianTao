@@ -27,7 +27,6 @@ import top.stillmisty.xiantao.service.inventory.StackableItemService;
 @Slf4j
 public class FudiCollectService {
 
-  private final FudiHelper fudiHelper;
   private final FudiRepository fudiRepository;
   private final FudiCellRepository fudiCellRepository;
   private final FarmService farmService;

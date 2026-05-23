@@ -17,6 +17,7 @@ import top.stillmisty.xiantao.domain.map.entity.MapNode;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.service.FortuneService;
 import top.stillmisty.xiantao.service.GameEventService;
+import top.stillmisty.xiantao.service.worldevent.WorldEventEnvironmentalApplier;
 
 /** 旅行完成器 — 旅行到达时的子事件和隐藏事件 */
 @Slf4j
@@ -31,6 +32,7 @@ public class TravelCompleter {
   private final TriggerConditionChecker triggerConditionChecker;
   private final ActivityEventHelper activityEventHelper;
   private final FortuneService fortuneService;
+  private final WorldEventEnvironmentalApplier worldEventEnvApplier;
 
   @Transactional
   public void completeTravel(Long userId, User user, MapNode fromMap, MapNode toMap) {
@@ -50,6 +52,11 @@ public class TravelCompleter {
 
     rollSubEvents(userId, user, toMap);
     checkHiddenEvents(userId, user, toMap);
+    applyEnvironmentalEvents(userId, user, toMap);
+  }
+
+  private void applyEnvironmentalEvents(Long userId, User user, MapNode mapNode) {
+    worldEventEnvApplier.apply(userId, user, mapNode);
   }
 
   private void rollSubEvents(Long userId, User user, MapNode mapNode) {

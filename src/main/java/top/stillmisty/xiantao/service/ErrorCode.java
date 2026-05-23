@@ -209,6 +209,11 @@ public enum ErrorCode {
   // ===== Context =====
   USER_CONTEXT_MISSING("未找到用户上下文，请先设置 UserContext"),
 
+  // ===== World Event =====
+  WORLD_EVENT_EXPIRED("该世界事件已过期"),
+  WORLD_EVENT_NOT_PARTICIPATORY("该事件不支持玩家参与"),
+  WORLD_EVENT_PARTICIPATION_FULL("该事件参与人数已满"),
+
   // ===== General =====
   PARAM_INVALID("参数无效：%s"),
 

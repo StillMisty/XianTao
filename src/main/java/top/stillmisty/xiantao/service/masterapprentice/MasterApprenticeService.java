@@ -39,6 +39,7 @@ public class MasterApprenticeService {
   private final DaoProtectionRepository daoProtectionRepository;
   private final UserRepository userRepository;
   private final UserStateService userStateService;
+
   @Lazy private final SectMemberService sectMemberService;
 
   @Lazy @Autowired private MasterApprenticeService self;
@@ -166,8 +167,6 @@ public class MasterApprenticeService {
   }
 
   public MasterApprenticeInfoVO getStatus(Long userId) {
-    User user = userStateService.loadUser(userId);
-
     Optional<MasterApprentice> asApprenticeOpt =
         masterApprenticeRepository.findByApprenticeId(userId);
     List<MasterApprentice> asMasterList = masterApprenticeRepository.findByMasterId(userId);
@@ -397,7 +396,7 @@ public class MasterApprenticeService {
             r -> {
               if (r.isActive()) return false;
               LocalDateTime cooldown = r.getCooldownUntil();
-              return cooldown != null && cooldown.isAfter(LocalDateTime.now());
+              return (cooldown != null && cooldown.isAfter(LocalDateTime.now()));
             })
         .orElse(false);
   }

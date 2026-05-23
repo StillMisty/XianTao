@@ -255,8 +255,6 @@ public class ShopService {
     }
 
     String itemName = item.getName();
-    int quantity = item.getQuantity();
-
     double acceptanceRate = 1.0 - (confirmedPrice - minPrice) / (double) (maxPrice - minPrice);
     if (Math.random() > acceptanceRate) {
       return new SellResult(confirmedPrice, itemName, "掌柜对你的报价不满意：" + itemName + " 未能售出，试着多降些价吧");

@@ -59,12 +59,7 @@ public class BeastBreedingService {
   public static final int ESSENCE_EXP_PER_UNIT = 50;
 
   private static final java.util.Map<String, Integer> ESSENCE_QUALITY_BONUS =
-      java.util.Map.of(
-          "MORTAL", 0,
-          "SPIRIT", 2,
-          "IMMORTAL", 5,
-          "SAINT", 10,
-          "DIVINE", 20);
+      java.util.Map.of("MORTAL", 0, "SPIRIT", 2, "IMMORTAL", 5, "SAINT", 10, "DIVINE", 20);
 
   // ===================== 公开 API（含认证） =====================
 
@@ -134,7 +129,7 @@ public class BeastBreedingService {
     Integer cellId = fudiHelper.parseCellId(position);
     var result = itemResolver.resolveEgg(userId, input);
     return switch (result) {
-      case ItemResolver.Found(var template, var index) -> {
+      case ItemResolver.Found(var template, var _) -> {
         var stackableItem =
             stackableItemRepository
                 .findByUserIdAndTemplateId(userId, template.getId())

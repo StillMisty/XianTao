@@ -140,7 +140,7 @@ public class FarmService {
     Integer cellId = fudiHelper.parseCellId(position);
     var result = itemResolver.resolveSeed(userId, input);
     return switch (result) {
-      case ItemResolver.Found(var template, var index) -> {
+      case ItemResolver.Found(var template, var _) -> {
         var stackableItem =
             stackableItemRepository
                 .findByUserIdAndTemplateId(userId, template.getId())
@@ -159,7 +159,7 @@ public class FarmService {
       }
       case ItemResolver.NotFound(var name) ->
           throw new BusinessException(ErrorCode.SEED_NOT_IN_INVENTORY, name);
-      case ItemResolver.Ambiguous(var name, var candidates) ->
+      case ItemResolver.Ambiguous(var name, var _) ->
           throw new BusinessException(ErrorCode.ITEM_MULTIPLE_MATCH, name);
     };
   }
@@ -167,7 +167,6 @@ public class FarmService {
   // ===================== 收获系统 =====================
 
   public CollectVO harvestCrop(Fudi fudi, FudiCell cell, Integer cellId) {
-
     if (!(cell.getConfig() instanceof CellConfig.FarmConfig farm)) {
       throw new BusinessException(ErrorCode.CELL_NOT_FARM);
     }
@@ -299,7 +298,7 @@ public class FarmService {
             .map(ItemTemplate::typedProperties)
             .orElse(null);
     if (props instanceof ItemProperties.Growth g) {
-      return g.yieldMin() + ThreadLocalRandom.current().nextInt(g.yieldMax() - g.yieldMin() + 1);
+      return (g.yieldMin() + ThreadLocalRandom.current().nextInt(g.yieldMax() - g.yieldMin() + 1));
     }
     return 1 + ThreadLocalRandom.current().nextInt(3);
   }

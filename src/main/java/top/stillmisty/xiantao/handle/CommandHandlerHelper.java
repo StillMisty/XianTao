@@ -26,7 +26,7 @@ public final class CommandHandlerHelper {
       Function<String, String> onFailure) {
     try {
       return switch (serviceCall.get()) {
-        case ServiceResult.Failure(var code, var msg) -> onFailure.apply(msg);
+        case ServiceResult.Failure(var _, var msg) -> onFailure.apply(msg);
         case ServiceResult.Success(var data) -> onSuccess.apply(data);
       };
     } catch (BusinessException e) {

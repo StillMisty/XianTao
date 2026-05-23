@@ -1,0 +1,92 @@
+-- 世界事件模板种子数据
+
+-- ===================== ECONOMIC 经济事件（10条） =====================
+
+INSERT INTO world_event_template (category, scope, title, description, cooldown_hours, selection_weight, duration_hours, affected_tags, global_multiplier, effects)
+VALUES
+('ECONOMIC', 'REGIONAL', '灵石矿脉发现', '矿脉中涌出大量灵石，矿石类物品价格飙升', 48, 80, 12, '["ore", "metal", "forge"]', 1.50, '[]'),
+('ECONOMIC', 'GLOBAL', '丹会大比', '各大宗门举办炼丹比试，药材行情大涨', 72, 70, 24, '["herb", "medicine", "potion", "pill"]', 1.40, '[]'),
+('ECONOMIC', 'GLOBAL', '商队抵达', '一支大型商队抵达境内，各类物资价格下跌', 48, 90, 12, '["material", "seed", "herb", "ore", "beast_egg"]', 0.70, '[]'),
+('ECONOMIC', 'GLOBAL', '战乱蔓延', '边境爆发大战，武器防具供不应求', 120, 60, 24, '["weapon", "armor", "equipment", "forge"]', 1.35, '[]'),
+('ECONOMIC', 'GLOBAL', '灵脉枯竭', '多处灵脉意外枯竭，所有物资产量骤降', 168, 50, 36, '["material", "ore", "herb", "seed", "beast_egg", "beast_essence"]', 1.80, '[]'),
+('ECONOMIC', 'GLOBAL', '丰收年', '风调雨顺灵气充沛，种植类物资获得丰收', 96, 80, 24, '["seed", "herb", "crop"]', 0.60, '[]'),
+('ECONOMIC', 'REGIONAL', '妖兽入侵', '妖兽群袭击边境村镇，武器和防具价格飙升，兽卵价格下跌', 72, 75, 12, '["weapon", "armor", "forging_blueprint"]', 1.45, '[]'),
+('ECONOMIC', 'GLOBAL', '锻造大师来访', '一位传奇锻造大师游历至此，锻造相关物资价格下跌', 120, 60, 16, '["forge", "ore", "metal", "forging_blueprint"]', 0.75, '[]'),
+('ECONOMIC', 'REGIONAL', '秘境崩塌', '一处秘境意外崩塌，稀有材料价格飞涨', 144, 55, 24, '["rare", "epic", "legendary"]', 1.60, '[]'),
+('ECONOMIC', 'GLOBAL', '天灾降临', '百年一遇的天灾席卷大陆，所有物品价格暴涨', 240, 40, 36, NULL, 2.00, '[]');
+
+-- ===================== ENVIRONMENTAL 环境事件（10条） =====================
+
+INSERT INTO world_event_template (category, scope, title, description, cooldown_hours, selection_weight, duration_hours, effects, valid_region_tags)
+VALUES
+('ENVIRONMENTAL', 'GLOBAL', '灵气潮汐', '天地灵气浓度突然升高，修炼效率大幅提升', 72, 85, 12,
+ '[{"type": "ADD_EXP_PERCENT", "percent": 20}]'::jsonb, NULL),
+('ENVIRONMENTAL', 'REGIONAL', '死气弥漫', '一股死气笼罩此地，修炼效率大幅降低', 96, 60, 8,
+ '[{"type": "ADD_EXP_PERCENT", "percent": -15}]'::jsonb, '["swamp", "graveyard", "ruins"]'),
+('ENVIRONMENTAL', 'REGIONAL', '暴风雪', '罕见的暴风雪封锁了道路，旅途危险重重', 48, 70, 8,
+ '[{"type": "TAKE_DAMAGE_PERCENT", "percent": 10}]'::jsonb, '["mountain", "snow", "peaks"]'),
+('ENVIRONMENTAL', 'GLOBAL', '道韵弥漫', '大道法则在此刻显露，突破成功率和修炼效率提升', 120, 75, 12,
+ '[{"type": "ADD_EXP_PERCENT", "percent": 30}]'::jsonb, NULL),
+('ENVIRONMENTAL', 'REGIONAL', '灵泉涌现', '一座灵泉突然喷涌，在此停留的修士恢复生命力', 96, 80, 6,
+ '[{"type": "HEAL_FLAT", "amount": 500}]'::jsonb, '["forest", "valley", "spring"]'),
+('ENVIRONMENTAL', 'GLOBAL', '星辰异象', '罕见的三星连珠天象，所有修炼活动受益', 168, 60, 12,
+ '[{"type": "ADD_EXP_PERCENT", "percent": 25}, {"type": "HEAL_FLAT", "amount": 300}]'::jsonb, NULL),
+('ENVIRONMENTAL', 'GLOBAL', '地脉震动', '大地深处传来震动，各处灵脉短暂紊乱', 144, 55, 6,
+ '[{"type": "ADD_EXP_PERCENT", "percent": -10}]'::jsonb, NULL),
+('ENVIRONMENTAL', 'REGIONAL', '春雨如油', '一场灵雨降下，大地焕发生机', 72, 85, 4,
+ '[{"type": "HEAL_FLAT", "amount": 300}, {"type": "ADD_EXP_PERCENT", "percent": 10}]'::jsonb, '["forest", "grassland", "river"]'),
+('ENVIRONMENTAL', 'REGIONAL', '迷雾笼罩', '诡异的迷雾弥漫，行进缓慢但偶遇概率增加', 48, 70, 8,
+ '[{"type": "ADD_EXP_PERCENT", "percent": 10}]'::jsonb, '["swamp", "forest", "mountain"]'),
+('ENVIRONMENTAL', 'REGIONAL', '火风过境', '炽热的灵风席卷而过，在此区域历练需小心', 96, 65, 8,
+ '[{"type": "TAKE_DAMAGE_FLAT", "amount": 100}]'::jsonb, '["volcano", "desert", "lava"]');
+
+-- ===================== NARRATIVE 叙事事件（10条） =====================
+
+INSERT INTO world_event_template (category, scope, title, description, cooldown_hours, selection_weight, duration_hours, effects)
+VALUES
+('NARRATIVE', 'GLOBAL', '天降异象', '天际出现五彩祥云，各方修士纷纷驻足观望', 72, 90, 6, '[]'),
+('NARRATIVE', 'GLOBAL', '仙人过境', '传闻一位大乘期修士途径此地，留下了些许道韵', 168, 60, 12, '[]'),
+('NARRATIVE', 'GLOBAL', '古遗迹现世', '一座尘封万年的古遗迹从地底升起，发出耀眼光芒', 240, 60, 24, '[]'),
+('NARRATIVE', 'REGIONAL', '大宗门祭典', '某大宗门举行百年祭典，四方修士前来观礼', 96, 75, 12, '[]'),
+('NARRATIVE', 'GLOBAL', '邪修作乱', '一伙邪修在附近出没，抢夺修炼资源', 120, 70, 8, '[]'),
+('NARRATIVE', 'GLOBAL', '灵宝出世', '有传言某处将有灵宝现世，引发各方抢夺', 144, 65, 12, '[]'),
+('NARRATIVE', 'REGIONAL', '散修大会', '散修联盟在此举办交流大会，互通有无', 120, 75, 8, '[]'),
+('NARRATIVE', 'GLOBAL', '功法流落', '一部传说中的功法残篇在市面上出现', 168, 55, 16, '[]'),
+('NARRATIVE', 'GLOBAL', '天机泄露', '据传一位天机师透露，近期将有大事发生', 144, 60, 6, '[]'),
+('NARRATIVE', 'REGIONAL', '万妖朝拜', '群山之中万兽齐鸣，传说是妖皇苏醒的前兆', 240, 50, 12, '[]');
+
+-- ===================== PARTICIPATORY 参与事件（10条） =====================
+
+INSERT INTO world_event_template (category, scope, title, description, cooldown_hours, selection_weight, duration_hours,
+    participation_enabled, participation_limit, participation_effects)
+VALUES
+('PARTICIPATORY', 'GLOBAL', '悬赏缉凶', '宗门联合发布缉凶悬赏，参与追捕的修士都可获得丰厚赏金',
+ 72, 85, 12, true, 80,
+ '[{"branches": [{"chance": 0.6, "effects": [{"type": "ADD_EXP_PERCENT", "percent": 15}, {"type": "ADD_SPIRIT_STONES", "amount": 200}]}, {"chance": 0.4, "effects": [{"type": "ADD_EXP_PERCENT", "percent": 5}, {"type": "ADD_SPIRIT_STONES", "amount": 80}]}]}]'::jsonb),
+('PARTICIPATORY', 'REGIONAL', '寻找灵药', '一位药师悬赏寻找罕见灵药，找到者可获重金酬谢',
+ 96, 75, 8, true, 30,
+ '[{"branches": [{"chance": 0.5, "effects": [{"type": "ADD_EXP_PERCENT", "percent": 20}, {"type": "ADD_SPIRIT_STONES", "amount": 400}]}, {"chance": 0.5, "effects": [{"type": "ADD_EXP_PERCENT", "percent": 8}, {"type": "ADD_SPIRIT_STONES", "amount": 150}]}]}]'::jsonb),
+('PARTICIPATORY', 'GLOBAL', '护送任务', '商队需要修士护送穿越危险区域，报酬丰厚名额不限',
+ 48, 90, 6, true, 0,
+ '[{"effects": [{"type": "ADD_EXP_PERCENT", "percent": 8}, {"type": "ADD_SPIRIT_STONES", "amount": 80}]}]'::jsonb),
+('PARTICIPATORY', 'REGIONAL', '秘境探索', '一座临时秘境开启，进入探索者可获得丰厚机缘',
+ 144, 70, 12, true, 80,
+ '[{"branches": [{"chance": 0.3, "effects": [{"type": "ADD_EXP_PERCENT", "percent": 40}, {"type": "ADD_SPIRIT_STONES", "amount": 800}]}, {"chance": 0.4, "effects": [{"type": "ADD_EXP_PERCENT", "percent": 15}, {"type": "ADD_SPIRIT_STONES", "amount": 300}]}, {"chance": 0.3, "effects": [{"type": "ADD_SPIRIT_STONES", "amount": 200}]}]}]'::jsonb),
+('PARTICIPATORY', 'GLOBAL', '炼丹比试', '一场炼丹比试即将开始，参与者无论输赢皆有所得',
+ 120, 70, 8, true, 80,
+ '[{"effects": [{"type": "ADD_EXP_PERCENT", "percent": 20}, {"type": "ADD_SPIRIT_STONES", "amount": 300}]}]'::jsonb),
+('PARTICIPATORY', 'REGIONAL', '猎杀妖兽', '一头狂暴妖兽在附近肆虐，击杀者可获得大量经验和赏金',
+ 96, 75, 6, true, 60,
+ '[{"effects": [{"type": "ADD_EXP_PERCENT", "percent": 25}, {"type": "ADD_SPIRIT_STONES", "amount": 200}]}]'::jsonb),
+('PARTICIPATORY', 'GLOBAL', '布阵护山', '宗门需要修士协助布置护山大阵，参与即有灵石和经验奖励',
+ 72, 80, 12, true, 150,
+ '[{"effects": [{"type": "ADD_EXP_PERCENT", "percent": 10}, {"type": "ADD_SPIRIT_STONES", "amount": 100}]}]'::jsonb),
+('PARTICIPATORY', 'REGIONAL', '探查遗迹', '一座古遗迹被发现，需修士探查内部——机遇与危险并存',
+ 168, 60, 12, true, 50,
+ '[{"branches": [{"chance": 0.4, "effects": [{"type": "ADD_EXP_PERCENT", "percent": 35}, {"type": "ADD_SPIRIT_STONES", "amount": 500}]}, {"chance": 0.3, "effects": [{"type": "ADD_EXP_PERCENT", "percent": 10}, {"type": "ADD_SPIRIT_STONES", "amount": 150}]}, {"chance": 0.3, "effects": [{"type": "TAKE_DAMAGE_PERCENT", "percent": 20}, {"type": "ADD_EXP_PERCENT", "percent": 3}]}]}]'::jsonb),
+('PARTICIPATORY', 'GLOBAL', '救助道侣', '一位受伤的同道修士需要帮助，伸出援手可得善缘',
+ 120, 75, 6, true, 0,
+ '[{"effects": [{"type": "ADD_EXP_PERCENT", "percent": 15}, {"type": "HEAL_FLAT", "amount": 500}]}]'::jsonb),
+('PARTICIPATORY', 'GLOBAL', '收服灵兽', '一只罕见灵兽在附近出没，勇敢者或可收服为伴',
+ 240, 50, 12, true, 30,
+ '[{"branches": [{"chance": 0.3, "effects": [{"type": "ADD_EXP_PERCENT", "percent": 50}, {"type": "ADD_SPIRIT_STONES", "amount": 1000}]}, {"chance": 0.7, "effects": [{"type": "ADD_EXP_PERCENT", "percent": 12}, {"type": "ADD_SPIRIT_STONES", "amount": 150}]}]}]'::jsonb);

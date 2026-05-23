@@ -79,7 +79,7 @@ public class TeamService {
 
   @Cacheable(cacheNames = "team_status", key = "#userId")
   public String getTeamStatus(Long userId) {
-    User user = userStateService.loadUser(userId);
+    userStateService.loadUser(userId);
     StringBuilder sb = new StringBuilder();
 
     Optional<TeamMember> member = teamMemberRepository.findByUserId(userId);
@@ -124,7 +124,7 @@ public class TeamService {
   }
 
   public String invitePlayer(Long userId, String targetNickname) {
-    User inviter = userStateService.loadUserForUpdate(userId);
+    userStateService.loadUserForUpdate(userId);
     User invitee = userStateService.loadUserByNickname(targetNickname);
 
     if (invitee == null) {
@@ -144,7 +144,7 @@ public class TeamService {
     List<TeamInvitation> existingPending = invitationRepository.findPendingByTeamId(team.getId());
     for (TeamInvitation inv : existingPending) {
       if (inv.getInviteeId().equals(invitee.getId())) {
-        return "已向【" + targetNickname + "】发送过组队邀请，请等待对方回应。";
+        return ("已向【" + targetNickname + "】发送过组队邀请，请等待对方回应。");
       }
     }
 
@@ -158,11 +158,11 @@ public class TeamService {
     invitationRepository.save(invitation);
 
     log.info("玩家 {} 邀请 {} 组队, 邀请ID={}", userId, invitee.getId(), invitation.getId());
-    return "已向【" + targetNickname + "】发出组队邀请（编号 #" + invitation.getId() + "，5分钟内有效）。";
+    return ("已向【" + targetNickname + "】发出组队邀请（编号 #" + invitation.getId() + "，5分钟内有效）。");
   }
 
   public String acceptInvitation(Long userId, String invitationIdStr) {
-    User user = userStateService.loadUserForUpdate(userId);
+    userStateService.loadUserForUpdate(userId);
 
     Optional<TeamMember> existingMember = teamMemberRepository.findByUserId(userId);
     if (existingMember.isPresent()) {
@@ -266,7 +266,7 @@ public class TeamService {
   }
 
   public String leaveTeam(Long userId) {
-    User user = userStateService.loadUserForUpdate(userId);
+    userStateService.loadUserForUpdate(userId);
 
     Optional<TeamMember> memberOpt = teamMemberRepository.findByUserId(userId);
     if (memberOpt.isEmpty()) {

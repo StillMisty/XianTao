@@ -39,7 +39,6 @@ public class MapService {
 
   @Authenticated
   public ServiceResult<List<MapInfoVO>> getAllMaps(PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
     return new ServiceResult.Success<>(getAllMaps());
   }
 

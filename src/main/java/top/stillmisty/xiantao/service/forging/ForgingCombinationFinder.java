@@ -11,8 +11,6 @@ import top.stillmisty.xiantao.domain.item.enums.AffixType;
 import top.stillmisty.xiantao.domain.item.enums.MaterialAttribute;
 import top.stillmisty.xiantao.domain.item.enums.Rarity;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentTemplateRepository;
-import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
-import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.CombinationStrategy;
 import top.stillmisty.xiantao.service.ErrorCode;
@@ -27,8 +25,6 @@ public class ForgingCombinationFinder {
       Arrays.stream(MaterialAttribute.values()).map(MaterialAttribute::getCode).toList();
 
   private final StackableItemService stackableItemService;
-  private final ItemTemplateRepository itemTemplateRepository;
-  private final StackableItemRepository stackableItemRepository;
   private final EquipmentTemplateRepository equipmentTemplateRepository;
   private final top.stillmisty.xiantao.domain.item.repository.EquipmentRepository
       equipmentRepository;
@@ -178,10 +174,14 @@ public class ForgingCombinationFinder {
 
     Map<String, Integer> statBonus =
         Map.of(
-            "STR", equipTmpl.getBaseStr(),
-            "CON", equipTmpl.getBaseCon(),
-            "AGI", equipTmpl.getBaseAgi(),
-            "WIS", equipTmpl.getBaseWis());
+            "STR",
+            equipTmpl.getBaseStr(),
+            "CON",
+            equipTmpl.getBaseCon(),
+            "AGI",
+            equipTmpl.getBaseAgi(),
+            "WIS",
+            equipTmpl.getBaseWis());
 
     Equipment equipment =
         Equipment.create(

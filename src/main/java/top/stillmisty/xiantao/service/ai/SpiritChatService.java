@@ -11,6 +11,8 @@ import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
+import top.stillmisty.xiantao.domain.event.entity.GameEvent;
+import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.fudi.entity.*;
 import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
 import top.stillmisty.xiantao.domain.fudi.enums.FudiEvent;
@@ -19,13 +21,17 @@ import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritFormRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
 import top.stillmisty.xiantao.domain.sect.enums.ChatType;
+import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
+import top.stillmisty.xiantao.service.GameEventService;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
+import top.stillmisty.xiantao.service.activity.SubEventEffectExecutor;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.fudi.FarmService;
+import top.stillmisty.xiantao.service.player.UserStateService;
 
 @Service
 @Slf4j
@@ -41,6 +47,9 @@ public class SpiritChatService extends AbstractChatService {
   private final FudiEventGenerator fudiEventGenerator;
   private final BeastRepository beastRepository;
   private final FarmService farmService;
+  private final SubEventEffectExecutor subEventEffectExecutor;
+  private final GameEventService gameEventService;
+  private final UserStateService userStateService;
 
   public SpiritChatService(
       ChatClient spiritChatClient,
@@ -54,7 +63,10 @@ public class SpiritChatService extends AbstractChatService {
       SpiritEmotionTools spiritEmotionTools,
       FudiEventGenerator fudiEventGenerator,
       BeastRepository beastRepository,
-      FarmService farmService) {
+      FarmService farmService,
+      SubEventEffectExecutor subEventEffectExecutor,
+      GameEventService gameEventService,
+      UserStateService userStateService) {
     super(spiritChatClient, chatMemory);
     this.fudiRepository = fudiRepository;
     this.fudiCellRepository = fudiCellRepository;
@@ -66,6 +78,9 @@ public class SpiritChatService extends AbstractChatService {
     this.fudiEventGenerator = fudiEventGenerator;
     this.beastRepository = beastRepository;
     this.farmService = farmService;
+    this.subEventEffectExecutor = subEventEffectExecutor;
+    this.gameEventService = gameEventService;
+    this.userStateService = userStateService;
   }
 
   @Authenticated
@@ -109,6 +124,7 @@ public class SpiritChatService extends AbstractChatService {
       if (!events.isEmpty()) {
         spirit.setLastEventTime(LocalDateTime.now());
         spiritRepository.save(spirit);
+        applyFudiEventEffects(userId, events);
       }
 
       log.debug(
@@ -119,6 +135,39 @@ public class SpiritChatService extends AbstractChatService {
     } catch (Exception e) {
       log.error("地灵对话失败 - userId: {}, error: {}", userId, e.getMessage(), e);
       return "地灵暂时无法回应，请稍后再试。";
+    }
+  }
+
+  private void applyFudiEventEffects(Long userId, List<FudiEvent> events) {
+    List<Map<String, Object>> allEffects = new ArrayList<>();
+    for (FudiEvent event : events) {
+      if (event.hasEffects()) {
+        allEffects.addAll(event.getEffects());
+      }
+    }
+    if (allEffects.isEmpty()) return;
+
+    try {
+      User user = userStateService.loadUser(userId);
+      Map<String, Object> templateArgs =
+          subEventEffectExecutor.executeEffects(
+              Map.of("effects", allEffects), userId, user, Map.of());
+
+      List<GameEvent> gameEvents = new ArrayList<>();
+      for (FudiEvent event : events) {
+        if (event.hasEffects()) {
+          GameEvent gameEvent =
+              GameEvent.create(userId, GameEventCategory.WORLD_EVENT)
+                  .withNarrative(
+                      "【" + event.getName() + "】" + event.getDescription(), templateArgs);
+          gameEvents.add(gameEvent);
+        }
+      }
+      if (!gameEvents.isEmpty()) {
+        gameEventService.saveAll(gameEvents);
+      }
+    } catch (Exception e) {
+      log.warn("应用福地事件效果失败 - userId: {}, error: {}", userId, e.getMessage());
     }
   }
 

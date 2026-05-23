@@ -71,13 +71,10 @@ public class ItemUseService {
     List<StackableItem> exactMatches =
         stackableItemRepository.findByUserIdAndName(userId, itemName);
     StackableItem matchedItem = null;
-    ItemTemplate matchedTemplate = null;
-
     for (StackableItem item : exactMatches) {
       ItemTemplate template = itemTemplateRepository.findById(item.getTemplateId()).orElse(null);
       if (template != null) {
         matchedItem = item;
-        matchedTemplate = template;
         break;
       }
     }
@@ -89,7 +86,6 @@ public class ItemUseService {
         ItemTemplate template = itemTemplateRepository.findById(item.getTemplateId()).orElse(null);
         if (template != null) {
           matchedItem = item;
-          matchedTemplate = template;
           break;
         }
       }

@@ -17,6 +17,7 @@ import top.stillmisty.xiantao.domain.map.entity.MapNode;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.service.FortuneService;
 import top.stillmisty.xiantao.service.GameEventService;
+import top.stillmisty.xiantao.service.worldevent.WorldEventEnvironmentalApplier;
 
 /** 历练完成器 — 产出完成叙事、代理子事件/隐藏事件执行 */
 @Slf4j
@@ -31,6 +32,7 @@ public class TrainingCompleter {
   private final TriggerConditionChecker triggerConditionChecker;
   private final ActivityEventHelper activityEventHelper;
   private final FortuneService fortuneService;
+  private final WorldEventEnvironmentalApplier worldEventEnvApplier;
 
   @Transactional
   public void produceCompletionEvent(
@@ -88,5 +90,11 @@ public class TrainingCompleter {
           GameEvent.create(userId, GameEventCategory.TRAINING_HIDDEN)
               .withNarrative(narrativeKey, templateArgs));
     }
+  }
+
+  /** 应用环境世界事件（历练结算时查询当前地图的区域 + 全局 ENVIRONMENTAL 事件） */
+  @Transactional
+  public void applyEnvironmentalEvents(Long userId, User user, MapNode mapNode) {
+    worldEventEnvApplier.apply(userId, user, mapNode);
   }
 }

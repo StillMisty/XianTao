@@ -58,7 +58,9 @@ public class SectMemberService {
   private final UserStateService userStateService;
   private final PlayerSkillRepository playerSkillRepository;
   private final ChatClient npcChatClient;
+
   @Lazy private final MasterApprenticeService masterApprenticeService;
+
   private final SpiritStoneService spiritStoneService;
 
   // ===================== 公开 API =====================
@@ -184,7 +186,7 @@ public class SectMemberService {
 
   @Cacheable(cacheNames = "sect_overview", key = "#userId")
   public String getSectOverview(Long userId) {
-    User user = userStateService.loadUser(userId);
+    userStateService.loadUser(userId);
     SectMember member = requireMember(userId);
     Sect sect =
         sectRepository
@@ -297,21 +299,21 @@ public class SectMemberService {
     try {
       String prompt =
           """
-                    你是一位修仙世界的宗门命名师。请根据以下信息为宗门生成诗号、道统和宗灵人格。
+                你是一位修仙世界的宗门命名师。请根据以下信息为宗门生成诗号、道统和宗灵人格。
 
-                    宗门名称：%s
-                    道统描述：%s
+                宗门名称：%s
+                道统描述：%s
 
-                    请严格按以下格式回复（每行一项）：
-                    诗号：xxx
-                    道统：xxx
-                    宗灵人格：xxx
+                请严格按以下格式回复（每行一项）：
+                诗号：xxx
+                道统：xxx
+                宗灵人格：xxx
 
-                    要求：
-                    - 诗号：4-7言对仗句，体现宗门气质
-                    - 道统：100字以内的宗门修行理念简述
-                    - 宗灵人格：50字以内的宗灵人格种子描述
-                    """
+                要求：
+                - 诗号：4-7言对仗句，体现宗门气质
+                - 道统：100字以内的宗门修行理念简述
+                - 宗灵人格：50字以内的宗灵人格种子描述
+                """
               .formatted(
                   name,
                   ethosDesc != null && !ethosDesc.isBlank() ? ethosDesc : "无特殊描述，请根据宗门名称自由发挥");
@@ -320,7 +322,9 @@ public class SectMemberService {
           npcChatClient.prompt().system("你是修仙世界的宗门命名师，擅长为宗门赋予灵性身份。").user(prompt).call().content();
 
       if (response == null || response.isBlank()) {
-        return new String[] {"", "以" + name + "之名，问道长生。", "沉稳大气的宗门意志"};
+        return new String[] {
+          "", "以" + name + "之名，问道长生。", "沉稳大气的宗门意志",
+        };
       }
 
       String verse = "";
@@ -348,7 +352,9 @@ public class SectMemberService {
       return new String[] {verse, ethos, personality};
     } catch (Exception e) {
       log.warn("LLM 生成宗门身份失败，使用默认值", e);
-      return new String[] {"", "以" + name + "之名，问道长生。", "沉稳大气的宗门意志"};
+      return new String[] {
+        "", "以" + name + "之名，问道长生。", "沉稳大气的宗门意志",
+      };
     }
   }
 
@@ -443,7 +449,7 @@ public class SectMemberService {
     executeLeave(target.getId(), targetMember);
 
     log.info("玩家 {} 被 {} 踢出宗门 {}", target.getId(), userId, targetMember.getSectId());
-    return "已将【" + targetNickname + "】踢出宗门，" + SECT_COOLDOWN_HOURS + " 小时内无法加入新宗门。";
+    return ("已将【" + targetNickname + "】踢出宗门，" + SECT_COOLDOWN_HOURS + " 小时内无法加入新宗门。");
   }
 
   @Transactional
@@ -462,7 +468,7 @@ public class SectMemberService {
     executeLeave(userId, member);
 
     log.info("玩家 {} 退出宗门 {}", userId, member.getSectId());
-    return "你已退出宗门，贡献值清零，已学共享功法已遗忘，" + SECT_COOLDOWN_HOURS + " 小时内无法加入新宗门。";
+    return ("你已退出宗门，贡献值清零，已学共享功法已遗忘，" + SECT_COOLDOWN_HOURS + " 小时内无法加入新宗门。");
   }
 
   @Transactional
@@ -516,7 +522,7 @@ public class SectMemberService {
 
     log.info(
         "玩家 {} 被任命为宗门 {} 的 {}", target.getId(), actorMember.getSectId(), newPosition.getName());
-    return "已将【" + targetNickname + "】任命为" + newPosition.getName() + "。";
+    return ("已将【" + targetNickname + "】任命为" + newPosition.getName() + "。");
   }
 
   @Transactional
@@ -689,8 +695,8 @@ public class SectMemberService {
   }
 
   public boolean areBothRogue(Long userIdA, Long userIdB) {
-    return sectMemberRepository.findByUserId(userIdA).isEmpty()
-        && sectMemberRepository.findByUserId(userIdB).isEmpty();
+    return (sectMemberRepository.findByUserId(userIdA).isEmpty()
+        && sectMemberRepository.findByUserId(userIdB).isEmpty());
   }
 
   @Transactional

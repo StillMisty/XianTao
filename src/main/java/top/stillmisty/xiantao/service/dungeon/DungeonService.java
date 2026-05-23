@@ -282,7 +282,7 @@ public class DungeonService {
   }
 
   public DungeonContinueResult continueDungeon(Long userId) {
-    User user = userStateService.loadUser(userId);
+    userStateService.loadUser(userId);
     DungeonInstance instance = findActiveInstance(userId);
 
     if (!instance.getLeaderId().equals(userId)) {
@@ -335,7 +335,7 @@ public class DungeonService {
   }
 
   public String retreatDungeon(Long userId) {
-    User user = userStateService.loadUser(userId);
+    userStateService.loadUser(userId);
     DungeonInstance instance = findActiveInstance(userId);
 
     if (instance.getLeaderId().equals(userId)) {
@@ -350,21 +350,6 @@ public class DungeonService {
   private void checkIdleStatus(User user) {
     if (user.getStatus() != UserStatus.IDLE) {
       throw new BusinessException(ErrorCode.DUNGEON_STATUS_BLOCKED, user.getStatus().getName());
-    }
-  }
-
-  private void appendBuildingPrompt(StringBuilder sb, List<DungeonPoiConfig> pois) {
-    sb.append("可探索的建筑：\n");
-    for (DungeonPoiConfig poi : pois) {
-      sb.append("  · ")
-          .append(poi.getName())
-          .append(" [")
-          .append(poi.getPoiType().getName())
-          .append("]");
-      if (poi.getUnlockCondition() != null && !poi.getUnlockCondition().isBlank()) {
-        sb.append(" 🔒");
-      }
-      sb.append("\n");
     }
   }
 

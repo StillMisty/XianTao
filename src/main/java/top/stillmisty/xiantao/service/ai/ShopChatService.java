@@ -7,10 +7,10 @@ import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.sect.enums.ChatType;
 import top.stillmisty.xiantao.domain.shop.entity.ShopNpc;
-import top.stillmisty.xiantao.domain.shop.entity.WorldEvent;
-import top.stillmisty.xiantao.domain.shop.repository.WorldEventRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.domain.worldevent.entity.WorldEvent;
+import top.stillmisty.xiantao.domain.worldevent.repository.WorldEventRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
@@ -91,9 +91,11 @@ public class ShopChatService extends AbstractChatService {
     if (activeEvents.isEmpty()) {
       return "";
     }
-    StringBuilder sb = new StringBuilder("当前世界事件（可能影响物品价格）：\n");
+    StringBuilder sb = new StringBuilder("当前世界事件（可能影响物品价格或其它方面）：\n");
     for (WorldEvent event : activeEvents) {
-      sb.append("- ")
+      sb.append("- [")
+          .append(event.getCategory().getName())
+          .append("] ")
           .append(event.getTitle())
           .append("：")
           .append(event.getDescription())

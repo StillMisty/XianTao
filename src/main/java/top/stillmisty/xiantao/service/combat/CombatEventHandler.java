@@ -60,7 +60,6 @@ public class CombatEventHandler {
       Map<Long, MonsterTemplate> templateMap,
       Map<Long, Skill> skillMap,
       int encounterIndex) {
-
     Map<String, Object> params = event.getParams();
     long templateId = ((Number) params.get("monster_template_id")).longValue();
     MonsterTemplate tmpl = templateMap.get(templateId);
@@ -187,7 +186,6 @@ public class CombatEventHandler {
     long expToNextLevel = user.calculateExpToNextLevel();
     double roll = ThreadLocalRandom.current().nextDouble();
     long expBonus;
-    String narrativeKey;
     Map<String, Object> args = new HashMap<>();
 
     if (roll < 0.50) {

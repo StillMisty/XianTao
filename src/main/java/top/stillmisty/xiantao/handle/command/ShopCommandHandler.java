@@ -9,14 +9,12 @@ import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.service.ai.ShopChatService;
-import top.stillmisty.xiantao.service.shop.ShopService;
 
 @Component
 @RequiredArgsConstructor
 public class ShopCommandHandler implements CommandGroup {
 
   private final ShopChatService shopChatService;
-  private final ShopService shopService;
 
   @Override
   public String groupName() {

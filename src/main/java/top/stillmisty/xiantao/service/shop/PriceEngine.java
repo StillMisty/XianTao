@@ -11,8 +11,9 @@ import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.enums.Rarity;
 import top.stillmisty.xiantao.domain.shop.entity.ShopNpc;
 import top.stillmisty.xiantao.domain.shop.entity.ShopProduct;
-import top.stillmisty.xiantao.domain.shop.entity.WorldEvent;
-import top.stillmisty.xiantao.domain.shop.repository.WorldEventRepository;
+import top.stillmisty.xiantao.domain.worldevent.entity.WorldEvent;
+import top.stillmisty.xiantao.domain.worldevent.enums.WorldEventCategory;
+import top.stillmisty.xiantao.domain.worldevent.repository.WorldEventRepository;
 
 @Component
 @RequiredArgsConstructor
@@ -108,8 +109,10 @@ public class PriceEngine {
     List<WorldEvent> activeEvents = worldEventRepository.findActiveEvents();
     double multiplier = 1.0;
     for (WorldEvent event : activeEvents) {
-      if (tags == null || event.affectsAnyTag(tags)) {
-        multiplier *= event.getGlobalMultiplierDouble();
+      if (event.getCategory() == WorldEventCategory.ECONOMIC) {
+        if (tags == null || event.getAffectedTags() == null || event.affectsAnyTag(tags)) {
+          multiplier *= event.getGlobalMultiplierDouble();
+        }
       }
     }
     return multiplier;
