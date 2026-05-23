@@ -1,4 +1,6 @@
-package top.stillmisty.xiantao.infrastructure.mybatis.repository;
+package top.stillmisty.xiantao.infrastructure.repository;
+
+import static top.stillmisty.xiantao.domain.item.entity.table.EquipmentTemplateTableDef.EQUIPMENT_TEMPLATE;
 
 import com.mybatisflex.core.query.QueryWrapper;
 import java.util.List;
@@ -7,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import top.stillmisty.xiantao.domain.item.entity.EquipmentTemplate;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentTemplateRepository;
-import top.stillmisty.xiantao.infrastructure.mybatis.mapper.EquipmentTemplateMapper;
+import top.stillmisty.xiantao.infrastructure.mapper.EquipmentTemplateMapper;
 
 @Repository
 @RequiredArgsConstructor
@@ -22,7 +24,8 @@ public class EquipmentTemplateRepositoryImpl implements EquipmentTemplateReposit
 
   @Override
   public Optional<EquipmentTemplate> findByName(String name) {
-    return Optional.ofNullable(mapper.selectByName(name));
+    return Optional.ofNullable(
+        mapper.selectOneByQuery(QueryWrapper.create().where(EQUIPMENT_TEMPLATE.NAME.eq(name))));
   }
 
   @Override
