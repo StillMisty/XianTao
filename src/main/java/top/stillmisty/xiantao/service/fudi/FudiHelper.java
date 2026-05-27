@@ -1,9 +1,12 @@
 package top.stillmisty.xiantao.service.fudi;
 
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import top.stillmisty.xiantao.domain.beast.entity.Beast;
+import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
 import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
 import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
@@ -20,6 +23,7 @@ public class FudiHelper {
 
   private final FudiRepository fudiRepository;
   private final SpiritRepository spiritRepository;
+  private final BeastRepository beastRepository;
   private final UserStateService userStateService;
 
   /**
@@ -37,6 +41,13 @@ public class FudiHelper {
               .findByFudiId(fudi.getId())
               .ifPresent(spirit -> spiritRepository.save(spirit));
           fudiRepository.save(fudi);
+          // 兽栏内灵兽自动回血
+          List<Beast> beasts = beastRepository.findByFudiId(fudi.getId());
+          boolean changed = false;
+          for (Beast b : beasts) {
+            if (b.tryAutoHeal()) changed = true;
+          }
+          if (changed) beastRepository.saveAll(beasts);
         });
     return fudiOpt;
   }

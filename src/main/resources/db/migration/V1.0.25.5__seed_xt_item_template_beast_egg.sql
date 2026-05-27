@@ -1,4 +1,10 @@
 -- 兽卵种子数据 (xt_item_template, type=BEAST_EGG)
+-- 平衡规则：灵兽不产出高级材料/药材
+--   common  → common herb + common material
+--   uncommon → common herb + uncommon material
+--   rare    → uncommon herb + uncommon material
+--   epic    → uncommon herb + rare material
+--   legendary → rare herb + rare material
 INSERT
     INTO
         xt_item_template(
@@ -75,12 +81,25 @@ INSERT
                         ),
                         'weight',
                         50
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '蛮牛劲'
+                        ),
+                        'weight',
+                        50
                     )
                 )
             )
         ),
         '["beast_egg","common","beast"]' ::jsonb,
-        '一只黏人的灵猫，会找药草和在你打坐时蹭你。'
+        '一只黏人的灵猫，会在你打坐时蹭你，偶尔叼回一株灵芝讨你欢心。'
     ),
     (
         '灵蚕卵',
@@ -135,13 +154,26 @@ INSERT
                                 name = '清风拂柳'
                         ),
                         'weight',
-                        5
+                        50
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '拂尘净心'
+                        ),
+                        'weight',
+                        50
                     )
                 )
             )
         ),
         '["beast_egg","common","silk"]' ::jsonb,
-        '小小的灵蚕，不打架不惹事，安安静静吐丝就是它最大的贡献。'
+        '小小的灵蚕，不打架不惹事，安安静静吐丝便是它对主人最大的贡献。'
     ),
     (
         '玉兔卵',
@@ -223,6 +255,19 @@ INSERT
                         ),
                         'weight',
                         30
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '清风拂柳'
+                        ),
+                        'weight',
+                        70
                     )
                 )
             )
@@ -310,6 +355,19 @@ INSERT
                         ),
                         'weight',
                         15
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '清风拂柳'
+                        ),
+                        'weight',
+                        35
                     )
                 )
             )
@@ -397,12 +455,25 @@ INSERT
                         ),
                         'weight',
                         30
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '穿心箭'
+                        ),
+                        'weight',
+                        30
                     )
                 )
             )
         ),
         '["beast_egg","uncommon","flying"]' ::jsonb,
-        '展翅三丈的铁羽鹰，不仅是战斗伙伴更是坐骑。'
+        '铁羽如刃的苍鹰，振翅三丈便可御风而行。驯服后可作坐骑，亦是凌厉的战斗伙伴。'
     ),
     (
         '雪狐卵',
@@ -484,6 +555,19 @@ INSERT
                         ),
                         'weight',
                         20
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '踏波行'
+                        ),
+                        'weight',
+                        30
                     )
                 )
             )
@@ -571,12 +655,25 @@ INSERT
                         ),
                         'weight',
                         15
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '地动术'
+                        ),
+                        'weight',
+                        30
                     )
                 )
             )
         ),
         '["beast_egg","uncommon","fire"]' ::jsonb,
-        '腹部火红的大蟾蜍，看似憨态可掬实则战力超群，专产火属性材料。'
+        '腹藏地火的赤蟾，看似憨态可掬实则战力超群，口吐烈焰足以焚石熔金。'
     ),
     (
         '碧鳞蛇卵',
@@ -658,6 +755,19 @@ INSERT
                         ),
                         'weight',
                         12
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '缚龙索'
+                        ),
+                        'weight',
+                        25
                     )
                 )
             )
@@ -696,7 +806,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '白虎骨'
+                            name = '妖兽皮'
                     )
                 )
             ),
@@ -745,6 +855,19 @@ INSERT
                         ),
                         'weight',
                         18
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '穿杨箭'
+                        ),
+                        'weight',
+                        30
                     )
                 )
             )
@@ -832,6 +955,19 @@ INSERT
                         ),
                         'weight',
                         10
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '万木逢春'
+                        ),
+                        'weight',
+                        25
                     )
                 )
             )
@@ -857,7 +993,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '凤羽'
+                            name = '灵蚕丝'
                     )
                 ),
                 jsonb_build_object(
@@ -870,7 +1006,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '天心兰'
+                            name = '天心兰种子'
                     )
                 )
             ),
@@ -932,12 +1068,25 @@ INSERT
                         ),
                         'weight',
                         12
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '霓裳扇舞'
+                        ),
+                        'weight',
+                        30
                     )
                 )
             )
         ),
         '["beast_egg","rare","flying","phoenix"]' ::jsonb,
-        '青色的凤凰后裔，优雅而高傲，凤凰血脉使其自带祥瑞之气。'
+        '青色的凤凰后裔，羽间流转七彩霞光，所过之处百花竞放、百鸟朝凤。'
     ),
     (
         '乘黄卵',
@@ -957,7 +1106,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '龙血草'
+                            name = '何首乌'
                     )
                 ),
                 jsonb_build_object(
@@ -970,7 +1119,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '九天仙草'
+                            name = '龙血草'
                     )
                 )
             ),
@@ -1003,6 +1152,19 @@ INSERT
                         ),
                         'unlock',
                         'tier_2'
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '碎虚锤'
+                        ),
+                        'unlock',
+                        'tier_3'
                     )
                 ),
                 'awakening_skills',
@@ -1015,16 +1177,29 @@ INSERT
                             FROM
                                 xt_skill
                             WHERE
-                                name = '碎虚锤'
+                                name = '太乙遁甲'
                         ),
                         'weight',
                         10
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '踏波行'
+                        ),
+                        'weight',
+                        30
                     )
                 )
             )
         ),
         '["beast_egg","rare","beast","myth"]' ::jsonb,
-        '《山海经》中的神兽，其状如狐，背生角，乘之寿二千。'
+        '《山海经》载：乘黄状如狐，背生角，乘之寿二千。其气息温润如春，令人心安。'
     ),
     (
         '金翼雕卵',
@@ -1057,7 +1232,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '玄晶'
+                            name = '玄铁矿石'
                     )
                 ),
                 jsonb_build_object(
@@ -1070,7 +1245,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '月华露'
+                            name = '灵芝孢子'
                     )
                 )
             ),
@@ -1103,6 +1278,19 @@ INSERT
                         ),
                         'unlock',
                         'tier_2'
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '百步穿杨'
+                        ),
+                        'unlock',
+                        'tier_3'
                     )
                 ),
                 'awakening_skills',
@@ -1119,12 +1307,25 @@ INSERT
                         ),
                         'weight',
                         8
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '流星箭雨'
+                        ),
+                        'weight',
+                        20
                     )
                 )
             )
         ),
         '["beast_egg","rare","flying","predator"]' ::jsonb,
-        '展翅八丈的金翼雕，高空盘旋时如同小型太阳，攻守兼备的空中霸主。'
+        '展翅八丈的金翼雕，高空盘旋时翼间流光如金，攻守兼备的空中霸主。'
     ),
     (
         '螭龙卵',
@@ -1144,7 +1345,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '龙鳞'
+                            name = '蛇涎果'
                     )
                 ),
                 jsonb_build_object(
@@ -1170,7 +1371,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '先天庚金'
+                            name = '玄铁矿石'
                     )
                 )
             ),
@@ -1232,6 +1433,19 @@ INSERT
                         ),
                         'weight',
                         8
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '万剑归宗'
+                        ),
+                        'weight',
+                        25
                     )
                 )
             )
@@ -1257,7 +1471,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '白虎骨'
+                            name = '兽骨'
                     )
                 ),
                 jsonb_build_object(
@@ -1270,7 +1484,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '天心兰'
+                            name = '天心兰种子'
                     )
                 ),
                 jsonb_build_object(
@@ -1283,7 +1497,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '月华露'
+                            name = '灵芝孢子'
                     )
                 )
             ),
@@ -1316,6 +1530,19 @@ INSERT
                         ),
                         'unlock',
                         'tier_2'
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '游龙枪法'
+                        ),
+                        'unlock',
+                        'tier_3'
                     )
                 ),
                 'awakening_skills',
@@ -1332,6 +1559,19 @@ INSERT
                         ),
                         'weight',
                         12
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '霸王枪'
+                        ),
+                        'weight',
+                        25
                     )
                 )
             )
@@ -1370,7 +1610,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '万载玄冰'
+                            name = '冰魄花'
                     )
                 ),
                 jsonb_build_object(
@@ -1383,7 +1623,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '九幽冥铁'
+                            name = '寒铁'
                     )
                 )
             ),
@@ -1445,6 +1685,19 @@ INSERT
                         ),
                         'weight',
                         10
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '天魔鞭法'
+                        ),
+                        'weight',
+                        25
                     )
                 )
             )
@@ -1470,7 +1723,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '龙鳞'
+                            name = '妖兽皮'
                     )
                 ),
                 jsonb_build_object(
@@ -1558,6 +1811,19 @@ INSERT
                         ),
                         'weight',
                         8
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '混元功'
+                        ),
+                        'weight',
+                        20
                     )
                 )
             )
@@ -1575,7 +1841,7 @@ INSERT
             jsonb_build_array(
                 jsonb_build_object(
                     'weight',
-                    40,
+                    50,
                     'template_id',
                     (
                         SELECT
@@ -1583,7 +1849,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '九天仙草'
+                            name = '龙血草'
                     )
                 ),
                 jsonb_build_object(
@@ -1601,7 +1867,7 @@ INSERT
                 ),
                 jsonb_build_object(
                     'weight',
-                    30,
+                    20,
                     'template_id',
                     (
                         SELECT
@@ -1684,6 +1950,19 @@ INSERT
                         ),
                         'weight',
                         8
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '清风拂柳'
+                        ),
+                        'weight',
+                        25
                     )
                 )
             )
@@ -1709,7 +1988,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '魂玉碎片'
+                            name = '玄晶'
                     )
                 ),
                 jsonb_build_object(
@@ -1722,7 +2001,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '先天庚金'
+                            name = '寒铁'
                     )
                 ),
                 jsonb_build_object(
@@ -1735,7 +2014,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '天心兰'
+                            name = '天心兰种子'
                     )
                 )
             ),
@@ -1810,6 +2089,19 @@ INSERT
                         ),
                         'weight',
                         8
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '八门金锁'
+                        ),
+                        'weight',
+                        20
                     )
                 )
             )
@@ -1835,7 +2127,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '魂玉碎片'
+                            name = '玄晶'
                     )
                 ),
                 jsonb_build_object(
@@ -1848,7 +2140,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '龙鳞'
+                            name = '妖兽皮'
                     )
                 ),
                 jsonb_build_object(
@@ -1861,7 +2153,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '混沌石'
+                            name = '寒铁'
                     )
                 )
             ),
@@ -1949,6 +2241,19 @@ INSERT
                         ),
                         'weight',
                         5
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '五雷正法'
+                        ),
+                        'weight',
+                        20
                     )
                 )
             )
@@ -1974,7 +2279,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '白虎骨'
+                            name = '兽骨'
                     )
                 ),
                 jsonb_build_object(
@@ -1987,7 +2292,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '先天庚金'
+                            name = '寒铁'
                     )
                 ),
                 jsonb_build_object(
@@ -2000,7 +2305,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '混沌石'
+                            name = '玄晶'
                     )
                 )
             ),
@@ -2088,12 +2393,25 @@ INSERT
                         ),
                         'weight',
                         3
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '天刀九式'
+                        ),
+                        'weight',
+                        15
                     )
                 )
             )
         ),
         '["beast_egg","legendary","beast","evil"]' ::jsonb,
-        '上古四凶之一，形似虎而有翼，性情凶暴但认主后忠心不二。'
+        '上古四凶之一，形似虎而有翼，性情凶暴嗜战。传闻认主后便永不背弃。'
     ),
     (
         '朱雀卵',
@@ -2113,7 +2431,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '凤羽'
+                            name = '灵蚕丝'
                     )
                 ),
                 jsonb_build_object(
@@ -2126,7 +2444,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '太阳花'
+                            name = '地火芝'
                     )
                 ),
                 jsonb_build_object(
@@ -2139,7 +2457,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '太阳真金'
+                            name = '赤铜矿'
                     )
                 )
             ),
@@ -2227,12 +2545,25 @@ INSERT
                         ),
                         'weight',
                         5
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '天罡北斗阵'
+                        ),
+                        'weight',
+                        15
                     )
                 )
             )
         ),
         '["beast_egg","legendary","phoenix","fire"]' ::jsonb,
-        '南方朱雀的后裔，浴火而生，涅槃不灭。其羽毛可焚尽万邪。'
+        '南方朱雀的后裔，浴火而生，涅槃不灭。其羽间流火足以焚尽万邪。'
     ),
     (
         '青龙卵',
@@ -2252,7 +2583,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '龙鳞'
+                            name = '蛇涎果'
                     )
                 ),
                 jsonb_build_object(
@@ -2278,7 +2609,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '九天仙草'
+                            name = '龙血草'
                     )
                 )
             ),
@@ -2366,6 +2697,19 @@ INSERT
                         ),
                         'weight',
                         5
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '蟠桃仙术'
+                        ),
+                        'weight',
+                        15
                     )
                 )
             )
@@ -2391,7 +2735,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '白虎骨'
+                            name = '兽骨'
                     )
                 ),
                 jsonb_build_object(
@@ -2404,7 +2748,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '先天庚金'
+                            name = '寒铁'
                     )
                 ),
                 jsonb_build_object(
@@ -2417,7 +2761,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '混沌石'
+                            name = '玄晶'
                     )
                 )
             ),
@@ -2505,6 +2849,19 @@ INSERT
                         ),
                         'weight',
                         5
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '天刀九式'
+                        ),
+                        'weight',
+                        15
                     )
                 )
             )
@@ -2543,7 +2900,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '九天仙草'
+                            name = '龙血草'
                     )
                 ),
                 jsonb_build_object(
@@ -2556,7 +2913,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '魂玉碎片'
+                            name = '玄晶'
                     )
                 )
             ),
@@ -2644,6 +3001,19 @@ INSERT
                         ),
                         'weight',
                         5
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '混元功'
+                        ),
+                        'weight',
+                        15
                     )
                 )
             )
@@ -2669,7 +3039,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '太阳真金'
+                            name = '赤铜矿'
                     )
                 ),
                 jsonb_build_object(
@@ -2682,7 +3052,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '龙鳞'
+                            name = '妖兽皮'
                     )
                 ),
                 jsonb_build_object(
@@ -2695,7 +3065,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '九天仙草'
+                            name = '龙血草'
                     )
                 )
             ),
@@ -2783,12 +3153,25 @@ INSERT
                         ),
                         'weight',
                         3
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '霸下真身'
+                        ),
+                        'weight',
+                        15
                     )
                 )
             )
         ),
         '["beast_egg","legendary","beast","fire"]' ::jsonb,
-        '龙生九子之狻猊，形如狮而喜烟。吞吐之间烈焰纵横，静坐之时宛如金佛。'
+        '龙生九子之狻猊，形如狮而喜烟。吞吐之间烈焰纵横，静坐之时威严肃穆。'
     ),
     (
         '獬豸卵',
@@ -2808,7 +3191,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '先天庚金'
+                            name = '寒铁'
                     )
                 ),
                 jsonb_build_object(
@@ -2834,7 +3217,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '天心兰'
+                            name = '天心兰种子'
                     )
                 )
             ),
@@ -2909,6 +3292,19 @@ INSERT
                         ),
                         'weight',
                         5
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '袖里乾坤'
+                        ),
+                        'weight',
+                        15
                     )
                 )
             )
@@ -2934,7 +3330,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '九幽冥铁'
+                            name = '寒铁'
                     )
                 ),
                 jsonb_build_object(
@@ -2960,7 +3356,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '月华露'
+                            name = '灵芝孢子'
                     )
                 )
             ),
@@ -3035,6 +3431,19 @@ INSERT
                         ),
                         'weight',
                         5
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '缚龙索'
+                        ),
+                        'weight',
+                        15
                     )
                 )
             )
@@ -3148,6 +3557,19 @@ INSERT
                         ),
                         'weight',
                         8
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '焚天诀'
+                        ),
+                        'weight',
+                        20
                     )
                 )
             )
@@ -3173,7 +3595,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '月华露'
+                            name = '灵芝孢子'
                     )
                 ),
                 jsonb_build_object(
@@ -3261,6 +3683,19 @@ INSERT
                         ),
                         'weight',
                         8
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '冰封万里'
+                        ),
+                        'weight',
+                        20
                     )
                 )
             )
@@ -3299,7 +3734,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '月华露'
+                            name = '灵芝孢子'
                     )
                 ),
                 jsonb_build_object(
@@ -3374,6 +3809,19 @@ INSERT
                         ),
                         'weight',
                         10
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '后羿射日'
+                        ),
+                        'weight',
+                        8
                     )
                 )
             )
@@ -3399,7 +3847,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '曼陀罗'
+                            name = '七星草'
                     )
                 ),
                 jsonb_build_object(
@@ -3474,6 +3922,19 @@ INSERT
                         ),
                         'weight',
                         15
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '千幻刺杀'
+                        ),
+                        'weight',
+                        10
                     )
                 )
             )
@@ -3499,7 +3960,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '玄晶'
+                            name = '玄铁矿石'
                     )
                 ),
                 jsonb_build_object(
@@ -3512,7 +3973,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '地脉精华'
+                            name = '寒铁'
                     )
                 ),
                 jsonb_build_object(
@@ -3525,7 +3986,7 @@ INSERT
                         FROM
                             xt_item_template
                         WHERE
-                            name = '茯苓'
+                            name = '灵芝孢子'
                     )
                 )
             ),
@@ -3574,10 +4035,210 @@ INSERT
                         ),
                         'weight',
                         12
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '地动术'
+                        ),
+                        'weight',
+                        20
                     )
                 )
             )
         ),
         '["beast_egg","uncommon","beast","earth"]' ::jsonb,
-        '穿山甲妖的后裔，能钻透灵脉寻宝。任何挡在它面前的山石都是薄纸。'
+        '穿山甲妖的后裔，能钻透灵脉寻宝。任何挡在它面前的山石都如薄纸般碎裂。'
+    ),
+    (
+        '灵犬卵',
+        'BEAST_EGG',
+        jsonb_build_object(
+            'grow_time',
+            18,
+            'production_items',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'weight',
+                    60,
+                    'template_id',
+                    (
+                        SELECT
+                            id
+                        FROM
+                            xt_item_template
+                        WHERE
+                            name = '兽骨'
+                    )
+                ),
+                jsonb_build_object(
+                    'weight',
+                    40,
+                    'template_id',
+                    (
+                        SELECT
+                            id
+                        FROM
+                            xt_item_template
+                        WHERE
+                            name = '何首乌'
+                    )
+                )
+            ),
+            'skill_pool',
+            jsonb_build_object(
+                'innate_skills',
+                jsonb_build_array(
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '蛮牛劲'
+                        ),
+                        'unlock',
+                        'birth'
+                    )
+                ),
+                'awakening_skills',
+                jsonb_build_array(
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '破风斩'
+                        ),
+                        'weight',
+                        50
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '兵锋诀'
+                        ),
+                        'weight',
+                        50
+                    )
+                )
+            )
+        ),
+        '["beast_egg","common","beast"]' ::jsonb,
+        '忠诚的灵犬，嗅觉敏锐能寻灵脉。虽然打架不太行，但看家护院一把好手。'
+    ),
+    (
+        '灵蛙卵',
+        'BEAST_EGG',
+        jsonb_build_object(
+            'grow_time',
+            30,
+            'production_items',
+            jsonb_build_array(
+                jsonb_build_object(
+                    'weight',
+                    60,
+                    'template_id',
+                    (
+                        SELECT
+                            id
+                        FROM
+                            xt_item_template
+                        WHERE
+                            name = '月华露'
+                    )
+                ),
+                jsonb_build_object(
+                    'weight',
+                    40,
+                    'template_id',
+                    (
+                        SELECT
+                            id
+                        FROM
+                            xt_item_template
+                        WHERE
+                            name = '冰魄花'
+                    )
+                )
+            ),
+            'skill_pool',
+            jsonb_build_object(
+                'innate_skills',
+                jsonb_build_array(
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '寒冰掌'
+                        ),
+                        'unlock',
+                        'birth'
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '水镜术'
+                        ),
+                        'unlock',
+                        'tier_2'
+                    )
+                ),
+                'awakening_skills',
+                jsonb_build_array(
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '冰封万里'
+                        ),
+                        'weight',
+                        15
+                    ),
+                    jsonb_build_object(
+                        'skill_id',
+                        (
+                            SELECT
+                                id
+                            FROM
+                                xt_skill
+                            WHERE
+                                name = '踏波行'
+                        ),
+                        'weight',
+                        30
+                    )
+                )
+            )
+        ),
+        '["beast_egg","uncommon","beast","water"]' ::jsonb,
+        '灵泉深处的蛙妖，通体碧蓝如玉。每逢月圆之夜鼓腹长鸣，声传十里。'
     );

@@ -18,6 +18,9 @@ import top.stillmisty.xiantao.domain.item.enums.InventoryCategory;
 import top.stillmisty.xiantao.domain.item.vo.ItemEntry;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.ai.spirit.*;
+import top.stillmisty.xiantao.service.beast.BeastBreedService;
+import top.stillmisty.xiantao.service.beast.BeastBreedingService;
+import top.stillmisty.xiantao.service.beast.BeastCombatService;
 import top.stillmisty.xiantao.service.fudi.FarmService;
 import top.stillmisty.xiantao.service.fudi.FudiService;
 import top.stillmisty.xiantao.service.inventory.InventoryService;
@@ -31,6 +34,9 @@ public class SpiritTools {
   private final FudiService fudiService;
   private final FarmService farmService;
   private final InventoryService inventoryService;
+  private final BeastCombatService beastCombatService;
+  private final BeastBreedingService beastBreedingService;
+  private final BeastBreedService beastBreedService;
 
   // ===================== 地块查询 =====================
 
@@ -298,6 +304,60 @@ public class SpiritTools {
         () -> {
           Long userId = UserContext.requireCurrentUserId();
           return fudiService.triggerTribulation(userId);
+        });
+  }
+
+  // ===================== 灵兽管理 =====================
+
+  @Tool(description = "灵兽管理。DEPLOY=出战/召回(toggle)，EVOLVE=进化，RELEASE=放生，HATCH=孵化(value=兽卵名称)")
+  @Transactional
+  public ManageBeastResponse manageBeast(
+      @ToolParam(description = "兽栏地块编号") String position,
+      @ToolParam(description = "操作类型") BeastAction action,
+      @ToolParam(description = "HATCH 时为兽卵名称，其他操作不需要", required = false) String value) {
+    return toolExecutor.execute(
+        "manageBeast",
+        () -> {
+          Long userId = UserContext.requireCurrentUserId();
+          String result =
+              switch (action) {
+                case DEPLOY -> beastCombatService.toggleDeploy(userId, position);
+                case EVOLVE -> {
+                  beastBreedingService.evolveBeast(userId, position);
+                  yield "进化成功";
+                }
+                case RELEASE -> {
+                  var vo = beastBreedingService.releaseBeast(userId, position);
+                  yield "放生了 %s，获得 %d 份灵兽精华".formatted(vo.beastName(), vo.essenceAmount());
+                }
+                case HATCH -> {
+                  beastBreedingService.hatchBeastByInput(userId, position, value);
+                  yield "孵化成功";
+                }
+              };
+          return new ManageBeastResponse(result);
+        });
+  }
+
+  @Tool(description = "让两只灵兽繁育后代。需提供两个兽栏地块编号，要求一阴一阳、均已成年、不在休养/冷却中")
+  @Transactional
+  public BreedBeastsResponse breedBeasts(
+      @ToolParam(description = "第一只灵兽的兽栏地块编号") String position1,
+      @ToolParam(description = "第二只灵兽的兽栏地块编号") String position2) {
+    return toolExecutor.execute(
+        "breedBeasts",
+        () -> {
+          Long userId = UserContext.requireCurrentUserId();
+          var r = beastBreedService.breed(userId, position1, position2);
+          return new BreedBeastsResponse(
+              r.parent1Name(),
+              r.parent1Gender(),
+              r.parent2Name(),
+              r.parent2Gender(),
+              r.offspringEggName(),
+              r.offspringQuality(),
+              r.inheritedTraits(),
+              r.cooldownHours());
         });
   }
 }

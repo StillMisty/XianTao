@@ -64,6 +64,5 @@ public class BeastMutationService {
         availableTraits.get(ThreadLocalRandom.current().nextInt(availableTraits.size()));
     traits.add(newTrait);
     beast.setMutationTraits(traits);
-    beast.setIsMutant(true);
   }
 }

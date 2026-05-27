@@ -7,9 +7,9 @@ CREATE
             fudi_id BIGINT NOT NULL,
             template_id BIGINT NOT NULL,
             beast_name VARCHAR(128),
+            gender VARCHAR(8) NOT NULL DEFAULT 'YANG',
             tier INT NOT NULL DEFAULT 1,
             quality VARCHAR(32) NOT NULL DEFAULT 'MORTAL',
-            is_mutant BOOLEAN NOT NULL DEFAULT FALSE,
             mutation_traits JSONB DEFAULT '[]' ::jsonb,
             LEVEL INT NOT NULL DEFAULT 1,
             EXP INT NOT NULL DEFAULT 0,
@@ -22,12 +22,14 @@ CREATE
             recovery_until TIMESTAMP,
             penned_cell_id INT,
             birth_time TIMESTAMP,
-            evolution_count INT NOT NULL DEFAULT 0,
-            level_cap INT NOT NULL DEFAULT 20,
+            breeding_cooldown_until TIMESTAMP,
             create_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             update_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             CONSTRAINT chk_beast_tier CHECK(
                 tier > 0
+            ),
+            CONSTRAINT chk_beast_gender CHECK(
+                gender IN('YIN', 'YANG')
             ),
             CONSTRAINT chk_beast_level CHECK(
                 LEVEL > 0
@@ -56,12 +58,6 @@ CREATE
             CONSTRAINT chk_beast_max_hp CHECK(
                 max_hp > 0
             ),
-            CONSTRAINT chk_beast_evolution_count CHECK(
-                evolution_count >= 0
-            ),
-            CONSTRAINT chk_beast_level_cap CHECK(
-                level_cap >= 1
-            ),
             CONSTRAINT chk_beast_penned_cell_id CHECK(
                 penned_cell_id IS NULL
                 OR penned_cell_id >= 1
@@ -85,6 +81,9 @@ COMMENT ON
 COLUMN xt_beast.template_id IS 'FK → xt_item_template(id)，孵化源卵模板';
 
 COMMENT ON
+COLUMN xt_beast.gender IS '性别：YIN(阴)/YANG(阳)，孵化时随机分配，繁育需一阴一阳';
+
+COMMENT ON
 COLUMN xt_beast.quality IS '品质：MORTAL/SPIRIT/IMMORTAL/SAINT/DIVINE';
 
 COMMENT ON
@@ -103,7 +102,7 @@ COMMENT ON
 COLUMN xt_beast.penned_cell_id IS '所属栏位编号，null = 栏外休憩';
 
 COMMENT ON
-COLUMN xt_beast.level_cap IS '等级上限（tier × 10 + 10）';
+COLUMN xt_beast.breeding_cooldown_until IS '繁育冷却截止时间，冷却期内不可繁育';
 
 CREATE
     INDEX idx_beast_user_id ON

@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
+import top.stillmisty.xiantao.domain.beast.enums.BeastGender;
 import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
 import top.stillmisty.xiantao.domain.beast.vo.ReleaseBeastVO;
 import top.stillmisty.xiantao.domain.fudi.entity.CellConfig;
@@ -89,14 +90,6 @@ public class BeastBreedingService {
 
   @Authenticated
   @Transactional
-  public ServiceResult<Integer> feedBeast(
-      PlatformType platform, String openId, String position, int quantity) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(feedBeast(userId, position, quantity));
-  }
-
-  @Authenticated
-  @Transactional
   public ServiceResult<PenCellVO> evolveBeast(
       PlatformType platform, String openId, String position) {
     Long userId = UserContext.getCurrentUserId();
@@ -169,7 +162,6 @@ public class BeastBreedingService {
             eggTemplate,
             setup.tier,
             setup.quality,
-            setup.isMutant,
             setup.mutationTraits,
             setup.beastName,
             cellId,
@@ -187,7 +179,7 @@ public class BeastBreedingService {
         setup.beastName,
         Beast.getTierName(setup.tier),
         setup.quality.getChineseName(),
-        setup.isMutant ? ", 变异" : "");
+        !setup.mutationTraits.isEmpty() ? ", 变异" : "");
 
     return beastDisplayHelper.buildPenCellVO(cell);
   }
@@ -195,7 +187,6 @@ public class BeastBreedingService {
   private record HatchSetup(
       int tier,
       BeastQuality quality,
-      boolean isMutant,
       List<String> mutationTraits,
       double hatchHours,
       String beastName) {}
@@ -220,7 +211,7 @@ public class BeastBreedingService {
 
     String beastName = eggTemplate.getName().replace("兽卵", "").replace("蛋", "灵兽");
 
-    return new HatchSetup(tier, quality, isMutant, mutationTraits, hatchHours, beastName);
+    return new HatchSetup(tier, quality, mutationTraits, hatchHours, beastName);
   }
 
   private void validateCellForHatch(FudiCell cell, Integer cellId) {
@@ -238,7 +229,6 @@ public class BeastBreedingService {
       ItemTemplate eggTemplate,
       int tier,
       BeastQuality quality,
-      boolean isMutant,
       List<String> mutationTraits,
       String beastName,
       int cellId,
@@ -249,9 +239,9 @@ public class BeastBreedingService {
     beast.setFudiId(fudiId);
     beast.setTemplateId(eggTemplate.getId());
     beast.setBeastName(beastName);
+    beast.setGender(ThreadLocalRandom.current().nextBoolean() ? BeastGender.YIN : BeastGender.YANG);
     beast.setTier(tier);
     beast.setQuality(quality);
-    beast.setIsMutant(isMutant);
     beast.setMutationTraits(mutationTraits);
     beast.setLevel(1);
     beast.setExp(0);
@@ -264,8 +254,6 @@ public class BeastBreedingService {
     beast.setRecoveryUntil(null);
     beast.setPennedCellId(cellId);
     beast.setBirthTime(now);
-    beast.setEvolutionCount(0);
-    beast.setLevelCap(tier * 10 + 10);
     return beast;
   }
 
@@ -320,46 +308,6 @@ public class BeastBreedingService {
         essenceAmount);
 
     return new ReleaseBeastVO(beastName, tier, qualityStr, essenceAmount);
-  }
-
-  @Transactional
-  public int feedBeast(Long userId, String position, int quantity) {
-    if (quantity <= 0) {
-      throw new BusinessException(ITEM_QUANTITY_INSUFFICIENT, quantity, 0);
-    }
-
-    var pcb = beastDisplayHelper.findPenCell(userId, position, false, true);
-    var beast = pcb.beast();
-    var cellId = pcb.cellId();
-    if (beast.getLevel() >= beast.getLevelCap()) {
-      throw new BusinessException(CELL_MAX_LEVEL);
-    }
-
-    ItemTemplate essenceTemplate =
-        itemTemplateRepository
-            .findByName("灵兽精华")
-            .orElseThrow(() -> new BusinessException(ITEM_NOT_FOUND, "灵兽精华"));
-
-    var essenceItem =
-        stackableItemRepository
-            .findByUserIdAndTemplateId(userId, essenceTemplate.getId())
-            .orElseThrow(() -> new BusinessException(ITEM_NOT_EXISTS, "灵兽精华"));
-
-    stackableItemService.reduceStackableItem(userId, essenceItem.getId(), quantity);
-
-    int totalExp = quantity * ESSENCE_EXP_PER_UNIT;
-    long consumed = beast.addExp(totalExp);
-    beastRepository.save(beast);
-
-    log.debug(
-        "玩家 {} 喂 {} 份灵兽精华给地块 {} 的灵兽 {}，获得 {} 经验",
-        userId,
-        quantity,
-        cellId,
-        beast.getBeastName(),
-        consumed);
-
-    return (int) consumed;
   }
 
   @Transactional

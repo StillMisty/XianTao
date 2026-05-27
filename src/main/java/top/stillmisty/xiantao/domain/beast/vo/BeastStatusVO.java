@@ -8,7 +8,7 @@ public record BeastStatusVO(
     Long id,
     String beastName,
     String quality,
-    boolean isMutant,
+    String gender,
     List<String> mutationTraits,
     int tier,
     int level,
@@ -20,4 +20,5 @@ public record BeastStatusVO(
     List<Long> skills,
     boolean isDeployed,
     boolean needsRecovery,
+    boolean breedCooldown,
     int pennedCellId) {}

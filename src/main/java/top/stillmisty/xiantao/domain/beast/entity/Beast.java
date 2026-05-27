@@ -9,6 +9,7 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import top.stillmisty.xiantao.domain.beast.enums.BeastGender;
 import top.stillmisty.xiantao.domain.fudi.enums.BeastQuality;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
 
@@ -30,11 +31,11 @@ public class Beast {
 
   private String beastName;
 
+  private BeastGender gender;
+
   private Integer tier;
 
   private BeastQuality quality;
-
-  private Boolean isMutant;
 
   @Column(typeHandler = JsonbCollectionTypeHandler.class)
   private List<String> mutationTraits;
@@ -62,15 +63,21 @@ public class Beast {
 
   private LocalDateTime birthTime;
 
-  private Integer evolutionCount;
-
-  private Integer levelCap;
+  private LocalDateTime breedingCooldownUntil;
 
   @Column(onInsertValue = "now()")
   private LocalDateTime createTime;
 
   @Column(onUpdateValue = "now()")
   private LocalDateTime updateTime;
+
+  public boolean isMutant() {
+    return mutationTraits != null && !mutationTraits.isEmpty();
+  }
+
+  public int getLevelCap() {
+    return tier != null ? tier * 10 + 10 : 20;
+  }
 
   public boolean needsRecovery() {
     return hpCurrent != null && maxHp != null && hpCurrent < maxHp;
@@ -82,27 +89,37 @@ public class Beast {
     return recoveryUntil == null || !recoveryUntil.isAfter(LocalDateTime.now());
   }
 
-  /** 计算升级所需经验 公式：50 × level^1.5 */
+  public boolean canBreed() {
+    return breedingCooldownUntil == null || !breedingCooldownUntil.isAfter(LocalDateTime.now());
+  }
+
+  public boolean isAdult() {
+    return tier != null && tier >= 2;
+  }
+
+  /** 兽栏内自动回血：每 5 分钟恢复 1% 最大 HP（仅未出战且未满血时） */
+  public boolean tryAutoHeal() {
+    if (Boolean.TRUE.equals(isDeployed)) return false;
+    if (hpCurrent == null || maxHp == null || hpCurrent >= maxHp) return false;
+    int heal = Math.max(1, maxHp / 100);
+    hpCurrent = Math.min(maxHp, hpCurrent + heal);
+    return true;
+  }
+
   public long calculateExpToNextLevel() {
     if (level == null || level <= 0) return 50;
     return (long) (50 * Math.pow(level, 1.5));
   }
 
-  /** 检查是否可以升级 */
   public boolean canLevelUp() {
-    return levelCap != null && level < levelCap && exp >= (int) calculateExpToNextLevel();
+    return level < getLevelCap() && exp >= (int) calculateExpToNextLevel();
   }
 
-  /**
-   * 添加经验值
-   *
-   * @param expToAdd 要添加的经验值
-   * @return 实际吸收的经验值
-   */
   public long addExp(long expToAdd) {
     if (expToAdd <= 0) return 0;
+    int cap = getLevelCap();
 
-    if (levelCap != null && level >= levelCap) {
+    if (level >= cap) {
       long neededToFill = Math.max(0, calculateExpToNextLevel() - exp);
       long actualAdd = Math.min(expToAdd, neededToFill);
       exp += (int) actualAdd;
@@ -112,27 +129,21 @@ public class Beast {
     exp += (int) Math.min(expToAdd, Integer.MAX_VALUE);
     long consumed = expToAdd;
 
-    while (levelCap != null
-        && level < levelCap
-        && calculateExpToNextLevel() > 0
-        && exp >= (int) calculateExpToNextLevel()) {
+    while (level < cap && calculateExpToNextLevel() > 0 && exp >= (int) calculateExpToNextLevel()) {
       exp -= (int) calculateExpToNextLevel();
       level++;
       recalculateAttributes();
     }
 
-    if (levelCap != null && level >= levelCap) {
+    if (level >= cap) {
       long overflow = exp - calculateExpToNextLevel();
-      if (overflow > 0) {
-        consumed -= overflow;
-      }
+      if (overflow > 0) consumed -= overflow;
       exp = Math.min(exp, (int) calculateExpToNextLevel());
     }
 
     return consumed;
   }
 
-  /** 重新计算属性（升级、进化后调用） 使用与 FudiService.calculateBeastAttack/Defense 一致的公式 */
   public void recalculateAttributes() {
     if (level != null) {
       double q = getQualityMultiplier();
@@ -147,7 +158,6 @@ public class Beast {
     }
   }
 
-  /** 获取品质属性倍率 */
   public double getQualityMultiplier() {
     return switch (quality) {
       case SPIRIT -> 1.0;
@@ -158,20 +168,15 @@ public class Beast {
     };
   }
 
-  /** 检查是否还需要提升等级才能进化 */
   public boolean needsMoreLevels() {
-    return levelCap == null || level < levelCap;
+    return level < getLevelCap();
   }
 
-  /** 进化（升阶），品质有10%概率连带提升 */
   public void evolve() {
     tier++;
-    levelCap = tier * 10 + 10;
-    evolutionCount++;
     recalculateAttributes();
   }
 
-  /** 获取等阶修仙名称 */
   public static String getTierName(int tier) {
     return switch (tier) {
       case 1 -> "通灵";
@@ -183,7 +188,6 @@ public class Beast {
     };
   }
 
-  /** 获取品质修仙名称 */
   public String getQualityName() {
     return quality != null ? quality.getChineseName() : "凡品";
   }

@@ -16,7 +16,6 @@ public class PenCellVO {
   private Integer tier;
   private String quality;
   private Integer qualityOrdinal;
-  private boolean isMutant;
   private List<String> mutationTraits;
   private boolean isIncubating;
   private LocalDateTime hatchTime;

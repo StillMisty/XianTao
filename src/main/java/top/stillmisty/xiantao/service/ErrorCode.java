@@ -40,6 +40,11 @@ public enum ErrorCode {
   BEAST_EGG_NOT_FOUND("未找到兽卵: %s"),
   BEAST_EGG_NOT_IN_INVENTORY("背包中没有 [%s]"),
   BEAST_PRODUCE_NOTHING("暂无产出可收取"),
+  BEAST_BREED_SELF("不能与自己繁育"),
+  BEAST_NOT_ADULT("灵兽需要达到化形阶以上才能繁育"),
+  BEAST_SAME_GENDER("两只灵兽性别相同，无法繁育（需一阴一阳）"),
+  BEAST_BREED_COOLDOWN("灵兽尚在繁育冷却中"),
+  BEAST_IN_RECOVERY("灵兽尚在恢复中，无法繁育"),
 
   // ===== Farm =====
   CROP_TIER_REQUIRES_FARM("作物等阶(T%d)需要至少Lv%d灵田，当前灵田Lv%d"),

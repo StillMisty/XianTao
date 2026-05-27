@@ -73,7 +73,10 @@ public class BeastDisplayHelper {
         .id(beast.getId())
         .beastName(beast.getBeastName())
         .quality(beast.getQuality().getCode())
-        .isMutant(Boolean.TRUE.equals(beast.getIsMutant()))
+        .gender(
+            beast.getGender() != null
+                ? beast.getGender().getSymbol() + beast.getGender().getChineseName()
+                : "")
         .mutationTraits(beast.getMutationTraits())
         .tier(beast.getTier())
         .level(beast.getLevel())
@@ -85,6 +88,7 @@ public class BeastDisplayHelper {
         .skills(beast.getSkills())
         .isDeployed(Boolean.TRUE.equals(beast.getIsDeployed()))
         .needsRecovery(beast.needsRecovery())
+        .breedCooldown(!beast.canBreed())
         .pennedCellId(beast.getPennedCellId() != null ? beast.getPennedCellId() : 0)
         .build();
   }
@@ -97,7 +101,6 @@ public class BeastDisplayHelper {
     int tier = beast != null ? beast.getTier() : 1;
     String qualityChinese = beast != null ? beast.getQuality().getChineseName() : "凡品";
     int qualityOrdinal = beast != null ? beast.getQuality().getOrder() : 1;
-    boolean isMutant = beast != null && Boolean.TRUE.equals(beast.getIsMutant());
     List<String> mutationTraits =
         beast != null && beast.getMutationTraits() != null ? beast.getMutationTraits() : List.of();
     int powerScore = tier * 10;
@@ -110,7 +113,6 @@ public class BeastDisplayHelper {
         .tier(tier)
         .quality(qualityChinese)
         .qualityOrdinal(qualityOrdinal)
-        .isMutant(isMutant)
         .mutationTraits(mutationTraits)
         .isIncubating(isIncubating(cell))
         .hatchTime(pen != null ? pen.hatchTime() : null)

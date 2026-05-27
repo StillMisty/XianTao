@@ -252,7 +252,19 @@ public class SpiritChatService extends AbstractChatService {
       sb.append("- [").append(cell.getCellId()).append("] PEN");
       if (cell.getConfig() instanceof CellConfig.PenConfig pen) {
         Beast beast = beastCache.get(pen.beastId());
-        if (beast != null) sb.append(" 饲养:").append(beast.getBeastName());
+        if (beast != null) {
+          sb.append(" 饲养:").append(beast.getBeastName());
+          if (beast.getGender() != null) {
+            sb.append("(")
+                .append(beast.getGender().getSymbol())
+                .append(beast.getGender().getChineseName())
+                .append(")");
+          }
+          if (beast.getBreedingCooldownUntil() != null
+              && beast.getBreedingCooldownUntil().isAfter(LocalDateTime.now())) {
+            sb.append(" 🔥繁育冷却中");
+          }
+        }
       }
       sb.append("\n");
     }

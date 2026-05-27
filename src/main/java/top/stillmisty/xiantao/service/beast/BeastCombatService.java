@@ -13,6 +13,7 @@ import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
 import top.stillmisty.xiantao.domain.beast.vo.*;
 import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
 import top.stillmisty.xiantao.domain.fudi.enums.BeastQuality;
+import top.stillmisty.xiantao.domain.fudi.enums.MutationTrait;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ServiceResult;
@@ -20,7 +21,7 @@ import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.fudi.FudiHelper;
 
-/** 灵兽出战/召回、恢复、经验 */
+/** 灵兽出战/召回、经验 */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -31,30 +32,6 @@ public class BeastCombatService {
   private final BeastDisplayHelper beastDisplayHelper;
 
   // ===================== 公开 API（含认证） =====================
-
-  @Authenticated
-  @Transactional
-  public ServiceResult<ActionResultVO> deployBeast(
-      PlatformType platform, String openId, String position) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(deployBeast(userId, position));
-  }
-
-  @Authenticated
-  @Transactional
-  public ServiceResult<BeastUndeployResult> undeployBeast(
-      PlatformType platform, String openId, String position) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(undeployBeast(userId, position));
-  }
-
-  @Authenticated
-  @Transactional
-  public ServiceResult<ActionResultVO> recoverBeast(
-      PlatformType platform, String openId, String position) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(recoverBeast(userId, position));
-  }
 
   @Authenticated
   public ServiceResult<List<BeastStatusVO>> getDeployedBeasts(
@@ -91,133 +68,7 @@ public class BeastCombatService {
     };
   }
 
-  @Transactional
-  public ActionResultVO deployBeast(Long userId, String position) {
-    BeastDisplayHelper.PenCellBeast pcb =
-        beastDisplayHelper.getBeastFromPenCell(userId, position, true);
-    Beast beast = pcb.beast();
-
-    if (Boolean.TRUE.equals(beast.getIsDeployed())) {
-      return new ActionResultVO(true, "灵兽已处于出战状态");
-    }
-
-    if (beast.getHpCurrent() <= 0) {
-      throw new BusinessException(BEAST_DEAD);
-    }
-
-    List<Beast> allBeasts = beastRepository.findByFudiId(pcb.fudi().getId());
-    long deployedCount =
-        allBeasts.stream().filter(b -> Boolean.TRUE.equals(b.getIsDeployed())).count();
-    if (deployedCount >= 2) {
-      throw new BusinessException(BEAST_DEPLOY_FULL);
-    }
-
-    beast.setIsDeployed(true);
-    beastRepository.save(beast);
-
-    String beastName = beast.getBeastName();
-    log.debug("玩家 {} 将灵兽 {} 设为出战", userId, beastName);
-    return new ActionResultVO(true, "灵兽 [%s] 已出战".formatted(beastName));
-  }
-
-  @Transactional
-  public BeastUndeployResult undeployBeast(Long userId, String position) {
-    if ("all".equalsIgnoreCase(position)) {
-      return undeployAllBeasts(userId);
-    }
-
-    BeastDisplayHelper.PenCellBeast pcb =
-        beastDisplayHelper.getBeastFromPenCell(userId, position, false);
-    Beast beast = pcb.beast();
-
-    if (!Boolean.TRUE.equals(beast.getIsDeployed())) {
-      return new ActionResultVO(true, "灵兽未在出战状态");
-    }
-
-    beast.setIsDeployed(false);
-    beastRepository.save(beast);
-
-    String beastName = beast.getBeastName();
-    log.debug("玩家 {} 将灵兽 {} 召回", userId, beastName);
-    return new ActionResultVO(true, "灵兽 [%s] 已召回".formatted(beastName));
-  }
-
-  BatchCountVO undeployAllBeasts(Long userId) {
-    Fudi fudi =
-        fudiHelper
-            .findAndTouchFudi(userId)
-            .orElseThrow(() -> new BusinessException(FUDI_NOT_FOUND));
-
-    List<Beast> beasts = beastRepository.findByFudiId(fudi.getId());
-    int count = 0;
-    for (Beast b : beasts) {
-      if (Boolean.TRUE.equals(b.getIsDeployed())) {
-        b.setIsDeployed(false);
-        beastRepository.save(b);
-        count++;
-      }
-    }
-
-    return new BatchCountVO(count);
-  }
-
-  @Transactional
-  public ActionResultVO recoverBeast(Long userId, String position) {
-    if ("all".equalsIgnoreCase(position)) {
-      return recoverAllBeasts(userId);
-    }
-
-    BeastDisplayHelper.PenCellBeast pcb =
-        beastDisplayHelper.getBeastFromPenCell(userId, position, true);
-    Beast beast = pcb.beast();
-
-    int hpCurrent = beast.getHpCurrent();
-    int hpMax = beast.getMaxHp();
-    if (hpCurrent >= hpMax) {
-      return new ActionResultVO(true, "灵兽HP已满");
-    }
-
-    if (beast.getRecoveryUntil() != null && beast.getRecoveryUntil().isAfter(LocalDateTime.now())) {
-      throw new BusinessException(
-          BEAST_RECOVERING,
-          beast.getRecoveryUntil().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")));
-    }
-
-    beast.setHpCurrent(hpMax);
-    beast.setRecoveryUntil(null);
-    beastRepository.save(beast);
-
-    String beastName = beast.getBeastName();
-    log.debug("玩家 {} 恢复灵兽 {} HP", userId, beastName);
-    return new ActionResultVO(true, "灵兽 [%s] HP已恢复".formatted(beastName));
-  }
-
-  ActionResultVO recoverAllBeasts(Long userId) {
-    Fudi fudi =
-        fudiHelper
-            .findAndTouchFudi(userId)
-            .orElseThrow(() -> new BusinessException(FUDI_NOT_FOUND));
-
-    int recoverCount = 0;
-
-    List<Beast> beasts = beastRepository.findByFudiId(fudi.getId());
-    for (Beast beast : beasts) {
-      int hpCurrent = beast.getHpCurrent();
-      int hpMax = beast.getMaxHp();
-      if (hpCurrent >= hpMax) continue;
-
-      beast.setHpCurrent(hpMax);
-      beast.setRecoveryUntil(null);
-      beastRepository.save(beast);
-      recoverCount++;
-    }
-
-    if (recoverCount == 0) {
-      return new ActionResultVO(true, "没有需要恢复的灵兽");
-    }
-
-    return new ActionResultVO(true, "已恢复 %d 只灵兽".formatted(recoverCount));
-  }
+  // ===================== 内部 API =====================
 
   List<BeastStatusVO> getDeployedBeasts(Long userId) {
     Fudi fudi =
@@ -237,6 +88,39 @@ public class BeastCombatService {
         .toList();
   }
 
+  /** 出战/召回 toggle：已出战则召回，未出战则出战 */
+  @Transactional
+  public String toggleDeploy(Long userId, String position) {
+    BeastDisplayHelper.PenCellBeast pcb =
+        beastDisplayHelper.getBeastFromPenCell(userId, position, false);
+    Beast beast = pcb.beast();
+
+    if (Boolean.TRUE.equals(beast.getIsDeployed())) {
+      beast.setIsDeployed(false);
+      beastRepository.save(beast);
+      return "灵兽 [%s] 已召回".formatted(beast.getBeastName());
+    }
+
+    if (beast.getHpCurrent() <= 0) {
+      throw new BusinessException(BEAST_DEAD);
+    }
+
+    if (beast.getRecoveryUntil() != null && beast.getRecoveryUntil().isAfter(LocalDateTime.now())) {
+      throw new BusinessException(BEAST_IN_RECOVERY);
+    }
+
+    List<Beast> allBeasts = beastRepository.findByFudiId(pcb.fudi().getId());
+    long deployedCount =
+        allBeasts.stream().filter(b -> Boolean.TRUE.equals(b.getIsDeployed())).count();
+    if (deployedCount >= 2) {
+      throw new BusinessException(BEAST_DEPLOY_FULL);
+    }
+
+    beast.setIsDeployed(true);
+    beastRepository.save(beast);
+    return "灵兽 [%s] 已出战".formatted(beast.getBeastName());
+  }
+
   @Transactional
   public void addBeastExp(Long beastId, long expToAdd) {
     beastRepository
@@ -244,8 +128,7 @@ public class BeastCombatService {
         .ifPresentOrElse(
             beast -> {
               long actualExp = expToAdd;
-              if (beast.getMutationTraits() != null
-                  && beast.getMutationTraits().contains("SPIRIT_DEVOUR")) {
+              if (hasTrait(beast, MutationTrait.SPIRIT_DEVOUR)) {
                 actualExp = (long) (expToAdd * 1.25);
               }
               long consumed = beast.addExp(actualExp);
@@ -260,13 +143,16 @@ public class BeastCombatService {
     List<Beast> deployedBeasts = beastRepository.findByUserIdAndIsDeployed(userId, true);
     for (Beast beast : deployedBeasts) {
       long actualExp = expToAdd;
-      if (beast.getMutationTraits() != null
-          && beast.getMutationTraits().contains("SPIRIT_DEVOUR")) {
+      if (hasTrait(beast, MutationTrait.SPIRIT_DEVOUR)) {
         actualExp = (long) (expToAdd * 1.25);
       }
       long consumed = beast.addExp(actualExp);
       beastRepository.save(beast);
       log.debug("灵兽 {} 获得 {} 经验", beast.getId(), consumed);
     }
+  }
+
+  private boolean hasTrait(Beast beast, MutationTrait trait) {
+    return beast.getMutationTraits() != null && beast.getMutationTraits().contains(trait.getCode());
   }
 }
