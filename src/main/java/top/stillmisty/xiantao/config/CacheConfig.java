@@ -19,6 +19,7 @@ public class CacheConfig {
   private static final long DEFAULT_TTL_MINUTES = 5;
   private static final long STATIC_TTL_MINUTES = 30;
   private static final long VOLATILE_TTL_MINUTES = 1;
+  private static final long DAY_TTL_MINUTES = 1440;
 
   @Bean
   public CacheManager cacheManager() {
@@ -29,7 +30,7 @@ public class CacheConfig {
             cache("player_equipment", DEFAULT_TTL_MINUTES, 200),
             cache("player_skills", DEFAULT_TTL_MINUTES, 200),
             cache("player_view", DEFAULT_TTL_MINUTES, 200),
-            cache("fortunes", 1440, 200),
+            cache("fortunes", DAY_TTL_MINUTES, 200),
             cache("map_data", STATIC_TTL_MINUTES, 50),
             cache("dungeon_list", VOLATILE_TTL_MINUTES, 50),
             cache("bounties", DEFAULT_TTL_MINUTES, 100),
