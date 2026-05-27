@@ -28,7 +28,7 @@ INSERT
     ),
     (
         '石狮子',
-        '镇宅的石狮子成精了，虽然很想威风但最近迷上了嗑瓜子。',
+        '镇宅石狮成精，威严中带着几分憨态，喜欢收集亮晶晶的小物件。',
         '["defense","ore","craft","metal","fortune"]',
         '["water","ice","flying","silk","poison"]'
     ),
@@ -58,7 +58,7 @@ INSERT
     ),
     (
         '童子',
-        '穿着红肚兜的仙童，调皮可爱，偶尔会偷吃你的丹药。',
+        '穿着红肚兜的仙童，天真烂漫，对丹药有着天生的嗅觉。',
         '["pill","potion","fire","yang","sweet"]',
         '["dark","poison","evil","bitter","soul"]'
     ),
@@ -94,7 +94,7 @@ INSERT
     ),
     (
         '饕餮',
-        '什么都想吃的吃货灵体，特别喜欢兽卵和丹药——但别给它真货否则会胖。',
+        '上古凶兽饕餮之灵，食欲旺盛，对各类灵材有着近乎偏执的渴求。',
         '["beast_egg","pill","potion","food","sweet"]',
         '["poison","bitter","soul","evil","undead"]'
     ),
@@ -178,7 +178,7 @@ INSERT
     ),
     (
         '镜子精灵',
-        '一面青铜镜中醒来的小东西，喜欢照镜子但啥也照不出来（因为是灵体）。',
+        '一面青铜古镜中醒来的灵体，能映照万物却独独照不见自己。',
         '["light","beauty","metal","craft","gem"]',
         '["dark","evil","ghost","poison","ugly"]'
     ),

@@ -104,7 +104,7 @@ INSERT
         'POTION',
         '{"effects":[{"type":"stat","statAttr":"STR","amount":10}]}',
         '["pill","stat","str","entry"]',
-        '淬炼筋骨，增力十钧，服后感觉能一拳打死一头牛。'
+        '淬炼筋骨，增力十钧，服后筋骨铮鸣，力道倍增。'
     ),
     (
         '金刚散',
@@ -118,14 +118,14 @@ INSERT
         'POTION',
         '{"effects":[{"type":"stat","statAttr":"AGI","amount":10}]}',
         '["pill","stat","agi","entry"]',
-        '身轻如燕草上飞，服后走路自带残影。'
+        '身轻如燕，步履如风，服后行走间悄无声息。'
     ),
     (
         '开智丹',
         'POTION',
         '{"effects":[{"type":"stat","statAttr":"WIS","amount":10}]}',
         '["pill","stat","wis","entry"]',
-        '开启灵台，悟性大增，以前看不懂的法决突然就通了。'
+        '开启灵台，悟性大增，往日晦涩的道法豁然贯通。'
     ),
     (
         '龙力丹',
@@ -167,7 +167,7 @@ INSERT
         'POTION',
         '{"effects":[{"type":"stat","statAttr":"AGI","amount":20}]}',
         '["pill","stat","agi","basic"]',
-        '服后两腿生风，跑得比兔子还快——修仙界的小电驴。'
+        '服后两腿生风，行走如飞，草上踏叶不留痕。'
     ),
     (
         '大悟道丹',
@@ -251,7 +251,7 @@ INSERT
         'POTION',
         '{"effects":[{"type":"hp","amount":1000}]}',
         '["pill","heal","emergency"]',
-        '危急时刻服下即可大幅回血，丹瓶上写着"打架必备"。'
+        '危急时刻服下即可大幅回血，保命良药，行走江湖必备。'
     ),
     (
         '抗性丹',
@@ -293,7 +293,7 @@ INSERT
         'POTION',
         '{"effects":[{"type":"buff","attribute":"speed","amount":50,"duration_seconds":3600}]}',
         '["pill","buff","utility"]',
-        '改变面容一个时辰，但熟人还是认得你的灵气气息。'
+        '可改换容貌一个时辰，但灵气气息难以完全遮掩。'
     ),
     (
         '定颜丹',
@@ -307,7 +307,7 @@ INSERT
         'POTION',
         '{"effects":[{"type":"buff","attribute":"defense","amount":100,"duration_seconds":86400}]}',
         '["pill","buff","utility"]',
-        '服一粒可一日不食，闭关修炼必备，但味道不如真饭吃。'
+        '服一粒可一日不食，闭关修炼必备，虽无五谷之香却胜在便捷。'
     ),
     (
         '延寿丹',
