@@ -20,8 +20,6 @@ public enum BeastQuality {
   private final int hatchWeight;
   private final int recoveryMinutes;
 
-  private final int order;
-
   BeastQuality(
       String code,
       String chineseName,
@@ -37,7 +35,6 @@ public enum BeastQuality {
     this.lifespanMultiplier = lifespanMultiplier;
     this.hatchWeight = hatchWeight;
     this.recoveryMinutes = recoveryMinutes;
-    this.order = ordinal();
   }
 
   public static BeastQuality fromCode(String code) {

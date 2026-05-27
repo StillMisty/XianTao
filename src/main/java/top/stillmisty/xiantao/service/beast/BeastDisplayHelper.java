@@ -100,28 +100,27 @@ public class BeastDisplayHelper {
     String beastName = beast != null ? beast.getBeastName() : "未知灵兽";
     int tier = beast != null ? beast.getTier() : 1;
     String qualityChinese = beast != null ? beast.getQuality().getChineseName() : "凡品";
-    int qualityOrdinal = beast != null ? beast.getQuality().getOrder() : 1;
+    int qualityOrdinal = beast != null ? beast.getQuality().ordinal() : 1;
     List<String> mutationTraits =
         beast != null && beast.getMutationTraits() != null ? beast.getMutationTraits() : List.of();
     int powerScore = tier * 10;
 
-    return PenCellVO.builder()
-        .cellId(cell.getCellId())
-        .cellLevel(cell.getCellLevel())
-        .beastId(beast != null ? beast.getId() : null)
-        .beastName(beastName)
-        .tier(tier)
-        .quality(qualityChinese)
-        .qualityOrdinal(qualityOrdinal)
-        .mutationTraits(mutationTraits)
-        .isIncubating(isIncubating(cell))
-        .hatchTime(pen != null ? pen.hatchTime() : null)
-        .matureTime(pen != null ? pen.matureTime() : null)
-        .productionIntervalHours(4.0)
-        .productionStored(cell.getTotalProductionQuantity())
-        .powerScore(powerScore)
-        .birthTime(beast != null ? beast.getBirthTime() : null)
-        .build();
+    return new PenCellVO(
+        cell.getCellId(),
+        cell.getCellLevel(),
+        beast != null ? beast.getId() : null,
+        beastName,
+        tier,
+        qualityChinese,
+        qualityOrdinal,
+        mutationTraits,
+        isIncubating(cell),
+        pen != null ? pen.hatchTime() : null,
+        pen != null ? pen.matureTime() : null,
+        4.0,
+        cell.getTotalProductionQuantity(),
+        powerScore,
+        beast != null ? beast.getBirthTime() : null);
   }
 
   public void buildPenCellDetail(CellDetailVO.CellDetailVOBuilder builder, FudiCell cell) {

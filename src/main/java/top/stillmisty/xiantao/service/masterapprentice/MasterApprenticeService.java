@@ -124,7 +124,7 @@ public class MasterApprenticeService {
     if (isOnCooldown(userId)) {
       throw new BusinessException(ErrorCode.MASTER_COOLDOWN, COOLDOWN_HOURS);
     }
-    if (isInSameSect(userId, master.getId())) {
+    if (!isInSameSect(userId, master.getId()) && !areBothRogue(userId, master.getId())) {
       throw new BusinessException(ErrorCode.MASTER_NOT_SAME_SECT);
     }
 
@@ -158,7 +158,7 @@ public class MasterApprenticeService {
     if (isOnCooldown(apprentice.getId())) {
       throw new BusinessException(ErrorCode.MASTER_COOLDOWN, COOLDOWN_HOURS);
     }
-    if (isInSameSect(userId, apprentice.getId())) {
+    if (!isInSameSect(userId, apprentice.getId()) && !areBothRogue(userId, apprentice.getId())) {
       throw new BusinessException(ErrorCode.MASTER_NOT_SAME_SECT);
     }
 
@@ -435,10 +435,14 @@ public class MasterApprenticeService {
   private boolean isInSameSect(Long userIdA, Long userIdB) {
     Optional<SectMember> memberA = sectMemberRepository.findByUserId(userIdA);
     Optional<SectMember> memberB = sectMemberRepository.findByUserId(userIdB);
-    if (memberA.isEmpty() && memberB.isEmpty()) return false;
-    if (memberA.isEmpty() || memberB.isEmpty()) return true;
+    if (memberA.isEmpty() || memberB.isEmpty()) return false;
     Long sectA = memberA.get().getSectId();
     Long sectB = memberB.get().getSectId();
     return sectA.equals(sectB);
+  }
+
+  private boolean areBothRogue(Long userIdA, Long userIdB) {
+    return sectMemberRepository.findByUserId(userIdA).isEmpty()
+        && sectMemberRepository.findByUserId(userIdB).isEmpty();
   }
 }

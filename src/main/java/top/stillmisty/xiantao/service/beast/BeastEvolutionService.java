@@ -76,9 +76,9 @@ public class BeastEvolutionService {
     }
     if (beast.getQuality() != BeastQuality.DIVINE
         && ThreadLocalRandom.current().nextInt(100) < qualityUpgradeChance) {
-      int nextOrdinal = beast.getQuality().getOrder() + 1;
+      int nextOrdinal = beast.getQuality().ordinal() + 1;
       for (BeastQuality q : BeastQuality.values()) {
-        if (q.getOrder() == nextOrdinal) {
+        if (q.ordinal() == nextOrdinal) {
           beast.setQuality(q);
           break;
         }

@@ -183,7 +183,7 @@ public class BeastBreedService {
   }
 
   private BeastQuality rollOffspringQuality(Beast parent1, Beast parent2) {
-    double avg = (parent1.getQuality().getOrder() + parent2.getQuality().getOrder()) / 2.0;
+    double avg = (parent1.getQuality().ordinal() + parent2.getQuality().ordinal()) / 2.0;
     double roll = ThreadLocalRandom.current().nextDouble(-0.5, 1.0);
 
     if (hasTrait(parent1, MutationTrait.FERTILE) || hasTrait(parent2, MutationTrait.FERTILE)) {

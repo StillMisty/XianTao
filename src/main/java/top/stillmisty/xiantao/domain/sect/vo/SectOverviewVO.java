@@ -1,19 +1,23 @@
 package top.stillmisty.xiantao.domain.sect.vo;
 
-import top.stillmisty.xiantao.domain.sect.enums.SectPosition;
+import java.util.List;
 
+/** 宗门总览值对象 */
 public record SectOverviewVO(
-    Long sectId,
     String name,
-    Integer level,
-    Long funds,
-    Integer memberCount,
-    Integer maxMembers,
-    String leaderName,
+    String verse,
+    int level,
+    String leaderNickname,
+    int memberCount,
+    int maxMembers,
+    long funds,
+    int myContribution,
+    String myPosition,
     String description,
     String notice,
-    String verse,
-    String ethos,
-    String eventText,
-    SectPosition myPosition,
-    Integer myContribution) {}
+    String currentEvent,
+    List<MemberEntry> members) {
+
+  /** 成员条目 */
+  public record MemberEntry(String positionName, String nickname, int level, boolean isMe) {}
+}

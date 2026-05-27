@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
+import top.stillmisty.xiantao.domain.sect.vo.SectOverviewVO;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
@@ -22,8 +23,7 @@ public class SectCommandHandler implements CommandGroup {
     return CommandHandlerHelper.safeCall(
         () -> sectMemberService.getSectOverview(platform, openId),
         fmt,
-        text -> text,
-        msg -> "操作失败: " + msg);
+        vo -> formatSectOverview(vo, fmt));
   }
 
   public String handleCreate(
@@ -61,6 +61,38 @@ public class SectCommandHandler implements CommandGroup {
         fmt,
         text -> text,
         msg -> "操作失败: " + msg);
+  }
+
+  private String formatSectOverview(SectOverviewVO vo, TextFormat fmt) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(fmt.heading(vo.name(), null));
+    if (vo.verse() != null && !vo.verse().isBlank()) {
+      sb.append("「").append(vo.verse()).append("」\n");
+    }
+    sb.append(fmt.separator());
+    sb.append("等级: Lv.").append(vo.level()).append("\n");
+    sb.append("宗主: ").append(vo.leaderNickname()).append("\n");
+    sb.append("成员: ").append(vo.memberCount()).append("/").append(vo.maxMembers()).append("\n");
+    sb.append("资金: ").append(vo.funds()).append(" 灵石\n");
+    sb.append("我的贡献: ").append(vo.myContribution()).append("\n");
+    sb.append("我的职位: ").append(vo.myPosition()).append("\n");
+    if (vo.description() != null && !vo.description().isBlank()) {
+      sb.append("简介: ").append(vo.description()).append("\n");
+    }
+    if (vo.notice() != null && !vo.notice().isBlank()) {
+      sb.append("公告: ").append(vo.notice()).append("\n");
+    }
+    if (vo.currentEvent() != null && !vo.currentEvent().isBlank()) {
+      sb.append("当前事件: ").append(vo.currentEvent()).append("\n");
+    }
+    sb.append("\n成员列表:\n");
+    for (var m : vo.members()) {
+      sb.append("  ").append(m.positionName()).append(" ").append(m.nickname());
+      sb.append(" (Lv.").append(m.level()).append(")");
+      if (m.isMe()) sb.append(" [我]");
+      sb.append("\n");
+    }
+    return sb.toString();
   }
 
   @Override

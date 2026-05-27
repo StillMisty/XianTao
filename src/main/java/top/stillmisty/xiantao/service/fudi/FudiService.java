@@ -56,9 +56,9 @@ public class FudiService {
 
   @Authenticated
   @Transactional
-  public ServiceResult<FudiStatusVO> getFudiStatus(PlatformType platform, String openId) {
+  public ServiceResult<FudiStatusVO> ensureFudiReady(PlatformType platform, String openId) {
     Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(getFudiStatus(userId));
+    return new ServiceResult.Success<>(ensureFudiReady(userId));
   }
 
   @Authenticated
@@ -219,7 +219,7 @@ public class FudiService {
   // ===================== 福地状态查询 =====================
 
   @Transactional
-  public FudiStatusVO getFudiStatus(Long userId) {
+  public FudiStatusVO ensureFudiReady(Long userId) {
     Fudi fudi = getFudiOrThrow(userId);
     autoExpandCells(fudi);
 
@@ -232,9 +232,7 @@ public class FudiService {
 
     int totalBeasts =
         (int)
-            cellDetails.stream()
-                .filter(c -> c.getType() == CellType.PEN && c.getName() != null)
-                .count();
+            cellDetails.stream().filter(c -> c.type() == CellType.PEN && c.name() != null).count();
 
     Spirit spirit = spiritRepository.findByFudiId(fudi.getId()).orElse(null);
 
@@ -250,25 +248,24 @@ public class FudiService {
       }
     }
 
-    return FudiStatusVO.builder()
-        .fudiId(fudi.getId())
-        .userId(fudi.getUserId())
-        .tribulationStage(fudi.getTribulationStage())
-        .totalCells(getTotalCellCount(fudi))
-        .mbtiType(spirit != null ? spirit.getMbtiType() : null)
-        .spiritAffection(spirit != null ? spirit.getAffection() : null)
-        .affectionMax(spirit != null ? spirit.getAffectionMax() : null)
-        .spiritForm(formName)
-        .spiritFormName(formName)
-        .likedTags(likedTags)
-        .dislikedTags(dislikedTags)
-        .occupiedCells(getOccupiedCellCount(fudi))
-        .tribulationWinStreak(fudi.getTribulationWinStreak())
-        .lastTribulationTime(fudi.getLastTribulationTime())
-        .cellDetails(cellDetails)
-        .totalBeasts(totalBeasts)
-        .tribulationResult(tribulationResult)
-        .build();
+    return new FudiStatusVO(
+        fudi.getId(),
+        fudi.getUserId(),
+        fudi.getTribulationStage(),
+        getTotalCellCount(fudi),
+        spirit != null ? spirit.getMbtiType() : null,
+        spirit != null ? spirit.getAffection() : null,
+        spirit != null ? spirit.getAffectionMax() : null,
+        formName,
+        formName,
+        likedTags,
+        dislikedTags,
+        getOccupiedCellCount(fudi),
+        fudi.getTribulationWinStreak(),
+        fudi.getLastTribulationTime(),
+        tribulationResult,
+        cellDetails,
+        totalBeasts);
   }
 
   private int getOccupiedCellCount(Fudi fudi) {

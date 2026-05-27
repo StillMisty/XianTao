@@ -23,12 +23,12 @@ public class FudiCommandHandler implements CommandGroup {
 
   public String handleFudiStatus(PlatformType platform, String openId, TextFormat fmt) {
     return CommandHandlerHelper.safeCall(
-        () -> fudiService.getFudiStatus(platform, openId), fmt, vo -> formatFudiStatus(vo, fmt));
+        () -> fudiService.ensureFudiReady(platform, openId), fmt, vo -> formatFudiStatus(vo, fmt));
   }
 
   public String handleFudiGrid(PlatformType platform, String openId, TextFormat fmt) {
     return CommandHandlerHelper.safeCall(
-        () -> fudiService.getFudiStatus(platform, openId), fmt, vo -> formatCellLayout(vo, fmt));
+        () -> fudiService.ensureFudiReady(platform, openId), fmt, vo -> formatCellLayout(vo, fmt));
   }
 
   public String handleSpiritChat(
@@ -50,27 +50,27 @@ public class FudiCommandHandler implements CommandGroup {
   private String formatFudiStatus(FudiStatusVO status, TextFormat fmt) {
     StringBuilder sb = new StringBuilder();
 
-    if (status.getTribulationResult() != null) {
-      sb.append(status.getTribulationResult()).append("\n\n");
+    if (status.tribulationResult() != null) {
+      sb.append(status.tribulationResult()).append("\n\n");
     }
 
     sb.append(fmt.heading("福地状态", "🏔️"));
     sb.append(fmt.separator());
     sb.append("⛈️ 劫数：")
-        .append(status.getTribulationStage())
+        .append(status.tribulationStage())
         .append("  连胜×")
-        .append(status.getTribulationWinStreak())
+        .append(status.tribulationWinStreak())
         .append("\n");
     sb.append("🧚 地灵形态：")
-        .append(status.getSpiritFormName() != null ? status.getSpiritFormName() : "未知形态")
+        .append(status.spiritFormName() != null ? status.spiritFormName() : "未知形态")
         .append("\n");
-    if (status.getMbtiType() != null) {
-      sb.append("🎭 地灵人格：").append(status.getMbtiType().getCode()).append("\n");
+    if (status.mbtiType() != null) {
+      sb.append("🎭 地灵人格：").append(status.mbtiType().getCode()).append("\n");
     }
     sb.append("🏗️ 已占地块：")
-        .append(status.getOccupiedCells())
+        .append(status.occupiedCells())
         .append("/")
-        .append(status.getTotalCells())
+        .append(status.totalCells())
         .append("\n");
     sb.append(fmt.separator());
     sb.append("💡 输入「福地地块」查看详细布局");
@@ -81,25 +81,25 @@ public class FudiCommandHandler implements CommandGroup {
     StringBuilder sb = new StringBuilder();
     sb.append(fmt.heading("福地地块布局", "🗺️"));
     sb.append(fmt.separator());
-    if (status.getCellDetails() == null || status.getCellDetails().isEmpty()) {
+    if (status.cellDetails() == null || status.cellDetails().isEmpty()) {
       sb.append("（空地，尚未建造任何地块）\n");
     } else {
-      for (var cell : status.getCellDetails()) {
-        sb.append("📍 #").append(cell.getCellId()).append(" ");
-        sb.append(cell.getType().getChineseName());
-        if (cell.getCellLevel() != null && cell.getCellLevel() > 1) {
-          sb.append(" Lv").append(cell.getCellLevel());
+      for (var cell : status.cellDetails()) {
+        sb.append("📍 #").append(cell.cellId()).append(" ");
+        sb.append(cell.type().getChineseName());
+        if (cell.cellLevel() != null && cell.cellLevel() > 1) {
+          sb.append(" Lv").append(cell.cellLevel());
         }
-        if (cell.getName() != null) sb.append(" - ").append(cell.getName());
-        if (cell.getGrowthProgress() != null) {
-          int percent = (int) (cell.getGrowthProgress() * 100);
+        if (cell.name() != null) sb.append(" - ").append(cell.name());
+        if (cell.growthProgress() != null) {
+          int percent = (int) (cell.growthProgress() * 100);
           sb.append(" [").append(percent).append("%]");
-          if (Boolean.TRUE.equals(cell.getIsMature())) sb.append(" ✅ 可收取");
+          if (Boolean.TRUE.equals(cell.isMature())) sb.append(" ✅ 可收取");
         }
-        if (cell.getQuality() != null) sb.append(" ").append(cell.getQuality());
-        if (cell.getProductionStored() != null && cell.getProductionStored() > 0)
-          sb.append(" 📦x").append(cell.getProductionStored());
-        if (Boolean.TRUE.equals(cell.getIsIncubating())) sb.append(" 🥚孵化中");
+        if (cell.quality() != null) sb.append(" ").append(cell.quality());
+        if (cell.productionStored() != null && cell.productionStored() > 0)
+          sb.append(" 📦x").append(cell.productionStored());
+        if (Boolean.TRUE.equals(cell.isIncubating())) sb.append(" 🥚孵化中");
         sb.append("\n");
       }
     }

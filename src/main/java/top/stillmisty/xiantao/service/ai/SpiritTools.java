@@ -132,7 +132,7 @@ public class SpiritTools {
         () -> {
           Long userId = UserContext.requireCurrentUserId();
           FarmCellVO r = farmService.plantCropByInput(userId, position, cropName);
-          return new PlantCropResponse(position, cropName, r.getBaseGrowthHours());
+          return new PlantCropResponse(position, cropName, r.baseGrowthHours());
         });
   }
 

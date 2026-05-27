@@ -99,21 +99,20 @@ public class FarmService {
 
     log.info("玩家 {} 在地块 {} 种植 {} (T{})", userId, cellId, cropName, cropTier);
 
-    return FarmCellVO.builder()
-        .cellId(cellId)
-        .cellLevel(cellLevel)
-        .cropId(cropId)
-        .cropName(cropName)
-        .plantTime(now)
-        .matureTime(matureTime)
-        .growthProgress(0.0)
-        .isMature(false)
-        .baseGrowthHours(baseGrowthHours)
-        .actualGrowthHours(actualGrowthHours)
-        .harvestCount(0)
-        .maxHarvest(getMaxHarvest(cropId))
-        .isPerennial(getMaxHarvest(cropId) > 1)
-        .build();
+    return new FarmCellVO(
+        cellId,
+        cellLevel,
+        cropId,
+        cropName,
+        now,
+        matureTime,
+        0.0,
+        false,
+        baseGrowthHours,
+        actualGrowthHours,
+        0,
+        getMaxHarvest(cropId),
+        getMaxHarvest(cropId) > 1);
   }
 
   @Transactional
