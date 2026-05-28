@@ -1200,14 +1200,6 @@ INSERT INTO xt_item_template(name, type, properties, tags, description) VALUES
   '["beast_egg", "legendary", "flying", "speed"]' ::jsonb,
   '蕴含天马血脉的灵兽卵，表面隐约可见灵光流转。'
 ),
-('金翼雕卵', 'BEAST_EGG',
-  jsonb_build_object(
-    'beast_template_id',
-    (SELECT id FROM xt_beast_template WHERE name = '金翼雕')
-  ),
-  '["beast_egg", "rare", "flying", "metal", "predator"]' ::jsonb,
-  '蕴含金翼雕血脉的灵兽卵，表面隐约可见灵光流转。'
-),
 ('大鹏金翅鸟卵', 'BEAST_EGG',
   jsonb_build_object(
     'beast_template_id',
@@ -1248,13 +1240,13 @@ INSERT INTO xt_item_template(name, type, properties, tags, description) VALUES
   '["beast_egg", "uncommon", "serpent", "beast"]' ::jsonb,
   '蕴含花蟒血脉的灵兽卵，表面隐约可见灵光流转。'
 ),
-('水蛇精卵', 'BEAST_EGG',
+('水蛟卵', 'BEAST_EGG',
   jsonb_build_object(
     'beast_template_id',
-    (SELECT id FROM xt_beast_template WHERE name = '水蛇精')
+    (SELECT id FROM xt_beast_template WHERE name = '水蛟')
   ),
   '["beast_egg", "uncommon", "serpent", "water"]' ::jsonb,
-  '蕴含水蛇精血脉的灵兽卵，表面隐约可见灵光流转。'
+  '蕴含水蛟血脉的灵兽卵，表面隐约可见灵光流转。'
 ),
 ('草蛇卵', 'BEAST_EGG',
   jsonb_build_object(
@@ -1264,13 +1256,13 @@ INSERT INTO xt_item_template(name, type, properties, tags, description) VALUES
   '["beast_egg", "uncommon", "serpent", "earth"]' ::jsonb,
   '蕴含草蛇血脉的灵兽卵，表面隐约可见灵光流转。'
 ),
-('石蛇精卵', 'BEAST_EGG',
+('石蛟卵', 'BEAST_EGG',
   jsonb_build_object(
     'beast_template_id',
-    (SELECT id FROM xt_beast_template WHERE name = '石蛇精')
+    (SELECT id FROM xt_beast_template WHERE name = '石蛟')
   ),
   '["beast_egg", "uncommon", "serpent", "earth"]' ::jsonb,
-  '蕴含石蛇精血脉的灵兽卵，表面隐约可见灵光流转。'
+  '蕴含石蛟血脉的灵兽卵，表面隐约可见灵光流转。'
 ),
 ('金蛇卵', 'BEAST_EGG',
   jsonb_build_object(
@@ -1351,14 +1343,6 @@ INSERT INTO xt_item_template(name, type, properties, tags, description) VALUES
   ),
   '["beast_egg", "rare", "serpent", "dragon"]' ::jsonb,
   '蕴含内卷蛟血脉的灵兽卵，表面隐约可见灵光流转。'
-),
-('虎蛟卵', 'BEAST_EGG',
-  jsonb_build_object(
-    'beast_template_id',
-    (SELECT id FROM xt_beast_template WHERE name = '虎蛟')
-  ),
-  '["beast_egg", "rare", "beast", "water", "dragon"]' ::jsonb,
-  '蕴含虎蛟血脉的灵兽卵，表面隐约可见灵光流转。'
 ),
 ('烛龙卵', 'BEAST_EGG',
   jsonb_build_object(
@@ -1496,14 +1480,6 @@ INSERT INTO xt_item_template(name, type, properties, tags, description) VALUES
   '["beast_egg", "rare", "beast", "wisdom"]' ::jsonb,
   '蕴含白泽血脉的灵兽卵，表面隐约可见灵光流转。'
 ),
-('九色鹿卵', 'BEAST_EGG',
-  jsonb_build_object(
-    'beast_template_id',
-    (SELECT id FROM xt_beast_template WHERE name = '九色鹿')
-  ),
-  '["beast_egg", "epic", "beast", "heal", "wood"]' ::jsonb,
-  '蕴含九色鹿血脉的灵兽卵，表面隐约可见灵光流转。'
-),
 ('躺平貘卵', 'BEAST_EGG',
   jsonb_build_object(
     'beast_template_id',
@@ -1511,14 +1487,6 @@ INSERT INTO xt_item_template(name, type, properties, tags, description) VALUES
   ),
   '["beast_egg", "epic", "beast"]' ::jsonb,
   '蕴含躺平貘血脉的灵兽卵，表面隐约可见灵光流转。'
-),
-('麒麟卵', 'BEAST_EGG',
-  jsonb_build_object(
-    'beast_template_id',
-    (SELECT id FROM xt_beast_template WHERE name = '麒麟')
-  ),
-  '["beast_egg", "epic", "beast", "earth", "fire"]' ::jsonb,
-  '蕴含麒麟血脉的灵兽卵，表面隐约可见灵光流转。'
 ),
 ('瘟鼠卵', 'BEAST_EGG',
   jsonb_build_object(

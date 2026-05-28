@@ -612,7 +612,7 @@ INSERT INTO xt_beast_template(name, grow_time, production_items, skill_pool, tag
     )
   ),
   '["beast", "water", "defense", "shell"]'::jsonb,
-  '活了不知几千年，壳上长满了青苔。问它修到什么境界，它说：''忘了。'''
+  '活了不知几千年，壳上长满了青苔。问它修到什么境界，它说：'忘了。''
 ),
 ('玄武龟', 96,
   jsonb_build_array(
@@ -2765,26 +2765,6 @@ INSERT INTO xt_beast_template(name, grow_time, production_items, skill_pool, tag
   '["flying", "speed", "myth"]'::jsonb,
   '背生双翼的雪白天马，御风凌虚踏空而行，速度冠绝群兽。'
 ),
-('金翼雕', 60,
-  jsonb_build_array(
-    jsonb_build_object('weight', 40, 'template_id', (SELECT id FROM xt_item_template WHERE name = '兽骨')),
-    jsonb_build_object('weight', 30, 'template_id', (SELECT id FROM xt_item_template WHERE name = '玄铁矿石')),
-    jsonb_build_object('weight', 30, 'template_id', (SELECT id FROM xt_item_template WHERE name = '天外陨铁'))
-  ),
-  jsonb_build_object(
-    'innate_skills', jsonb_build_array(
-      jsonb_build_object('skill_id', (SELECT id FROM xt_skill WHERE name = '鹰眼术'), 'unlock', 'BIRTH'),
-      jsonb_build_object('skill_id', (SELECT id FROM xt_skill WHERE name = '百步穿杨'), 'unlock', 'TIER_2'),
-      jsonb_build_object('skill_id', (SELECT id FROM xt_skill WHERE name = '太白斩魔'), 'unlock', 'TIER_3')
-    ),
-    'awakening_skills', jsonb_build_array(
-      jsonb_build_object('skill_id', (SELECT id FROM xt_skill WHERE name = '后羿射日'), 'weight', 8),
-      jsonb_build_object('skill_id', (SELECT id FROM xt_skill WHERE name = '流星箭雨'), 'weight', 20)
-    )
-  ),
-  '["flying", "metal", "predator"]'::jsonb,
-  '展翅八丈的金翼雕，翼间流光如金，攻守兼备的空中霸主。'
-),
 ('大鹏金翅鸟', 168,
   jsonb_build_array(
     jsonb_build_object('weight', 30, 'template_id', (SELECT id FROM xt_item_template WHERE name = '凤羽')),
@@ -2877,7 +2857,7 @@ INSERT INTO xt_beast_template(name, grow_time, production_items, skill_pool, tag
   '["serpent", "beast"]'::jsonb,
   '花纹斑斓的巨蟒，虽无毒但缠力惊人。'
 ),
-('水蛇精', 12,
+('水蛟', 12,
   jsonb_build_array(
     jsonb_build_object('weight', 50, 'template_id', (SELECT id FROM xt_item_template WHERE name = '蛇涎果')),
     jsonb_build_object('weight', 30, 'template_id', (SELECT id FROM xt_item_template WHERE name = '寒露草')),
@@ -2893,7 +2873,7 @@ INSERT INTO xt_beast_template(name, grow_time, production_items, skill_pool, tag
     )
   ),
   '["serpent", "water"]'::jsonb,
-  '水中修行的小蛇，鳞片如水般透明。'
+  '水中修行的小蛟，蛇身蛟首，通体碧绿。'
 ),
 ('草蛇', 12,
   jsonb_build_array(
@@ -2913,7 +2893,7 @@ INSERT INTO xt_beast_template(name, grow_time, production_items, skill_pool, tag
   '["serpent", "earth"]'::jsonb,
   '草地中的灵蛇，善于伪装。'
 ),
-('石蛇精', 12,
+('石蛟', 12,
   jsonb_build_array(
     jsonb_build_object('weight', 50, 'template_id', (SELECT id FROM xt_item_template WHERE name = '玄铁矿石')),
     jsonb_build_object('weight', 30, 'template_id', (SELECT id FROM xt_item_template WHERE name = '妖兽皮')),
@@ -2929,7 +2909,7 @@ INSERT INTO xt_beast_template(name, grow_time, production_items, skill_pool, tag
     )
   ),
   '["serpent", "earth"]'::jsonb,
-  '外表如石的灵蛇，石化修行。'
+  '石化外表的灵蛟，外刚内柔。'
 ),
 ('金蛇', 12,
   jsonb_build_array(
@@ -3119,26 +3099,6 @@ INSERT INTO xt_beast_template(name, grow_time, production_items, skill_pool, tag
   ),
   '["serpent", "dragon", "diligent"]'::jsonb,
   '日夜不休修炼的蛟龙，别的蛟都在休息它还在卷，只为早一日化龙。'
-),
-('虎蛟', 54,
-  jsonb_build_array(
-    jsonb_build_object('weight', 40, 'template_id', (SELECT id FROM xt_item_template WHERE name = '龙血草')),
-    jsonb_build_object('weight', 30, 'template_id', (SELECT id FROM xt_item_template WHERE name = '冰魄花')),
-    jsonb_build_object('weight', 30, 'template_id', (SELECT id FROM xt_item_template WHERE name = '寒髓晶'))
-  ),
-  jsonb_build_object(
-    'innate_skills', jsonb_build_array(
-      jsonb_build_object('skill_id', (SELECT id FROM xt_skill WHERE name = '寒冰掌'), 'unlock', 'BIRTH'),
-      jsonb_build_object('skill_id', (SELECT id FROM xt_skill WHERE name = '横刀断岳'), 'unlock', 'TIER_2'),
-      jsonb_build_object('skill_id', (SELECT id FROM xt_skill WHERE name = '破风斩'), 'unlock', 'TIER_3')
-    ),
-    'awakening_skills', jsonb_build_array(
-      jsonb_build_object('skill_id', (SELECT id FROM xt_skill WHERE name = '兵主杀伐'), 'weight', 18),
-      jsonb_build_object('skill_id', (SELECT id FROM xt_skill WHERE name = '穿杨箭'), 'weight', 30)
-    )
-  ),
-  '["beast", "water", "dragon"]'::jsonb,
-  '蛟虎混血的猛兽，鱼尾虎身声如婴儿，水中追风逐浪地上撕金裂石。'
 ),
 ('烛龙', 168,
   jsonb_build_array(
@@ -3451,27 +3411,6 @@ INSERT INTO xt_beast_template(name, grow_time, production_items, skill_pool, tag
   '["beast", "wisdom", "auspicious"]'::jsonb,
   '通晓万物的神兽白泽后裔，智慧通天，能言人语知鬼神之事。'
 ),
-('九色鹿', 84,
-  jsonb_build_array(
-    jsonb_build_object('weight', 40, 'template_id', (SELECT id FROM xt_item_template WHERE name = '龙血草')),
-    jsonb_build_object('weight', 30, 'template_id', (SELECT id FROM xt_item_template WHERE name = '千年灵芝')),
-    jsonb_build_object('weight', 30, 'template_id', (SELECT id FROM xt_item_template WHERE name = '九色灵芝'))
-  ),
-  jsonb_build_object(
-    'innate_skills', jsonb_build_array(
-      jsonb_build_object('skill_id', (SELECT id FROM xt_skill WHERE name = '万木逢春'), 'unlock', 'BIRTH'),
-      jsonb_build_object('skill_id', (SELECT id FROM xt_skill WHERE name = '青木诀'), 'unlock', 'TIER_2'),
-      jsonb_build_object('skill_id', (SELECT id FROM xt_skill WHERE name = '蟠桃仙术'), 'unlock', 'TIER_3'),
-      jsonb_build_object('skill_id', (SELECT id FROM xt_skill WHERE name = '莲华涅槃'), 'unlock', 'TIER_4')
-    ),
-    'awakening_skills', jsonb_build_array(
-      jsonb_build_object('skill_id', (SELECT id FROM xt_skill WHERE name = '逆转丹行'), 'weight', 8),
-      jsonb_build_object('skill_id', (SELECT id FROM xt_skill WHERE name = '清风拂柳'), 'weight', 25)
-    )
-  ),
-  '["beast", "auspicious", "heal", "wood"]'::jsonb,
-  '九色神鹿的后裔，平和不争但生命之力浩瀚。'
-),
 ('躺平貘', 72,
   jsonb_build_array(
     jsonb_build_object('weight', 40, 'template_id', (SELECT id FROM xt_item_template WHERE name = '忘忧草')),
@@ -3492,28 +3431,6 @@ INSERT INTO xt_beast_template(name, grow_time, production_items, skill_pool, tag
   ),
   '["beast", "auspicious", "lazy", "dream"]'::jsonb,
   '以噩梦为食，睡着便是修行。无欲无求，反而境界飞升。'
-),
-('麒麟', 168,
-  jsonb_build_array(
-    jsonb_build_object('weight', 30, 'template_id', (SELECT id FROM xt_item_template WHERE name = '麒麟草')),
-    jsonb_build_object('weight', 30, 'template_id', (SELECT id FROM xt_item_template WHERE name = '龙血草')),
-    jsonb_build_object('weight', 40, 'template_id', (SELECT id FROM xt_item_template WHERE name = '九转金莲'))
-  ),
-  jsonb_build_object(
-    'innate_skills', jsonb_build_array(
-      jsonb_build_object('skill_id', (SELECT id FROM xt_skill WHERE name = '厚土盾'), 'unlock', 'BIRTH'),
-      jsonb_build_object('skill_id', (SELECT id FROM xt_skill WHERE name = '泰山压顶'), 'unlock', 'TIER_2'),
-      jsonb_build_object('skill_id', (SELECT id FROM xt_skill WHERE name = '天罡北斗阵'), 'unlock', 'TIER_3'),
-      jsonb_build_object('skill_id', (SELECT id FROM xt_skill WHERE name = '蟠桃仙术'), 'unlock', 'TIER_4'),
-      jsonb_build_object('skill_id', (SELECT id FROM xt_skill WHERE name = '一气化三清'), 'unlock', 'TIER_5')
-    ),
-    'awakening_skills', jsonb_build_array(
-      jsonb_build_object('skill_id', (SELECT id FROM xt_skill WHERE name = '莲华涅槃'), 'weight', 5),
-      jsonb_build_object('skill_id', (SELECT id FROM xt_skill WHERE name = '混元功'), 'weight', 15)
-    )
-  ),
-  '["beast", "earth", "fire", "auspicious"]'::jsonb,
-  '中央神兽，祥瑞之兆。麒麟所至万物安宁，瑞气满堂。'
 ),
 ('瘟鼠', 12,
   jsonb_build_array(

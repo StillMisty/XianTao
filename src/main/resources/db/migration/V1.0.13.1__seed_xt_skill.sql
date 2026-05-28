@@ -88,23 +88,7 @@ INSERT
         50,
         50,
         '["passive","wis","advanced","epic"]'
-    );
-
-INSERT
-    INTO
-        xt_skill(
-            name,
-            description,
-            skill_type,
-            effects,
-            binding_type,
-            binding_value,
-            cooldown_seconds,
-            require_wis,
-            level_requirement,
-            tags
-        )
-    VALUES(
+    ),(
         '破风斩',
         '刀如疾风破空而出，造成150%攻击的伤害。',
         'ACTIVE',
@@ -163,23 +147,7 @@ INSERT
         40,
         50,
         '["blade","execute","multi_hit","epic"]'
-    );
-
-INSERT
-    INTO
-        xt_skill(
-            name,
-            description,
-            skill_type,
-            effects,
-            binding_type,
-            binding_value,
-            cooldown_seconds,
-            require_wis,
-            level_requirement,
-            tags
-        )
-    VALUES(
+    ),(
         '清风剑法',
         '剑如清风拂柳，造成160%攻击的伤害。',
         'ACTIVE',
@@ -250,23 +218,7 @@ INSERT
         60,
         70,
         '["sword","execute","legendary"]'
-    );
-
-INSERT
-    INTO
-        xt_skill(
-            name,
-            description,
-            skill_type,
-            effects,
-            binding_type,
-            binding_value,
-            cooldown_seconds,
-            require_wis,
-            level_requirement,
-            tags
-        )
-    VALUES(
+    ),(
         '开山斧',
         '势如破竹，一斧劈山，造成200%攻击的伤害。',
         'ACTIVE',
@@ -325,23 +277,7 @@ INSERT
         60,
         65,
         '["axe","damage","legendary"]'
-    );
-
-INSERT
-    INTO
-        xt_skill(
-            name,
-            description,
-            skill_type,
-            effects,
-            binding_type,
-            binding_value,
-            cooldown_seconds,
-            require_wis,
-            level_requirement,
-            tags
-        )
-    VALUES(
+    ),(
         '穿云枪',
         '枪出如龙穿云而出，造成160%攻击的伤害。',
         'ACTIVE',
@@ -412,23 +348,7 @@ INSERT
         50,
         60,
         '["spear","armor_break","epic"]'
-    );
-
-INSERT
-    INTO
-        xt_skill(
-            name,
-            description,
-            skill_type,
-            effects,
-            binding_type,
-            binding_value,
-            cooldown_seconds,
-            require_wis,
-            level_requirement,
-            tags
-        )
-    VALUES(
+    ),(
         '伏魔棍',
         '降妖伏魔基础棍法，造成150%攻击伤害。',
         'ACTIVE',
@@ -487,23 +407,7 @@ INSERT
         45,
         55,
         '["staff","lifesteal","epic"]'
-    );
-
-INSERT
-    INTO
-        xt_skill(
-            name,
-            description,
-            skill_type,
-            effects,
-            binding_type,
-            binding_value,
-            cooldown_seconds,
-            require_wis,
-            level_requirement,
-            tags
-        )
-    VALUES(
+    ),(
         '穿杨箭',
         '百步穿杨，精准一射造成170%攻击伤害。',
         'ACTIVE',
@@ -574,23 +478,7 @@ INSERT
         60,
         70,
         '["bow","damage","legendary"]'
-    );
-
-INSERT
-    INTO
-        xt_skill(
-            name,
-            description,
-            skill_type,
-            effects,
-            binding_type,
-            binding_value,
-            cooldown_seconds,
-            require_wis,
-            level_requirement,
-            tags
-        )
-    VALUES(
+    ),(
         '灵蛇鞭',
         '鞭如灵蛇吐信，造成140%攻击伤害并减速20%持续2回合。',
         'ACTIVE',
@@ -637,23 +525,7 @@ INSERT
         45,
         55,
         '["whip","lifesteal","epic"]'
-    );
-
-INSERT
-    INTO
-        xt_skill(
-            name,
-            description,
-            skill_type,
-            effects,
-            binding_type,
-            binding_value,
-            cooldown_seconds,
-            require_wis,
-            level_requirement,
-            tags
-        )
-    VALUES(
+    ),(
         '方天画戟',
         '基础戟法，造成180%攻击的伤害。',
         'ACTIVE',
@@ -688,23 +560,7 @@ INSERT
         50,
         50,
         '["halberd","aoe","execute","epic"]'
-    );
-
-INSERT
-    INTO
-        xt_skill(
-            name,
-            description,
-            skill_type,
-            effects,
-            binding_type,
-            binding_value,
-            cooldown_seconds,
-            require_wis,
-            level_requirement,
-            tags
-        )
-    VALUES(
+    ),(
         '震地锤',
         '一锤震地，造成190%攻击伤害，40%概率眩晕1回合。',
         'ACTIVE',
@@ -739,23 +595,7 @@ INSERT
         60,
         55,
         '["hammer","armor_break","execute","legendary"]'
-    );
-
-INSERT
-    INTO
-        xt_skill(
-            name,
-            description,
-            skill_type,
-            effects,
-            binding_type,
-            binding_value,
-            cooldown_seconds,
-            require_wis,
-            level_requirement,
-            tags
-        )
-    VALUES(
+    ),(
         '影刺',
         '从暗影中发起的一击，造成180%攻击伤害。',
         'ACTIVE',
@@ -802,23 +642,7 @@ INSERT
         50,
         50,
         '["dagger","execute","stun","epic"]'
-    );
-
-INSERT
-    INTO
-        xt_skill(
-            name,
-            description,
-            skill_type,
-            effects,
-            binding_type,
-            binding_value,
-            cooldown_seconds,
-            require_wis,
-            level_requirement,
-            tags
-        )
-    VALUES(
+    ),(
         '清风拂柳',
         '扇引清风，治疗自身悟性×80%+100的生命值。',
         'ACTIVE',
@@ -853,23 +677,7 @@ INSERT
         35,
         40,
         '["fan","attack_buff","advanced"]'
-    );
-
-INSERT
-    INTO
-        xt_skill(
-            name,
-            description,
-            skill_type,
-            effects,
-            binding_type,
-            binding_value,
-            cooldown_seconds,
-            require_wis,
-            level_requirement,
-            tags
-        )
-    VALUES(
+    ),(
         '拂尘净心',
         '拂尘轻扫净心田，治疗悟性×70%+80血量并提升速度15%持续2回合。',
         'ACTIVE',
@@ -904,7 +712,7 @@ INSERT
         40,
         40,
         '["flywhisk","defense_buff","advanced"]'
-    )，(
+    ),(
         '金刚圈',
         '金刚圈脱手而出，造成170%攻击伤害，40%概率眩晕1回合。',
         'ACTIVE',
@@ -974,23 +782,7 @@ INSERT
         50,
         50,
         '["bell","execute","epic"]'
-    );
-
-INSERT
-    INTO
-        xt_skill(
-            name,
-            description,
-            skill_type,
-            effects,
-            binding_type,
-            binding_value,
-            cooldown_seconds,
-            require_wis,
-            level_requirement,
-            tags
-        )
-    VALUES(
+    ),(
         '兵锋诀',
         '运灵力强化兵刃，提升攻击15%持续3回合。',
         'ACTIVE',
@@ -1133,23 +925,7 @@ INSERT
         50,
         50,
         '["exotic","execute","epic"]'
-    );
-
-INSERT
-    INTO
-        xt_skill(
-            name,
-            description,
-            skill_type,
-            effects,
-            binding_type,
-            binding_value,
-            cooldown_seconds,
-            require_wis,
-            level_requirement,
-            tags
-        )
-    VALUES(
+    ),(
         '金灵剑气',
         '以金行之力化剑气，造成180%攻击伤害。',
         'ACTIVE',
@@ -1328,22 +1104,7 @@ INSERT
         50,
         55,
         '["earth","stun","epic"]'
-    );
-
-INSERT
-    INTO
-        xt_skill(
-            name,
-            description,
-            skill_type,
-            effects,
-            binding_type,
-            cooldown_seconds,
-            require_wis,
-            level_requirement,
-            tags
-        )
-    VALUES(
+    ),(
         '轩辕剑法',
         '黄帝轩辕氏所创战剑之法，造成350%攻击伤害并对全体波及150%伤害。',
         'ACTIVE',
@@ -1519,7 +1280,6 @@ INSERT
         80,
         '["control","legendary"]'
     ),
-    -- ==================== 冰元素 ====================
     (
         '霜刃',
         '凝聚寒霜于利刃之上，斩出冰寒一击。',
@@ -1575,7 +1335,6 @@ INSERT
         60,
         '["ice","freeze","epic"]'
     ),
-    -- ==================== 雷元素 ====================
     (
         '引雷诀',
         '引天雷入体，化为己用。',
@@ -1631,7 +1390,6 @@ INSERT
         70,
         '["thunder","aoe","stun","epic"]'
     ),
-    -- ==================== 风元素 ====================
     (
         '风刃',
         '以灵力凝成风刃，快如闪电。',
@@ -1687,7 +1445,6 @@ INSERT
         70,
         '["wind","aoe","silence","epic"]'
     ),
-    -- ==================== 低阶通用技能 ====================
     (
         '吐纳术',
         '吐故纳新，增益灵力护体。',
