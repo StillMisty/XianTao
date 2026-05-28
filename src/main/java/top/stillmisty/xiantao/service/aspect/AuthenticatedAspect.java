@@ -49,7 +49,6 @@ public class AuthenticatedAspect {
 
     Long userId = ((ServiceResult.Success<Long>) auth).data();
 
-    UserContext.setDownstreamUserId(userId);
     try {
       return UserContext.withUser(userId, pjp::proceed);
     } catch (InterruptedException e) {
@@ -61,8 +60,6 @@ public class AuthenticatedAspect {
     } catch (RuntimeException e) {
       log.error("服务异常 - userId={}: {}", userId, e.getMessage(), e);
       return ServiceResult.businessFailure("系统繁忙，请稍后再试");
-    } finally {
-      UserContext.clearDownstreamUserId();
     }
   }
 }
