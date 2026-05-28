@@ -2,6 +2,7 @@ package top.stillmisty.xiantao.domain.item.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
+import top.stillmisty.xiantao.domain.beast.enums.SkillUnlock;
 
 /** 灵兽技能池，从 BeastEgg 提取以降低嵌套深度 */
 public record BeastSkillPool(
@@ -9,7 +10,7 @@ public record BeastSkillPool(
     @JsonProperty("awakening_skills") List<AwakeningSkill> awakeningSkills) {
 
   public record InnateSkill(
-      @JsonProperty("skill_id") long skillId, @JsonProperty("unlock") String unlock) {}
+      @JsonProperty("skill_id") long skillId, @JsonProperty("unlock") SkillUnlock unlock) {}
 
   public record AwakeningSkill(
       @JsonProperty("skill_id") long skillId, @JsonProperty("weight") int weight) {}

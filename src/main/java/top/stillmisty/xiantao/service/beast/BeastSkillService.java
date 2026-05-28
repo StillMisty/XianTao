@@ -10,6 +10,7 @@ import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.beast.vo.BeastSkillPoolVO;
 import top.stillmisty.xiantao.domain.item.entity.ItemProperties;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
+import top.stillmisty.xiantao.infrastructure.repository.BeastTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 
 /** 灵兽技能：技能池、先天技解锁、后天悟觉醒 */
@@ -19,6 +20,7 @@ import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 public class BeastSkillService {
 
   private final ItemTemplateRepository itemTemplateRepository;
+  private final BeastTemplateRepository beastTemplateRepository;
 
   BeastSkillPoolVO getBeastSkillPool(Integer templateId) {
     if (templateId == null) {
@@ -32,13 +34,17 @@ public class BeastSkillService {
     if (!(props instanceof ItemProperties.BeastEgg egg)) {
       return null;
     }
-    var pool = egg.skillPool();
+    var beastTemplate = beastTemplateRepository.findById(egg.beastTemplateId()).orElse(null);
+    if (beastTemplate == null) {
+      return null;
+    }
+    var pool = beastTemplate.getSkillPool();
     if (pool == null) {
       return null;
     }
     var innateSkills =
         pool.innateSkills().stream()
-            .map(is -> new BeastSkillPoolVO.InnateSkill(is.skillId(), is.unlock()))
+            .map(is -> new BeastSkillPoolVO.InnateSkill(is.skillId(), is.unlock().getCode()))
             .toList();
     var awakeningSkills =
         pool.awakeningSkills().stream()

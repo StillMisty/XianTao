@@ -52,10 +52,7 @@ public sealed interface ItemProperties {
   record Mutation(
       @JsonProperty("chance") double chance, @JsonProperty("template_id") long templateId) {}
 
-  record BeastEgg(
-      @JsonProperty("grow_time") int growTime,
-      @JsonProperty("production_items") List<ProductionItem> productionItems,
-      @JsonProperty("skill_pool") BeastSkillPool skillPool)
+  record BeastEgg(@JsonProperty("beast_template_id") long beastTemplateId)
       implements ItemProperties {}
 
   record SkillJade(@JsonProperty("skill_id") long skillId) implements ItemProperties {}

@@ -64,7 +64,7 @@ CREATE
             ),
             CONSTRAINT fk_beast_user FOREIGN KEY(user_id) REFERENCES xt_user(id),
             CONSTRAINT fk_beast_fudi FOREIGN KEY(fudi_id) REFERENCES xt_fudi(id),
-            CONSTRAINT fk_beast_template FOREIGN KEY(template_id) REFERENCES xt_item_template(id)
+            CONSTRAINT fk_beast_template FOREIGN KEY(template_id) REFERENCES xt_beast_template(id)
         );
 
 COMMENT ON
@@ -78,7 +78,7 @@ COMMENT ON
 COLUMN xt_beast.fudi_id IS 'FK → xt_fudi(id)，所属福地';
 
 COMMENT ON
-COLUMN xt_beast.template_id IS 'FK → xt_item_template(id)，孵化源卵模板';
+COLUMN xt_beast.template_id IS 'FK → xt_beast_template(id)，灵兽模板';
 
 COMMENT ON
 COLUMN xt_beast.gender IS '性别：YIN(阴)/YANG(阳)，孵化时随机分配，繁育需一阴一阳';

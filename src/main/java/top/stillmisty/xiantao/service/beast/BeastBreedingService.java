@@ -27,6 +27,7 @@ import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.infrastructure.repository.BeastRepository;
+import top.stillmisty.xiantao.infrastructure.repository.BeastTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.BreedingRecipeRepository;
 import top.stillmisty.xiantao.infrastructure.repository.FudiCellRepository;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
@@ -51,6 +52,7 @@ public class BeastBreedingService {
   private final FudiCellRepository fudiCellRepository;
   private final BeastRepository beastRepository;
   private final ItemTemplateRepository itemTemplateRepository;
+  private final BeastTemplateRepository beastTemplateRepository;
   private final StackableItemRepository stackableItemRepository;
   private final StackableItemService stackableItemService;
   private final ItemResolver itemResolver;
@@ -451,15 +453,15 @@ public class BeastBreedingService {
   }
 
   private ItemTemplate resolveOffspring(Beast parent1, Beast parent2) {
-    ItemTemplate egg1 = itemTemplateRepository.findById(parent1.getTemplateId()).orElse(null);
-    ItemTemplate egg2 = itemTemplateRepository.findById(parent2.getTemplateId()).orElse(null);
+    var template1 = beastTemplateRepository.findById(parent1.getTemplateId()).orElse(null);
+    var template2 = beastTemplateRepository.findById(parent2.getTemplateId()).orElse(null);
 
     List<String> combinedTags = new ArrayList<>();
-    if (egg1 != null && egg1.getTags() != null) {
-      combinedTags.addAll(extractCategoryTags(egg1.getTags()));
+    if (template1 != null && template1.getTags() != null) {
+      combinedTags.addAll(extractCategoryTags(template1.getTags()));
     }
-    if (egg2 != null && egg2.getTags() != null) {
-      for (String tag : extractCategoryTags(egg2.getTags())) {
+    if (template2 != null && template2.getTags() != null) {
+      for (String tag : extractCategoryTags(template2.getTags())) {
         if (!combinedTags.contains(tag)) combinedTags.add(tag);
       }
     }
@@ -471,7 +473,21 @@ public class BeastBreedingService {
       }
     }
 
-    return ThreadLocalRandom.current().nextBoolean() && egg1 != null ? egg1 : egg2;
+    // 无匹配配方时，随机返回父母之一的兽卵
+    ItemTemplate egg1 = template1 != null ? findEggTemplate(template1.getName()) : null;
+    ItemTemplate egg2 = template2 != null ? findEggTemplate(template2.getName()) : null;
+
+    if (egg1 != null && egg2 != null) {
+      return ThreadLocalRandom.current().nextBoolean() ? egg1 : egg2;
+    }
+    return egg1 != null ? egg1 : egg2;
+  }
+
+  private ItemTemplate findEggTemplate(String beastName) {
+    return itemTemplateRepository.findByType(ItemType.BEAST_EGG).stream()
+        .filter(t -> t.getName().equals(beastName + "卵"))
+        .findFirst()
+        .orElse(null);
   }
 
   private List<String> extractCategoryTags(java.util.Set<String> tags) {

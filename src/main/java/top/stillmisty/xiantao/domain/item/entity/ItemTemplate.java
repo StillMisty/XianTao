@@ -37,7 +37,7 @@ public class ItemTemplate {
   /**
    * 类型特有属性 JSONB 种子/兽卵: {"grow_time":24} 法决玉简: {"skill_id":1} 丹方卷轴:
    * {"grade":3,"product":{"item_id":1,"quantity":1},"requirements":[{"element":"metal","min":1,"max":5}]}
-   * 丹药: {"effects":[{"type":"exp","amount":100}]} 灵兽: {"production_items":[...],"skill_pool":{...}}
+   * 丹药: {"effects":[{"type":"exp","amount":100}]} 灵兽卵: {"beast_template_id":1}
    */
   @Column(typeHandler = JsonbTypeHandler.class)
   private Map<String, Object> properties;
@@ -91,7 +91,6 @@ public class ItemTemplate {
   public Integer getGrowTime() {
     var props = typedProperties();
     if (props instanceof ItemProperties.Growth g) return g.growTime();
-    if (props instanceof ItemProperties.BeastEgg e) return e.growTime();
     return null;
   }
 }

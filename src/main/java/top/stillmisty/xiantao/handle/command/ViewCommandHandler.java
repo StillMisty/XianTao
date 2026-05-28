@@ -19,6 +19,7 @@ import top.stillmisty.xiantao.domain.monster.vo.MonsterDetailVO;
 import top.stillmisty.xiantao.domain.pill.enums.PillQuality;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.TextFormat;
+import top.stillmisty.xiantao.infrastructure.repository.BeastTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.EquipmentTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.MonsterTemplateRepository;
@@ -40,6 +41,7 @@ public class ViewCommandHandler implements CommandGroup {
   private final ItemTemplateRepository itemTemplateRepository;
   private final SkillRepository skillRepository;
   private final EquipmentTemplateRepository equipmentTemplateRepository;
+  private final BeastTemplateRepository beastTemplateRepository;
 
   /** 统一「查看」命令 — 依次尝试装备、怪物、物品 */
   public String handleView(PlatformType platform, String openId, String target, TextFormat fmt) {
@@ -190,17 +192,20 @@ public class ViewCommandHandler implements CommandGroup {
       }
       case "兽卵" -> {
         if (typed instanceof ItemProperties.BeastEgg e) {
-          sb.append(fmt.listItem("孵化时间：" + e.growTime() + "小时"));
-          if (e.skillPool() != null) {
-            if (e.skillPool().innateSkills() != null && !e.skillPool().innateSkills().isEmpty()) {
-              sb.append(fmt.listItem("天生技能：" + e.skillPool().innateSkills().size() + "个"));
+          var beastTemplate = beastTemplateRepository.findById(e.beastTemplateId()).orElse(null);
+          if (beastTemplate != null) {
+            sb.append(fmt.listItem("孵化时间：" + beastTemplate.getGrowTime() + "小时"));
+            if (beastTemplate.getSkillPool() != null) {
+              var pool = beastTemplate.getSkillPool();
+              if (pool.innateSkills() != null && !pool.innateSkills().isEmpty()) {
+                sb.append(fmt.listItem("天生技能：" + pool.innateSkills().size() + "个"));
+              }
+              if (pool.awakeningSkills() != null && !pool.awakeningSkills().isEmpty()) {
+                sb.append(fmt.listItem("觉醒技能：" + pool.awakeningSkills().size() + "个"));
+              }
             }
-            if (e.skillPool().awakeningSkills() != null
-                && !e.skillPool().awakeningSkills().isEmpty()) {
-              sb.append(fmt.listItem("觉醒技能：" + e.skillPool().awakeningSkills().size() + "个"));
-            }
+            appendProductionItems(beastTemplate.getProductionItems(), "产出", true, sb, fmt);
           }
-          appendProductionItems(e.productionItems(), "产出", true, sb, fmt);
         }
       }
       case "法决玉简" -> {

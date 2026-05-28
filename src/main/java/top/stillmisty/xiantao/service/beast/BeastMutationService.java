@@ -9,8 +9,7 @@ import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.beast.entity.MutationTraitConfig;
 import top.stillmisty.xiantao.domain.fudi.enums.BeastQuality;
-import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
-import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
+import top.stillmisty.xiantao.infrastructure.repository.BeastTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.MutationTraitConfigRepository;
 
 /** 灵兽变异 — 随机特性生成、变异判定、等阶槽位控制 */
@@ -19,7 +18,7 @@ import top.stillmisty.xiantao.infrastructure.repository.MutationTraitConfigRepos
 public class BeastMutationService {
 
   private final MutationTraitConfigRepository traitConfigRepository;
-  private final ItemTemplateRepository itemTemplateRepository;
+  private final BeastTemplateRepository beastTemplateRepository;
 
   /** 根据灵兽等阶返回最大特性槽数 */
   public static int getMaxSlots(int tier) {
@@ -88,10 +87,9 @@ public class BeastMutationService {
   }
 
   private List<String> getBeastTags(Long templateId) {
-    return itemTemplateRepository
+    return beastTemplateRepository
         .findById(templateId)
-        .map(ItemTemplate::getTags)
-        .map(tags -> List.copyOf(tags))
+        .map(bt -> bt.getTags() != null ? List.copyOf(bt.getTags()) : List.<String>of())
         .orElse(List.of());
   }
 }

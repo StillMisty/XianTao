@@ -20,6 +20,7 @@ import top.stillmisty.xiantao.domain.item.entity.ItemProperties;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.ProductionItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
+import top.stillmisty.xiantao.infrastructure.repository.BeastTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.FudiCellRepository;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.service.BusinessException;
@@ -38,6 +39,7 @@ public class BeastProductionService {
   private final FudiHelper fudiHelper;
   private final BeastDisplayHelper beastDisplayHelper;
   private final MutationEffectResolver effectResolver;
+  private final BeastTemplateRepository beastTemplateRepository;
 
   @Transactional
   public CollectVO collectBeastProduce(Fudi fudi, FudiCell cell, Integer cellId) {
@@ -185,7 +187,14 @@ public class BeastProductionService {
     }
     var props = template.typedProperties();
     if (props instanceof ItemProperties.BeastEgg egg) {
-      return egg.productionItems();
+      return beastTemplateRepository
+          .findById(egg.beastTemplateId())
+          .map(
+              bt ->
+                  bt.getProductionItems() != null
+                      ? bt.getProductionItems()
+                      : List.<ProductionItem>of())
+          .orElse(List.of());
     }
     return List.of();
   }

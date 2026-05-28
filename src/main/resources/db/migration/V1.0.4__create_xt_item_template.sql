@@ -42,7 +42,7 @@ COLUMN xt_item_template.type IS '物品类型 (MATERIAL, SEED, BEAST_EGG, POTION
 COMMENT ON
 COLUMN xt_item_template.properties IS '类型特有属性 JSONB：
     种子: {"grow_time":24,"max_harvest":1,"yield_min":2,"yield_max":4,"mutation":{"chance":0.05,"template_id":N},"production_items":[{"template_id":1}]}
-    兽卵: {"grow_time":72,"production_items":[{"weight":1,"template_id":1}],"skill_pool":{...}}
+    兽卵: {"beast_template_id":1}
    法决玉简: {"skill_id":1}
     丹方卷轴: {"recipe":{"grade":3,"result_item_id":1,"result_quantity":1,"requirements":{"metal":{"min":1,"max":5}}}}
     丹药: {"effects":[{"type":"exp","amount":100}]}
