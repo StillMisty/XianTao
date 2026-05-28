@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.forge.entity.PlayerForgingRecipe;
-import top.stillmisty.xiantao.domain.forge.repository.PlayerForgingRecipeRepository;
 import top.stillmisty.xiantao.domain.forge.vo.ForgingRecipeVO;
 import top.stillmisty.xiantao.domain.forge.vo.ForgingResultVO;
 import top.stillmisty.xiantao.domain.item.entity.ElementRange;
@@ -15,10 +14,12 @@ import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.enums.MaterialAttribute;
-import top.stillmisty.xiantao.domain.item.repository.EquipmentTemplateRepository;
-import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
-import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.infrastructure.repository.EquipmentRepository;
+import top.stillmisty.xiantao.infrastructure.repository.EquipmentTemplateRepository;
+import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
+import top.stillmisty.xiantao.infrastructure.repository.PlayerForgingRecipeRepository;
+import top.stillmisty.xiantao.infrastructure.repository.StackableItemRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
@@ -40,8 +41,7 @@ public class ForgingService {
   private final PlayerForgingRecipeRepository playerForgingRecipeRepository;
   private final ForgingCombinationFinder combinationFinder;
   private final StackableItemService stackableItemService;
-  private final top.stillmisty.xiantao.domain.item.repository.EquipmentRepository
-      equipmentRepository;
+  private final EquipmentRepository equipmentRepository;
 
   // ===================== 公开 API（含认证） =====================
 

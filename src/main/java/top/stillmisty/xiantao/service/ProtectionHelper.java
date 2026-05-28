@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.shared.SharedKernel;
 import top.stillmisty.xiantao.domain.user.entity.DaoProtection;
 import top.stillmisty.xiantao.domain.user.entity.User;
-import top.stillmisty.xiantao.domain.user.repository.DaoProtectionRepository;
-import top.stillmisty.xiantao.domain.user.repository.UserRepository;
+import top.stillmisty.xiantao.infrastructure.repository.DaoProtectionRepository;
+import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
 
 /** 护道系统共享工具组件 */
 @Component

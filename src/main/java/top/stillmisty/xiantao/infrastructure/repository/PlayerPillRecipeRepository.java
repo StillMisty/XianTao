@@ -1,0 +1,53 @@
+package top.stillmisty.xiantao.infrastructure.repository;
+
+import java.util.List;
+import java.util.Optional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Repository;
+import top.stillmisty.xiantao.domain.pill.entity.PlayerPillRecipe;
+import top.stillmisty.xiantao.infrastructure.mapper.PlayerPillRecipeMapper;
+
+/** 玩家已学丹方仓储实现 */
+@Slf4j
+@Repository
+@RequiredArgsConstructor
+public class PlayerPillRecipeRepository {
+
+  private final PlayerPillRecipeMapper mapper;
+
+  public Optional<PlayerPillRecipe> findById(Long id) {
+    return Optional.ofNullable(mapper.selectOneById(id));
+  }
+
+  public List<PlayerPillRecipe> findByUserId(Long userId) {
+    return mapper.selectByUserId(userId);
+  }
+
+  public Optional<PlayerPillRecipe> findByUserIdAndRecipeTemplateId(
+      Long userId, Long recipeTemplateId) {
+    return mapper.selectByUserIdAndRecipeTemplateId(userId, recipeTemplateId);
+  }
+
+  public boolean existsByUserIdAndRecipeTemplateId(Long userId, Long recipeTemplateId) {
+    return mapper.existsByUserIdAndRecipeTemplateId(userId, recipeTemplateId);
+  }
+
+  public PlayerPillRecipe save(PlayerPillRecipe recipe) {
+    mapper.insertOrUpdateSelective(recipe);
+    return recipe;
+  }
+
+  public void deleteById(Long id) {
+    mapper.deleteById(id);
+  }
+
+  public void deleteByUserIdAndRecipeTemplateId(Long userId, Long recipeTemplateId) {
+    mapper.deleteByQuery(
+        com.mybatisflex.core.query.QueryWrapper.create()
+            .eq(top.stillmisty.xiantao.domain.pill.entity.PlayerPillRecipe::getUserId, userId)
+            .eq(
+                top.stillmisty.xiantao.domain.pill.entity.PlayerPillRecipe::getRecipeTemplateId,
+                recipeTemplateId));
+  }
+}

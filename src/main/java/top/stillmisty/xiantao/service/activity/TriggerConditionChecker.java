@@ -4,11 +4,11 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
-import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
-import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
-import top.stillmisty.xiantao.domain.skill.repository.PlayerSkillRepository;
-import top.stillmisty.xiantao.domain.skill.repository.SkillRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
+import top.stillmisty.xiantao.infrastructure.repository.PlayerSkillRepository;
+import top.stillmisty.xiantao.infrastructure.repository.SkillRepository;
+import top.stillmisty.xiantao.infrastructure.repository.StackableItemRepository;
 
 /** 隐藏事件触发条件检查器 — 统一的 HAS_SKILL / HAS_ITEM / STAT_THRESHOLD 检查 */
 @Component

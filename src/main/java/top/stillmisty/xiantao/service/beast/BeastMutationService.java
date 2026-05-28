@@ -8,10 +8,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.beast.entity.MutationTraitConfig;
-import top.stillmisty.xiantao.domain.beast.repository.MutationTraitConfigRepository;
 import top.stillmisty.xiantao.domain.fudi.enums.BeastQuality;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
-import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
+import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
+import top.stillmisty.xiantao.infrastructure.repository.MutationTraitConfigRepository;
 
 /** 灵兽变异 — 随机特性生成、变异判定、等阶槽位控制 */
 @Service

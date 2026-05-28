@@ -12,7 +12,7 @@ import top.stillmisty.xiantao.domain.worldevent.entity.WorldEvent;
 import top.stillmisty.xiantao.domain.worldevent.enums.WorldEventCategory;
 import top.stillmisty.xiantao.domain.worldevent.enums.WorldEventScope;
 import top.stillmisty.xiantao.domain.worldevent.enums.WorldEventStatus;
-import top.stillmisty.xiantao.domain.worldevent.repository.WorldEventRepository;
+import top.stillmisty.xiantao.infrastructure.repository.WorldEventRepository;
 
 @Slf4j
 @Service

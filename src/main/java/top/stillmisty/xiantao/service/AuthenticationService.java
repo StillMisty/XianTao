@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
-import top.stillmisty.xiantao.domain.user.repository.UserAuthRepository;
-import top.stillmisty.xiantao.domain.user.repository.UserRepository;
+import top.stillmisty.xiantao.infrastructure.repository.UserAuthRepository;
+import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
 
 /** 统一身份认证服务 负责平台身份凭证解析、用户存在性验证、状态校验 统一返回 ServiceResult&lt;Long&gt; 替代原来的 AuthResult */
 @Service

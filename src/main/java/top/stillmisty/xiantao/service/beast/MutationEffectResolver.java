@@ -9,7 +9,7 @@ import top.stillmisty.xiantao.domain.beast.entity.MutationEffect;
 import top.stillmisty.xiantao.domain.beast.entity.MutationTraitConfig;
 import top.stillmisty.xiantao.domain.beast.enums.MutationEffectType;
 import top.stillmisty.xiantao.domain.beast.enums.TriggerType;
-import top.stillmisty.xiantao.domain.beast.repository.MutationTraitConfigRepository;
+import top.stillmisty.xiantao.infrastructure.repository.MutationTraitConfigRepository;
 
 /** 统一处理变异效果的查询和计算 */
 @Component

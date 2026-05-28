@@ -10,7 +10,7 @@ import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.beast.vo.BeastSkillPoolVO;
 import top.stillmisty.xiantao.domain.item.entity.ItemProperties;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
-import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
+import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 
 /** 灵兽技能：技能池、先天技解锁、后天悟觉醒 */
 @Slf4j

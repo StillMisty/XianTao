@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.sect.entity.ChatHistory;
 import top.stillmisty.xiantao.domain.sect.enums.ChatRole;
 import top.stillmisty.xiantao.domain.sect.enums.ChatType;
-import top.stillmisty.xiantao.domain.sect.repository.ChatHistoryRepository;
+import top.stillmisty.xiantao.infrastructure.repository.ChatHistoryRepository;
 
 @Component
 @Primary

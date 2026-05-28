@@ -2,8 +2,8 @@ package top.stillmisty.xiantao.service.activity.effect;
 
 import java.util.Map;
 import org.springframework.stereotype.Component;
-import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
 
 @Component

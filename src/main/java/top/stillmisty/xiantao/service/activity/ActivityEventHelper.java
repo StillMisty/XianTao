@@ -3,8 +3,8 @@ package top.stillmisty.xiantao.service.activity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
-import top.stillmisty.xiantao.domain.event.repository.EventTypeRepository;
-import top.stillmisty.xiantao.domain.event.repository.HiddenCompletionRepository;
+import top.stillmisty.xiantao.infrastructure.repository.EventTypeRepository;
+import top.stillmisty.xiantao.infrastructure.repository.HiddenCompletionRepository;
 
 /** 活动事件辅助 — checkPrerequisite / resolveNarrativeKey，供 Training/Bounty/Travel Completer 共用 */
 @Component

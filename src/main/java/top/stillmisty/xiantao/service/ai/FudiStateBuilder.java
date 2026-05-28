@@ -8,11 +8,11 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
-import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
 import top.stillmisty.xiantao.domain.fudi.entity.CellConfig;
 import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
 import top.stillmisty.xiantao.domain.fudi.entity.FudiCell;
-import top.stillmisty.xiantao.domain.fudi.repository.FudiCellRepository;
+import top.stillmisty.xiantao.infrastructure.repository.BeastRepository;
+import top.stillmisty.xiantao.infrastructure.repository.FudiCellRepository;
 import top.stillmisty.xiantao.service.fudi.FarmService;
 
 /**

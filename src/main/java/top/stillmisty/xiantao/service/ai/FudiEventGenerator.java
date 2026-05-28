@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.fudi.entity.FudiEventTemplate;
-import top.stillmisty.xiantao.domain.fudi.repository.FudiEventTemplateRepository;
+import top.stillmisty.xiantao.infrastructure.repository.FudiEventTemplateRepository;
 
 /** 福地事件生成器 对话时从模板池懒生成 */
 @Component

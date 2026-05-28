@@ -23,7 +23,7 @@ src/main/java/top/stillmisty/xiantao/
 │   ├── command/                     # VO → text formatters (implements CommandGroup)
 │   ├── listener/                    # SimBot @Listener (OneBotV11 + QQ per class)
 │   ├── TextFormat.java              # sealed: PlainFormat | MarkdownFormat (heading/bold/listItem/separator)
-├── domain/                          # Entities, enums, repository interfaces, VOs
+├── domain/                          # Entities, enums, VOs
 │   ├── user/ item/ beast/ bounty/ fudi/ map/ monster/ pill/ skill/ command/
 │   └── item/handler/                # ItemUseHandler strategy implementations (5 handlers)
 ├── service/                         # Auth + business logic
@@ -35,9 +35,9 @@ src/main/java/top/stillmisty/xiantao/
 │   ├── ErrorCode.java               # enum of structured business error codes (68 constants)
 │   ├── BusinessException.java       # RuntimeException carrying ErrorCode + format args
 │   └── ...Service.java              # domain services
-└── infrastructure/                  # MyBatis-Flex mappers + repository impls
+└── infrastructure/                  # MyBatis-Flex mappers + repositories
     ├── mapper/                      # Mapper interfaces extending BaseMapper<Entity>
-    └── repository/                  # RepositoryImpl classes implementing domain repository interfaces
+    └── repository/                  # Repository classes using mappers for persistence
 ```
 
 ## Key Patterns
@@ -56,7 +56,7 @@ src/main/java/top/stillmisty/xiantao/
 - `fromCode` must throw `IllegalArgumentException` for unknown codes (never `null` or default)  
 - DB `CHECK` constraints must match enum codes exactly, including case  
 - Always use `mapper.insertOrUpdateSelective()` for saves — no separate `insert`/`update` branches  
-- Repository interfaces expose a single `save()`, never persistence details  
+- Repositories expose a single `save()`, never persistence details  
 - Atomic operations: use `UPDATE ... WHERE column >= ?` instead of check-then-act patterns  
 - All VOs must be Java `record` (immutable)  
 - Entities: `@Data` + `@NoArgsConstructor`, **no** `staticConstructor`  
@@ -67,9 +67,9 @@ src/main/java/top/stillmisty/xiantao/
 
 ## Development Flow
 
-1. `domain/` — Entity, enum, VO, Repository interface
+1. `domain/` — Entity, enum, VO
 2. `db/migration/` — Flyway migration (`V1.0.XX__description.sql`), include DML + `COMMENT ON`
-3. `infrastructure/` — Mapper interface + RepositoryImpl + type handlers if needed
+3. `infrastructure/` — Mapper interface + Repository + type handlers if needed
 4. `service/` — internal method (`Long userId`) + public method with `@Authenticated` returning `ServiceResult<T>`
 5. `handle/command/` — VO → text formatter (implements `CommandGroup`)
 6. `handle/listener/` — listener with both OneBotV11 + QQ platform methods, uses `ReplyHelper`

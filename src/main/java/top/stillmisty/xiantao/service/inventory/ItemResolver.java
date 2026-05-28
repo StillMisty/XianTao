@@ -12,13 +12,13 @@ import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.enums.MaterialAttribute;
-import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
-import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
-import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.domain.item.vo.ItemEntry;
 import top.stillmisty.xiantao.domain.pill.enums.ElementType;
 import top.stillmisty.xiantao.domain.pill.enums.PillQuality;
 import top.stillmisty.xiantao.domain.shared.SharedKernel;
+import top.stillmisty.xiantao.infrastructure.repository.EquipmentRepository;
+import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
+import top.stillmisty.xiantao.infrastructure.repository.StackableItemRepository;
 
 @Component
 @RequiredArgsConstructor

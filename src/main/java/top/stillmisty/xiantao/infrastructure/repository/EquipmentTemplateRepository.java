@@ -1,0 +1,36 @@
+package top.stillmisty.xiantao.infrastructure.repository;
+
+import static top.stillmisty.xiantao.domain.item.entity.table.EquipmentTemplateTableDef.EQUIPMENT_TEMPLATE;
+
+import com.mybatisflex.core.query.QueryWrapper;
+import java.util.List;
+import java.util.Optional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
+import top.stillmisty.xiantao.domain.item.entity.EquipmentTemplate;
+import top.stillmisty.xiantao.infrastructure.mapper.EquipmentTemplateMapper;
+
+@Repository
+@RequiredArgsConstructor
+public class EquipmentTemplateRepository {
+
+  private final EquipmentTemplateMapper mapper;
+
+  public Optional<EquipmentTemplate> findById(Long id) {
+    return Optional.ofNullable(mapper.selectOneById(id));
+  }
+
+  public Optional<EquipmentTemplate> findByName(String name) {
+    return Optional.ofNullable(
+        mapper.selectOneByQuery(QueryWrapper.create().where(EQUIPMENT_TEMPLATE.NAME.eq(name))));
+  }
+
+  public List<EquipmentTemplate> findByIds(List<Long> ids) {
+    if (ids == null || ids.isEmpty()) return List.of();
+    return mapper.selectListByQuery(QueryWrapper.create().in("id", ids));
+  }
+
+  public List<EquipmentTemplate> findAll() {
+    return mapper.selectAll();
+  }
+}

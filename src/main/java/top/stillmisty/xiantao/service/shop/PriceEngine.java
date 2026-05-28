@@ -13,7 +13,7 @@ import top.stillmisty.xiantao.domain.shop.entity.ShopNpc;
 import top.stillmisty.xiantao.domain.shop.entity.ShopProduct;
 import top.stillmisty.xiantao.domain.worldevent.entity.WorldEvent;
 import top.stillmisty.xiantao.domain.worldevent.enums.WorldEventCategory;
-import top.stillmisty.xiantao.domain.worldevent.repository.WorldEventRepository;
+import top.stillmisty.xiantao.infrastructure.repository.WorldEventRepository;
 import top.stillmisty.xiantao.service.ai.ShopChatContext;
 
 @Component

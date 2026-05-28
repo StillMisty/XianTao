@@ -11,8 +11,8 @@ import top.stillmisty.xiantao.domain.item.enums.AffixType;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.enums.MaterialAttribute;
 import top.stillmisty.xiantao.domain.item.enums.Rarity;
-import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
-import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
+import top.stillmisty.xiantao.infrastructure.repository.EquipmentRepository;
+import top.stillmisty.xiantao.infrastructure.repository.StackableItemRepository;
 import top.stillmisty.xiantao.service.inventory.ItemResolver;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
 

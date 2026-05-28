@@ -10,7 +10,8 @@ import top.stillmisty.xiantao.domain.item.entity.*;
 import top.stillmisty.xiantao.domain.item.enums.AffixType;
 import top.stillmisty.xiantao.domain.item.enums.MaterialAttribute;
 import top.stillmisty.xiantao.domain.item.enums.Rarity;
-import top.stillmisty.xiantao.domain.item.repository.EquipmentTemplateRepository;
+import top.stillmisty.xiantao.infrastructure.repository.EquipmentRepository;
+import top.stillmisty.xiantao.infrastructure.repository.EquipmentTemplateRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.CombinationStrategy;
 import top.stillmisty.xiantao.service.ErrorCode;
@@ -26,8 +27,7 @@ public class ForgingCombinationFinder {
 
   private final StackableItemService stackableItemService;
   private final EquipmentTemplateRepository equipmentTemplateRepository;
-  private final top.stillmisty.xiantao.domain.item.repository.EquipmentRepository
-      equipmentRepository;
+  private final EquipmentRepository equipmentRepository;
 
   private final CombinationStrategy strategy =
       new CombinationStrategy(FORGE_ATTRIBUTES, 3, ForgingCombinationFinder::getMaterialValue);

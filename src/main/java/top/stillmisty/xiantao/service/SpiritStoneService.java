@@ -3,7 +3,7 @@ package top.stillmisty.xiantao.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.user.entity.User;
-import top.stillmisty.xiantao.domain.user.repository.UserRepository;
+import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
 
 /** 灵石操作：原子增减、余额查询 */
 @Service
