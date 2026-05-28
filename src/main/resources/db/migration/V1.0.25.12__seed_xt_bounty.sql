@@ -550,7 +550,19 @@ INSERT
         ),
         1,
         18,
-        FALSE
+        FALSE    ,
+    (
+        1,
+        '灵猫寻踪',
+        '青石镇外猎户来报，近日山林间有灵猫出没，此兽通灵温顺，若能寻得其巢穴带回幼崽，必有重谢。',
+        15,
+        jsonb_build_array(
+            jsonb_build_object('type', 'beast_egg', 'name', '灵猫卵')
+        ),
+        1,
+        25,
+        TRUE
+    )
     );
 
 -- 翠竹林 (map_id=2)
@@ -1143,7 +1155,19 @@ INSERT
         ),
         2,
         18,
-        FALSE
+        FALSE    ,
+    (
+        2,
+        '竹林芝妖',
+        '翠竹林深处灵气渐浓，竟孕育出灵芝妖。此妖虽弱却善隐匿，需细心寻觅方可得其卵。',
+        20,
+        jsonb_build_array(
+            jsonb_build_object('type', 'beast_egg', 'name', '灵芝妖卵')
+        ),
+        1,
+        25,
+        TRUE
+    )
     );
 
 -- 青石矿洞 (map_id=3)
@@ -1845,7 +1869,19 @@ INSERT
         ),
         3,
         18,
-        FALSE
+        FALSE    ,
+    (
+        3,
+        '矿脉蚁患',
+        '矿洞深处发现铁蚁巢穴，此蚁以矿石为食，外壳坚硬如铁。矿工愿出重金求人取回蚁卵以供驯养。',
+        25,
+        jsonb_build_array(
+            jsonb_build_object('type', 'beast_egg', 'name', '铁蚁卵')
+        ),
+        1,
+        25,
+        TRUE
+    )
     );
 
 -- 碧水潭 (map_id=4)
@@ -2557,7 +2593,19 @@ INSERT
         ),
         8,
         18,
-        FALSE
+        FALSE    ,
+    (
+        4,
+        '碧水灵鲤',
+        '碧水潭近日灵气暴涨，有灵鲤跃龙门之兆。潭边渔夫言，若能取得灵鲤卵，可助修士凝聚水灵根。',
+        20,
+        jsonb_build_array(
+            jsonb_build_object('type', 'beast_egg', 'name', '灵鲤卵')
+        ),
+        1,
+        25,
+        TRUE
+    )
     );
 
 -- 枫叶坡 (map_id=5)
@@ -3123,7 +3171,19 @@ INSERT
         ),
         16,
         12,
-        FALSE
+        FALSE    ,
+    (
+        5,
+        '铁蜥蜴患',
+        '铁山堡附近发现稀有铁蜥蜴，此兽以金属矿石为食，体内蕴含精纯金气，其卵可孵化出忠诚灵宠。',
+        25,
+        jsonb_build_array(
+            jsonb_build_object('type', 'beast_egg', 'name', '铁蜥卵')
+        ),
+        1,
+        25,
+        TRUE
+    )
     ),
     (
         5,
@@ -3844,7 +3904,19 @@ INSERT
         ),
         8,
         15,
-        FALSE
+        FALSE    ,
+    (
+        6,
+        '雪山灵兔',
+        '寒雪山巅传来消息，有雪兔在冰洞中筑巢。此兔毛白如雪，性情温顺，是冰属性修士的理想灵宠。',
+        30,
+        jsonb_build_array(
+            jsonb_build_object('type', 'beast_egg', 'name', '雪兔卵')
+        ),
+        2,
+        25,
+        TRUE
+    )
     );
 
 -- 落日峰 (map_id=7)
@@ -4506,7 +4578,19 @@ INSERT
         ),
         22,
         12,
-        FALSE
+        FALSE    ,
+    (
+        7,
+        '雷泽蛙鸣',
+        '雷泽沼泽中雷蛙鸣叫不止，此蛙体内蕴含雷电之力，若能取得其卵孵化，可助修士修炼雷系功法。',
+        30,
+        jsonb_build_array(
+            jsonb_build_object('type', 'beast_egg', 'name', '雷蛙卵')
+        ),
+        2,
+        25,
+        TRUE
+    )
     );
 
 -- 迷雾沼泽 (map_id=8)
@@ -5114,7 +5198,19 @@ INSERT
         ),
         26,
         12,
-        FALSE
+        FALSE    ,
+    (
+        8,
+        '风吟蝶舞',
+        '风吟谷中彩蝶纷飞，此蝶能感知风向变化，是风属性修士的绝佳灵宠。谷中花丛间或有其巢穴。',
+        25,
+        jsonb_build_array(
+            jsonb_build_object('type', 'beast_egg', 'name', '风蝶卵')
+        ),
+        2,
+        25,
+        TRUE
+    )
     );
 
 -- 青云门遗址 (map_id=9)
@@ -5768,7 +5864,19 @@ INSERT
         ),
         28,
         10,
-        FALSE
+        FALSE    ,
+    (
+        9,
+        '蛇盘山道',
+        '蛇盘山道上灵蛇拦路，此蛇通灵已久，体内蕴含木属性灵气。若能取得其卵，可培养出忠诚灵蛇。',
+        30,
+        jsonb_build_array(
+            jsonb_build_object('type', 'beast_egg', 'name', '灵蛇卵')
+        ),
+        3,
+        25,
+        TRUE
+    )
     );
 
 -- 古道驿站 (map_id=10)
@@ -6414,7 +6522,19 @@ INSERT
         ),
         30,
         12,
-        FALSE
+        FALSE    ,
+    (
+        10,
+        '福地寻鼠',
+        '福地洞天中传闻有福鼠出没，此鼠能招财进宝，是修士梦寐以求的灵宠。洞中岔路众多，需仔细搜寻。',
+        20,
+        jsonb_build_array(
+            jsonb_build_object('type', 'beast_egg', 'name', '福鼠卵')
+        ),
+        3,
+        25,
+        TRUE
+    )
     );
 
 -- 飞云城 (map_id=11)
@@ -7039,7 +7159,19 @@ INSERT
         ),
         35,
         15,
-        FALSE
+        FALSE    ,
+    (
+        11,
+        '瘟鼠除患',
+        '幽暗沼泽发现瘟鼠踪迹，此鼠携带疫病，若不除去恐成大患。悬赏取回其卵以供研究解药。',
+        35,
+        jsonb_build_array(
+            jsonb_build_object('type', 'beast_egg', 'name', '瘟鼠卵')
+        ),
+        3,
+        25,
+        TRUE
+    )
     );
 
 -- 万兽山 (map_id=12)
@@ -7604,7 +7736,19 @@ INSERT
         ),
         44,
         10,
-        FALSE
+        FALSE    ,
+    (
+        12,
+        '火鼠觅踪',
+        '火山口边缘发现火鼠，此鼠能在岩浆中自由穿行，体内蕴含纯阳火气。其卵是火属性修士的珍宝。',
+        30,
+        jsonb_build_array(
+            jsonb_build_object('type', 'beast_egg', 'name', '火鼠卵')
+        ),
+        4,
+        25,
+        TRUE
+    )
     ),
     (
         12,
@@ -8259,7 +8403,19 @@ INSERT
         ),
         42,
         8,
-        FALSE
+        FALSE    ,
+    (
+        13,
+        '深潭蛙卵',
+        '深潭底部发现水蛙巢穴，此蛙通水性，能在水中自由呼吸。潭水冰冷刺骨，需有实力方可潜入。',
+        25,
+        jsonb_build_array(
+            jsonb_build_object('type', 'beast_egg', 'name', '水蛙卵')
+        ),
+        4,
+        25,
+        TRUE
+    )
     );
 
 -- 灵虚洞天 (map_id=14)
@@ -8866,7 +9022,19 @@ INSERT
         ),
         42,
         10,
-        FALSE
+        FALSE    ,
+    (
+        14,
+        '古藤蛇巢',
+        '古藤缠绕处发现藤蛇巢穴，此蛇与古藤共生，体内蕴含木属性灵气。藤蔓密布，需小心前行。',
+        30,
+        jsonb_build_array(
+            jsonb_build_object('type', 'beast_egg', 'name', '藤蛇卵')
+        ),
+        4,
+        25,
+        TRUE
+    )
     );
 
 -- 天剑宗遗址 (map_id=15)
@@ -9509,7 +9677,19 @@ INSERT
         ),
         46,
         10,
-        FALSE
+        FALSE    ,
+    (
+        15,
+        '金蝉脱壳',
+        '金矿深处金蝉鸣叫，此蝉以金属矿石为食，外壳坚不可摧。矿工言其巢穴在矿脉最深处。',
+        35,
+        jsonb_build_array(
+            jsonb_build_object('type', 'beast_egg', 'name', '金蝉卵')
+        ),
+        5,
+        25,
+        TRUE
+    )
     );
 
 -- 焚天岭 (map_id=16)
@@ -10081,7 +10261,19 @@ INSERT
         ),
         50,
         12,
-        FALSE
+        FALSE    ,
+    (
+        16,
+        '乱石蛙跳',
+        '乱石滩中石蛙跳跃，此蛙体色与岩石无异，善隐匿。石缝间或有其巢穴，需耐心搜寻。',
+        25,
+        jsonb_build_array(
+            jsonb_build_object('type', 'beast_egg', 'name', '石蛙卵')
+        ),
+        5,
+        25,
+        TRUE
+    )
     ),
     (
         16,
@@ -10789,7 +10981,19 @@ INSERT
         ),
         50,
         12,
-        FALSE
+        FALSE    ,
+    (
+        17,
+        '冰洞霜蛾',
+        '冰霜洞穴中霜蛾飞舞，此蛾翅膀能散发寒气，是冰属性修士的理想灵宠。洞穴深处或有其巢穴。',
+        30,
+        jsonb_build_array(
+            jsonb_build_object('type', 'beast_egg', 'name', '霜蛾卵')
+        ),
+        5,
+        25,
+        TRUE
+    )
     );
 
 -- 玲珑坊 (map_id=18)
@@ -11406,7 +11610,19 @@ INSERT
         ),
         50,
         15,
-        FALSE
+        FALSE    ,
+    (
+        18,
+        '雷山雀巢',
+        '雷山顶端雷雀筑巢，此雀以雷电为食，体内蕴含纯阳雷气。山路险峻，需有实力方可攀登。',
+        35,
+        jsonb_build_array(
+            jsonb_build_object('type', 'beast_egg', 'name', '雷雀卵')
+        ),
+        6,
+        25,
+        TRUE
+    )
     ),
     (
         18,
@@ -12073,7 +12289,19 @@ INSERT
         ),
         54,
         8,
-        FALSE
+        FALSE    ,
+    (
+        19,
+        '云海鸽群',
+        '云海之上云鸽盘旋，此鸽善传书，是修士远距离通讯的绝佳灵宠。云层间或有其巢穴。',
+        25,
+        jsonb_build_array(
+            jsonb_build_object('type', 'beast_egg', 'name', '云鸽卵')
+        ),
+        6,
+        25,
+        TRUE
+    )
     );
 
 -- 天机阁外山 (map_id=20)
@@ -25992,7 +26220,19 @@ INSERT
         ),
         100,
         5,
-        FALSE
+        FALSE    ,
+    (
+        20,
+        '古树青蛇',
+        '古树之下青蛇盘踞，此蛇与古树共生，体内蕴含木属性灵气。树洞中或有其巢穴，需小心惊扰。',
+        25,
+        jsonb_build_array(
+            jsonb_build_object('type', 'beast_egg', 'name', '青蛇卵')
+        ),
+        6,
+        25,
+        TRUE
+    )
     );
 
 -- Reset sequence

@@ -343,6 +343,25 @@ INSERT
                 1,
                 'maxQty',
                 2
+            ),
+            jsonb_build_object(
+                'type',
+                'ITEM',
+                'templateId',
+                (
+                    SELECT
+                        id
+                    FROM
+                        xt_item_template
+                    WHERE
+                        name = '灵雀卵'
+                ),
+                'weight',
+                10,
+                'minQty',
+                1,
+                'maxQty',
+                1
             )
         ),
         TRUE
@@ -1002,6 +1021,44 @@ INSERT
                 1,
                 'maxQty',
                 3
+            ),
+            jsonb_build_object(
+                'type',
+                'ITEM',
+                'templateId',
+                (
+                    SELECT
+                        id
+                    FROM
+                        xt_item_template
+                    WHERE
+                        name = '白泽幼卵'
+                ),
+                'weight',
+                10,
+                'minQty',
+                1,
+                'maxQty',
+                1
+            ),
+            jsonb_build_object(
+                'type',
+                'ITEM',
+                'templateId',
+                (
+                    SELECT
+                        id
+                    FROM
+                        xt_item_template
+                    WHERE
+                        name = '青鸾卵'
+                ),
+                'weight',
+                10,
+                'minQty',
+                1,
+                'maxQty',
+                1
             )
         ),
         TRUE
@@ -1323,6 +1380,44 @@ INSERT
                 3,
                 'maxQty',
                 8
+            ),
+            jsonb_build_object(
+                'type',
+                'ITEM',
+                'templateId',
+                (
+                    SELECT
+                        id
+                    FROM
+                        xt_item_template
+                    WHERE
+                        name = '九色鹿卵'
+                ),
+                'weight',
+                8,
+                'minQty',
+                1,
+                'maxQty',
+                1
+            ),
+            jsonb_build_object(
+                'type',
+                'ITEM',
+                'templateId',
+                (
+                    SELECT
+                        id
+                    FROM
+                        xt_item_template
+                    WHERE
+                        name = '金翼雕卵'
+                ),
+                'weight',
+                8,
+                'minQty',
+                1,
+                'maxQty',
+                1
             )
         )
     );
