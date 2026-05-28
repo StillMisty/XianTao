@@ -80,4 +80,18 @@ public class StackableItemRepository {
   public int deleteIfZeroQuantity(Long id) {
     return stackableItemMapper.deleteIfZeroQuantity(id);
   }
+
+  public List<StackableItem> findByUserIdAndAllTags(Long userId, List<String> tags) {
+    String tagsJson =
+        "["
+            + tags.stream()
+                .map(t -> "\"" + t + "\"")
+                .collect(java.util.stream.Collectors.joining(","))
+            + "]";
+    return stackableItemMapper.selectByUserIdAndAllTags(userId, tagsJson);
+  }
+
+  public List<StackableItem> findByUserIdAndAnyTag(Long userId, List<String> tags) {
+    return stackableItemMapper.selectByUserIdAndAnyTag(userId, tags.toArray(new String[0]));
+  }
 }

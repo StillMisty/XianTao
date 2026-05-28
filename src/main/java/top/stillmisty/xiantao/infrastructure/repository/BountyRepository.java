@@ -32,4 +32,23 @@ public class BountyRepository {
     }
     return mapper.selectListByQuery(qw);
   }
+
+  public List<Bounty> findByMapIdWithLevelFilter(Long mapId, int userLevel) {
+    return mapper.selectListByQuery(
+        QueryWrapper.create()
+            .where(BOUNTY.MAP_ID.eq(mapId))
+            .and(BOUNTY.REQUIRE_LEVEL.le(userLevel)));
+  }
+
+  public List<Bounty> findByMapIdExcludingWithLevelFilter(
+      Long mapId, Set<Long> excludeIds, int userLevel) {
+    QueryWrapper qw =
+        QueryWrapper.create()
+            .where(BOUNTY.MAP_ID.eq(mapId))
+            .and(BOUNTY.REQUIRE_LEVEL.le(userLevel));
+    if (excludeIds != null && !excludeIds.isEmpty()) {
+      qw.and(BOUNTY.ID.notIn(excludeIds));
+    }
+    return mapper.selectListByQuery(qw);
+  }
 }

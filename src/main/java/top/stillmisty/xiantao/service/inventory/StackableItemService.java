@@ -5,7 +5,6 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
@@ -50,13 +49,12 @@ public class StackableItemService {
       int quantity,
       Map<String, Object> properties) {
 
-    Map<String, Object> effectiveProperties = properties;
-    var tags = itemTemplateRepository.findById(templateId).map(ItemTemplate::getTags).orElse(null);
-
-    if (properties == null || properties.isEmpty()) {
-      effectiveProperties =
-          itemTemplateRepository.findById(templateId).map(ItemTemplate::getProperties).orElse(null);
-    }
+    var template = itemTemplateRepository.findById(templateId).orElse(null);
+    var tags = template != null ? template.getTags() : null;
+    Map<String, Object> effectiveProperties =
+        (properties == null || properties.isEmpty())
+            ? (template != null ? template.getProperties() : null)
+            : properties;
 
     int hash = StackableItem.computeHash(effectiveProperties);
     StackableItem newItem = StackableItem.create(userId, templateId, itemType, name, quantity);
@@ -119,10 +117,7 @@ public class StackableItemService {
     if (tags == null || tags.isEmpty()) {
       return List.of();
     }
-
-    List<StackableItem> allItems = stackableItemRepository.findByUserId(userId);
-
-    return allItems.stream().filter(item -> item.hasAllTags(tags)).toList();
+    return stackableItemRepository.findByUserIdAndAllTags(userId, tags);
   }
 
   /** 按标签搜索堆叠物品（OR关系，包含任一标签即可） */
@@ -130,10 +125,7 @@ public class StackableItemService {
     if (tags == null || tags.isEmpty()) {
       return List.of();
     }
-
-    List<StackableItem> allItems = stackableItemRepository.findByUserId(userId);
-
-    return allItems.stream().filter(item -> tags.stream().anyMatch(item::hasTag)).toList();
+    return stackableItemRepository.findByUserIdAndAnyTag(userId, tags);
   }
 
   /** 按物品类型搜索堆叠物品 */

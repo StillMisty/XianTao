@@ -117,11 +117,12 @@ public class BountyService {
             ? Set.of()
             : new HashSet<>(userBountyRepository.findCompletedBountyIds(userId, uniqueBountyIds));
 
+    // 使用 SQL 层过滤等级要求，减少传输和内存开销
     List<Bounty> eligible =
-        (excludeIds.isEmpty()
-                ? allBounties
-                : bountyRepository.findByMapIdExcluding(mapNode.getId(), excludeIds))
-            .stream().filter(b -> b.requiresLevel(user.getLevel())).toList();
+        excludeIds.isEmpty()
+            ? bountyRepository.findByMapIdWithLevelFilter(mapNode.getId(), user.getLevel())
+            : bountyRepository.findByMapIdExcludingWithLevelFilter(
+                mapNode.getId(), excludeIds, user.getLevel());
 
     if (eligible.isEmpty()) return List.of();
 

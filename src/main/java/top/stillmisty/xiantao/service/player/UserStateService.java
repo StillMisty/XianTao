@@ -34,6 +34,13 @@ public class UserStateService {
     return user;
   }
 
+  /** 只读加载用户，不获取行锁、不结算状态。适用于仅需读取用户数据的场景。 */
+  public User loadUserReadOnly(Long userId) {
+    return userRepository
+        .findById(userId)
+        .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+  }
+
   /** 根据道号加载用户，不结算状态。 */
   public User loadUserByNickname(String nickname) {
     return userRepository.findByNickname(nickname).orElse(null);
