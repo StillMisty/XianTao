@@ -8,7 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
+import top.stillmisty.xiantao.domain.beast.entity.MutationTraitConfig;
 import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
+import top.stillmisty.xiantao.domain.beast.repository.MutationTraitConfigRepository;
 import top.stillmisty.xiantao.domain.beast.vo.BeastStatusVO;
 import top.stillmisty.xiantao.domain.fudi.entity.CellConfig;
 import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
@@ -28,6 +30,7 @@ public class BeastDisplayHelper {
   private final BeastRepository beastRepository;
   private final FudiCellRepository fudiCellRepository;
   private final FudiHelper fudiHelper;
+  private final MutationTraitConfigRepository traitConfigRepository;
 
   public record PenCellBeast(Fudi fudi, FudiCell cell, Integer cellId, Beast beast) {}
 
@@ -77,7 +80,7 @@ public class BeastDisplayHelper {
             beast.getGender() != null
                 ? beast.getGender().getSymbol() + beast.getGender().getChineseName()
                 : "")
-        .mutationTraits(beast.getMutationTraits())
+        .mutationTraits(resolveTraitNames(beast.getMutationTraits()))
         .tier(beast.getTier())
         .level(beast.getLevel())
         .exp(beast.getExp())
@@ -102,7 +105,7 @@ public class BeastDisplayHelper {
     String qualityChinese = beast != null ? beast.getQuality().getChineseName() : "凡品";
     int qualityOrdinal = beast != null ? beast.getQuality().ordinal() : 1;
     List<String> mutationTraits =
-        beast != null && beast.getMutationTraits() != null ? beast.getMutationTraits() : List.of();
+        beast != null ? resolveTraitNames(beast.getMutationTraits()) : List.of();
     int powerScore = tier * 10;
 
     return new PenCellVO(
@@ -130,8 +133,7 @@ public class BeastDisplayHelper {
       builder.name("空兽栏");
     } else {
       String qualityChinese = beast.getQuality().getChineseName();
-      List<String> traits =
-          beast.getMutationTraits() != null ? beast.getMutationTraits() : List.of();
+      List<String> traits = resolveTraitNames(beast.getMutationTraits());
       builder
           .name(beast.getBeastName())
           .level(beast.getTier())
@@ -153,5 +155,18 @@ public class BeastDisplayHelper {
     LocalDateTime matureTime = pen.matureTime();
     if (matureTime == null) return false;
     return LocalDateTime.now().isBefore(matureTime);
+  }
+
+  /** 将变异特性ID列表解析为中文名称列表 */
+  private List<String> resolveTraitNames(java.util.Collection<Long> traitIds) {
+    if (traitIds == null || traitIds.isEmpty()) return List.of();
+    return traitIds.stream()
+        .map(
+            id ->
+                traitConfigRepository
+                    .findById(id)
+                    .map(MutationTraitConfig::getChineseName)
+                    .orElse("未知"))
+        .toList();
   }
 }

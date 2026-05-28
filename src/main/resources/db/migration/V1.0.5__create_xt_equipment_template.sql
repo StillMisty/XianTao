@@ -3,7 +3,7 @@ CREATE
     TABLE
         xt_equipment_template(
             id BIGSERIAL PRIMARY KEY,
-            name VARCHAR(128) NOT NULL,
+            name VARCHAR(128) NOT NULL UNIQUE,
             description TEXT,
             tags JSONB DEFAULT '[]' ::jsonb,
             slot VARCHAR(32) NOT NULL,

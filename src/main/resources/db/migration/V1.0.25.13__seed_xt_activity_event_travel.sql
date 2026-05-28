@@ -4,7 +4,7 @@
 --   1. 每个 ActivityEvent.params.effects 必须覆盖 EventType.description 中所有 {{key}} 模板变量
 --   2. 空效果事件必须补齐效果（叙事暗示了 reward 就不能什么都不给）
 --   3. 高风险：部分事件带 TAKE_DAMAGE_PERCENT（5-15% 最大生命）
---   4. 高回报：使用 ADD_EXP_PERCENT（2-8% 升级经验）代替固定 ADD_EXP
+--   4. 高回报：使用 ADD_EXP_PERCENT（2-8% 升级修为）代替固定 ADD_EXP
 --   5. TravelCompleter.rollSubEvents 基础触发概率 0.30，命运修正后 0.21~0.39
 -- =====================================================================
 

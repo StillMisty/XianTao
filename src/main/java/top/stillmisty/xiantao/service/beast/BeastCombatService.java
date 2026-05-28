@@ -9,11 +9,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
+import top.stillmisty.xiantao.domain.beast.enums.MutationEffectType;
 import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
-import top.stillmisty.xiantao.domain.beast.vo.*;
+import top.stillmisty.xiantao.domain.beast.vo.BeastStatusVO;
 import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
 import top.stillmisty.xiantao.domain.fudi.enums.BeastQuality;
-import top.stillmisty.xiantao.domain.fudi.enums.MutationTrait;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ServiceResult;
@@ -21,7 +21,7 @@ import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.fudi.FudiHelper;
 
-/** 灵兽出战/召回、经验 */
+/** 灵兽出战/召回、修为 */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -30,8 +30,7 @@ public class BeastCombatService {
   private final BeastRepository beastRepository;
   private final FudiHelper fudiHelper;
   private final BeastDisplayHelper beastDisplayHelper;
-
-  // ===================== 公开 API（含认证） =====================
+  private final MutationEffectResolver effectResolver;
 
   @Authenticated
   public ServiceResult<List<BeastStatusVO>> getDeployedBeasts(
@@ -45,8 +44,6 @@ public class BeastCombatService {
     Long userId = UserContext.getCurrentUserId();
     return new ServiceResult.Success<>(getBeastList(userId));
   }
-
-  // ===================== 静态公式 =====================
 
   public static int calculateBeastAttack(int level, BeastQuality quality) {
     double q = getCombatStatMultiplier(quality);
@@ -68,8 +65,6 @@ public class BeastCombatService {
     };
   }
 
-  // ===================== 内部 API =====================
-
   List<BeastStatusVO> getDeployedBeasts(Long userId) {
     Fudi fudi =
         fudiHelper
@@ -88,7 +83,6 @@ public class BeastCombatService {
         .toList();
   }
 
-  /** 出战/召回 toggle：已出战则召回，未出战则出战 */
   @Transactional
   public String toggleDeploy(Long userId, String position) {
     BeastDisplayHelper.PenCellBeast pcb =
@@ -127,32 +121,25 @@ public class BeastCombatService {
         .findById(beastId)
         .ifPresentOrElse(
             beast -> {
-              long actualExp = expToAdd;
-              if (hasTrait(beast, MutationTrait.SPIRIT_DEVOUR)) {
-                actualExp = (long) (expToAdd * 1.25);
-              }
+              double expBonus =
+                  effectResolver.sumEffectValue(beast, MutationEffectType.EXP_PERCENT);
+              long actualExp = (long) (expToAdd * (1 + expBonus / 100));
               long consumed = beast.addExp(actualExp);
               beastRepository.save(beast);
-              log.debug("灵兽 {} 获得 {} 经验", beastId, consumed);
+              log.debug("灵兽 {} 获得 {} 修为", beastId, consumed);
             },
-            () -> log.warn("灵兽 {} 不存在，经验 {} 无法添加", beastId, expToAdd));
+            () -> log.warn("灵兽 {} 不存在，修为 {} 无法添加", beastId, expToAdd));
   }
 
   @Transactional
   public void addExpToDeployedBeasts(Long userId, long expToAdd) {
     List<Beast> deployedBeasts = beastRepository.findByUserIdAndIsDeployed(userId, true);
     for (Beast beast : deployedBeasts) {
-      long actualExp = expToAdd;
-      if (hasTrait(beast, MutationTrait.SPIRIT_DEVOUR)) {
-        actualExp = (long) (expToAdd * 1.25);
-      }
+      double expBonus = effectResolver.sumEffectValue(beast, MutationEffectType.EXP_PERCENT);
+      long actualExp = (long) (expToAdd * (1 + expBonus / 100));
       long consumed = beast.addExp(actualExp);
       beastRepository.save(beast);
-      log.debug("灵兽 {} 获得 {} 经验", beast.getId(), consumed);
+      log.debug("灵兽 {} 获得 {} 修为", beast.getId(), consumed);
     }
-  }
-
-  private boolean hasTrait(Beast beast, MutationTrait trait) {
-    return beast.getMutationTraits() != null && beast.getMutationTraits().contains(trait.getCode());
   }
 }

@@ -12,7 +12,12 @@ import top.stillmisty.xiantao.domain.item.enums.EquipmentSlot;
 import top.stillmisty.xiantao.domain.item.enums.WeaponType;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentRepository;
 import top.stillmisty.xiantao.domain.item.repository.EquipmentTemplateRepository;
-import top.stillmisty.xiantao.domain.monster.*;
+import top.stillmisty.xiantao.domain.monster.Battle;
+import top.stillmisty.xiantao.domain.monster.BattleContext;
+import top.stillmisty.xiantao.domain.monster.CombatEngine;
+import top.stillmisty.xiantao.domain.monster.CombatTeam;
+import top.stillmisty.xiantao.domain.monster.Combatant;
+import top.stillmisty.xiantao.domain.monster.PlayerCombatant;
 import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
 import top.stillmisty.xiantao.domain.pill.entity.PlayerBuff;
 import top.stillmisty.xiantao.domain.pill.repository.PlayerBuffRepository;
@@ -21,6 +26,7 @@ import top.stillmisty.xiantao.domain.skill.enums.BindingType;
 import top.stillmisty.xiantao.domain.skill.repository.PlayerSkillRepository;
 import top.stillmisty.xiantao.domain.skill.repository.SkillRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.service.beast.MutationEffectResolver;
 
 @Slf4j
 @Service
@@ -32,6 +38,7 @@ public class CombatService {
   private final EquipmentRepository equipmentRepository;
   private final EquipmentTemplateRepository equipmentTemplateRepository;
   private final SkillRepository skillRepository;
+  private final MutationEffectResolver effectResolver;
   private final PlayerSkillRepository playerSkillRepository;
   private final BeastRepository beastRepository;
   private final PlayerBuffRepository playerBuffRepository;
@@ -79,7 +86,7 @@ public class CombatService {
                   .filter(java.util.Objects::nonNull)
                   .toList();
         }
-        team.addMember(new BeastCombatant(beast, beastSkills));
+        team.addMember(new BeastCombatant(beast, beastSkills, effectResolver));
       }
     }
     return team;

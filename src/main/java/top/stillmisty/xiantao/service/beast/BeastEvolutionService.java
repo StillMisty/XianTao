@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
+import top.stillmisty.xiantao.domain.beast.enums.MutationEffectType;
 import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
 import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
 import top.stillmisty.xiantao.domain.fudi.entity.FudiCell;
@@ -29,6 +30,7 @@ public class BeastEvolutionService {
   private final BeastSkillService beastSkillService;
   private final BeastDisplayHelper beastDisplayHelper;
   private final BeastMutationService beastMutationService;
+  private final MutationEffectResolver effectResolver;
 
   @Transactional
   public PenCellVO evolveBeastTier(Fudi fudi, FudiCell cell, Long userId, Integer cellId) {
@@ -71,9 +73,8 @@ public class BeastEvolutionService {
 
     boolean qualityUpgraded = false;
     int qualityUpgradeChance = 10;
-    if (beast.getMutationTraits() != null && beast.getMutationTraits().contains("SPIRITUAL")) {
-      qualityUpgradeChance += 10;
-    }
+    qualityUpgradeChance +=
+        (int) effectResolver.sumEffectValue(beast, MutationEffectType.QUALITY_UP_CHANCE);
     if (beast.getQuality() != BeastQuality.DIVINE
         && ThreadLocalRandom.current().nextInt(100) < qualityUpgradeChance) {
       int nextOrdinal = beast.getQuality().ordinal() + 1;

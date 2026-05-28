@@ -3,7 +3,7 @@ CREATE
     TABLE
         xt_skill(
             id BIGSERIAL PRIMARY KEY,
-            name VARCHAR(64) NOT NULL,
+            name VARCHAR(64) NOT NULL UNIQUE,
             description VARCHAR(256),
             skill_type VARCHAR(16) NOT NULL DEFAULT 'ACTIVE',
             effects JSONB NOT NULL DEFAULT '[]',

@@ -53,7 +53,7 @@ class TrainingSettlementHandler implements StateHandler {
       gameEventService.save(
           GameEvent.create(user.getId(), GameEventCategory.TRAINING_EVENT)
               .withNarrative(
-                  "你在{{mapName}}已修炼 {{duration}} 分钟，期间遭遇 {{encounters}} 场战斗，获得 +{{exp}} 经验，继续精进中。",
+                  "你在{{mapName}}已修炼 {{duration}} 分钟，期间遭遇 {{encounters}} 场战斗，获得 +{{exp}} 修为，继续精进中。",
                   Map.of(
                       "mapName", mapNode.getName(),
                       "duration", durationMinutes,

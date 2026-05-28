@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
+import top.stillmisty.xiantao.domain.beast.enums.MutationEffectType;
 import top.stillmisty.xiantao.domain.fudi.entity.CellConfig;
 import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
 import top.stillmisty.xiantao.domain.fudi.entity.FudiCell;
@@ -36,6 +37,7 @@ public class BeastProductionService {
   private final StackableItemService stackableItemService;
   private final FudiHelper fudiHelper;
   private final BeastDisplayHelper beastDisplayHelper;
+  private final MutationEffectResolver effectResolver;
 
   @Transactional
   public CollectVO collectBeastProduce(Fudi fudi, FudiCell cell, Integer cellId) {
@@ -99,9 +101,9 @@ public class BeastProductionService {
     if (lastProduction == null) lastProduction = matureTime;
 
     double intervalHours = getProductionIntervalHours(beast.getTier(), cell.getCellLevel());
-    if (beast.getMutationTraits() != null && beast.getMutationTraits().contains("DILIGENT")) {
-      intervalHours *= 0.75;
-    }
+    double intervalReduce =
+        effectResolver.sumEffectValue(beast, MutationEffectType.OUTPUT_INTERVAL_REDUCE);
+    intervalHours *= (1 - intervalReduce / 100);
     long intervalSeconds = (long) (intervalHours * 3600);
     if (intervalSeconds <= 0) intervalSeconds = 14400;
 
@@ -129,17 +131,14 @@ public class BeastProductionService {
                     / 2.0);
     int produced = Math.max(1, perCycle * cycles);
 
-    List<String> mutationTraits = beast.getMutationTraits();
-    if (mutationTraits != null && mutationTraits.contains("HIGH_YIELD")) {
-      produced = (int) (produced * 1.3);
-    }
+    double outputBonus = effectResolver.sumEffectValue(beast, MutationEffectType.OUTPUT_PERCENT);
+    produced = (int) (produced * (1 + outputBonus / 100));
     return produced;
   }
 
   private void applyProductionToCell(
       FudiCell cell, CellConfig.PenConfig pen, Beast beast, int produced, LocalDateTime now) {
     int tier = beast.getTier();
-    List<String> mutationTraits = beast.getMutationTraits();
 
     List<ProductionItem> productionItems = getProductionItems(cell);
     if (productionItems.isEmpty()) {
@@ -160,8 +159,9 @@ public class BeastProductionService {
           pen.addProductionItem(selectedItem.templateId(), resolveName(selectedItem), 1);
         }
       }
-      if (mutationTraits != null && mutationTraits.contains("RARE_PRODUCE")) {
-        if (ThreadLocalRandom.current().nextInt(100) < 5) {
+      double rareChance = effectResolver.sumEffectValue(beast, MutationEffectType.RARE_ITEM_CHANCE);
+      if (rareChance > 0) {
+        if (ThreadLocalRandom.current().nextInt(100) < rareChance) {
           var higherItem = selectHigherTierItem(productionItems);
           if (higherItem != null) {
             pen.addProductionItem(higherItem.templateId(), resolveName(higherItem), 1);

@@ -8,13 +8,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
+import top.stillmisty.xiantao.domain.beast.enums.MutationEffectType;
 import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
-import top.stillmisty.xiantao.domain.monster.BeastCombatant;
 import top.stillmisty.xiantao.domain.monster.CombatTeam;
 import top.stillmisty.xiantao.domain.monster.Combatant;
 import top.stillmisty.xiantao.domain.monster.PlayerCombatant;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.service.beast.BeastSkillService;
+import top.stillmisty.xiantao.service.beast.MutationEffectResolver;
 
 @Slf4j
 @Component
@@ -23,6 +24,7 @@ public class PostCombatProcessor {
 
   private final BeastRepository beastRepository;
   private final BeastSkillService beastSkillService;
+  private final MutationEffectResolver effectResolver;
 
   public void applyHpToUser(User user, CombatTeam team) {
     for (Combatant c : team.members()) {
@@ -54,10 +56,13 @@ public class PostCombatProcessor {
           beast.setIsDeployed(false);
           int recoveryMinutes = beast.getQuality().getRecoveryMinutes();
           beast.setRecoveryUntil(LocalDateTime.now().plusMinutes(recoveryMinutes));
-        } else if (beast.getMutationTraits() != null
-            && beast.getMutationTraits().contains("SELF_HEAL")) {
-          int healAmount = (int) (beast.getMaxHp() * 0.10);
-          beast.setHpCurrent(Math.min(beast.getMaxHp(), beast.getHpCurrent() + healAmount));
+        } else {
+          double healPercent =
+              effectResolver.sumEffectValue(beast, MutationEffectType.ON_BATTLE_END_HEAL);
+          if (healPercent > 0) {
+            int healAmount = (int) (beast.getMaxHp() * healPercent / 100);
+            beast.setHpCurrent(Math.min(beast.getMaxHp(), beast.getHpCurrent() + healAmount));
+          }
         }
 
         if (playerWon) {

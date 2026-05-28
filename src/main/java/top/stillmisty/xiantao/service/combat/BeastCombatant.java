@@ -1,22 +1,28 @@
-package top.stillmisty.xiantao.domain.monster;
+package top.stillmisty.xiantao.service.combat;
 
 import java.util.List;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
+import top.stillmisty.xiantao.domain.beast.entity.MutationEffect;
+import top.stillmisty.xiantao.domain.beast.enums.MutationEffectType;
+import top.stillmisty.xiantao.domain.beast.enums.TriggerType;
+import top.stillmisty.xiantao.domain.monster.Combatant;
 import top.stillmisty.xiantao.domain.skill.entity.Skill;
+import top.stillmisty.xiantao.service.beast.MutationEffectResolver;
 
-/** 灵兽战斗单位 — 特性加成在此计算 */
 public class BeastCombatant implements Combatant {
   private final Beast beast;
   private final List<Skill> skills;
+  private final MutationEffectResolver effectResolver;
   private int hp;
 
-  public BeastCombatant(Beast beast) {
-    this(beast, List.of());
+  public BeastCombatant(Beast beast, MutationEffectResolver effectResolver) {
+    this(beast, List.of(), effectResolver);
   }
 
-  public BeastCombatant(Beast beast, List<Skill> skills) {
+  public BeastCombatant(Beast beast, List<Skill> skills, MutationEffectResolver effectResolver) {
     this.beast = beast;
     this.skills = skills != null ? skills : List.of();
+    this.effectResolver = effectResolver;
     this.hp = beast.getHpCurrent() != null ? beast.getHpCurrent() : beast.getMaxHp();
   }
 
@@ -79,32 +85,29 @@ public class BeastCombatant implements Combatant {
   }
 
   private double getAttackMultiplier() {
-    double mult = 1.0;
-    List<String> traits = beast.getMutationTraits();
-    if (traits != null) {
-      if (traits.contains("SHARP_FANG")) mult += 0.15;
-      if (traits.contains("MALEVOLENCE")) mult += 0.25;
+    double bonus = effectResolver.sumEffectValue(beast, MutationEffectType.ATTACK_PERCENT);
+    double mult = 1.0 + bonus / 100;
+
+    List<MutationEffect> berserkEffects =
+        effectResolver.getConditionalEffects(beast, MutationEffectType.LOW_HP_ATTACK_BOOST);
+    for (MutationEffect effect : berserkEffects) {
+      if (effect.condition() != null && effect.condition().trigger() == TriggerType.HP_BELOW) {
+        double hpPercent = (double) hp / getMaxHp() * 100;
+        if (hpPercent < effect.condition().threshold()) {
+          mult += effect.value() / 100;
+        }
+      }
     }
     return mult;
   }
 
   private double getDefenseMultiplier() {
-    double mult = 1.0;
-    List<String> traits = beast.getMutationTraits();
-    if (traits != null) {
-      if (traits.contains("THICK_SKIN")) mult += 0.15;
-      if (traits.contains("MYSTIC_ARMOR")) mult += 0.25;
-    }
-    return mult;
+    double bonus = effectResolver.sumEffectValue(beast, MutationEffectType.DEFENSE_PERCENT);
+    return 1.0 + bonus / 100;
   }
 
   private double getSpeedMultiplier() {
-    double mult = 1.0;
-    List<String> traits = beast.getMutationTraits();
-    if (traits != null) {
-      if (traits.contains("SWIFT")) mult += 0.15;
-      if (traits.contains("LIGHTNING_CHASE")) mult += 0.30;
-    }
-    return mult;
+    double bonus = effectResolver.sumEffectValue(beast, MutationEffectType.SPEED_PERCENT);
+    return 1.0 + bonus / 100;
   }
 }

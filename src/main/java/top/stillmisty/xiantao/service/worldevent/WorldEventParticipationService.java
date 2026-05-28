@@ -94,7 +94,7 @@ public class WorldEventParticipationService {
         (key, value) -> {
           if (value instanceof Number num && num.intValue() > 0) {
             if (key.contains("exp") || key.contains("EXP")) {
-              parts.add("获得经验 +" + num.intValue());
+              parts.add("获得修为 +" + num.intValue());
             } else if (key.contains("spirit_stone")) {
               parts.add("获得灵石 +" + num.intValue());
             } else if (key.contains("heal") || key.contains("hp")) {

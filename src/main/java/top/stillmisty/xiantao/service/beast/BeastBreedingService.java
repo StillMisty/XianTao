@@ -56,7 +56,7 @@ public class BeastBreedingService {
   private final BeastEvolutionService beastEvolutionService;
   private final BeastMutationService beastMutationService;
 
-  /** 每份灵兽精华提供的经验值 */
+  /** 每份灵兽精华提供的修为 */
   public static final int ESSENCE_EXP_PER_UNIT = 50;
 
   private static final java.util.Map<String, Integer> ESSENCE_QUALITY_BONUS =
@@ -162,10 +162,10 @@ public class BeastBreedingService {
             eggTemplate,
             setup.tier,
             setup.quality,
-            setup.mutationTraits,
             setup.beastName,
             cellId,
             now);
+    beastMutationService.attemptMutation(beast, 5);
     beastSkillService.unlockInnateSkills(beast, "birth");
     beastRepository.save(beast);
 
@@ -179,17 +179,12 @@ public class BeastBreedingService {
         setup.beastName,
         Beast.getTierName(setup.tier),
         setup.quality.getChineseName(),
-        !setup.mutationTraits.isEmpty() ? ", 变异" : "");
+        beast.isMutant() ? ", 变异" : "");
 
     return beastDisplayHelper.buildPenCellVO(cell);
   }
 
-  private record HatchSetup(
-      int tier,
-      BeastQuality quality,
-      List<String> mutationTraits,
-      double hatchHours,
-      String beastName) {}
+  private record HatchSetup(int tier, BeastQuality quality, double hatchHours, String beastName) {}
 
   private HatchSetup prepareHatchSetup(
       Long userId, ItemTemplate eggTemplate, int cellLevel, Fudi fudi) {
@@ -201,9 +196,6 @@ public class BeastBreedingService {
     var spirit = spiritRepository.findByFudiId(fudi.getId()).orElse(null);
     int affection = spirit != null && spirit.getAffection() != null ? spirit.getAffection() : 0;
     BeastQuality quality = rollBeastQuality(affection, cellLevel);
-    boolean isMutant = ThreadLocalRandom.current().nextInt(100) < 5;
-    List<String> mutationTraits = new ArrayList<>();
-    if (isMutant) mutationTraits.add(beastMutationService.rollRandomTrait());
 
     double levelSpeed = fudiHelper.getLevelSpeedMultiplier(cellLevel, tier);
     double baseHatchHours = 32;
@@ -211,7 +203,7 @@ public class BeastBreedingService {
 
     String beastName = eggTemplate.getName().replace("兽卵", "").replace("蛋", "灵兽");
 
-    return new HatchSetup(tier, quality, mutationTraits, hatchHours, beastName);
+    return new HatchSetup(tier, quality, hatchHours, beastName);
   }
 
   private void validateCellForHatch(FudiCell cell, Integer cellId) {
@@ -229,7 +221,6 @@ public class BeastBreedingService {
       ItemTemplate eggTemplate,
       int tier,
       BeastQuality quality,
-      List<String> mutationTraits,
       String beastName,
       int cellId,
       LocalDateTime now) {
@@ -242,7 +233,7 @@ public class BeastBreedingService {
     beast.setGender(ThreadLocalRandom.current().nextBoolean() ? BeastGender.YIN : BeastGender.YANG);
     beast.setTier(tier);
     beast.setQuality(quality);
-    beast.setMutationTraits(mutationTraits);
+    beast.setMutationTraits(new java.util.LinkedHashSet<>());
     beast.setLevel(1);
     beast.setExp(0);
     beast.setAttack(BeastCombatService.calculateBeastAttack(1, quality));

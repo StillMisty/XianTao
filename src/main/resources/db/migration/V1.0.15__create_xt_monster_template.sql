@@ -64,7 +64,7 @@ COMMENT ON
 COLUMN xt_monster_template.monster_type IS 'BEAST / SPIRIT / ARMORED / WILD_BEAST / EVIL / FLYING / HUMAN';
 
 COMMENT ON
-COLUMN xt_monster_template.exp_reward IS '击杀经验';
+COLUMN xt_monster_template.exp_reward IS '击杀修为';
 
 COMMENT ON
 COLUMN xt_monster_template.skills IS '法决ID列表 JSONB，如 [1, 2, 3]';

@@ -13,10 +13,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.beast.entity.BreedingRecipe;
+import top.stillmisty.xiantao.domain.beast.entity.MutationTraitConfig;
+import top.stillmisty.xiantao.domain.beast.enums.MutationEffectType;
 import top.stillmisty.xiantao.domain.beast.repository.BeastRepository;
 import top.stillmisty.xiantao.domain.beast.repository.BreedingRecipeRepository;
+import top.stillmisty.xiantao.domain.beast.repository.MutationTraitConfigRepository;
 import top.stillmisty.xiantao.domain.fudi.enums.BeastQuality;
-import top.stillmisty.xiantao.domain.fudi.enums.MutationTrait;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
@@ -36,12 +38,10 @@ public class BeastBreedService {
 
   private static final int BREED_STONE_COST_BASE = 200;
   private static final int BREED_COOLDOWN_HOURS = 24;
+  private static final long MIN_BREED_COOLDOWN_HOURS = 1;
   private static final double TRAIT_INHERIT_CHANCE = 0.25;
   private static final double TRAIT_INHERIT_CHANCE_AWAKEN = 0.50;
-
-  /** 繁育专用词条（不遗传给后代） */
-  private static final Set<MutationTrait> BREEDING_ONLY_TRAITS =
-      Set.of(MutationTrait.FERTILE, MutationTrait.PROLIFIC, MutationTrait.BLOOD_AWAKEN);
+  private static final int MAX_INHERITED_TRAITS = 3;
 
   private final BeastRepository beastRepository;
   private final BreedingRecipeRepository breedingRecipeRepository;
@@ -49,6 +49,8 @@ public class BeastBreedService {
   private final SpiritStoneService spiritStoneService;
   private final StackableItemService stackableItemService;
   private final BeastDisplayHelper beastDisplayHelper;
+  private final MutationEffectResolver effectResolver;
+  private final MutationTraitConfigRepository traitConfigRepository;
 
   @Transactional
   public BreedResult breed(Long userId, String position1, String position2) {
@@ -62,7 +64,7 @@ public class BeastBreedService {
 
     ItemTemplate eggTemplate = resolveOffspring(beast1, beast2);
     BeastQuality offspringQuality = rollOffspringQuality(beast1, beast2);
-    List<MutationTrait> inheritedTraits = rollInheritedTraits(beast1, beast2);
+    List<Long> inheritedTraits = rollInheritedTraits(beast1, beast2);
 
     stackableItemService.addStackableItem(
         userId,
@@ -73,16 +75,26 @@ public class BeastBreedService {
         java.util.Map.of());
 
     LocalDateTime now = LocalDateTime.now();
-    boolean hasProlific =
-        hasTrait(beast1, MutationTrait.PROLIFIC) || hasTrait(beast2, MutationTrait.PROLIFIC);
-    long cooldownHours = hasProlific ? (long) (BREED_COOLDOWN_HOURS * 0.7) : BREED_COOLDOWN_HOURS;
+    double cooldownReduce =
+        effectResolver.sumEffectValue(beast1, MutationEffectType.BREED_COOLDOWN_REDUCE)
+            + effectResolver.sumEffectValue(beast2, MutationEffectType.BREED_COOLDOWN_REDUCE);
+    long cooldownHours = (long) (BREED_COOLDOWN_HOURS * (1 - Math.min(cooldownReduce, 100) / 100));
+    cooldownHours = Math.max(cooldownHours, MIN_BREED_COOLDOWN_HOURS);
 
     beast1.setBreedingCooldownUntil(now.plusHours(cooldownHours));
     beast2.setBreedingCooldownUntil(now.plusHours(cooldownHours));
     beastRepository.save(beast1);
     beastRepository.save(beast2);
 
-    List<String> traitNames = inheritedTraits.stream().map(MutationTrait::getChineseName).toList();
+    List<String> traitNames =
+        inheritedTraits.stream()
+            .map(
+                id ->
+                    traitConfigRepository
+                        .findById(id)
+                        .map(MutationTraitConfig::getChineseName)
+                        .orElse("未知"))
+            .toList();
 
     log.info(
         "玩家 {} 繁育 {}({}) + {}({}) → {}({})",
@@ -154,7 +166,7 @@ public class BeastBreedService {
     return ThreadLocalRandom.current().nextBoolean() && egg1 != null ? egg1 : egg2;
   }
 
-  private List<String> extractCategoryTags(Set<String> tags) {
+  private List<String> extractCategoryTags(java.util.Set<String> tags) {
     return tags.stream()
         .filter(t -> !RARITY_TAGS.contains(t.toLowerCase()))
         .map(String::toLowerCase)
@@ -186,56 +198,41 @@ public class BeastBreedService {
     double avg = (parent1.getQuality().ordinal() + parent2.getQuality().ordinal()) / 2.0;
     double roll = ThreadLocalRandom.current().nextDouble(-0.5, 1.0);
 
-    if (hasTrait(parent1, MutationTrait.FERTILE) || hasTrait(parent2, MutationTrait.FERTILE)) {
-      roll += 0.3;
-    }
+    double qualityBoost =
+        effectResolver.sumEffectValue(parent1, MutationEffectType.BREED_QUALITY_BOOST)
+            + effectResolver.sumEffectValue(parent2, MutationEffectType.BREED_QUALITY_BOOST);
+    roll += qualityBoost / 100;
 
     int resultOrdinal = (int) Math.round(avg + roll);
     resultOrdinal = Math.clamp(resultOrdinal, 0, BeastQuality.values().length - 1);
     return BeastQuality.values()[resultOrdinal];
   }
 
-  private List<MutationTrait> rollInheritedTraits(Beast parent1, Beast parent2) {
-    List<MutationTrait> allTraits = new ArrayList<>();
-    collectTraits(parent1, allTraits);
-    collectTraits(parent2, allTraits);
+  /** 所有词条都可遗传给后代 */
+  private List<Long> rollInheritedTraits(Beast parent1, Beast parent2) {
+    Set<Long> allTraits = new java.util.LinkedHashSet<>();
+    if (parent1.getMutationTraits() != null) allTraits.addAll(parent1.getMutationTraits());
+    if (parent2.getMutationTraits() != null) allTraits.addAll(parent2.getMutationTraits());
     if (allTraits.isEmpty()) return List.of();
 
-    boolean hasAwaken =
-        hasTrait(parent1, MutationTrait.BLOOD_AWAKEN)
-            || hasTrait(parent2, MutationTrait.BLOOD_AWAKEN);
-    double chance = hasAwaken ? TRAIT_INHERIT_CHANCE_AWAKEN : TRAIT_INHERIT_CHANCE;
+    double inheritBoost =
+        effectResolver.sumEffectValue(parent1, MutationEffectType.INHERIT_RATE_BOOST)
+            + effectResolver.sumEffectValue(parent2, MutationEffectType.INHERIT_RATE_BOOST);
+    double chance =
+        Math.min(TRAIT_INHERIT_CHANCE + inheritBoost / 100, TRAIT_INHERIT_CHANCE_AWAKEN);
 
-    List<MutationTrait> inherited = new ArrayList<>();
-    for (MutationTrait trait : allTraits) {
-      if (BREEDING_ONLY_TRAITS.contains(trait)) continue;
+    List<Long> inherited = new ArrayList<>();
+    for (Long traitId : allTraits) {
       if (ThreadLocalRandom.current().nextDouble() < chance) {
-        inherited.add(trait);
+        inherited.add(traitId);
       }
     }
 
-    if (inherited.size() > 3) {
+    if (inherited.size() > MAX_INHERITED_TRAITS) {
       java.util.Collections.shuffle(inherited);
-      return inherited.subList(0, 3);
+      return inherited.subList(0, MAX_INHERITED_TRAITS);
     }
     return inherited;
-  }
-
-  private void collectTraits(Beast beast, List<MutationTrait> into) {
-    if (beast.getMutationTraits() == null) return;
-    for (String code : beast.getMutationTraits()) {
-      try {
-        MutationTrait trait = MutationTrait.fromCode(code);
-        if (!into.contains(trait)) into.add(trait);
-      } catch (IllegalArgumentException ignored) {
-        // skip unknown trait codes
-      }
-    }
-  }
-
-  private boolean hasTrait(Beast beast, MutationTrait trait) {
-    if (beast.getMutationTraits() == null) return false;
-    return beast.getMutationTraits().contains(trait.getCode());
   }
 
   public record BreedResult(

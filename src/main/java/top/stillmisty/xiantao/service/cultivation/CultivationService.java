@@ -193,7 +193,7 @@ public class CultivationService {
           tribulationType.getDisplayName());
     }
 
-    // 扣除经验（无论胜败）
+    // 扣除修为（无论胜败）
     user.setExp(user.getExp() - expNeeded);
 
     CombatService.TeamStats teamStats = combatService.calculateTeamStats(defendingTeam);

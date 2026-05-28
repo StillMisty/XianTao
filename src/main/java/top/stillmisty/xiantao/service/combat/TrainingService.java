@@ -232,7 +232,7 @@ public class TrainingService {
         .build();
   }
 
-  // ===================== 物品与经验计算 =====================
+  // ===================== 物品与修为计算 =====================
   private String beautifyTrainingSummary(
       MapNode mapNode,
       long minutesTraining,

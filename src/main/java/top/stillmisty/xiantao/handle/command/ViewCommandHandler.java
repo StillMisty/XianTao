@@ -342,7 +342,7 @@ public class ViewCommandHandler implements CommandGroup {
     sb.append(fmt.listItem("HP：" + vo.baseHp()));
     sb.append(fmt.listItem("攻击：" + vo.baseAttack() + " | 防御：" + vo.baseDefense()));
     sb.append(fmt.listItem("速度：" + vo.baseSpeed()));
-    sb.append(fmt.listItem("经验奖励：" + vo.expReward()));
+    sb.append(fmt.listItem("修为奖励：" + vo.expReward()));
     if (vo.description() != null && !vo.description().isEmpty()) {
       sb.append(fmt.listItem("描述：" + vo.description()));
     }

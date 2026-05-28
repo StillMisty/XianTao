@@ -6,6 +6,7 @@ import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -38,7 +39,7 @@ public class Beast {
   private BeastQuality quality;
 
   @Column(typeHandler = JsonbCollectionTypeHandler.class)
-  private List<String> mutationTraits;
+  private Set<Long> mutationTraits;
 
   private Integer level;
 
