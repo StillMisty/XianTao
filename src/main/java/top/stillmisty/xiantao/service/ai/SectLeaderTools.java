@@ -41,11 +41,11 @@ public class SectLeaderTools {
    * @param targetNickname 目标道号
    * @param position 职位：ELDER=长老/执事, MEMBER=弟子
    */
-  @Tool(description = "任免成员职位。ELDER=长老/执事, MEMBER=弟子。不可任免职位高于自己的成员")
+  @Tool(description = "任免成员职位。不可任免职位高于自己的成员")
   @Transactional
   public AppointMemberResponse appointMember(
       @ToolParam(description = "目标成员道号") String targetNickname,
-      @ToolParam(description = "职位：ELDER 或 MEMBER") SectPosition position) {
+      @ToolParam(description = "职位") SectPosition position) {
     return toolExecutor.execute(
         "appointMember",
         () -> {
@@ -98,12 +98,10 @@ public class SectLeaderTools {
    *
    * @param buildingType 建筑类型枚举
    */
-  @Tool(
-      description =
-          "消耗宗门资金建造宗门建筑。仅宗主操作。建筑类型：SCRIPTURE_PAVILION/TRAINING_ROOM/ALCHEMY_CHAMBER/SPIRIT_VEIN/FORGE_WORKSHOP/GUARD_ARRAY/HERB_GARDEN")
+  @Tool(description = "消耗宗门资金建造宗门建筑。仅宗主操作")
   @Transactional
   public BuildStructureResponse buildStructure(
-      @ToolParam(description = "建筑类型代码") SectBuildingType buildingType) {
+      @ToolParam(description = "建筑类型") SectBuildingType buildingType) {
     return toolExecutor.execute(
         "buildStructure",
         () -> {
@@ -121,10 +119,10 @@ public class SectLeaderTools {
    *
    * @param buildingType 建筑类型枚举
    */
-  @Tool(description = "消耗宗门资金升级宗门建筑。有最大等级限制，建筑类型同上")
+  @Tool(description = "消耗宗门资金升级宗门建筑。有最大等级限制")
   @Transactional
   public UpgradeBuildingResponse upgradeBuilding(
-      @ToolParam(description = "建筑类型代码") SectBuildingType buildingType) {
+      @ToolParam(description = "建筑类型") SectBuildingType buildingType) {
     return toolExecutor.execute(
         "upgradeBuilding",
         () -> {

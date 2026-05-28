@@ -21,7 +21,6 @@ import top.stillmisty.xiantao.domain.monster.vo.CombatLogEntry;
 import top.stillmisty.xiantao.domain.monster.vo.DropItem;
 import top.stillmisty.xiantao.domain.monster.vo.SkillProc;
 import top.stillmisty.xiantao.domain.skill.entity.Skill;
-import top.stillmisty.xiantao.domain.skill.repository.SkillRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.infrastructure.util.WeightedRandom;
 import top.stillmisty.xiantao.service.DropProcessor;
@@ -39,7 +38,6 @@ public class CombatEventHandler {
   private final PostCombatProcessor postCombatProcessor;
   private final HighlightBattleDetector highlightBattleDetector;
   private final DropProcessor dropProcessor;
-  private final SkillRepository skillRepository;
   private final BeastRepository beastRepository;
   private final EnlightenmentProcessor enlightenmentProcessor;
   private final FortuneService fortuneService;

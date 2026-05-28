@@ -75,14 +75,9 @@ public class SpiritTools {
    * @param category 物品类别：SEED=种子, BEAST_EGG=兽卵, EQUIPMENT=装备, MATERIAL=锻材, POTION=丹药, HERB=药材,
    *     SKILL_JADE=法决玉简, RECIPE_SCROLL=丹方卷轴, FORGING_BLUEPRINT=锻造图纸, BEAST_ESSENCE=灵兽精华
    */
-  @Tool(
-      description =
-          "按类别查看背包物品：SEED/BEAST_EGG/EQUIPMENT/MATERIAL/POTION/HERB/SKILL_JADE/RECIPE_SCROLL/FORGING_BLUEPRINT/BEAST_ESSENCE。返回物品列表含编号、名称和数量")
+  @Tool(description = "按类别查看背包物品。返回物品列表含编号、名称和数量")
   public CheckPlayerBagResponse checkPlayerBag(
-      @ToolParam(
-              description =
-                  "物品类别：SEED/BEAST_EGG/EQUIPMENT/MATERIAL/POTION/HERB/SKILL_JADE/RECIPE_SCROLL/FORGING_BLUEPRINT/BEAST_ESSENCE")
-          InventoryCategory category) {
+      @ToolParam(description = "物品类别") InventoryCategory category) {
     return toolExecutor.execute(
         "checkPlayerBag",
         () -> {
@@ -146,11 +141,11 @@ public class SpiritTools {
    * @param position 空地块编号
    * @param cellType FARM=灵田（种植作物）, PEN=兽栏（孵化灵兽）
    */
-  @Tool(description = "在空地块上建造灵田或兽栏。FARM=灵田用于种植，PEN=兽栏用于孵化灵兽")
+  @Tool(description = "在空地块上建造灵田或兽栏")
   @Transactional
   public BuildCellResponse buildCell(
       @ToolParam(description = "空地块编号") String position,
-      @ToolParam(description = "地块类型：FARM 或 PEN") CellType cellType) {
+      @ToolParam(description = "地块类型") CellType cellType) {
     return toolExecutor.execute(
         "buildCell",
         () -> {
@@ -309,7 +304,7 @@ public class SpiritTools {
 
   // ===================== 灵兽管理 =====================
 
-  @Tool(description = "灵兽管理。DEPLOY=出战/召回(toggle)，EVOLVE=进化，RELEASE=放生，HATCH=孵化(value=兽卵名称)")
+  @Tool(description = "灵兽管理：出战/召回、进化、放生、孵化")
   @Transactional
   public ManageBeastResponse manageBeast(
       @ToolParam(description = "兽栏地块编号") String position,
