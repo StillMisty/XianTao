@@ -25,6 +25,4 @@ public class BreedingRecipe {
   private Long resultTemplateId;
 
   private Integer weight;
-
-  private String description;
 }

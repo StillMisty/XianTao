@@ -6,7 +6,6 @@ CREATE
             required_tags JSONB NOT NULL,
             result_template_id BIGINT NOT NULL,
             WEIGHT INT NOT NULL DEFAULT 100,
-            description TEXT,
             CONSTRAINT fk_breeding_result_template FOREIGN KEY(result_template_id) REFERENCES xt_item_template(id)
         );
 

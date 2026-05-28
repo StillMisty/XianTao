@@ -1,4 +1,4 @@
--- 法决种子数据 (xt_skill)
+-- 法决种子数据
 INSERT
     INTO
         xt_skill(
@@ -904,23 +904,7 @@ INSERT
         40,
         40,
         '["flywhisk","defense_buff","advanced"]'
-    );
-
-INSERT
-    INTO
-        xt_skill(
-            name,
-            description,
-            skill_type,
-            effects,
-            binding_type,
-            binding_value,
-            cooldown_seconds,
-            require_wis,
-            level_requirement,
-            tags
-        )
-    VALUES(
+    )，(
         '金刚圈',
         '金刚圈脱手而出，造成170%攻击伤害，40%概率眩晕1回合。',
         'ACTIVE',
@@ -955,23 +939,7 @@ INSERT
         35,
         45,
         '["ring","multi_hit","advanced"]'
-    );
-
-INSERT
-    INTO
-        xt_skill(
-            name,
-            description,
-            skill_type,
-            effects,
-            binding_type,
-            binding_value,
-            cooldown_seconds,
-            require_wis,
-            level_requirement,
-            tags
-        )
-    VALUES(
+    ),(
         '伏魔钟',
         '钟声震荡伏妖邪，造成160%攻击伤害并50%概率沉默2回合。',
         'ACTIVE',
