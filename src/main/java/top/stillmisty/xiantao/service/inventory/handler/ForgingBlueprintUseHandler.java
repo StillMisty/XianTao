@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
-import top.stillmisty.xiantao.domain.item.handler.ItemUseHandler;
 import top.stillmisty.xiantao.service.forging.ForgingService;
 
 @Component
@@ -15,8 +14,8 @@ public class ForgingBlueprintUseHandler implements ItemUseHandler {
   private final ForgingService forgingService;
 
   @Override
-  public boolean supports(ItemType type) {
-    return type == ItemType.FORGING_BLUEPRINT;
+  public ItemType getItemType() {
+    return ItemType.FORGING_BLUEPRINT;
   }
 
   @Override

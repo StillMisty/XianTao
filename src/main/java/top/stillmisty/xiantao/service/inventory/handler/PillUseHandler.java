@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
-import top.stillmisty.xiantao.domain.item.handler.ItemUseHandler;
 import top.stillmisty.xiantao.service.pill.PillConsumptionService;
 
 @Component
@@ -15,8 +14,8 @@ public class PillUseHandler implements ItemUseHandler {
   private final PillConsumptionService pillConsumptionService;
 
   @Override
-  public boolean supports(ItemType type) {
-    return type == ItemType.POTION;
+  public ItemType getItemType() {
+    return ItemType.POTION;
   }
 
   @Override

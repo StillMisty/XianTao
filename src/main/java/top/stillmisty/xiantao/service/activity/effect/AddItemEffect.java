@@ -4,18 +4,18 @@ import java.util.Map;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
-import top.stillmisty.xiantao.service.inventory.SimpleItemAdder;
+import top.stillmisty.xiantao.service.inventory.StackableItemService;
 
 @Component
 public class AddItemEffect implements SubEventEffect {
 
   private final ItemTemplateRepository itemTemplateRepository;
-  private final SimpleItemAdder simpleItemAdder;
+  private final StackableItemService stackableItemService;
 
   public AddItemEffect(
-      ItemTemplateRepository itemTemplateRepository, SimpleItemAdder simpleItemAdder) {
+      ItemTemplateRepository itemTemplateRepository, StackableItemService stackableItemService) {
     this.itemTemplateRepository = itemTemplateRepository;
-    this.simpleItemAdder = simpleItemAdder;
+    this.stackableItemService = stackableItemService;
   }
 
   @Override
@@ -34,7 +34,8 @@ public class AddItemEffect implements SubEventEffect {
     if (count <= 0) return Map.of();
     var template = itemTemplateRepository.findById(templateId).orElse(null);
     if (template == null) return Map.of();
-    simpleItemAdder.addItem(userId, template, template.getName(), count);
+    stackableItemService.addStackableItem(
+        userId, template.getId(), template.getType(), template.getName(), count);
     return Map.of("item", template.getName(), "herb", template.getName(), "count", count);
   }
 

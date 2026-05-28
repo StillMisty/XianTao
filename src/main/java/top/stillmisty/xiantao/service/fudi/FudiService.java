@@ -21,6 +21,9 @@ import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritFormRepository;
 import top.stillmisty.xiantao.domain.fudi.repository.SpiritRepository;
 import top.stillmisty.xiantao.domain.fudi.vo.*;
+import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
+import top.stillmisty.xiantao.domain.item.enums.ItemType;
+import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.service.BusinessException;
@@ -32,6 +35,7 @@ import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.beast.BeastDisplayHelper;
 import top.stillmisty.xiantao.service.beast.BeastProductionService;
 import top.stillmisty.xiantao.service.cultivation.TribulationService;
+import top.stillmisty.xiantao.service.inventory.StackableItemService;
 
 @Service
 @RequiredArgsConstructor
@@ -50,7 +54,8 @@ public class FudiService {
   private final SpiritStoneService spiritStoneService;
   private final TribulationService tribulationService;
   private final FudiGiftService fudiGiftService;
-  private final FudiCollectService fudiCollectService;
+  private final StackableItemService stackableItemService;
+  private final ItemTemplateRepository itemTemplateRepository;
 
   // ===================== 公开 API（含认证） =====================
 
@@ -339,10 +344,132 @@ public class FudiService {
     }
   }
 
-  // ===================== 种植系统 =====================
+  // ===================== 批量收取（灵田收获 + 灵兽产出） =====================
 
+  private record FarmCollectResult(int harvestCount, int totalItems) {}
+
+  private record PenCollectResult(int collectedCount, int totalItems) {}
+
+  @Transactional
   public CollectAllVO collectAll(Long userId) {
-    return fudiCollectService.collectAll(userId);
+    Fudi fudi =
+        fudiRepository
+            .findByUserIdForUpdate(userId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.FUDI_NOT_FOUND));
+    List<FudiCell> cells = fudiCellRepository.findByFudiId(fudi.getId());
+    if (cells.isEmpty()) {
+      return new CollectAllVO(0, 0, 0);
+    }
+
+    FarmCollectResult farmResult = collectAllFarmCells(fudi, cells);
+    PenCollectResult penResult = collectAllPenCells(fudi, cells);
+
+    return new CollectAllVO(
+        farmResult.harvestCount,
+        penResult.collectedCount,
+        farmResult.totalItems + penResult.totalItems);
+  }
+
+  private FarmCollectResult collectAllFarmCells(Fudi fudi, List<FudiCell> cells) {
+    int harvestCount = 0;
+    int totalItems = 0;
+    List<FudiCell> toReset = new ArrayList<>();
+
+    for (FudiCell cell : cells) {
+      if (cell.getCellType() != CellType.FARM) continue;
+      if (!(cell.getConfig() instanceof CellConfig.FarmConfig farm)) continue;
+
+      Double progress = farmService.calculateGrowthProgress(cell);
+      if (progress == null || progress < 1.0) continue;
+
+      boolean isPerennial = farm.harvestCount() < farmService.getMaxHarvest(farm.cropId());
+      if (!isPerennial && progress > 1.0 && farmService.isWilted(cell)) {
+        toReset.add(cell);
+        continue;
+      }
+
+      int yield = farmService.calculateYield(farm.cropId());
+      farmService.grantHarvestItems(fudi.getUserId(), farm.cropId(), yield);
+      int hCount = farm.harvestCount() + 1;
+      int maxHarvest = farmService.getMaxHarvest(farm.cropId());
+
+      if (isPerennial && hCount < maxHarvest) {
+        cell.setConfig(farm.withHarvestCount(hCount));
+        farmService.replantAfterHarvest(cell);
+      } else {
+        toReset.add(cell);
+      }
+
+      totalItems += yield;
+      harvestCount++;
+    }
+
+    for (FudiCell cell : toReset) {
+      cell.setCellType(CellType.EMPTY);
+      cell.clearConfig();
+      fudiCellRepository.save(cell);
+    }
+
+    return new FarmCollectResult(harvestCount, totalItems);
+  }
+
+  private PenCollectResult collectAllPenCells(Fudi fudi, List<FudiCell> cells) {
+    int collectedCount = 0;
+    int totalItems = 0;
+
+    var allTemplateIds = new java.util.HashSet<Long>();
+    for (FudiCell cell : cells) {
+      if (cell.getCellType() != CellType.PEN) continue;
+      if (beastDisplayHelper.isIncubating(cell)) continue;
+      beastProductionService.updateBeastProduction(cell, fudi);
+      List<CellConfig.ProductionItem> productionStored =
+          beastProductionService.getProductionStoredList(cell);
+      for (CellConfig.ProductionItem item : productionStored) {
+        if (item.quantity() > 0) {
+          allTemplateIds.add(item.templateId());
+        }
+      }
+    }
+
+    Map<Long, ItemType> templateTypeMap;
+    if (allTemplateIds.isEmpty()) {
+      templateTypeMap = Map.of();
+    } else {
+      templateTypeMap =
+          itemTemplateRepository.findByIds(new ArrayList<>(allTemplateIds)).stream()
+              .collect(
+                  java.util.stream.Collectors.toMap(ItemTemplate::getId, ItemTemplate::getType));
+    }
+
+    for (FudiCell cell : cells) {
+      if (cell.getCellType() != CellType.PEN) continue;
+      if (beastDisplayHelper.isIncubating(cell)) continue;
+
+      beastProductionService.updateBeastProduction(cell, fudi);
+
+      List<CellConfig.ProductionItem> productionStored =
+          beastProductionService.getProductionStoredList(cell);
+      if (productionStored.isEmpty()) continue;
+
+      int cellTotalItems = 0;
+      for (CellConfig.ProductionItem item : productionStored) {
+        if (item.quantity() > 0) {
+          ItemType itemType = templateTypeMap.getOrDefault(item.templateId(), ItemType.HERB);
+          stackableItemService.addStackableItem(
+              fudi.getUserId(), item.templateId(), itemType, item.name(), item.quantity());
+          cellTotalItems += item.quantity();
+        }
+      }
+
+      cell.clearProductionStored();
+      fudiCellRepository.save(cell);
+
+      totalItems += cellTotalItems;
+      collectedCount++;
+      log.debug("玩家 {} 收取地块 {} 的灵兽产出 {} 件", fudi.getUserId(), cell.getCellId(), cellTotalItems);
+    }
+
+    return new PenCollectResult(collectedCount, totalItems);
   }
 
   // ===================== 建造/拆除/升级系统 =====================

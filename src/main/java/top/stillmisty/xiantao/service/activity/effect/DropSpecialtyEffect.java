@@ -9,14 +9,14 @@ import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.map.entity.SpecialtyEntry;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.infrastructure.util.WeightedRandom;
-import top.stillmisty.xiantao.service.inventory.SimpleItemAdder;
+import top.stillmisty.xiantao.service.inventory.StackableItemService;
 
 @Component
 @RequiredArgsConstructor
 public class DropSpecialtyEffect implements SubEventEffect {
 
   private final ItemTemplateRepository itemTemplateRepository;
-  private final SimpleItemAdder simpleItemAdder;
+  private final StackableItemService stackableItemService;
 
   @Override
   public SubEventEffectType type() {
@@ -40,7 +40,8 @@ public class DropSpecialtyEffect implements SubEventEffect {
       if (entry == null) continue;
       var template = itemTemplateRepository.findById(entry.templateId()).orElse(null);
       if (template == null) continue;
-      simpleItemAdder.addItem(userId, template, template.getName(), 1);
+      stackableItemService.addStackableItem(
+          userId, template.getId(), template.getType(), template.getName(), 1);
       dropped++;
       if (firstName == null) {
         firstName = template.getName();

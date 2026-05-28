@@ -18,7 +18,6 @@ import top.stillmisty.xiantao.domain.item.enums.InventoryCategory;
 import top.stillmisty.xiantao.domain.item.vo.ItemEntry;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.ai.spirit.*;
-import top.stillmisty.xiantao.service.beast.BeastBreedService;
 import top.stillmisty.xiantao.service.beast.BeastBreedingService;
 import top.stillmisty.xiantao.service.beast.BeastCombatService;
 import top.stillmisty.xiantao.service.fudi.FarmService;
@@ -36,7 +35,6 @@ public class SpiritTools {
   private final InventoryService inventoryService;
   private final BeastCombatService beastCombatService;
   private final BeastBreedingService beastBreedingService;
-  private final BeastBreedService beastBreedService;
 
   // ===================== 地块查询 =====================
 
@@ -343,7 +341,7 @@ public class SpiritTools {
         "breedBeasts",
         () -> {
           Long userId = UserContext.requireCurrentUserId();
-          var r = beastBreedService.breed(userId, position1, position2);
+          var r = beastBreedingService.breed(userId, position1, position2);
           return new BreedBeastsResponse(
               r.parent1Name(),
               r.parent1Gender(),

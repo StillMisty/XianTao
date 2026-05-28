@@ -233,7 +233,7 @@ public class SectMemberService {
 
   @Transactional
   public String createSect(Long userId, String name, String ethosDesc) {
-    User user = userStateService.loadUserForUpdate(userId);
+    User user = userStateService.loadUser(userId);
 
     if (CultivationRealm.fromLevel(user.getLevel()).ordinal()
         < CultivationRealm.GOLDEN_CORE.ordinal()) {

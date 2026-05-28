@@ -13,7 +13,6 @@ import top.stillmisty.xiantao.domain.fudi.repository.FudiRepository;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
-import top.stillmisty.xiantao.domain.item.handler.ItemUseHandler;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.beast.BeastBreedingService;
@@ -29,8 +28,8 @@ public class BeastEssenceUseHandler implements ItemUseHandler {
   private final StackableItemService stackableItemService;
 
   @Override
-  public boolean supports(ItemType type) {
-    return type == ItemType.BEAST_ESSENCE;
+  public ItemType getItemType() {
+    return ItemType.BEAST_ESSENCE;
   }
 
   @Override

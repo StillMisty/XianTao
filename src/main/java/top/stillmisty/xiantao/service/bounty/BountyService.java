@@ -178,7 +178,7 @@ public class BountyService {
 
   @CacheEvict(cacheNames = "bounties", key = "'status:' + #userId")
   public String startBounty(Long userId, Long bountyId) {
-    User user = userStateService.loadUserForUpdate(userId);
+    User user = userStateService.loadUser(userId);
 
     if (user.getStatus() != UserStatus.IDLE) {
       throw new BusinessException(STATUS_BLOCKED, user.getStatus().getName(), "空闲");
@@ -250,7 +250,7 @@ public class BountyService {
   @Transactional
   @CacheEvict(cacheNames = "bounties", key = "'status:' + #userId")
   public String abandonBounty(Long userId) {
-    User user = userStateService.loadUserForUpdate(userId);
+    User user = userStateService.loadUser(userId);
     if (user.getStatus() != UserStatus.BOUNTY) {
       throw new BusinessException(STATUS_BLOCKED, user.getStatus().getName(), "悬赏");
     }

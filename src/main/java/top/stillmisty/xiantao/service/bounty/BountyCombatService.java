@@ -50,7 +50,7 @@ public class BountyCombatService {
 
   @Transactional
   public BountyRewardVO completeBounty(Long userId) {
-    User user = userStateService.loadUserForUpdate(userId);
+    User user = userStateService.loadUser(userId);
     if (user.getStatus() != UserStatus.BOUNTY) {
       throw new BusinessException(STATUS_BLOCKED, user.getStatus().getName(), "悬赏");
     }

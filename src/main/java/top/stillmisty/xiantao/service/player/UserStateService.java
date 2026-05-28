@@ -34,16 +34,6 @@ public class UserStateService {
     return user;
   }
 
-  @Transactional
-  public User loadUserForUpdate(Long userId) {
-    User user =
-        userRepository
-            .findByIdForUpdate(userId)
-            .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-    resolveState(user);
-    return user;
-  }
-
   /** 根据道号加载用户，不结算状态。 */
   public User loadUserByNickname(String nickname) {
     return userRepository.findByNickname(nickname).orElse(null);

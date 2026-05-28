@@ -74,7 +74,7 @@ public class TrainingService {
 
   @Transactional
   public TrainingStartResult startTraining(Long userId) {
-    User user = userStateService.loadUserForUpdate(userId);
+    User user = userStateService.loadUser(userId);
     if (user.getStatus() != UserStatus.IDLE) {
       throw new BusinessException(ErrorCode.STATUS_BLOCKED, user.getStatus().getName(), "空闲");
     }
@@ -103,7 +103,7 @@ public class TrainingService {
 
   @Transactional
   public TrainingRewardVO endTraining(Long userId) {
-    User user = userStateService.loadUserForUpdate(userId);
+    User user = userStateService.loadUser(userId);
     if (user.getStatus() != UserStatus.TRAINING && user.getStatus() != UserStatus.DYING) {
       throw new BusinessException(ErrorCode.STATUS_BLOCKED, user.getStatus().getName(), "历练");
     }

@@ -36,7 +36,7 @@ public class DaoProtectionService {
   @Transactional
   @CacheEvict(cacheNames = "dao_protection", key = "#protectorId")
   public DaoProtectionResult establishProtection(Long protectorId, String protegeNickname) {
-    User protector = userStateService.loadUserForUpdate(protectorId);
+    User protector = userStateService.loadUser(protectorId);
 
     Optional<User> protegeOpt = findUserByNickname(protegeNickname);
     if (protegeOpt.isEmpty()) {

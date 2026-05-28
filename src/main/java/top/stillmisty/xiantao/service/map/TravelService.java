@@ -38,7 +38,7 @@ public class TravelService {
 
   @Transactional
   public TravelResultVO startTravel(Long userId, String mapName) {
-    User user = userStateService.loadUserForUpdate(userId);
+    User user = userStateService.loadUser(userId);
 
     if (user.getStatus() != UserStatus.IDLE) {
       throw new BusinessException(ErrorCode.STATUS_BLOCKED, user.getStatus().getName(), "空闲");

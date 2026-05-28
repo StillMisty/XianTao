@@ -6,18 +6,18 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.user.entity.User;
-import top.stillmisty.xiantao.service.inventory.SimpleItemAdder;
+import top.stillmisty.xiantao.service.inventory.StackableItemService;
 
 @Component
 public class AddRandomItemEffect implements SubEventEffect {
 
   private final ItemTemplateRepository itemTemplateRepository;
-  private final SimpleItemAdder simpleItemAdder;
+  private final StackableItemService stackableItemService;
 
   public AddRandomItemEffect(
-      ItemTemplateRepository itemTemplateRepository, SimpleItemAdder simpleItemAdder) {
+      ItemTemplateRepository itemTemplateRepository, StackableItemService stackableItemService) {
     this.itemTemplateRepository = itemTemplateRepository;
-    this.simpleItemAdder = simpleItemAdder;
+    this.stackableItemService = stackableItemService;
   }
 
   @Override
@@ -40,7 +40,8 @@ public class AddRandomItemEffect implements SubEventEffect {
         templateIds.get(ThreadLocalRandom.current().nextInt(templateIds.size())).longValue();
     var template = itemTemplateRepository.findById(templateId).orElse(null);
     if (template == null) return Map.of();
-    simpleItemAdder.addItem(userId, template, template.getName(), 1);
+    stackableItemService.addStackableItem(
+        userId, template.getId(), template.getType(), template.getName(), 1);
     return Map.of("item", template.getName(), "herb", template.getName(), "count", 1);
   }
 }

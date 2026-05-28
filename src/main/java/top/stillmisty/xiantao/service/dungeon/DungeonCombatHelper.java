@@ -81,7 +81,7 @@ public class DungeonCombatHelper {
 
     for (Long memberId : memberIds) {
       if (memberId.equals(leader.getId())) continue;
-      User member = userStateService.loadUserForUpdate(memberId);
+      User member = userStateService.loadUser(memberId);
       if (member.getHpCurrent() == null || member.getHpCurrent() <= 0) continue;
       memberUsers.put(memberId, member);
       memberTeams.put(memberId, combatService.buildPlayerTeam(member));

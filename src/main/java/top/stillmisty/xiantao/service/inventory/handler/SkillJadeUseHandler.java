@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
-import top.stillmisty.xiantao.domain.item.handler.ItemUseHandler;
 import top.stillmisty.xiantao.domain.skill.vo.SkillSlotResult;
 import top.stillmisty.xiantao.service.skill.SkillService;
 
@@ -16,8 +15,8 @@ public class SkillJadeUseHandler implements ItemUseHandler {
   private final SkillService skillService;
 
   @Override
-  public boolean supports(ItemType type) {
-    return type == ItemType.SKILL_JADE;
+  public ItemType getItemType() {
+    return ItemType.SKILL_JADE;
   }
 
   @Override

@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
-import top.stillmisty.xiantao.domain.item.handler.ItemUseHandler;
 import top.stillmisty.xiantao.domain.pill.vo.PillRecipeVO;
 import top.stillmisty.xiantao.service.pill.PillRecipeService;
 
@@ -16,8 +15,8 @@ public class RecipeScrollUseHandler implements ItemUseHandler {
   private final PillRecipeService pillRecipeService;
 
   @Override
-  public boolean supports(ItemType type) {
-    return type == ItemType.RECIPE_SCROLL;
+  public ItemType getItemType() {
+    return ItemType.RECIPE_SCROLL;
   }
 
   @Override

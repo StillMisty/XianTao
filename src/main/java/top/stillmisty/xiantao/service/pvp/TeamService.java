@@ -124,7 +124,7 @@ public class TeamService {
   }
 
   public String invitePlayer(Long userId, String targetNickname) {
-    userStateService.loadUserForUpdate(userId);
+    userStateService.loadUser(userId);
     User invitee = userStateService.loadUserByNickname(targetNickname);
 
     if (invitee == null) {
@@ -162,7 +162,7 @@ public class TeamService {
   }
 
   public String acceptInvitation(Long userId, String invitationIdStr) {
-    userStateService.loadUserForUpdate(userId);
+    userStateService.loadUser(userId);
 
     Optional<TeamMember> existingMember = teamMemberRepository.findByUserId(userId);
     if (existingMember.isPresent()) {
@@ -266,7 +266,7 @@ public class TeamService {
   }
 
   public String leaveTeam(Long userId) {
-    userStateService.loadUserForUpdate(userId);
+    userStateService.loadUser(userId);
 
     Optional<TeamMember> memberOpt = teamMemberRepository.findByUserId(userId);
     if (memberOpt.isEmpty()) {

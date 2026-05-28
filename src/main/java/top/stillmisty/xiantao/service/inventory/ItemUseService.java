@@ -1,6 +1,9 @@
 package top.stillmisty.xiantao.service.inventory;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
@@ -9,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
-import top.stillmisty.xiantao.domain.item.handler.ItemUseHandler;
 import top.stillmisty.xiantao.domain.item.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.domain.item.repository.StackableItemRepository;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
@@ -18,7 +20,14 @@ import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.annotation.Authenticated;
+import top.stillmisty.xiantao.service.inventory.handler.ItemUseHandler;
 
+/**
+ * 物品使用服务
+ *
+ * <p>设计决策：使用 Map<ItemType, ItemUseHandler> 而非 List + 遍历 supports()， 因为每个 handler 绑定唯一 ItemType，Map
+ * 查找 O(1) 且消除 supports() 方法。
+ */
 @Slf4j
 @Service
 public class ItemUseService {
@@ -26,7 +35,7 @@ public class ItemUseService {
   private final StackableItemRepository stackableItemRepository;
   private final ItemTemplateRepository itemTemplateRepository;
   private final StackableItemService stackableItemService;
-  private final List<ItemUseHandler> handlers;
+  private final Map<ItemType, ItemUseHandler> handlerMap;
 
   public ItemUseService(
       StackableItemRepository stackableItemRepository,
@@ -36,7 +45,9 @@ public class ItemUseService {
     this.stackableItemRepository = stackableItemRepository;
     this.itemTemplateRepository = itemTemplateRepository;
     this.stackableItemService = stackableItemService;
-    this.handlers = handlers;
+    this.handlerMap =
+        handlers.stream()
+            .collect(Collectors.toMap(ItemUseHandler::getItemType, Function.identity()));
   }
 
   @Authenticated
@@ -84,7 +95,7 @@ public class ItemUseService {
     }
 
     ItemType type = matchedItem.getItemType();
-    ItemUseHandler handler = findHandler(type);
+    ItemUseHandler handler = handlerMap.get(type);
     if (handler == null) {
       throw new BusinessException(ErrorCode.ITEM_CANNOT_USE);
     }
@@ -96,14 +107,5 @@ public class ItemUseService {
     log.debug("使用物品: userId={}, item={}, type={}", userId, matchedItem.getName(), type);
 
     return handler.use(userId, matchedItem, null, args);
-  }
-
-  private ItemUseHandler findHandler(ItemType type) {
-    for (ItemUseHandler handler : handlers) {
-      if (handler.supports(type)) {
-        return handler;
-      }
-    }
-    return null;
   }
 }

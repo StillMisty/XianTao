@@ -147,7 +147,7 @@ public class DungeonService {
 
   @CacheEvict(cacheNames = "dungeon_list", key = "#userId")
   public DungeonEnterResult enterDungeon(Long userId, String dungeonName) {
-    User user = userStateService.loadUserForUpdate(userId);
+    User user = userStateService.loadUser(userId);
     DungeonTemplate dungeon =
         dungeonTemplateRepository
             .findByName(dungeonName)
@@ -195,7 +195,7 @@ public class DungeonService {
 
       var sortedMemberIds = memberIds.stream().sorted().toList();
       for (Long memberId : sortedMemberIds) {
-        User memberUser = userStateService.loadUserForUpdate(memberId);
+        User memberUser = userStateService.loadUser(memberId);
         checkIdleStatus(memberUser);
         DungeonInstance memberExisting = findActiveInstanceRaw(memberId, dungeon.getId());
         if (memberExisting != null) {
@@ -222,8 +222,7 @@ public class DungeonService {
     instanceRepository.save(instance);
 
     for (Long memberId : memberIds) {
-      User memberUser =
-          memberId.equals(userId) ? user : userStateService.loadUserForUpdate(memberId);
+      User memberUser = memberId.equals(userId) ? user : userStateService.loadUser(memberId);
       memberUser.setStatus(UserStatus.DUNGEON);
       memberUser.setActivityType(ActivityType.DUNGEON);
       memberUser.setActivityStartTime(LocalDateTime.now());
@@ -232,8 +231,7 @@ public class DungeonService {
     }
 
     for (Long memberId : memberIds) {
-      User memberUser =
-          memberId.equals(userId) ? user : userStateService.loadUserForUpdate(memberId);
+      User memberUser = memberId.equals(userId) ? user : userStateService.loadUser(memberId);
       dungeonEventCompleter.onAreaAdvance(
           memberId, memberUser, dungeon.getId(), dungeon.getName(), DungeonArea.OUTER.getName());
     }
@@ -576,7 +574,7 @@ public class DungeonService {
 
     List<Long> memberIds = getTeamMemberIds(instance);
     for (Long memberId : memberIds) {
-      User memberUser = userStateService.loadUserForUpdate(memberId);
+      User memberUser = userStateService.loadUser(memberId);
       memberUser.clearActivity();
       userStateService.saveActivity(memberUser);
     }
@@ -590,7 +588,7 @@ public class DungeonService {
   }
 
   private String retreatMember(Long userId, DungeonInstance instance) {
-    User member = userStateService.loadUserForUpdate(userId);
+    User member = userStateService.loadUser(userId);
     member.clearActivity();
     userStateService.saveActivity(member);
 
