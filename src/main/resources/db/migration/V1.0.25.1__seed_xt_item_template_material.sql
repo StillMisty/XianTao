@@ -288,4 +288,61 @@ INSERT
         '{"RIGIDITY":14,"TOUGHNESS":14,"SPIRIT":22}',
         '["ore","crystal","craft","legendary"]',
         '天劫雷柱轰击灵石矿脉偶然产生的异晶，灵力澎湃如劫雷再临。'
+    ),
+    -- ==================== 新增元素材料 ====================
+    (
+        '雷击铁',
+        'MATERIAL',
+        '{"RIGIDITY":7,"TOUGHNESS":3,"SPIRIT":3}',
+        '["ore","thunder","craft","common"]',
+        '被雷劈过的铁矿，带微弱雷气。'
+    ),
+    (
+        '风磨石',
+        'MATERIAL',
+        '{"RIGIDITY":6,"TOUGHNESS":2,"SPIRIT":2}',
+        '["ore","wind","craft","common"]',
+        '风蚀而成的灵石，质地轻盈。'
+    ),
+    (
+        '冰凌晶',
+        'MATERIAL',
+        '{"RIGIDITY":8,"TOUGHNESS":4,"SPIRIT":5}',
+        '["ore","ice","craft","uncommon"]',
+        '冰川深处的结晶体，寒气凝而不散。'
+    ),
+    (
+        '雷纹木',
+        'MATERIAL',
+        '{"RIGIDITY":4,"TOUGHNESS":7,"SPIRIT":6}',
+        '["wood","thunder","craft","uncommon"]',
+        '带雷纹的灵木，韧性极佳。'
+    ),
+    (
+        '风灵石',
+        'MATERIAL',
+        '{"RIGIDITY":3,"TOUGHNESS":3,"SPIRIT":8}',
+        '["ore","wind","craft","uncommon"]',
+        '含风行灵气的轻石，可制飞行法器。'
+    ),
+    (
+        '玄冰铁',
+        'MATERIAL',
+        '{"RIGIDITY":14,"TOUGHNESS":6,"SPIRIT":7}',
+        '["ore","ice","craft","rare"]',
+        '极寒之地的玄铁变种，硬度惊人。'
+    ),
+    (
+        '雷魂石',
+        'MATERIAL',
+        '{"RIGIDITY":8,"TOUGHNESS":5,"SPIRIT":14}',
+        '["ore","thunder","craft","rare"]',
+        '雷暴区凝聚的灵魂结晶，内蕴天雷之力。'
+    ),
+    (
+        '风暴之心',
+        'MATERIAL',
+        '{"RIGIDITY":2,"TOUGHNESS":2,"SPIRIT":16}',
+        '["essence","wind","craft","rare"]',
+        '风暴核心凝结的精华，蕴含狂风之力。'
     );
