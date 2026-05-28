@@ -38,6 +38,7 @@ import top.stillmisty.xiantao.infrastructure.repository.DungeonProgressRepositor
 import top.stillmisty.xiantao.infrastructure.repository.DungeonTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.TeamMemberRepository;
 import top.stillmisty.xiantao.infrastructure.repository.TeamRepository;
+import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
@@ -62,6 +63,7 @@ public class DungeonService {
   private final DungeonEventCompleter dungeonEventCompleter;
   private final TeamRepository teamRepository;
   private final TeamMemberRepository teamMemberRepository;
+  private final UserRepository userRepository;
 
   @Lazy @Autowired private DungeonService self;
 
@@ -194,8 +196,11 @@ public class DungeonService {
       }
 
       var sortedMemberIds = memberIds.stream().sorted().toList();
+      Map<Long, User> memberUserMap =
+          userRepository.findByIds(sortedMemberIds).stream()
+              .collect(Collectors.toMap(User::getId, u -> u));
       for (Long memberId : sortedMemberIds) {
-        User memberUser = userStateService.loadUser(memberId);
+        User memberUser = memberUserMap.getOrDefault(memberId, userStateService.loadUser(memberId));
         checkIdleStatus(memberUser);
         DungeonInstance memberExisting = findActiveInstanceRaw(memberId, dungeon.getId());
         if (memberExisting != null) {
@@ -221,8 +226,17 @@ public class DungeonService {
     instance.setExpiresAt(LocalDateTime.now().plusHours(dungeon.getTimeoutHours()));
     instanceRepository.save(instance);
 
+    Map<Long, User> allMemberUserMap = new java.util.HashMap<>();
+    allMemberUserMap.put(userId, user);
+    if (teamId != null) {
+      allMemberUserMap.putAll(
+          userRepository
+              .findByIds(memberIds.stream().filter(id -> !id.equals(userId)).toList())
+              .stream()
+              .collect(Collectors.toMap(User::getId, u -> u)));
+    }
     for (Long memberId : memberIds) {
-      User memberUser = memberId.equals(userId) ? user : userStateService.loadUser(memberId);
+      User memberUser = allMemberUserMap.get(memberId);
       memberUser.setStatus(UserStatus.DUNGEON);
       memberUser.setActivityType(ActivityType.DUNGEON);
       memberUser.setActivityStartTime(LocalDateTime.now());
@@ -231,7 +245,7 @@ public class DungeonService {
     }
 
     for (Long memberId : memberIds) {
-      User memberUser = memberId.equals(userId) ? user : userStateService.loadUser(memberId);
+      User memberUser = allMemberUserMap.get(memberId);
       dungeonEventCompleter.onAreaAdvance(
           memberId, memberUser, dungeon.getId(), dungeon.getName(), DungeonArea.OUTER.getName());
     }
@@ -342,14 +356,18 @@ public class DungeonService {
     instanceRepository.save(instance);
 
     List<Long> memberIds = getTeamMemberIds(instance);
+    Map<Long, User> memberUserMap =
+        userRepository.findByIds(memberIds).stream().collect(Collectors.toMap(User::getId, u -> u));
     for (Long memberId : memberIds) {
-      User memberUser = userStateService.loadUser(memberId);
-      dungeonEventCompleter.onAreaAdvance(
-          memberId,
-          memberUser,
-          dungeon.getId(),
-          dungeon.getName(),
-          instance.getCurrentArea().getName());
+      User memberUser = memberUserMap.get(memberId);
+      if (memberUser != null) {
+        dungeonEventCompleter.onAreaAdvance(
+            memberId,
+            memberUser,
+            dungeon.getId(),
+            dungeon.getName(),
+            instance.getCurrentArea().getName());
+      }
     }
 
     DungeonEnterResult areaView =
@@ -573,10 +591,14 @@ public class DungeonService {
     instanceRepository.save(instance);
 
     List<Long> memberIds = getTeamMemberIds(instance);
+    Map<Long, User> memberUserMap =
+        userRepository.findByIds(memberIds).stream().collect(Collectors.toMap(User::getId, u -> u));
     for (Long memberId : memberIds) {
-      User memberUser = userStateService.loadUser(memberId);
-      memberUser.clearActivity();
-      userStateService.saveActivity(memberUser);
+      User memberUser = memberUserMap.get(memberId);
+      if (memberUser != null) {
+        memberUser.clearActivity();
+        userStateService.saveActivity(memberUser);
+      }
     }
 
     log.info(
@@ -606,17 +628,21 @@ public class DungeonService {
             .orElseThrow(() -> new BusinessException(ErrorCode.DUNGEON_NOT_FOUND, ""));
 
     List<Long> memberIds = getTeamMemberIds(instance);
+    Map<Long, User> memberUserMap =
+        userRepository.findByIds(memberIds).stream().collect(Collectors.toMap(User::getId, u -> u));
     StringBuilder sb = new StringBuilder();
 
     for (Long memberId : memberIds) {
-      User member = userStateService.loadUser(memberId);
-      member.clearActivity();
-      userStateService.saveActivity(member);
+      User member = memberUserMap.get(memberId);
+      if (member != null) {
+        member.clearActivity();
+        userStateService.saveActivity(member);
 
-      dungeonEventCompleter.onComplete(memberId, member, dungeon.getName());
+        dungeonEventCompleter.onComplete(memberId, member, dungeon.getName());
+      }
 
       String result = progressHelper.completeDungeon(memberId, instance);
-      if (memberIds.size() > 1) {
+      if (memberIds.size() > 1 && member != null) {
         sb.append("【").append(member.getNickname()).append("】: ").append(result).append("\n");
       } else {
         sb.append(result);

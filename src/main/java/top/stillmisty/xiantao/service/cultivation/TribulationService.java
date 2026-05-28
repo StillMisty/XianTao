@@ -57,12 +57,6 @@ public class TribulationService {
     }
 
     fudi.setLastTribulationTime(LocalDateTime.now());
-    if (fudi.getTribulationStage() == null) {
-      fudi.setTribulationStage(0);
-    }
-    if (fudi.getTribulationWinStreak() == null) {
-      fudi.setTribulationWinStreak(0);
-    }
 
     // 先持久化天劫状态，防止并发重复触发
     fudiRepository.save(fudi);
@@ -187,11 +181,12 @@ public class TribulationService {
 
     // 根据 Boss 剩余血量比例决定摧毁力度
     double bossHpRatio = (double) boss.getHp() / boss.getMaxHp();
-    int occupiedCount =
-        (int)
-            fudiCellRepository.findByFudiId(fudi.getId()).stream()
-                .filter(cell -> cell.getCellType() != CellType.EMPTY)
-                .count();
+
+    List<FudiCell> occupiedCells =
+        fudiCellRepository.findByFudiId(fudi.getId()).stream()
+            .filter(cell -> cell.getCellType() != CellType.EMPTY)
+            .toList();
+    int occupiedCount = occupiedCells.size();
 
     int clearCount;
     if (bossHpRatio >= 0.5) {
@@ -202,10 +197,6 @@ public class TribulationService {
       clearCount = 1;
     }
 
-    List<FudiCell> occupiedCells =
-        fudiCellRepository.findByFudiId(fudi.getId()).stream()
-            .filter(cell -> cell.getCellType() != CellType.EMPTY)
-            .toList();
     List<FudiCell> cellsToDestroy = new ArrayList<>(occupiedCells);
     Collections.shuffle(cellsToDestroy);
     cellsToDestroy = cellsToDestroy.subList(0, Math.min(clearCount, cellsToDestroy.size()));

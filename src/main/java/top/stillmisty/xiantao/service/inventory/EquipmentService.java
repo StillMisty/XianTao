@@ -97,7 +97,7 @@ public class EquipmentService {
         @CacheEvict(cacheNames = "player_inventory", key = "'summary:' + #userId")
       })
   public EquipResult equipItem(Long userId, String input) {
-    userStateService.loadUser(userId);
+    User user = userStateService.loadUser(userId);
 
     var result = itemResolver.resolveEquipment(userId, input);
     if (result instanceof ItemResolver.NotFound<?>(String input1)) {
@@ -111,7 +111,6 @@ public class EquipmentService {
     var found = (ItemResolver.Found<Equipment>) result;
     Equipment equipmentToEquip = found.item();
 
-    User user = userStateService.loadUser(userId);
     EquipmentTemplate template =
         equipmentTemplateRepository.findById(equipmentToEquip.getTemplateId()).orElse(null);
     if (template != null
@@ -406,7 +405,7 @@ public class EquipmentService {
 
   private EquipmentDetailVO convertToEquipmentDetailVO(Equipment equipment) {
     List<String> affixDescriptions = new ArrayList<>();
-    if (equipment.getAffixes() != null && !equipment.getAffixes().isEmpty()) {
+    if (!equipment.getAffixes().isEmpty()) {
       equipment
           .getAffixes()
           .forEach(

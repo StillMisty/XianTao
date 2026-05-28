@@ -40,16 +40,19 @@ public class UserStateService {
   }
 
   /** 保存用户（全字段）。 */
+  @Transactional
   public User save(User user) {
     return userRepository.save(user);
   }
 
   /** 清除活动标记，回空闲状态。 */
+  @Transactional
   public void clearActivity(Long userId) {
     userRepository.clearActivity(userId);
   }
 
   /** 仅保存状态/活动相关字段（不碰灵石等数据字段）。 */
+  @Transactional
   public void saveActivity(User user) {
     if (user.getActivityType() == null) {
       userRepository.clearActivity(user.getId());
@@ -64,6 +67,7 @@ public class UserStateService {
   }
 
   /** 仅保存 HP/状态/濒死时间。 */
+  @Transactional
   public void saveHpStatus(User user) {
     userRepository.updateHpStatus(
         user.getId(), user.getHpCurrent(), user.getStatus().getCode(), user.getDyingStartTime());

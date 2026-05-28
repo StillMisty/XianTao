@@ -159,7 +159,7 @@ public class FudiService {
     spirit.setAffectionMax(1000);
     spirit.setMbtiType(mbtiType);
 
-    if (allForms != null && !allForms.isEmpty()) {
+    if (!allForms.isEmpty()) {
       SpiritForm randomForm = allForms.get(ThreadLocalRandom.current().nextInt(allForms.size()));
       spirit.setFormId(randomForm.getId());
     }
@@ -233,11 +233,15 @@ public class FudiService {
   }
 
   private FudiStatusVO buildFudiStatusVO(Fudi fudi, String tribulationResult) {
-    List<CellDetailVO> cellDetails = buildCellDetails(fudi);
+    List<FudiCell> allCells = fudiCellRepository.findByFudiId(fudi.getId());
+    List<CellDetailVO> cellDetails = buildCellDetailsFromCells(fudi, allCells);
 
     int totalBeasts =
         (int)
             cellDetails.stream().filter(c -> c.type() == CellType.PEN && c.name() != null).count();
+
+    int occupiedCount =
+        (int) allCells.stream().filter(cell -> cell.getCellType() != CellType.EMPTY).count();
 
     Spirit spirit = spiritRepository.findByFudiId(fudi.getId()).orElse(null);
 
@@ -257,7 +261,7 @@ public class FudiService {
         fudi.getId(),
         fudi.getUserId(),
         fudi.getTribulationStage(),
-        getTotalCellCount(fudi),
+        allCells.size(),
         spirit != null ? spirit.getMbtiType() : null,
         spirit != null ? spirit.getAffection() : null,
         spirit != null ? spirit.getAffectionMax() : null,
@@ -265,12 +269,34 @@ public class FudiService {
         formName,
         likedTags,
         dislikedTags,
-        getOccupiedCellCount(fudi),
+        occupiedCount,
         fudi.getTribulationWinStreak(),
         fudi.getLastTribulationTime(),
         tribulationResult,
         cellDetails,
         totalBeasts);
+  }
+
+  private List<CellDetailVO> buildCellDetailsFromCells(Fudi fudi, List<FudiCell> cells) {
+    List<CellDetailVO> details = new ArrayList<>();
+
+    for (FudiCell cell : cells) {
+      CellDetailVO.CellDetailVOBuilder builder =
+          CellDetailVO.builder()
+              .cellId(cell.getCellId())
+              .type(cell.getCellType())
+              .cellLevel(cell.getCellLevel());
+
+      switch (cell.getCellType()) {
+        case FARM -> farmService.buildFarmCellDetail(builder, cell);
+        case PEN -> beastDisplayHelper.buildPenCellDetail(builder, cell);
+        default -> {}
+      }
+
+      details.add(builder.build());
+    }
+
+    return details;
   }
 
   private int getOccupiedCellCount(Fudi fudi) {

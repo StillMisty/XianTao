@@ -69,25 +69,12 @@ public class ItemUseService {
   public String useItem(Long userId, String itemName, String args) {
     List<StackableItem> exactMatches =
         stackableItemRepository.findByUserIdAndName(userId, itemName);
-    StackableItem matchedItem = null;
-    for (StackableItem item : exactMatches) {
-      ItemTemplate template = itemTemplateRepository.findById(item.getTemplateId()).orElse(null);
-      if (template != null) {
-        matchedItem = item;
-        break;
-      }
-    }
+    StackableItem matchedItem = findFirstWithValidTemplate(exactMatches);
 
     if (matchedItem == null) {
       List<StackableItem> items =
           stackableItemRepository.findByUserIdAndNameContaining(userId, itemName);
-      for (StackableItem item : items) {
-        ItemTemplate template = itemTemplateRepository.findById(item.getTemplateId()).orElse(null);
-        if (template != null) {
-          matchedItem = item;
-          break;
-        }
-      }
+      matchedItem = findFirstWithValidTemplate(items);
     }
 
     if (matchedItem == null) {
@@ -107,5 +94,20 @@ public class ItemUseService {
     log.debug("使用物品: userId={}, item={}, type={}", userId, matchedItem.getName(), type);
 
     return handler.use(userId, matchedItem, null, args);
+  }
+
+  private StackableItem findFirstWithValidTemplate(List<StackableItem> items) {
+    if (items.isEmpty()) {
+      return null;
+    }
+    List<Long> templateIds = items.stream().map(StackableItem::getTemplateId).distinct().toList();
+    java.util.Set<Long> existingIds =
+        itemTemplateRepository.findByIds(templateIds).stream()
+            .map(ItemTemplate::getId)
+            .collect(Collectors.toSet());
+    return items.stream()
+        .filter(item -> existingIds.contains(item.getTemplateId()))
+        .findFirst()
+        .orElse(null);
   }
 }
