@@ -193,6 +193,11 @@ public class InventoryCommandHandler implements CommandGroup {
   }
 
   @Override
+  public String groupSummary() {
+    return "物品管理、装备穿戴";
+  }
+
+  @Override
   public String groupDescription() {
     return "背包查看、装备穿戴/卸下、物品丢弃";
   }

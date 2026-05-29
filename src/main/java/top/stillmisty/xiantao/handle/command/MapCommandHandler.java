@@ -372,6 +372,11 @@ public class MapCommandHandler implements CommandGroup {
   }
 
   @Override
+  public String groupSummary() {
+    return "世界探索、历练悬赏";
+  }
+
+  @Override
   public String groupDescription() {
     return "地图探索、历练、悬赏";
   }

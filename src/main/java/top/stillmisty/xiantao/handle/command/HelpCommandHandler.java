@@ -20,35 +20,46 @@ public class HelpCommandHandler {
       return formatAllGroups(fmt);
     }
     return helpService
-        .findByTrigger(command)
-        .map(cmd -> formatCommandDetail(cmd, fmt))
+        .findByGroupName(command)
+        .map(group -> formatGroupDetail(group, fmt))
         .orElseGet(
-            () -> {
-              List<CommandEntry> results = helpService.search(command);
-              if (results.isEmpty()) {
-                return "未找到命令：" + command;
-              }
-              if (results.size() == 1) {
-                return formatCommandDetail(results.getFirst(), fmt);
-              }
-              return formatSearchResults(command, results, fmt);
-            });
+            () ->
+                helpService
+                    .findByTrigger(command)
+                    .map(cmd -> formatCommandDetail(cmd, fmt))
+                    .orElseGet(
+                        () -> {
+                          List<CommandEntry> results = helpService.search(command);
+                          if (results.isEmpty()) {
+                            return "未找到命令或子系统：" + command;
+                          }
+                          if (results.size() == 1) {
+                            return formatCommandDetail(results.getFirst(), fmt);
+                          }
+                          return formatSearchResults(command, results, fmt);
+                        }));
   }
 
   private String formatAllGroups(TextFormat fmt) {
     StringBuilder sb = new StringBuilder(fmt.subHeading("修仙指令帮助"));
     for (CommandGroup group : helpService.getAllGroups()) {
-      sb.append(fmt.separator());
-      sb.append(fmt.heading(group.groupName()));
-      if (!group.groupDescription().isBlank()) {
-        sb.deleteCharAt(sb.length() - 1);
-        sb.append(" — ").append(group.groupDescription()).append("\n");
-      }
-      for (CommandEntry cmd : group.commands()) {
-        sb.append(fmt.listItem(fmt.bold(cmd.trigger()) + " — " + cmd.description()));
-      }
+      sb.append(fmt.listItem(fmt.bold(group.groupName()) + " — " + group.groupSummary()));
     }
-    sb.append(fmt.tip("输入「帮助 [命令]」查看详细用法"));
+    sb.append(fmt.separator());
+    sb.append(fmt.tip("输入「帮助 [子系统]」查看详细玩法，如「帮助 修炼」"));
+    return sb.toString();
+  }
+
+  private String formatGroupDetail(CommandGroup group, TextFormat fmt) {
+    StringBuilder sb = new StringBuilder(fmt.heading(group.groupName()));
+    if (!group.groupDescription().isBlank()) {
+      sb.append(group.groupDescription()).append("\n");
+    }
+    sb.append(fmt.separator());
+    for (CommandEntry cmd : group.commands()) {
+      sb.append(fmt.listItem(fmt.bold(cmd.trigger()) + " — " + cmd.description()));
+    }
+    sb.append(fmt.tip("输入「帮助 [命令]」查看单条命令用法，如「帮助 突破」"));
     return sb.toString();
   }
 

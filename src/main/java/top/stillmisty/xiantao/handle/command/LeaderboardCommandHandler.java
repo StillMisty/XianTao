@@ -62,6 +62,11 @@ public class LeaderboardCommandHandler implements CommandGroup {
   }
 
   @Override
+  public String groupSummary() {
+    return "修为与财富排名";
+  }
+
+  @Override
   public String groupDescription() {
     return "查看修为和财富排名";
   }

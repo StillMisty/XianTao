@@ -144,6 +144,11 @@ public class ForgingCommandHandler implements CommandGroup {
   }
 
   @Override
+  public String groupSummary() {
+    return "锻造装备、强化升级";
+  }
+
+  @Override
   public String groupDescription() {
     return "锻造图纸查询、锻造、装备强化";
   }
@@ -153,8 +158,8 @@ public class ForgingCommandHandler implements CommandGroup {
     return List.of(
         new CommandEntry("锻造列表", "查看已学锻造图纸", "锻造列表"),
         new CommandEntry("锻造 「图纸名」", "自动锻造（自动选材）", "锻造 寒冰剑图"),
-        new CommandEntry("锻造 「锻材1×N 锻材2×M ...」", "手动锻造（最多3种锻材）", "锻造 玄铁矿石×3 紫金砂×1"),
+        new CommandEntry("锻造 「锻材1N 锻材2M ...」", "手动锻造（最多3种锻材）", "锻造 玄铁矿石3 紫金砂1"),
         new CommandEntry("强化 「装备名」", "自动强化（自动选材）", "强化 寒冰剑"),
-        new CommandEntry("强化 「装备名 锻材1×N ...」", "手动强化（最多3种锻材）", "强化 寒冰剑 玄铁矿石×3"));
+        new CommandEntry("强化 「装备名 锻材1N ...」", "手动强化（最多3种锻材）", "强化 寒冰剑 玄铁矿石3"));
   }
 }

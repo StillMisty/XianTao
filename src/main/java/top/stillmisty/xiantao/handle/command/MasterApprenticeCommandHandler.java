@@ -105,6 +105,11 @@ public class MasterApprenticeCommandHandler implements CommandGroup {
   }
 
   @Override
+  public String groupSummary() {
+    return "拜师收徒、传承关系";
+  }
+
+  @Override
   public String groupDescription() {
     return "拜师、收徒、查看师徒关系";
   }

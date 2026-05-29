@@ -94,6 +94,11 @@ public class BeastCommandHandler implements CommandGroup {
   }
 
   @Override
+  public String groupSummary() {
+    return "查看与管理灵兽";
+  }
+
+  @Override
   public String groupDescription() {
     return "灵兽查看";
   }

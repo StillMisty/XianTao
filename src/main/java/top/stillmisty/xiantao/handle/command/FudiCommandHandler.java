@@ -114,6 +114,11 @@ public class FudiCommandHandler implements CommandGroup {
   }
 
   @Override
+  public String groupSummary() {
+    return "福地经营、地灵互动";
+  }
+
+  @Override
   public String groupDescription() {
     return "福地经营、地灵互动";
   }

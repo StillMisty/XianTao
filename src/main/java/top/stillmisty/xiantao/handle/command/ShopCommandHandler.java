@@ -22,6 +22,11 @@ public class ShopCommandHandler implements CommandGroup {
   }
 
   @Override
+  public String groupSummary() {
+    return "买卖交易、掌柜闲聊";
+  }
+
+  @Override
   public String groupDescription() {
     return "与商铺掌柜交易（买/卖/闲聊）";
   }

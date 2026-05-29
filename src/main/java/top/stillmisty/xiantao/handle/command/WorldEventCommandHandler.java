@@ -4,6 +4,8 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import top.stillmisty.xiantao.domain.command.CommandEntry;
+import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.worldevent.entity.WorldEvent;
 import top.stillmisty.xiantao.domain.worldevent.enums.WorldEventCategory;
@@ -16,10 +18,32 @@ import top.stillmisty.xiantao.service.worldevent.WorldEventService;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class WorldEventCommandHandler {
+public class WorldEventCommandHandler implements CommandGroup {
 
   private final WorldEventService worldEventService;
   private final WorldEventParticipationService worldEventParticipationService;
+
+  @Override
+  public String groupName() {
+    return "世界事件";
+  }
+
+  @Override
+  public String groupSummary() {
+    return "世界事件查看与参与";
+  }
+
+  @Override
+  public String groupDescription() {
+    return "查看当前世界事件、参与事件";
+  }
+
+  @Override
+  public List<CommandEntry> commands() {
+    return List.of(
+        new CommandEntry("世界事件", "查看当前进行中的世界事件", "世界事件"),
+        new CommandEntry("参与事件 「编号」", "参与指定的世界事件", "参与事件 1"));
+  }
 
   public String handleListEvents(PlatformType platform, String openId, TextFormat fmt) {
     log.debug("查看世界事件列表 - Platform: {}, OpenId: {}", platform, openId);

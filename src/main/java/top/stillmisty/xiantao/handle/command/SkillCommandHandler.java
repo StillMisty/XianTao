@@ -151,6 +151,11 @@ public class SkillCommandHandler implements CommandGroup {
   }
 
   @Override
+  public String groupSummary() {
+    return "学习与装载法决";
+  }
+
+  @Override
   public String groupDescription() {
     return "学习、装载、卸下法决";
   }

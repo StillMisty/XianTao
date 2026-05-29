@@ -37,6 +37,11 @@ public class UseItemCommandHandler implements CommandGroup {
   }
 
   @Override
+  public String groupSummary() {
+    return "使用丹药、玉简等道具";
+  }
+
+  @Override
   public String groupDescription() {
     return "使用物品";
   }

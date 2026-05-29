@@ -160,6 +160,11 @@ public class DungeonCommandHandler implements CommandGroup {
   }
 
   @Override
+  public String groupSummary() {
+    return "秘境探索与通关";
+  }
+
+  @Override
   public String groupDescription() {
     return "秘境探索、通关、奖励";
   }

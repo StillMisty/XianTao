@@ -30,6 +30,11 @@ public class FortuneCommandHandler implements CommandGroup {
   }
 
   @Override
+  public String groupSummary() {
+    return "查看今日运势";
+  }
+
+  @Override
   public String groupDescription() {
     return "查看今日运势";
   }

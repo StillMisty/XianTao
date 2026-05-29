@@ -176,6 +176,11 @@ public class StatusCommandHandler implements CommandGroup {
   }
 
   @Override
+  public String groupSummary() {
+    return "查看角色属性与状态";
+  }
+
+  @Override
   public String groupDescription() {
     return "角色状态查询";
   }

@@ -95,6 +95,11 @@ public class PvpCommandHandler implements CommandGroup {
   }
 
   @Override
+  public String groupSummary() {
+    return "玩家对战切磋";
+  }
+
+  @Override
   public String groupDescription() {
     return "玩家对战";
   }

@@ -64,6 +64,11 @@ public class TeamCommandHandler implements CommandGroup {
   }
 
   @Override
+  public String groupSummary() {
+    return "组队协作、邀请管理";
+  }
+
+  @Override
   public String groupDescription() {
     return "组队邀请、管理队伍成员";
   }

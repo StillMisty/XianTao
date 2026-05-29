@@ -101,6 +101,11 @@ public class SectCommandHandler implements CommandGroup {
   }
 
   @Override
+  public String groupSummary() {
+    return "创建宗门、宗灵对话";
+  }
+
+  @Override
   public String groupDescription() {
     return "宗门创建、宗灵对话、退出解散";
   }

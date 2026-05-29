@@ -29,6 +29,10 @@ public class HelpService {
     return groups;
   }
 
+  public Optional<CommandGroup> findByGroupName(String name) {
+    return groups.stream().filter(g -> g.groupName().equals(name)).findFirst();
+  }
+
   public Optional<CommandEntry> findByTrigger(String trigger) {
     return Optional.ofNullable(triggerIndex.get(trigger));
   }

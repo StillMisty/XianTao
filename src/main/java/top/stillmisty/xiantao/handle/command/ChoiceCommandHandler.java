@@ -30,6 +30,11 @@ public class ChoiceCommandHandler implements CommandGroup {
   }
 
   @Override
+  public String groupSummary() {
+    return "选择事件决策";
+  }
+
+  @Override
   public String groupDescription() {
     return "对游戏中的选择事件做出抉择";
   }

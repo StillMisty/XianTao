@@ -171,6 +171,11 @@ public class CultivationCommandHandler implements CommandGroup {
   }
 
   @Override
+  public String groupSummary() {
+    return "境界突破、护道系统";
+  }
+
+  @Override
   public String groupDescription() {
     return "突破、护道";
   }

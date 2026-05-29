@@ -360,6 +360,11 @@ public class ViewCommandHandler implements CommandGroup {
   }
 
   @Override
+  public String groupSummary() {
+    return "查看物品装备详情";
+  }
+
+  @Override
   public String groupDescription() {
     return "查看物品/装备/怪物详情";
   }

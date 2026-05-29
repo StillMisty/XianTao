@@ -46,6 +46,11 @@ public class UserCommandHandler implements CommandGroup {
   }
 
   @Override
+  public String groupSummary() {
+    return "创建角色、更改道号";
+  }
+
+  @Override
   public String groupDescription() {
     return "角色注册与改号";
   }
