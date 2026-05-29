@@ -28,7 +28,7 @@ public class GmListener {
 
   @Listener
   @ContentTrim
-  @Filter("GM给灵石 {{nickname}} {{amount}}")
+  @Filter("GM给灵石\\s*{{nickname}}\\s+{{amount}}")
   public void giveSpiritStones(
       OneBotMessageEvent event,
       @FilterValue("nickname") String nickname,
@@ -41,7 +41,7 @@ public class GmListener {
 
   @Listener
   @ContentTrim
-  @Filter("GM给修为 {{nickname}} {{amount}}")
+  @Filter("GM给修为\\s*{{nickname}}\\s+{{amount}}")
   public void giveExp(
       OneBotMessageEvent event,
       @FilterValue("nickname") String nickname,
@@ -52,21 +52,21 @@ public class GmListener {
 
   @Listener
   @ContentTrim
-  @Filter("GM治疗 {{nickname}}")
+  @Filter("GM治疗\\s*{{nickname}}")
   public void healUser(OneBotMessageEvent event, @FilterValue("nickname") String nickname) {
     replyHelper.oneBot(event, "GM治疗", nickname, gmCommandHandler::handleHealUser);
   }
 
   @Listener
   @ContentTrim
-  @Filter("GM复活 {{nickname}}")
+  @Filter("GM复活\\s*{{nickname}}")
   public void reviveUser(OneBotMessageEvent event, @FilterValue("nickname") String nickname) {
     replyHelper.oneBot(event, "GM复活", nickname, gmCommandHandler::handleReviveUser);
   }
 
   @Listener
   @ContentTrim
-  @Filter("GM等级 {{nickname}} {{level}}")
+  @Filter("GM等级\\s*{{nickname}}\\s+{{level}}")
   public void setLevel(
       OneBotMessageEvent event,
       @FilterValue("nickname") String nickname,
@@ -77,7 +77,7 @@ public class GmListener {
 
   @Listener
   @ContentTrim
-  @Filter("GM传送 {{nickname}} {{locationName}}")
+  @Filter("GM传送\\s*{{nickname}}\\s+{{locationName}}")
   public void setLocation(
       OneBotMessageEvent event,
       @FilterValue("nickname") String nickname,
@@ -90,7 +90,7 @@ public class GmListener {
 
   @Listener
   @ContentTrim
-  @Filter("GM给物品 {{nickname}} {{itemName}} {{quantity}}")
+  @Filter("GM给物品\\s*{{nickname}}\\s+{{itemName}}\\s+{{quantity}}")
   public void giveItem(
       OneBotMessageEvent event,
       @FilterValue("nickname") String nickname,
@@ -113,7 +113,7 @@ public class GmListener {
 
   @Listener
   @ContentTrim
-  @Filter("GM给灵石 {{nickname}} {{amount}}")
+  @Filter("GM给灵石\\s*{{nickname}}\\s+{{amount}}")
   public void giveSpiritStonesQq(
       QGGroupAtMessageCreateEvent event,
       @FilterValue("nickname") String nickname,
@@ -126,7 +126,7 @@ public class GmListener {
 
   @Listener
   @ContentTrim
-  @Filter("GM给修为 {{nickname}} {{amount}}")
+  @Filter("GM给修为\\s*{{nickname}}\\s+{{amount}}")
   public void giveExpQq(
       QGGroupAtMessageCreateEvent event,
       @FilterValue("nickname") String nickname,
@@ -137,7 +137,7 @@ public class GmListener {
 
   @Listener
   @ContentTrim
-  @Filter("GM治疗 {{nickname}}")
+  @Filter("GM治疗\\s*{{nickname}}")
   public void healUserQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("nickname") String nickname) {
     replyHelper.qq(event, "GM治疗", nickname, gmCommandHandler::handleHealUser);
@@ -145,7 +145,7 @@ public class GmListener {
 
   @Listener
   @ContentTrim
-  @Filter("GM复活 {{nickname}}")
+  @Filter("GM复活\\s*{{nickname}}")
   public void reviveUserQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("nickname") String nickname) {
     replyHelper.qq(event, "GM复活", nickname, gmCommandHandler::handleReviveUser);
@@ -153,7 +153,7 @@ public class GmListener {
 
   @Listener
   @ContentTrim
-  @Filter("GM等级 {{nickname}} {{level}}")
+  @Filter("GM等级\\s*{{nickname}}\\s+{{level}}")
   public void setLevelQq(
       QGGroupAtMessageCreateEvent event,
       @FilterValue("nickname") String nickname,
@@ -164,7 +164,7 @@ public class GmListener {
 
   @Listener
   @ContentTrim
-  @Filter("GM传送 {{nickname}} {{locationName}}")
+  @Filter("GM传送\\s*{{nickname}}\\s+{{locationName}}")
   public void setLocationQq(
       QGGroupAtMessageCreateEvent event,
       @FilterValue("nickname") String nickname,
@@ -177,7 +177,7 @@ public class GmListener {
 
   @Listener
   @ContentTrim
-  @Filter("GM给物品 {{nickname}} {{itemName}} {{quantity}}")
+  @Filter("GM给物品\\s*{{nickname}}\\s+{{itemName}}\\s+{{quantity}}")
   public void giveItemQq(
       QGGroupAtMessageCreateEvent event,
       @FilterValue("nickname") String nickname,

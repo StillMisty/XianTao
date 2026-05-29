@@ -30,7 +30,7 @@ public class TeamListener {
 
   @Listener
   @ContentTrim
-  @Filter(value = "组队邀请 {{targetNickname,[\\S]+}}")
+  @Filter("组队邀请\\s*{{targetNickname,\\S+}}")
   public void invite(
       OneBotMessageEvent event, @FilterValue("targetNickname") String targetNickname) {
     replyHelper.oneBot(event, targetNickname, teamCommandHandler::handleInvite);
@@ -38,14 +38,14 @@ public class TeamListener {
 
   @Listener
   @ContentTrim
-  @Filter(value = "组队接受 {{invitationId,[\\d]*}}")
+  @Filter("组队接受\\s*{{invitationId,\\d+}}")
   public void accept(OneBotMessageEvent event, @FilterValue("invitationId") String invitationId) {
     replyHelper.oneBot(event, invitationId, teamCommandHandler::handleAccept);
   }
 
   @Listener
   @ContentTrim
-  @Filter(value = "组队拒绝 {{invitationId,[\\d]*}}")
+  @Filter("组队拒绝\\s*{{invitationId,\\d+}}")
   public void reject(OneBotMessageEvent event, @FilterValue("invitationId") String invitationId) {
     replyHelper.oneBot(event, invitationId, teamCommandHandler::handleReject);
   }
@@ -68,7 +68,7 @@ public class TeamListener {
 
   @Listener
   @ContentTrim
-  @Filter(value = "组队邀请 {{targetNickname,[\\S]+}}")
+  @Filter("组队邀请\\s*{{targetNickname,\\S+}}")
   public void inviteQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("targetNickname") String targetNickname) {
     replyHelper.qq(event, targetNickname, teamCommandHandler::handleInvite);
@@ -76,7 +76,7 @@ public class TeamListener {
 
   @Listener
   @ContentTrim
-  @Filter(value = "组队接受 {{invitationId,[\\d]*}}")
+  @Filter("组队接受\\s*{{invitationId,\\d+}}")
   public void acceptQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("invitationId") String invitationId) {
     replyHelper.qq(event, invitationId, teamCommandHandler::handleAccept);
@@ -84,7 +84,7 @@ public class TeamListener {
 
   @Listener
   @ContentTrim
-  @Filter(value = "组队拒绝 {{invitationId,[\\d]*}}")
+  @Filter("组队拒绝\\s*{{invitationId,\\d+}}")
   public void rejectQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("invitationId") String invitationId) {
     replyHelper.qq(event, invitationId, teamCommandHandler::handleReject);

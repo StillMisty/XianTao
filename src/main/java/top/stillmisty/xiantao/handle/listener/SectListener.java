@@ -30,7 +30,7 @@ public class SectListener {
 
   @Listener
   @ContentTrim
-  @Filter("宗门创建 {{name,[\\S]+}} {{ethosDesc,.+?}}")
+  @Filter("宗门创建\\s*{{name,\\S+}}\\s+{{ethosDesc,.+?}}")
   public void createWithEthosOneBot(
       OneBotMessageEvent event,
       @FilterValue("name") String name,
@@ -41,14 +41,14 @@ public class SectListener {
 
   @Listener
   @ContentTrim
-  @Filter("宗门创建 {{name,[\\S]+}}")
+  @Filter("宗门创建\\s*{{name,\\S+}}")
   public void createOneBot(OneBotMessageEvent event, @FilterValue("name") String name) {
     replyHelper.oneBot(event, (p, o, f) -> sectCommandHandler.handleCreate(p, o, name, null, f));
   }
 
   @Listener
   @ContentTrim
-  @Filter("宗灵 {{content,.+}}")
+  @Filter("宗灵\\s*{{content,.+}}")
   public void sectSpiritOneBot(OneBotMessageEvent event, @FilterValue("content") String content) {
     replyHelper.oneBot(event, content, sectCommandHandler::handleSectSpiritChat);
   }
@@ -78,7 +78,7 @@ public class SectListener {
 
   @Listener
   @ContentTrim
-  @Filter("宗门创建 {{name,[\\S]+}} {{ethosDesc,.+?}}")
+  @Filter("宗门创建\\s*{{name,\\S+}}\\s+{{ethosDesc,.+?}}")
   public void createWithEthosQq(
       QGGroupAtMessageCreateEvent event,
       @FilterValue("name") String name,
@@ -88,14 +88,14 @@ public class SectListener {
 
   @Listener
   @ContentTrim
-  @Filter("宗门创建 {{name,[\\S]+}}")
+  @Filter("宗门创建\\s*{{name,\\S+}}")
   public void createQq(QGGroupAtMessageCreateEvent event, @FilterValue("name") String name) {
     replyHelper.qq(event, (p, o, f) -> sectCommandHandler.handleCreate(p, o, name, null, f));
   }
 
   @Listener
   @ContentTrim
-  @Filter("宗灵 {{content,.+}}")
+  @Filter("宗灵\\s*{{content,.+}}")
   public void sectSpiritQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("content") String content) {
     replyHelper.qq(event, content, sectCommandHandler::handleSectSpiritChat);

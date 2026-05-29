@@ -28,7 +28,7 @@ public class HelpListener {
 
   @Listener
   @ContentTrim
-  @Filter("帮助 {{command}}")
+  @Filter("帮助\\s*{{command}}")
   public void helpDetail(OneBotMessageEvent event, @FilterValue("command") String command) {
     replyHelper.oneBot(event, "命令详情", command, helpCommandHandler::handleHelp);
   }
@@ -44,7 +44,7 @@ public class HelpListener {
 
   @Listener
   @ContentTrim
-  @Filter("帮助 {{command}}")
+  @Filter("帮助\\s*{{command}}")
   public void helpDetailQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("command") String command) {
     replyHelper.qq(event, "命令详情", command, helpCommandHandler::handleHelp);

@@ -28,7 +28,7 @@ public class CultivationListener {
 
   @Listener
   @ContentTrim
-  @Filter("护道 {{nickname}}")
+  @Filter("护道\\s*{{nickname}}")
   public void establishProtection(
       OneBotMessageEvent event, @FilterValue("nickname") String nickname) {
     replyHelper.oneBot(event, "护道", nickname, cultivationCommandHandler::handleEstablishProtection);
@@ -36,7 +36,7 @@ public class CultivationListener {
 
   @Listener
   @ContentTrim
-  @Filter("护道解除 {{nickname}}")
+  @Filter("护道解除\\s*{{nickname}}")
   public void removeProtection(OneBotMessageEvent event, @FilterValue("nickname") String nickname) {
     replyHelper.oneBot(event, "护道解除", nickname, cultivationCommandHandler::handleRemoveProtection);
   }
@@ -59,7 +59,7 @@ public class CultivationListener {
 
   @Listener
   @ContentTrim
-  @Filter("护道 {{nickname}}")
+  @Filter("护道\\s*{{nickname}}")
   public void establishProtectionQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("nickname") String nickname) {
     replyHelper.qq(event, "护道", nickname, cultivationCommandHandler::handleEstablishProtection);
@@ -67,7 +67,7 @@ public class CultivationListener {
 
   @Listener
   @ContentTrim
-  @Filter("护道解除 {{nickname}}")
+  @Filter("护道解除\\s*{{nickname}}")
   public void removeProtectionQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("nickname") String nickname) {
     replyHelper.qq(event, "护道解除", nickname, cultivationCommandHandler::handleRemoveProtection);

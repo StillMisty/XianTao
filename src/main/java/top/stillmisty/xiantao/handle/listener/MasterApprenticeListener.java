@@ -23,7 +23,7 @@ public class MasterApprenticeListener {
 
   @Listener
   @ContentTrim
-  @Filter("拜师 {{targetNickname,[\\S]+}}")
+  @Filter("拜师\\s*{{targetNickname,\\S+}}")
   public void requestMentor(
       OneBotMessageEvent event, @FilterValue("targetNickname") String targetNickname) {
     replyHelper.oneBot(event, targetNickname, masterApprenticeCommandHandler::handleRequestMentor);
@@ -31,7 +31,7 @@ public class MasterApprenticeListener {
 
   @Listener
   @ContentTrim
-  @Filter("收徒 {{targetNickname,[\\S]+}}")
+  @Filter("收徒\\s*{{targetNickname,\\S+}}")
   public void requestApprentice(
       OneBotMessageEvent event, @FilterValue("targetNickname") String targetNickname) {
     replyHelper.oneBot(
@@ -47,7 +47,7 @@ public class MasterApprenticeListener {
 
   @Listener
   @ContentTrim
-  @Filter("逐出师门 {{targetNickname,[\\S]+}}")
+  @Filter("逐出师门\\s*{{targetNickname,\\S+}}")
   public void dismiss(
       OneBotMessageEvent event, @FilterValue("targetNickname") String targetNickname) {
     replyHelper.oneBot(event, targetNickname, masterApprenticeCommandHandler::handleDismiss);
@@ -64,7 +64,7 @@ public class MasterApprenticeListener {
 
   @Listener
   @ContentTrim
-  @Filter("拜师 {{targetNickname,[\\S]+}}")
+  @Filter("拜师\\s*{{targetNickname,\\S+}}")
   public void requestMentorQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("targetNickname") String targetNickname) {
     replyHelper.qq(event, targetNickname, masterApprenticeCommandHandler::handleRequestMentor);
@@ -72,7 +72,7 @@ public class MasterApprenticeListener {
 
   @Listener
   @ContentTrim
-  @Filter("收徒 {{targetNickname,[\\S]+}}")
+  @Filter("收徒\\s*{{targetNickname,\\S+}}")
   public void requestApprenticeQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("targetNickname") String targetNickname) {
     replyHelper.qq(event, targetNickname, masterApprenticeCommandHandler::handleRequestApprentice);
@@ -87,7 +87,7 @@ public class MasterApprenticeListener {
 
   @Listener
   @ContentTrim
-  @Filter("逐出师门 {{targetNickname,[\\S]+}}")
+  @Filter("逐出师门\\s*{{targetNickname,\\S+}}")
   public void dismissQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("targetNickname") String targetNickname) {
     replyHelper.qq(event, targetNickname, masterApprenticeCommandHandler::handleDismiss);

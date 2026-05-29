@@ -21,7 +21,7 @@ public class UseItemListener {
 
   @Listener
   @ContentTrim
-  @Filter("使用 {{itemName}} {{args}}")
+  @Filter("使用\\s*{{itemName}}\\s+{{args}}")
   public void useItemWithArgs(
       OneBotMessageEvent event,
       @FilterValue("itemName") String itemName,
@@ -32,7 +32,7 @@ public class UseItemListener {
 
   @Listener
   @ContentTrim
-  @Filter("使用 {{itemName}}")
+  @Filter("使用\\s*{{itemName}}")
   public void useItem(OneBotMessageEvent event, @FilterValue("itemName") String itemName) {
     replyHelper.oneBot(
         event, "使用物品", (p, o, f) -> useItemCommandHandler.handleUseItem(p, o, itemName, null, f));
@@ -42,7 +42,7 @@ public class UseItemListener {
 
   @Listener
   @ContentTrim
-  @Filter("使用 {{itemName}} {{args}}")
+  @Filter("使用\\s*{{itemName}}\\s+{{args}}")
   public void useItemWithArgsQq(
       QGGroupAtMessageCreateEvent event,
       @FilterValue("itemName") String itemName,
@@ -53,7 +53,7 @@ public class UseItemListener {
 
   @Listener
   @ContentTrim
-  @Filter("使用 {{itemName}}")
+  @Filter("使用\\s*{{itemName}}")
   public void useItemQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("itemName") String itemName) {
     replyHelper.qq(

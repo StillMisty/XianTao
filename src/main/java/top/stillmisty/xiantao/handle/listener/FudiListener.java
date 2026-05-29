@@ -35,7 +35,7 @@ public class FudiListener {
 
   @Listener
   @ContentTrim
-  @Filter("地灵 {{content}}")
+  @Filter("地灵\\s*{{content}}")
   public void handleFudiSpirit(OneBotMessageEvent event, @FilterValue("content") String content) {
     replyHelper.oneBot(event, "地灵对话", content, fudiCommandHandler::handleSpiritChat);
   }
@@ -65,7 +65,7 @@ public class FudiListener {
 
   @Listener
   @ContentTrim
-  @Filter("地灵 {{content}}")
+  @Filter("地灵\\s*{{content}}")
   public void handleFudiSpiritQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("content") String content) {
     replyHelper.qq(event, "地灵对话", content, fudiCommandHandler::handleSpiritChat);

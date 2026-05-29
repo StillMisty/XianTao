@@ -28,7 +28,7 @@ public class ItemListener {
 
   @Listener
   @ContentTrim
-  @Filter("背包 {{category}}")
+  @Filter("背包\\s*{{category}}")
   public void inventoryByCategory(
       OneBotMessageEvent event, @FilterValue("category") String category) {
     replyHelper.oneBot(event, "背包分类", category, inventoryCommandHandler::handleInventoryByCategory);
@@ -36,21 +36,21 @@ public class ItemListener {
 
   @Listener
   @ContentTrim
-  @Filter("装备 {{itemName}}")
+  @Filter("装备\\s*{{itemName}}")
   public void equip(OneBotMessageEvent event, @FilterValue("itemName") String itemName) {
     replyHelper.oneBot(event, "装备穿戴", itemName, inventoryCommandHandler::handleEquip);
   }
 
   @Listener
   @ContentTrim
-  @Filter("卸下 {{slotName}}")
+  @Filter("卸下\\s*{{slotName}}")
   public void unequip(OneBotMessageEvent event, @FilterValue("slotName") String slotName) {
     replyHelper.oneBot(event, "装备卸下", slotName, inventoryCommandHandler::handleUnequip);
   }
 
   @Listener
   @ContentTrim
-  @Filter("丢弃 {{itemName}}")
+  @Filter("丢弃\\s*{{itemName}}")
   public void discard(OneBotMessageEvent event, @FilterValue("itemName") String itemName) {
     replyHelper.oneBot(event, "丢弃", itemName, inventoryCommandHandler::handleDiscard);
   }
@@ -66,7 +66,7 @@ public class ItemListener {
 
   @Listener
   @ContentTrim
-  @Filter("背包 {{category}}")
+  @Filter("背包\\s*{{category}}")
   public void inventoryByCategoryQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("category") String category) {
     replyHelper.qq(event, "背包分类", category, inventoryCommandHandler::handleInventoryByCategory);
@@ -74,14 +74,14 @@ public class ItemListener {
 
   @Listener
   @ContentTrim
-  @Filter("装备 {{itemName}}")
+  @Filter("装备\\s*{{itemName}}")
   public void equipQq(QGGroupAtMessageCreateEvent event, @FilterValue("itemName") String itemName) {
     replyHelper.qq(event, "装备穿戴", itemName, inventoryCommandHandler::handleEquip);
   }
 
   @Listener
   @ContentTrim
-  @Filter("卸下 {{slotName}}")
+  @Filter("卸下\\s*{{slotName}}")
   public void unequipQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("slotName") String slotName) {
     replyHelper.qq(event, "装备卸下", slotName, inventoryCommandHandler::handleUnequip);
@@ -89,7 +89,7 @@ public class ItemListener {
 
   @Listener
   @ContentTrim
-  @Filter("丢弃 {{itemName}}")
+  @Filter("丢弃\\s*{{itemName}}")
   public void discardQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("itemName") String itemName) {
     replyHelper.qq(event, "丢弃", itemName, inventoryCommandHandler::handleDiscard);

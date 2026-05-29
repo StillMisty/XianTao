@@ -21,7 +21,7 @@ public class ViewListener {
 
   @Listener
   @ContentTrim
-  @Filter("查看 {{target}}")
+  @Filter("查看\\s*{{target}}")
   public void view(OneBotMessageEvent event, @FilterValue("target") String target) {
     replyHelper.oneBot(event, "查看", target, viewCommandHandler::handleView);
   }
@@ -30,7 +30,7 @@ public class ViewListener {
 
   @Listener
   @ContentTrim
-  @Filter("查看 {{target}}")
+  @Filter("查看\\s*{{target}}")
   public void viewQq(QGGroupAtMessageCreateEvent event, @FilterValue("target") String target) {
     replyHelper.qq(event, "查看", target, viewCommandHandler::handleView);
   }

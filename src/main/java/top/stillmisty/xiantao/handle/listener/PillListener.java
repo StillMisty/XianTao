@@ -29,21 +29,21 @@ public class PillListener {
 
   @Listener
   @ContentTrim
-  @Filter("丹方 {{recipeName}}")
+  @Filter("丹方\\s*{{recipeName}}")
   public void recipeDetail(OneBotMessageEvent event, @FilterValue("recipeName") String recipeName) {
     replyHelper.oneBot(event, "丹方详情", recipeName, pillCommandHandler::handleRecipeDetail);
   }
 
   @Listener
   @ContentTrim
-  @Filter("炼方 {{recipeName}}")
+  @Filter("炼方\\s*{{recipeName}}")
   public void refineAuto(OneBotMessageEvent event, @FilterValue("recipeName") String recipeName) {
     replyHelper.oneBot(event, "自动炼丹", recipeName, pillCommandHandler::handleRefineAuto);
   }
 
   @Listener
   @ContentTrim
-  @Filter("炼 {{herbInput}}")
+  @Filter("炼\\s*{{herbInput}}")
   public void refineManual(OneBotMessageEvent event, @FilterValue("herbInput") String herbInput) {
     List<String> herbInputs = Arrays.asList(herbInput.split("\\s+"));
     replyHelper.oneBot(
@@ -61,7 +61,7 @@ public class PillListener {
 
   @Listener
   @ContentTrim
-  @Filter("丹方 {{recipeName}}")
+  @Filter("丹方\\s*{{recipeName}}")
   public void recipeDetailQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("recipeName") String recipeName) {
     replyHelper.qq(event, "丹方详情", recipeName, pillCommandHandler::handleRecipeDetail);
@@ -69,7 +69,7 @@ public class PillListener {
 
   @Listener
   @ContentTrim
-  @Filter("炼方 {{recipeName}}")
+  @Filter("炼方\\s*{{recipeName}}")
   public void refineAutoQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("recipeName") String recipeName) {
     replyHelper.qq(event, "自动炼丹", recipeName, pillCommandHandler::handleRefineAuto);
@@ -77,7 +77,7 @@ public class PillListener {
 
   @Listener
   @ContentTrim
-  @Filter("炼 {{herbInput}}")
+  @Filter("炼\\s*{{herbInput}}")
   public void refineManualQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("herbInput") String herbInput) {
     List<String> herbInputs = Arrays.asList(herbInput.split("\\s+"));

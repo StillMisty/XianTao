@@ -32,7 +32,7 @@ public class ForgingListener {
 
   @Listener
   @ContentTrim
-  @Filter("锻造 {{input}}")
+  @Filter("锻造\\s*{{input}}")
   public void forge(OneBotMessageEvent event, @FilterValue("input") String input) {
     String[] parts = input.split("\\s+");
     if (MaterialParser.isMaterialInput(parts[0])) {
@@ -46,7 +46,7 @@ public class ForgingListener {
 
   @Listener
   @ContentTrim
-  @Filter("强化 {{input}}")
+  @Filter("强化\\s*{{input}}")
   public void enhance(OneBotMessageEvent event, @FilterValue("input") String input) {
     String[] parts = input.split("\\s+");
     if (parts.length > 1 && MaterialParser.isMaterialInput(parts[1])) {
@@ -73,7 +73,7 @@ public class ForgingListener {
 
   @Listener
   @ContentTrim
-  @Filter("锻造 {{input}}")
+  @Filter("锻造\\s*{{input}}")
   public void forgeQq(QGGroupAtMessageCreateEvent event, @FilterValue("input") String input) {
     String[] parts = input.split("\\s+");
     if (MaterialParser.isMaterialInput(parts[0])) {
@@ -87,7 +87,7 @@ public class ForgingListener {
 
   @Listener
   @ContentTrim
-  @Filter("强化 {{input}}")
+  @Filter("强化\\s*{{input}}")
   public void enhanceQq(QGGroupAtMessageCreateEvent event, @FilterValue("input") String input) {
     String[] parts = input.split("\\s+");
     if (parts.length > 1 && MaterialParser.isMaterialInput(parts[1])) {

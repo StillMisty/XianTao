@@ -23,14 +23,14 @@ public class ShopListener {
 
   @Listener
   @ContentTrim
-  @Filter("掌柜 {{content}}")
+  @Filter("掌柜\\s*{{content}}")
   public void shopkeeper(OneBotMessageEvent event, @FilterValue("content") String content) {
     replyHelper.oneBot(event, content, shopCommandHandler::handleShopkeeper);
   }
 
   @Listener
   @ContentTrim
-  @Filter("回收 {{itemName}}")
+  @Filter("回收\\s*{{itemName}}")
   public void quickSell(OneBotMessageEvent event, @FilterValue("itemName") String itemName) {
     replyHelper.oneBot(event, itemName, shopCommandHandler::handleQuickSell);
   }
@@ -39,7 +39,7 @@ public class ShopListener {
 
   @Listener
   @ContentTrim
-  @Filter("掌柜 {{content}}")
+  @Filter("掌柜\\s*{{content}}")
   public void shopkeeperQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("content") String content) {
     replyHelper.qq(event, content, shopCommandHandler::handleShopkeeper);
@@ -47,7 +47,7 @@ public class ShopListener {
 
   @Listener
   @ContentTrim
-  @Filter("回收 {{itemName}}")
+  @Filter("回收\\s*{{itemName}}")
   public void quickSellQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("itemName") String itemName) {
     replyHelper.qq(event, itemName, shopCommandHandler::handleQuickSell);

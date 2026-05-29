@@ -29,7 +29,7 @@ public class MapListener {
 
   @Listener
   @ContentTrim
-  @Filter("前往 {{mapName}}")
+  @Filter("前往\\s*{{mapName}}")
   public void goTo(OneBotMessageEvent event, @FilterValue("mapName") String mapName) {
     replyHelper.oneBot(event, mapName, mapCommandHandler::handleGoTo);
   }
@@ -57,7 +57,7 @@ public class MapListener {
 
   @Listener
   @ContentTrim
-  @Filter("悬赏接取 {{bountyId}}")
+  @Filter("悬赏接取\\s*{{bountyId}}")
   public void startBounty(OneBotMessageEvent event, @FilterValue("bountyId") String bountyId) {
     replyHelper.oneBot(event, bountyId, mapCommandHandler::handleStartBounty);
   }
@@ -87,7 +87,7 @@ public class MapListener {
 
   @Listener
   @ContentTrim
-  @Filter("前往 {{mapName}}")
+  @Filter("前往\\s*{{mapName}}")
   public void goToQq(QGGroupAtMessageCreateEvent event, @FilterValue("mapName") String mapName) {
     replyHelper.qq(event, mapName, mapCommandHandler::handleGoTo);
   }
@@ -115,7 +115,7 @@ public class MapListener {
 
   @Listener
   @ContentTrim
-  @Filter("悬赏接取 {{bountyId}}")
+  @Filter("悬赏接取\\s*{{bountyId}}")
   public void startBountyQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("bountyId") String bountyId) {
     replyHelper.qq(event, bountyId, mapCommandHandler::handleStartBounty);

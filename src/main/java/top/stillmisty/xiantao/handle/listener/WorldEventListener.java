@@ -28,7 +28,7 @@ public class WorldEventListener {
 
   @Listener
   @ContentTrim
-  @Filter(value = "参与事件 {{eventId,[\\d]+}}")
+  @Filter("参与事件\\s*{{eventId,\\d+}}")
   public void joinEvent(OneBotMessageEvent event, @FilterValue("eventId") String eventId) {
     replyHelper.oneBot(event, "参与世界事件", eventId, worldEventCommandHandler::handleJoinEvent);
   }
@@ -44,7 +44,7 @@ public class WorldEventListener {
 
   @Listener
   @ContentTrim
-  @Filter(value = "参与事件 {{eventId,[\\d]+}}")
+  @Filter("参与事件\\s*{{eventId,\\d+}}")
   public void joinEventQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("eventId") String eventId) {
     replyHelper.qq(event, "参与世界事件", eventId, worldEventCommandHandler::handleJoinEvent);

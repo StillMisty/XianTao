@@ -20,14 +20,14 @@ public class SkillListener {
 
   @Listener
   @ContentTrim
-  @Filter("法决装载 {{skill}}")
+  @Filter("法决装载\\s*{{skill}}")
   public void equipSkill(OneBotMessageEvent event, @FilterValue("skill") String skill) {
     replyHelper.oneBot(event, "法决装载", skill, skillCommandHandler::handleEquipSkill);
   }
 
   @Listener
   @ContentTrim
-  @Filter("法决卸下 {{skill}}")
+  @Filter("法决卸下\\s*{{skill}}")
   public void unequipSkill(OneBotMessageEvent event, @FilterValue("skill") String skill) {
     replyHelper.oneBot(event, "法决卸下", skill, skillCommandHandler::handleUnequipSkill);
   }
@@ -43,14 +43,14 @@ public class SkillListener {
 
   @Listener
   @ContentTrim
-  @Filter("法决装载 {{skill}}")
+  @Filter("法决装载\\s*{{skill}}")
   public void equipSkillQq(QGGroupAtMessageCreateEvent event, @FilterValue("skill") String skill) {
     replyHelper.qq(event, "法决装载", skill, skillCommandHandler::handleEquipSkill);
   }
 
   @Listener
   @ContentTrim
-  @Filter("法决卸下 {{skill}}")
+  @Filter("法决卸下\\s*{{skill}}")
   public void unequipSkillQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("skill") String skill) {
     replyHelper.qq(event, "法决卸下", skill, skillCommandHandler::handleUnequipSkill);

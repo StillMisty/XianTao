@@ -37,7 +37,7 @@ public class DungeonListener {
 
   @Listener
   @ContentTrim
-  @Filter("秘境 {{dungeonName}}")
+  @Filter("秘境\\s*{{dungeonName}}")
   public void dungeonEnter(
       OneBotMessageEvent event, @FilterValue("dungeonName") String dungeonName) {
     replyHelper.oneBot(event, "进入秘境", dungeonName, dungeonCommandHandler::handleDungeonEnter);
@@ -45,7 +45,7 @@ public class DungeonListener {
 
   @Listener
   @ContentTrim
-  @Filter("秘境 {{dungeonName}}")
+  @Filter("秘境\\s*{{dungeonName}}")
   public void dungeonEnterQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("dungeonName") String dungeonName) {
     replyHelper.qq(event, "进入秘境", dungeonName, dungeonCommandHandler::handleDungeonEnter);

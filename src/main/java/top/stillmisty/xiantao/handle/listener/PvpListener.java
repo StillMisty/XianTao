@@ -20,7 +20,7 @@ public class PvpListener {
 
   @Listener
   @ContentTrim
-  @Filter("切磋 {{targetNickname}}")
+  @Filter("切磋\\s*{{targetNickname}}")
   public void spar(OneBotMessageEvent event, @FilterValue("targetNickname") String targetNickname) {
     replyHelper.oneBot(event, "切磋", targetNickname, pvpCommandHandler::handleSpar);
   }
@@ -29,7 +29,7 @@ public class PvpListener {
 
   @Listener
   @ContentTrim
-  @Filter("切磋 {{targetNickname}}")
+  @Filter("切磋\\s*{{targetNickname}}")
   public void sparQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("targetNickname") String targetNickname) {
     replyHelper.qq(event, "切磋", targetNickname, pvpCommandHandler::handleSpar);

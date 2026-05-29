@@ -23,7 +23,7 @@ public class UserAuthListener {
 
   @Listener
   @ContentTrim
-  @Filter(value = "改号 {{newNickname}}")
+  @Filter("改号\\s*{{newNickname}}")
   public void changeNickname(
       OneBotMessageEvent event, @FilterValue("newNickname") String newNickname) {
     log.info("[OneBot] 收到改号请求 - AuthorId: {}, NewNickname: {}", event.getAuthorId(), newNickname);
@@ -32,7 +32,7 @@ public class UserAuthListener {
 
   @Listener
   @ContentTrim
-  @Filter(value = "我要修仙 {{nickname}}")
+  @Filter("我要修仙\\s*{{nickname}}")
   public void register(OneBotMessageEvent event, @FilterValue("nickname") String nickname) {
     log.info("[OneBot] 收到注册请求 - AuthorId: {}, Nickname: {}", event.getAuthorId(), nickname);
     replyHelper.oneBot(event, "注册", nickname, userCommandHandler::handleRegister);
@@ -42,7 +42,7 @@ public class UserAuthListener {
 
   @Listener
   @ContentTrim
-  @Filter(value = "改号 {{newNickname}}")
+  @Filter("改号\\s*{{newNickname}}")
   public void changeNicknameQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("newNickname") String newNickname) {
     replyHelper.qq(event, "改号", newNickname, userCommandHandler::handleChangeNickname);
@@ -50,7 +50,7 @@ public class UserAuthListener {
 
   @Listener
   @ContentTrim
-  @Filter(value = "我要修仙 {{nickname}}")
+  @Filter("我要修仙\\s*{{nickname}}")
   public void registerQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("nickname") String nickname) {
     log.info("[QQ] 收到注册请求 - AuthorId: {}, Nickname: {}", event.getAuthorId(), nickname);
