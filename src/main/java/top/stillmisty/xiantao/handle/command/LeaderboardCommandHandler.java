@@ -6,11 +6,11 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.vo.LeaderboardVO;
 import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.service.LeaderboardService;
+import top.stillmisty.xiantao.service.UserContext;
 
 @Component
 @RequiredArgsConstructor
@@ -18,18 +18,16 @@ public class LeaderboardCommandHandler implements CommandGroup {
 
   private final LeaderboardService leaderboardService;
 
-  public String handleLevelLeaderboard(PlatformType platform, String openId, TextFormat fmt) {
+  public String handleLevelLeaderboard(TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> leaderboardService.getLevelLeaderboard(platform, openId),
-        fmt,
-        this::formatLeaderboard);
+        () -> leaderboardService.getLevelLeaderboard(userId), fmt, this::formatLeaderboard);
   }
 
-  public String handleSpiritStoneLeaderboard(PlatformType platform, String openId, TextFormat fmt) {
+  public String handleSpiritStoneLeaderboard(TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> leaderboardService.getSpiritStoneLeaderboard(platform, openId),
-        fmt,
-        this::formatLeaderboard);
+        () -> leaderboardService.getSpiritStoneLeaderboard(userId), fmt, this::formatLeaderboard);
   }
 
   private String formatLeaderboard(LeaderboardVO vo) {

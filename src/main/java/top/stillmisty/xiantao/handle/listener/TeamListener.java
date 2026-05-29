@@ -10,6 +10,7 @@ import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.handle.command.TeamCommandHandler;
+import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
 
 @Slf4j
 @Component
@@ -21,6 +22,7 @@ public class TeamListener {
 
   // === OneBotV11 ===
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("组队")
@@ -28,6 +30,7 @@ public class TeamListener {
     replyHelper.oneBot(event, teamCommandHandler::handleTeamStatus);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("组队邀请\\s*{{targetNickname,\\S+}}")
@@ -36,6 +39,7 @@ public class TeamListener {
     replyHelper.oneBot(event, targetNickname, teamCommandHandler::handleInvite);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("组队接受\\s*{{invitationId,\\d+}}")
@@ -43,6 +47,7 @@ public class TeamListener {
     replyHelper.oneBot(event, invitationId, teamCommandHandler::handleAccept);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("组队拒绝\\s*{{invitationId,\\d+}}")
@@ -50,6 +55,7 @@ public class TeamListener {
     replyHelper.oneBot(event, invitationId, teamCommandHandler::handleReject);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("组队离开")
@@ -59,6 +65,7 @@ public class TeamListener {
 
   // === QQ ===
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("组队")
@@ -66,6 +73,7 @@ public class TeamListener {
     replyHelper.qq(event, teamCommandHandler::handleTeamStatus);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("组队邀请\\s*{{targetNickname,\\S+}}")
@@ -74,6 +82,7 @@ public class TeamListener {
     replyHelper.qq(event, targetNickname, teamCommandHandler::handleInvite);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("组队接受\\s*{{invitationId,\\d+}}")
@@ -82,6 +91,7 @@ public class TeamListener {
     replyHelper.qq(event, invitationId, teamCommandHandler::handleAccept);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("组队拒绝\\s*{{invitationId,\\d+}}")
@@ -90,6 +100,7 @@ public class TeamListener {
     replyHelper.qq(event, invitationId, teamCommandHandler::handleReject);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("组队离开")

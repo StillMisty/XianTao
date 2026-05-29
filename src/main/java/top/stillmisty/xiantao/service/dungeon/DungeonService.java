@@ -30,7 +30,6 @@ import top.stillmisty.xiantao.domain.dungeon.vo.ExploreResultVO;
 import top.stillmisty.xiantao.domain.event.enums.ActivityType;
 import top.stillmisty.xiantao.domain.team.entity.TeamMember;
 import top.stillmisty.xiantao.domain.user.entity.User;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.repository.DungeonInstanceRepository;
 import top.stillmisty.xiantao.infrastructure.repository.DungeonPoiConfigRepository;
@@ -42,9 +41,7 @@ import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.activity.DungeonEventCompleter;
-import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
 @Slf4j
@@ -69,47 +66,35 @@ public class DungeonService {
 
   // ===================== 公开 API =====================
 
-  @Authenticated
   @Transactional(readOnly = true)
-  public ServiceResult<List<DungeonListVO>> listDungeons(PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(self.listDungeons(userId));
+  public ServiceResult<List<DungeonListVO>> listDungeons(Long userId) {
+    return new ServiceResult.Success<>(self.listDungeonsInternal(userId));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<DungeonEnterResult> enterDungeon(
-      PlatformType platform, String openId, String dungeonName) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(enterDungeon(userId, dungeonName));
+  public ServiceResult<DungeonEnterResult> enterDungeon(Long userId, String dungeonName) {
+    return new ServiceResult.Success<>(enterDungeonInternal(userId, dungeonName));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<ExploreResultVO> exploreDungeon(PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(exploreDungeon(userId));
+  public ServiceResult<ExploreResultVO> exploreDungeon(Long userId) {
+    return new ServiceResult.Success<>(exploreDungeonInternal(userId));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<DungeonContinueResult> continueDungeon(
-      PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(continueDungeon(userId));
+  public ServiceResult<DungeonContinueResult> continueDungeon(Long userId) {
+    return new ServiceResult.Success<>(continueDungeonInternal(userId));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<String> retreatDungeon(PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(retreatDungeon(userId));
+  public ServiceResult<String> retreatDungeon(Long userId) {
+    return new ServiceResult.Success<>(retreatDungeonInternal(userId));
   }
 
   // ===================== 内部 API =====================
 
   @Cacheable(cacheNames = "dungeon_list", key = "#userId")
-  public List<DungeonListVO> listDungeons(Long userId) {
+  public List<DungeonListVO> listDungeonsInternal(Long userId) {
     User user = userStateService.loadUser(userId);
     List<DungeonTemplate> templates = dungeonTemplateRepository.findActive();
 
@@ -148,7 +133,7 @@ public class DungeonService {
   }
 
   @CacheEvict(cacheNames = "dungeon_list", key = "#userId")
-  public DungeonEnterResult enterDungeon(Long userId, String dungeonName) {
+  public DungeonEnterResult enterDungeonInternal(Long userId, String dungeonName) {
     User user = userStateService.loadUser(userId);
     DungeonTemplate dungeon =
         dungeonTemplateRepository
@@ -265,7 +250,7 @@ public class DungeonService {
             .toList());
   }
 
-  public ExploreResultVO exploreDungeon(Long userId) {
+  public ExploreResultVO exploreDungeonInternal(Long userId) {
     User user = userStateService.loadUser(userId);
     DungeonInstance instance = findActiveInstance(userId);
 
@@ -319,7 +304,7 @@ public class DungeonService {
   }
 
   @CacheEvict(cacheNames = "dungeon_list", key = "#userId")
-  public DungeonContinueResult continueDungeon(Long userId) {
+  public DungeonContinueResult continueDungeonInternal(Long userId) {
     userStateService.loadUser(userId);
     DungeonInstance instance = findActiveInstance(userId);
 
@@ -388,7 +373,7 @@ public class DungeonService {
   }
 
   @CacheEvict(cacheNames = "dungeon_list", key = "#userId")
-  public String retreatDungeon(Long userId) {
+  public String retreatDungeonInternal(Long userId) {
     userStateService.loadUser(userId);
     DungeonInstance instance = findActiveInstance(userId);
 

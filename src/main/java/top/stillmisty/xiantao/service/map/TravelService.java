@@ -10,14 +10,11 @@ import top.stillmisty.xiantao.domain.event.enums.ActivityType;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
 import top.stillmisty.xiantao.domain.map.vo.TravelResultVO;
 import top.stillmisty.xiantao.domain.user.entity.User;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.repository.MapNodeRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.UserContext;
-import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
 @Slf4j
@@ -28,16 +25,12 @@ public class TravelService {
   private final UserStateService userStateService;
   private final MapNodeRepository mapNodeRepository;
 
-  @Authenticated
-  @Transactional
-  public ServiceResult<TravelResultVO> startTravel(
-      PlatformType platform, String openId, String mapName) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(startTravel(userId, mapName));
+  public ServiceResult<TravelResultVO> startTravel(Long userId, String mapName) {
+    return new ServiceResult.Success<>(startTravelInternal(userId, mapName));
   }
 
   @Transactional
-  public TravelResultVO startTravel(Long userId, String mapName) {
+  public TravelResultVO startTravelInternal(Long userId, String mapName) {
     User user = userStateService.loadUser(userId);
 
     if (user.getStatus() != UserStatus.IDLE) {

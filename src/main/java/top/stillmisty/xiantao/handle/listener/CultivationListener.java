@@ -9,6 +9,7 @@ import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.handle.command.CultivationCommandHandler;
+import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
 
 @Component
 @RequiredArgsConstructor
@@ -19,6 +20,7 @@ public class CultivationListener {
 
   // === OneBotV11 ===
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("突破")
@@ -26,6 +28,7 @@ public class CultivationListener {
     replyHelper.oneBot(event, "突破", cultivationCommandHandler::handleBreakthrough);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("护道\\s*{{nickname}}")
@@ -34,6 +37,7 @@ public class CultivationListener {
     replyHelper.oneBot(event, "护道", nickname, cultivationCommandHandler::handleEstablishProtection);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("护道解除\\s*{{nickname}}")
@@ -41,6 +45,7 @@ public class CultivationListener {
     replyHelper.oneBot(event, "护道解除", nickname, cultivationCommandHandler::handleRemoveProtection);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("护道查询")
@@ -50,6 +55,7 @@ public class CultivationListener {
 
   // === QQ ===
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("突破")
@@ -57,6 +63,7 @@ public class CultivationListener {
     replyHelper.qq(event, "突破", cultivationCommandHandler::handleBreakthrough);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("护道\\s*{{nickname}}")
@@ -65,6 +72,7 @@ public class CultivationListener {
     replyHelper.qq(event, "护道", nickname, cultivationCommandHandler::handleEstablishProtection);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("护道解除\\s*{{nickname}}")
@@ -73,6 +81,7 @@ public class CultivationListener {
     replyHelper.qq(event, "护道解除", nickname, cultivationCommandHandler::handleRemoveProtection);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("护道查询")

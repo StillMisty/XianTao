@@ -9,6 +9,7 @@ import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.handle.command.DungeonCommandHandler;
+import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
 
 @Component
 @RequiredArgsConstructor
@@ -19,6 +20,7 @@ public class DungeonListener {
 
   // === 秘境列表 ===
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("秘境")
@@ -26,6 +28,7 @@ public class DungeonListener {
     replyHelper.oneBot(event, "秘境列表", dungeonCommandHandler::handleDungeon);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("秘境")
@@ -35,6 +38,7 @@ public class DungeonListener {
 
   // === 秘境进入 ===
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("秘境\\s*{{dungeonName}}")
@@ -43,6 +47,7 @@ public class DungeonListener {
     replyHelper.oneBot(event, "进入秘境", dungeonName, dungeonCommandHandler::handleDungeonEnter);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("秘境\\s*{{dungeonName}}")
@@ -53,6 +58,7 @@ public class DungeonListener {
 
   // === 秘境探索 ===
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("秘境探索")
@@ -60,6 +66,7 @@ public class DungeonListener {
     replyHelper.oneBot(event, "秘境探索", dungeonCommandHandler::handleDungeonExplore);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("秘境探索")
@@ -69,6 +76,7 @@ public class DungeonListener {
 
   // === 秘境继续 ===
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("秘境继续")
@@ -76,6 +84,7 @@ public class DungeonListener {
     replyHelper.oneBot(event, "秘境继续", dungeonCommandHandler::handleDungeonContinue);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("秘境继续")
@@ -85,6 +94,7 @@ public class DungeonListener {
 
   // === 秘境撤退 ===
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("秘境撤退")
@@ -92,6 +102,7 @@ public class DungeonListener {
     replyHelper.oneBot(event, "秘境撤退", dungeonCommandHandler::handleDungeonRetreat);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("秘境撤退")

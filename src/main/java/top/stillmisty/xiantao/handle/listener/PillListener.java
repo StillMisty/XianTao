@@ -11,6 +11,7 @@ import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.handle.command.PillCommandHandler;
+import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
 
 @Component
 @RequiredArgsConstructor
@@ -20,6 +21,7 @@ public class PillListener {
 
   // === OneBotV11 ===
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("丹方")
@@ -27,6 +29,7 @@ public class PillListener {
     replyHelper.oneBot(event, "丹方列表", pillCommandHandler::handleRecipeList);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("丹方\\s*{{recipeName}}")
@@ -34,6 +37,7 @@ public class PillListener {
     replyHelper.oneBot(event, "丹方详情", recipeName, pillCommandHandler::handleRecipeDetail);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("炼方\\s*{{recipeName}}")
@@ -41,17 +45,19 @@ public class PillListener {
     replyHelper.oneBot(event, "自动炼丹", recipeName, pillCommandHandler::handleRefineAuto);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("炼\\s*{{herbInput}}")
   public void refineManual(OneBotMessageEvent event, @FilterValue("herbInput") String herbInput) {
     List<String> herbInputs = Arrays.asList(herbInput.split("\\s+"));
     replyHelper.oneBot(
-        event, "手动炼丹", (p, o, f) -> pillCommandHandler.handleRefineManual(p, o, herbInputs, f));
+        event, "手动炼丹", fmt -> pillCommandHandler.handleRefineManual(herbInputs, fmt));
   }
 
   // === QQ ===
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("丹方")
@@ -59,6 +65,7 @@ public class PillListener {
     replyHelper.qq(event, "丹方列表", pillCommandHandler::handleRecipeList);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("丹方\\s*{{recipeName}}")
@@ -67,6 +74,7 @@ public class PillListener {
     replyHelper.qq(event, "丹方详情", recipeName, pillCommandHandler::handleRecipeDetail);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("炼方\\s*{{recipeName}}")
@@ -75,13 +83,13 @@ public class PillListener {
     replyHelper.qq(event, "自动炼丹", recipeName, pillCommandHandler::handleRefineAuto);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("炼\\s*{{herbInput}}")
   public void refineManualQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("herbInput") String herbInput) {
     List<String> herbInputs = Arrays.asList(herbInput.split("\\s+"));
-    replyHelper.qq(
-        event, "手动炼丹", (p, o, f) -> pillCommandHandler.handleRefineManual(p, o, herbInputs, f));
+    replyHelper.qq(event, "手动炼丹", fmt -> pillCommandHandler.handleRefineManual(herbInputs, fmt));
   }
 }

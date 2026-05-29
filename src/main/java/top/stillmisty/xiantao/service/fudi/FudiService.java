@@ -19,7 +19,6 @@ import top.stillmisty.xiantao.domain.fudi.vo.*;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.user.entity.User;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.infrastructure.repository.BeastRepository;
 import top.stillmisty.xiantao.infrastructure.repository.FudiCellRepository;
 import top.stillmisty.xiantao.infrastructure.repository.FudiRepository;
@@ -30,8 +29,6 @@ import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.SpiritStoneService;
-import top.stillmisty.xiantao.service.UserContext;
-import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.beast.BeastDisplayHelper;
 import top.stillmisty.xiantao.service.beast.BeastProductionService;
 import top.stillmisty.xiantao.service.cultivation.TribulationService;
@@ -57,34 +54,26 @@ public class FudiService {
   private final StackableItemService stackableItemService;
   private final ItemTemplateRepository itemTemplateRepository;
 
-  // ===================== 公开 API（含认证） =====================
+  // ===================== 公开 API =====================
 
-  @Authenticated
   @Transactional
-  public ServiceResult<FudiStatusVO> ensureFudiReady(PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(ensureFudiReady(userId));
+  public ServiceResult<FudiStatusVO> ensureFudiReady(Long userId) {
+    return new ServiceResult.Success<>(ensureFudiReadyInternal(userId));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<CollectVO> collect(PlatformType platform, String openId, String position) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(collect(userId, position));
+  public ServiceResult<CollectVO> collect(Long userId, String position) {
+    return new ServiceResult.Success<>(collectInternal(userId, position));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<CollectAllVO> collectAll(PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(collectAll(userId));
+  public ServiceResult<CollectAllVO> collectAll(Long userId) {
+    return new ServiceResult.Success<>(collectAllInternal(userId));
   }
 
-  @Authenticated
   @Transactional
   public ServiceResult<CellOperationVO> buildCell(
-      PlatformType platform, String openId, String position, String cellTypeName) {
-    Long userId = UserContext.getCurrentUserId();
+      Long userId, String position, String cellTypeName) {
     CellType type;
     try {
       type = CellType.fromChineseName(cellTypeName);
@@ -92,38 +81,26 @@ public class FudiService {
       return new ServiceResult.Failure<>(
           ErrorCode.CELL_TYPE_INVALID, "不支持的地块类型：" + cellTypeName + "（可选：灵田、兽栏）");
     }
-    return new ServiceResult.Success<>(buildCell(userId, position, type));
+    return new ServiceResult.Success<>(buildCellInternal(userId, position, type));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<CellOperationVO> removeCell(
-      PlatformType platform, String openId, String position) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(removeCell(userId, position));
+  public ServiceResult<CellOperationVO> removeCell(Long userId, String position) {
+    return new ServiceResult.Success<>(removeCellInternal(userId, position));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<UpgradeCellVO> upgradeCell(
-      PlatformType platform, String openId, String position) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(upgradeCell(userId, position));
+  public ServiceResult<UpgradeCellVO> upgradeCell(Long userId, String position) {
+    return new ServiceResult.Success<>(upgradeCellInternal(userId, position));
   }
 
-  @Authenticated
-  @Transactional
-  public ServiceResult<GiveGiftVO> giveGift(PlatformType platform, String openId, String itemName) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(giveGift(userId, itemName));
+  public ServiceResult<GiveGiftVO> giveGift(Long userId, String itemName) {
+    return new ServiceResult.Success<>(giveGiftInternal(userId, itemName));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<TriggerTribulationVO> triggerTribulation(
-      PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(triggerTribulation(userId));
+  public ServiceResult<TriggerTribulationVO> triggerTribulation(Long userId) {
+    return new ServiceResult.Success<>(triggerTribulationInternal(userId));
   }
 
   // ===================== 内部 API =====================
@@ -224,7 +201,7 @@ public class FudiService {
   // ===================== 福地状态查询 =====================
 
   @Transactional
-  public FudiStatusVO ensureFudiReady(Long userId) {
+  public FudiStatusVO ensureFudiReadyInternal(Long userId) {
     Fudi fudi = getFudiOrThrow(userId);
     autoExpandCells(fudi);
 
@@ -309,7 +286,7 @@ public class FudiService {
   // ===================== 天劫触发 =====================
 
   @Transactional
-  public TriggerTribulationVO triggerTribulation(Long userId) {
+  public TriggerTribulationVO triggerTribulationInternal(Long userId) {
     Fudi fudi = getFudiOrThrow(userId);
 
     User user = fudiHelper.getUserOrThrow(userId);
@@ -351,7 +328,7 @@ public class FudiService {
   // ===================== 统一收取系统（种植收获 + 灵兽产出） =====================
 
   @Transactional
-  public CollectVO collect(Long userId, String position) {
+  public CollectVO collectInternal(Long userId, String position) {
     CellContext ctx = getCellContextForUpdate(userId, position);
     FudiCell cell = ctx.cell();
     Integer cellId = ctx.cellId();
@@ -377,7 +354,7 @@ public class FudiService {
   private record PenCollectResult(int collectedCount, int totalItems) {}
 
   @Transactional
-  public CollectAllVO collectAll(Long userId) {
+  public CollectAllVO collectAllInternal(Long userId) {
     Fudi fudi =
         fudiRepository
             .findByUserIdForUpdate(userId)
@@ -501,7 +478,7 @@ public class FudiService {
   // ===================== 建造/拆除/升级系统 =====================
 
   @Transactional
-  public CellOperationVO buildCell(Long userId, String position, CellType type) {
+  public CellOperationVO buildCellInternal(Long userId, String position, CellType type) {
     Integer cellId = fudiHelper.parseCellId(position);
     Fudi fudi = getFudiOrThrowForUpdate(userId);
 
@@ -538,7 +515,7 @@ public class FudiService {
   }
 
   @Transactional
-  public CellOperationVO removeCell(Long userId, String position) {
+  public CellOperationVO removeCellInternal(Long userId, String position) {
     Integer cellId = fudiHelper.parseCellId(position);
     Fudi fudi = getFudiOrThrow(userId);
 
@@ -567,7 +544,7 @@ public class FudiService {
   }
 
   @Transactional
-  public UpgradeCellVO upgradeCell(Long userId, String position) {
+  public UpgradeCellVO upgradeCellInternal(Long userId, String position) {
     CellContext ctx = getCellContextForUpdate(userId, position);
     FudiCell cell = ctx.cell();
     Integer cellId = ctx.cellId();
@@ -601,7 +578,7 @@ public class FudiService {
 
   // ===================== 送礼系统 =====================
 
-  public GiveGiftVO giveGift(Long userId, String itemName) {
+  public GiveGiftVO giveGiftInternal(Long userId, String itemName) {
     return fudiGiftService.giveGift(userId, itemName);
   }
 

@@ -6,9 +6,9 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.sect.vo.SectOverviewVO;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
+import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.ai.SectSpiritChatService;
 import top.stillmisty.xiantao.service.sect.SectMemberService;
 
@@ -19,45 +19,40 @@ public class SectCommandHandler implements CommandGroup {
   private final SectMemberService sectMemberService;
   private final SectSpiritChatService sectSpiritChatService;
 
-  public String handleOverview(PlatformType platform, String openId, TextFormat fmt) {
+  public String handleOverview(TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> sectMemberService.getSectOverview(platform, openId),
-        fmt,
-        vo -> formatSectOverview(vo, fmt));
+        () -> sectMemberService.getSectOverview(userId), fmt, vo -> formatSectOverview(vo, fmt));
   }
 
-  public String handleCreate(
-      PlatformType platform, String openId, String name, String ethosDesc, TextFormat fmt) {
+  public String handleCreate(String name, String ethosDesc, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
         () ->
             (ethosDesc != null && !ethosDesc.isBlank())
-                ? sectMemberService.createSectWithEthos(platform, openId, name, ethosDesc)
-                : sectMemberService.createSect(platform, openId, name),
+                ? sectMemberService.createSectWithEthos(userId, name, ethosDesc)
+                : sectMemberService.createSect(userId, name),
         fmt,
         text -> text,
         msg -> "操作失败: " + msg);
   }
 
-  public String handleLeave(PlatformType platform, String openId, TextFormat fmt) {
+  public String handleLeave(TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> sectMemberService.leaveSect(platform, openId),
-        fmt,
-        text -> text,
-        msg -> "操作失败: " + msg);
+        () -> sectMemberService.leaveSect(userId), fmt, text -> text, msg -> "操作失败: " + msg);
   }
 
-  public String handleDismiss(PlatformType platform, String openId, TextFormat fmt) {
+  public String handleDismiss(TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> sectMemberService.dismissSect(platform, openId),
-        fmt,
-        text -> text,
-        msg -> "操作失败: " + msg);
+        () -> sectMemberService.dismissSect(userId), fmt, text -> text, msg -> "操作失败: " + msg);
   }
 
-  public String handleSectSpiritChat(
-      PlatformType platform, String openId, String userInput, TextFormat fmt) {
+  public String handleSectSpiritChat(String userInput, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> sectSpiritChatService.chatWithSectSpirit(platform, openId, userInput),
+        () -> sectSpiritChatService.chatWithSectSpirit(userId, userInput),
         fmt,
         text -> text,
         msg -> "操作失败: " + msg);

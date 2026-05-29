@@ -14,15 +14,12 @@ import top.stillmisty.xiantao.domain.team.entity.TeamMember;
 import top.stillmisty.xiantao.domain.team.enums.InvitationStatus;
 import top.stillmisty.xiantao.domain.team.enums.TeamStatus;
 import top.stillmisty.xiantao.domain.user.entity.User;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.infrastructure.repository.TeamInvitationRepository;
 import top.stillmisty.xiantao.infrastructure.repository.TeamMemberRepository;
 import top.stillmisty.xiantao.infrastructure.repository.TeamRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.UserContext;
-import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
 @Slf4j
@@ -37,48 +34,35 @@ public class TeamService {
 
   // ===================== 公开 API =====================
 
-  @Authenticated
   @Transactional
-  public ServiceResult<String> getTeamStatus(PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(getTeamStatus(userId));
+  public ServiceResult<String> getTeamStatus(Long userId) {
+    return new ServiceResult.Success<>(getTeamStatusInternal(userId));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<String> invitePlayer(
-      PlatformType platform, String openId, String targetNickname) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(invitePlayer(userId, targetNickname));
+  public ServiceResult<String> invitePlayer(Long userId, String targetNickname) {
+    return new ServiceResult.Success<>(invitePlayerInternal(userId, targetNickname));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<String> acceptInvitation(
-      PlatformType platform, String openId, String invitationIdStr) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(acceptInvitation(userId, invitationIdStr));
+  public ServiceResult<String> acceptInvitation(Long userId, String invitationIdStr) {
+    return new ServiceResult.Success<>(acceptInvitationInternal(userId, invitationIdStr));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<String> rejectInvitation(
-      PlatformType platform, String openId, String invitationIdStr) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(rejectInvitation(userId, invitationIdStr));
+  public ServiceResult<String> rejectInvitation(Long userId, String invitationIdStr) {
+    return new ServiceResult.Success<>(rejectInvitationInternal(userId, invitationIdStr));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<String> leaveTeam(PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(leaveTeam(userId));
+  public ServiceResult<String> leaveTeam(Long userId) {
+    return new ServiceResult.Success<>(leaveTeamInternal(userId));
   }
 
   // ===================== 内部 API =====================
 
   @Cacheable(cacheNames = "team_status", key = "#userId")
-  public String getTeamStatus(Long userId) {
+  public String getTeamStatusInternal(Long userId) {
     userStateService.loadUser(userId);
     StringBuilder sb = new StringBuilder();
 
@@ -123,7 +107,7 @@ public class TeamService {
     return sb.toString();
   }
 
-  public String invitePlayer(Long userId, String targetNickname) {
+  public String invitePlayerInternal(Long userId, String targetNickname) {
     userStateService.loadUser(userId);
     User invitee = userStateService.loadUserByNickname(targetNickname);
 
@@ -161,7 +145,7 @@ public class TeamService {
     return ("已向【" + targetNickname + "】发出组队邀请（编号 #" + invitation.getId() + "，5分钟内有效）。");
   }
 
-  public String acceptInvitation(Long userId, String invitationIdStr) {
+  public String acceptInvitationInternal(Long userId, String invitationIdStr) {
     userStateService.loadUser(userId);
 
     Optional<TeamMember> existingMember = teamMemberRepository.findByUserId(userId);
@@ -228,7 +212,7 @@ public class TeamService {
     return "你已加入队伍！当前队伍人数: " + team.getMemberCount() + "人。";
   }
 
-  public String rejectInvitation(Long userId, String invitationIdStr) {
+  public String rejectInvitationInternal(Long userId, String invitationIdStr) {
     if (invitationIdStr == null || invitationIdStr.isBlank()) {
       List<TeamInvitation> pending = invitationRepository.findPendingByInviteeId(userId);
       if (pending.isEmpty()) {
@@ -265,7 +249,7 @@ public class TeamService {
     return "已拒绝组队邀请 #" + invitationId + "。";
   }
 
-  public String leaveTeam(Long userId) {
+  public String leaveTeamInternal(Long userId) {
     userStateService.loadUser(userId);
 
     Optional<TeamMember> memberOpt = teamMemberRepository.findByUserId(userId);

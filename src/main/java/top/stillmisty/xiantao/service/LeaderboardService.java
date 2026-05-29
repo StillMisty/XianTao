@@ -6,11 +6,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.user.entity.User;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.vo.LeaderboardEntryVO;
 import top.stillmisty.xiantao.domain.user.vo.LeaderboardVO;
 import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
-import top.stillmisty.xiantao.service.annotation.Authenticated;
 
 @Service
 @RequiredArgsConstructor
@@ -18,25 +16,22 @@ public class LeaderboardService {
 
   private final UserRepository userRepository;
 
-  @Authenticated
   @Cacheable(cacheNames = "leaderboard", key = "'level'")
-  public ServiceResult<LeaderboardVO> getLevelLeaderboard(PlatformType platform, String openId) {
-    return new ServiceResult.Success<>(buildLevelLeaderboard());
+  public ServiceResult<LeaderboardVO> getLevelLeaderboard(Long userId) {
+    return new ServiceResult.Success<>(buildLevelLeaderboardInternal());
   }
 
-  @Authenticated
   @Cacheable(cacheNames = "leaderboard", key = "'spiritStones'")
-  public ServiceResult<LeaderboardVO> getSpiritStoneLeaderboard(
-      PlatformType platform, String openId) {
-    return new ServiceResult.Success<>(buildSpiritStoneLeaderboard());
+  public ServiceResult<LeaderboardVO> getSpiritStoneLeaderboard(Long userId) {
+    return new ServiceResult.Success<>(buildSpiritStoneLeaderboardInternal());
   }
 
-  LeaderboardVO buildLevelLeaderboard() {
+  LeaderboardVO buildLevelLeaderboardInternal() {
     List<User> users = userRepository.findTopByLevel(10);
     return new LeaderboardVO("【修为排行榜】", buildEntries(users), true);
   }
 
-  LeaderboardVO buildSpiritStoneLeaderboard() {
+  LeaderboardVO buildSpiritStoneLeaderboardInternal() {
     List<User> users = userRepository.findTopBySpiritStones(10);
     return new LeaderboardVO("【灵石排行榜】", buildEntries(users), false);
   }

@@ -8,13 +8,10 @@ import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.monster.CombatTeam;
 import top.stillmisty.xiantao.domain.pvp.vo.SparResultVO;
 import top.stillmisty.xiantao.domain.user.entity.User;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.UserContext;
-import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.combat.CombatService;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
@@ -27,16 +24,13 @@ public class PvpService {
   private final UserRepository userRepository;
   private final CombatService combatService;
 
-  @Authenticated
   @Transactional
-  public ServiceResult<SparResultVO> spar(
-      PlatformType platform, String openId, String targetNickname) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(spar(userId, targetNickname));
+  public ServiceResult<SparResultVO> spar(Long userId, String targetNickname) {
+    return new ServiceResult.Success<>(sparInternal(userId, targetNickname));
   }
 
   @Transactional
-  public SparResultVO spar(Long userId, String targetNickname) {
+  public SparResultVO sparInternal(Long userId, String targetNickname) {
     User attacker = userStateService.loadUser(userId);
     User defender =
         userRepository

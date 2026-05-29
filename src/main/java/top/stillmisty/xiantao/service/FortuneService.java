@@ -12,8 +12,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.event.enums.FortuneLevel;
 import top.stillmisty.xiantao.domain.event.vo.FortuneVO;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
-import top.stillmisty.xiantao.service.annotation.Authenticated;
 
 @Slf4j
 @Service
@@ -21,9 +19,7 @@ public class FortuneService {
 
   private static final int BAR_COUNT = 10;
 
-  @Authenticated
-  public ServiceResult<FortuneVO> getFortune(PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
+  public ServiceResult<FortuneVO> getFortune(Long userId) {
     return new ServiceResult.Success<>(calculate(userId));
   }
 

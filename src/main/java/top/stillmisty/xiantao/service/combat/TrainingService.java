@@ -20,7 +20,6 @@ import top.stillmisty.xiantao.domain.map.vo.TrainingStartResult;
 import top.stillmisty.xiantao.domain.monster.vo.CombatLogEntry;
 import top.stillmisty.xiantao.domain.monster.vo.DropItem;
 import top.stillmisty.xiantao.domain.user.entity.User;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.MapNodeRepository;
@@ -29,10 +28,8 @@ import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.FortuneService;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.activity.TrainingCompleter;
 import top.stillmisty.xiantao.service.ai.ExplorationDescriptionFunction;
-import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
@@ -56,24 +53,18 @@ public class TrainingService {
   private final TrainingSettler trainingSettler;
   private final FortuneService fortuneService;
 
-  @Authenticated
-  @Transactional
-  public ServiceResult<TrainingStartResult> startTraining(PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(startTraining(userId));
+  public ServiceResult<TrainingStartResult> startTraining(Long userId) {
+    return new ServiceResult.Success<>(startTrainingInternal(userId));
   }
 
-  @Authenticated
-  @Transactional
-  public ServiceResult<TrainingRewardVO> endTraining(PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(endTraining(userId));
+  public ServiceResult<TrainingRewardVO> endTraining(Long userId) {
+    return new ServiceResult.Success<>(endTrainingInternal(userId));
   }
 
   // ===================== 内部 API =====================
 
   @Transactional
-  public TrainingStartResult startTraining(Long userId) {
+  public TrainingStartResult startTrainingInternal(Long userId) {
     User user = userStateService.loadUser(userId);
     if (user.getStatus() != UserStatus.IDLE) {
       throw new BusinessException(ErrorCode.STATUS_BLOCKED, user.getStatus().getName(), "空闲");
@@ -102,7 +93,7 @@ public class TrainingService {
   }
 
   @Transactional
-  public TrainingRewardVO endTraining(Long userId) {
+  public TrainingRewardVO endTrainingInternal(Long userId) {
     User user = userStateService.loadUser(userId);
     if (user.getStatus() != UserStatus.TRAINING && user.getStatus() != UserStatus.DYING) {
       throw new BusinessException(ErrorCode.STATUS_BLOCKED, user.getStatus().getName(), "历练");

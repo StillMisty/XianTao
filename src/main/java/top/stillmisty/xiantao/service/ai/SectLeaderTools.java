@@ -50,7 +50,7 @@ public class SectLeaderTools {
         "appointMember",
         () -> {
           Long userId = UserContext.requireCurrentUserId();
-          sectMemberService.appointMember(userId, targetNickname, position.getCode());
+          sectMemberService.appointMemberInternal(userId, targetNickname, position.getCode());
           return new AppointMemberResponse(targetNickname, position.getCode());
         });
   }
@@ -67,7 +67,7 @@ public class SectLeaderTools {
         "upgradeSect",
         () -> {
           Long userId = UserContext.requireCurrentUserId();
-          UpgradeSectResultVO r = sectMemberService.upgradeSect(userId);
+          UpgradeSectResultVO r = sectMemberService.upgradeSectInternal(userId);
           return new UpgradeSectResponse(
               r.newLevel(), r.newMaxMembers(), r.cost(), r.remainingFunds());
         });
@@ -85,7 +85,7 @@ public class SectLeaderTools {
         "expandMembers",
         () -> {
           Long userId = UserContext.requireCurrentUserId();
-          ExpandMembersResultVO r = sectMemberService.expandMembers(userId);
+          ExpandMembersResultVO r = sectMemberService.expandMembersInternal(userId);
           return new ExpandMembersResponse(
               r.addedSlots(), r.newMaxMembers(), r.cost(), r.remainingFunds());
         });
@@ -106,7 +106,8 @@ public class SectLeaderTools {
         "buildStructure",
         () -> {
           Long userId = UserContext.requireCurrentUserId();
-          BuildResultVO r = sectBuildingService.buildStructure(userId, buildingType.getCode());
+          BuildResultVO r =
+              sectBuildingService.buildStructureInternal(userId, buildingType.getCode());
           return new BuildStructureResponse(
               r.buildingTypeCode(), r.buildingName(), r.level(), r.cost(), r.remainingFunds());
         });
@@ -128,7 +129,7 @@ public class SectLeaderTools {
         () -> {
           Long userId = UserContext.requireCurrentUserId();
           UpgradeBuildingResultVO r =
-              sectBuildingService.upgradeBuilding(userId, buildingType.getCode());
+              sectBuildingService.upgradeBuildingInternal(userId, buildingType.getCode());
           return new UpgradeBuildingResponse(
               r.buildingTypeCode(),
               r.buildingName(),

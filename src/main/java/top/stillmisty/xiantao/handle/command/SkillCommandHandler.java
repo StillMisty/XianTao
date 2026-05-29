@@ -9,9 +9,10 @@ import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.skill.vo.SkillSlotResult;
 import top.stillmisty.xiantao.domain.skill.vo.SkillVO;
 import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
+import top.stillmisty.xiantao.service.ServiceResult;
+import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.skill.SkillService;
 
 @Slf4j
@@ -23,43 +24,44 @@ public class SkillCommandHandler implements CommandGroup {
 
   // ===================== 统一处理方法（含 TextFormat 参数） =====================
 
-  public String handleSkills(PlatformType platform, String openId, TextFormat fmt) {
-    log.debug("查询法决 - Platform: {}, OpenId: {}", platform, openId);
+  public String handleSkills(TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
+    log.debug("查询法决 - UserId: {}", userId);
     var equippedPart =
         CommandHandlerHelper.safeCall(
-            () -> skillService.getEquippedSkills(platform, openId),
+            () -> new ServiceResult.Success<>(skillService.getEquippedSkills(userId)),
             fmt,
             skills -> formatEquippedSkills(skills, fmt),
             msg -> "❌ " + msg);
     var learnedPart =
         CommandHandlerHelper.safeCall(
-            () -> skillService.getLearnedSkills(platform, openId),
+            () -> new ServiceResult.Success<>(skillService.getLearnedSkills(userId)),
             fmt,
             skills -> formatLearnedSkills(skills, fmt),
             msg -> "❌ " + msg);
     return equippedPart + fmt.separator() + learnedPart;
   }
 
-  public String handleEquipSkill(
-      PlatformType platform, String openId, String skillInput, TextFormat fmt) {
+  public String handleEquipSkill(String skillInput, TextFormat fmt) {
     if (skillInput == null || skillInput.isBlank()) {
       return "用法：法决装载 [法决名称或编号]\n示例：法决装载 御剑术";
     }
-    log.debug("装载法决 - Platform: {}, OpenId: {}, SkillInput: {}", platform, openId, skillInput);
+    Long userId = UserContext.requireCurrentUserId();
+    log.debug("装载法决 - UserId: {}, SkillInput: {}", userId, skillInput);
     return CommandHandlerHelper.safeCall(
-        () -> skillService.equipSkill(platform, openId, skillInput),
+        () -> new ServiceResult.Success<>(skillService.equipSkill(userId, skillInput)),
         fmt,
         result -> formatSkillSlotResult(result, fmt));
   }
 
-  public String handleUnequipSkill(
-      PlatformType platform, String openId, String skillInput, TextFormat fmt) {
+  public String handleUnequipSkill(String skillInput, TextFormat fmt) {
     if (skillInput == null || skillInput.isBlank()) {
       return "用法：法决卸下 [法决名称或编号]\n示例：法决卸下 御剑术";
     }
-    log.debug("卸下法决 - Platform: {}, OpenId: {}, SkillInput: {}", platform, openId, skillInput);
+    Long userId = UserContext.requireCurrentUserId();
+    log.debug("卸下法决 - UserId: {}, SkillInput: {}", userId, skillInput);
     return CommandHandlerHelper.safeCall(
-        () -> skillService.unequipSkill(platform, openId, skillInput),
+        () -> new ServiceResult.Success<>(skillService.unequipSkill(userId, skillInput)),
         fmt,
         result -> formatSkillSlotResult(result, fmt));
   }

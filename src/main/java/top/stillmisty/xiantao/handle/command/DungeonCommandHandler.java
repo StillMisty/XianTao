@@ -11,9 +11,9 @@ import top.stillmisty.xiantao.domain.dungeon.vo.DungeonContinueResult;
 import top.stillmisty.xiantao.domain.dungeon.vo.DungeonEnterResult;
 import top.stillmisty.xiantao.domain.dungeon.vo.DungeonListVO;
 import top.stillmisty.xiantao.domain.dungeon.vo.ExploreResultVO;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
+import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.dungeon.DungeonService;
 
 @Slf4j
@@ -23,33 +23,34 @@ public class DungeonCommandHandler implements CommandGroup {
 
   private final DungeonService dungeonService;
 
-  public String handleDungeon(PlatformType platform, String openId, TextFormat fmt) {
-    log.debug("处理秘境列表 - Platform: {}, OpenId: {}", platform, openId);
+  public String handleDungeon(TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
+    log.debug("处理秘境列表 - UserId: {}", userId);
     return CommandHandlerHelper.safeCall(
-        () -> dungeonService.listDungeons(platform, openId), fmt, vo -> formatDungeonList(vo, fmt));
+        () -> dungeonService.listDungeons(userId), fmt, vo -> formatDungeonList(vo, fmt));
   }
 
-  public String handleDungeonEnter(
-      PlatformType platform, String openId, String dungeonName, TextFormat fmt) {
-    log.debug("处理进入秘境 - Platform: {}, OpenId: {}, Dungeon: {}", platform, openId, dungeonName);
+  public String handleDungeonEnter(String dungeonName, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
+    log.debug("处理进入秘境 - UserId: {}, Dungeon: {}", userId, dungeonName);
     return CommandHandlerHelper.safeCall(
-        () -> dungeonService.enterDungeon(platform, openId, dungeonName),
+        () -> dungeonService.enterDungeon(userId, dungeonName),
         fmt,
         vo -> formatDungeonEnterResult(vo, "紫气弥漫，天地间充斥着锋锐的金行道韵。", fmt));
   }
 
-  public String handleDungeonExplore(PlatformType platform, String openId, TextFormat fmt) {
-    log.debug("处理秘境探索 - Platform: {}, OpenId: {}", platform, openId);
+  public String handleDungeonExplore(TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
+    log.debug("处理秘境探索 - UserId: {}", userId);
     return CommandHandlerHelper.safeCall(
-        () -> dungeonService.exploreDungeon(platform, openId),
-        fmt,
-        vo -> formatExploreResult(vo, fmt));
+        () -> dungeonService.exploreDungeon(userId), fmt, vo -> formatExploreResult(vo, fmt));
   }
 
-  public String handleDungeonContinue(PlatformType platform, String openId, TextFormat fmt) {
-    log.debug("处理秘境继续 - Platform: {}, OpenId: {}", platform, openId);
+  public String handleDungeonContinue(TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
+    log.debug("处理秘境继续 - UserId: {}", userId);
     return CommandHandlerHelper.safeCall(
-        () -> dungeonService.continueDungeon(platform, openId),
+        () -> dungeonService.continueDungeon(userId),
         fmt,
         result ->
             switch (result) {
@@ -59,10 +60,11 @@ public class DungeonCommandHandler implements CommandGroup {
             });
   }
 
-  public String handleDungeonRetreat(PlatformType platform, String openId, TextFormat fmt) {
-    log.debug("处理秘境撤退 - Platform: {}, OpenId: {}", platform, openId);
+  public String handleDungeonRetreat(TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
+    log.debug("处理秘境撤退 - UserId: {}", userId);
     return CommandHandlerHelper.safeCall(
-        () -> dungeonService.retreatDungeon(platform, openId), fmt, msg -> msg);
+        () -> dungeonService.retreatDungeon(userId), fmt, msg -> msg);
   }
 
   // ===================== 格式化方法 =====================

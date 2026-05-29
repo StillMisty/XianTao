@@ -6,12 +6,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.worldevent.entity.WorldEvent;
 import top.stillmisty.xiantao.domain.worldevent.enums.WorldEventCategory;
 import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.service.ServiceResult;
+import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.worldevent.WorldEventParticipationService;
 import top.stillmisty.xiantao.service.worldevent.WorldEventService;
 
@@ -45,16 +45,18 @@ public class WorldEventCommandHandler implements CommandGroup {
         new CommandEntry("参与事件 「编号」", "参与指定的世界事件", "参与事件 1"));
   }
 
-  public String handleListEvents(PlatformType platform, String openId, TextFormat fmt) {
-    log.debug("查看世界事件列表 - Platform: {}, OpenId: {}", platform, openId);
+  public String handleListEvents(TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
+    log.debug("查看世界事件列表 - UserId: {}", userId);
     return CommandHandlerHelper.safeCall(
         () -> new ServiceResult.Success<>(worldEventService.findActiveEvents()),
         fmt,
         events -> formatEventList(events, fmt));
   }
 
-  public String handleJoinEvent(PlatformType platform, String openId, String arg, TextFormat fmt) {
-    log.debug("参与世界事件 - Platform: {}, OpenId: {}, Arg: {}", platform, openId, arg);
+  public String handleJoinEvent(String arg, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
+    log.debug("参与世界事件 - UserId: {}, Arg: {}", userId, arg);
     if (arg == null || arg.isBlank()) {
       return fmt.error("请输入要参与的事件编号，如「参与事件 1」");
     }
@@ -65,9 +67,7 @@ public class WorldEventCommandHandler implements CommandGroup {
       return fmt.error("事件编号格式错误，请输入数字编号");
     }
     return CommandHandlerHelper.safeCall(
-        () -> worldEventParticipationService.participate(platform, openId, eventId),
-        fmt,
-        result -> result);
+        () -> worldEventParticipationService.participate(userId, eventId), fmt, result -> result);
   }
 
   private String formatEventList(List<WorldEvent> events, TextFormat fmt) {

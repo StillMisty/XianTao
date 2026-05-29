@@ -12,15 +12,12 @@ import top.stillmisty.xiantao.domain.sect.entity.SectShopItem;
 import top.stillmisty.xiantao.domain.sect.vo.ExchangeResultVO;
 import top.stillmisty.xiantao.domain.sect.vo.SectShopItemVO;
 import top.stillmisty.xiantao.domain.sect.vo.ShopQueryVO;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SectMemberRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SectShopItemRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.UserContext;
-import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
 
 @Service
@@ -34,19 +31,14 @@ public class SectShopService {
 
   // ===================== 公开 API =====================
 
-  @Authenticated
-  public ServiceResult<String> getShop(PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
-    ShopQueryVO vo = getShop(userId);
+  public ServiceResult<String> getShop(Long userId) {
+    ShopQueryVO vo = getShopInternal(userId);
     return new ServiceResult.Success<>(formatShopText(vo));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<String> exchangeShopItem(
-      PlatformType platform, String openId, long shopItemId) {
-    Long userId = UserContext.getCurrentUserId();
-    ExchangeResultVO vo = exchangeShopItem(userId, shopItemId);
+  public ServiceResult<String> exchangeShopItem(Long userId, long shopItemId) {
+    ExchangeResultVO vo = exchangeShopItemInternal(userId, shopItemId);
     return new ServiceResult.Success<>(
         "兑换成功！获得 " + vo.itemName() + "，剩余贡献: " + vo.remainingContribution() + "。");
   }
@@ -54,7 +46,7 @@ public class SectShopService {
   // ===================== 内部 API =====================
 
   @Cacheable(cacheNames = "sect_shop", key = "#userId")
-  public ShopQueryVO getShop(Long userId) {
+  public ShopQueryVO getShopInternal(Long userId) {
     SectMember member = requireMember(userId);
     List<SectShopItem> items = sectShopItemRepository.findBySectId(member.getSectId());
 
@@ -77,7 +69,7 @@ public class SectShopService {
 
   @Transactional
   @CacheEvict(cacheNames = "sect_shop", key = "#userId")
-  public ExchangeResultVO exchangeShopItem(Long userId, long shopItemId) {
+  public ExchangeResultVO exchangeShopItemInternal(Long userId, long shopItemId) {
     SectMember member = requireMember(userId);
 
     SectShopItem shopItem =

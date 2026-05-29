@@ -13,7 +13,6 @@ import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.fudi.entity.*;
 import top.stillmisty.xiantao.domain.sect.enums.ChatType;
 import top.stillmisty.xiantao.domain.user.entity.User;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.infrastructure.repository.FudiRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SpiritFormRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SpiritRepository;
@@ -21,9 +20,7 @@ import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.GameEventService;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.activity.SubEventEffectExecutor;
-import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
 @Service
@@ -67,14 +64,11 @@ public class SpiritChatService extends AbstractChatService {
     this.userStateService = userStateService;
   }
 
-  @Authenticated
-  public ServiceResult<String> chatWithSpirit(
-      PlatformType platform, String openId, String userInput) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(chatWithSpirit(userId, userInput));
+  public ServiceResult<String> chatWithSpirit(Long userId, String userInput) {
+    return new ServiceResult.Success<>(chatWithSpiritInternal(userId, userInput));
   }
 
-  public String chatWithSpirit(Long userId, String userInput) {
+  String chatWithSpiritInternal(Long userId, String userInput) {
     try {
       Fudi fudi =
           fudiRepository

@@ -14,7 +14,6 @@ import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.enums.MaterialAttribute;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.infrastructure.repository.EquipmentRepository;
 import top.stillmisty.xiantao.infrastructure.repository.EquipmentTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
@@ -23,8 +22,6 @@ import top.stillmisty.xiantao.infrastructure.repository.StackableItemRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.UserContext;
-import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
 import top.stillmisty.xiantao.util.MaterialParser;
 import top.stillmisty.xiantao.util.MaterialParser.ParsedMaterial;
@@ -43,49 +40,34 @@ public class ForgingService {
   private final StackableItemService stackableItemService;
   private final EquipmentRepository equipmentRepository;
 
-  // ===================== 公开 API（含认证） =====================
+  // ===================== 公开 API =====================
 
-  @Authenticated
   @Transactional
-  public ServiceResult<ForgingResultVO> forgeAuto(
-      PlatformType platform, String openId, String blueprintName) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(forgeAuto(userId, blueprintName));
+  public ServiceResult<ForgingResultVO> forgeAuto(Long userId, String blueprintName) {
+    return new ServiceResult.Success<>(forgeAutoInternal(userId, blueprintName));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<ForgingResultVO> forgeManual(
-      PlatformType platform, String openId, List<String> materialInputs) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(forgeManual(userId, materialInputs));
+  public ServiceResult<ForgingResultVO> forgeManual(Long userId, List<String> materialInputs) {
+    return new ServiceResult.Success<>(forgeManualInternal(userId, materialInputs));
   }
 
-  @Authenticated
-  public ServiceResult<List<ForgingRecipeVO>> getForgingRecipes(
-      PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(getForgingRecipes(userId));
+  public ServiceResult<List<ForgingRecipeVO>> getForgingRecipes(Long userId) {
+    return new ServiceResult.Success<>(getForgingRecipesInternal(userId));
   }
 
-  @Authenticated
-  public ServiceResult<ForgingRecipeVO> getForgingRecipeDetail(
-      PlatformType platform, String openId, String recipeName) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(getForgingRecipeDetail(userId, recipeName));
+  public ServiceResult<ForgingRecipeVO> getForgingRecipeDetail(Long userId, String recipeName) {
+    return new ServiceResult.Success<>(getForgingRecipeDetailInternal(userId, recipeName));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<ForgingRecipeVO> learnRecipe(
-      PlatformType platform, String openId, String recipeName) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(learnRecipe(userId, recipeName));
+  public ServiceResult<ForgingRecipeVO> learnRecipe(Long userId, String recipeName) {
+    return new ServiceResult.Success<>(learnRecipeInternal(userId, recipeName));
   }
 
   // ===================== 内部 API =====================
 
-  public ForgingResultVO forgeAuto(Long userId, String blueprintName) {
+  public ForgingResultVO forgeAutoInternal(Long userId, String blueprintName) {
     List<PlayerForgingRecipe> recipes = playerForgingRecipeRepository.findByUserId(userId);
     Map<Long, ItemTemplate> templateMap = loadBlueprintTemplates(recipes);
     PlayerForgingRecipe targetRecipe = null;
@@ -127,7 +109,7 @@ public class ForgingService {
 
   private static final int MAX_MATERIAL_TYPES = 3;
 
-  public ForgingResultVO forgeManual(Long userId, List<String> materialInputs) {
+  public ForgingResultVO forgeManualInternal(Long userId, List<String> materialInputs) {
     if (materialInputs.size() > MAX_MATERIAL_TYPES) {
       throw new BusinessException(ErrorCode.FORGING_MATERIAL_TOO_MANY);
     }
@@ -232,7 +214,7 @@ public class ForgingService {
     throw new BusinessException(ErrorCode.FORGING_NO_MATCHING_BLUEPRINT);
   }
 
-  public List<ForgingRecipeVO> getForgingRecipes(Long userId) {
+  public List<ForgingRecipeVO> getForgingRecipesInternal(Long userId) {
     List<PlayerForgingRecipe> recipes = playerForgingRecipeRepository.findByUserId(userId);
     Map<Long, ItemTemplate> blueprintMap = loadBlueprintTemplates(recipes);
     Map<Long, top.stillmisty.xiantao.domain.item.entity.EquipmentTemplate> equipMap =
@@ -249,7 +231,7 @@ public class ForgingService {
         .toList();
   }
 
-  public ForgingRecipeVO getForgingRecipeDetail(Long userId, String recipeName) {
+  public ForgingRecipeVO getForgingRecipeDetailInternal(Long userId, String recipeName) {
     List<PlayerForgingRecipe> recipes = playerForgingRecipeRepository.findByUserId(userId);
     Map<Long, ItemTemplate> blueprintMap = loadBlueprintTemplates(recipes);
     Map<Long, top.stillmisty.xiantao.domain.item.entity.EquipmentTemplate> equipMap =
@@ -267,7 +249,7 @@ public class ForgingService {
   }
 
   @Transactional
-  public ForgingRecipeVO learnRecipe(Long userId, String recipeName) {
+  public ForgingRecipeVO learnRecipeInternal(Long userId, String recipeName) {
     List<StackableItem> items = stackableItemRepository.findByUserId(userId);
     StackableItem recipeItem = null;
     for (StackableItem item : items) {

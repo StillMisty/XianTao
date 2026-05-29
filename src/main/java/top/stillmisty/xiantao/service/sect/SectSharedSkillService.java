@@ -23,7 +23,6 @@ import top.stillmisty.xiantao.domain.sect.vo.SkillOperationResultVO;
 import top.stillmisty.xiantao.domain.sect.vo.SubmitJadeResultVO;
 import top.stillmisty.xiantao.domain.skill.entity.PlayerSkill;
 import top.stillmisty.xiantao.domain.skill.entity.Skill;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.PlayerSkillRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SectMemberRepository;
@@ -34,8 +33,6 @@ import top.stillmisty.xiantao.infrastructure.repository.StackableItemRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.UserContext;
-import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
@@ -59,19 +56,14 @@ public class SectSharedSkillService {
 
   // ===================== 公开 API =====================
 
-  @Authenticated
-  public ServiceResult<String> getSharedSkills(PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
-    SharedSkillsQueryVO vo = getSharedSkills(userId);
+  public ServiceResult<String> getSharedSkills(Long userId) {
+    SharedSkillsQueryVO vo = getSharedSkillsInternal(userId);
     return new ServiceResult.Success<>(formatSharedSkillsText(vo));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<String> learnSharedSkill(
-      PlatformType platform, String openId, long sharedSkillId) {
-    Long userId = UserContext.getCurrentUserId();
-    LearnSkillResultVO vo = learnSharedSkill(userId, sharedSkillId);
+  public ServiceResult<String> learnSharedSkill(Long userId, long sharedSkillId) {
+    LearnSkillResultVO vo = learnSharedSkillInternal(userId, sharedSkillId);
     return new ServiceResult.Success<>(
         "成功学会「"
             + vo.skillName()
@@ -82,38 +74,29 @@ public class SectSharedSkillService {
             + "。");
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<String> submitSkillJade(
-      PlatformType platform, String openId, String jadeName) {
-    Long userId = UserContext.getCurrentUserId();
-    SubmitJadeResultVO vo = submitSkillJade(userId, jadeName);
+  public ServiceResult<String> submitSkillJade(Long userId, String jadeName) {
+    SubmitJadeResultVO vo = submitSkillJadeInternal(userId, jadeName);
     return new ServiceResult.Success<>(
         "已提交「" + vo.skillName() + "」到宗门，获得 " + vo.contributionGained() + " 贡献。需长老/宗主上架后方可学习。");
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<String> removeSharedSkill(
-      PlatformType platform, String openId, long sharedSkillId) {
-    Long userId = UserContext.getCurrentUserId();
-    SkillOperationResultVO vo = removeSharedSkill(userId, sharedSkillId);
+  public ServiceResult<String> removeSharedSkill(Long userId, long sharedSkillId) {
+    SkillOperationResultVO vo = removeSharedSkillInternal(userId, sharedSkillId);
     return new ServiceResult.Success<>("已下架「" + vo.skillName() + "」，已学习的成员不受影响。");
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<String> listSharedSkill(
-      PlatformType platform, String openId, long sharedSkillId) {
-    Long userId = UserContext.getCurrentUserId();
-    SkillOperationResultVO vo = listSharedSkill(userId, sharedSkillId);
+  public ServiceResult<String> listSharedSkill(Long userId, long sharedSkillId) {
+    SkillOperationResultVO vo = listSharedSkillInternal(userId, sharedSkillId);
     return new ServiceResult.Success<>("已上架「" + vo.skillName() + "」，宗门成员可以学习了。");
   }
 
   // ===================== 内部 API =====================
 
   @Cacheable(cacheNames = "sect_shared_skills", key = "#userId")
-  public SharedSkillsQueryVO getSharedSkills(Long userId) {
+  public SharedSkillsQueryVO getSharedSkillsInternal(Long userId) {
     SectMember member = requireMember(userId);
     Sect sect =
         sectRepository
@@ -171,7 +154,7 @@ public class SectSharedSkillService {
 
   @Transactional
   @CacheEvict(cacheNames = "sect_shared_skills", key = "#userId")
-  public LearnSkillResultVO learnSharedSkill(Long userId, long sharedSkillId) {
+  public LearnSkillResultVO learnSharedSkillInternal(Long userId, long sharedSkillId) {
     SectMember member = requireMember(userId);
 
     SectSharedSkill sharedSkill =
@@ -220,7 +203,7 @@ public class SectSharedSkillService {
 
   @Transactional
   @CacheEvict(cacheNames = "sect_shared_skills", key = "#userId")
-  public SubmitJadeResultVO submitSkillJade(Long userId, String jadeName) {
+  public SubmitJadeResultVO submitSkillJadeInternal(Long userId, String jadeName) {
     SectMember member = requireMember(userId);
 
     List<StackableItem> jadeItems =
@@ -283,7 +266,7 @@ public class SectSharedSkillService {
 
   @Transactional
   @CacheEvict(cacheNames = "sect_shared_skills", key = "#userId")
-  public SkillOperationResultVO removeSharedSkill(Long userId, long sharedSkillId) {
+  public SkillOperationResultVO removeSharedSkillInternal(Long userId, long sharedSkillId) {
     SectMember member = requireMember(userId);
     SectSharedSkill sharedSkill = requireManageableSharedSkill(member, sharedSkillId);
 
@@ -301,7 +284,7 @@ public class SectSharedSkillService {
 
   @Transactional
   @CacheEvict(cacheNames = "sect_shared_skills", key = "#userId")
-  public SkillOperationResultVO listSharedSkill(Long userId, long sharedSkillId) {
+  public SkillOperationResultVO listSharedSkillInternal(Long userId, long sharedSkillId) {
     SectMember member = requireMember(userId);
     SectSharedSkill sharedSkill = requireManageableSharedSkill(member, sharedSkillId);
 

@@ -6,9 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
+import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.pvp.TeamService;
 
 @Slf4j
@@ -18,44 +18,43 @@ public class TeamCommandHandler implements CommandGroup {
 
   private final TeamService teamService;
 
-  public String handleTeamStatus(PlatformType platform, String openId, TextFormat fmt) {
+  public String handleTeamStatus(TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> teamService.getTeamStatus(platform, openId),
+        () -> teamService.getTeamStatus(userId), fmt, text -> text, msg -> "操作失败: " + msg);
+  }
+
+  public String handleInvite(String targetNickname, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
+    return CommandHandlerHelper.safeCall(
+        () -> teamService.invitePlayer(userId, targetNickname),
         fmt,
         text -> text,
         msg -> "操作失败: " + msg);
   }
 
-  public String handleInvite(
-      PlatformType platform, String openId, String targetNickname, TextFormat fmt) {
+  public String handleAccept(String invitationId, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> teamService.invitePlayer(platform, openId, targetNickname),
+        () -> teamService.acceptInvitation(userId, invitationId),
         fmt,
         text -> text,
         msg -> "操作失败: " + msg);
   }
 
-  public String handleAccept(
-      PlatformType platform, String openId, String invitationId, TextFormat fmt) {
+  public String handleReject(String invitationId, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> teamService.acceptInvitation(platform, openId, invitationId),
+        () -> teamService.rejectInvitation(userId, invitationId),
         fmt,
         text -> text,
         msg -> "操作失败: " + msg);
   }
 
-  public String handleReject(
-      PlatformType platform, String openId, String invitationId, TextFormat fmt) {
+  public String handleLeave(TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> teamService.rejectInvitation(platform, openId, invitationId),
-        fmt,
-        text -> text,
-        msg -> "操作失败: " + msg);
-  }
-
-  public String handleLeave(PlatformType platform, String openId, TextFormat fmt) {
-    return CommandHandlerHelper.safeCall(
-        () -> teamService.leaveTeam(platform, openId), fmt, text -> text, msg -> "操作失败: " + msg);
+        () -> teamService.leaveTeam(userId), fmt, text -> text, msg -> "操作失败: " + msg);
   }
 
   @Override

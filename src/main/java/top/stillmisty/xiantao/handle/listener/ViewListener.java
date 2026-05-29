@@ -9,6 +9,7 @@ import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.handle.command.ViewCommandHandler;
+import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
 
 @Component
 @RequiredArgsConstructor
@@ -19,6 +20,7 @@ public class ViewListener {
 
   // === OneBotV11 ===
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("查看\\s*{{target}}")
@@ -28,6 +30,7 @@ public class ViewListener {
 
   // === QQ ===
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("查看\\s*{{target}}")

@@ -21,7 +21,6 @@ import top.stillmisty.xiantao.domain.sect.vo.TasksQueryVO;
 import top.stillmisty.xiantao.domain.sect.vo.UpgradeSectResultVO;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.infrastructure.repository.PlayerSkillRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SectBuildingRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SectMemberRepository;
@@ -33,8 +32,6 @@ import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.SpiritStoneService;
-import top.stillmisty.xiantao.service.UserContext;
-import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.masterapprentice.MasterApprenticeService;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
@@ -64,94 +61,67 @@ public class SectMemberService {
 
   // ===================== 公开 API =====================
 
-  @Authenticated
-  public ServiceResult<SectOverviewVO> getSectOverview(PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(getSectOverview(userId));
+  public ServiceResult<SectOverviewVO> getSectOverview(Long userId) {
+    return new ServiceResult.Success<>(getSectOverviewInternal(userId));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<String> createSect(PlatformType platform, String openId, String name) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(createSect(userId, name, ""));
+  public ServiceResult<String> createSect(Long userId, String name) {
+    return new ServiceResult.Success<>(createSectInternal(userId, name, ""));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<String> createSectWithEthos(
-      PlatformType platform, String openId, String name, String ethosDesc) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(createSect(userId, name, ethosDesc));
+  public ServiceResult<String> createSectWithEthos(Long userId, String name, String ethosDesc) {
+    return new ServiceResult.Success<>(createSectInternal(userId, name, ethosDesc));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<String> inviteMember(
-      PlatformType platform, String openId, String targetNickname) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(inviteMember(userId, targetNickname));
+  public ServiceResult<String> inviteMember(Long userId, String targetNickname) {
+    return new ServiceResult.Success<>(inviteMemberInternal(userId, targetNickname));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<String> kickMember(
-      PlatformType platform, String openId, String targetNickname) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(kickMember(userId, targetNickname));
+  public ServiceResult<String> kickMember(Long userId, String targetNickname) {
+    return new ServiceResult.Success<>(kickMemberInternal(userId, targetNickname));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<String> leaveSect(PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(leaveSect(userId));
+  public ServiceResult<String> leaveSect(Long userId) {
+    return new ServiceResult.Success<>(leaveSectInternal(userId));
   }
 
-  @Authenticated
   @Transactional
   public ServiceResult<String> appointMember(
-      PlatformType platform, String openId, String targetNickname, String positionCode) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(appointMember(userId, targetNickname, positionCode));
+      Long userId, String targetNickname, String positionCode) {
+    return new ServiceResult.Success<>(appointMemberInternal(userId, targetNickname, positionCode));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<String> dismissSect(PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(dismissSect(userId));
+  public ServiceResult<String> dismissSect(Long userId) {
+    return new ServiceResult.Success<>(dismissSectInternal(userId));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<String> setNotice(PlatformType platform, String openId, String content) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(setNotice(userId, content));
+  public ServiceResult<String> setNotice(Long userId, String content) {
+    return new ServiceResult.Success<>(setNoticeInternal(userId, content));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<String> donateStones(PlatformType platform, String openId, long amount) {
-    Long userId = UserContext.getCurrentUserId();
-    DonateResultVO vo = donateStones(userId, amount);
+  public ServiceResult<String> donateStones(Long userId, long amount) {
+    DonateResultVO vo = donateStonesInternal(userId, amount);
     return new ServiceResult.Success<>(
         "捐献成功！消耗 " + amount + " 灵石，获得 " + vo.contributionGained() + " 贡献值，宗门资金 +" + amount + "。");
   }
 
-  @Authenticated
-  public ServiceResult<String> getTasks(PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
-    TasksQueryVO vo = getTasks(userId);
+  public ServiceResult<String> getTasks(Long userId) {
+    TasksQueryVO vo = getTasksInternal(userId);
     return new ServiceResult.Success<>(
         vo.tasks().isEmpty() ? "暂无进行中的宗门事件任务。" : "有 " + vo.tasks().size() + " 个进行中的任务。");
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<String> upgradeSect(PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
-    UpgradeSectResultVO vo = upgradeSect(userId);
+  public ServiceResult<String> upgradeSect(Long userId) {
+    UpgradeSectResultVO vo = upgradeSectInternal(userId);
     return new ServiceResult.Success<>(
         "宗门升级成功！当前等级 Lv."
             + vo.newLevel()
@@ -164,11 +134,9 @@ public class SectMemberService {
             + "）。");
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<String> expandMembers(PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
-    ExpandMembersResultVO vo = expandMembers(userId);
+  public ServiceResult<String> expandMembers(Long userId) {
+    ExpandMembersResultVO vo = expandMembersInternal(userId);
     return new ServiceResult.Success<>(
         "扩充成功！成员上限 +"
             + vo.addedSlots()
@@ -183,7 +151,7 @@ public class SectMemberService {
 
   // ===================== 内部 API =====================
 
-  public SectOverviewVO getSectOverview(Long userId) {
+  public SectOverviewVO getSectOverviewInternal(Long userId) {
     userStateService.loadUser(userId);
     SectMember member = requireMember(userId);
     Sect sect =
@@ -232,7 +200,7 @@ public class SectMemberService {
   }
 
   @Transactional
-  public String createSect(Long userId, String name, String ethosDesc) {
+  public String createSectInternal(Long userId, String name, String ethosDesc) {
     User user = userStateService.loadUser(userId);
 
     if (CultivationRealm.fromLevel(user.getLevel()).ordinal()
@@ -360,7 +328,7 @@ public class SectMemberService {
   }
 
   @Transactional
-  public String inviteMember(Long userId, String targetNickname) {
+  public String inviteMemberInternal(Long userId, String targetNickname) {
     SectMember inviterMember = requireMember(userId);
     if (!inviterMember.getPosition().canInvite()) {
       throw new BusinessException(ErrorCode.SECT_NO_PERMISSION, "邀请");
@@ -404,7 +372,7 @@ public class SectMemberService {
   }
 
   @Transactional
-  public String kickMember(Long userId, String targetNickname) {
+  public String kickMemberInternal(Long userId, String targetNickname) {
     SectMember actorMember = requireMember(userId);
 
     User target = userStateService.loadUserByNickname(targetNickname);
@@ -441,7 +409,7 @@ public class SectMemberService {
   }
 
   @Transactional
-  public String leaveSect(Long userId) {
+  public String leaveSectInternal(Long userId) {
     SectMember member = requireMember(userId);
 
     if (member.getPosition() == SectPosition.LEADER) {
@@ -459,7 +427,7 @@ public class SectMemberService {
   }
 
   @Transactional
-  public String appointMember(Long userId, String targetNickname, String positionCode) {
+  public String appointMemberInternal(Long userId, String targetNickname, String positionCode) {
     SectMember actorMember = requireMember(userId);
     if (actorMember.getPosition().canManage()) {
       throw new BusinessException(ErrorCode.SECT_NOT_LEADER);
@@ -513,7 +481,7 @@ public class SectMemberService {
   }
 
   @Transactional
-  public String dismissSect(Long userId) {
+  public String dismissSectInternal(Long userId) {
     SectMember member = requireMember(userId);
     if (member.getPosition().canManage()) {
       throw new BusinessException(ErrorCode.SECT_NOT_LEADER);
@@ -544,7 +512,7 @@ public class SectMemberService {
   }
 
   @Transactional
-  public String setNotice(Long userId, String content) {
+  public String setNoticeInternal(Long userId, String content) {
     SectMember member = requireMember(userId);
     if (!member.getPosition().canPostNotice()) {
       throw new BusinessException(ErrorCode.SECT_NO_PERMISSION, "发布公告");
@@ -561,7 +529,7 @@ public class SectMemberService {
   }
 
   @Transactional
-  public DonateResultVO donateStones(Long userId, long amount) {
+  public DonateResultVO donateStonesInternal(Long userId, long amount) {
     SectMember member = requireMember(userId);
 
     if (amount <= 0) {
@@ -584,13 +552,13 @@ public class SectMemberService {
     return new DonateResultVO(contributionGain);
   }
 
-  public TasksQueryVO getTasks(Long userId) {
+  public TasksQueryVO getTasksInternal(Long userId) {
     requireMember(userId);
     return new TasksQueryVO(java.util.List.of());
   }
 
   @Transactional
-  public UpgradeSectResultVO upgradeSect(Long userId) {
+  public UpgradeSectResultVO upgradeSectInternal(Long userId) {
     SectMember member = requireMember(userId);
     if (member.getPosition().canManage()) {
       throw new BusinessException(ErrorCode.SECT_NOT_LEADER);
@@ -628,7 +596,7 @@ public class SectMemberService {
   }
 
   @Transactional
-  public ExpandMembersResultVO expandMembers(Long userId) {
+  public ExpandMembersResultVO expandMembersInternal(Long userId) {
     SectMember member = requireMember(userId);
     if (member.getPosition().canManage()) {
       throw new BusinessException(ErrorCode.SECT_NOT_LEADER);
@@ -693,7 +661,7 @@ public class SectMemberService {
   }
 
   @Transactional
-  public void leaveSectInternal(Long userId) {
+  public void removeFromSect(Long userId) {
     sectMemberRepository.deleteByUserId(userId);
   }
 

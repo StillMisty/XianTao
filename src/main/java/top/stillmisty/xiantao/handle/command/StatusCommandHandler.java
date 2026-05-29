@@ -8,11 +8,11 @@ import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.item.vo.CharacterStatusResult;
 import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.infrastructure.util.FormatUtils;
+import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.player.CharacterStatusService;
 
 @Slf4j
@@ -22,10 +22,11 @@ public class StatusCommandHandler implements CommandGroup {
 
   private final CharacterStatusService characterStatusService;
 
-  public String handleStatus(PlatformType platform, String openId, TextFormat fmt) {
-    log.debug("处理状态查询 - Platform: {}, OpenId: {}", platform, openId);
+  public String handleStatus(TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
+    log.debug("处理状态查询 - UserId: {}", userId);
     return CommandHandlerHelper.safeCall(
-        () -> characterStatusService.getCharacterStatus(platform, openId),
+        () -> characterStatusService.getCharacterStatus(userId),
         fmt,
         vo -> formatCharacterStatus(vo, fmt));
   }

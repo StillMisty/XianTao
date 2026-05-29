@@ -16,13 +16,11 @@ import top.stillmisty.xiantao.domain.item.enums.EquipmentSlot;
 import top.stillmisty.xiantao.domain.item.enums.Rarity;
 import top.stillmisty.xiantao.domain.item.vo.*;
 import top.stillmisty.xiantao.domain.user.entity.User;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.infrastructure.repository.EquipmentRepository;
 import top.stillmisty.xiantao.infrastructure.repository.EquipmentTemplateRepository;
+import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.UserContext;
-import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
 /** 装备服务 负责：装备穿戴/卸下、装备生成、装备列表/详情查询 */
@@ -46,32 +44,28 @@ public class EquipmentService {
     this.itemResolver = itemResolver;
   }
 
-  // ===================== 公开 API（含认证） =====================
+  // ===================== 公开 API =====================
 
-  @Authenticated
   @Transactional
-  public ServiceResult<EquipResult> equipItem(
-      PlatformType platform, String openId, String itemName) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(equipItem(userId, itemName));
+  public ServiceResult<EquipResult> equipItem(Long userId, String itemName) {
+    return new ServiceResult.Success<>(equipItemInternal(userId, itemName));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<UnequipResult> unequipItem(
-      PlatformType platform, String openId, String slotName) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(unequipItem(userId, slotName));
+  public ServiceResult<UnequipResult> unequipItem(Long userId, String slotName) {
+    return new ServiceResult.Success<>(unequipItemInternal(userId, slotName));
   }
 
-  @Authenticated
-  public ServiceResult<EquipmentDetailVO> getEquipmentDetail(
-      PlatformType platform, String openId, String input) {
-    Long userId = UserContext.getCurrentUserId();
+  public ServiceResult<EquipmentDetailVO> getEquipmentDetail(Long userId, String input) {
+    return new ServiceResult.Success<>(getEquipmentDetailInternal(userId, input));
+  }
+
+  // ===================== 内部 API =====================
+
+  public EquipmentDetailVO getEquipmentDetailInternal(Long userId, String input) {
     var result = itemResolver.resolveEquipment(userId, input);
     if (result instanceof ItemResolver.Found<Equipment> found) {
-      EquipmentDetailVO detail = convertToEquipmentDetailVO(found.item());
-      return new ServiceResult.Success<>(detail);
+      return convertToEquipmentDetailVO(found.item());
     }
     if (result instanceof ItemResolver.Ambiguous<?> ambiguous) {
       var sb = new StringBuilder("找到多个装备，请使用编号：\n");
@@ -80,13 +74,10 @@ public class EquipmentService {
         if (!e.metadata().isBlank()) sb.append(" [").append(e.metadata()).append("]");
         sb.append("\n");
       }
-      return new ServiceResult.Failure<>(ErrorCode.ITEM_MULTIPLE_MATCH, sb.toString().strip());
+      throw new BusinessException(ErrorCode.ITEM_MULTIPLE_MATCH, sb.toString().strip());
     }
-    return new ServiceResult.Failure<>(
-        ErrorCode.ITEM_NOT_FOUND, ErrorCode.ITEM_NOT_FOUND.format(input));
+    throw new BusinessException(ErrorCode.ITEM_NOT_FOUND, input);
   }
-
-  // ===================== 内部 API（需预先完成认证） =====================
 
   /** 装备穿戴（装备 [物品名/编号]） */
   @Transactional
@@ -96,7 +87,7 @@ public class EquipmentService {
         @CacheEvict(cacheNames = "player_inventory", key = "'equipment:' + #userId"),
         @CacheEvict(cacheNames = "player_inventory", key = "'summary:' + #userId")
       })
-  public EquipResult equipItem(Long userId, String input) {
+  public EquipResult equipItemInternal(Long userId, String input) {
     User user = userStateService.loadUser(userId);
 
     var result = itemResolver.resolveEquipment(userId, input);
@@ -197,7 +188,7 @@ public class EquipmentService {
         @CacheEvict(cacheNames = "player_inventory", key = "'equipment:' + #userId"),
         @CacheEvict(cacheNames = "player_inventory", key = "'summary:' + #userId")
       })
-  public UnequipResult unequipItem(Long userId, String input) {
+  public UnequipResult unequipItemInternal(Long userId, String input) {
     EquipmentSlot slot = EquipmentSlot.fromChineseName(input);
     if (slot == null) {
       return unequipByItemInput(userId, input);

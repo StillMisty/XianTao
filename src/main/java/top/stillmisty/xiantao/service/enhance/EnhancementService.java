@@ -10,12 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.forge.vo.EnhanceResultVO;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
 import top.stillmisty.xiantao.domain.item.enums.MaterialAttribute;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.UserContext;
-import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.util.MaterialParser;
 import top.stillmisty.xiantao.util.MaterialParser.ParsedMaterial;
 
@@ -29,27 +26,23 @@ public class EnhancementService {
   private final ProbabilisticEnhanceRegime probabilisticRegime;
   private final BlueprintEnhanceRegime blueprintRegime;
 
-  // ===================== 公开 API（含认证） =====================
+  // ===================== 公开 API =====================
 
-  @Authenticated
   @Transactional
-  public ServiceResult<EnhanceResultVO> enhanceAuto(
-      PlatformType platform, String openId, String equipmentInput) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(enhanceAuto(userId, equipmentInput));
+  public ServiceResult<EnhanceResultVO> enhanceAuto(Long userId, String equipmentInput) {
+    return new ServiceResult.Success<>(enhanceAutoInternal(userId, equipmentInput));
   }
 
-  @Authenticated
   @Transactional
   public ServiceResult<EnhanceResultVO> enhanceManual(
-      PlatformType platform, String openId, String equipmentInput, List<String> materialInputs) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(enhanceManual(userId, equipmentInput, materialInputs));
+      Long userId, String equipmentInput, List<String> materialInputs) {
+    return new ServiceResult.Success<>(
+        enhanceManualInternal(userId, equipmentInput, materialInputs));
   }
 
   // ===================== 内部 API =====================
 
-  public EnhanceResultVO enhanceAuto(Long userId, String equipmentInput) {
+  public EnhanceResultVO enhanceAutoInternal(Long userId, String equipmentInput) {
     var resolved = resolveAndValidate(userId, equipmentInput);
     int currentLevel = resolved.currentLevel();
     int targetLevel = currentLevel + 1;
@@ -69,7 +62,7 @@ public class EnhancementService {
   private static final int MAX_MATERIAL_TYPES = 3;
 
   @Transactional
-  public EnhanceResultVO enhanceManual(
+  public EnhanceResultVO enhanceManualInternal(
       Long userId, String equipmentInput, List<String> materialInputs) {
     if (materialInputs.size() > MAX_MATERIAL_TYPES) {
       throw new BusinessException(ErrorCode.FORGING_MATERIAL_TOO_MANY);

@@ -9,6 +9,7 @@ import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.handle.command.WorldEventCommandHandler;
+import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
 
 @Component
 @RequiredArgsConstructor
@@ -19,6 +20,7 @@ public class WorldEventListener {
 
   // === OneBotV11 ===
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("世界事件")
@@ -26,6 +28,7 @@ public class WorldEventListener {
     replyHelper.oneBot(event, "世界事件列表", worldEventCommandHandler::handleListEvents);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("参与事件\\s*{{eventId,\\d+}}")
@@ -35,6 +38,7 @@ public class WorldEventListener {
 
   // === QQ ===
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("世界事件")
@@ -42,6 +46,7 @@ public class WorldEventListener {
     replyHelper.qq(event, "世界事件列表", worldEventCommandHandler::handleListEvents);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("参与事件\\s*{{eventId,\\d+}}")

@@ -19,7 +19,6 @@ import top.stillmisty.xiantao.domain.sect.enums.SectPosition;
 import top.stillmisty.xiantao.domain.user.entity.DaoProtection;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.infrastructure.repository.DaoProtectionRepository;
 import top.stillmisty.xiantao.infrastructure.repository.MasterApprenticeRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SectMemberRepository;
@@ -27,8 +26,6 @@ import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.UserContext;
-import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
 @Slf4j
@@ -61,46 +58,33 @@ public class MasterApprenticeService {
 
   // ===================== 公开 API =====================
 
-  @Authenticated
   @Transactional
-  public ServiceResult<String> requestMentor(
-      PlatformType platform, String openId, String targetNickname) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(requestMentor(userId, targetNickname));
+  public ServiceResult<String> requestMentor(Long userId, String targetNickname) {
+    return new ServiceResult.Success<>(requestMentorInternal(userId, targetNickname));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<String> requestApprentice(
-      PlatformType platform, String openId, String targetNickname) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(requestApprentice(userId, targetNickname));
+  public ServiceResult<String> requestApprentice(Long userId, String targetNickname) {
+    return new ServiceResult.Success<>(requestApprenticeInternal(userId, targetNickname));
   }
 
-  @Authenticated
-  public ServiceResult<MasterApprenticeInfoVO> getStatus(PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(getStatus(userId));
+  public ServiceResult<MasterApprenticeInfoVO> getStatus(Long userId) {
+    return new ServiceResult.Success<>(getStatusInternal(userId));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<String> dismissApprentice(
-      PlatformType platform, String openId, String targetNickname) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(dismissApprentice(userId, targetNickname));
+  public ServiceResult<String> dismissApprentice(Long userId, String targetNickname) {
+    return new ServiceResult.Success<>(dismissApprenticeInternal(userId, targetNickname));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<String> renounceMaster(PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(renounceMaster(userId));
+  public ServiceResult<String> renounceMaster(Long userId) {
+    return new ServiceResult.Success<>(renounceMasterInternal(userId));
   }
 
   // ===================== 内部 API =====================
 
-  public String requestMentor(Long userId, String targetNickname) {
+  public String requestMentorInternal(Long userId, String targetNickname) {
     User apprentice = userStateService.loadUser(userId);
     User master = userStateService.loadUserByNickname(targetNickname);
     if (master == null) {
@@ -134,7 +118,7 @@ public class MasterApprenticeService {
     return "已拜【" + targetNickname + "】为师！护道关系已自动建立。";
   }
 
-  public String requestApprentice(Long userId, String targetNickname) {
+  public String requestApprenticeInternal(Long userId, String targetNickname) {
     User master = userStateService.loadUser(userId);
     User apprentice = userStateService.loadUserByNickname(targetNickname);
     if (apprentice == null) {
@@ -168,7 +152,7 @@ public class MasterApprenticeService {
     return "已收【" + targetNickname + "】为徒！护道关系已自动建立。";
   }
 
-  public MasterApprenticeInfoVO getStatus(Long userId) {
+  public MasterApprenticeInfoVO getStatusInternal(Long userId) {
     Optional<MasterApprentice> asApprenticeOpt =
         masterApprenticeRepository.findByApprenticeId(userId);
     List<MasterApprentice> asMasterList = masterApprenticeRepository.findByMasterId(userId);
@@ -222,7 +206,7 @@ public class MasterApprenticeService {
   }
 
   @CacheEvict(cacheNames = "dao_protection", key = "#userId")
-  public String dismissApprentice(Long userId, String targetNickname) {
+  public String dismissApprenticeInternal(Long userId, String targetNickname) {
     User target = userStateService.loadUserByNickname(targetNickname);
     if (target == null) {
       throw new BusinessException(ErrorCode.PLAYER_NOT_FOUND, targetNickname);
@@ -254,7 +238,7 @@ public class MasterApprenticeService {
   }
 
   @CacheEvict(cacheNames = "dao_protection", key = "#userId")
-  public String renounceMaster(Long userId) {
+  public String renounceMasterInternal(Long userId) {
     Optional<MasterApprentice> relationOpt = masterApprenticeRepository.findByApprenticeId(userId);
     if (relationOpt.isEmpty() || !relationOpt.get().isActive()) {
       throw new BusinessException(ErrorCode.MASTER_NO_MASTER);

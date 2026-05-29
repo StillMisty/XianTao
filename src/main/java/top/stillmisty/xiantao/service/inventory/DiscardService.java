@@ -7,14 +7,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.infrastructure.repository.EquipmentRepository;
 import top.stillmisty.xiantao.infrastructure.repository.StackableItemRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.UserContext;
-import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
 @Slf4j
@@ -28,15 +25,13 @@ public class DiscardService {
   private final StackableItemRepository stackableItemRepository;
   private final StackableItemService stackableItemService;
 
-  @Authenticated
   @Transactional
-  public ServiceResult<String> discardItem(PlatformType platform, String openId, String itemName) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(discardItem(userId, itemName));
+  public ServiceResult<String> discardItem(Long userId, String itemName) {
+    return new ServiceResult.Success<>(discardItemInternal(userId, itemName));
   }
 
   @Transactional
-  public String discardItem(Long userId, String input) {
+  public String discardItemInternal(Long userId, String input) {
     userStateService.loadUser(userId);
 
     var equipResult = itemResolver.resolveEquipment(userId, input);

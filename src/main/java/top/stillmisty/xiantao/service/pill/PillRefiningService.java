@@ -12,15 +12,12 @@ import top.stillmisty.xiantao.domain.pill.entity.PlayerPillRecipe;
 import top.stillmisty.xiantao.domain.pill.enums.ElementType;
 import top.stillmisty.xiantao.domain.pill.enums.PillQuality;
 import top.stillmisty.xiantao.domain.pill.vo.PillRefiningResultVO;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.PlayerPillRecipeRepository;
 import top.stillmisty.xiantao.infrastructure.repository.StackableItemRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.UserContext;
-import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
 import top.stillmisty.xiantao.util.MaterialParser;
 import top.stillmisty.xiantao.util.MaterialParser.ParsedMaterial;
@@ -37,28 +34,23 @@ public class PillRefiningService {
   private final StackableItemService stackableItemService;
   private final PillCombinationFinder combinationFinder;
 
-  // ===================== 公开 API（含认证） =====================
+  // ===================== 公开 API =====================
 
-  @Authenticated
   @Transactional
-  public ServiceResult<PillRefiningResultVO> refinePillAuto(
-      PlatformType platform, String openId, String recipeName) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(refinePillAuto(userId, recipeName));
+  public ServiceResult<PillRefiningResultVO> refinePillAuto(Long userId, String recipeName) {
+    return new ServiceResult.Success<>(refinePillAutoInternal(userId, recipeName));
+  }
+
+  @Transactional
+  public ServiceResult<PillRefiningResultVO> refinePillManual(
+      Long userId, List<String> herbInputs) {
+    return new ServiceResult.Success<>(refinePillManualInternal(userId, herbInputs));
   }
 
   // ===================== 内部 API =====================
 
-  @Authenticated
   @Transactional
-  public ServiceResult<PillRefiningResultVO> refinePillManual(
-      PlatformType platform, String openId, List<String> herbInputs) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(refinePillManual(userId, herbInputs));
-  }
-
-  @Transactional
-  public PillRefiningResultVO refinePillAuto(Long userId, String recipeName) {
+  public PillRefiningResultVO refinePillAutoInternal(Long userId, String recipeName) {
     List<PlayerPillRecipe> recipes = playerPillRecipeRepository.findByUserId(userId);
     PlayerPillRecipe targetRecipe = null;
     ItemTemplate recipeTemplate = null;
@@ -99,7 +91,7 @@ public class PillRefiningService {
   private static final int MAX_HERB_TYPES = 5;
 
   @Transactional
-  public PillRefiningResultVO refinePillManual(Long userId, List<String> herbInputs) {
+  public PillRefiningResultVO refinePillManualInternal(Long userId, List<String> herbInputs) {
     if (herbInputs.size() > MAX_HERB_TYPES) {
       throw new BusinessException(ErrorCode.PILL_MATERIAL_TOO_MANY);
     }

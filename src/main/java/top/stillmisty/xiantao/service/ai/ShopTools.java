@@ -60,7 +60,7 @@ public class ShopTools {
         "showGoods",
         () -> {
           Long userId = UserContext.requireCurrentUserId();
-          return shopService.listProducts(userId);
+          return shopService.listProductsInternal(userId);
         });
   }
 
@@ -284,7 +284,8 @@ public class ShopTools {
                   .findByName(templateName)
                   .orElseThrow(() -> new BusinessException(ErrorCode.SHOP_PRODUCT_NOT_FOUND));
 
-          return shopService.purchaseItem(userId, resolved.npc(), template.getId(), quantity);
+          return shopService.purchaseItemInternal(
+              userId, resolved.npc(), template.getId(), quantity);
         });
   }
 
@@ -310,7 +311,7 @@ public class ShopTools {
             throw new IllegalArgumentException("未找到装备：" + templateName);
           }
 
-          return shopService.purchaseEquipment(userId, resolved.npc(), template.getId());
+          return shopService.purchaseEquipmentInternal(userId, resolved.npc(), template.getId());
         });
   }
 

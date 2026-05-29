@@ -9,6 +9,7 @@ import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
+import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.command.UserCommandHandler;
 
 @Slf4j
@@ -35,7 +36,13 @@ public class UserAuthListener {
   @Filter("我要修仙\\s*{{nickname}}")
   public void register(OneBotMessageEvent event, @FilterValue("nickname") String nickname) {
     log.info("[OneBot] 收到注册请求 - AuthorId: {}, Nickname: {}", event.getAuthorId(), nickname);
-    replyHelper.oneBot(event, "注册", nickname, userCommandHandler::handleRegister);
+    replyHelper.oneBot(
+        event,
+        "注册",
+        nickname,
+        (arg, fmt) ->
+            userCommandHandler.handleRegister(
+                PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), nickname, fmt));
   }
 
   // === QQ ===
@@ -54,6 +61,12 @@ public class UserAuthListener {
   public void registerQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("nickname") String nickname) {
     log.info("[QQ] 收到注册请求 - AuthorId: {}, Nickname: {}", event.getAuthorId(), nickname);
-    replyHelper.qq(event, "注册", nickname, userCommandHandler::handleRegister);
+    replyHelper.qq(
+        event,
+        "注册",
+        nickname,
+        (arg, fmt) ->
+            userCommandHandler.handleRegister(
+                PlatformType.QQ, event.getAuthorId().toString(), nickname, fmt));
   }
 }

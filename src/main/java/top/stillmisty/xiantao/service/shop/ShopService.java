@@ -46,9 +46,7 @@ import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.FortuneService;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.ai.ShopChatContext;
-import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
@@ -69,46 +67,32 @@ public class ShopService {
   private final StackableItemService stackableItemService;
   private final FortuneService fortuneService;
 
-  // ===================== 公开 API（含认证） =====================
+  // ===================== 公开 API =====================
 
-  @Authenticated
-  public ServiceResult<ProductListVO> listProducts(
-      top.stillmisty.xiantao.domain.user.enums.PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
+  public ServiceResult<ProductListVO> listProducts(Long userId) {
     User user = userStateService.loadUser(userId);
     ShopNpc npc = findByLocation(user.getLocationId());
     return new ServiceResult.Success<>(listProducts(npc));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<PurchaseResult> purchaseItem(
-      top.stillmisty.xiantao.domain.user.enums.PlatformType platform,
-      String openId,
-      Long templateId,
-      int quantity) {
-    Long userId = UserContext.getCurrentUserId();
+  public ServiceResult<PurchaseResult> purchaseItem(Long userId, Long templateId, int quantity) {
     User user = userStateService.loadUser(userId);
     ShopNpc npc = findByLocation(user.getLocationId());
-    return new ServiceResult.Success<>(purchaseItem(userId, npc, templateId, quantity));
+    return new ServiceResult.Success<>(purchaseItemInternal(userId, npc, templateId, quantity));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<EquipmentPurchaseResult> purchaseEquipment(
-      top.stillmisty.xiantao.domain.user.enums.PlatformType platform,
-      String openId,
-      Long templateId) {
-    Long userId = UserContext.getCurrentUserId();
+  public ServiceResult<EquipmentPurchaseResult> purchaseEquipment(Long userId, Long templateId) {
     User user = userStateService.loadUser(userId);
     ShopNpc npc = findByLocation(user.getLocationId());
-    return new ServiceResult.Success<>(purchaseEquipment(userId, npc, templateId));
+    return new ServiceResult.Success<>(purchaseEquipmentInternal(userId, npc, templateId));
   }
 
   // ===================== 内部 API（供 Tools 调用） =====================
 
   @Cacheable(cacheNames = "shop_products", key = "#userId")
-  public ProductListVO listProducts(Long userId) {
+  public ProductListVO listProductsInternal(Long userId) {
     ShopChatContext chatCtx = ShopChatContext.current();
     if (chatCtx != null) {
       return listProducts(chatCtx.npc());
@@ -124,7 +108,8 @@ public class ShopService {
         @CacheEvict(cacheNames = "shop_products", key = "#userId"),
         @CacheEvict(cacheNames = "shop_player_items", key = "'items:' + #userId")
       })
-  public PurchaseResult purchaseItem(Long userId, ShopNpc npc, Long templateId, int quantity) {
+  public PurchaseResult purchaseItemInternal(
+      Long userId, ShopNpc npc, Long templateId, int quantity) {
     if (quantity <= 0) {
       throw new BusinessException(ErrorCode.PARAM_INVALID, "数量必须大于0");
     }
@@ -175,7 +160,8 @@ public class ShopService {
         @CacheEvict(cacheNames = "shop_products", key = "#userId"),
         @CacheEvict(cacheNames = "shop_player_items", key = "'equipment:' + #userId")
       })
-  public EquipmentPurchaseResult purchaseEquipment(Long userId, ShopNpc npc, Long templateId) {
+  public EquipmentPurchaseResult purchaseEquipmentInternal(
+      Long userId, ShopNpc npc, Long templateId) {
     ShopProduct product =
         shopProductRepository
             .findByShopNpcIdAndTemplateId(npc.getId(), templateId)

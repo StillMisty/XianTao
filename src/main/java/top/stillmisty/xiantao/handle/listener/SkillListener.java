@@ -9,6 +9,7 @@ import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.handle.command.SkillCommandHandler;
+import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
 
 @Component
 @RequiredArgsConstructor
@@ -20,6 +21,7 @@ public class SkillListener {
 
   @Listener
   @ContentTrim
+  @RequireAuth
   @Filter("法决装载\\s*{{skill}}")
   public void equipSkill(OneBotMessageEvent event, @FilterValue("skill") String skill) {
     replyHelper.oneBot(event, "法决装载", skill, skillCommandHandler::handleEquipSkill);
@@ -27,6 +29,7 @@ public class SkillListener {
 
   @Listener
   @ContentTrim
+  @RequireAuth
   @Filter("法决卸下\\s*{{skill}}")
   public void unequipSkill(OneBotMessageEvent event, @FilterValue("skill") String skill) {
     replyHelper.oneBot(event, "法决卸下", skill, skillCommandHandler::handleUnequipSkill);
@@ -34,6 +37,7 @@ public class SkillListener {
 
   @Listener
   @ContentTrim
+  @RequireAuth
   @Filter("法决")
   public void skills(OneBotMessageEvent event) {
     replyHelper.oneBot(event, "法决查询", skillCommandHandler::handleSkills);
@@ -43,6 +47,7 @@ public class SkillListener {
 
   @Listener
   @ContentTrim
+  @RequireAuth
   @Filter("法决装载\\s*{{skill}}")
   public void equipSkillQq(QGGroupAtMessageCreateEvent event, @FilterValue("skill") String skill) {
     replyHelper.qq(event, "法决装载", skill, skillCommandHandler::handleEquipSkill);
@@ -50,6 +55,7 @@ public class SkillListener {
 
   @Listener
   @ContentTrim
+  @RequireAuth
   @Filter("法决卸下\\s*{{skill}}")
   public void unequipSkillQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("skill") String skill) {
@@ -58,6 +64,7 @@ public class SkillListener {
 
   @Listener
   @ContentTrim
+  @RequireAuth
   @Filter("法决")
   public void skillsQq(QGGroupAtMessageCreateEvent event) {
     replyHelper.qq(event, "法决查询", skillCommandHandler::handleSkills);

@@ -7,9 +7,9 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.fudi.vo.FudiStatusVO;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
+import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.ai.SpiritChatService;
 import top.stillmisty.xiantao.service.fudi.FudiService;
 
@@ -21,28 +21,28 @@ public class FudiCommandHandler implements CommandGroup {
   private final FudiService fudiService;
   private final SpiritChatService spiritChatService;
 
-  public String handleFudiStatus(PlatformType platform, String openId, TextFormat fmt) {
+  public String handleFudiStatus(TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> fudiService.ensureFudiReady(platform, openId), fmt, vo -> formatFudiStatus(vo, fmt));
+        () -> fudiService.ensureFudiReady(userId), fmt, vo -> formatFudiStatus(vo, fmt));
   }
 
-  public String handleFudiGrid(PlatformType platform, String openId, TextFormat fmt) {
+  public String handleFudiGrid(TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> fudiService.ensureFudiReady(platform, openId), fmt, vo -> formatCellLayout(vo, fmt));
+        () -> fudiService.ensureFudiReady(userId), fmt, vo -> formatCellLayout(vo, fmt));
   }
 
-  public String handleSpiritChat(
-      PlatformType platform, String openId, String userInput, TextFormat fmt) {
-    log.debug("处理地灵自然语言交互 - platform: {}, input: {}", platform, userInput);
+  public String handleSpiritChat(String userInput, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> spiritChatService.chatWithSpirit(platform, openId, userInput),
-        fmt,
-        response -> response);
+        () -> spiritChatService.chatWithSpirit(userId, userInput), fmt, response -> response);
   }
 
-  public String handleTriggerTribulation(PlatformType platform, String openId, TextFormat fmt) {
+  public String handleTriggerTribulation(TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> fudiService.triggerTribulation(platform, openId),
+        () -> fudiService.triggerTribulation(userId),
         fmt,
         vo -> vo.tribulationResult() + "\n劫数：" + vo.tribulationStage() + "  连胜×" + vo.winStreak());
   }

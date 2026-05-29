@@ -8,6 +8,7 @@ import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.handle.command.StatusCommandHandler;
+import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
 
 @Component
 @RequiredArgsConstructor
@@ -20,6 +21,7 @@ public class StatusListener {
 
   @Listener
   @ContentTrim
+  @RequireAuth
   @Filter("状态")
   public void status(OneBotMessageEvent event) {
     replyHelper.oneBot(event, "状态查询", statusCommandHandler::handleStatus);
@@ -29,6 +31,7 @@ public class StatusListener {
 
   @Listener
   @ContentTrim
+  @RequireAuth
   @Filter("状态")
   public void statusQq(QGGroupAtMessageCreateEvent event) {
     replyHelper.qq(event, "状态查询", statusCommandHandler::handleStatus);

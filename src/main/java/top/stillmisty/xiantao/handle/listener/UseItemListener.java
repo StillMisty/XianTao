@@ -9,6 +9,7 @@ import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.handle.command.UseItemCommandHandler;
+import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
 
 @Component
 @RequiredArgsConstructor
@@ -19,6 +20,7 @@ public class UseItemListener {
 
   // === OneBotV11 ===
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("使用\\s*{{itemName}}\\s+{{args}}")
@@ -27,19 +29,21 @@ public class UseItemListener {
       @FilterValue("itemName") String itemName,
       @FilterValue("args") String args) {
     replyHelper.oneBot(
-        event, "使用物品", (p, o, f) -> useItemCommandHandler.handleUseItem(p, o, itemName, args, f));
+        event, "使用物品", fmt -> useItemCommandHandler.handleUseItem(itemName, args, fmt));
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("使用\\s*{{itemName}}")
   public void useItem(OneBotMessageEvent event, @FilterValue("itemName") String itemName) {
     replyHelper.oneBot(
-        event, "使用物品", (p, o, f) -> useItemCommandHandler.handleUseItem(p, o, itemName, null, f));
+        event, "使用物品", fmt -> useItemCommandHandler.handleUseItem(itemName, null, fmt));
   }
 
   // === QQ ===
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("使用\\s*{{itemName}}\\s+{{args}}")
@@ -47,16 +51,15 @@ public class UseItemListener {
       QGGroupAtMessageCreateEvent event,
       @FilterValue("itemName") String itemName,
       @FilterValue("args") String args) {
-    replyHelper.qq(
-        event, "使用物品", (p, o, f) -> useItemCommandHandler.handleUseItem(p, o, itemName, args, f));
+    replyHelper.qq(event, "使用物品", fmt -> useItemCommandHandler.handleUseItem(itemName, args, fmt));
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("使用\\s*{{itemName}}")
   public void useItemQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("itemName") String itemName) {
-    replyHelper.qq(
-        event, "使用物品", (p, o, f) -> useItemCommandHandler.handleUseItem(p, o, itemName, null, f));
+    replyHelper.qq(event, "使用物品", fmt -> useItemCommandHandler.handleUseItem(itemName, null, fmt));
   }
 }

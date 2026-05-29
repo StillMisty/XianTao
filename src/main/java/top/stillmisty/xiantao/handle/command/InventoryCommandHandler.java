@@ -13,9 +13,10 @@ import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.vo.AttributeChange;
 import top.stillmisty.xiantao.domain.item.vo.InventorySummaryVO;
 import top.stillmisty.xiantao.domain.item.vo.ItemEntry;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
+import top.stillmisty.xiantao.service.ServiceResult;
+import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.inventory.DiscardService;
 import top.stillmisty.xiantao.service.inventory.EquipmentService;
 import top.stillmisty.xiantao.service.inventory.InventoryService;
@@ -31,45 +32,49 @@ public class InventoryCommandHandler implements CommandGroup {
 
   // ===================== 统一处理方法 =====================
 
-  public String handleInventory(PlatformType platform, String openId, TextFormat fmt) {
-    log.debug("处理背包查询 - Platform: {}, OpenId: {}", platform, openId);
+  public String handleInventory(TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
+    log.debug("处理背包查询 - UserId: {}", userId);
     return CommandHandlerHelper.safeCall(
-        () -> inventoryService.getInventorySummary(platform, openId),
+        () -> new ServiceResult.Success<>(inventoryService.getInventorySummary(userId)),
         fmt,
         vo -> formatInventorySummary(vo, fmt));
   }
 
-  public String handleSeedInventory(PlatformType platform, String openId, TextFormat fmt) {
+  public String handleSeedInventory(TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> inventoryService.getSeedInventory(platform, openId),
+        () -> new ServiceResult.Success<>(inventoryService.getSeedInventory(userId)),
         fmt,
         entries -> formatItemList("种子", entries, fmt));
   }
 
-  public String handleEquipmentInventory(PlatformType platform, String openId, TextFormat fmt) {
+  public String handleEquipmentInventory(TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> inventoryService.getEquipmentInventory(platform, openId),
+        () -> new ServiceResult.Success<>(inventoryService.getEquipmentInventory(userId)),
         fmt,
         entries -> formatItemList("装备", entries, fmt));
   }
 
-  public String handleEggInventory(PlatformType platform, String openId, TextFormat fmt) {
+  public String handleEggInventory(TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> inventoryService.getEggInventory(platform, openId),
+        () -> new ServiceResult.Success<>(inventoryService.getEggInventory(userId)),
         fmt,
         entries -> formatItemList("兽卵", entries, fmt));
   }
 
-  public String handleInventoryByCategory(
-      PlatformType platform, String openId, String category, TextFormat fmt) {
+  public String handleInventoryByCategory(String category, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     for (var cat : InventoryCategory.values()) {
       if (cat.getChineseName().equals(category)) {
         if (cat == InventoryCategory.EQUIPMENT) {
-          return handleEquipmentInventory(platform, openId, fmt);
+          return handleEquipmentInventory(fmt);
         }
         var type = cat.toItemType();
         if (type != null) {
-          return handleItemTypeInventory(platform, openId, cat.getChineseName(), type, fmt);
+          return handleItemTypeInventory(cat.getChineseName(), type, fmt);
         }
       }
     }
@@ -80,36 +85,37 @@ public class InventoryCommandHandler implements CommandGroup {
     return "未知分类，可选：" + validCategories;
   }
 
-  private String handleItemTypeInventory(
-      PlatformType platform, String openId, String categoryName, ItemType type, TextFormat fmt) {
+  private String handleItemTypeInventory(String categoryName, ItemType type, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> inventoryService.getItemsByType(platform, openId, type),
+        () -> new ServiceResult.Success<>(inventoryService.getItemsByType(userId, type)),
         fmt,
         entries -> formatItemList(categoryName, entries, fmt));
   }
 
-  public String handleEquip(PlatformType platform, String openId, String itemName, TextFormat fmt) {
-    log.debug("处理装备穿戴 - Platform: {}, OpenId: {}, ItemName: {}", platform, openId, itemName);
+  public String handleEquip(String itemName, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
+    log.debug("处理装备穿戴 - UserId: {}, ItemName: {}", userId, itemName);
     return CommandHandlerHelper.safeCall(
-        () -> equipmentService.equipItem(platform, openId, itemName),
+        () -> equipmentService.equipItem(userId, itemName),
         fmt,
         vo -> vo.success() ? formatEquipResult(vo, fmt) : vo.message());
   }
 
-  public String handleUnequip(
-      PlatformType platform, String openId, String slotName, TextFormat fmt) {
-    log.debug("处理装备卸下 - Platform: {}, OpenId: {}, SlotName: {}", platform, openId, slotName);
+  public String handleUnequip(String slotName, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
+    log.debug("处理装备卸下 - UserId: {}, SlotName: {}", userId, slotName);
     return CommandHandlerHelper.safeCall(
-        () -> equipmentService.unequipItem(platform, openId, slotName),
+        () -> equipmentService.unequipItem(userId, slotName),
         fmt,
         vo -> vo.isSuccess() ? formatUnequipResult(vo, fmt) : vo.getMessage());
   }
 
-  public String handleDiscard(
-      PlatformType platform, String openId, String itemName, TextFormat fmt) {
-    log.debug("处理丢弃 - Platform: {}, OpenId: {}, ItemName: {}", platform, openId, itemName);
+  public String handleDiscard(String itemName, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
+    log.debug("处理丢弃 - UserId: {}, ItemName: {}", userId, itemName);
     return CommandHandlerHelper.safeCall(
-        () -> discardService.discardItem(platform, openId, itemName), fmt, msg -> msg);
+        () -> discardService.discardItem(userId, itemName), fmt, msg -> msg);
   }
 
   // ===================== 格式化方法 =====================

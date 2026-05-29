@@ -2,10 +2,10 @@ package top.stillmisty.xiantao.handle.command;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.service.GmService;
+import top.stillmisty.xiantao.service.UserContext;
 
 @Component
 @RequiredArgsConstructor
@@ -13,17 +13,13 @@ public class GmCommandHandler {
 
   private final GmService gmService;
 
-  public String handleGmHelp(PlatformType platform, String openId, TextFormat fmt) {
-    return CommandHandlerHelper.safeCall(
-        () -> gmService.gmHelp(platform, openId), fmt, text -> text);
+  public String handleGmHelp(TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
+    return CommandHandlerHelper.safeCall(() -> gmService.gmHelp(userId), fmt, text -> text);
   }
 
-  public String handleGiveSpiritStones(
-      PlatformType platform,
-      String openId,
-      String targetNickname,
-      String amountStr,
-      TextFormat fmt) {
+  public String handleGiveSpiritStones(String targetNickname, String amountStr, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     long amount;
     try {
       amount = Long.parseLong(amountStr);
@@ -31,17 +27,11 @@ public class GmCommandHandler {
       return "❌ 数量格式错误：" + amountStr;
     }
     return CommandHandlerHelper.safeCall(
-        () -> gmService.giveSpiritStones(platform, openId, targetNickname, amount),
-        fmt,
-        text -> text);
+        () -> gmService.giveSpiritStones(userId, targetNickname, amount), fmt, text -> text);
   }
 
-  public String handleGiveExp(
-      PlatformType platform,
-      String openId,
-      String targetNickname,
-      String amountStr,
-      TextFormat fmt) {
+  public String handleGiveExp(String targetNickname, String amountStr, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     long amount;
     try {
       amount = Long.parseLong(amountStr);
@@ -49,27 +39,23 @@ public class GmCommandHandler {
       return "❌ 数量格式错误：" + amountStr;
     }
     return CommandHandlerHelper.safeCall(
-        () -> gmService.giveExp(platform, openId, targetNickname, amount), fmt, text -> text);
+        () -> gmService.giveExp(userId, targetNickname, amount), fmt, text -> text);
   }
 
-  public String handleHealUser(
-      PlatformType platform, String openId, String targetNickname, TextFormat fmt) {
+  public String handleHealUser(String targetNickname, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> gmService.healUser(platform, openId, targetNickname), fmt, text -> text);
+        () -> gmService.healUser(userId, targetNickname), fmt, text -> text);
   }
 
-  public String handleReviveUser(
-      PlatformType platform, String openId, String targetNickname, TextFormat fmt) {
+  public String handleReviveUser(String targetNickname, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> gmService.reviveUser(platform, openId, targetNickname), fmt, text -> text);
+        () -> gmService.reviveUser(userId, targetNickname), fmt, text -> text);
   }
 
-  public String handleSetLevel(
-      PlatformType platform,
-      String openId,
-      String targetNickname,
-      String levelStr,
-      TextFormat fmt) {
+  public String handleSetLevel(String targetNickname, String levelStr, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     int level;
     try {
       level = Integer.parseInt(levelStr);
@@ -77,28 +63,18 @@ public class GmCommandHandler {
       return "❌ 等级格式错误：" + levelStr;
     }
     return CommandHandlerHelper.safeCall(
-        () -> gmService.setLevel(platform, openId, targetNickname, level), fmt, text -> text);
+        () -> gmService.setLevel(userId, targetNickname, level), fmt, text -> text);
   }
 
-  public String handleSetLocation(
-      PlatformType platform,
-      String openId,
-      String targetNickname,
-      String locationName,
-      TextFormat fmt) {
+  public String handleSetLocation(String targetNickname, String locationName, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> gmService.setLocation(platform, openId, targetNickname, locationName),
-        fmt,
-        text -> text);
+        () -> gmService.setLocation(userId, targetNickname, locationName), fmt, text -> text);
   }
 
   public String handleGiveItem(
-      PlatformType platform,
-      String openId,
-      String targetNickname,
-      String itemName,
-      String quantityStr,
-      TextFormat fmt) {
+      String targetNickname, String itemName, String quantityStr, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     int quantity = 1;
     if (quantityStr != null && !quantityStr.isBlank()) {
       try {
@@ -109,7 +85,7 @@ public class GmCommandHandler {
     }
     int finalQuantity = quantity;
     return CommandHandlerHelper.safeCall(
-        () -> gmService.giveItem(platform, openId, targetNickname, itemName, finalQuantity),
+        () -> gmService.giveItem(userId, targetNickname, itemName, finalQuantity),
         fmt,
         text -> text);
   }

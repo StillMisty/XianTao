@@ -12,6 +12,7 @@ import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.handle.command.ForgingCommandHandler;
+import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
 import top.stillmisty.xiantao.util.MaterialParser;
 
 @Slf4j
@@ -23,6 +24,7 @@ public class ForgingListener {
 
   // === OneBotV11 ===
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("锻造列表")
@@ -30,6 +32,7 @@ public class ForgingListener {
     replyHelper.oneBot(event, forgingCommandHandler::handleForgingRecipeList);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("锻造\\s*{{input}}")
@@ -38,12 +41,13 @@ public class ForgingListener {
     if (MaterialParser.isMaterialInput(parts[0])) {
       List<String> materialInputs = Arrays.asList(parts);
       replyHelper.oneBot(
-          event, (p, o, f) -> forgingCommandHandler.handleForgeManual(p, o, materialInputs, f));
+          event, fmt -> forgingCommandHandler.handleForgeManual(materialInputs, fmt));
     } else {
-      replyHelper.oneBot(event, (p, o, f) -> forgingCommandHandler.handleForgeAuto(p, o, input, f));
+      replyHelper.oneBot(event, fmt -> forgingCommandHandler.handleForgeAuto(input, fmt));
     }
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("强化\\s*{{input}}")
@@ -54,16 +58,15 @@ public class ForgingListener {
       List<String> materialInputs = Arrays.asList(Arrays.copyOfRange(parts, 1, parts.length));
       replyHelper.oneBot(
           event,
-          (p, o, f) ->
-              forgingCommandHandler.handleEnhanceManual(p, o, equipmentInput, materialInputs, f));
+          fmt -> forgingCommandHandler.handleEnhanceManual(equipmentInput, materialInputs, fmt));
     } else {
-      replyHelper.oneBot(
-          event, (p, o, f) -> forgingCommandHandler.handleEnhanceAuto(p, o, input, f));
+      replyHelper.oneBot(event, fmt -> forgingCommandHandler.handleEnhanceAuto(input, fmt));
     }
   }
 
   // === QQ ===
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("锻造列表")
@@ -71,6 +74,7 @@ public class ForgingListener {
     replyHelper.qq(event, forgingCommandHandler::handleForgingRecipeList);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("锻造\\s*{{input}}")
@@ -78,13 +82,13 @@ public class ForgingListener {
     String[] parts = input.split("\\s+");
     if (MaterialParser.isMaterialInput(parts[0])) {
       List<String> materialInputs = Arrays.asList(parts);
-      replyHelper.qq(
-          event, (p, o, f) -> forgingCommandHandler.handleForgeManual(p, o, materialInputs, f));
+      replyHelper.qq(event, fmt -> forgingCommandHandler.handleForgeManual(materialInputs, fmt));
     } else {
-      replyHelper.qq(event, (p, o, f) -> forgingCommandHandler.handleForgeAuto(p, o, input, f));
+      replyHelper.qq(event, fmt -> forgingCommandHandler.handleForgeAuto(input, fmt));
     }
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("强化\\s*{{input}}")
@@ -95,10 +99,9 @@ public class ForgingListener {
       List<String> materialInputs = Arrays.asList(Arrays.copyOfRange(parts, 1, parts.length));
       replyHelper.qq(
           event,
-          (p, o, f) ->
-              forgingCommandHandler.handleEnhanceManual(p, o, equipmentInput, materialInputs, f));
+          fmt -> forgingCommandHandler.handleEnhanceManual(equipmentInput, materialInputs, fmt));
     } else {
-      replyHelper.qq(event, (p, o, f) -> forgingCommandHandler.handleEnhanceAuto(p, o, input, f));
+      replyHelper.qq(event, fmt -> forgingCommandHandler.handleEnhanceAuto(input, fmt));
     }
   }
 }

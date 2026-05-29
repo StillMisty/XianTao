@@ -10,6 +10,7 @@ import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.handle.command.MasterApprenticeCommandHandler;
+import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
 
 @Slf4j
 @Component
@@ -21,6 +22,7 @@ public class MasterApprenticeListener {
 
   // === OneBotV11 ===
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("拜师\\s*{{targetNickname,\\S+}}")
@@ -29,6 +31,7 @@ public class MasterApprenticeListener {
     replyHelper.oneBot(event, targetNickname, masterApprenticeCommandHandler::handleRequestMentor);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("收徒\\s*{{targetNickname,\\S+}}")
@@ -38,6 +41,7 @@ public class MasterApprenticeListener {
         event, targetNickname, masterApprenticeCommandHandler::handleRequestApprentice);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("师徒")
@@ -45,6 +49,7 @@ public class MasterApprenticeListener {
     replyHelper.oneBot(event, masterApprenticeCommandHandler::handleStatus);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("逐出师门\\s*{{targetNickname,\\S+}}")
@@ -53,6 +58,7 @@ public class MasterApprenticeListener {
     replyHelper.oneBot(event, targetNickname, masterApprenticeCommandHandler::handleDismiss);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("叛师")
@@ -62,6 +68,7 @@ public class MasterApprenticeListener {
 
   // === QQ ===
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("拜师\\s*{{targetNickname,\\S+}}")
@@ -70,6 +77,7 @@ public class MasterApprenticeListener {
     replyHelper.qq(event, targetNickname, masterApprenticeCommandHandler::handleRequestMentor);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("收徒\\s*{{targetNickname,\\S+}}")
@@ -78,6 +86,7 @@ public class MasterApprenticeListener {
     replyHelper.qq(event, targetNickname, masterApprenticeCommandHandler::handleRequestApprentice);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("师徒")
@@ -85,6 +94,7 @@ public class MasterApprenticeListener {
     replyHelper.qq(event, masterApprenticeCommandHandler::handleStatus);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("逐出师门\\s*{{targetNickname,\\S+}}")
@@ -93,6 +103,7 @@ public class MasterApprenticeListener {
     replyHelper.qq(event, targetNickname, masterApprenticeCommandHandler::handleDismiss);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("叛师")

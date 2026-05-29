@@ -5,9 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
+import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.masterapprentice.MasterApprenticeService;
 
 @Component
@@ -16,44 +16,46 @@ public class MasterApprenticeCommandHandler implements CommandGroup {
 
   private final MasterApprenticeService masterApprenticeService;
 
-  public String handleRequestMentor(
-      PlatformType platform, String openId, String targetNickname, TextFormat fmt) {
+  public String handleRequestMentor(String targetNickname, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> masterApprenticeService.requestMentor(platform, openId, targetNickname),
+        () -> masterApprenticeService.requestMentor(userId, targetNickname),
         fmt,
         text -> text,
         msg -> "操作失败: " + msg);
   }
 
-  public String handleRequestApprentice(
-      PlatformType platform, String openId, String targetNickname, TextFormat fmt) {
+  public String handleRequestApprentice(String targetNickname, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> masterApprenticeService.requestApprentice(platform, openId, targetNickname),
+        () -> masterApprenticeService.requestApprentice(userId, targetNickname),
         fmt,
         text -> text,
         msg -> "操作失败: " + msg);
   }
 
-  public String handleStatus(PlatformType platform, String openId, TextFormat fmt) {
+  public String handleStatus(TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> masterApprenticeService.getStatus(platform, openId),
+        () -> masterApprenticeService.getStatus(userId),
         fmt,
         info -> formatStatus(info, fmt),
         msg -> "操作失败: " + msg);
   }
 
-  public String handleDismiss(
-      PlatformType platform, String openId, String targetNickname, TextFormat fmt) {
+  public String handleDismiss(String targetNickname, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> masterApprenticeService.dismissApprentice(platform, openId, targetNickname),
+        () -> masterApprenticeService.dismissApprentice(userId, targetNickname),
         fmt,
         text -> text,
         msg -> "操作失败: " + msg);
   }
 
-  public String handleRenounce(PlatformType platform, String openId, TextFormat fmt) {
+  public String handleRenounce(TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> masterApprenticeService.renounceMaster(platform, openId),
+        () -> masterApprenticeService.renounceMaster(userId),
         fmt,
         text -> text,
         msg -> "操作失败: " + msg);

@@ -5,9 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
+import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.ai.ShopChatService;
 
 @Component
@@ -38,18 +38,17 @@ public class ShopCommandHandler implements CommandGroup {
         new CommandEntry("回收 「物品名」", "快速回收物品（直接估价出售）", "回收 玄铁剑"));
   }
 
-  public String handleShopkeeper(
-      PlatformType platform, String openId, String userInput, TextFormat fmt) {
+  public String handleShopkeeper(String userInput, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> shopChatService.chatWithShopkeeper(platform, openId, userInput),
+        () -> shopChatService.chatWithShopkeeper(userId, userInput),
         fmt,
         msg -> msg,
         msg -> fmt.bold("掌柜") + " " + msg);
   }
 
-  public String handleQuickSell(
-      PlatformType platform, String openId, String itemName, TextFormat fmt) {
+  public String handleQuickSell(String itemName, TextFormat fmt) {
     String sellPrompt = "我想卖掉这个：" + itemName + "，按估价直接成交";
-    return handleShopkeeper(platform, openId, sellPrompt, fmt);
+    return handleShopkeeper(sellPrompt, fmt);
   }
 }

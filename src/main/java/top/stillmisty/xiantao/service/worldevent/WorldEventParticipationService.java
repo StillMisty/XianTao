@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.event.entity.GameEvent;
 import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.user.entity.User;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.worldevent.entity.WorldEvent;
 import top.stillmisty.xiantao.domain.worldevent.enums.WorldEventCategory;
 import top.stillmisty.xiantao.infrastructure.repository.WorldEventRepository;
@@ -18,8 +17,6 @@ import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.GameEventService;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.UserContext;
-import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
 @Slf4j
@@ -32,14 +29,12 @@ public class WorldEventParticipationService {
   private final GameEventService gameEventService;
   private final UserStateService userStateService;
 
-  @Authenticated
-  public ServiceResult<String> participate(PlatformType platform, String openId, Long eventId) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(participate(userId, eventId));
+  public ServiceResult<String> participate(Long userId, Long eventId) {
+    return new ServiceResult.Success<>(participateInternal(userId, eventId));
   }
 
   @Transactional
-  public String participate(Long userId, Long eventId) {
+  public String participateInternal(Long userId, Long eventId) {
     WorldEvent event =
         worldEventRepository
             .findById(eventId)

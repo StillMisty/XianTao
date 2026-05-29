@@ -7,12 +7,12 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.vo.BreakthroughResult;
 import top.stillmisty.xiantao.domain.user.vo.DaoProtectionQueryResult;
 import top.stillmisty.xiantao.domain.user.vo.DaoProtectionResult;
 import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
+import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.cultivation.CultivationService;
 
 @Slf4j
@@ -22,36 +22,38 @@ public class CultivationCommandHandler implements CommandGroup {
 
   private final CultivationService cultivationService;
 
-  public String handleBreakthrough(PlatformType platform, String openId, TextFormat fmt) {
-    log.debug("处理突破 - Platform: {}, OpenId: {}", platform, openId);
+  public String handleBreakthrough(TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
+    log.debug("处理突破 - UserId: {}", userId);
     return CommandHandlerHelper.safeCall(
-        () -> cultivationService.attemptBreakthrough(platform, openId),
+        () -> cultivationService.attemptBreakthrough(userId),
         fmt,
         vo -> formatBreakthroughResult(vo, fmt));
   }
 
-  public String handleEstablishProtection(
-      PlatformType platform, String openId, String protegeNickname, TextFormat fmt) {
-    log.debug("处理护道 - Platform: {}, OpenId: {}, Protege: {}", platform, openId, protegeNickname);
+  public String handleEstablishProtection(String protegeNickname, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
+    log.debug("处理护道 - UserId: {}, Protege: {}", userId, protegeNickname);
     return CommandHandlerHelper.safeCall(
-        () -> cultivationService.establishProtection(platform, openId, protegeNickname),
+        () -> cultivationService.establishProtection(userId, protegeNickname),
         fmt,
         vo -> vo.success() ? formatProtectionResult(vo, fmt) : vo.message());
   }
 
-  public String handleRemoveProtection(
-      PlatformType platform, String openId, String protegeNickname, TextFormat fmt) {
-    log.debug("处理护道解除 - Platform: {}, OpenId: {}, Protege: {}", platform, openId, protegeNickname);
+  public String handleRemoveProtection(String protegeNickname, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
+    log.debug("处理护道解除 - UserId: {}, Protege: {}", userId, protegeNickname);
     return CommandHandlerHelper.safeCall(
-        () -> cultivationService.removeProtection(platform, openId, protegeNickname),
+        () -> cultivationService.removeProtection(userId, protegeNickname),
         fmt,
         vo -> vo.message());
   }
 
-  public String handleQueryProtection(PlatformType platform, String openId, TextFormat fmt) {
-    log.debug("处理护道查询 - Platform: {}, OpenId: {}", platform, openId);
+  public String handleQueryProtection(TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
+    log.debug("处理护道查询 - UserId: {}", userId);
     return CommandHandlerHelper.safeCall(
-        () -> cultivationService.queryProtectionInfo(platform, openId),
+        () -> cultivationService.queryProtectionInfo(userId),
         fmt,
         vo -> vo.isSuccess() ? formatProtectionQueryResult(vo, fmt) : vo.getMessage());
   }

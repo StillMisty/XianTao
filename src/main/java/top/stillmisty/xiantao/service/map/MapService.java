@@ -16,15 +16,12 @@ import top.stillmisty.xiantao.domain.map.entity.NeighborEntry;
 import top.stillmisty.xiantao.domain.map.vo.MapInfoVO;
 import top.stillmisty.xiantao.domain.monster.entity.MonsterTemplate;
 import top.stillmisty.xiantao.domain.user.entity.User;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.infrastructure.repository.ActivityEventRepository;
 import top.stillmisty.xiantao.infrastructure.repository.MapNodeRepository;
 import top.stillmisty.xiantao.infrastructure.repository.MonsterTemplateRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.UserContext;
-import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
 /** 地图服务 */
@@ -40,24 +37,21 @@ public class MapService {
 
   @Lazy @Autowired private MapService self;
 
-  // ===================== 公开 API（含认证） =====================
+  // ===================== 公开 API =====================
 
-  @Authenticated
-  public ServiceResult<List<MapInfoVO>> getAllMaps(PlatformType platform, String openId) {
-    return new ServiceResult.Success<>(self.getAllMaps());
+  public ServiceResult<List<MapInfoVO>> getAllMaps() {
+    return new ServiceResult.Success<>(loadAllMaps());
   }
 
-  @Authenticated
-  public ServiceResult<MapInfoVO> getCurrentMapInfo(PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(self.getCurrentMapInfo(userId));
+  public ServiceResult<MapInfoVO> getCurrentMapInfo(Long userId) {
+    return new ServiceResult.Success<>(loadCurrentMapInfo(userId));
   }
 
-  // ===================== 内部 API（需预先完成认证） =====================
+  // ===================== 内部 API =====================
 
   /** 获取所有地图 */
   @Cacheable(cacheNames = "map_data", key = "'all'")
-  public List<MapInfoVO> getAllMaps() {
+  public List<MapInfoVO> loadAllMaps() {
     var maps = mapNodeRepository.findAll();
     List<Long> mapIds = maps.stream().map(MapNode::getId).toList();
     Map<Long, List<ActivityEvent>> combatEventsByMap =
@@ -72,7 +66,7 @@ public class MapService {
   }
 
   /** 获取当前所在地图详情 */
-  public MapInfoVO getCurrentMapInfo(Long userId) {
+  public MapInfoVO loadCurrentMapInfo(Long userId) {
     User user = userStateService.loadUser(userId);
     MapNode mapNode =
         mapNodeRepository

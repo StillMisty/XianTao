@@ -18,14 +18,10 @@ import top.stillmisty.xiantao.domain.skill.entity.Skill;
 import top.stillmisty.xiantao.domain.skill.vo.SkillSlotResult;
 import top.stillmisty.xiantao.domain.skill.vo.SkillVO;
 import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.PlayerSkillRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SkillRepository;
 import top.stillmisty.xiantao.infrastructure.repository.StackableItemRepository;
-import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.UserContext;
-import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
@@ -40,44 +36,6 @@ public class SkillService {
   private final StackableItemRepository stackableItemRepository;
   private final StackableItemService stackableItemService;
   private final ItemTemplateRepository itemTemplateRepository;
-
-  // ===================== 公开 API（含认证） =====================
-
-  @Authenticated
-  @Transactional
-  public ServiceResult<SkillSlotResult> learnFromJade(
-      PlatformType platform, String openId, String jadeInput) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(learnFromJade(userId, jadeInput));
-  }
-
-  @Authenticated
-  public ServiceResult<List<SkillVO>> getLearnedSkills(PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(getLearnedSkills(userId));
-  }
-
-  @Authenticated
-  public ServiceResult<List<SkillVO>> getEquippedSkills(PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(getEquippedSkills(userId));
-  }
-
-  @Authenticated
-  @Transactional
-  public ServiceResult<SkillSlotResult> equipSkill(
-      PlatformType platform, String openId, String skillInput) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(equipSkill(userId, skillInput));
-  }
-
-  @Authenticated
-  @Transactional
-  public ServiceResult<SkillSlotResult> unequipSkill(
-      PlatformType platform, String openId, String skillInput) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(unequipSkill(userId, skillInput));
-  }
 
   // ===================== 内部 API（需预先完成认证） =====================
 

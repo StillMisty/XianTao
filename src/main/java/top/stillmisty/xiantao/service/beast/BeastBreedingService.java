@@ -25,7 +25,6 @@ import top.stillmisty.xiantao.domain.fudi.enums.CellType;
 import top.stillmisty.xiantao.domain.fudi.vo.PenCellVO;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.infrastructure.repository.BeastRepository;
 import top.stillmisty.xiantao.infrastructure.repository.BeastTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.BreedingRecipeRepository;
@@ -37,8 +36,6 @@ import top.stillmisty.xiantao.infrastructure.repository.StackableItemRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.SpiritStoneService;
-import top.stillmisty.xiantao.service.UserContext;
-import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.fudi.FudiHelper;
 import top.stillmisty.xiantao.service.inventory.ItemResolver;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
@@ -73,44 +70,32 @@ public class BeastBreedingService {
   private static final java.util.Map<String, Integer> ESSENCE_QUALITY_BONUS =
       java.util.Map.of("MORTAL", 0, "SPIRIT", 2, "IMMORTAL", 5, "SAINT", 10, "DIVINE", 20);
 
-  // ===================== 公开 API（含认证） =====================
+  // ===================== 公开 API =====================
 
-  @Authenticated
   @Transactional
-  public ServiceResult<PenCellVO> hatchBeast(
-      PlatformType platform, String openId, String position, String eggName) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(hatchBeast(userId, position, eggName));
+  public ServiceResult<PenCellVO> hatchBeast(Long userId, String position, String eggName) {
+    return new ServiceResult.Success<>(hatchBeastInternal(userId, position, eggName));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<PenCellVO> hatchBeastByInput(
-      PlatformType platform, String openId, String position, String input) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(hatchBeastByInput(userId, position, input));
+  public ServiceResult<PenCellVO> hatchBeastByInput(Long userId, String position, String input) {
+    return new ServiceResult.Success<>(hatchBeastByInputInternal(userId, position, input));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<ReleaseBeastVO> releaseBeast(
-      PlatformType platform, String openId, String position) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(releaseBeast(userId, position));
+  public ServiceResult<ReleaseBeastVO> releaseBeast(Long userId, String position) {
+    return new ServiceResult.Success<>(releaseBeastInternal(userId, position));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<PenCellVO> evolveBeast(
-      PlatformType platform, String openId, String position) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(evolveBeast(userId, position));
+  public ServiceResult<PenCellVO> evolveBeast(Long userId, String position) {
+    return new ServiceResult.Success<>(evolveBeastInternal(userId, position));
   }
 
   // ===================== 内部 API =====================
 
   @Transactional
-  public PenCellVO hatchBeast(Long userId, String position, String eggName) {
+  public PenCellVO hatchBeastInternal(Long userId, String position, String eggName) {
     Integer cellId = fudiHelper.parseCellId(position);
 
     ItemTemplate eggTemplate =
@@ -129,7 +114,7 @@ public class BeastBreedingService {
   }
 
   @Transactional
-  public PenCellVO hatchBeastByInput(Long userId, String position, String input) {
+  public PenCellVO hatchBeastByInputInternal(Long userId, String position, String input) {
     Integer cellId = fudiHelper.parseCellId(position);
     var result = itemResolver.resolveEgg(userId, input);
     return switch (result) {
@@ -272,7 +257,7 @@ public class BeastBreedingService {
   }
 
   @Transactional
-  public ReleaseBeastVO releaseBeast(Long userId, String position) {
+  public ReleaseBeastVO releaseBeastInternal(Long userId, String position) {
     var pcb = beastDisplayHelper.findPenCell(userId, position, false, false);
     var cell = pcb.cell();
     var beast = pcb.beast();
@@ -313,7 +298,7 @@ public class BeastBreedingService {
   }
 
   @Transactional
-  public PenCellVO evolveBeast(Long userId, String position) {
+  public PenCellVO evolveBeastInternal(Long userId, String position) {
     var pcb = beastDisplayHelper.findPenCell(userId, position, true, false);
     var fudi = pcb.fudi();
     var cell = pcb.cell();

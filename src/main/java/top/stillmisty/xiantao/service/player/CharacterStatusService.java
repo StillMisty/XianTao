@@ -18,15 +18,12 @@ import top.stillmisty.xiantao.domain.shared.SharedKernel;
 import top.stillmisty.xiantao.domain.user.entity.DaoProtection;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.repository.DaoProtectionRepository;
 import top.stillmisty.xiantao.infrastructure.repository.EquipmentRepository;
 import top.stillmisty.xiantao.infrastructure.repository.MapNodeRepository;
 import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.UserContext;
-import top.stillmisty.xiantao.service.annotation.Authenticated;
 
 /** 角色状态服务 负责：角色详情查询（HP、属性、装备、突破进度、护道信息） */
 @Slf4j
@@ -42,17 +39,12 @@ public class CharacterStatusService {
   private final DaoProtectionRepository daoProtectionRepository;
   private final MapNodeRepository mapNodeRepository;
 
-  @Authenticated
-  public ServiceResult<CharacterStatusResult> getCharacterStatus(
-      PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(getCharacterStatus(userId));
+  public ServiceResult<CharacterStatusResult> getCharacterStatus(Long userId) {
+    return new ServiceResult.Success<>(getCharacterStatusInternal(userId));
   }
 
-  // ===================== 内部 API（需预先完成认证） =====================
-
   /** 查看角色状态（状态） 包含：HP、属性、装扮（已穿戴装备）、境界进度（等级修为）、当前状态 */
-  public CharacterStatusResult getCharacterStatus(Long userId) {
+  public CharacterStatusResult getCharacterStatusInternal(Long userId) {
     User user = userStateService.loadUser(userId);
 
     EquipData equipData = buildEquipData(userId);

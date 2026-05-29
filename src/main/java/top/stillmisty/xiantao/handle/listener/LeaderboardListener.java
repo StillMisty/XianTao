@@ -8,6 +8,7 @@ import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.handle.command.LeaderboardCommandHandler;
+import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
 
 @Component
 @RequiredArgsConstructor
@@ -19,6 +20,7 @@ public class LeaderboardListener {
 
   @Listener
   @ContentTrim
+  @RequireAuth
   @Filter("排行榜")
   public void levelLeaderboard(OneBotMessageEvent event) {
     replyHelper.oneBot(event, "排行榜", leaderboardCommandHandler::handleLevelLeaderboard);
@@ -26,6 +28,7 @@ public class LeaderboardListener {
 
   @Listener
   @ContentTrim
+  @RequireAuth
   @Filter("排行榜 灵石")
   public void spiritStoneLeaderboard(OneBotMessageEvent event) {
     replyHelper.oneBot(event, "灵石排行榜", leaderboardCommandHandler::handleSpiritStoneLeaderboard);
@@ -35,6 +38,7 @@ public class LeaderboardListener {
 
   @Listener
   @ContentTrim
+  @RequireAuth
   @Filter("排行榜")
   public void levelLeaderboardQq(QGGroupAtMessageCreateEvent event) {
     replyHelper.qq(event, "排行榜", leaderboardCommandHandler::handleLevelLeaderboard);
@@ -42,6 +46,7 @@ public class LeaderboardListener {
 
   @Listener
   @ContentTrim
+  @RequireAuth
   @Filter("排行榜 灵石")
   public void spiritStoneLeaderboardQq(QGGroupAtMessageCreateEvent event) {
     replyHelper.qq(event, "灵石排行榜", leaderboardCommandHandler::handleSpiritStoneLeaderboard);

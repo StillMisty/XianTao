@@ -12,9 +12,9 @@ import top.stillmisty.xiantao.domain.pill.enums.ElementType;
 import top.stillmisty.xiantao.domain.pill.enums.PillQuality;
 import top.stillmisty.xiantao.domain.pill.vo.PillRecipeVO;
 import top.stillmisty.xiantao.domain.pill.vo.PillRefiningResultVO;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
+import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.pill.PillRecipeService;
 import top.stillmisty.xiantao.service.pill.PillRefiningService;
 
@@ -29,37 +29,34 @@ public class PillCommandHandler implements CommandGroup {
 
   // ===================== 统一处理方法（含 TextFormat 参数） =====================
 
-  public String handleRecipeList(PlatformType platform, String openId, TextFormat fmt) {
-    log.debug("处理丹方列表查询 - Platform: {}, OpenId: {}", platform, openId);
+  public String handleRecipeList(TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> pillRecipeService.getLearnedRecipes(platform, openId),
+        () -> pillRecipeService.getLearnedRecipes(userId),
         fmt,
         recipes -> formatRecipeList(recipes, fmt));
   }
 
-  public String handleRecipeDetail(
-      PlatformType platform, String openId, String recipeName, TextFormat fmt) {
-    log.debug("处理丹方详情查询 - Platform: {}, OpenId: {}, RecipeName: {}", platform, openId, recipeName);
+  public String handleRecipeDetail(String recipeName, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> pillRecipeService.getRecipeDetail(platform, openId, recipeName),
+        () -> pillRecipeService.getRecipeDetail(userId, recipeName),
         fmt,
         recipe -> recipe != null ? formatRecipeDetail(recipe, fmt) : "未找到丹方：" + recipeName);
   }
 
-  public String handleRefineAuto(
-      PlatformType platform, String openId, String recipeName, TextFormat fmt) {
-    log.debug("处理自动炼丹 - Platform: {}, OpenId: {}, RecipeName: {}", platform, openId, recipeName);
+  public String handleRefineAuto(String recipeName, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> pillRefiningService.refinePillAuto(platform, openId, recipeName),
+        () -> pillRefiningService.refinePillAuto(userId, recipeName),
         fmt,
         result -> formatRefiningResult(result, fmt));
   }
 
-  public String handleRefineManual(
-      PlatformType platform, String openId, List<String> herbInputs, TextFormat fmt) {
-    log.debug("处理手动炼丹 - Platform: {}, OpenId: {}, HerbInputs: {}", platform, openId, herbInputs);
+  public String handleRefineManual(List<String> herbInputs, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> pillRefiningService.refinePillManual(platform, openId, herbInputs),
+        () -> pillRefiningService.refinePillManual(userId, herbInputs),
         fmt,
         result -> formatRefiningResult(result, fmt));
   }

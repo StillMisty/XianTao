@@ -14,15 +14,12 @@ import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.pill.entity.PlayerPillRecipe;
 import top.stillmisty.xiantao.domain.pill.vo.PillRecipeVO;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.PlayerPillRecipeRepository;
 import top.stillmisty.xiantao.infrastructure.repository.StackableItemRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.UserContext;
-import top.stillmisty.xiantao.service.annotation.Authenticated;
 
 /** 丹方服务 处理：丹方学习、已学列表、详情查询 */
 @Slf4j
@@ -34,32 +31,24 @@ public class PillRecipeService {
   private final StackableItemRepository stackableItemRepository;
   private final PlayerPillRecipeRepository playerPillRecipeRepository;
 
-  // ===================== 公开 API（含认证） =====================
+  // ===================== 公开 API =====================
 
-  @Authenticated
-  public ServiceResult<List<PillRecipeVO>> getLearnedRecipes(PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(getLearnedRecipes(userId));
+  public ServiceResult<List<PillRecipeVO>> getLearnedRecipes(Long userId) {
+    return new ServiceResult.Success<>(getLearnedRecipesInternal(userId));
   }
 
-  @Authenticated
-  public ServiceResult<PillRecipeVO> getRecipeDetail(
-      PlatformType platform, String openId, String recipeName) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(getRecipeDetail(userId, recipeName));
+  public ServiceResult<PillRecipeVO> getRecipeDetail(Long userId, String recipeName) {
+    return new ServiceResult.Success<>(getRecipeDetailInternal(userId, recipeName));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<PillRecipeVO> learnRecipe(
-      PlatformType platform, String openId, String recipeName) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(learnRecipe(userId, recipeName));
+  public ServiceResult<PillRecipeVO> learnRecipe(Long userId, String recipeName) {
+    return new ServiceResult.Success<>(learnRecipeInternal(userId, recipeName));
   }
 
   // ===================== 内部 API =====================
 
-  public List<PillRecipeVO> getLearnedRecipes(Long userId) {
+  public List<PillRecipeVO> getLearnedRecipesInternal(Long userId) {
     List<PlayerPillRecipe> recipes = playerPillRecipeRepository.findByUserId(userId);
     Map<Long, ItemTemplate> templateMap = loadPillTemplates(recipes);
     return recipes.stream()
@@ -74,7 +63,7 @@ public class PillRecipeService {
         .toList();
   }
 
-  public PillRecipeVO getRecipeDetail(Long userId, String recipeName) {
+  public PillRecipeVO getRecipeDetailInternal(Long userId, String recipeName) {
     List<PlayerPillRecipe> recipes = playerPillRecipeRepository.findByUserId(userId);
     Map<Long, ItemTemplate> templateMap = loadPillTemplates(recipes);
     for (PlayerPillRecipe recipe : recipes) {
@@ -90,7 +79,7 @@ public class PillRecipeService {
   }
 
   @Transactional
-  public PillRecipeVO learnRecipe(Long userId, String recipeName) {
+  public PillRecipeVO learnRecipeInternal(Long userId, String recipeName) {
     List<StackableItem> items = stackableItemRepository.findByUserId(userId);
     StackableItem recipeItem = null;
     for (StackableItem item : items) {

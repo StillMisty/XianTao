@@ -6,9 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
+import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.inventory.ItemUseService;
 
 /** 统一使用物品命令处理器 支持：丹药、法决玉简、丹方卷轴 */
@@ -19,16 +19,11 @@ public class UseItemCommandHandler implements CommandGroup {
 
   private final ItemUseService itemUseService;
 
-  public String handleUseItem(
-      PlatformType platform, String openId, String itemName, String args, TextFormat fmt) {
-    log.debug(
-        "处理使用物品 - Platform: {}, OpenId: {}, ItemName: {}, Args: {}",
-        platform,
-        openId,
-        itemName,
-        args);
+  public String handleUseItem(String itemName, String args, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
+    log.debug("处理使用物品 - UserId: {}, ItemName: {}, Args: {}", userId, itemName, args);
     return CommandHandlerHelper.safeCall(
-        () -> itemUseService.useItem(platform, openId, itemName, args), fmt, result -> result);
+        () -> itemUseService.useItem(userId, itemName, args), fmt, result -> result);
   }
 
   @Override

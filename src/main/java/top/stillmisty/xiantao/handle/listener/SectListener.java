@@ -10,6 +10,7 @@ import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.handle.command.SectCommandHandler;
+import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
 
 @Slf4j
 @Component
@@ -21,6 +22,7 @@ public class SectListener {
 
   // === OneBotV11 ===
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("宗门")
@@ -28,6 +30,7 @@ public class SectListener {
     replyHelper.oneBot(event, sectCommandHandler::handleOverview);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("宗门创建\\s*{{name,\\S+}}\\s+{{ethosDesc,.+?}}")
@@ -35,17 +38,18 @@ public class SectListener {
       OneBotMessageEvent event,
       @FilterValue("name") String name,
       @FilterValue("ethosDesc") String ethosDesc) {
-    replyHelper.oneBot(
-        event, (p, o, f) -> sectCommandHandler.handleCreate(p, o, name, ethosDesc, f));
+    replyHelper.oneBot(event, fmt -> sectCommandHandler.handleCreate(name, ethosDesc, fmt));
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("宗门创建\\s*{{name,\\S+}}")
   public void createOneBot(OneBotMessageEvent event, @FilterValue("name") String name) {
-    replyHelper.oneBot(event, (p, o, f) -> sectCommandHandler.handleCreate(p, o, name, null, f));
+    replyHelper.oneBot(event, fmt -> sectCommandHandler.handleCreate(name, null, fmt));
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("宗灵\\s*{{content,.+}}")
@@ -53,6 +57,7 @@ public class SectListener {
     replyHelper.oneBot(event, content, sectCommandHandler::handleSectSpiritChat);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("宗门退出")
@@ -60,6 +65,7 @@ public class SectListener {
     replyHelper.oneBot(event, sectCommandHandler::handleLeave);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("宗门解散")
@@ -69,6 +75,7 @@ public class SectListener {
 
   // === QQ ===
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("宗门")
@@ -76,6 +83,7 @@ public class SectListener {
     replyHelper.qq(event, sectCommandHandler::handleOverview);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("宗门创建\\s*{{name,\\S+}}\\s+{{ethosDesc,.+?}}")
@@ -83,16 +91,18 @@ public class SectListener {
       QGGroupAtMessageCreateEvent event,
       @FilterValue("name") String name,
       @FilterValue("ethosDesc") String ethosDesc) {
-    replyHelper.qq(event, (p, o, f) -> sectCommandHandler.handleCreate(p, o, name, ethosDesc, f));
+    replyHelper.qq(event, fmt -> sectCommandHandler.handleCreate(name, ethosDesc, fmt));
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("宗门创建\\s*{{name,\\S+}}")
   public void createQq(QGGroupAtMessageCreateEvent event, @FilterValue("name") String name) {
-    replyHelper.qq(event, (p, o, f) -> sectCommandHandler.handleCreate(p, o, name, null, f));
+    replyHelper.qq(event, fmt -> sectCommandHandler.handleCreate(name, null, fmt));
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("宗灵\\s*{{content,.+}}")
@@ -101,6 +111,7 @@ public class SectListener {
     replyHelper.qq(event, content, sectCommandHandler::handleSectSpiritChat);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("宗门退出")
@@ -108,6 +119,7 @@ public class SectListener {
     replyHelper.qq(event, sectCommandHandler::handleLeave);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("宗门解散")

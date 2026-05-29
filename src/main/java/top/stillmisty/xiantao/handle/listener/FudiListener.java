@@ -9,6 +9,7 @@ import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.handle.command.FudiCommandHandler;
+import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
 
 @Component
 @RequiredArgsConstructor
@@ -19,6 +20,7 @@ public class FudiListener {
 
   // === OneBotV11 ===
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("福地")
@@ -26,6 +28,7 @@ public class FudiListener {
     replyHelper.oneBot(event, "福地", fudiCommandHandler::handleFudiStatus);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("福地地块")
@@ -33,6 +36,7 @@ public class FudiListener {
     replyHelper.oneBot(event, "福地地块", fudiCommandHandler::handleFudiGrid);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("地灵\\s*{{content}}")
@@ -40,6 +44,7 @@ public class FudiListener {
     replyHelper.oneBot(event, "地灵对话", content, fudiCommandHandler::handleSpiritChat);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("福地渡劫")
@@ -49,6 +54,7 @@ public class FudiListener {
 
   // === QQ ===
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("福地")
@@ -56,6 +62,7 @@ public class FudiListener {
     replyHelper.qq(event, "福地", fudiCommandHandler::handleFudiStatus);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("福地地块")
@@ -63,6 +70,7 @@ public class FudiListener {
     replyHelper.qq(event, "福地地块", fudiCommandHandler::handleFudiGrid);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("地灵\\s*{{content}}")
@@ -71,6 +79,7 @@ public class FudiListener {
     replyHelper.qq(event, "地灵对话", content, fudiCommandHandler::handleSpiritChat);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("福地渡劫")

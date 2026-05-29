@@ -17,15 +17,12 @@ import top.stillmisty.xiantao.domain.sect.enums.SectBuildingType;
 import top.stillmisty.xiantao.domain.sect.vo.BuildResultVO;
 import top.stillmisty.xiantao.domain.sect.vo.BuildingsQueryVO;
 import top.stillmisty.xiantao.domain.sect.vo.UpgradeBuildingResultVO;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.infrastructure.repository.SectBuildingRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SectMemberRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SectRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.UserContext;
-import top.stillmisty.xiantao.service.annotation.Authenticated;
 
 @Slf4j
 @Service
@@ -41,19 +38,14 @@ public class SectBuildingService {
 
   // ===================== 公开 API =====================
 
-  @Authenticated
-  public ServiceResult<String> getBuildings(PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
-    BuildingsQueryVO vo = getBuildings(userId);
+  public ServiceResult<String> getBuildings(Long userId) {
+    BuildingsQueryVO vo = getBuildingsInternal(userId);
     return new ServiceResult.Success<>(formatBuildingsText(vo));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<String> buildStructure(
-      PlatformType platform, String openId, String buildingTypeCode) {
-    Long userId = UserContext.getCurrentUserId();
-    BuildResultVO vo = buildStructure(userId, buildingTypeCode);
+  public ServiceResult<String> buildStructure(Long userId, String buildingTypeCode) {
+    BuildResultVO vo = buildStructureInternal(userId, buildingTypeCode);
     return new ServiceResult.Success<>(
         "已建造"
             + vo.buildingName()
@@ -66,12 +58,9 @@ public class SectBuildingService {
             + "）。");
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<String> upgradeBuilding(
-      PlatformType platform, String openId, String buildingTypeCode) {
-    Long userId = UserContext.getCurrentUserId();
-    UpgradeBuildingResultVO vo = upgradeBuilding(userId, buildingTypeCode);
+  public ServiceResult<String> upgradeBuilding(Long userId, String buildingTypeCode) {
+    UpgradeBuildingResultVO vo = upgradeBuildingInternal(userId, buildingTypeCode);
     return new ServiceResult.Success<>(
         "已将"
             + vo.buildingName()
@@ -89,7 +78,7 @@ public class SectBuildingService {
   // ===================== 内部 API =====================
 
   @Cacheable(cacheNames = "sect_buildings", key = "#userId")
-  public BuildingsQueryVO getBuildings(Long userId) {
+  public BuildingsQueryVO getBuildingsInternal(Long userId) {
     SectMember member = requireMember(userId);
     List<SectBuilding> buildings = sectBuildingRepository.findBySectId(member.getSectId());
 
@@ -126,7 +115,7 @@ public class SectBuildingService {
         @CacheEvict(cacheNames = "sect_buildings", key = "#userId"),
         @CacheEvict(cacheNames = "sect_overview", key = "#userId")
       })
-  public BuildResultVO buildStructure(Long userId, String buildingTypeCode) {
+  public BuildResultVO buildStructureInternal(Long userId, String buildingTypeCode) {
     SectMember member = requireMember(userId);
     if (!member.getPosition().canManage()) {
       throw new BusinessException(ErrorCode.SECT_NOT_LEADER);
@@ -163,7 +152,7 @@ public class SectBuildingService {
         @CacheEvict(cacheNames = "sect_buildings", key = "#userId"),
         @CacheEvict(cacheNames = "sect_overview", key = "#userId")
       })
-  public UpgradeBuildingResultVO upgradeBuilding(Long userId, String buildingTypeCode) {
+  public UpgradeBuildingResultVO upgradeBuildingInternal(Long userId, String buildingTypeCode) {
     SectMember member = requireMember(userId);
     if (!member.getPosition().canManage()) {
       throw new BusinessException(ErrorCode.SECT_NOT_LEADER);

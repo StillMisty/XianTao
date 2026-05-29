@@ -23,7 +23,6 @@ import top.stillmisty.xiantao.domain.map.vo.MapInfoVO;
 import top.stillmisty.xiantao.domain.map.vo.TrainingRewardVO;
 import top.stillmisty.xiantao.domain.map.vo.TravelResultVO;
 import top.stillmisty.xiantao.domain.monster.vo.DropItem;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.infrastructure.repository.EquipmentTemplateRepository;
@@ -31,6 +30,7 @@ import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.util.FormatUtils;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ServiceResult;
+import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.bounty.BountyService;
 import top.stillmisty.xiantao.service.combat.TrainingService;
 import top.stillmisty.xiantao.service.map.MapService;
@@ -50,18 +50,20 @@ public class MapCommandHandler implements CommandGroup {
 
   // ===================== 统一处理方法（含 TextFormat 参数） =====================
 
-  public String handleGoTo(PlatformType platform, String openId, String mapName, TextFormat fmt) {
-    log.debug("处理前往请求 - Platform: {}, OpenId: {}, MapName: {}", platform, openId, mapName);
+  public String handleGoTo(String mapName, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
+    log.debug("处理前往请求 - UserId: {}, MapName: {}", userId, mapName);
     return CommandHandlerHelper.safeCall(
-        () -> travelService.startTravel(platform, openId, mapName),
+        () -> travelService.startTravel(userId, mapName),
         fmt,
         vo -> vo.isSuccess() ? formatTravelResult(vo, fmt) : vo.getMessage());
   }
 
-  public String handleTraining(PlatformType platform, String openId, TextFormat fmt) {
-    log.debug("处理历练请求 - Platform: {}, OpenId: {}", platform, openId);
+  public String handleTraining(TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
+    log.debug("处理历练请求 - UserId: {}", userId);
     return CommandHandlerHelper.safeCall(
-        () -> trainingService.startTraining(platform, openId),
+        () -> trainingService.startTraining(userId),
         fmt,
         vo ->
             vo.isSuccess()
@@ -69,18 +71,18 @@ public class MapCommandHandler implements CommandGroup {
                 : vo.getMessage());
   }
 
-  public String handleEndTraining(PlatformType platform, String openId, TextFormat fmt) {
-    log.debug("处理结束历练请求 - Platform: {}, OpenId: {}", platform, openId);
+  public String handleEndTraining(TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
+    log.debug("处理结束历练请求 - UserId: {}", userId);
     return CommandHandlerHelper.safeCall(
-        () -> trainingService.endTraining(platform, openId),
-        fmt,
-        vo -> formatTrainingReward(vo, fmt));
+        () -> trainingService.endTraining(userId), fmt, vo -> formatTrainingReward(vo, fmt));
   }
 
-  public String handleMap(PlatformType platform, String openId, TextFormat fmt) {
-    log.debug("处理地图查询 - Platform: {}, OpenId: {}", platform, openId);
+  public String handleMap(TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
+    log.debug("处理地图查询 - UserId: {}", userId);
     return CommandHandlerHelper.safeCall(
-        () -> mapService.getCurrentMapInfo(platform, openId),
+        () -> mapService.getCurrentMapInfo(userId),
         fmt,
         vo -> formatCurrentMap(vo, fmt),
         msg -> "❌ " + msg);
@@ -88,10 +90,11 @@ public class MapCommandHandler implements CommandGroup {
 
   // ===================== 悬赏统一处理方法 =====================
 
-  public String handleBounty(PlatformType platform, String openId, TextFormat fmt) {
-    log.debug("处理悬赏 - Platform: {}, OpenId: {}", platform, openId);
+  public String handleBounty(TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
+    log.debug("处理悬赏 - UserId: {}", userId);
     try {
-      var statusResult = bountyService.getBountyStatus(platform, openId);
+      var statusResult = bountyService.getBountyStatus(userId);
       if (statusResult instanceof ServiceResult.Success(var vo) && vo.bountyId() != null) {
         return formatBountyStatus(vo, fmt);
       }
@@ -99,28 +102,28 @@ public class MapCommandHandler implements CommandGroup {
       // Bounty definition missing — fall through to list
     }
     return CommandHandlerHelper.safeCall(
-        () -> bountyService.listBounties(platform, openId), fmt, vo -> formatBountyList(vo, fmt));
+        () -> bountyService.listBounties(userId), fmt, vo -> formatBountyList(vo, fmt));
   }
 
-  public String handleStartBounty(
-      PlatformType platform, String openId, String bountyId, TextFormat fmt) {
-    log.debug("处理接取悬赏 - Platform: {}, OpenId: {}, BountyId: {}", platform, openId, bountyId);
+  public String handleStartBounty(String bountyId, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
+    log.debug("处理接取悬赏 - UserId: {}, BountyId: {}", userId, bountyId);
     return CommandHandlerHelper.safeCall(
-        () -> bountyService.startBounty(platform, openId, bountyId), fmt, msg -> msg);
+        () -> bountyService.startBounty(userId, bountyId), fmt, msg -> msg);
   }
 
-  public String handleCompleteBounty(PlatformType platform, String openId, TextFormat fmt) {
-    log.debug("处理完成悬赏 - Platform: {}, OpenId: {}", platform, openId);
+  public String handleCompleteBounty(TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
+    log.debug("处理完成悬赏 - UserId: {}", userId);
     return CommandHandlerHelper.safeCall(
-        () -> bountyService.completeBounty(platform, openId),
-        fmt,
-        vo -> formatBountyReward(vo, fmt));
+        () -> bountyService.completeBounty(userId), fmt, vo -> formatBountyReward(vo, fmt));
   }
 
-  public String handleAbandonBounty(PlatformType platform, String openId, TextFormat fmt) {
-    log.debug("处理放弃悬赏 - Platform: {}, OpenId: {}", platform, openId);
+  public String handleAbandonBounty(TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
+    log.debug("处理放弃悬赏 - UserId: {}", userId);
     return CommandHandlerHelper.safeCall(
-        () -> bountyService.abandonBounty(platform, openId), fmt, msg -> msg);
+        () -> bountyService.abandonBounty(userId), fmt, msg -> msg);
   }
 
   // ===================== 格式化方法 =====================

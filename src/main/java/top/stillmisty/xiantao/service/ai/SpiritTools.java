@@ -124,7 +124,7 @@ public class SpiritTools {
         "plantCrop",
         () -> {
           Long userId = UserContext.requireCurrentUserId();
-          FarmCellVO r = farmService.plantCropByInput(userId, position, cropName);
+          FarmCellVO r = farmService.plantCropByInputInternal(userId, position, cropName);
           return new PlantCropResponse(position, cropName, r.baseGrowthHours());
         });
   }
@@ -148,7 +148,7 @@ public class SpiritTools {
         "buildCell",
         () -> {
           Long userId = UserContext.requireCurrentUserId();
-          fudiService.buildCell(userId, position, cellType);
+          fudiService.buildCellInternal(userId, position, cellType);
           return new BuildCellResponse(position, cellType.getChineseName());
         });
   }
@@ -167,7 +167,7 @@ public class SpiritTools {
         "removeCell",
         () -> {
           Long userId = UserContext.requireCurrentUserId();
-          var r = fudiService.removeCell(userId, position);
+          var r = fudiService.removeCellInternal(userId, position);
           return new RemoveCellResponse(position, r.type());
         });
   }
@@ -186,7 +186,7 @@ public class SpiritTools {
         "upgradeCell",
         () -> {
           Long userId = UserContext.requireCurrentUserId();
-          UpgradeCellVO r = fudiService.upgradeCell(userId, position);
+          UpgradeCellVO r = fudiService.upgradeCellInternal(userId, position);
           return new UpgradeCellResponse(position, r.oldLevel(), r.newLevel());
         });
   }
@@ -241,10 +241,10 @@ public class SpiritTools {
         () -> {
           Long userId = UserContext.requireCurrentUserId();
           if ("all".equalsIgnoreCase(position)) {
-            CollectAllVO r = fudiService.collectAll(userId);
+            CollectAllVO r = fudiService.collectAllInternal(userId);
             return new CollectProduceResponse("all", r.harvested(), r.collected(), r.totalItems());
           }
-          CollectVO r = fudiService.collect(userId, position);
+          CollectVO r = fudiService.collectInternal(userId, position);
           boolean isFarm = "FARM".equals(r.type());
           int harvested = isFarm ? 1 : 0;
           int collected = isFarm ? 0 : 1;
@@ -269,7 +269,7 @@ public class SpiritTools {
         "acceptGift",
         () -> {
           Long userId = UserContext.requireCurrentUserId();
-          GiveGiftVO r = fudiService.giveGift(userId, itemName);
+          GiveGiftVO r = fudiService.giveGiftInternal(userId, itemName);
           return new AcceptGiftResponse(r.itemName(), r.change(), r.reaction());
         });
   }
@@ -296,7 +296,7 @@ public class SpiritTools {
         "triggerTribulation",
         () -> {
           Long userId = UserContext.requireCurrentUserId();
-          return fudiService.triggerTribulation(userId);
+          return fudiService.triggerTribulationInternal(userId);
         });
   }
 
@@ -316,15 +316,15 @@ public class SpiritTools {
               switch (action) {
                 case DEPLOY -> beastCombatService.toggleDeploy(userId, position);
                 case EVOLVE -> {
-                  beastBreedingService.evolveBeast(userId, position);
+                  beastBreedingService.evolveBeastInternal(userId, position);
                   yield "进化成功";
                 }
                 case RELEASE -> {
-                  var vo = beastBreedingService.releaseBeast(userId, position);
+                  var vo = beastBreedingService.releaseBeastInternal(userId, position);
                   yield "放生了 %s，获得 %d 份灵兽精华".formatted(vo.beastName(), vo.essenceAmount());
                 }
                 case HATCH -> {
-                  beastBreedingService.hatchBeastByInput(userId, position, value);
+                  beastBreedingService.hatchBeastByInputInternal(userId, position, value);
                   yield "孵化成功";
                 }
               };

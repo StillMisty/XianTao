@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.vo.PlayerViewVO;
 import top.stillmisty.xiantao.infrastructure.repository.EquipmentRepository;
 import top.stillmisty.xiantao.infrastructure.repository.MapNodeRepository;
@@ -15,8 +14,6 @@ import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.UserContext;
-import top.stillmisty.xiantao.service.annotation.Authenticated;
 
 @Slf4j
 @Service
@@ -27,14 +24,11 @@ public class PlayerViewService {
   private final EquipmentRepository equipmentRepository;
   private final MapNodeRepository mapNodeRepository;
 
-  @Authenticated
-  public ServiceResult<PlayerViewVO> viewPlayer(
-      PlatformType platform, String openId, String targetNickname) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(viewPlayer(userId, targetNickname));
+  public ServiceResult<PlayerViewVO> viewPlayer(Long userId, String targetNickname) {
+    return new ServiceResult.Success<>(viewPlayerInternal(userId, targetNickname));
   }
 
-  public PlayerViewVO viewPlayer(Long userId, String targetNickname) {
+  public PlayerViewVO viewPlayerInternal(Long userId, String targetNickname) {
     User target =
         userRepository
             .findByNickname(targetNickname)

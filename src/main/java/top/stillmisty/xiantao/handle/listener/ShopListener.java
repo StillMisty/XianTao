@@ -10,6 +10,7 @@ import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.handle.command.ShopCommandHandler;
+import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
 
 @Slf4j
 @Component
@@ -21,6 +22,7 @@ public class ShopListener {
 
   // === OneBotV11 ===
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("掌柜\\s*{{content}}")
@@ -28,6 +30,7 @@ public class ShopListener {
     replyHelper.oneBot(event, content, shopCommandHandler::handleShopkeeper);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("回收\\s*{{itemName}}")
@@ -37,6 +40,7 @@ public class ShopListener {
 
   // === QQ ===
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("掌柜\\s*{{content}}")
@@ -45,6 +49,7 @@ public class ShopListener {
     replyHelper.qq(event, content, shopCommandHandler::handleShopkeeper);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("回收\\s*{{itemName}}")

@@ -6,10 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.service.FortuneService;
+import top.stillmisty.xiantao.service.UserContext;
 
 @Slf4j
 @Component
@@ -18,10 +18,11 @@ public class FortuneCommandHandler implements CommandGroup {
 
   private final FortuneService fortuneService;
 
-  public String handleFortune(PlatformType platform, String openId, TextFormat fmt) {
-    log.debug("处理运势查询 - Platform: {}, OpenId: {}", platform, openId);
+  public String handleFortune(TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
+    log.debug("处理运势查询 - UserId: {}", userId);
     return CommandHandlerHelper.safeCall(
-        () -> fortuneService.getFortune(platform, openId), fmt, fortuneService::buildDisplay);
+        () -> fortuneService.getFortune(userId), fmt, fortuneService::buildDisplay);
   }
 
   @Override

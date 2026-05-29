@@ -6,10 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.service.ChoiceService;
+import top.stillmisty.xiantao.service.UserContext;
 
 @Slf4j
 @Component
@@ -18,10 +18,11 @@ public class ChoiceCommandHandler implements CommandGroup {
 
   private final ChoiceService choiceService;
 
-  public String handleChoice(PlatformType platform, String openId, String choice, TextFormat fmt) {
-    log.debug("处理选择 - Platform: {}, OpenId: {}, Choice: {}", platform, openId, choice);
+  public String handleChoice(String choice, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
+    log.debug("处理选择 - UserId: {}, Choice: {}", userId, choice);
     return CommandHandlerHelper.safeCall(
-        () -> choiceService.handleChoice(platform, openId, choice), fmt, result -> result);
+        () -> choiceService.handleChoice(userId, choice), fmt, result -> result);
   }
 
   @Override

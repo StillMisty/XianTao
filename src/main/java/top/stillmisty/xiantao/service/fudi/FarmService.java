@@ -16,15 +16,12 @@ import top.stillmisty.xiantao.domain.fudi.vo.FarmCellVO;
 import top.stillmisty.xiantao.domain.item.entity.ItemProperties;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.infrastructure.repository.FudiCellRepository;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.StackableItemRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.UserContext;
-import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.inventory.ItemResolver;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
 
@@ -40,22 +37,16 @@ public class FarmService {
   private final ItemResolver itemResolver;
   private final FudiHelper fudiHelper;
 
-  // ===================== 公开 API（含认证） =====================
+  // ===================== 公开 API =====================
 
-  @Authenticated
   @Transactional
-  public ServiceResult<FarmCellVO> plantCropByName(
-      PlatformType platform, String openId, String position, String cropName) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(plantCropByName(userId, position, cropName));
+  public ServiceResult<FarmCellVO> plantCropByName(Long userId, String position, String cropName) {
+    return new ServiceResult.Success<>(plantCropByNameInternal(userId, position, cropName));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<FarmCellVO> plantCropByInput(
-      PlatformType platform, String openId, String position, String input) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(plantCropByInput(userId, position, input));
+  public ServiceResult<FarmCellVO> plantCropByInput(Long userId, String position, String input) {
+    return new ServiceResult.Success<>(plantCropByInputInternal(userId, position, input));
   }
 
   // ===================== 内部 API =====================
@@ -116,7 +107,7 @@ public class FarmService {
   }
 
   @Transactional
-  public FarmCellVO plantCropByName(Long userId, String position, String cropName) {
+  public FarmCellVO plantCropByNameInternal(Long userId, String position, String cropName) {
     Integer cellId = fudiHelper.parseCellId(position);
     ItemTemplate seedTemplate = findSeedTemplateByName(cropName);
 
@@ -135,7 +126,7 @@ public class FarmService {
   }
 
   @Transactional
-  public FarmCellVO plantCropByInput(Long userId, String position, String input) {
+  public FarmCellVO plantCropByInputInternal(Long userId, String position, String input) {
     Integer cellId = fudiHelper.parseCellId(position);
     var result = itemResolver.resolveSeed(userId, input);
     return switch (result) {

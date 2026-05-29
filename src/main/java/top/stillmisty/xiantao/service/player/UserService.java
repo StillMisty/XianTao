@@ -15,8 +15,6 @@ import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.UserContext;
-import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.fudi.FudiService;
 
 /** 用户服务 处理用户相关的业务逻辑 */
@@ -30,16 +28,13 @@ public class UserService {
   private final UserAuthRepository userAuthRepository;
   private final FudiService fudiService;
 
-  @Authenticated
   @Transactional
-  public ServiceResult<String> changeNickname(
-      PlatformType platform, String openId, String newNickname) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(changeNickname(userId, newNickname));
+  public ServiceResult<String> changeNickname(Long userId, String newNickname) {
+    return new ServiceResult.Success<>(changeNicknameInternal(userId, newNickname));
   }
 
   @Transactional
-  public String changeNickname(Long userId, String newNickname) {
+  public String changeNicknameInternal(Long userId, String newNickname) {
     if (userRepository.existsByNickname(newNickname)) {
       throw new BusinessException(ErrorCode.NICKNAME_TAKEN);
     }

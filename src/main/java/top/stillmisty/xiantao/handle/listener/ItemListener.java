@@ -9,6 +9,7 @@ import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.handle.command.InventoryCommandHandler;
+import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
 
 @Component
 @RequiredArgsConstructor
@@ -21,6 +22,7 @@ public class ItemListener {
 
   @Listener
   @ContentTrim
+  @RequireAuth
   @Filter("背包")
   public void inventory(OneBotMessageEvent event) {
     replyHelper.oneBot(event, "背包查询", inventoryCommandHandler::handleInventory);
@@ -28,6 +30,7 @@ public class ItemListener {
 
   @Listener
   @ContentTrim
+  @RequireAuth
   @Filter("背包\\s*{{category}}")
   public void inventoryByCategory(
       OneBotMessageEvent event, @FilterValue("category") String category) {
@@ -36,6 +39,7 @@ public class ItemListener {
 
   @Listener
   @ContentTrim
+  @RequireAuth
   @Filter("装备\\s*{{itemName}}")
   public void equip(OneBotMessageEvent event, @FilterValue("itemName") String itemName) {
     replyHelper.oneBot(event, "装备穿戴", itemName, inventoryCommandHandler::handleEquip);
@@ -43,6 +47,7 @@ public class ItemListener {
 
   @Listener
   @ContentTrim
+  @RequireAuth
   @Filter("卸下\\s*{{slotName}}")
   public void unequip(OneBotMessageEvent event, @FilterValue("slotName") String slotName) {
     replyHelper.oneBot(event, "装备卸下", slotName, inventoryCommandHandler::handleUnequip);
@@ -50,6 +55,7 @@ public class ItemListener {
 
   @Listener
   @ContentTrim
+  @RequireAuth
   @Filter("丢弃\\s*{{itemName}}")
   public void discard(OneBotMessageEvent event, @FilterValue("itemName") String itemName) {
     replyHelper.oneBot(event, "丢弃", itemName, inventoryCommandHandler::handleDiscard);
@@ -59,6 +65,7 @@ public class ItemListener {
 
   @Listener
   @ContentTrim
+  @RequireAuth
   @Filter("背包")
   public void inventoryQq(QGGroupAtMessageCreateEvent event) {
     replyHelper.qq(event, "背包查询", inventoryCommandHandler::handleInventory);
@@ -66,6 +73,7 @@ public class ItemListener {
 
   @Listener
   @ContentTrim
+  @RequireAuth
   @Filter("背包\\s*{{category}}")
   public void inventoryByCategoryQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("category") String category) {
@@ -74,6 +82,7 @@ public class ItemListener {
 
   @Listener
   @ContentTrim
+  @RequireAuth
   @Filter("装备\\s*{{itemName}}")
   public void equipQq(QGGroupAtMessageCreateEvent event, @FilterValue("itemName") String itemName) {
     replyHelper.qq(event, "装备穿戴", itemName, inventoryCommandHandler::handleEquip);
@@ -81,6 +90,7 @@ public class ItemListener {
 
   @Listener
   @ContentTrim
+  @RequireAuth
   @Filter("卸下\\s*{{slotName}}")
   public void unequipQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("slotName") String slotName) {
@@ -89,6 +99,7 @@ public class ItemListener {
 
   @Listener
   @ContentTrim
+  @RequireAuth
   @Filter("丢弃\\s*{{itemName}}")
   public void discardQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("itemName") String itemName) {

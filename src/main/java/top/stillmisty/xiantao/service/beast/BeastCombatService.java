@@ -13,12 +13,9 @@ import top.stillmisty.xiantao.domain.beast.enums.MutationEffectType;
 import top.stillmisty.xiantao.domain.beast.vo.BeastStatusVO;
 import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
 import top.stillmisty.xiantao.domain.fudi.enums.BeastQuality;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.infrastructure.repository.BeastRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.UserContext;
-import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.fudi.FudiHelper;
 
 /** 灵兽出战/召回、修为 */
@@ -32,17 +29,12 @@ public class BeastCombatService {
   private final BeastDisplayHelper beastDisplayHelper;
   private final MutationEffectResolver effectResolver;
 
-  @Authenticated
-  public ServiceResult<List<BeastStatusVO>> getDeployedBeasts(
-      PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(getDeployedBeasts(userId));
+  public ServiceResult<List<BeastStatusVO>> getDeployedBeasts(Long userId) {
+    return new ServiceResult.Success<>(getDeployedBeastsInternal(userId));
   }
 
-  @Authenticated
-  public ServiceResult<List<BeastStatusVO>> getBeastList(PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(getBeastList(userId));
+  public ServiceResult<List<BeastStatusVO>> getBeastList(Long userId) {
+    return new ServiceResult.Success<>(getBeastListInternal(userId));
   }
 
   public static int calculateBeastAttack(int level, BeastQuality quality) {
@@ -65,7 +57,7 @@ public class BeastCombatService {
     };
   }
 
-  List<BeastStatusVO> getDeployedBeasts(Long userId) {
+  List<BeastStatusVO> getDeployedBeastsInternal(Long userId) {
     Fudi fudi =
         fudiHelper
             .findAndTouchFudi(userId)
@@ -77,7 +69,7 @@ public class BeastCombatService {
         .toList();
   }
 
-  List<BeastStatusVO> getBeastList(Long userId) {
+  List<BeastStatusVO> getBeastListInternal(Long userId) {
     return beastRepository.findByUserId(userId).stream()
         .map(beastDisplayHelper::convertToBeastStatusVO)
         .toList();

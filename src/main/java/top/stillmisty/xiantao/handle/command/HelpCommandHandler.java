@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.service.HelpService;
 
@@ -15,7 +14,7 @@ public class HelpCommandHandler {
 
   private final HelpService helpService;
 
-  public String handleHelp(PlatformType platform, String openId, String command, TextFormat fmt) {
+  public String handleHelp(String command, TextFormat fmt) {
     if (command == null || command.isBlank()) {
       return formatAllGroups(fmt);
     }

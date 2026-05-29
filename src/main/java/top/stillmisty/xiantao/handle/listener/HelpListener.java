@@ -9,6 +9,7 @@ import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.handle.command.HelpCommandHandler;
+import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
 
 @Component
 @RequiredArgsConstructor
@@ -21,13 +22,15 @@ public class HelpListener {
 
   @Listener
   @ContentTrim
+  @RequireAuth
   @Filter("帮助")
   public void help(OneBotMessageEvent event) {
-    replyHelper.oneBot(event, "帮助", (p, o, f) -> helpCommandHandler.handleHelp(p, o, null, f));
+    replyHelper.oneBot(event, "帮助", f -> helpCommandHandler.handleHelp(null, f));
   }
 
   @Listener
   @ContentTrim
+  @RequireAuth
   @Filter("帮助\\s*{{command}}")
   public void helpDetail(OneBotMessageEvent event, @FilterValue("command") String command) {
     replyHelper.oneBot(event, "命令详情", command, helpCommandHandler::handleHelp);
@@ -37,13 +40,15 @@ public class HelpListener {
 
   @Listener
   @ContentTrim
+  @RequireAuth
   @Filter("帮助")
   public void helpQq(QGGroupAtMessageCreateEvent event) {
-    replyHelper.qq(event, "帮助", (p, o, f) -> helpCommandHandler.handleHelp(p, o, null, f));
+    replyHelper.qq(event, "帮助", f -> helpCommandHandler.handleHelp(null, f));
   }
 
   @Listener
   @ContentTrim
+  @RequireAuth
   @Filter("帮助\\s*{{command}}")
   public void helpDetailQq(
       QGGroupAtMessageCreateEvent event, @FilterValue("command") String command) {

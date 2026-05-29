@@ -10,9 +10,9 @@ import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.forge.vo.EnhanceResultVO;
 import top.stillmisty.xiantao.domain.forge.vo.ForgingRecipeVO;
 import top.stillmisty.xiantao.domain.forge.vo.ForgingResultVO;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
+import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.enhance.EnhancementService;
 import top.stillmisty.xiantao.service.forging.ForgingService;
 
@@ -27,49 +27,47 @@ public class ForgingCommandHandler implements CommandGroup {
 
   // ===================== 统一处理方法（含 TextFormat 参数） =====================
 
-  public String handleForgingRecipeList(PlatformType platform, String openId, TextFormat fmt) {
+  public String handleForgingRecipeList(TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> forgingService.getForgingRecipes(platform, openId),
+        () -> forgingService.getForgingRecipes(userId),
         fmt,
         recipes -> formatRecipeList(recipes, fmt),
         msg -> msg);
   }
 
-  public String handleForgeAuto(
-      PlatformType platform, String openId, String blueprintName, TextFormat fmt) {
+  public String handleForgeAuto(String blueprintName, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> forgingService.forgeAuto(platform, openId, blueprintName),
+        () -> forgingService.forgeAuto(userId, blueprintName),
         fmt,
         result -> formatForgingResult(result, fmt),
         msg -> msg);
   }
 
-  public String handleForgeManual(
-      PlatformType platform, String openId, List<String> materialInputs, TextFormat fmt) {
+  public String handleForgeManual(List<String> materialInputs, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> forgingService.forgeManual(platform, openId, materialInputs),
+        () -> forgingService.forgeManual(userId, materialInputs),
         fmt,
         result -> formatForgingResult(result, fmt),
         msg -> msg);
   }
 
-  public String handleEnhanceAuto(
-      PlatformType platform, String openId, String equipmentInput, TextFormat fmt) {
+  public String handleEnhanceAuto(String equipmentInput, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> enhancementService.enhanceAuto(platform, openId, equipmentInput),
+        () -> enhancementService.enhanceAuto(userId, equipmentInput),
         fmt,
         result -> formatEnhanceResult(result, fmt),
         msg -> msg);
   }
 
   public String handleEnhanceManual(
-      PlatformType platform,
-      String openId,
-      String equipmentInput,
-      List<String> materialInputs,
-      TextFormat fmt) {
+      String equipmentInput, List<String> materialInputs, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> enhancementService.enhanceManual(platform, openId, equipmentInput, materialInputs),
+        () -> enhancementService.enhanceManual(userId, equipmentInput, materialInputs),
         fmt,
         result -> formatEnhanceResult(result, fmt),
         msg -> msg);

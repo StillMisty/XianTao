@@ -20,6 +20,6 @@ public class PillUseHandler implements ItemUseHandler {
 
   @Override
   public String use(Long userId, StackableItem item, ItemTemplate template, String args) {
-    return pillConsumptionService.takePill(userId, item.getName());
+    return pillConsumptionService.takePillInternal(userId, item.getName());
   }
 }

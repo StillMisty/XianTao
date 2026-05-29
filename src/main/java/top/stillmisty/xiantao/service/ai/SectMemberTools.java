@@ -36,7 +36,7 @@ public class SectMemberTools {
         "checkSectShop",
         () -> {
           Long userId = UserContext.requireCurrentUserId();
-          ShopQueryVO vo = sectShopService.getShop(userId);
+          ShopQueryVO vo = sectShopService.getShopInternal(userId);
           return new CheckSectShopResponse(vo.myContribution(), vo.items());
         });
   }
@@ -56,7 +56,7 @@ public class SectMemberTools {
         "exchangeShopItem",
         () -> {
           Long userId = UserContext.requireCurrentUserId();
-          ExchangeResultVO r = sectShopService.exchangeShopItem(userId, shopItemId);
+          ExchangeResultVO r = sectShopService.exchangeShopItemInternal(userId, shopItemId);
           return new ExchangeShopItemResponse(shopItemId, r.itemName(), r.remainingContribution());
         });
   }
@@ -81,7 +81,7 @@ public class SectMemberTools {
         "checkSharedSkills",
         () -> {
           Long userId = UserContext.requireCurrentUserId();
-          SharedSkillsQueryVO vo = sectSharedSkillService.getSharedSkills(userId);
+          SharedSkillsQueryVO vo = sectSharedSkillService.getSharedSkillsInternal(userId);
           return new CheckSharedSkillsResponse(
               vo.myContribution(), vo.usedSlots(), vo.maxSlots(), vo.skills(), vo.pendingCount());
         });
@@ -103,7 +103,8 @@ public class SectMemberTools {
         "learnSharedSkill",
         () -> {
           Long userId = UserContext.requireCurrentUserId();
-          LearnSkillResultVO r = sectSharedSkillService.learnSharedSkill(userId, sharedSkillId);
+          LearnSkillResultVO r =
+              sectSharedSkillService.learnSharedSkillInternal(userId, sharedSkillId);
           return new LearnSharedSkillResponse(
               sharedSkillId, r.skillName(), r.cost(), r.remainingContribution());
         });
@@ -123,7 +124,7 @@ public class SectMemberTools {
         "offerSkillJade",
         () -> {
           Long userId = UserContext.requireCurrentUserId();
-          SubmitJadeResultVO r = sectSharedSkillService.submitSkillJade(userId, jadeName);
+          SubmitJadeResultVO r = sectSharedSkillService.submitSkillJadeInternal(userId, jadeName);
           return new OfferSkillJadeResponse(jadeName, r.skillName(), r.contributionGained());
         });
   }
@@ -143,7 +144,7 @@ public class SectMemberTools {
         "offerSpiritStones",
         () -> {
           Long userId = UserContext.requireCurrentUserId();
-          DonateResultVO r = sectMemberService.donateStones(userId, amount);
+          DonateResultVO r = sectMemberService.donateStonesInternal(userId, amount);
           return new OfferSpiritStonesResponse(amount, r.contributionGained());
         });
   }
@@ -159,7 +160,7 @@ public class SectMemberTools {
         "checkSectBuildings",
         () -> {
           Long userId = UserContext.requireCurrentUserId();
-          BuildingsQueryVO vo = sectBuildingService.getBuildings(userId);
+          BuildingsQueryVO vo = sectBuildingService.getBuildingsInternal(userId);
           return new CheckSectBuildingsResponse(vo.built(), vo.buildable());
         });
   }
@@ -175,7 +176,7 @@ public class SectMemberTools {
         "checkSectTasks",
         () -> {
           Long userId = UserContext.requireCurrentUserId();
-          TasksQueryVO vo = sectMemberService.getTasks(userId);
+          TasksQueryVO vo = sectMemberService.getTasksInternal(userId);
           return new CheckSectTasksResponse(vo.tasks());
         });
   }

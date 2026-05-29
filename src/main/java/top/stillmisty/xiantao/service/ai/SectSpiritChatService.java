@@ -8,15 +8,12 @@ import top.stillmisty.xiantao.domain.sect.entity.Sect;
 import top.stillmisty.xiantao.domain.sect.entity.SectMember;
 import top.stillmisty.xiantao.domain.sect.enums.ChatType;
 import top.stillmisty.xiantao.domain.user.entity.User;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.infrastructure.repository.SectMemberRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SectRepository;
 import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.UserContext;
-import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.sect.SectBuildingService;
 
 /** 宗灵对话核心服务 宗灵是宗门意志的化身，LLM 驱动，成员通过自然语言与宗灵对话来执行所有宗门操作 */
@@ -52,14 +49,11 @@ public class SectSpiritChatService extends AbstractChatService {
     this.userRepository = userRepository;
   }
 
-  @Authenticated
-  public ServiceResult<String> chatWithSectSpirit(
-      PlatformType platform, String openId, String userInput) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(chatWithSectSpirit(userId, userInput));
+  public ServiceResult<String> chatWithSectSpirit(Long userId, String userInput) {
+    return new ServiceResult.Success<>(chatWithSectSpiritInternal(userId, userInput));
   }
 
-  public String chatWithSectSpirit(Long userId, String userInput) {
+  String chatWithSectSpiritInternal(Long userId, String userInput) {
     try {
       SectMember member =
           sectMemberRepository

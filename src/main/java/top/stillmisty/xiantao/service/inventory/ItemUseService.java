@@ -12,14 +12,11 @@ import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.StackableItemRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.UserContext;
-import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.inventory.handler.ItemUseHandler;
 
 /**
@@ -50,12 +47,9 @@ public class ItemUseService {
             .collect(Collectors.toMap(ItemUseHandler::getItemType, Function.identity()));
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<String> useItem(
-      PlatformType platform, String openId, String itemName, String args) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(useItem(userId, itemName, args));
+  public ServiceResult<String> useItem(Long userId, String itemName, String args) {
+    return new ServiceResult.Success<>(useItemInternal(userId, itemName, args));
   }
 
   @Transactional
@@ -66,7 +60,7 @@ public class ItemUseService {
         @CacheEvict(cacheNames = "player_inventory", key = "'eggs:' + #userId"),
         @CacheEvict(cacheNames = "player_inventory", key = "'equipment:' + #userId")
       })
-  public String useItem(Long userId, String itemName, String args) {
+  public String useItemInternal(Long userId, String itemName, String args) {
     List<StackableItem> exactMatches =
         stackableItemRepository.findByUserIdAndName(userId, itemName);
     StackableItem matchedItem = findFirstWithValidTemplate(exactMatches);

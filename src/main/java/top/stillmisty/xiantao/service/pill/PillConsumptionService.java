@@ -17,15 +17,12 @@ import top.stillmisty.xiantao.domain.pill.enums.PillQuality;
 import top.stillmisty.xiantao.domain.pill.enums.PlayerBuffType;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.AttributeType;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.PillResistanceRepository;
 import top.stillmisty.xiantao.infrastructure.repository.PlayerBuffRepository;
 import top.stillmisty.xiantao.infrastructure.repository.StackableItemRepository;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.UserContext;
-import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
 /** 丹药服用服务 处理：服用丹药、等级衰减、抗性衰减、效果应用 */
@@ -42,20 +39,18 @@ public class PillConsumptionService {
   private final PillResistanceRepository pillResistanceRepository;
   private final PlayerBuffRepository playerBuffRepository;
 
-  // ===================== 公开 API（含认证） =====================
+  // ===================== 公开 API =====================
 
-  @Authenticated
   @Transactional
-  public ServiceResult<String> takePill(PlatformType platform, String openId, String pillName) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(takePill(userId, pillName));
+  public ServiceResult<String> takePill(Long userId, String pillName) {
+    return new ServiceResult.Success<>(takePillInternal(userId, pillName));
   }
 
   // ===================== 内部 API =====================
 
   /** 服用丹药（内部调用，物品扣减由 ItemUseService 统一处理） */
   @Transactional
-  public String takePill(Long userId, String pillName) {
+  public String takePillInternal(Long userId, String pillName) {
     StackableItem pill = findPill(userId, pillName);
     if (pill == null) return "背包中未找到丹药：" + pillName;
 

@@ -8,13 +8,10 @@ import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.sect.enums.ChatType;
 import top.stillmisty.xiantao.domain.shop.entity.ShopNpc;
 import top.stillmisty.xiantao.domain.user.entity.User;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.worldevent.entity.WorldEvent;
 import top.stillmisty.xiantao.infrastructure.repository.WorldEventRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.UserContext;
-import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.player.UserStateService;
 import top.stillmisty.xiantao.service.shop.ShopService;
 
@@ -41,14 +38,11 @@ public class ShopChatService extends AbstractChatService {
     this.worldEventRepository = worldEventRepository;
   }
 
-  @Authenticated
-  public ServiceResult<String> chatWithShopkeeper(
-      PlatformType platform, String openId, String userInput) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(chatWithShopkeeper(userId, userInput));
+  public ServiceResult<String> chatWithShopkeeper(Long userId, String userInput) {
+    return new ServiceResult.Success<>(chatWithShopkeeperInternal(userId, userInput));
   }
 
-  public String chatWithShopkeeper(Long userId, String userInput) {
+  String chatWithShopkeeperInternal(Long userId, String userInput) {
     try {
       User user = userStateService.loadUser(userId);
       ShopNpc npc = shopService.findByLocation(user.getLocationId());

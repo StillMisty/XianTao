@@ -9,6 +9,7 @@ import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.handle.command.FortuneCommandHandler;
+import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
 
 @Slf4j
 @Component
@@ -20,6 +21,7 @@ public class FortuneListener {
 
   @Listener
   @ContentTrim
+  @RequireAuth
   @Filter("今日运势")
   public void fortune(OneBotMessageEvent event) {
     replyHelper.oneBot(event, fortuneCommandHandler::handleFortune);
@@ -27,6 +29,7 @@ public class FortuneListener {
 
   @Listener
   @ContentTrim
+  @RequireAuth
   @Filter("今日运势")
   public void fortuneQq(QGGroupAtMessageCreateEvent event) {
     replyHelper.qq(event, fortuneCommandHandler::handleFortune);

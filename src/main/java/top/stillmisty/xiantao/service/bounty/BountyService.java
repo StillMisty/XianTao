@@ -28,7 +28,6 @@ import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
 import top.stillmisty.xiantao.domain.map.entity.SpecialtyEntry;
 import top.stillmisty.xiantao.domain.user.entity.User;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.repository.BountyRepository;
 import top.stillmisty.xiantao.infrastructure.repository.EquipmentTemplateRepository;
@@ -38,8 +37,6 @@ import top.stillmisty.xiantao.infrastructure.repository.UserBountyRepository;
 import top.stillmisty.xiantao.infrastructure.util.WeightedRandom;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.UserContext;
-import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
 /** 悬赏服务 */
@@ -56,49 +53,36 @@ public class BountyService {
   private final EquipmentTemplateRepository equipmentTemplateRepository;
   private final BountyCombatService bountyCombatService;
 
-  @Authenticated
-  public ServiceResult<List<BountyVO>> listBounties(PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(listBounties(userId));
+  public ServiceResult<List<BountyVO>> listBounties(Long userId) {
+    return new ServiceResult.Success<>(listBountiesInternal(userId));
   }
 
-  @Authenticated
-  public ServiceResult<BountyStatusVO> getBountyStatus(PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(getBountyStatus(userId));
+  public ServiceResult<BountyStatusVO> getBountyStatus(Long userId) {
+    return new ServiceResult.Success<>(getBountyStatusInternal(userId));
   }
 
-  @Authenticated
-  @Transactional
-  public ServiceResult<String> startBounty(PlatformType platform, String openId, String bountyId) {
-    Long userId = UserContext.getCurrentUserId();
+  public ServiceResult<String> startBounty(Long userId, String bountyId) {
     long id;
     try {
       id = Long.parseLong(bountyId);
     } catch (NumberFormatException e) {
       return new ServiceResult.Failure<>(BOUNTY_ID_INVALID, "请输入有效的悬赏编号");
     }
-    return new ServiceResult.Success<>(startBounty(userId, id));
+    return new ServiceResult.Success<>(startBountyInternal(userId, id));
   }
 
-  @Authenticated
-  @Transactional
-  public ServiceResult<BountyRewardVO> completeBounty(PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(completeBounty(userId));
+  public ServiceResult<BountyRewardVO> completeBounty(Long userId) {
+    return new ServiceResult.Success<>(completeBountyInternal(userId));
   }
 
-  @Authenticated
-  @Transactional
-  public ServiceResult<String> abandonBounty(PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(abandonBounty(userId));
+  public ServiceResult<String> abandonBounty(Long userId) {
+    return new ServiceResult.Success<>(abandonBountyInternal(userId));
   }
 
   // ===================== 内部 API =====================
 
   @Cacheable(cacheNames = "bounties", key = "#userId")
-  public List<BountyVO> listBounties(Long userId) {
+  public List<BountyVO> listBountiesInternal(Long userId) {
     User user = userStateService.loadUser(userId);
     MapNode mapNode =
         mapNodeRepository
@@ -152,7 +136,7 @@ public class BountyService {
   }
 
   @Cacheable(cacheNames = "bounties", key = "'status:' + #userId")
-  public BountyStatusVO getBountyStatus(Long userId) {
+  public BountyStatusVO getBountyStatusInternal(Long userId) {
     UserBounty record = userBountyRepository.findActiveByUserId(userId).orElse(null);
     if (record == null) {
       return new BountyStatusVO(null, "无进行中的悬赏", "", null, 0, 0, 0, List.of());
@@ -178,7 +162,7 @@ public class BountyService {
   }
 
   @CacheEvict(cacheNames = "bounties", key = "'status:' + #userId")
-  public String startBounty(Long userId, Long bountyId) {
+  public String startBountyInternal(Long userId, Long bountyId) {
     User user = userStateService.loadUser(userId);
 
     if (user.getStatus() != UserStatus.IDLE) {
@@ -244,13 +228,13 @@ public class BountyService {
         @CacheEvict(cacheNames = "bounties", key = "#userId"),
         @CacheEvict(cacheNames = "bounties", key = "'status:' + #userId")
       })
-  public BountyRewardVO completeBounty(Long userId) {
+  public BountyRewardVO completeBountyInternal(Long userId) {
     return bountyCombatService.completeBounty(userId);
   }
 
   @Transactional
   @CacheEvict(cacheNames = "bounties", key = "'status:' + #userId")
-  public String abandonBounty(Long userId) {
+  public String abandonBountyInternal(Long userId) {
     User user = userStateService.loadUser(userId);
     if (user.getStatus() != UserStatus.BOUNTY) {
       throw new BusinessException(STATUS_BLOCKED, user.getStatus().getName(), "悬赏");

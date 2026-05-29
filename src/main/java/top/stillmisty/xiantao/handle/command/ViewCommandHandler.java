@@ -17,7 +17,6 @@ import top.stillmisty.xiantao.domain.item.vo.EquipmentDetailVO;
 import top.stillmisty.xiantao.domain.item.vo.StackableItemDetailVO;
 import top.stillmisty.xiantao.domain.monster.vo.MonsterDetailVO;
 import top.stillmisty.xiantao.domain.pill.enums.PillQuality;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.infrastructure.repository.BeastTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.EquipmentTemplateRepository;
@@ -27,6 +26,7 @@ import top.stillmisty.xiantao.infrastructure.repository.SkillRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
+import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.inventory.EquipmentService;
 import top.stillmisty.xiantao.service.inventory.InventoryService;
 
@@ -44,12 +44,13 @@ public class ViewCommandHandler implements CommandGroup {
   private final BeastTemplateRepository beastTemplateRepository;
 
   /** 统一「查看」命令 — 依次尝试装备、怪物、物品 */
-  public String handleView(PlatformType platform, String openId, String target, TextFormat fmt) {
-    log.debug("处理查看 - Platform: {}, OpenId: {}, Target: {}", platform, openId, target);
+  public String handleView(String target, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
+    log.debug("处理查看 - UserId: {}, Target: {}", userId, target);
 
     String result =
         tryResolve(
-            () -> equipmentService.getEquipmentDetail(platform, openId, target),
+            () -> equipmentService.getEquipmentDetail(userId, target),
             vo -> formatEquipmentDetail(vo, fmt));
     if (result != null) return result;
 
@@ -58,7 +59,7 @@ public class ViewCommandHandler implements CommandGroup {
 
     result =
         tryResolve(
-            () -> inventoryService.getItemDetail(platform, openId, target),
+            () -> inventoryService.getItemDetail(userId, target),
             vo -> formatStackableItemDetail(vo, fmt));
     if (result != null) return result;
 

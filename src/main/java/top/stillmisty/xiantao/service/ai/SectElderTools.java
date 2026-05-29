@@ -40,7 +40,7 @@ public class SectElderTools {
         "inviteMember",
         () -> {
           Long userId = UserContext.requireCurrentUserId();
-          sectMemberService.inviteMember(userId, targetNickname);
+          sectMemberService.inviteMemberInternal(userId, targetNickname);
           return new InviteMemberResponse(targetNickname);
         });
   }
@@ -60,7 +60,7 @@ public class SectElderTools {
         "expelMember",
         () -> {
           Long userId = UserContext.requireCurrentUserId();
-          sectMemberService.kickMember(userId, targetNickname);
+          sectMemberService.kickMemberInternal(userId, targetNickname);
           return new ExpelMemberResponse(targetNickname);
         });
   }
@@ -79,7 +79,7 @@ public class SectElderTools {
         "postNotice",
         () -> {
           Long userId = UserContext.requireCurrentUserId();
-          sectMemberService.setNotice(userId, content);
+          sectMemberService.setNoticeInternal(userId, content);
           return new PostNoticeResponse();
         });
   }
@@ -100,7 +100,7 @@ public class SectElderTools {
         () -> {
           Long userId = UserContext.requireCurrentUserId();
           SkillOperationResultVO r =
-              sectSharedSkillService.removeSharedSkill(userId, sharedSkillId);
+              sectSharedSkillService.removeSharedSkillInternal(userId, sharedSkillId);
           return new RemoveSharedSkillResponse(sharedSkillId, r.skillName());
         });
   }
@@ -120,7 +120,8 @@ public class SectElderTools {
         "publishSharedSkill",
         () -> {
           Long userId = UserContext.requireCurrentUserId();
-          SkillOperationResultVO r = sectSharedSkillService.listSharedSkill(userId, sharedSkillId);
+          SkillOperationResultVO r =
+              sectSharedSkillService.listSharedSkillInternal(userId, sharedSkillId);
           return new PublishSharedSkillResponse(sharedSkillId, r.skillName());
         });
   }

@@ -9,6 +9,7 @@ import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.handle.command.GmCommandHandler;
+import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
 
 @Component
 @RequiredArgsConstructor
@@ -19,6 +20,7 @@ public class GmListener {
 
   // === OneBotV11 ===
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("GM帮助")
@@ -26,6 +28,7 @@ public class GmListener {
     replyHelper.oneBot(event, "GM帮助", gmCommandHandler::handleGmHelp);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("GM给灵石\\s*{{nickname}}\\s+{{amount}}")
@@ -34,11 +37,10 @@ public class GmListener {
       @FilterValue("nickname") String nickname,
       @FilterValue("amount") String amount) {
     replyHelper.oneBot(
-        event,
-        "GM给灵石",
-        (p, o, f) -> gmCommandHandler.handleGiveSpiritStones(p, o, nickname, amount, f));
+        event, "GM给灵石", fmt -> gmCommandHandler.handleGiveSpiritStones(nickname, amount, fmt));
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("GM给修为\\s*{{nickname}}\\s+{{amount}}")
@@ -47,9 +49,10 @@ public class GmListener {
       @FilterValue("nickname") String nickname,
       @FilterValue("amount") String amount) {
     replyHelper.oneBot(
-        event, "GM给修为", (p, o, f) -> gmCommandHandler.handleGiveExp(p, o, nickname, amount, f));
+        event, "GM给修为", fmt -> gmCommandHandler.handleGiveExp(nickname, amount, fmt));
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("GM治疗\\s*{{nickname}}")
@@ -57,6 +60,7 @@ public class GmListener {
     replyHelper.oneBot(event, "GM治疗", nickname, gmCommandHandler::handleHealUser);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("GM复活\\s*{{nickname}}")
@@ -64,6 +68,7 @@ public class GmListener {
     replyHelper.oneBot(event, "GM复活", nickname, gmCommandHandler::handleReviveUser);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("GM等级\\s*{{nickname}}\\s+{{level}}")
@@ -71,10 +76,10 @@ public class GmListener {
       OneBotMessageEvent event,
       @FilterValue("nickname") String nickname,
       @FilterValue("level") String level) {
-    replyHelper.oneBot(
-        event, "GM等级", (p, o, f) -> gmCommandHandler.handleSetLevel(p, o, nickname, level, f));
+    replyHelper.oneBot(event, "GM等级", fmt -> gmCommandHandler.handleSetLevel(nickname, level, fmt));
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("GM传送\\s*{{nickname}}\\s+{{locationName}}")
@@ -83,11 +88,10 @@ public class GmListener {
       @FilterValue("nickname") String nickname,
       @FilterValue("locationName") String locationName) {
     replyHelper.oneBot(
-        event,
-        "GM传送",
-        (p, o, f) -> gmCommandHandler.handleSetLocation(p, o, nickname, locationName, f));
+        event, "GM传送", fmt -> gmCommandHandler.handleSetLocation(nickname, locationName, fmt));
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("GM给物品\\s*{{nickname}}\\s+{{itemName}}\\s+{{quantity}}")
@@ -97,13 +101,12 @@ public class GmListener {
       @FilterValue("itemName") String itemName,
       @FilterValue("quantity") String quantity) {
     replyHelper.oneBot(
-        event,
-        "GM给物品",
-        (p, o, f) -> gmCommandHandler.handleGiveItem(p, o, nickname, itemName, quantity, f));
+        event, "GM给物品", fmt -> gmCommandHandler.handleGiveItem(nickname, itemName, quantity, fmt));
   }
 
   // === QQ ===
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("GM帮助")
@@ -111,6 +114,7 @@ public class GmListener {
     replyHelper.qq(event, "GM帮助", gmCommandHandler::handleGmHelp);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("GM给灵石\\s*{{nickname}}\\s+{{amount}}")
@@ -119,11 +123,10 @@ public class GmListener {
       @FilterValue("nickname") String nickname,
       @FilterValue("amount") String amount) {
     replyHelper.qq(
-        event,
-        "GM给灵石",
-        (p, o, f) -> gmCommandHandler.handleGiveSpiritStones(p, o, nickname, amount, f));
+        event, "GM给灵石", fmt -> gmCommandHandler.handleGiveSpiritStones(nickname, amount, fmt));
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("GM给修为\\s*{{nickname}}\\s+{{amount}}")
@@ -131,10 +134,10 @@ public class GmListener {
       QGGroupAtMessageCreateEvent event,
       @FilterValue("nickname") String nickname,
       @FilterValue("amount") String amount) {
-    replyHelper.qq(
-        event, "GM给修为", (p, o, f) -> gmCommandHandler.handleGiveExp(p, o, nickname, amount, f));
+    replyHelper.qq(event, "GM给修为", fmt -> gmCommandHandler.handleGiveExp(nickname, amount, fmt));
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("GM治疗\\s*{{nickname}}")
@@ -143,6 +146,7 @@ public class GmListener {
     replyHelper.qq(event, "GM治疗", nickname, gmCommandHandler::handleHealUser);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("GM复活\\s*{{nickname}}")
@@ -151,6 +155,7 @@ public class GmListener {
     replyHelper.qq(event, "GM复活", nickname, gmCommandHandler::handleReviveUser);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("GM等级\\s*{{nickname}}\\s+{{level}}")
@@ -158,10 +163,10 @@ public class GmListener {
       QGGroupAtMessageCreateEvent event,
       @FilterValue("nickname") String nickname,
       @FilterValue("level") String level) {
-    replyHelper.qq(
-        event, "GM等级", (p, o, f) -> gmCommandHandler.handleSetLevel(p, o, nickname, level, f));
+    replyHelper.qq(event, "GM等级", fmt -> gmCommandHandler.handleSetLevel(nickname, level, fmt));
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("GM传送\\s*{{nickname}}\\s+{{locationName}}")
@@ -170,11 +175,10 @@ public class GmListener {
       @FilterValue("nickname") String nickname,
       @FilterValue("locationName") String locationName) {
     replyHelper.qq(
-        event,
-        "GM传送",
-        (p, o, f) -> gmCommandHandler.handleSetLocation(p, o, nickname, locationName, f));
+        event, "GM传送", fmt -> gmCommandHandler.handleSetLocation(nickname, locationName, fmt));
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("GM给物品\\s*{{nickname}}\\s+{{itemName}}\\s+{{quantity}}")
@@ -184,8 +188,6 @@ public class GmListener {
       @FilterValue("itemName") String itemName,
       @FilterValue("quantity") String quantity) {
     replyHelper.qq(
-        event,
-        "GM给物品",
-        (p, o, f) -> gmCommandHandler.handleGiveItem(p, o, nickname, itemName, quantity, f));
+        event, "GM给物品", fmt -> gmCommandHandler.handleGiveItem(nickname, itemName, quantity, fmt));
   }
 }

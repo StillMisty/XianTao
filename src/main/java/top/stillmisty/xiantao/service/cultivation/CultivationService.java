@@ -4,7 +4,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.monster.CombatTeam;
 import top.stillmisty.xiantao.domain.monster.TribulationBoss;
 import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
@@ -12,15 +11,12 @@ import top.stillmisty.xiantao.domain.pill.entity.PlayerBuff;
 import top.stillmisty.xiantao.domain.pill.enums.PlayerBuffType;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.TribulationType;
 import top.stillmisty.xiantao.domain.user.vo.*;
 import top.stillmisty.xiantao.infrastructure.repository.PlayerBuffRepository;
 import top.stillmisty.xiantao.service.ProtectionHelper;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.SpiritStoneService;
-import top.stillmisty.xiantao.service.UserContext;
-import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.combat.CombatService;
 import top.stillmisty.xiantao.service.combat.PostCombatProcessor;
 import top.stillmisty.xiantao.service.masterapprentice.MasterApprenticeService;
@@ -44,52 +40,38 @@ public class CultivationService {
   private final PostCombatProcessor postCombatProcessor;
   private final TribulationNarrativeGenerator narrativeGenerator;
 
-  // ===================== 公开 API（含认证） =====================
+  // ===================== 公开 API =====================
 
-  @Authenticated
-  @Transactional
-  public ServiceResult<BreakthroughResult> attemptBreakthrough(
-      PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
-    return new ServiceResult.Success<>(attemptBreakthrough(userId));
+  public ServiceResult<BreakthroughResult> attemptBreakthrough(Long userId) {
+    return new ServiceResult.Success<>(attemptBreakthroughInternal(userId));
   }
 
-  @Authenticated
-  @Transactional
   public ServiceResult<DaoProtectionResult> establishProtection(
-      PlatformType platform, String openId, String protegeNickname) {
-    Long userId = UserContext.getCurrentUserId();
+      Long userId, String protegeNickname) {
     return new ServiceResult.Success<>(
         daoProtectionService.establishProtection(userId, protegeNickname));
   }
 
-  @Authenticated
-  @Transactional
-  public ServiceResult<DaoProtectionResult> removeProtection(
-      PlatformType platform, String openId, String protegeNickname) {
-    Long userId = UserContext.getCurrentUserId();
+  public ServiceResult<DaoProtectionResult> removeProtection(Long userId, String protegeNickname) {
     return new ServiceResult.Success<>(
         daoProtectionService.removeProtection(userId, protegeNickname));
   }
 
-  @Authenticated
-  public ServiceResult<DaoProtectionQueryResult> queryProtectionInfo(
-      PlatformType platform, String openId) {
-    Long userId = UserContext.getCurrentUserId();
+  public ServiceResult<DaoProtectionQueryResult> queryProtectionInfo(Long userId) {
     return new ServiceResult.Success<>(daoProtectionService.queryProtectionInfo(userId));
   }
 
-  // ===================== 内部 API（需预先完成认证） =====================
+  // ===================== 内部 API =====================
 
-  public DaoProtectionResult establishProtection(Long userId, String protegeNickname) {
+  public DaoProtectionResult establishProtectionInternal(Long userId, String protegeNickname) {
     return daoProtectionService.establishProtection(userId, protegeNickname);
   }
 
-  public DaoProtectionResult removeProtection(Long userId, String protegeNickname) {
+  public DaoProtectionResult removeProtectionInternal(Long userId, String protegeNickname) {
     return daoProtectionService.removeProtection(userId, protegeNickname);
   }
 
-  public DaoProtectionQueryResult queryProtectionInfo(Long userId) {
+  public DaoProtectionQueryResult queryProtectionInfoInternal(Long userId) {
     return daoProtectionService.queryProtectionInfo(userId);
   }
 
@@ -99,7 +81,7 @@ public class CultivationService {
    * @param userId 用户ID
    * @return 突破结果
    */
-  public BreakthroughResult attemptBreakthrough(Long userId) {
+  public BreakthroughResult attemptBreakthroughInternal(Long userId) {
     User user = userStateService.loadUser(userId);
 
     long expNeeded = user.calculateExpToNextLevel();

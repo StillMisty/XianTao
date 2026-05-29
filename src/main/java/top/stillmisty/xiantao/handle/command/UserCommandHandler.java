@@ -9,6 +9,7 @@ import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
+import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.player.UserService;
 
 @Slf4j
@@ -33,11 +34,11 @@ public class UserCommandHandler implements CommandGroup {
         });
   }
 
-  public String handleChangeNickname(
-      PlatformType platform, String openId, String newNickname, TextFormat fmt) {
-    log.debug("处理改号 - Platform: {}, OpenId: {}, NewNickname: {}", platform, openId, newNickname);
+  public String handleChangeNickname(String newNickname, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
+    log.debug("处理改号 - UserId: {}, NewNickname: {}", userId, newNickname);
     return CommandHandlerHelper.safeCall(
-        () -> userService.changeNickname(platform, openId, newNickname), fmt, msg -> msg);
+        () -> userService.changeNickname(userId, newNickname), fmt, msg -> msg);
   }
 
   @Override

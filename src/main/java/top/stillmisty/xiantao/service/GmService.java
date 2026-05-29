@@ -5,13 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.user.entity.User;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.repository.EquipmentTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.MapNodeRepository;
 import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
-import top.stillmisty.xiantao.service.annotation.Authenticated;
 import top.stillmisty.xiantao.service.inventory.EquipmentService;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
 
@@ -30,99 +28,78 @@ public class GmService {
 
   // ===================== 公开 API（含 GM 认证） =====================
 
-  @Authenticated
   @Transactional
-  public ServiceResult<String> gmHelp(PlatformType platform, String openId) {
-    Long gmUserId = UserContext.getCurrentUserId();
-    if (!isGm(gmUserId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
-    return new ServiceResult.Success<>(help());
+  public ServiceResult<String> gmHelp(Long userId) {
+    if (!isGm(userId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
+    return new ServiceResult.Success<>(helpInternal());
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<String> giveSpiritStones(
-      PlatformType platform, String openId, String targetNickname, long amount) {
-    Long gmUserId = UserContext.getCurrentUserId();
-    if (!isGm(gmUserId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
-    String result = giveSpiritStones(gmUserId, targetNickname, amount);
+  public ServiceResult<String> giveSpiritStones(Long userId, String targetNickname, long amount) {
+    if (!isGm(userId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
+    String result = giveSpiritStonesInternal(userId, targetNickname, amount);
     if (result.startsWith("未找到") || result.startsWith("数量必须")) {
       return ServiceResult.businessFailure(result);
     }
     return new ServiceResult.Success<>(result);
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<String> giveExp(
-      PlatformType platform, String openId, String targetNickname, long amount) {
-    Long gmUserId = UserContext.getCurrentUserId();
-    if (!isGm(gmUserId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
-    String result = giveExp(gmUserId, targetNickname, amount);
+  public ServiceResult<String> giveExp(Long userId, String targetNickname, long amount) {
+    if (!isGm(userId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
+    String result = giveExpInternal(userId, targetNickname, amount);
     if (result.startsWith("未找到") || result.startsWith("数量必须")) {
       return ServiceResult.businessFailure(result);
     }
     return new ServiceResult.Success<>(result);
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<String> healUser(
-      PlatformType platform, String openId, String targetNickname) {
-    Long gmUserId = UserContext.getCurrentUserId();
-    if (!isGm(gmUserId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
-    String result = healUser(gmUserId, targetNickname);
+  public ServiceResult<String> healUser(Long userId, String targetNickname) {
+    if (!isGm(userId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
+    String result = healUserInternal(userId, targetNickname);
     if (result.startsWith("未找到")) {
       return ServiceResult.businessFailure(result);
     }
     return new ServiceResult.Success<>(result);
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<String> reviveUser(
-      PlatformType platform, String openId, String targetNickname) {
-    Long gmUserId = UserContext.getCurrentUserId();
-    if (!isGm(gmUserId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
-    String result = reviveUser(gmUserId, targetNickname);
+  public ServiceResult<String> reviveUser(Long userId, String targetNickname) {
+    if (!isGm(userId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
+    String result = reviveUserInternal(userId, targetNickname);
     if (result.startsWith("未找到") || result.contains("未处于")) {
       return ServiceResult.businessFailure(result);
     }
     return new ServiceResult.Success<>(result);
   }
 
-  @Authenticated
   @Transactional
-  public ServiceResult<String> setLevel(
-      PlatformType platform, String openId, String targetNickname, int level) {
-    Long gmUserId = UserContext.getCurrentUserId();
-    if (!isGm(gmUserId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
-    String result = setLevel(gmUserId, targetNickname, level);
+  public ServiceResult<String> setLevel(Long userId, String targetNickname, int level) {
+    if (!isGm(userId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
+    String result = setLevelInternal(userId, targetNickname, level);
     if (result.startsWith("未找到") || result.startsWith("等级必须")) {
       return ServiceResult.businessFailure(result);
     }
     return new ServiceResult.Success<>(result);
   }
 
-  @Authenticated
   @Transactional
   public ServiceResult<String> setLocation(
-      PlatformType platform, String openId, String targetNickname, String locationName) {
-    Long gmUserId = UserContext.getCurrentUserId();
-    if (!isGm(gmUserId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
-    String result = setLocation(gmUserId, targetNickname, locationName);
+      Long userId, String targetNickname, String locationName) {
+    if (!isGm(userId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
+    String result = setLocationInternal(userId, targetNickname, locationName);
     if (result.startsWith("未找到")) {
       return ServiceResult.businessFailure(result);
     }
     return new ServiceResult.Success<>(result);
   }
 
-  @Authenticated
   @Transactional
   public ServiceResult<String> giveItem(
-      PlatformType platform, String openId, String targetNickname, String itemName, int quantity) {
-    Long gmUserId = UserContext.getCurrentUserId();
-    if (!isGm(gmUserId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
-    String result = giveItem(gmUserId, targetNickname, itemName, quantity);
+      Long userId, String targetNickname, String itemName, int quantity) {
+    if (!isGm(userId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
+    String result = giveItemInternal(userId, targetNickname, itemName, quantity);
     if (result.startsWith("未找到") || result.startsWith("数量必须")) {
       return ServiceResult.businessFailure(result);
     }
@@ -135,7 +112,7 @@ public class GmService {
     return userRepository.findById(userId).map(u -> Boolean.TRUE.equals(u.getGm())).orElse(false);
   }
 
-  String help() {
+  String helpInternal() {
     return """
             【GM指令列表】
             GM帮助 - 查看此列表
@@ -149,7 +126,7 @@ public class GmService {
   }
 
   @Transactional
-  String giveSpiritStones(Long gmUserId, String targetNickname, long amount) {
+  String giveSpiritStonesInternal(Long gmUserId, String targetNickname, long amount) {
     if (amount <= 0) return "数量必须大于0";
     User target = getTargetUser(targetNickname);
     if (target == null) return "未找到玩家：" + targetNickname;
@@ -160,7 +137,7 @@ public class GmService {
   }
 
   @Transactional
-  String giveExp(Long gmUserId, String targetNickname, long amount) {
+  String giveExpInternal(Long gmUserId, String targetNickname, long amount) {
     if (amount <= 0) return "数量必须大于0";
     User target = getTargetUser(targetNickname);
     if (target == null) return "未找到玩家：" + targetNickname;
@@ -184,7 +161,7 @@ public class GmService {
   }
 
   @Transactional
-  String healUser(Long gmUserId, String targetNickname) {
+  String healUserInternal(Long gmUserId, String targetNickname) {
     User target = getTargetUser(targetNickname);
     if (target == null) return "未找到玩家：" + targetNickname;
     int maxHp = target.calculateMaxHp();
@@ -196,7 +173,7 @@ public class GmService {
   }
 
   @Transactional
-  String reviveUser(Long gmUserId, String targetNickname) {
+  String reviveUserInternal(Long gmUserId, String targetNickname) {
     User target = getTargetUser(targetNickname);
     if (target == null) return "未找到玩家：" + targetNickname;
     if (target.getStatus() != UserStatus.DYING) return targetNickname + " 未处于濒死状态";
@@ -211,7 +188,7 @@ public class GmService {
   }
 
   @Transactional
-  String setLevel(Long gmUserId, String targetNickname, int level) {
+  String setLevelInternal(Long gmUserId, String targetNickname, int level) {
     if (level < 1) return "等级必须大于等于1";
     User target = getTargetUser(targetNickname);
     if (target == null) return "未找到玩家：" + targetNickname;
@@ -224,7 +201,7 @@ public class GmService {
   }
 
   @Transactional
-  String setLocation(Long gmUserId, String targetNickname, String locationName) {
+  String setLocationInternal(Long gmUserId, String targetNickname, String locationName) {
     User target = getTargetUser(targetNickname);
     if (target == null) return "未找到玩家：" + targetNickname;
     var mapNode = mapNodeRepository.findByName(locationName);
@@ -238,12 +215,11 @@ public class GmService {
   }
 
   @Transactional
-  String giveItem(Long gmUserId, String targetNickname, String itemName, int quantity) {
+  String giveItemInternal(Long gmUserId, String targetNickname, String itemName, int quantity) {
     if (quantity <= 0) return "数量必须大于0";
     User target = getTargetUser(targetNickname);
     if (target == null) return "未找到玩家：" + targetNickname;
 
-    // 尝试查找堆叠物品模板
     var itemTemplate = itemTemplateRepository.findByName(itemName);
     if (itemTemplate.isPresent()) {
       var template = itemTemplate.get();
@@ -253,7 +229,6 @@ public class GmService {
       return String.format("已给 %s 添加 %s x%d", targetNickname, itemName, quantity);
     }
 
-    // 尝试查找装备模板
     var equipTemplate = equipmentTemplateRepository.findByName(itemName);
     if (equipTemplate.isPresent()) {
       var template = equipTemplate.get();

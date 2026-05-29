@@ -10,6 +10,7 @@ import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.handle.command.MapCommandHandler;
+import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
 
 @Slf4j
 @Component
@@ -20,6 +21,7 @@ public class MapListener {
 
   // === OneBotV11 ===
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("地图")
@@ -27,6 +29,7 @@ public class MapListener {
     replyHelper.oneBot(event, mapCommandHandler::handleMap);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("前往\\s*{{mapName}}")
@@ -34,6 +37,7 @@ public class MapListener {
     replyHelper.oneBot(event, mapName, mapCommandHandler::handleGoTo);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("历练")
@@ -41,6 +45,7 @@ public class MapListener {
     replyHelper.oneBot(event, mapCommandHandler::handleTraining);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("历练结算")
@@ -48,6 +53,7 @@ public class MapListener {
     replyHelper.oneBot(event, mapCommandHandler::handleEndTraining);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("悬赏")
@@ -55,6 +61,7 @@ public class MapListener {
     replyHelper.oneBot(event, mapCommandHandler::handleBounty);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("悬赏接取\\s*{{bountyId}}")
@@ -62,6 +69,7 @@ public class MapListener {
     replyHelper.oneBot(event, bountyId, mapCommandHandler::handleStartBounty);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("悬赏结算")
@@ -69,6 +77,7 @@ public class MapListener {
     replyHelper.oneBot(event, mapCommandHandler::handleCompleteBounty);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("悬赏放弃")
@@ -78,6 +87,7 @@ public class MapListener {
 
   // === QQ ===
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("地图")
@@ -85,6 +95,7 @@ public class MapListener {
     replyHelper.qq(event, mapCommandHandler::handleMap);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("前往\\s*{{mapName}}")
@@ -92,6 +103,7 @@ public class MapListener {
     replyHelper.qq(event, mapName, mapCommandHandler::handleGoTo);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("历练")
@@ -99,6 +111,7 @@ public class MapListener {
     replyHelper.qq(event, mapCommandHandler::handleTraining);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("历练结算")
@@ -106,6 +119,7 @@ public class MapListener {
     replyHelper.qq(event, mapCommandHandler::handleEndTraining);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("悬赏")
@@ -113,6 +127,7 @@ public class MapListener {
     replyHelper.qq(event, mapCommandHandler::handleBounty);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("悬赏接取\\s*{{bountyId}}")
@@ -121,6 +136,7 @@ public class MapListener {
     replyHelper.qq(event, bountyId, mapCommandHandler::handleStartBounty);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("悬赏结算")
@@ -128,6 +144,7 @@ public class MapListener {
     replyHelper.qq(event, mapCommandHandler::handleCompleteBounty);
   }
 
+  @RequireAuth
   @Listener
   @ContentTrim
   @Filter("悬赏放弃")

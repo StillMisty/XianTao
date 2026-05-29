@@ -8,9 +8,9 @@ import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.beast.vo.BeastStatusVO;
 import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
+import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.beast.BeastCombatService;
 
 @Slf4j
@@ -20,18 +20,18 @@ public class BeastCommandHandler implements CommandGroup {
 
   private final BeastCombatService beastCombatService;
 
-  public String handleGetDeployedBeasts(PlatformType platform, String openId, TextFormat fmt) {
+  public String handleGetDeployedBeasts(TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> beastCombatService.getDeployedBeasts(platform, openId),
+        () -> beastCombatService.getDeployedBeasts(userId),
         fmt,
         beasts -> formatDeployedBeasts(beasts, fmt));
   }
 
-  public String handleBeastList(PlatformType platform, String openId, TextFormat fmt) {
+  public String handleBeastList(TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> beastCombatService.getBeastList(platform, openId),
-        fmt,
-        beasts -> formatBeastList(beasts, fmt));
+        () -> beastCombatService.getBeastList(userId), fmt, beasts -> formatBeastList(beasts, fmt));
   }
 
   private String formatDeployedBeasts(List<BeastStatusVO> beasts, TextFormat fmt) {

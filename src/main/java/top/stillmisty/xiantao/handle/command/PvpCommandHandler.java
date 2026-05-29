@@ -7,9 +7,9 @@ import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.monster.vo.CombatLogEntry;
 import top.stillmisty.xiantao.domain.pvp.vo.SparResultVO;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
+import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.pvp.PvpService;
 
 @Component
@@ -18,12 +18,10 @@ public class PvpCommandHandler implements CommandGroup {
 
   private final PvpService pvpService;
 
-  public String handleSpar(
-      PlatformType platform, String openId, String targetNickname, TextFormat fmt) {
+  public String handleSpar(String targetNickname, TextFormat fmt) {
+    Long userId = UserContext.requireCurrentUserId();
     return CommandHandlerHelper.safeCall(
-        () -> pvpService.spar(platform, openId, targetNickname),
-        fmt,
-        vo -> formatSparResult(vo, fmt));
+        () -> pvpService.spar(userId, targetNickname), fmt, vo -> formatSparResult(vo, fmt));
   }
 
   private String formatSparResult(SparResultVO vo, TextFormat fmt) {
