@@ -26,17 +26,15 @@ public class GmService {
   private final MapNodeRepository mapNodeRepository;
   private final SpiritStoneService spiritStoneService;
 
-  // ===================== 公开 API（含 GM 认证） =====================
+  // ===================== 公开 API（GM认证由拦截器处理） =====================
 
   @Transactional
   public ServiceResult<String> gmHelp(Long userId) {
-    if (!isGm(userId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
     return new ServiceResult.Success<>(helpInternal());
   }
 
   @Transactional
   public ServiceResult<String> giveSpiritStones(Long userId, String targetNickname, long amount) {
-    if (!isGm(userId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
     String result = giveSpiritStonesInternal(userId, targetNickname, amount);
     if (result.startsWith("未找到") || result.startsWith("数量必须")) {
       return ServiceResult.businessFailure(result);
@@ -46,7 +44,6 @@ public class GmService {
 
   @Transactional
   public ServiceResult<String> giveExp(Long userId, String targetNickname, long amount) {
-    if (!isGm(userId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
     String result = giveExpInternal(userId, targetNickname, amount);
     if (result.startsWith("未找到") || result.startsWith("数量必须")) {
       return ServiceResult.businessFailure(result);
@@ -56,7 +53,6 @@ public class GmService {
 
   @Transactional
   public ServiceResult<String> healUser(Long userId, String targetNickname) {
-    if (!isGm(userId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
     String result = healUserInternal(userId, targetNickname);
     if (result.startsWith("未找到")) {
       return ServiceResult.businessFailure(result);
@@ -66,7 +62,6 @@ public class GmService {
 
   @Transactional
   public ServiceResult<String> reviveUser(Long userId, String targetNickname) {
-    if (!isGm(userId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
     String result = reviveUserInternal(userId, targetNickname);
     if (result.startsWith("未找到") || result.contains("未处于")) {
       return ServiceResult.businessFailure(result);
@@ -76,7 +71,6 @@ public class GmService {
 
   @Transactional
   public ServiceResult<String> setLevel(Long userId, String targetNickname, int level) {
-    if (!isGm(userId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
     String result = setLevelInternal(userId, targetNickname, level);
     if (result.startsWith("未找到") || result.startsWith("等级必须")) {
       return ServiceResult.businessFailure(result);
@@ -87,7 +81,6 @@ public class GmService {
   @Transactional
   public ServiceResult<String> setLocation(
       Long userId, String targetNickname, String locationName) {
-    if (!isGm(userId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
     String result = setLocationInternal(userId, targetNickname, locationName);
     if (result.startsWith("未找到")) {
       return ServiceResult.businessFailure(result);
@@ -98,7 +91,6 @@ public class GmService {
   @Transactional
   public ServiceResult<String> giveItem(
       Long userId, String targetNickname, String itemName, int quantity) {
-    if (!isGm(userId)) return ServiceResult.businessFailure("你不是GM，无法执行GM指令");
     String result = giveItemInternal(userId, targetNickname, itemName, quantity);
     if (result.startsWith("未找到") || result.startsWith("数量必须")) {
       return ServiceResult.businessFailure(result);
@@ -107,10 +99,6 @@ public class GmService {
   }
 
   // ===================== 内部 API（需预先完成认证） =====================
-
-  private boolean isGm(Long userId) {
-    return userRepository.findById(userId).map(u -> Boolean.TRUE.equals(u.getGm())).orElse(false);
-  }
 
   String helpInternal() {
     return """

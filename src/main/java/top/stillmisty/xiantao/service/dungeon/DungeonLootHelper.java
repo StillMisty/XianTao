@@ -5,14 +5,11 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonPoiConfig;
 import top.stillmisty.xiantao.domain.dungeon.enums.PoiType;
 import top.stillmisty.xiantao.domain.dungeon.vo.DropItemVO;
-import top.stillmisty.xiantao.domain.dungeon.vo.ExploreResultVO;
 import top.stillmisty.xiantao.domain.dungeon.vo.LootPoolEntry;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
-import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.util.WeightedRandom;
 import top.stillmisty.xiantao.service.SpiritStoneService;
@@ -25,53 +22,6 @@ public class DungeonLootHelper {
   private final ItemTemplateRepository itemTemplateRepository;
   private final StackableItemService stackableItemService;
   private final SpiritStoneService spiritStoneService;
-
-  @Transactional
-  public ExploreResultVO executeGather(User user, DungeonPoiConfig poi) {
-    LootRollResult rollResult = rollLoot(poi);
-    List<DropItemVO> drops = rollResult.drops();
-    long spiritStones = ThreadLocalRandom.current().nextInt(10, 31);
-
-    giveDrops(user.getId(), drops, spiritStones, rollResult.nameToTemplate());
-
-    return new ExploreResultVO(
-        poi.getName(),
-        "采集",
-        false,
-        null,
-        drops,
-        0,
-        spiritStones,
-        false,
-        "你在" + poi.getName() + "中采集到了一些物资。");
-  }
-
-  @Transactional
-  public ExploreResultVO executeSearch(User user, DungeonPoiConfig poi) {
-    LootRollResult rollResult = rollLoot(poi);
-    List<DropItemVO> drops = rollResult.drops();
-    long spiritStones = ThreadLocalRandom.current().nextInt(20, 81);
-
-    boolean triggerCombat = ThreadLocalRandom.current().nextDouble() < 0.2;
-    String combatSummary = null;
-    if (triggerCombat) {
-      combatSummary = "搜索时遭遇了守护残魂，但被你轻松解决了。";
-      spiritStones += ThreadLocalRandom.current().nextInt(20, 61);
-    }
-
-    giveDrops(user.getId(), drops, spiritStones, rollResult.nameToTemplate());
-
-    return new ExploreResultVO(
-        poi.getName(),
-        "搜索",
-        triggerCombat,
-        combatSummary,
-        drops,
-        0,
-        spiritStones,
-        false,
-        "你在" + poi.getName() + "中仔细搜索了一番。");
-  }
 
   public LootRollResult rollLoot(DungeonPoiConfig poi) {
     List<DropItemVO> drops = new ArrayList<>();

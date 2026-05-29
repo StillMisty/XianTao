@@ -15,10 +15,10 @@ import top.stillmisty.xiantao.domain.item.enums.MaterialAttribute;
 import top.stillmisty.xiantao.domain.item.vo.ItemEntry;
 import top.stillmisty.xiantao.domain.pill.enums.ElementType;
 import top.stillmisty.xiantao.domain.pill.enums.PillQuality;
-import top.stillmisty.xiantao.domain.shared.SharedKernel;
 import top.stillmisty.xiantao.infrastructure.repository.EquipmentRepository;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.StackableItemRepository;
+import top.stillmisty.xiantao.service.fudi.FudiHelper;
 
 @Component
 @RequiredArgsConstructor
@@ -31,7 +31,7 @@ public class ItemResolver {
   // ===================== Result Types =====================
 
   private int tier(ItemTemplate template) {
-    return SharedKernel.getCropTier(template.getGrowTime() != null ? template.getGrowTime() : 0);
+    return FudiHelper.getCropTier(template.getGrowTime() != null ? template.getGrowTime() : 0);
   }
 
   private String tierMetadata(ItemTemplate template) {

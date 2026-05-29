@@ -119,7 +119,7 @@ public class FarmService {
     stackableItemService.reduceStackableItem(userId, stackableItem.getId(), 1);
 
     int growTime = seedTemplate.getGrowTime() != null ? seedTemplate.getGrowTime() : 24;
-    int cropTier = fudiHelper.getCropTier(growTime);
+    int cropTier = FudiHelper.getCropTier(growTime);
     Integer cropId = seedTemplate.getId().intValue();
 
     return plantCrop(userId, cellId, cropId, cropName, cropTier);
@@ -141,7 +141,7 @@ public class FarmService {
         stackableItemService.reduceStackableItem(userId, stackableItem.getId(), 1);
 
         int growTime = template.getGrowTime() != null ? template.getGrowTime() : 24;
-        int cropTier = fudiHelper.getCropTier(growTime);
+        int cropTier = FudiHelper.getCropTier(growTime);
         Integer cropId = template.getId().intValue();
         String cropName = template.getName();
 
@@ -248,7 +248,7 @@ public class FarmService {
     LocalDateTime now = LocalDateTime.now();
     double baseGrowthHours = getBaseGrowthHours(farm.cropId());
     int cellLevel = cell.getCellLevel();
-    int cropTier = fudiHelper.getCropTier((int) baseGrowthHours);
+    int cropTier = FudiHelper.getCropTier((int) baseGrowthHours);
     double levelSpeed = fudiHelper.getLevelSpeedMultiplier(cellLevel, Math.max(1, cropTier));
     LocalDateTime matureTime = now.plusHours((long) (baseGrowthHours / levelSpeed));
 

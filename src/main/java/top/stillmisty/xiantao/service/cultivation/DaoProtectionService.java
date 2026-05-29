@@ -9,7 +9,6 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import top.stillmisty.xiantao.domain.shared.SharedKernel;
 import top.stillmisty.xiantao.domain.user.entity.DaoProtection;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
@@ -112,7 +111,7 @@ public class DaoProtectionService {
         DaoProtection.create().setProtectorId(protectorId).setProtegeId(protege.getId());
     daoProtectionRepository.save(protection);
 
-    double singleBonus = SharedKernel.calculateSingleProtectorBonus(protector, protege);
+    double singleBonus = ProtectionHelper.calculateSingleProtectorBonus(protector, protege);
 
     return new DaoProtectionResult(
         true,
@@ -126,7 +125,7 @@ public class DaoProtectionService {
         protege.getLevel(),
         singleBonus,
         null,
-        SharedKernel.isInSameLocation(protector, protege));
+        ProtectionHelper.isInSameLocation(protector, protege));
   }
 
   @Transactional
@@ -222,8 +221,8 @@ public class DaoProtectionService {
     for (DaoProtection protection : protectingList) {
       User protege = protegeMap.get(protection.getProtegeId());
       if (protege != null) {
-        boolean inSameLocation = SharedKernel.isInSameLocation(user, protege);
-        double bonus = SharedKernel.calculateSingleProtectorBonus(user, protege);
+        boolean inSameLocation = ProtectionHelper.isInSameLocation(user, protege);
+        double bonus = ProtectionHelper.calculateSingleProtectorBonus(user, protege);
         protectingInfoList.add(
             ProtectionInfo.builder()
                 .userId(protege.getId())
@@ -260,10 +259,10 @@ public class DaoProtectionService {
     for (DaoProtection protection : protectedByList) {
       User protector = protectorMap.get(protection.getProtectorId());
       if (protector != null) {
-        boolean inSameLocation = SharedKernel.isInSameLocation(user, protector);
+        boolean inSameLocation = ProtectionHelper.isInSameLocation(user, protector);
         double bonus = 0.0;
         if (inSameLocation) {
-          bonus = SharedKernel.calculateSingleProtectorBonus(protector, user);
+          bonus = ProtectionHelper.calculateSingleProtectorBonus(protector, user);
           totalBonus += bonus;
           sameLocationCount++;
         }

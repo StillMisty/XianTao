@@ -14,7 +14,6 @@ import top.stillmisty.xiantao.domain.event.enums.ActivityType;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
 import top.stillmisty.xiantao.domain.item.vo.CharacterStatusResult;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
-import top.stillmisty.xiantao.domain.shared.SharedKernel;
 import top.stillmisty.xiantao.domain.user.entity.DaoProtection;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
@@ -23,6 +22,7 @@ import top.stillmisty.xiantao.infrastructure.repository.DaoProtectionRepository;
 import top.stillmisty.xiantao.infrastructure.repository.EquipmentRepository;
 import top.stillmisty.xiantao.infrastructure.repository.MapNodeRepository;
 import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
+import top.stillmisty.xiantao.service.ProtectionHelper;
 import top.stillmisty.xiantao.service.ServiceResult;
 
 /** 角色状态服务 负责：角色详情查询（HP、属性、装备、突破进度、护道信息） */
@@ -276,8 +276,9 @@ public class CharacterStatusService {
                 return null;
               }
 
-              boolean inSameLocation = SharedKernel.isInSameLocation(currentUser, targetUser);
-              double bonus = SharedKernel.calculateSingleProtectorBonus(currentUser, targetUser);
+              boolean inSameLocation = ProtectionHelper.isInSameLocation(currentUser, targetUser);
+              double bonus =
+                  ProtectionHelper.calculateSingleProtectorBonus(currentUser, targetUser);
 
               return new CharacterStatusResult.ProtectionInfoVO(
                   targetUser.getId(),
@@ -309,11 +310,11 @@ public class CharacterStatusService {
                 return null;
               }
 
-              boolean inSameLocation = SharedKernel.isInSameLocation(currentUser, protector);
+              boolean inSameLocation = ProtectionHelper.isInSameLocation(currentUser, protector);
 
               double bonus = 0.0;
               if (inSameLocation) {
-                bonus = SharedKernel.calculateSingleProtectorBonus(protector, currentUser);
+                bonus = ProtectionHelper.calculateSingleProtectorBonus(protector, currentUser);
               }
 
               return new CharacterStatusResult.ProtectionInfoVO(

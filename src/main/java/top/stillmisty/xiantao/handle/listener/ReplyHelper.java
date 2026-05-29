@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import love.forte.simbot.component.onebot.v11.core.event.message.OneBotMessageEvent;
 import love.forte.simbot.component.qguild.event.QGGroupAtMessageCreateEvent;
 import love.forte.simbot.component.qguild.message.QGMarkdown;
+import love.forte.simbot.event.MessageEvent;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.TextFormat;
@@ -28,6 +29,24 @@ public class ReplyHelper {
   @FunctionalInterface
   public interface CommandFn1 {
     String execute(String arg, TextFormat fmt);
+  }
+
+  // ===================== 通用 dispatch 方法（支持多平台） =====================
+
+  public void dispatch(MessageEvent event, String command, CommandFn fn) {
+    switch (event) {
+      case OneBotMessageEvent oneBotEvent -> oneBot(oneBotEvent, command, fn);
+      case QGGroupAtMessageCreateEvent qqEvent -> qq(qqEvent, command, fn);
+      default -> throw new IllegalArgumentException("不支持的事件类型: " + event.getClass().getName());
+    }
+  }
+
+  public void dispatch(MessageEvent event, String command, String arg, CommandFn1 fn) {
+    switch (event) {
+      case OneBotMessageEvent oneBotEvent -> oneBot(oneBotEvent, command, arg, fn);
+      case QGGroupAtMessageCreateEvent qqEvent -> qq(qqEvent, command, arg, fn);
+      default -> throw new IllegalArgumentException("不支持的事件类型: " + event.getClass().getName());
+    }
   }
 
   // ===================== 便捷 dispatch 方法（封装 platform/openId/fmt 常量的提取 + 日志） =====================

@@ -10,6 +10,7 @@ import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.handle.command.GmCommandHandler;
 import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
+import top.stillmisty.xiantao.handle.interceptor.RequireGm;
 
 @Component
 @RequiredArgsConstructor
@@ -21,6 +22,7 @@ public class GmListener {
   // === OneBotV11 ===
 
   @RequireAuth
+  @RequireGm
   @Listener
   @ContentTrim
   @Filter("GM帮助")
@@ -29,6 +31,7 @@ public class GmListener {
   }
 
   @RequireAuth
+  @RequireGm
   @Listener
   @ContentTrim
   @Filter("GM给灵石\\s*{{nickname}}\\s+{{amount}}")
@@ -41,6 +44,7 @@ public class GmListener {
   }
 
   @RequireAuth
+  @RequireGm
   @Listener
   @ContentTrim
   @Filter("GM给修为\\s*{{nickname}}\\s+{{amount}}")
@@ -53,6 +57,7 @@ public class GmListener {
   }
 
   @RequireAuth
+  @RequireGm
   @Listener
   @ContentTrim
   @Filter("GM治疗\\s*{{nickname}}")
@@ -61,6 +66,7 @@ public class GmListener {
   }
 
   @RequireAuth
+  @RequireGm
   @Listener
   @ContentTrim
   @Filter("GM复活\\s*{{nickname}}")
@@ -69,6 +75,7 @@ public class GmListener {
   }
 
   @RequireAuth
+  @RequireGm
   @Listener
   @ContentTrim
   @Filter("GM等级\\s*{{nickname}}\\s+{{level}}")
@@ -80,6 +87,7 @@ public class GmListener {
   }
 
   @RequireAuth
+  @RequireGm
   @Listener
   @ContentTrim
   @Filter("GM传送\\s*{{nickname}}\\s+{{locationName}}")
@@ -92,6 +100,7 @@ public class GmListener {
   }
 
   @RequireAuth
+  @RequireGm
   @Listener
   @ContentTrim
   @Filter("GM给物品\\s*{{nickname}}\\s+{{itemName}}\\s+{{quantity}}")
@@ -107,6 +116,7 @@ public class GmListener {
   // === QQ ===
 
   @RequireAuth
+  @RequireGm
   @Listener
   @ContentTrim
   @Filter("GM帮助")
@@ -115,6 +125,7 @@ public class GmListener {
   }
 
   @RequireAuth
+  @RequireGm
   @Listener
   @ContentTrim
   @Filter("GM给灵石\\s*{{nickname}}\\s+{{amount}}")
@@ -127,6 +138,7 @@ public class GmListener {
   }
 
   @RequireAuth
+  @RequireGm
   @Listener
   @ContentTrim
   @Filter("GM给修为\\s*{{nickname}}\\s+{{amount}}")
@@ -138,6 +150,7 @@ public class GmListener {
   }
 
   @RequireAuth
+  @RequireGm
   @Listener
   @ContentTrim
   @Filter("GM治疗\\s*{{nickname}}")
@@ -147,6 +160,7 @@ public class GmListener {
   }
 
   @RequireAuth
+  @RequireGm
   @Listener
   @ContentTrim
   @Filter("GM复活\\s*{{nickname}}")
@@ -156,6 +170,7 @@ public class GmListener {
   }
 
   @RequireAuth
+  @RequireGm
   @Listener
   @ContentTrim
   @Filter("GM等级\\s*{{nickname}}\\s+{{level}}")
@@ -167,6 +182,7 @@ public class GmListener {
   }
 
   @RequireAuth
+  @RequireGm
   @Listener
   @ContentTrim
   @Filter("GM传送\\s*{{nickname}}\\s+{{locationName}}")
@@ -179,6 +195,7 @@ public class GmListener {
   }
 
   @RequireAuth
+  @RequireGm
   @Listener
   @ContentTrim
   @Filter("GM给物品\\s*{{nickname}}\\s+{{itemName}}\\s+{{quantity}}")

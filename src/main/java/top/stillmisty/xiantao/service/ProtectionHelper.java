@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import top.stillmisty.xiantao.domain.shared.SharedKernel;
 import top.stillmisty.xiantao.domain.user.entity.DaoProtection;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.infrastructure.repository.DaoProtectionRepository;
@@ -29,12 +28,23 @@ public class ProtectionHelper {
       Optional<User> protectorOpt = userRepository.findById(protection.getProtectorId());
       if (protectorOpt.isPresent()) {
         User protector = protectorOpt.get();
-        if (SharedKernel.isInSameLocation(protector, protege)) {
-          totalBonus += SharedKernel.calculateSingleProtectorBonus(protector, protege);
+        if (isInSameLocation(protector, protege)) {
+          totalBonus += calculateSingleProtectorBonus(protector, protege);
         }
       }
     }
 
     return Math.min(MAX_TOTAL_BONUS_PERCENTAGE, totalBonus);
+  }
+
+  /** 计算单个护道者的加成 公式：5% + (护道者境界层级 - 突破者境界层级) × 1% */
+  public static double calculateSingleProtectorBonus(User protector, User protege) {
+    int levelDiff = protector.getLevel() - protege.getLevel();
+    return 5.0 + (levelDiff * 1.0);
+  }
+
+  /** 检查两个用户是否在同一地点 */
+  public static boolean isInSameLocation(User user1, User user2) {
+    return user1.getLocationId().equals(user2.getLocationId());
   }
 }

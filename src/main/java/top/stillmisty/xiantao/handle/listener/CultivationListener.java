@@ -1,8 +1,7 @@
 package top.stillmisty.xiantao.handle.listener;
 
 import lombok.RequiredArgsConstructor;
-import love.forte.simbot.component.onebot.v11.core.event.message.OneBotMessageEvent;
-import love.forte.simbot.component.qguild.event.QGGroupAtMessageCreateEvent;
+import love.forte.simbot.event.MessageEvent;
 import love.forte.simbot.quantcat.common.annotations.ContentTrim;
 import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.FilterValue;
@@ -18,74 +17,37 @@ public class CultivationListener {
   private final CultivationCommandHandler cultivationCommandHandler;
   private final ReplyHelper replyHelper;
 
-  // === OneBotV11 ===
-
   @RequireAuth
   @Listener
   @ContentTrim
   @Filter("突破")
-  public void breakthrough(OneBotMessageEvent event) {
-    replyHelper.oneBot(event, "突破", cultivationCommandHandler::handleBreakthrough);
+  public void breakthrough(MessageEvent event) {
+    replyHelper.dispatch(event, "突破", cultivationCommandHandler::handleBreakthrough);
   }
 
   @RequireAuth
   @Listener
   @ContentTrim
   @Filter("护道\\s*{{nickname}}")
-  public void establishProtection(
-      OneBotMessageEvent event, @FilterValue("nickname") String nickname) {
-    replyHelper.oneBot(event, "护道", nickname, cultivationCommandHandler::handleEstablishProtection);
+  public void establishProtection(MessageEvent event, @FilterValue("nickname") String nickname) {
+    replyHelper.dispatch(
+        event, "护道", nickname, cultivationCommandHandler::handleEstablishProtection);
   }
 
   @RequireAuth
   @Listener
   @ContentTrim
   @Filter("护道解除\\s*{{nickname}}")
-  public void removeProtection(OneBotMessageEvent event, @FilterValue("nickname") String nickname) {
-    replyHelper.oneBot(event, "护道解除", nickname, cultivationCommandHandler::handleRemoveProtection);
+  public void removeProtection(MessageEvent event, @FilterValue("nickname") String nickname) {
+    replyHelper.dispatch(
+        event, "护道解除", nickname, cultivationCommandHandler::handleRemoveProtection);
   }
 
   @RequireAuth
   @Listener
   @ContentTrim
   @Filter("护道查询")
-  public void queryProtection(OneBotMessageEvent event) {
-    replyHelper.oneBot(event, "护道查询", cultivationCommandHandler::handleQueryProtection);
-  }
-
-  // === QQ ===
-
-  @RequireAuth
-  @Listener
-  @ContentTrim
-  @Filter("突破")
-  public void breakthroughQq(QGGroupAtMessageCreateEvent event) {
-    replyHelper.qq(event, "突破", cultivationCommandHandler::handleBreakthrough);
-  }
-
-  @RequireAuth
-  @Listener
-  @ContentTrim
-  @Filter("护道\\s*{{nickname}}")
-  public void establishProtectionQq(
-      QGGroupAtMessageCreateEvent event, @FilterValue("nickname") String nickname) {
-    replyHelper.qq(event, "护道", nickname, cultivationCommandHandler::handleEstablishProtection);
-  }
-
-  @RequireAuth
-  @Listener
-  @ContentTrim
-  @Filter("护道解除\\s*{{nickname}}")
-  public void removeProtectionQq(
-      QGGroupAtMessageCreateEvent event, @FilterValue("nickname") String nickname) {
-    replyHelper.qq(event, "护道解除", nickname, cultivationCommandHandler::handleRemoveProtection);
-  }
-
-  @RequireAuth
-  @Listener
-  @ContentTrim
-  @Filter("护道查询")
-  public void queryProtectionQq(QGGroupAtMessageCreateEvent event) {
-    replyHelper.qq(event, "护道查询", cultivationCommandHandler::handleQueryProtection);
+  public void queryProtection(MessageEvent event) {
+    replyHelper.dispatch(event, "护道查询", cultivationCommandHandler::handleQueryProtection);
   }
 }

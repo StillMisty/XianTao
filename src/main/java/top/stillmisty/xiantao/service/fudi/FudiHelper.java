@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
-import top.stillmisty.xiantao.domain.shared.SharedKernel;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.infrastructure.repository.BeastRepository;
 import top.stillmisty.xiantao.infrastructure.repository.FudiRepository;
@@ -66,9 +65,13 @@ public class FudiHelper {
     }
   }
 
-  /** 根据生长时间计算作物等阶（委托至 SharedKernel） */
-  public int getCropTier(int growTime) {
-    return SharedKernel.getCropTier(growTime);
+  /** 根据生长时间计算作物等阶 */
+  public static int getCropTier(int growTime) {
+    if (growTime <= 24) return 1;
+    if (growTime <= 48) return 2;
+    if (growTime <= 72) return 3;
+    if (growTime <= 120) return 4;
+    return 5;
   }
 
   /** 根据灵田等级高于最低需求的程度计算生长速度倍率 */
