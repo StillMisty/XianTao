@@ -1,11 +1,11 @@
 package top.stillmisty.xiantao.service.activity;
 
-import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import top.stillmisty.xiantao.domain.event.EventContext;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
 import top.stillmisty.xiantao.domain.event.entity.GameEvent;
 import top.stillmisty.xiantao.domain.event.enums.ActivityType;
@@ -51,8 +51,8 @@ public class DungeonEventCompleter {
             ActivityType.DUNGEON.getCode(), dungeonId, EXPLORE_TRIGGER_CHANCE, userId);
     if (selected == null) return;
 
-    Map<String, Object> context = new HashMap<>();
-    Map<String, Object> templateArgs = effectExecutor.execute(selected, userId, user, context);
+    EventContext context = EventContext.empty();
+    var templateArgs = effectExecutor.execute(selected, userId, user, context);
     String narrativeKey = activityEventHelper.resolveNarrativeKey(selected.getCode());
     gameEventService.save(
         GameEvent.create(userId, GameEventCategory.DUNGEON_EXPLORE)

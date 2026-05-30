@@ -9,6 +9,7 @@ import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.PlayerSkillRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SkillRepository;
 import top.stillmisty.xiantao.infrastructure.repository.StackableItemRepository;
+import top.stillmisty.xiantao.infrastructure.util.TypeUtils;
 
 /** 隐藏事件触发条件检查器 — 统一的 HAS_SKILL / HAS_ITEM / STAT_THRESHOLD 检查 */
 @Component
@@ -27,12 +28,12 @@ public class TriggerConditionChecker {
 
     return switch (triggerType) {
       case "HAS_SKILL" -> {
-        Number val = (Number) triggerParams.get("skill_id");
-        yield val != null && hasSkill(userId, val.longValue());
+        Long val = TypeUtils.getLong(triggerParams, "skill_id");
+        yield val != null && hasSkill(userId, val);
       }
       case "HAS_ITEM" -> {
-        Number val = (Number) triggerParams.get("item_template_id");
-        yield val != null && hasItem(userId, val.longValue());
+        Long val = TypeUtils.getLong(triggerParams, "item_template_id");
+        yield val != null && hasItem(userId, val);
       }
       case "STAT_THRESHOLD" -> checkStatThreshold(triggerParams, user);
       default -> true;
@@ -62,8 +63,8 @@ public class TriggerConditionChecker {
   }
 
   private boolean checkStatThreshold(Map<String, Object> triggerParams, User user) {
-    String stat = (String) triggerParams.get("stat");
-    Number minVal = (Number) triggerParams.get("min");
+    String stat = TypeUtils.getString(triggerParams, "stat");
+    Integer minVal = TypeUtils.getInt(triggerParams, "min");
     if (stat == null || minVal == null) return true;
     int actual =
         switch (stat) {
@@ -73,6 +74,6 @@ public class TriggerConditionChecker {
           case "WIS" -> user.getEffectiveStatWis();
           default -> 0;
         };
-    return actual >= minVal.intValue();
+    return actual >= minVal;
   }
 }

@@ -1,12 +1,11 @@
 package top.stillmisty.xiantao.service.activity;
 
-import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import top.stillmisty.xiantao.domain.event.EventContextKeys;
+import top.stillmisty.xiantao.domain.event.EventContext;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
 import top.stillmisty.xiantao.domain.event.entity.GameEvent;
 import top.stillmisty.xiantao.domain.event.entity.HiddenCompletion;
@@ -54,8 +53,8 @@ public class TrainingCompleter {
   /** 处理单个非 COMBAT 事件（由统一循环调用） */
   @Transactional
   public void handleNumericEvent(
-      Long userId, User user, ActivityEvent event, Map<String, Object> context) {
-    Map<String, Object> templateArgs = effectExecutor.execute(event, userId, user, context);
+      Long userId, User user, ActivityEvent event, EventContext context) {
+    var templateArgs = effectExecutor.execute(event, userId, user, context);
     String narrativeKey = activityEventHelper.resolveNarrativeKey(event.getCode());
     gameEventService.save(
         GameEvent.create(userId, GameEventCategory.TRAINING_EVENT)
@@ -80,11 +79,8 @@ public class TrainingCompleter {
           HiddenCompletion.create(
               userId, ActivityType.TRAINING.getCode(), mapNode.getId(), event.getCode()));
 
-      Map<String, Object> context = new HashMap<>();
-      EventContextKeys.MAP_NODE.put(context, mapNode);
-      EventContextKeys.MAP_NAME.put(context, mapNode.getName());
-      EventContextKeys.FORTUNE.put(context, fortune);
-      Map<String, Object> templateArgs = effectExecutor.execute(event, userId, user, context);
+      EventContext context = EventContext.withMapAndFortune(mapNode, fortune);
+      var templateArgs = effectExecutor.execute(event, userId, user, context);
       String narrativeKey = activityEventHelper.resolveNarrativeKey(event.getCode());
       gameEventService.save(
           GameEvent.create(userId, GameEventCategory.TRAINING_HIDDEN)

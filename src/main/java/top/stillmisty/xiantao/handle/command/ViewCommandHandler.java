@@ -24,6 +24,7 @@ import top.stillmisty.xiantao.infrastructure.repository.EquipmentTemplateReposit
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.MonsterTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SkillRepository;
+import top.stillmisty.xiantao.infrastructure.util.TypeUtils;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
@@ -150,9 +151,9 @@ public class ViewCommandHandler implements CommandGroup {
 
     switch (vo.typeName()) {
       case "丹药" -> {
-        Object grade = vo.properties() != null ? vo.properties().get("grade") : null;
-        if (grade instanceof Number n) {
-          sb.append(fmt.listItem("品级：" + n.intValue() + "级"));
+        Integer grade = vo.properties() != null ? TypeUtils.getInt(vo.properties(), "grade") : null;
+        if (grade != null) {
+          sb.append(fmt.listItem("品级：" + grade + "级"));
         }
         if (vo.quality() != null && !vo.quality().isEmpty()) {
           try {

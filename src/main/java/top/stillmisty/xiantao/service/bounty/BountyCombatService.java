@@ -14,6 +14,7 @@ import top.stillmisty.xiantao.domain.bounty.BountyRewardItem;
 import top.stillmisty.xiantao.domain.bounty.entity.UserBounty;
 import top.stillmisty.xiantao.domain.bounty.enums.BountyStatus;
 import top.stillmisty.xiantao.domain.bounty.vo.BountyRewardVO;
+import top.stillmisty.xiantao.domain.event.EventContext;
 import top.stillmisty.xiantao.domain.event.EventContextKeys;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
@@ -83,7 +84,7 @@ public class BountyCombatService {
     addRewardsToInventory(userId, items);
 
     // Apply bounty side modifier (子事件调节主奖励)
-    Map<String, Object> sideContext = new HashMap<>();
+    EventContext sideContext = EventContext.empty();
     EventContextKeys.BOUNTY_NAME.put(sideContext, record.getBountyName());
     long[] rewardHolder = new long[] {stats.spiritStones};
     EventContextKeys.BOUNTY_REWARD.put(sideContext, rewardHolder);

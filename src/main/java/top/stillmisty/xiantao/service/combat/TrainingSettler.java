@@ -1,7 +1,6 @@
 package top.stillmisty.xiantao.service.combat;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -11,7 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import top.stillmisty.xiantao.domain.event.EventContextKeys;
+import top.stillmisty.xiantao.domain.event.EffectData;
+import top.stillmisty.xiantao.domain.event.EventContext;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
 import top.stillmisty.xiantao.domain.event.entity.GameEvent;
 import top.stillmisty.xiantao.domain.event.enums.EventTypeEnum;
@@ -25,6 +25,7 @@ import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.repository.ActivityEventRepository;
 import top.stillmisty.xiantao.infrastructure.repository.MonsterTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SkillRepository;
+import top.stillmisty.xiantao.infrastructure.util.TypeUtils;
 import top.stillmisty.xiantao.infrastructure.util.WeightedRandom;
 import top.stillmisty.xiantao.service.FortuneService;
 import top.stillmisty.xiantao.service.GameEventService;
@@ -58,10 +59,9 @@ public class TrainingSettler {
   /** 触发一个 CHOICE 事件，将选项写入 xt_game_event.effects */
   @Transactional
   public void fireChoiceEvent(Long userId, String eventCode, Map<String, Object> params) {
-    Map<String, Object> choiceData = new HashMap<>();
-    choiceData.put("choice", params);
+    var choiceData = EffectData.ChoiceOptions.fromParamsMap(params);
     gameEventService.save(
-        GameEvent.create(userId, GameEventCategory.TRAINING_EVENT).withEffects(choiceData));
+        GameEvent.create(userId, GameEventCategory.TRAINING_EVENT).withEffectData(choiceData));
   }
 
   private CombatSummary runUnifiedEventLoop(
@@ -75,11 +75,7 @@ public class TrainingSettler {
     List<Long> combatTemplateIds =
         pool.stream()
             .filter(e -> e.getEventType() == EventTypeEnum.COMBAT)
-            .map(
-                e -> {
-                  Object val = e.getParams().get("monster_template_id");
-                  return val != null ? ((Number) val).longValue() : 0L;
-                })
+            .map(e -> TypeUtils.getLongOrDefault(e.getParams(), "monster_template_id", 0L))
             .distinct()
             .toList();
     Map<Long, MonsterTemplate> templateMap =
@@ -98,10 +94,7 @@ public class TrainingSettler {
             : skillRepository.findByIds(new ArrayList<>(skillIds)).stream()
                 .collect(Collectors.toMap(Skill::getId, s -> s));
 
-    Map<String, Object> context = new HashMap<>();
-    EventContextKeys.MAP_NODE.put(context, mapNode);
-    EventContextKeys.MAP_NAME.put(context, mapNode.getName());
-    EventContextKeys.FORTUNE.put(context, fortune);
+    EventContext context = EventContext.withMapAndFortune(mapNode, fortune);
 
     double fateMultiplier = fortuneService.getFateMultiplier(fortune.fate());
     double adjustedPerRollChance = Math.min(1.0, params.perRollChance() * fateMultiplier);

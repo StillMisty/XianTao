@@ -8,6 +8,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import top.stillmisty.xiantao.domain.event.EffectData;
+import top.stillmisty.xiantao.domain.event.EventContext;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.service.activity.effect.SubEventEffect;
@@ -28,21 +30,20 @@ public class SubEventEffectExecutor {
 
   /** 执行一个 ActivityEvent 的所有效果，返回叙事模板参数 */
   public Map<String, Object> execute(
-      ActivityEvent event, Long userId, User user, Map<String, Object> context) {
-    Map<String, Object> params = event.getParams();
-    if (params == null) return Map.of();
-
-    if (params.containsKey("branches")) {
-      return executeBranches(params, userId, user, context);
+      ActivityEvent event, Long userId, User user, EventContext context) {
+    EffectData.ActivityConfig config = event.effectData();
+    if (config.branches() != null) {
+      return executeBranches(config.branches(), userId, user, context);
     }
-    return executeEffects(params, userId, user, context);
+    if (config.effects() != null) {
+      return executeEffects(config.effects(), userId, user, context);
+    }
+    return Map.of();
   }
 
-  @SuppressWarnings("unchecked")
   private Map<String, Object> executeBranches(
-      Map<String, Object> params, Long userId, User user, Map<String, Object> context) {
-    List<Map<String, Object>> branches = (List<Map<String, Object>>) params.get("branches");
-    if (branches == null || branches.isEmpty()) return Map.of();
+      List<Map<String, Object>> branches, Long userId, User user, EventContext context) {
+    if (branches.isEmpty()) return Map.of();
 
     double roll = ThreadLocalRandom.current().nextDouble();
     double cumulative = 0;
@@ -51,16 +52,20 @@ public class SubEventEffectExecutor {
       double chance = chanceObj instanceof Number n ? n.doubleValue() : 0;
       cumulative += chance;
       if (roll < cumulative || Math.abs(cumulative - 1.0) < 1e-9) {
-        return executeEffects(branch, userId, user, context);
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> effects = (List<Map<String, Object>>) branch.get("effects");
+        if (effects != null) {
+          return executeEffects(effects, userId, user, context);
+        }
+        return Map.of();
       }
     }
     return Map.of();
   }
 
-  @SuppressWarnings("unchecked")
+  /** 执行效果列表，返回叙事模板参数 */
   public Map<String, Object> executeEffects(
-      Map<String, Object> container, Long userId, User user, Map<String, Object> context) {
-    List<Map<String, Object>> effectList = (List<Map<String, Object>>) container.get("effects");
+      List<Map<String, Object>> effectList, Long userId, User user, EventContext context) {
     if (effectList == null || effectList.isEmpty()) return Map.of();
 
     Map<String, Object> templateArgs = new HashMap<>();

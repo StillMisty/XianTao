@@ -18,6 +18,7 @@ import top.stillmisty.xiantao.domain.pill.enums.PillQuality;
 import top.stillmisty.xiantao.infrastructure.repository.EquipmentRepository;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.StackableItemRepository;
+import top.stillmisty.xiantao.infrastructure.util.TypeUtils;
 import top.stillmisty.xiantao.service.fudi.FudiHelper;
 
 @Component
@@ -141,9 +142,10 @@ public class ItemResolver {
 
   private ItemEntry buildAmbiguityEntry(StackableItem item, int index) {
     var meta = new StringBuilder();
-    Object gradeObj = item.getProperties() != null ? item.getProperties().get("grade") : null;
-    if (gradeObj instanceof Number n) {
-      meta.append(n.intValue()).append("级 ");
+    Integer grade =
+        item.getProperties() != null ? TypeUtils.getInt(item.getProperties(), "grade") : null;
+    if (grade != null) {
+      meta.append(grade).append("级 ");
     }
     if (item.getQuality() != null && !item.getQuality().isEmpty()) {
       try {

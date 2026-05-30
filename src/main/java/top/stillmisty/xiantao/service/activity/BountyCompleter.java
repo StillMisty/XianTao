@@ -1,6 +1,5 @@
 package top.stillmisty.xiantao.service.activity;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.bounty.BountyRewardItem;
 import top.stillmisty.xiantao.domain.bounty.entity.UserBounty;
+import top.stillmisty.xiantao.domain.event.EventContext;
 import top.stillmisty.xiantao.domain.event.EventContextKeys;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
 import top.stillmisty.xiantao.domain.event.entity.GameEvent;
@@ -57,7 +57,7 @@ public class BountyCompleter {
   /** 悬赏子事件调节主奖励 — 通过 context 传出修改后的灵石数 */
   @Transactional
   public void rollBountySideEvent(
-      Long userId, User user, Long bountyId, String bountyName, Map<String, Object> context) {
+      Long userId, User user, Long bountyId, String bountyName, EventContext context) {
     ActivityEvent selected =
         subEventSelector.selectSubEvent(ActivityType.BOUNTY_SIDE.getCode(), bountyId, 1.0, userId);
     if (selected == null) return;
@@ -65,7 +65,7 @@ public class BountyCompleter {
     EventContextKeys.BOUNTY_NAME.put(context, bountyName);
     var fortune = fortuneService.calculate(userId);
     EventContextKeys.FORTUNE.put(context, fortune);
-    Map<String, Object> templateArgs = effectExecutor.execute(selected, userId, user, context);
+    var templateArgs = effectExecutor.execute(selected, userId, user, context);
     String narrativeKey = activityEventHelper.resolveNarrativeKey(selected.getCode());
     gameEventService.save(
         GameEvent.create(userId, GameEventCategory.BOUNTY_SIDE_MODIFIER)
@@ -90,10 +90,10 @@ public class BountyCompleter {
           HiddenCompletion.create(
               userId, ActivityType.BOUNTY_SIDE.getCode(), record.getBountyId(), event.getCode()));
 
-      Map<String, Object> hiddenContext = new HashMap<>();
+      EventContext hiddenContext = EventContext.empty();
       EventContextKeys.BOUNTY_NAME.put(hiddenContext, record.getBountyName());
       EventContextKeys.FORTUNE.put(hiddenContext, fortune);
-      Map<String, Object> templateArgs = effectExecutor.execute(event, userId, user, hiddenContext);
+      var templateArgs = effectExecutor.execute(event, userId, user, hiddenContext);
       String narrativeKey = activityEventHelper.resolveNarrativeKey(event.getCode());
       gameEventService.save(
           GameEvent.create(userId, GameEventCategory.BOUNTY_HIDDEN)

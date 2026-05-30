@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import org.springframework.stereotype.Component;
+import top.stillmisty.xiantao.domain.event.EventContext;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
@@ -27,17 +28,15 @@ public class AddRandomItemEffect implements SubEventEffect {
 
   @Override
   public Map<String, Object> execute(
-      Long userId, User user, Map<String, Object> params, Map<String, Object> context) {
-    double chance =
-        params.containsKey("chance") ? ((Number) params.get("chance")).doubleValue() : 1.0;
+      Long userId, User user, EffectParams params, EventContext context) {
+    if (!(params instanceof EffectParams.AddRandomItemIdsParams p)) return Map.of();
+    double chance = p.chance() != null ? p.chance() : 1.0;
     if (ThreadLocalRandom.current().nextDouble() >= chance) return Map.of();
 
-    @SuppressWarnings("unchecked")
-    List<Number> templateIds = (List<Number>) params.get("template_ids");
+    List<Long> templateIds = p.templateIds();
     if (templateIds == null || templateIds.isEmpty()) return Map.of();
 
-    long templateId =
-        templateIds.get(ThreadLocalRandom.current().nextInt(templateIds.size())).longValue();
+    long templateId = templateIds.get(ThreadLocalRandom.current().nextInt(templateIds.size()));
     var template = itemTemplateRepository.findById(templateId).orElse(null);
     if (template == null) return Map.of();
     stackableItemService.addStackableItem(

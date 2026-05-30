@@ -24,6 +24,7 @@ import top.stillmisty.xiantao.infrastructure.repository.PillResistanceRepository
 import top.stillmisty.xiantao.infrastructure.repository.PlayerBuffRepository;
 import top.stillmisty.xiantao.infrastructure.repository.StackableItemRepository;
 import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
+import top.stillmisty.xiantao.infrastructure.util.TypeUtils;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
@@ -298,10 +299,8 @@ public class PillConsumptionService {
     if (tags.contains("entry")) return 3;
     // 兜底: 实例属性
     if (pill.getProperties() != null) {
-      Object gradeObj = pill.getProperties().get("grade");
-      if (gradeObj instanceof Integer i) return i;
-      if (gradeObj instanceof Long l) return l.intValue();
-      if (gradeObj instanceof Number n) return n.intValue();
+      Integer grade = TypeUtils.getInt(pill.getProperties(), "grade");
+      if (grade != null) return grade;
     }
     return 3;
   }

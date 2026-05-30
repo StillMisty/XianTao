@@ -22,6 +22,7 @@ import top.stillmisty.xiantao.domain.monster.vo.SkillProc;
 import top.stillmisty.xiantao.domain.skill.entity.Skill;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.infrastructure.repository.BeastRepository;
+import top.stillmisty.xiantao.infrastructure.util.TypeUtils;
 import top.stillmisty.xiantao.infrastructure.util.WeightedRandom;
 import top.stillmisty.xiantao.service.DropProcessor;
 import top.stillmisty.xiantao.service.FortuneService;
@@ -51,16 +52,13 @@ public class CombatEventHandler {
       Map<Long, Skill> skillMap,
       int encounterIndex) {
     Map<String, Object> params = event.getParams();
-    Number monsterTemplateIdNum = (Number) params.get("monster_template_id");
-    if (monsterTemplateIdNum == null) return EncounterResult.lost();
-    long templateId = monsterTemplateIdNum.longValue();
+    Long templateId = TypeUtils.getLong(params, "monster_template_id");
+    if (templateId == null) return EncounterResult.lost();
     MonsterTemplate tmpl = templateMap.get(templateId);
     if (tmpl == null) return EncounterResult.lost();
 
-    int minCount =
-        params.containsKey("min_count") ? ((Number) params.get("min_count")).intValue() : 1;
-    int maxCount =
-        params.containsKey("max_count") ? ((Number) params.get("max_count")).intValue() : 1;
+    int minCount = TypeUtils.getIntOrDefault(params, "min_count", 1);
+    int maxCount = TypeUtils.getIntOrDefault(params, "max_count", 1);
     int count = WeightedRandom.normalInt(minCount, maxCount, ThreadLocalRandom.current());
     count = Math.max(1, count);
 

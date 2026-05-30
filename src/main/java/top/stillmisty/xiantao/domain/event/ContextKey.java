@@ -10,15 +10,28 @@ public record ContextKey<T>(String name) {
     map.put(name, value);
   }
 
+  public void put(EventContext context, T value) {
+    context.put(this, value);
+  }
+
   @SuppressWarnings("unchecked")
   @Nullable
   public T get(Map<String, Object> map) {
     return (T) map.get(name);
   }
 
+  @Nullable
+  public T get(EventContext context) {
+    return context.get(this);
+  }
+
   @SuppressWarnings("unchecked")
   public T getOrDefault(Map<String, Object> map, T defaultVal) {
     Object val = map.get(name);
     return val != null ? (T) val : defaultVal;
+  }
+
+  public T getOrDefault(EventContext context, T defaultVal) {
+    return context.getOrDefault(this, defaultVal);
   }
 }

@@ -128,7 +128,7 @@ public class SpiritChatService extends AbstractChatService {
       User user = userStateService.loadUser(userId);
       Map<String, Object> templateArgs =
           subEventEffectExecutor.executeEffects(
-              Map.of("effects", allEffects), userId, user, Map.of());
+              allEffects, userId, user, top.stillmisty.xiantao.domain.event.EventContext.empty());
 
       List<GameEvent> gameEvents = new ArrayList<>();
       for (FudiEventTemplate event : events) {

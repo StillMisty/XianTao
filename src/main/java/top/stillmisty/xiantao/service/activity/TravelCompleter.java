@@ -1,12 +1,11 @@
 package top.stillmisty.xiantao.service.activity;
 
-import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import top.stillmisty.xiantao.domain.event.EventContextKeys;
+import top.stillmisty.xiantao.domain.event.EventContext;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
 import top.stillmisty.xiantao.domain.event.entity.GameEvent;
 import top.stillmisty.xiantao.domain.event.entity.HiddenCompletion;
@@ -59,11 +58,6 @@ public class TravelCompleter {
     worldEventEnvApplier.apply(userId, user, mapNode);
   }
 
-  // 旅行事件设计为"低频高风险高回报"：
-  // 基础触发概率 0.30，经命运修正后 0.21~0.39。不触发时无事发生。
-  // 触发后效果比历练事件大得多（ADD_EXP_PERCENT 代替 ADD_EXP、TAKE_DAMAGE_PERCENT 代替 FLAT）。
-  // 每个 ActivityEvent 的 params.effects 必须覆盖 EventType.description 中所有 {{key}} 模板变量，
-  // 遗漏会导致 NotificationAppender 渲染出 ？。
   private void rollSubEvents(Long userId, User user, MapNode mapNode) {
     ActivityEvent selected =
         subEventSelector.selectSubEvent(
@@ -71,11 +65,8 @@ public class TravelCompleter {
     if (selected == null) return;
 
     var fortune = fortuneService.calculate(userId);
-    Map<String, Object> context = new HashMap<>();
-    EventContextKeys.MAP_NODE.put(context, mapNode);
-    EventContextKeys.MAP_NAME.put(context, mapNode.getName());
-    EventContextKeys.FORTUNE.put(context, fortune);
-    Map<String, Object> templateArgs = effectExecutor.execute(selected, userId, user, context);
+    EventContext context = EventContext.withMapAndFortune(mapNode, fortune);
+    var templateArgs = effectExecutor.execute(selected, userId, user, context);
     String narrativeKey = activityEventHelper.resolveNarrativeKey(selected.getCode());
     gameEventService.save(
         GameEvent.create(userId, GameEventCategory.TRAVEL_EVENT)
@@ -98,11 +89,8 @@ public class TravelCompleter {
           HiddenCompletion.create(
               userId, ActivityType.TRAVEL.getCode(), mapNode.getId(), event.getCode()));
 
-      Map<String, Object> hiddenContext = new HashMap<>();
-      EventContextKeys.MAP_NODE.put(hiddenContext, mapNode);
-      EventContextKeys.MAP_NAME.put(hiddenContext, mapNode.getName());
-      EventContextKeys.FORTUNE.put(hiddenContext, fortune);
-      Map<String, Object> templateArgs = effectExecutor.execute(event, userId, user, hiddenContext);
+      EventContext hiddenContext = EventContext.withMapAndFortune(mapNode, fortune);
+      var templateArgs = effectExecutor.execute(event, userId, user, hiddenContext);
       String narrativeKey = activityEventHelper.resolveNarrativeKey(event.getCode());
       gameEventService.save(
           GameEvent.create(userId, GameEventCategory.TRAVEL_HIDDEN)

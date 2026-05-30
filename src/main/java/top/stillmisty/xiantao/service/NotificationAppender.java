@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import top.stillmisty.xiantao.domain.event.EffectData;
 import top.stillmisty.xiantao.domain.event.entity.GameEvent;
 import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
@@ -111,18 +112,17 @@ public class NotificationAppender {
   private String formatSingleEvent(GameEvent event) {
     String narrativeKey = event.getNarrativeKey();
     Map<String, Object> args = event.getNarrativeArgs();
-    Map<String, Object> effects = event.getEffects();
 
     if (narrativeKey != null && args != null) {
       String rendered = renderTemplate(narrativeKey, args);
       if (event.isChoiceEvent()) {
-        return rendered + "\n" + renderChoiceOptions(effects);
+        return rendered + "\n" + renderChoiceOptions(event.getEffectData());
       }
       return rendered;
     }
 
     if (event.isChoiceEvent()) {
-      return renderChoiceOptions(effects);
+      return renderChoiceOptions(event.getEffectData());
     }
 
     return switch (event.getCategory()) {
@@ -138,17 +138,13 @@ public class NotificationAppender {
     };
   }
 
-  @SuppressWarnings("unchecked")
-  private String renderChoiceOptions(Map<String, Object> effects) {
-    Map<String, Object> choice = (Map<String, Object>) effects.get("choice");
-    if (choice == null) return "";
-    List<Map<String, Object>> options = (List<Map<String, Object>>) choice.get("options");
-    if (options == null || options.isEmpty()) return "";
+  private String renderChoiceOptions(@Nullable EffectData effectData) {
+    if (!(effectData instanceof EffectData.ChoiceOptions choiceOptions)) return "";
+    List<EffectData.Option> options = choiceOptions.options();
+    if (options.isEmpty()) return "";
     StringBuilder sb = new StringBuilder("\n请选择：\n");
-    for (Map<String, Object> option : options) {
-      String key = (String) option.get("key");
-      String text = (String) option.get("text");
-      sb.append("【").append(key).append("】").append(text).append("\n");
+    for (EffectData.Option option : options) {
+      sb.append("【").append(option.key()).append("】").append(option.text()).append("\n");
     }
     return sb.toString();
   }

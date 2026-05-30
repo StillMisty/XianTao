@@ -11,7 +11,9 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.jspecify.annotations.Nullable;
+import top.stillmisty.xiantao.domain.event.EffectData;
 import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
+import top.stillmisty.xiantao.infrastructure.mybatis.handler.EffectDataTypeHandler;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
 import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 
@@ -42,8 +44,8 @@ public class GameEvent {
   @Column(typeHandler = JsonbTypeHandler.class)
   private Map<String, Object> narrativeArgs;
 
-  @Column(typeHandler = JsonbTypeHandler.class)
-  private Map<String, Object> effects;
+  @Column(value = "effects", typeHandler = EffectDataTypeHandler.class)
+  private @Nullable EffectData effectData;
 
   public static GameEvent create(Long userId, GameEventCategory category) {
     GameEvent event = new GameEvent();
@@ -52,7 +54,7 @@ public class GameEvent {
     event.occurredAt = TimeUtil.now();
     event.delivered = false;
     event.narrativeArgs = Map.of();
-    event.effects = Map.of();
+    event.effectData = null;
     return event;
   }
 
@@ -62,12 +64,12 @@ public class GameEvent {
     return this;
   }
 
-  public GameEvent withEffects(Map<String, Object> effects) {
-    this.effects = effects != null ? effects : Map.of();
+  public GameEvent withEffectData(@Nullable EffectData effectData) {
+    this.effectData = effectData;
     return this;
   }
 
   public boolean isChoiceEvent() {
-    return effects != null && effects.containsKey("choice");
+    return effectData instanceof EffectData.ChoiceOptions;
   }
 }

@@ -17,6 +17,7 @@ import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.infrastructure.repository.ActivityEventRepository;
 import top.stillmisty.xiantao.infrastructure.repository.MapNodeRepository;
 import top.stillmisty.xiantao.infrastructure.repository.MonsterTemplateRepository;
+import top.stillmisty.xiantao.infrastructure.util.TypeUtils;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
@@ -119,11 +120,7 @@ public class MapService {
         combatEventsByMap.values().stream()
             .flatMap(List::stream)
             .filter(e -> e.getParams() != null && e.getParams().containsKey("monster_template_id"))
-            .map(
-                e -> {
-                  Object val = e.getParams().get("monster_template_id");
-                  return val != null ? ((Number) val).longValue() : 0L;
-                })
+            .map(e -> TypeUtils.getLongOrDefault(e.getParams(), "monster_template_id", 0L))
             .distinct()
             .collect(Collectors.toList());
     if (templateIds.isEmpty()) return Map.of();
@@ -139,8 +136,7 @@ public class MapService {
         .map(
             event -> {
               Map<String, Object> params = event.getParams();
-              Number monsterIdNum = (Number) params.get("monster_template_id");
-              long templateId = monsterIdNum != null ? monsterIdNum.longValue() : 0L;
+              long templateId = TypeUtils.getLongOrDefault(params, "monster_template_id", 0L);
               MonsterTemplate template = templateMap.get(templateId);
               return MapInfoVO.MonsterInfoVO.builder()
                   .templateId(templateId)
@@ -148,14 +144,8 @@ public class MapService {
                   .typeName(template != null ? template.getMonsterType().getName() : "未知")
                   .baseLevel(template != null ? template.getBaseLevel() : null)
                   .weight(event.getWeight())
-                  .minCount(
-                      params.containsKey("min_count")
-                          ? ((Number) params.get("min_count")).intValue()
-                          : 1)
-                  .maxCount(
-                      params.containsKey("max_count")
-                          ? ((Number) params.get("max_count")).intValue()
-                          : 1)
+                  .minCount(TypeUtils.getIntOrDefault(params, "min_count", 1))
+                  .maxCount(TypeUtils.getIntOrDefault(params, "max_count", 1))
                   .build();
             })
         .sorted((a, b) -> Integer.compare(b.getWeight(), a.getWeight()))

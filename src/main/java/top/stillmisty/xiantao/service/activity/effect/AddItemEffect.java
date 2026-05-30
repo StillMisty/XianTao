@@ -2,6 +2,7 @@ package top.stillmisty.xiantao.service.activity.effect;
 
 import java.util.Map;
 import org.springframework.stereotype.Component;
+import top.stillmisty.xiantao.domain.event.EventContext;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
@@ -25,25 +26,15 @@ public class AddItemEffect implements SubEventEffect {
 
   @Override
   public Map<String, Object> execute(
-      Long userId, User user, Map<String, Object> params, Map<String, Object> context) {
-    Number templateIdNum = (Number) params.get("template_id");
-    if (templateIdNum == null) return Map.of();
-    long templateId = templateIdNum.longValue();
-    int count =
-        params.containsKey("count")
-            ? ((Number) params.get("count")).intValue()
-            : resolveCount(params);
+      Long userId, User user, EffectParams params, EventContext context) {
+    if (!(params instanceof EffectParams.AddItemParams p)) return Map.of();
+    if (p.templateId() == null) return Map.of();
+    int count = p.resolveCount();
     if (count <= 0) return Map.of();
-    var template = itemTemplateRepository.findById(templateId).orElse(null);
+    var template = itemTemplateRepository.findById(p.templateId()).orElse(null);
     if (template == null) return Map.of();
     stackableItemService.addStackableItem(
         userId, template.getId(), template.getType(), template.getName(), count);
     return Map.of("item", template.getName(), "herb", template.getName(), "count", count);
-  }
-
-  static int resolveCount(Map<String, Object> params) {
-    int min = params.containsKey("min") ? ((Number) params.get("min")).intValue() : 1;
-    int max = params.containsKey("max") ? ((Number) params.get("max")).intValue() : 1;
-    return java.util.concurrent.ThreadLocalRandom.current().nextInt(min, max + 1);
   }
 }

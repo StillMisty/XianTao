@@ -7,6 +7,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import top.stillmisty.xiantao.domain.event.EventContext;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.worldevent.entity.WorldEvent;
 import top.stillmisty.xiantao.service.activity.SubEventEffectExecutor;
@@ -58,9 +59,7 @@ public class WorldEventEffectApplier {
   /** 处理平铺效果列表 (容器含 effects 字段) */
   private Map<String, Object> applyFlatEffects(
       List<Map<String, Object>> effects, Long userId, User user) {
-    Map<String, Object> container = new HashMap<>();
-    container.put("effects", effects);
-    return subEventEffectExecutor.executeEffects(container, userId, user, Map.of());
+    return subEventEffectExecutor.executeEffects(effects, userId, user, EventContext.empty());
   }
 
   /** 处理单个平铺效果项 (项内直接含 type 字段) */

@@ -9,6 +9,7 @@ import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import top.stillmisty.xiantao.domain.event.EffectData;
 import top.stillmisty.xiantao.domain.event.enums.EventTypeEnum;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
 
@@ -53,5 +54,12 @@ public class ActivityEvent {
 
   public int getWeight() {
     return weight != null ? weight : 100;
+  }
+
+  /** 将 params Map 转换为类型安全的 EffectData.ActivityConfig */
+  public EffectData.ActivityConfig effectData() {
+    return params != null
+        ? EffectData.ActivityConfig.fromMap(params)
+        : new EffectData.ActivityConfig(null, null, null, null, null);
   }
 }

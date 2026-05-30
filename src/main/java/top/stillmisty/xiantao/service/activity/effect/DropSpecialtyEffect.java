@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import top.stillmisty.xiantao.domain.event.EventContext;
 import top.stillmisty.xiantao.domain.event.EventContextKeys;
 import top.stillmisty.xiantao.domain.map.entity.SpecialtyEntry;
 import top.stillmisty.xiantao.domain.user.entity.User;
@@ -25,13 +26,16 @@ public class DropSpecialtyEffect implements SubEventEffect {
 
   @Override
   public Map<String, Object> execute(
-      Long userId, User user, Map<String, Object> params, Map<String, Object> context) {
+      Long userId, User user, EffectParams params, EventContext context) {
     var mapNode = EventContextKeys.MAP_NODE.get(context);
     if (mapNode == null) return Map.of();
     var specialties = mapNode.getSpecialties();
     if (specialties == null || specialties.isEmpty()) return Map.of();
 
-    int count = params.containsKey("count") ? ((Number) params.get("count")).intValue() : 1;
+    int count = 1;
+    if (params instanceof EffectParams.DropSpecialtyParams p && p.count() != null) {
+      count = p.count();
+    }
     String firstName = null;
     int dropped = 0;
     for (int i = 0; i < count; i++) {
