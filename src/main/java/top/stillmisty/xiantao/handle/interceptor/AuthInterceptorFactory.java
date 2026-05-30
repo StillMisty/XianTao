@@ -34,13 +34,12 @@ public class AuthInterceptorFactory implements AnnotationEventInterceptorFactory
   }
 
   /** 认证拦截器实现 */
-  @SuppressWarnings("EffectivelyPrivate")
   private static class AuthInterceptor implements JBlockEventInterceptor {
 
     private final AuthenticationService authService;
     private final PlatformRegistry platformRegistry;
 
-    public AuthInterceptor(AuthenticationService authService, PlatformRegistry platformRegistry) {
+    private AuthInterceptor(AuthenticationService authService, PlatformRegistry platformRegistry) {
       this.authService = authService;
       this.platformRegistry = platformRegistry;
     }

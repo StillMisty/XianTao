@@ -1,11 +1,23 @@
 package top.stillmisty.xiantao.handle;
 
 /** 文本格式抽象 纯文本和Markdown只需提供不同的格式化令牌即可统一处理 */
-@SuppressWarnings("ClassInitializationDeadlock")
 public sealed interface TextFormat {
 
-  TextFormat PLAIN = new PlainFormat();
-  TextFormat MARKDOWN = new MarkdownFormat();
+  static TextFormat plain() {
+    return PlainHolder.INSTANCE;
+  }
+
+  static TextFormat markdown() {
+    return MarkdownHolder.INSTANCE;
+  }
+
+  class PlainHolder {
+    static final TextFormat INSTANCE = new PlainFormat();
+  }
+
+  class MarkdownHolder {
+    static final TextFormat INSTANCE = new MarkdownFormat();
+  }
 
   /** 三级标题 (### / 【】) */
   String heading(String text);

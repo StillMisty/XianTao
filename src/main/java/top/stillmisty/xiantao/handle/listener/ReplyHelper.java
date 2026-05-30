@@ -68,9 +68,9 @@ public class ReplyHelper {
 
   private TextFormat getTextFormat(PlatformType platform) {
     return switch (platform) {
-      case ONE_BOT_V11 -> TextFormat.PLAIN;
-      case QQ -> TextFormat.MARKDOWN;
-      case WEB -> TextFormat.PLAIN;
+      case ONE_BOT_V11 -> TextFormat.plain();
+      case QQ -> TextFormat.markdown();
+      case WEB -> TextFormat.plain();
     };
   }
 
