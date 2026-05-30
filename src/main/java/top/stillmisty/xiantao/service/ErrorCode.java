@@ -153,7 +153,7 @@ public enum ErrorCode {
   DUNGEON_NOT_FOUND("秘境【%s】不存在"),
   DUNGEON_NOT_ACTIVE("秘境【%s】尚未开放"),
   DUNGEON_LEVEL_INSUFFICIENT("境界不足，无法进入【%s】（需要等级 %d-%d）"),
-  DUNGEON_NOT_AT_ENTRANCE("你不在【%s】的入口处"),
+  DUNGEON_NOT_AT_ENTRANCE("你当前不在【%s】所在的位置"),
   DUNGEON_ALREADY_IN("你已在秘境【%s】中，输入「秘境探索」继续探索"),
   DUNGEON_NO_ACTIVE_INSTANCE("当前不在任何秘境中"),
   DUNGEON_NOT_LEADER("只有队长可以操作秘境"),

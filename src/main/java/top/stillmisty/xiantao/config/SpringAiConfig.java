@@ -27,6 +27,7 @@ public class SpringAiConfig {
   private static final int SPIRIT_MAX_TOKENS = 1200;
   private static final int SHOP_MAX_TOKENS = 800;
   private static final int SECT_MAX_TOKENS = 600;
+  private static final int DUNGEON_MAX_TOKENS = 1500;
 
   @Bean
   @Primary
@@ -120,6 +121,14 @@ public class SpringAiConfig {
   public ChatClient sectChatClient(OpenAiChatModel chatModel) {
     return ChatClient.builder(chatModel)
         .defaultOptions(OpenAiChatOptions.builder().maxTokens(SECT_MAX_TOKENS))
+        .defaultAdvisors(new ReasoningScopeAdvisor())
+        .build();
+  }
+
+  @Bean
+  public ChatClient dungeonChatClient(OpenAiChatModel chatModel) {
+    return ChatClient.builder(chatModel)
+        .defaultOptions(OpenAiChatOptions.builder().maxTokens(DUNGEON_MAX_TOKENS))
         .defaultAdvisors(new ReasoningScopeAdvisor())
         .build();
   }

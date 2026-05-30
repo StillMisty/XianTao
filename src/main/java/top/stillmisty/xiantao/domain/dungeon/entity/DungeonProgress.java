@@ -6,7 +6,7 @@ import com.mybatisflex.annotation.Table;
 import java.time.LocalDate;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import top.stillmisty.xiantao.domain.dungeon.enums.DungeonArea;
+import org.jspecify.annotations.Nullable;
 import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 
 @SuppressWarnings("NullAway")
@@ -25,7 +25,10 @@ public class DungeonProgress {
   private Integer rewardCount;
   private Integer dailyLimit;
   private Boolean firstClear;
-  private DungeonArea bestArea;
+
+  @Nullable private String bestArea;
+
+  private Integer interactionCount;
 
   public boolean canGetReward() {
     LocalDate today = TimeUtil.today();

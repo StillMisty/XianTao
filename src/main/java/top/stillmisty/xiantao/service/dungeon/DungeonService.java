@@ -2,42 +2,24 @@ package top.stillmisty.xiantao.service.dungeon;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.Nullable;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonInstance;
-import top.stillmisty.xiantao.domain.dungeon.entity.DungeonPoiConfig;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonTemplate;
-import top.stillmisty.xiantao.domain.dungeon.enums.DungeonArea;
 import top.stillmisty.xiantao.domain.dungeon.enums.DungeonStatus;
-import top.stillmisty.xiantao.domain.dungeon.vo.DropItemVO;
-import top.stillmisty.xiantao.domain.dungeon.vo.DungeonContinueResult;
-import top.stillmisty.xiantao.domain.dungeon.vo.DungeonEnterResult;
-import top.stillmisty.xiantao.domain.dungeon.vo.DungeonEnterResult.DungeonPoiEntry;
-import top.stillmisty.xiantao.domain.dungeon.vo.DungeonListVO;
-import top.stillmisty.xiantao.domain.dungeon.vo.ExploreResultVO;
 import top.stillmisty.xiantao.domain.event.enums.ActivityType;
-import top.stillmisty.xiantao.domain.team.entity.TeamMember;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.repository.DungeonInstanceRepository;
-import top.stillmisty.xiantao.infrastructure.repository.DungeonPoiConfigRepository;
-import top.stillmisty.xiantao.infrastructure.repository.DungeonProgressRepository;
 import top.stillmisty.xiantao.infrastructure.repository.DungeonTemplateRepository;
-import top.stillmisty.xiantao.infrastructure.repository.TeamMemberRepository;
-import top.stillmisty.xiantao.infrastructure.repository.TeamRepository;
 import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
 import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.activity.DungeonEventCompleter;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
 @Slf4j
@@ -46,555 +28,139 @@ import top.stillmisty.xiantao.service.player.UserStateService;
 public class DungeonService {
 
   private final DungeonTemplateRepository dungeonTemplateRepository;
-  private final DungeonPoiConfigRepository poiConfigRepository;
   private final DungeonInstanceRepository instanceRepository;
-  private final DungeonProgressRepository progressRepository;
-  private final UserStateService userStateService;
-  private final DungeonCombatHelper combatHelper;
-  private final DungeonLootHelper lootHelper;
-  private final DungeonProgressHelper progressHelper;
-  private final DungeonEventCompleter dungeonEventCompleter;
-  private final TeamRepository teamRepository;
-  private final TeamMemberRepository teamMemberRepository;
-  private final UserRepository userRepository;
-  private final DungeonInstanceManager instanceManager;
   private final DungeonQueryService dungeonQueryService;
-
-  // ===================== 公开 API =====================
+  private final DungeonAccessChecker accessChecker;
+  private final UserStateService userStateService;
+  private final DungeonInstanceManager instanceManager;
+  private final DungeonStateBuilder stateBuilder;
+  private final UserRepository userRepository;
 
   @Transactional(readOnly = true)
-  public ServiceResult<List<DungeonListVO>> listDungeons(Long userId) {
+  public ServiceResult<List<top.stillmisty.xiantao.domain.dungeon.vo.DungeonListVO>> listDungeons(
+      Long userId) {
     return dungeonQueryService.listDungeons(userId);
   }
 
   @Transactional
-  public ServiceResult<DungeonEnterResult> enterDungeon(Long userId, String dungeonName) {
+  @CacheEvict(cacheNames = "dungeon_list", key = "#userId")
+  public ServiceResult<String> enterDungeon(Long userId, String dungeonName) {
     return new ServiceResult.Success<>(enterDungeonInternal(userId, dungeonName));
   }
 
-  @Transactional
-  public ServiceResult<ExploreResultVO> exploreDungeon(Long userId) {
-    return new ServiceResult.Success<>(exploreDungeonInternal(userId));
+  @Transactional(readOnly = true)
+  public ServiceResult<String> statusInDungeon(Long userId) {
+    return new ServiceResult.Success<>(getStatusInternal(userId));
   }
 
-  @Transactional
-  public ServiceResult<DungeonContinueResult> continueDungeon(Long userId) {
-    return new ServiceResult.Success<>(continueDungeonInternal(userId));
-  }
-
-  @Transactional
-  public ServiceResult<String> retreatDungeon(Long userId) {
-    return new ServiceResult.Success<>(retreatDungeonInternal(userId));
-  }
-
-  // ===================== 内部 API =====================
-
-  @Transactional
-  @CacheEvict(cacheNames = "dungeon_list", key = "#userId")
-  public DungeonEnterResult enterDungeonInternal(Long userId, String dungeonName) {
+  public String enterDungeonInternal(Long userId, String dungeonName) {
     User user = userStateService.loadUser(userId);
     DungeonTemplate dungeon =
         dungeonTemplateRepository
             .findByName(dungeonName)
             .orElseThrow(() -> new BusinessException(ErrorCode.DUNGEON_NOT_FOUND, dungeonName));
 
-    if (!dungeon.isAccessibleBy(user.getLevel())) {
-      throw new BusinessException(
-          ErrorCode.DUNGEON_LEVEL_INSUFFICIENT,
-          dungeonName,
-          dungeon.getMinLevel(),
-          dungeon.getMaxLevel());
-    }
-
-    if (user.getLocationId() == null || !user.getLocationId().equals(dungeon.getMapNodeId())) {
-      throw new BusinessException(ErrorCode.DUNGEON_NOT_AT_ENTRANCE, dungeonName);
+    if (!dungeon.getIsActive()) {
+      throw new BusinessException(ErrorCode.DUNGEON_NOT_ACTIVE, dungeonName);
     }
 
     checkIdleStatus(user);
+    accessChecker.checkAccess(user, dungeon);
 
-    DungeonInstance existing = findActiveInstanceRaw(userId, dungeon.getId());
+    DungeonInstance existing =
+        instanceRepository
+            .findByLeaderIdAndDungeonIdAndStatus(userId, dungeon.getId(), DungeonStatus.ACTIVE)
+            .orElse(null);
     if (existing != null) {
       throw new BusinessException(ErrorCode.DUNGEON_ALREADY_IN, dungeonName);
     }
 
-    Long teamId = null;
-    List<Long> memberIds = List.of(userId);
-
-    var teamMemberOpt = teamMemberRepository.findByUserId(userId);
-    if (teamMemberOpt.isPresent()) {
-      TeamMember tm = teamMemberOpt.get();
-      var team =
-          teamRepository
-              .findById(tm.getTeamId())
-              .orElseThrow(() -> new BusinessException(ErrorCode.TEAM_NOT_IN));
-      if (!team.getLeaderId().equals(userId)) {
-        throw new BusinessException(ErrorCode.DUNGEON_NOT_LEADER);
-      }
-      teamId = team.getId();
-      List<TeamMember> members = teamMemberRepository.findByTeamId(teamId);
-      memberIds = members.stream().map(TeamMember::getUserId).toList();
-
-      if (memberIds.size() > dungeon.getMaxTeamSize()) {
-        throw new BusinessException(ErrorCode.DUNGEON_TEAM_SIZE_EXCEED, dungeon.getMaxTeamSize());
-      }
-
-      var sortedMemberIds = memberIds.stream().sorted().toList();
-      Map<Long, User> memberUserMap =
-          userRepository.findByIds(sortedMemberIds).stream()
-              .collect(Collectors.toMap(User::getId, u -> u));
-
-      // 批量查询所有成员的活跃实例
-      List<DungeonInstance> existingInstances =
-          instanceRepository.findByLeaderIdsAndDungeonIdAndStatus(
-              sortedMemberIds, dungeon.getId(), DungeonStatus.ACTIVE);
-      Map<Long, DungeonInstance> existingInstanceMap =
-          existingInstances.stream()
-              .collect(Collectors.toMap(DungeonInstance::getLeaderId, i -> i));
-
-      for (Long memberId : sortedMemberIds) {
-        User memberUser = memberUserMap.getOrDefault(memberId, userStateService.loadUser(memberId));
-        checkIdleStatus(memberUser);
-        if (existingInstanceMap.containsKey(memberId)) {
-          throw new BusinessException(ErrorCode.DUNGEON_ALREADY_IN, dungeonName);
-        }
-      }
-    }
-
-    List<DungeonPoiConfig> outerPois =
-        poiConfigRepository.findByDungeonIdAndArea(dungeon.getId(), DungeonArea.OUTER);
-    Long passagePoiId = pickPassagePoi(outerPois);
-
     DungeonInstance instance = new DungeonInstance();
     instance.setDungeonId(dungeon.getId());
     instance.setLeaderId(userId);
-    instance.setTeamId(teamId);
-    instance.setCurrentArea(DungeonArea.OUTER);
+    instance.setCurrentAreaKey(dungeon.getAreaConfigs().get(0).key());
     instance.setPassageUnlocked(false);
-    instance.setPassagePoiId(passagePoiId);
-    instance.setHasCoreToken(false);
     instance.setExploredPois(new ArrayList<>());
     instance.setStatus(DungeonStatus.ACTIVE);
     instance.setExpiresAt(TimeUtil.now().plusHours(dungeon.getTimeoutHours()));
     instanceRepository.save(instance);
 
-    Map<Long, User> allMemberUserMap = new java.util.HashMap<>();
-    allMemberUserMap.put(userId, user);
-    if (teamId != null) {
-      allMemberUserMap.putAll(
-          userRepository
-              .findByIds(memberIds.stream().filter(id -> !id.equals(userId)).toList())
-              .stream()
-              .collect(Collectors.toMap(User::getId, u -> u)));
-    }
-    for (Long memberId : memberIds) {
-      User memberUser = allMemberUserMap.get(memberId);
-      if (memberUser == null) continue;
-      memberUser.setStatus(UserStatus.DUNGEON);
-      memberUser.setActivityType(ActivityType.DUNGEON);
-      memberUser.setActivityStartTime(TimeUtil.now());
-      memberUser.setActivityTargetId(instance.getId());
-      userStateService.saveActivity(memberUser);
+    user.setStatus(UserStatus.DUNGEON);
+    user.setActivityType(ActivityType.DUNGEON);
+    user.setActivityStartTime(TimeUtil.now());
+    user.setActivityTargetId(instance.getId());
+    userStateService.saveActivity(user);
+
+    log.info("玩家 {} 进入了秘境 {}", userId, dungeonName);
+
+    var area = dungeon.getAreaConfigs().get(0);
+    StringBuilder sb = new StringBuilder();
+    sb.append("你踏入了【").append(dungeon.getName()).append("】—").append(area.name()).append("\n");
+    sb.append(area.description()).append("\n");
+
+    if (dungeon.hasSpirit()) {
+      var sc = dungeon.getSpiritConfig();
+      if (sc != null) {
+        sb.append(sc.spiritAppearance()).append("\n\n");
+        if (sc.greeting() != null) {
+          sb.append("「").append(sc.spiritName()).append("」: ").append(sc.greeting());
+        }
+      }
+    } else {
+      sb.append("\n可探索的地点：");
+      for (var poi : area.mainPois()) {
+        sb.append("\n  · ").append(poi.name()).append(" [").append(poi.type()).append("]");
+      }
+      sb.append("\n\n输入「秘灵 内容」与秘境之灵/叙事者对话");
     }
 
-    for (Long memberId : memberIds) {
-      User memberUser = allMemberUserMap.get(memberId);
-      if (memberUser == null) continue;
-      dungeonEventCompleter.onAreaAdvance(
-          memberId, memberUser, dungeon.getId(), dungeon.getName(), DungeonArea.OUTER.getName());
-    }
-
-    log.info("玩家 {} 率队 {} 人进入秘境 {}", userId, memberIds.size(), dungeonName);
-    return new DungeonEnterResult(
-        dungeonName,
-        DungeonArea.OUTER.getName(),
-        memberIds.size(),
-        outerPois.stream()
-            .map(
-                poi ->
-                    new DungeonPoiEntry(
-                        poi.getName(),
-                        poi.getPoiType().getName(),
-                        poi.getUnlockCondition() != null && !poi.getUnlockCondition().isBlank()))
-            .toList());
+    return sb.toString();
   }
 
-  public ExploreResultVO exploreDungeonInternal(Long userId) {
+  public String getStatusInternal(Long userId) {
     User user = userStateService.loadUser(userId);
-    DungeonInstance instance = findActiveInstance(userId);
-
-    if (!instance.getLeaderId().equals(userId)) {
-      throw new BusinessException(ErrorCode.DUNGEON_NOT_LEADER);
+    if (user.getActivityTargetId() == null || user.getStatus() != UserStatus.DUNGEON) {
+      return "你当前不在任何秘境中。输入「秘境」查看可进入的秘境。";
     }
 
-    checkExpired(instance);
-
-    DungeonTemplate dungeon =
-        dungeonTemplateRepository
-            .findById(instance.getDungeonId())
-            .orElseThrow(() -> new BusinessException(ErrorCode.DUNGEON_NOT_FOUND, ""));
-
-    List<DungeonPoiConfig> areaPois =
-        poiConfigRepository.findByDungeonIdAndArea(dungeon.getId(), instance.getCurrentArea());
-
-    DungeonPoiConfig nextPoi = null;
-    for (DungeonPoiConfig poi : areaPois) {
-      if (!instance.hasExploredPoi(poi.getId()) && isPoiUnlocked(poi, instance)) {
-        nextPoi = poi;
-        break;
-      }
-    }
-
-    if (nextPoi == null) {
-      if (Boolean.TRUE.equals(instance.getPassageUnlocked())) {
-        return new ExploreResultVO(
-            "", "区域完成", false, "当前区域已探索完毕，输入「秘境继续」继续推进。", null, 0, 0, false, "已完成");
-      }
-      throw new BusinessException(ErrorCode.DUNGEON_AREA_NOT_FOUND);
-    }
-
-    ExploreResultVO exploreResult = executePoi(user, instance, nextPoi);
-    instance.addExploredPoi(nextPoi.getId());
-
-    dungeonEventCompleter.rollExploreEvent(userId, user, dungeon.getId());
-
-    if (nextPoi.getId().equals(instance.getPassagePoiId())) {
-      instance.setPassageUnlocked(true);
-    }
-
-    if (nextPoi.getUnlockCondition() != null && nextPoi.getUnlockCondition().equals("CORE_TOKEN")) {
-      instance.setHasCoreToken(true);
-    }
-
-    instanceRepository.save(instance);
-    userStateService.save(user);
-
-    return exploreResult;
-  }
-
-  @CacheEvict(cacheNames = "dungeon_list", key = "#userId")
-  public DungeonContinueResult continueDungeonInternal(Long userId) {
-    userStateService.loadUser(userId);
-    DungeonInstance instance = findActiveInstance(userId);
-
-    if (!instance.getLeaderId().equals(userId)) {
-      throw new BusinessException(ErrorCode.DUNGEON_NOT_LEADER);
-    }
-
-    checkExpired(instance);
-
-    if (!Boolean.TRUE.equals(instance.getPassageUnlocked())) {
-      throw new BusinessException(ErrorCode.DUNGEON_PASSAGE_LOCKED);
-    }
-
-    if (instance.getCurrentArea() == DungeonArea.INNER
-        && !Boolean.TRUE.equals(instance.getHasCoreToken())) {
-      throw new BusinessException(ErrorCode.DUNGEON_PASSAGE_LOCKED);
-    }
-
-    DungeonArea nextArea = getNextArea(instance.getCurrentArea());
-    if (nextArea == null) {
-      return new DungeonContinueResult.Completed(settleAllMembers(instance));
+    DungeonInstance instance =
+        instanceRepository
+            .findById(user.getActivityTargetId())
+            .filter(DungeonInstance::isActive)
+            .orElse(null);
+    if (instance == null) {
+      return "你当前不在任何秘境中。";
     }
 
     DungeonTemplate dungeon =
-        dungeonTemplateRepository
-            .findById(instance.getDungeonId())
-            .orElseThrow(() -> new BusinessException(ErrorCode.DUNGEON_NOT_FOUND, ""));
-    List<DungeonPoiConfig> pois =
-        poiConfigRepository.findByDungeonIdAndArea(dungeon.getId(), nextArea);
-    Long passagePoiId = pickPassagePoi(pois);
-
-    instance.advanceArea();
-    instance.setPassagePoiId(passagePoiId);
-    instanceRepository.save(instance);
-
-    List<Long> memberIds = getTeamMemberIds(instance);
-    Map<Long, User> memberUserMap =
-        userRepository.findByIds(memberIds).stream().collect(Collectors.toMap(User::getId, u -> u));
-    for (Long memberId : memberIds) {
-      User memberUser = memberUserMap.get(memberId);
-      if (memberUser != null) {
-        dungeonEventCompleter.onAreaAdvance(
-            memberId,
-            memberUser,
-            dungeon.getId(),
-            dungeon.getName(),
-            instance.getCurrentArea().getName());
-      }
+        dungeonTemplateRepository.findById(instance.getDungeonId()).orElse(null);
+    if (dungeon == null) {
+      return "秘境数据异常。";
     }
 
-    DungeonEnterResult areaView =
-        new DungeonEnterResult(
-            dungeon.getName(),
-            instance.getCurrentArea().getName(),
-            getTeamMemberIds(instance).size(),
-            pois.stream()
-                .map(
-                    poi ->
-                        new DungeonPoiEntry(
-                            poi.getName(),
-                            poi.getPoiType().getName(),
-                            poi.getUnlockCondition() != null
-                                && !poi.getUnlockCondition().isBlank()))
-                .toList());
-    return new DungeonContinueResult.AreaView(areaView);
+    var area = stateBuilder.findArea(dungeon, instance.getCurrentAreaKey());
+    String areaName = area != null ? area.name() : instance.getCurrentAreaKey();
+    int totalMain = area != null ? area.mainPois().size() : 0;
+    int explored = instance.exploredCount();
+    long elapsedMinutes =
+        java.time.Duration.between(instance.getCreatedAt(), TimeUtil.now()).toMinutes();
+
+    return areaName
+        + " | 探索 "
+        + explored
+        + "/"
+        + totalMain
+        + " | 用时 "
+        + elapsedMinutes
+        + "min"
+        + "\n输入「秘灵 内容」探索秘境";
   }
-
-  @Transactional
-  @CacheEvict(cacheNames = "dungeon_list", key = "#userId")
-  public String retreatDungeonInternal(Long userId) {
-    userStateService.loadUser(userId);
-    DungeonInstance instance = findActiveInstance(userId);
-
-    if (instance.getLeaderId().equals(userId)) {
-      return retreatCaptain(instance);
-    }
-
-    return retreatMember(userId, instance);
-  }
-
-  // ===================== 私有方法 =====================
 
   private void checkIdleStatus(User user) {
     if (user.getStatus() != UserStatus.IDLE) {
-      throw new BusinessException(ErrorCode.DUNGEON_STATUS_BLOCKED, user.getStatus().getName());
+      throw new BusinessException(
+          ErrorCode.DUNGEON_STATUS_BLOCKED,
+          user.getStatus() != null ? user.getStatus().getName() : "未知");
     }
-  }
-
-  private DungeonInstance findActiveInstance(Long userId) {
-    User user = userStateService.loadUser(userId);
-    if (user.getActivityTargetId() == null) {
-      throw new BusinessException(ErrorCode.DUNGEON_NO_ACTIVE_INSTANCE);
-    }
-    return instanceRepository
-        .findByIdForUpdate(user.getActivityTargetId())
-        .filter(DungeonInstance::isActive)
-        .orElseThrow(() -> new BusinessException(ErrorCode.DUNGEON_NO_ACTIVE_INSTANCE));
-  }
-
-  @Nullable
-  private DungeonInstance findActiveInstanceRaw(Long userId, Long dungeonId) {
-    return instanceRepository
-        .findByLeaderIdAndDungeonIdAndStatus(userId, dungeonId, DungeonStatus.ACTIVE)
-        .orElse(null);
-  }
-
-  private void checkExpired(DungeonInstance instance) {
-    if (instance.isExpired()) {
-      instanceManager.markAbandoned(instance);
-      throw new BusinessException(ErrorCode.DUNGEON_INSTANCE_EXPIRED);
-    }
-  }
-
-  @Nullable
-  private DungeonArea getNextArea(DungeonArea current) {
-    return switch (current) {
-      case OUTER -> DungeonArea.INNER;
-      case INNER -> DungeonArea.CORE;
-      case CORE -> null;
-    };
-  }
-
-  @Nullable
-  private Long pickPassagePoi(List<DungeonPoiConfig> pois) {
-    List<DungeonPoiConfig> candidates =
-        pois.stream().filter(p -> Boolean.TRUE.equals(p.getIsPassage())).toList();
-    if (candidates.isEmpty()) {
-      return pois.isEmpty() ? null : pois.getFirst().getId();
-    }
-    return candidates.get(ThreadLocalRandom.current().nextInt(candidates.size())).getId();
-  }
-
-  private boolean isPoiUnlocked(DungeonPoiConfig poi, DungeonInstance instance) {
-    if (poi.getUnlockCondition() == null || poi.getUnlockCondition().isBlank()) {
-      return true;
-    }
-    return switch (poi.getUnlockCondition()) {
-      case "CORE_TOKEN", "BOSS_CLEARED" -> Boolean.TRUE.equals(instance.getHasCoreToken());
-      default -> true;
-    };
-  }
-
-  private List<Long> getTeamMemberIds(DungeonInstance instance) {
-    if (instance.getTeamId() == null) {
-      return List.of(instance.getLeaderId());
-    }
-    return teamMemberRepository.findByTeamId(instance.getTeamId()).stream()
-        .map(TeamMember::getUserId)
-        .toList();
-  }
-
-  private ExploreResultVO executePoi(User user, DungeonInstance instance, DungeonPoiConfig poi) {
-    log.debug("探索 POI: {} (type={})", poi.getName(), poi.getPoiType().getName());
-
-    return switch (poi.getPoiType()) {
-      case GATHER -> executeGatherForTeam(instance, poi);
-      case SEARCH -> executeSearchForTeam(instance, poi);
-      case COMBAT -> executePoiCombat(user, instance, poi, false);
-      case BOSS -> executePoiCombat(user, instance, poi, true);
-    };
-  }
-
-  private ExploreResultVO executeGatherForTeam(DungeonInstance instance, DungeonPoiConfig poi) {
-    DungeonLootHelper.LootRollResult rollResult = lootHelper.rollLoot(poi);
-    List<DropItemVO> drops = rollResult.drops();
-    long spiritStones = ThreadLocalRandom.current().nextInt(10, 31);
-    List<Long> memberIds = getTeamMemberIds(instance);
-
-    for (Long memberId : memberIds) {
-      lootHelper.giveDrops(memberId, drops, spiritStones, rollResult.nameToTemplate());
-    }
-
-    StringBuilder msg = new StringBuilder("队伍在" + poi.getName() + "中采集到了一些物资。");
-    if (memberIds.size() > 1) {
-      msg.append("（全员 ").append(memberIds.size()).append(" 人获得奖励）");
-    }
-    return new ExploreResultVO(
-        poi.getName(), "采集", false, null, drops, 0, spiritStones, false, msg.toString());
-  }
-
-  private ExploreResultVO executeSearchForTeam(DungeonInstance instance, DungeonPoiConfig poi) {
-    DungeonLootHelper.LootRollResult rollResult = lootHelper.rollLoot(poi);
-    List<DropItemVO> drops = rollResult.drops();
-    long spiritStones = ThreadLocalRandom.current().nextInt(20, 81);
-
-    boolean triggerCombat = ThreadLocalRandom.current().nextDouble() < 0.2;
-    String combatSummary = null;
-    if (triggerCombat) {
-      combatSummary = "搜索时遭遇了守护残魂，但被轻松解决了。";
-      spiritStones += ThreadLocalRandom.current().nextInt(20, 61);
-    }
-
-    List<Long> memberIds = getTeamMemberIds(instance);
-    for (Long memberId : memberIds) {
-      lootHelper.giveDrops(memberId, drops, spiritStones, rollResult.nameToTemplate());
-    }
-
-    StringBuilder msg = new StringBuilder("队伍在" + poi.getName() + "中仔细搜索了一番。");
-    if (memberIds.size() > 1) {
-      msg.append("（全员 ").append(memberIds.size()).append(" 人获得奖励）");
-    }
-    return new ExploreResultVO(
-        poi.getName(),
-        "搜索",
-        triggerCombat,
-        combatSummary,
-        drops,
-        0,
-        spiritStones,
-        false,
-        msg.toString());
-  }
-
-  private ExploreResultVO executePoiCombat(
-      User user, DungeonInstance instance, DungeonPoiConfig poi, boolean isBoss) {
-    List<Long> memberIds = getTeamMemberIds(instance);
-
-    DungeonCombatHelper.CombatOutcome outcome =
-        combatHelper.executeCombatForTeam(user, instance, poi, isBoss, memberIds);
-
-    if (!outcome.playerWon()) {
-      boolean anyAlive = outcome.memberAlive();
-      if (!anyAlive) {
-        instanceManager.markFailed(instance);
-        throw new BusinessException(ErrorCode.DUNGEON_COMBAT_LOST);
-      }
-      return new ExploreResultVO(
-          poi.getName(),
-          isBoss ? "BOSS战" : "战斗",
-          true,
-          outcome.summary(),
-          null,
-          0,
-          0,
-          false,
-          "部分成员阵亡，队伍继续前进...");
-    }
-
-    DungeonLootHelper.LootRollResult rollResult = lootHelper.rollLoot(poi);
-    List<DropItemVO> drops = rollResult.drops();
-    long spiritStones = ThreadLocalRandom.current().nextInt(isBoss ? 100 : 30, isBoss ? 500 : 150);
-
-    for (Long memberId : memberIds) {
-      lootHelper.giveDrops(memberId, drops, spiritStones, rollResult.nameToTemplate());
-    }
-
-    return new ExploreResultVO(
-        poi.getName(),
-        isBoss ? "BOSS战" : "战斗",
-        true,
-        outcome.summary(),
-        drops,
-        outcome.expGained(),
-        spiritStones,
-        false,
-        "战斗胜利！");
-  }
-
-  private String retreatCaptain(DungeonInstance instance) {
-    instance.markAbandoned();
-    instanceRepository.save(instance);
-
-    List<Long> memberIds = getTeamMemberIds(instance);
-    Map<Long, User> memberUserMap =
-        userRepository.findByIds(memberIds).stream().collect(Collectors.toMap(User::getId, u -> u));
-    for (Long memberId : memberIds) {
-      User memberUser = memberUserMap.get(memberId);
-      if (memberUser != null) {
-        memberUser.clearActivity();
-        userStateService.saveActivity(memberUser);
-      }
-    }
-
-    log.info(
-        "队长 {} 撤退，秘境 {} 结束，共 {} 人退出",
-        instance.getLeaderId(),
-        instance.getDungeonId(),
-        memberIds.size());
-    return "你带领队伍撤退了。所有成员已退出秘境，已获奖励保留。";
-  }
-
-  private String retreatMember(Long userId, DungeonInstance instance) {
-    User member = userStateService.loadUser(userId);
-    member.clearActivity();
-    userStateService.saveActivity(member);
-
-    log.info("队员 {} 退出秘境 {}", userId, instance.getDungeonId());
-    return "你退出了秘境。已获得的奖励保留。";
-  }
-
-  private String settleAllMembers(DungeonInstance instance) {
-    instance.markCompleted();
-    instanceRepository.save(instance);
-
-    DungeonTemplate dungeon =
-        dungeonTemplateRepository
-            .findById(instance.getDungeonId())
-            .orElseThrow(() -> new BusinessException(ErrorCode.DUNGEON_NOT_FOUND, ""));
-
-    List<Long> memberIds = getTeamMemberIds(instance);
-    Map<Long, User> memberUserMap =
-        userRepository.findByIds(memberIds).stream().collect(Collectors.toMap(User::getId, u -> u));
-    StringBuilder sb = new StringBuilder();
-
-    for (Long memberId : memberIds) {
-      User member = memberUserMap.get(memberId);
-      if (member != null) {
-        member.clearActivity();
-        userStateService.saveActivity(member);
-
-        dungeonEventCompleter.onComplete(memberId, member, dungeon.getName());
-      }
-
-      String result = progressHelper.completeDungeon(memberId, instance);
-      if (memberIds.size() > 1 && member != null) {
-        sb.append("【").append(member.getNickname()).append("】: ").append(result).append("\n");
-      } else {
-        sb.append(result);
-      }
-    }
-
-    log.info("秘境 {} 通关，{} 人结算", instance.getDungeonId(), memberIds.size());
-    return sb.toString();
   }
 }

@@ -10,9 +10,8 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.jspecify.annotations.Nullable;
-import top.stillmisty.xiantao.domain.dungeon.enums.DungeonArea;
 import top.stillmisty.xiantao.domain.dungeon.enums.DungeonStatus;
-import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
+import top.stillmisty.xiantao.infrastructure.mybatis.handler.ExploredPoisTypeHandler;
 import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 
 @SuppressWarnings("NullAway")
@@ -27,14 +26,11 @@ public class DungeonInstance {
 
   private Long dungeonId;
   private Long leaderId;
-  @Nullable private Long teamId;
-  private DungeonArea currentArea;
+  private String currentAreaKey;
   private Boolean passageUnlocked;
-  @Nullable private Long passagePoiId;
-  private Boolean hasCoreToken;
 
-  @Column(typeHandler = JsonbCollectionTypeHandler.class)
-  private List<Long> exploredPois;
+  @Column(typeHandler = ExploredPoisTypeHandler.class)
+  private List<ExploredPoiRecord> exploredPois;
 
   private DungeonStatus status;
 
@@ -42,6 +38,7 @@ public class DungeonInstance {
   private LocalDateTime createdAt;
 
   private LocalDateTime expiresAt;
+
   @Nullable private LocalDateTime completedAt;
 
   public boolean isActive() {
@@ -52,26 +49,24 @@ public class DungeonInstance {
     return expiresAt != null && TimeUtil.now().isAfter(expiresAt);
   }
 
-  public void addExploredPoi(Long poiConfigId) {
+  public boolean hasExploredPoi(String poiName) {
+    return exploredPois != null && exploredPois.stream().anyMatch(p -> p.poiName().equals(poiName));
+  }
+
+  public void addExploredPoi(String poiName) {
     if (exploredPois == null) {
       exploredPois = new ArrayList<>();
     }
-    exploredPois.add(poiConfigId);
+    exploredPois.add(new ExploredPoiRecord(poiName));
   }
 
-  public boolean hasExploredPoi(Long poiConfigId) {
-    return exploredPois != null && exploredPois.contains(poiConfigId);
+  public int exploredCount() {
+    return exploredPois != null ? exploredPois.size() : 0;
   }
 
-  public void advanceArea() {
-    currentArea =
-        switch (currentArea) {
-          case OUTER -> DungeonArea.INNER;
-          case INNER -> DungeonArea.CORE;
-          case CORE -> null;
-        };
+  public void advanceArea(String nextAreaKey) {
+    currentAreaKey = nextAreaKey;
     passageUnlocked = false;
-    passagePoiId = null;
     exploredPois = new ArrayList<>();
   }
 
@@ -87,4 +82,6 @@ public class DungeonInstance {
   public void markAbandoned() {
     status = DungeonStatus.ABANDONED;
   }
+
+  public record ExploredPoiRecord(String poiName) {}
 }

@@ -1,6 +1,5 @@
 package top.stillmisty.xiantao.handle.listener;
 
-import lombok.RequiredArgsConstructor;
 import love.forte.simbot.event.MessageEvent;
 import love.forte.simbot.quantcat.common.annotations.ContentTrim;
 import love.forte.simbot.quantcat.common.annotations.Filter;
@@ -12,18 +11,22 @@ import top.stillmisty.xiantao.handle.command.DungeonCommandHandler;
 import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
 
 @Component
-@RequiredArgsConstructor
 public class DungeonListener {
 
   private final DungeonCommandHandler dungeonCommandHandler;
   private final ReplyHelper replyHelper;
 
+  public DungeonListener(DungeonCommandHandler dungeonCommandHandler, ReplyHelper replyHelper) {
+    this.dungeonCommandHandler = dungeonCommandHandler;
+    this.replyHelper = replyHelper;
+  }
+
   @RequireAuth
   @Listener
   @ContentTrim
   @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "秘境")
-  public void dungeonList(MessageEvent event) {
-    replyHelper.dispatch(event, "秘境列表", dungeonCommandHandler::handleDungeon);
+  public void dungeonOrStatus(MessageEvent event) {
+    replyHelper.dispatch(event, "秘境/状态", dungeonCommandHandler::handleDungeonOrStatus);
   }
 
   @RequireAuth
@@ -37,24 +40,16 @@ public class DungeonListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "秘境探索")
-  public void dungeonExplore(MessageEvent event) {
-    replyHelper.dispatch(event, "秘境探索", dungeonCommandHandler::handleDungeonExplore);
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "秘灵")
+  public void dungeonChat(MessageEvent event) {
+    replyHelper.dispatch(event, "秘灵对话", dungeonCommandHandler::handleCreatureHelp);
   }
 
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "秘境继续")
-  public void dungeonContinue(MessageEvent event) {
-    replyHelper.dispatch(event, "秘境继续", dungeonCommandHandler::handleDungeonContinue);
-  }
-
-  @RequireAuth
-  @Listener
-  @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "秘境撤退")
-  public void dungeonRetreat(MessageEvent event) {
-    replyHelper.dispatch(event, "秘境撤退", dungeonCommandHandler::handleDungeonRetreat);
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "秘灵\\s*{{content}}")
+  public void dungeonChatWithContent(MessageEvent event, @FilterValue("content") String content) {
+    replyHelper.dispatch(event, "秘灵对话", content, dungeonCommandHandler::handleCreatureChat);
   }
 }

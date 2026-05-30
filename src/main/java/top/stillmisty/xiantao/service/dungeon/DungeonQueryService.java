@@ -19,11 +19,6 @@ import top.stillmisty.xiantao.infrastructure.repository.DungeonTemplateRepositor
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
-/**
- * 秘境查询服务
- *
- * <p>负责秘境列表查询等只读操作，从DungeonService中提取以降低耦合。
- */
 @Service
 @RequiredArgsConstructor
 public class DungeonQueryService {
@@ -32,28 +27,19 @@ public class DungeonQueryService {
   private final DungeonInstanceRepository instanceRepository;
   private final DungeonProgressRepository progressRepository;
   private final UserStateService userStateService;
+  private final DungeonAccessChecker accessChecker;
 
-  /**
-   * 获取秘境列表（公开API）
-   *
-   * @param userId 用户ID
-   * @return 秘境列表结果
-   */
   @Transactional(readOnly = true)
   public ServiceResult<List<DungeonListVO>> listDungeons(Long userId) {
     return new ServiceResult.Success<>(listDungeonsInternal(userId));
   }
 
-  /**
-   * 获取秘境列表（内部API，供缓存调用）
-   *
-   * @param userId 用户ID
-   * @return 秘境列表
-   */
   @Cacheable(cacheNames = "dungeon_list", key = "#userId")
   public List<DungeonListVO> listDungeonsInternal(Long userId) {
     var user = userStateService.loadUserReadOnly(userId);
     List<DungeonTemplate> templates = dungeonTemplateRepository.findActive();
+
+    if (templates.isEmpty()) return List.of();
 
     List<Long> templateIds = templates.stream().map(DungeonTemplate::getId).toList();
     Map<Long, DungeonProgress> progressMap =
@@ -67,6 +53,9 @@ public class DungeonQueryService {
 
     List<DungeonListVO> result = new ArrayList<>();
     for (DungeonTemplate tmpl : templates) {
+      if (!accessChecker.canAccess(user, tmpl)) {
+        continue;
+      }
       DungeonProgress progress = progressMap.get(tmpl.getId());
       DungeonInstance activeInstance = activeInstances.get(tmpl.getId());
 
@@ -74,17 +63,18 @@ public class DungeonQueryService {
           new DungeonListVO(
               tmpl.getId(),
               tmpl.getName(),
+              tmpl.getDescription(),
+              tmpl.getElementType() != null ? tmpl.getElementType().getName() : "",
               tmpl.getMinLevel(),
               tmpl.getMaxLevel(),
               tmpl.getMaxTeamSize(),
               activeInstance != null,
-              activeInstance != null ? activeInstance.getStatus() : null,
-              activeInstance != null ? activeInstance.getCurrentArea() : null,
               progress != null ? progress.getRewardCount() : 0,
               progress != null
                   ? progress.getDailyLimit()
-                  : DungeonProgress.calculateDailyLimit(user.getLevel()),
-              progress != null && progress.getFirstClear()));
+                  : DungeonProgress.calculateDailyLimit(
+                      user.getLevel() != null ? user.getLevel() : 1),
+              progress != null && Boolean.TRUE.equals(progress.getFirstClear())));
     }
     return result;
   }

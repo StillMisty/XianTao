@@ -9,7 +9,8 @@ public enum ChatType {
   SPIRIT("SPIRIT", "地灵"),
   SHOP("SHOP", "商铺"),
   SECT("SECT", "宗灵"),
-  TRAVELER("TRAVELER", "旅行商人");
+  TRAVELER("TRAVELER", "旅行商人"),
+  DUNGEON("DUNGEON", "秘境之灵");
 
   @EnumValue private final String code;
   private final String name;

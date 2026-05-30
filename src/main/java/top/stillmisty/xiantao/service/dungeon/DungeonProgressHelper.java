@@ -1,17 +1,13 @@
 package top.stillmisty.xiantao.service.dungeon;
 
-import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import top.stillmisty.xiantao.domain.dungeon.entity.DungeonFirstClear;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonInstance;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonProgress;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonTemplate;
-import top.stillmisty.xiantao.domain.dungeon.enums.DungeonArea;
 import top.stillmisty.xiantao.domain.user.entity.User;
-import top.stillmisty.xiantao.infrastructure.repository.DungeonFirstClearRepository;
 import top.stillmisty.xiantao.infrastructure.repository.DungeonProgressRepository;
 import top.stillmisty.xiantao.infrastructure.repository.DungeonTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
@@ -26,7 +22,6 @@ public class DungeonProgressHelper {
 
   private final DungeonTemplateRepository dungeonTemplateRepository;
   private final DungeonProgressRepository progressRepository;
-  private final DungeonFirstClearRepository firstClearRepository;
   private final UserStateService userStateService;
   private final SpiritStoneService spiritStoneService;
 
@@ -39,7 +34,6 @@ public class DungeonProgressHelper {
                 () ->
                     new BusinessException(
                         ErrorCode.DUNGEON_NOT_FOUND, String.valueOf(instance.getDungeonId())));
-    instance.markCompleted();
 
     User user = userStateService.loadUser(userId);
     user.clearActivity();
@@ -57,28 +51,16 @@ public class DungeonProgressHelper {
                   p.setDailyLimit(DungeonProgress.calculateDailyLimit(user.getLevel()));
                   p.setFirstClear(false);
                   p.setLastRewardDate(TimeUtil.today());
+                  p.setInteractionCount(0);
                   return p;
                 });
 
     boolean isFirstClear = progress.getFirstClear() == null || !progress.getFirstClear();
     if (isFirstClear) {
-      DungeonFirstClear globalFirst =
-          firstClearRepository.findByDungeonId(dungeon.getId()).orElse(null);
-      if (globalFirst == null) {
-        globalFirst = new DungeonFirstClear();
-        globalFirst.setDungeonId(dungeon.getId());
-        globalFirst.setTeamMembers(List.of(userId));
-        globalFirst.setDurationMinutes(
-            (int) java.time.Duration.between(instance.getCreatedAt(), TimeUtil.now()).toMinutes());
-        firstClearRepository.save(globalFirst);
-      }
       progress.setFirstClear(true);
     }
 
-    if (progress.getBestArea() == null
-        || progress.getBestArea().getRank() < DungeonArea.CORE.getRank()) {
-      progress.setBestArea(DungeonArea.CORE);
-    }
+    progress.setBestArea(instance.getCurrentAreaKey());
 
     long spiritStonesReward = ThreadLocalRandom.current().nextInt(500, 2001);
     spiritStoneService.deposit(userId, spiritStonesReward);

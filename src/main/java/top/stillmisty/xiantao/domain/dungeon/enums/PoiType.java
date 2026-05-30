@@ -8,7 +8,7 @@ public enum PoiType {
   GATHER("GATHER", "采集"),
   COMBAT("COMBAT", "战斗"),
   SEARCH("SEARCH", "搜索"),
-  BOSS("BOSS", "首领");
+  PASSAGE("PASSAGE", "通道");
 
   @EnumValue private final String code;
   private final String name;

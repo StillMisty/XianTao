@@ -23,15 +23,15 @@ src/main/java/top/stillmisty/xiantao/
 │   ├── command/                     # VO → text formatters (implements CommandGroup)
 │   ├── listener/                    # SimBot @Listener (OneBotV11 + QQ per class)
 │   ├── interceptor/                 # AuthInterceptorFactory (@RequireAuth)
-│   ├── TextFormat.java              # sealed: PlainFormat | MarkdownFormat (heading/bold/listItem/separator)
+│   ├── TextFormat.java              # sealed: PlainFormat | MarkdownFormat
 ├── domain/                          # Entities, enums, VOs
-│   ├── user/ item/ beast/ bounty/ fudi/ map/ monster/ pill/ skill/ command/
-│   └── item/handler/                # ItemUseHandler strategy implementations (5 handlers)
+│   ├── user/ item/ beast/ bounty/ fudi/ map/ monster/ pill/ skill/ command/ dungeon/
+│   └── item/handler/                # ItemUseHandler strategy implementations
 ├── service/                         # Auth + business logic
-│   ├── ai/                          # SpiritChatService, SpiritTools, emotion engine
+│   ├── ai/                          # AbstractChatService, DungeonChatService, SpiritChatService, SpiritTools, DungeonTools
 │   ├── ServiceResult.java           # sealed: Success<T> | Failure<T>
 │   ├── UserContext.java             # ScopedValue<Long> CURRENT_USER
-│   ├── ErrorCode.java               # enum of structured business error codes (68 constants)
+│   ├── ErrorCode.java               # enum of structured business error codes
 │   ├── BusinessException.java       # RuntimeException carrying ErrorCode + format args
 │   └── ...Service.java              # domain services
 └── infrastructure/                  # MyBatis-Flex mappers + repositories
