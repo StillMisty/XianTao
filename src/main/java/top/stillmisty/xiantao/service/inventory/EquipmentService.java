@@ -1,7 +1,6 @@
 package top.stillmisty.xiantao.service.inventory;
 
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -14,6 +13,7 @@ import top.stillmisty.xiantao.domain.item.entity.EquipmentTemplate;
 import top.stillmisty.xiantao.domain.item.enums.AffixType;
 import top.stillmisty.xiantao.domain.item.enums.EquipmentSlot;
 import top.stillmisty.xiantao.domain.item.enums.Rarity;
+import top.stillmisty.xiantao.domain.item.service.EquipmentFactory;
 import top.stillmisty.xiantao.domain.item.vo.*;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.infrastructure.repository.EquipmentRepository;
@@ -32,16 +32,19 @@ public class EquipmentService {
   private final EquipmentRepository equipmentRepository;
   private final EquipmentTemplateRepository equipmentTemplateRepository;
   private final ItemResolver itemResolver;
+  private final EquipmentFactory equipmentFactory;
 
   public EquipmentService(
       @Lazy UserStateService userStateService,
       EquipmentRepository equipmentRepository,
       EquipmentTemplateRepository equipmentTemplateRepository,
-      ItemResolver itemResolver) {
+      ItemResolver itemResolver,
+      EquipmentFactory equipmentFactory) {
     this.userStateService = userStateService;
     this.equipmentRepository = equipmentRepository;
     this.equipmentTemplateRepository = equipmentTemplateRepository;
     this.itemResolver = itemResolver;
+    this.equipmentFactory = equipmentFactory;
   }
 
   // ===================== 公开 API =====================
@@ -284,47 +287,7 @@ public class EquipmentService {
     }
 
     Rarity rarity = Rarity.roll(equipTmpl.getDropWeight());
-    double qm = rarity.randomQualityMultiplier();
-
-    int affixCount = rarity.randomAffixCount();
-    Map<String, Integer> affixes = new LinkedHashMap<>();
-    List<AffixType> pool = new ArrayList<>(List.of(AffixType.getAttributeAffixes()));
-    if (rarity == Rarity.LEGENDARY) {
-      pool.addAll(List.of(AffixType.getSpecialAffixes()));
-    }
-    Collections.shuffle(pool, ThreadLocalRandom.current());
-    for (int i = 0; i < affixCount && i < pool.size(); i++) {
-      AffixType at = pool.get(i);
-      int value = at.isSpecial() ? 5 : (1 + ThreadLocalRandom.current().nextInt(4));
-      if (at.getStatField() != null) {
-        affixes.put(at.getStatField(), value);
-      } else {
-        affixes.put(at.name(), value);
-      }
-    }
-
-    String name = equipTmpl.getName() + "-" + rarity.getName();
-
-    Map<String, Integer> statBonus =
-        Map.of(
-            "STR", equipTmpl.getBaseStr(),
-            "CON", equipTmpl.getBaseCon(),
-            "AGI", equipTmpl.getBaseAgi(),
-            "WIS", equipTmpl.getBaseWis());
-
-    Equipment equipment =
-        Equipment.create(
-            userId,
-            templateId,
-            name,
-            equipTmpl.getSlot(),
-            rarity,
-            equipTmpl.getWeaponType(),
-            qm,
-            affixes,
-            statBonus,
-            equipTmpl.getBaseAttack(),
-            equipTmpl.getBaseDefense());
+    Equipment equipment = equipmentFactory.createEquipment(userId, templateId, equipTmpl, rarity);
     equipmentRepository.save(equipment);
   }
 

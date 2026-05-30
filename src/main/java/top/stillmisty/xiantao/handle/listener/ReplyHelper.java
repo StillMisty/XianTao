@@ -2,22 +2,20 @@ package top.stillmisty.xiantao.handle.listener;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import love.forte.simbot.component.onebot.v11.core.event.message.OneBotMessageEvent;
-import love.forte.simbot.component.qguild.event.QGGroupAtMessageCreateEvent;
-import love.forte.simbot.component.qguild.message.QGMarkdown;
 import love.forte.simbot.event.MessageEvent;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.TextFormat;
-import top.stillmisty.xiantao.service.NotificationAppender;
+import top.stillmisty.xiantao.handle.platform.PlatformHandler;
+import top.stillmisty.xiantao.handle.platform.PlatformRegistry;
 
-/** 平台回复辅助 集中处理 OneBotV11 / QQ 两种回复方式 */
+/** 平台回复辅助 集中处理多平台回复方式 */
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class ReplyHelper {
 
-  private final NotificationAppender notificationAppender;
+  private final PlatformRegistry platformRegistry;
 
   /** 无额外参数的指令方法签名: (TextFormat) → String */
   @FunctionalInterface
@@ -34,101 +32,53 @@ public class ReplyHelper {
   // ===================== 通用 dispatch 方法（支持多平台） =====================
 
   public void dispatch(MessageEvent event, String command, CommandFn fn) {
-    switch (event) {
-      case OneBotMessageEvent oneBotEvent -> oneBot(oneBotEvent, command, fn);
-      case QGGroupAtMessageCreateEvent qqEvent -> qq(qqEvent, command, fn);
-      default -> throw new IllegalArgumentException("不支持的事件类型: " + event.getClass().getName());
-    }
+    PlatformHandler handler = platformRegistry.getHandler(event);
+    PlatformType platform = handler.getPlatformType();
+    TextFormat fmt = getTextFormat(platform);
+
+    log.debug("[{}] {}请求 - AuthorId: {}", platform, command, handler.extractOpenId(event));
+    String text = fn.execute(fmt);
+    replyWithHandler(handler, event, text);
   }
 
   public void dispatch(MessageEvent event, String command, String arg, CommandFn1 fn) {
-    switch (event) {
-      case OneBotMessageEvent oneBotEvent -> oneBot(oneBotEvent, command, arg, fn);
-      case QGGroupAtMessageCreateEvent qqEvent -> qq(qqEvent, command, arg, fn);
-      default -> throw new IllegalArgumentException("不支持的事件类型: " + event.getClass().getName());
-    }
-  }
+    PlatformHandler handler = platformRegistry.getHandler(event);
+    PlatformType platform = handler.getPlatformType();
+    TextFormat fmt = getTextFormat(platform);
 
-  // ===================== 便捷 dispatch 方法（封装 platform/openId/fmt 常量的提取 + 日志） =====================
-
-  public void oneBot(OneBotMessageEvent event, String command, CommandFn fn) {
-    log.debug("[OneBot] {}请求 - AuthorId: {}", command, event.getAuthorId());
-    String text = fn.execute(TextFormat.PLAIN);
-    replyOneBot(event, text);
-  }
-
-  public void oneBot(OneBotMessageEvent event, String command, String arg, CommandFn1 fn) {
-    log.debug("[OneBot] {}请求 - AuthorId: {}, Arg: {}", command, event.getAuthorId(), arg);
-    String text = fn.execute(arg, TextFormat.PLAIN);
-    replyOneBot(event, text);
-  }
-
-  public void qq(QGGroupAtMessageCreateEvent event, String command, CommandFn fn) {
-    log.debug("[QQ] {}请求 - AuthorId: {}", command, event.getAuthorId());
-    String text = fn.execute(TextFormat.MARKDOWN);
-    replyQQ(event, text);
-  }
-
-  public void qq(QGGroupAtMessageCreateEvent event, String command, String arg, CommandFn1 fn) {
-    log.debug("[QQ] {}请求 - AuthorId: {}, Arg: {}", command, event.getAuthorId(), arg);
-    String text = fn.execute(arg, TextFormat.MARKDOWN);
-    replyQQ(event, text);
-  }
-
-  // ===================== 无日志便捷方法（向后兼容/特殊场景） =====================
-
-  public void oneBot(OneBotMessageEvent event, CommandFn fn) {
-    String text = fn.execute(TextFormat.PLAIN);
-    replyOneBot(event, text);
-  }
-
-  public void oneBot(OneBotMessageEvent event, String arg, CommandFn1 fn) {
-    String text = fn.execute(arg, TextFormat.PLAIN);
-    replyOneBot(event, text);
-  }
-
-  public void qq(QGGroupAtMessageCreateEvent event, CommandFn fn) {
-    String text = fn.execute(TextFormat.MARKDOWN);
-    replyQQ(event, text);
-  }
-
-  public void qq(QGGroupAtMessageCreateEvent event, String arg, CommandFn1 fn) {
-    String text = fn.execute(arg, TextFormat.MARKDOWN);
-    replyQQ(event, text);
+    log.debug(
+        "[{}] {}请求 - AuthorId: {}, Arg: {}", platform, command, handler.extractOpenId(event), arg);
+    String text = fn.execute(arg, fmt);
+    replyWithHandler(handler, event, text);
   }
 
   // ===================== 平台类型识别 =====================
 
   public static PlatformType platformTypeOf(MessageEvent event) {
     return switch (event) {
-      case OneBotMessageEvent __ -> PlatformType.ONE_BOT_V11;
-      case QGGroupAtMessageCreateEvent __ -> PlatformType.QQ;
+      case love.forte.simbot.component.onebot.v11.core.event.message.OneBotMessageEvent __ ->
+          PlatformType.ONE_BOT_V11;
+      case love.forte.simbot.component.qguild.event.QGGroupAtMessageCreateEvent __ ->
+          PlatformType.QQ;
       default -> throw new IllegalArgumentException("不支持的事件类型: " + event.getClass().getName());
     };
   }
 
-  // ===================== 底层 reply 方法 =====================
+  // ===================== 内部辅助方法 =====================
 
-  public void replyOneBot(OneBotMessageEvent event, String text) {
-    try {
-      var result =
-          notificationAppender.prepareAppend(
-              PlatformType.ONE_BOT_V11, event.getAuthorId().toString(), text);
-      event.replyBlocking(result.text());
-      notificationAppender.markDelivered(result.eventIds());
-    } catch (Exception e) {
-      log.warn("OneBot 回复失败: {}", e.getMessage(), e);
-    }
+  private TextFormat getTextFormat(PlatformType platform) {
+    return switch (platform) {
+      case ONE_BOT_V11 -> TextFormat.PLAIN;
+      case QQ -> TextFormat.MARKDOWN;
+      case WEB -> TextFormat.PLAIN;
+    };
   }
 
-  public void replyQQ(QGGroupAtMessageCreateEvent event, String text) {
+  private void replyWithHandler(PlatformHandler handler, MessageEvent event, String text) {
     try {
-      var result =
-          notificationAppender.prepareAppend(PlatformType.QQ, event.getAuthorId().toString(), text);
-      event.replyBlocking(QGMarkdown.create(result.text()));
-      notificationAppender.markDelivered(result.eventIds());
+      handler.replyText(event, text);
     } catch (Exception e) {
-      log.warn("QQ 回复失败: {}", e.getMessage(), e);
+      log.warn("{} 回复失败: {}", handler.getPlatformType(), e.getMessage(), e);
     }
   }
 }

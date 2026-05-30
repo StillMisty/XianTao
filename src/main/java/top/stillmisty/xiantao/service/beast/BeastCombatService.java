@@ -59,9 +59,7 @@ public class BeastCombatService {
 
   List<BeastStatusVO> getDeployedBeastsInternal(Long userId) {
     Fudi fudi =
-        fudiHelper
-            .findAndTouchFudi(userId)
-            .orElseThrow(() -> new BusinessException(FUDI_NOT_FOUND));
+        fudiHelper.findFudi(userId).orElseThrow(() -> new BusinessException(FUDI_NOT_FOUND));
     List<Beast> allBeasts = beastRepository.findByFudiId(fudi.getId());
     return allBeasts.stream()
         .filter(b -> Boolean.TRUE.equals(b.getIsDeployed()))

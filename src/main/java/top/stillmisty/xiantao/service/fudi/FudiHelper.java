@@ -26,6 +26,15 @@ public class FudiHelper {
   private final UserStateService userStateService;
 
   /**
+   * 根据 userId 查找福地（只读）。
+   *
+   * <p>无副作用，适用于仅需读取福地数据的场景。
+   */
+  public Optional<Fudi> findFudi(Long userId) {
+    return fudiRepository.findByUserId(userId);
+  }
+
+  /**
    * 根据 userId 查找福地，并自动更新在线时间、更新地灵情绪状态并持久化。
    *
    * <p>注意：此方法有写入副作用（会保存 Fudi 和 Spirit），调用方需要在事务上下文中使用。

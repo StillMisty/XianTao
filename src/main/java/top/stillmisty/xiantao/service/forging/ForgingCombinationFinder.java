@@ -1,15 +1,14 @@
 package top.stillmisty.xiantao.service.forging;
 
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.forge.vo.ForgingResultVO;
 import top.stillmisty.xiantao.domain.item.entity.*;
-import top.stillmisty.xiantao.domain.item.enums.AffixType;
 import top.stillmisty.xiantao.domain.item.enums.MaterialAttribute;
 import top.stillmisty.xiantao.domain.item.enums.Rarity;
+import top.stillmisty.xiantao.domain.item.service.EquipmentFactory;
 import top.stillmisty.xiantao.infrastructure.repository.EquipmentRepository;
 import top.stillmisty.xiantao.infrastructure.repository.EquipmentTemplateRepository;
 import top.stillmisty.xiantao.service.BusinessException;
@@ -28,6 +27,7 @@ public class ForgingCombinationFinder {
   private final StackableItemService stackableItemService;
   private final EquipmentTemplateRepository equipmentTemplateRepository;
   private final EquipmentRepository equipmentRepository;
+  private final EquipmentFactory equipmentFactory;
 
   private final CombinationStrategy strategy =
       new CombinationStrategy(FORGE_ATTRIBUTES, 3, ForgingCombinationFinder::getMaterialValue);
@@ -152,50 +152,8 @@ public class ForgingCombinationFinder {
       throw new BusinessException(ErrorCode.BLUEPRINT_DATA_ERROR);
     }
 
-    double qm = rarity.randomQualityMultiplier();
-    int affixCount = rarity.randomAffixCount();
-    Map<String, Integer> affixes = new LinkedHashMap<>();
-    List<AffixType> pool = new ArrayList<>(List.of(AffixType.getAttributeAffixes()));
-    if (rarity == Rarity.LEGENDARY) {
-      pool.addAll(List.of(AffixType.getSpecialAffixes()));
-    }
-    Collections.shuffle(pool, ThreadLocalRandom.current());
-    for (int i = 0; i < affixCount && i < pool.size(); i++) {
-      AffixType at = pool.get(i);
-      int value = at.isSpecial() ? 5 : (1 + ThreadLocalRandom.current().nextInt(4));
-      if (at.getStatField() != null) {
-        affixes.put(at.getStatField(), value);
-      } else {
-        affixes.put(at.name(), value);
-      }
-    }
-
-    String name = equipTmpl.getName() + "-" + rarity.getName();
-
-    Map<String, Integer> statBonus =
-        Map.of(
-            "STR",
-            equipTmpl.getBaseStr(),
-            "CON",
-            equipTmpl.getBaseCon(),
-            "AGI",
-            equipTmpl.getBaseAgi(),
-            "WIS",
-            equipTmpl.getBaseWis());
-
     Equipment equipment =
-        Equipment.create(
-            userId,
-            equipmentTemplateId,
-            name,
-            equipTmpl.getSlot(),
-            rarity,
-            equipTmpl.getWeaponType(),
-            qm,
-            affixes,
-            statBonus,
-            equipTmpl.getBaseAttack(),
-            equipTmpl.getBaseDefense());
+        equipmentFactory.createEquipment(userId, equipmentTemplateId, equipTmpl, rarity);
     equipmentRepository.save(equipment);
 
     return new ForgingResultVO(

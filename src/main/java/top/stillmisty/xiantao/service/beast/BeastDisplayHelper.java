@@ -38,9 +38,7 @@ public class BeastDisplayHelper {
       Long userId, String position, boolean checkIncubating, boolean requireBeast) {
     Integer cellId = fudiHelper.parseCellId(position);
     Fudi fudi =
-        fudiHelper
-            .findAndTouchFudi(userId)
-            .orElseThrow(() -> new BusinessException(FUDI_NOT_FOUND));
+        fudiHelper.findFudi(userId).orElseThrow(() -> new BusinessException(FUDI_NOT_FOUND));
 
     FudiCell cell =
         fudiCellRepository
