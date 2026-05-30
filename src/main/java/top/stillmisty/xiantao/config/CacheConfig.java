@@ -26,36 +26,49 @@ public class CacheConfig {
     SimpleCacheManager manager = new SimpleCacheManager();
     manager.setCaches(
         Arrays.asList(
-            cache("player_inventory", DEFAULT_TTL_MINUTES, 200),
-            cache("player_equipment", DEFAULT_TTL_MINUTES, 200),
-            cache("player_skills", DEFAULT_TTL_MINUTES, 200),
-            cache("player_view", DEFAULT_TTL_MINUTES, 200),
-            cache("fortunes", DAY_TTL_MINUTES, 200),
-            cache("map_data", STATIC_TTL_MINUTES, 50),
-            cache("dungeon_list", VOLATILE_TTL_MINUTES, 50),
-            cache("bounties", DEFAULT_TTL_MINUTES, 100),
-            cache("shop_products", DEFAULT_TTL_MINUTES, 100),
-            cache("shop_locations", STATIC_TTL_MINUTES, 50),
-            cache("shop_player_items", DEFAULT_TTL_MINUTES, 200),
-            cache("sect_overview", DEFAULT_TTL_MINUTES, 100),
-            cache("sect_buildings", DEFAULT_TTL_MINUTES, 100),
-            cache("sect_shared_skills", DEFAULT_TTL_MINUTES, 100),
-            cache("sect_shop", DEFAULT_TTL_MINUTES, 100),
-            cache("team_status", VOLATILE_TTL_MINUTES, 200),
-            cache("leaderboard", DEFAULT_TTL_MINUTES, 50),
-            cache("dao_protection", DEFAULT_TTL_MINUTES, 100),
-            cache("userAuth", DEFAULT_TTL_MINUTES, 2000),
-            cache("itemTemplate", STATIC_TTL_MINUTES, 2000),
-            cache("mapNodes", STATIC_TTL_MINUTES, 200)));
+            // expireAfterWrite — 固定 TTL，适合有明确刷新周期的数据
+            writeCache("fortunes", DAY_TTL_MINUTES, 200),
+            writeCache("map_data", STATIC_TTL_MINUTES, 50),
+            writeCache("dungeon_list", VOLATILE_TTL_MINUTES, 50),
+            writeCache("team_status", VOLATILE_TTL_MINUTES, 200),
+            writeCache("leaderboard", DEFAULT_TTL_MINUTES, 50),
+            writeCache("itemTemplate", STATIC_TTL_MINUTES, 2000),
+            writeCache("mapNodes", STATIC_TTL_MINUTES, 200),
+            writeCache("shop_locations", STATIC_TTL_MINUTES, 50),
+            writeCache("bounties", DEFAULT_TTL_MINUTES, 100),
+            // expireAfterAccess — 读取延长 TTL，适合读多写少、冷热分明的数据
+            accessCache("userAuth", STATIC_TTL_MINUTES, 5000),
+            accessCache("player_inventory", DEFAULT_TTL_MINUTES, 200),
+            accessCache("player_equipment", DEFAULT_TTL_MINUTES, 200),
+            accessCache("player_skills", DEFAULT_TTL_MINUTES, 200),
+            accessCache("player_view", DEFAULT_TTL_MINUTES, 200),
+            accessCache("shop_products", DEFAULT_TTL_MINUTES, 100),
+            accessCache("shop_player_items", DEFAULT_TTL_MINUTES, 200),
+            accessCache("sect_overview", DEFAULT_TTL_MINUTES, 100),
+            accessCache("sect_buildings", DEFAULT_TTL_MINUTES, 100),
+            accessCache("sect_shared_skills", DEFAULT_TTL_MINUTES, 100),
+            accessCache("sect_shop", DEFAULT_TTL_MINUTES, 100),
+            accessCache("dao_protection", DEFAULT_TTL_MINUTES, 100)));
     return manager;
   }
 
-  private static CaffeineCache cache(String name, long ttlMinutes, int maxSize) {
+  private static CaffeineCache writeCache(String name, long ttlMinutes, int maxSize) {
     return new CaffeineCache(
         name,
         Caffeine.newBuilder()
             .expireAfterWrite(ttlMinutes, TimeUnit.MINUTES)
             .maximumSize(maxSize)
+            .recordStats()
+            .build());
+  }
+
+  private static CaffeineCache accessCache(String name, long ttlMinutes, int maxSize) {
+    return new CaffeineCache(
+        name,
+        Caffeine.newBuilder()
+            .expireAfterAccess(ttlMinutes, TimeUnit.MINUTES)
+            .maximumSize(maxSize)
+            .recordStats()
             .build());
   }
 }

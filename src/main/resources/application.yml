@@ -7,11 +7,6 @@ spring:
     threads:
         virtual:
             enabled: true
-    cache:
-        type: caffeine
-        caffeine:
-            spec: maximumSize=5000,expireAfterWrite=10m
-
     datasource:
         url: ${DB_URL:jdbc:postgresql://localhost:5432/xiantao}
         username: ${DB_USERNAME:postgres}
