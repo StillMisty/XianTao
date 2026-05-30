@@ -44,7 +44,6 @@ public class FortuneService {
 
   public String buildDisplay(FortuneVO fortune, TextFormat fmt) {
     var sb = new StringBuilder();
-    sb.append(fmt.heading("今日运势"));
     sb.append(dimensionLine("财运", fortune.wealth())).append("\n");
     sb.append(dimensionLine("情缘", fortune.fate())).append("\n");
     sb.append(dimensionLine("机缘", fortune.luck())).append("\n");

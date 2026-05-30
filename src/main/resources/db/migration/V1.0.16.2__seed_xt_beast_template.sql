@@ -612,7 +612,7 @@ INSERT INTO xt_beast_template(name, grow_time, production_items, skill_pool, tag
     )
   ),
   '["beast", "water", "defense", "shell"]'::jsonb,
-  '活了不知几千年，壳上长满了青苔。问它修到什么境界，它说：'忘了。''
+  '活了不知几千年，壳上长满了青苔。问它修到什么境界，它说：''忘了。'''
 ),
 ('玄武龟', 96,
   jsonb_build_array(
