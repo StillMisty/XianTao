@@ -151,13 +151,13 @@ public class SectMemberService {
   // ===================== 内部 API =====================
 
   public SectOverviewVO getSectOverviewInternal(Long userId) {
-    userStateService.loadUser(userId);
+    userStateService.loadUserReadOnly(userId);
     SectMember member = requireMember(userId);
     Sect sect =
         sectRepository
             .findById(member.getSectId())
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_FOUND));
-    User leader = userStateService.loadUser(sect.getLeaderId());
+    User leader = userStateService.loadUserReadOnly(sect.getLeaderId());
     List<SectMember> members = sectMemberRepository.findBySectId(sect.getId());
 
     List<Long> memberUserIds = members.stream().map(SectMember::getUserId).distinct().toList();
@@ -428,7 +428,7 @@ public class SectMemberService {
   @Transactional
   public String appointMemberInternal(Long userId, String targetNickname, String positionCode) {
     SectMember actorMember = requireMember(userId);
-    if (actorMember.getPosition().canManage()) {
+    if (!actorMember.getPosition().canManage()) {
       throw new BusinessException(ErrorCode.SECT_NOT_LEADER);
     }
 
@@ -482,7 +482,7 @@ public class SectMemberService {
   @Transactional
   public String dismissSectInternal(Long userId) {
     SectMember member = requireMember(userId);
-    if (member.getPosition().canManage()) {
+    if (member.getPosition() != SectPosition.LEADER) {
       throw new BusinessException(ErrorCode.SECT_NOT_LEADER);
     }
 

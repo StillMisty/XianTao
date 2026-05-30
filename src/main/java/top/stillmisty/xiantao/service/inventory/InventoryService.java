@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
@@ -34,9 +35,10 @@ public class InventoryService {
   // ===================== 内部 API（需预先完成认证） =====================
 
   /** 获取背包详情（装备列表 + 物品按类型分组 + 灵石） */
+  @Transactional(readOnly = true)
   @Cacheable(cacheNames = "player_inventory", key = "'summary:' + #userId")
   public InventorySummaryVO getInventorySummary(Long userId) {
-    User user = userStateService.loadUser(userId);
+    User user = userStateService.loadUserReadOnly(userId);
 
     List<ItemEntry> equipment = itemResolver.listEquipment(userId);
 
@@ -53,24 +55,28 @@ public class InventoryService {
   }
 
   /** 获取种子列表（编号列表） */
+  @Transactional(readOnly = true)
   @Cacheable(cacheNames = "player_inventory", key = "'seeds:' + #userId")
   public List<ItemEntry> getSeedInventory(Long userId) {
     return itemResolver.listSeeds(userId);
   }
 
   /** 获取装备列表（编号列表） */
+  @Transactional(readOnly = true)
   @Cacheable(cacheNames = "player_inventory", key = "'equipment:' + #userId")
   public List<ItemEntry> getEquipmentInventory(Long userId) {
     return itemResolver.listEquipment(userId);
   }
 
   /** 获取兽卵列表（编号列表） */
+  @Transactional(readOnly = true)
   @Cacheable(cacheNames = "player_inventory", key = "'eggs:' + #userId")
   public List<ItemEntry> getEggInventory(Long userId) {
     return itemResolver.listEggs(userId);
   }
 
   /** 获取指定类型物品列表 */
+  @Transactional(readOnly = true)
   @Cacheable(cacheNames = "player_inventory", key = "'type:' + #type.code + ':' + #userId")
   public List<ItemEntry> getItemsByType(Long userId, ItemType type) {
     return switch (type) {

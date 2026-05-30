@@ -5,9 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.masterapprentice.entity.MasterApprentice;
@@ -42,8 +40,6 @@ public class MasterApprenticeService {
   private final UserStateService userStateService;
   private final SectMemberRepository sectMemberRepository;
   private final SectQueryService sectQueryService;
-
-  @Lazy @Autowired private MasterApprenticeService self;
 
   public MasterApprenticeService(
       MasterApprenticeRepository masterApprenticeRepository,
@@ -116,7 +112,7 @@ public class MasterApprenticeService {
       throw new BusinessException(ErrorCode.MASTER_NOT_SAME_SECT);
     }
 
-    self.establishMasterApprentice(master.getId(), userId);
+    establishMasterApprentice(master.getId(), userId);
 
     log.info("玩家 {} 拜师 {}", userId, master.getId());
     return "已拜【" + targetNickname + "】为师！护道关系已自动建立。";
@@ -150,7 +146,7 @@ public class MasterApprenticeService {
       throw new BusinessException(ErrorCode.MASTER_NOT_SAME_SECT);
     }
 
-    self.establishMasterApprentice(userId, apprentice.getId());
+    establishMasterApprentice(userId, apprentice.getId());
 
     log.info("玩家 {} 收徒 {}", userId, apprentice.getId());
     return "已收【" + targetNickname + "】为徒！护道关系已自动建立。";

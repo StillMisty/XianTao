@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
@@ -32,16 +33,19 @@ public class ItemUseService {
   private final StackableItemRepository stackableItemRepository;
   private final ItemTemplateRepository itemTemplateRepository;
   private final StackableItemService stackableItemService;
+  private final CacheManager cacheManager;
   private final Map<ItemType, ItemUseHandler> handlerMap;
 
   public ItemUseService(
       StackableItemRepository stackableItemRepository,
       ItemTemplateRepository itemTemplateRepository,
       StackableItemService stackableItemService,
+      CacheManager cacheManager,
       List<ItemUseHandler> handlers) {
     this.stackableItemRepository = stackableItemRepository;
     this.itemTemplateRepository = itemTemplateRepository;
     this.stackableItemService = stackableItemService;
+    this.cacheManager = cacheManager;
     this.handlerMap =
         handlers.stream()
             .collect(Collectors.toMap(ItemUseHandler::getItemType, Function.identity()));
@@ -87,7 +91,23 @@ public class ItemUseService {
 
     log.debug("使用物品: userId={}, item={}, type={}", userId, matchedItem.getName(), type);
 
-    return handler.use(userId, matchedItem, null, args);
+    String result = handler.use(userId, matchedItem, null, args);
+
+    // 手动清除该用户的type缓存
+    clearTypeCacheForUser(userId);
+
+    return result;
+  }
+
+  private void clearTypeCacheForUser(Long userId) {
+    var cache = cacheManager.getCache("player_inventory");
+    if (cache != null) {
+      // 清除该用户的所有type缓存
+      for (ItemType type : ItemType.values()) {
+        String key = "type:" + type.getCode() + ":" + userId;
+        cache.evict(key);
+      }
+    }
   }
 
   private StackableItem findFirstWithValidTemplate(List<StackableItem> items) {

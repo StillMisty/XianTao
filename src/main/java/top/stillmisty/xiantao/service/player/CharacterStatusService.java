@@ -45,7 +45,7 @@ public class CharacterStatusService {
 
   /** 查看角色状态（状态） 包含：HP、属性、装扮（已穿戴装备）、境界进度（等级修为）、当前状态 */
   public CharacterStatusResult getCharacterStatusInternal(Long userId) {
-    User user = userStateService.loadUser(userId);
+    User user = userStateService.loadUserReadOnly(userId);
 
     EquipData equipData = buildEquipData(userId);
     ProtectionData protData = buildProtectionData(userId, user);

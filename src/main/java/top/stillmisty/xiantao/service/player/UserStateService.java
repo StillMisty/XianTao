@@ -1,6 +1,8 @@
 package top.stillmisty.xiantao.service.player;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +41,26 @@ public class UserStateService {
     return userRepository
         .findById(userId)
         .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+  }
+
+  /** 批量加载用户（只读），不获取行锁、不结算状态。 */
+  public Map<Long, User> loadUsersByIdsReadOnly(List<Long> userIds) {
+    if (userIds == null || userIds.isEmpty()) return Map.of();
+    return userRepository.findByIds(userIds).stream()
+        .collect(Collectors.toMap(User::getId, u -> u));
+  }
+
+  /** 批量加载用户（带行锁），并自动结算过期状态。 */
+  @Transactional
+  public Map<Long, User> loadUsersByIds(List<Long> userIds) {
+    if (userIds == null || userIds.isEmpty()) return Map.of();
+    Map<Long, User> userMap =
+        userRepository.findByIds(userIds).stream().collect(Collectors.toMap(User::getId, u -> u));
+    // 对每个用户结算状态
+    for (User user : userMap.values()) {
+      resolveState(user);
+    }
+    return userMap;
   }
 
   /** 根据道号加载用户，不结算状态。 */

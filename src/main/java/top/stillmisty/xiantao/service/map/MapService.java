@@ -5,9 +5,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
 import top.stillmisty.xiantao.domain.event.enums.EventTypeEnum;
@@ -34,8 +32,6 @@ public class MapService {
   private final MonsterTemplateRepository monsterTemplateRepository;
   private final UserStateService userStateService;
   private final ActivityEventRepository activityEventRepository;
-
-  @Lazy @Autowired private MapService self;
 
   // ===================== 公开 API =====================
 

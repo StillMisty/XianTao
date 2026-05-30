@@ -2,7 +2,9 @@ package top.stillmisty.xiantao.service.pvp;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
@@ -17,6 +19,7 @@ import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.infrastructure.repository.TeamInvitationRepository;
 import top.stillmisty.xiantao.infrastructure.repository.TeamMemberRepository;
 import top.stillmisty.xiantao.infrastructure.repository.TeamRepository;
+import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
@@ -31,6 +34,7 @@ public class TeamService {
   private final TeamMemberRepository teamMemberRepository;
   private final TeamInvitationRepository invitationRepository;
   private final UserStateService userStateService;
+  private final UserRepository userRepository;
 
   // ===================== 公开 API =====================
 
@@ -61,9 +65,10 @@ public class TeamService {
 
   // ===================== 内部 API =====================
 
+  @Transactional(readOnly = true)
   @Cacheable(cacheNames = "team_status", key = "#userId")
   public String getTeamStatusInternal(Long userId) {
-    userStateService.loadUser(userId);
+    userStateService.loadUserReadOnly(userId);
     StringBuilder sb = new StringBuilder();
 
     Optional<TeamMember> member = teamMemberRepository.findByUserId(userId);
@@ -73,7 +78,17 @@ public class TeamService {
               .findById(member.get().getTeamId())
               .orElseThrow(() -> new BusinessException(ErrorCode.TEAM_NOT_IN));
       List<TeamMember> members = teamMemberRepository.findByTeamId(team.getId());
-      User leader = userStateService.loadUser(team.getLeaderId());
+
+      // 批量查询所有成员用户
+      List<Long> memberIds = members.stream().map(TeamMember::getUserId).toList();
+      Map<Long, User> memberUserMap =
+          userRepository.findByIds(memberIds).stream()
+              .collect(Collectors.toMap(User::getId, u -> u));
+
+      User leader = memberUserMap.get(team.getLeaderId());
+      if (leader == null) {
+        leader = userStateService.loadUserReadOnly(team.getLeaderId());
+      }
 
       sb.append("=== 队伍信息 ===\n");
       sb.append("队长: ").append(leader.getNickname());
@@ -82,7 +97,10 @@ public class TeamService {
       sb.append("人数: ").append(members.size()).append("\n");
       sb.append("成员:\n");
       for (TeamMember m : members) {
-        User memberUser = userStateService.loadUser(m.getUserId());
+        User memberUser = memberUserMap.get(m.getUserId());
+        if (memberUser == null) {
+          memberUser = userStateService.loadUserReadOnly(m.getUserId());
+        }
         sb.append("  · ").append(memberUser.getNickname());
         if (m.getUserId().equals(userId)) sb.append("（你）");
         sb.append("\n");
@@ -93,9 +111,19 @@ public class TeamService {
 
     List<TeamInvitation> pendingInvitations = invitationRepository.findPendingByInviteeId(userId);
     if (!pendingInvitations.isEmpty()) {
+      // 批量查询邀请者
+      List<Long> inviterIds =
+          pendingInvitations.stream().map(TeamInvitation::getInviterId).toList();
+      Map<Long, User> inviterMap =
+          userRepository.findByIds(inviterIds).stream()
+              .collect(Collectors.toMap(User::getId, u -> u));
+
       sb.append("\n=== 待处理的组队邀请 ===\n");
       for (TeamInvitation inv : pendingInvitations) {
-        User inviter = userStateService.loadUser(inv.getInviterId());
+        User inviter = inviterMap.get(inv.getInviterId());
+        if (inviter == null) {
+          inviter = userStateService.loadUserReadOnly(inv.getInviterId());
+        }
         sb.append("  [#")
             .append(inv.getId())
             .append("] ")

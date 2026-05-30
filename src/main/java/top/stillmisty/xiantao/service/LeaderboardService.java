@@ -5,6 +5,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.vo.LeaderboardEntryVO;
 import top.stillmisty.xiantao.domain.user.vo.LeaderboardVO;
@@ -16,11 +17,13 @@ public class LeaderboardService {
 
   private final UserRepository userRepository;
 
+  @Transactional(readOnly = true)
   @Cacheable(cacheNames = "leaderboard", key = "'level'")
   public ServiceResult<LeaderboardVO> getLevelLeaderboard(Long userId) {
     return new ServiceResult.Success<>(buildLevelLeaderboardInternal());
   }
 
+  @Transactional(readOnly = true)
   @Cacheable(cacheNames = "leaderboard", key = "'spiritStones'")
   public ServiceResult<LeaderboardVO> getSpiritStoneLeaderboard(Long userId) {
     return new ServiceResult.Success<>(buildSpiritStoneLeaderboardInternal());

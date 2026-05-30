@@ -8,16 +8,11 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonInstance;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonPoiConfig;
-import top.stillmisty.xiantao.domain.dungeon.entity.DungeonProgress;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonTemplate;
 import top.stillmisty.xiantao.domain.dungeon.enums.DungeonArea;
 import top.stillmisty.xiantao.domain.dungeon.enums.DungeonStatus;
@@ -61,14 +56,14 @@ public class DungeonService {
   private final TeamRepository teamRepository;
   private final TeamMemberRepository teamMemberRepository;
   private final UserRepository userRepository;
-
-  @Lazy @Autowired private DungeonService self;
+  private final DungeonInstanceManager instanceManager;
+  private final DungeonQueryService dungeonQueryService;
 
   // ===================== 公开 API =====================
 
   @Transactional(readOnly = true)
   public ServiceResult<List<DungeonListVO>> listDungeons(Long userId) {
-    return new ServiceResult.Success<>(self.listDungeonsInternal(userId));
+    return dungeonQueryService.listDungeons(userId);
   }
 
   @Transactional
@@ -92,45 +87,6 @@ public class DungeonService {
   }
 
   // ===================== 内部 API =====================
-
-  @Cacheable(cacheNames = "dungeon_list", key = "#userId")
-  public List<DungeonListVO> listDungeonsInternal(Long userId) {
-    User user = userStateService.loadUser(userId);
-    List<DungeonTemplate> templates = dungeonTemplateRepository.findActive();
-
-    List<Long> templateIds = templates.stream().map(DungeonTemplate::getId).toList();
-    Map<Long, DungeonProgress> progressMap =
-        progressRepository.findByUserIdAndDungeonIds(userId, templateIds).stream()
-            .collect(Collectors.toMap(DungeonProgress::getDungeonId, p -> p, (a, b) -> a));
-    Map<Long, DungeonInstance> activeInstances =
-        instanceRepository
-            .findByLeaderIdAndDungeonIdsAndStatus(userId, templateIds, DungeonStatus.ACTIVE)
-            .stream()
-            .collect(Collectors.toMap(DungeonInstance::getDungeonId, i -> i, (a, b) -> a));
-
-    List<DungeonListVO> result = new ArrayList<>();
-    for (DungeonTemplate tmpl : templates) {
-      DungeonProgress progress = progressMap.get(tmpl.getId());
-      DungeonInstance activeInstance = activeInstances.get(tmpl.getId());
-
-      result.add(
-          new DungeonListVO(
-              tmpl.getId(),
-              tmpl.getName(),
-              tmpl.getMinLevel(),
-              tmpl.getMaxLevel(),
-              tmpl.getMaxTeamSize(),
-              activeInstance != null,
-              activeInstance != null ? activeInstance.getStatus() : null,
-              activeInstance != null ? activeInstance.getCurrentArea() : null,
-              progress != null ? progress.getRewardCount() : 0,
-              progress != null
-                  ? progress.getDailyLimit()
-                  : DungeonProgress.calculateDailyLimit(user.getLevel()),
-              progress != null && progress.getFirstClear() != null && progress.getFirstClear()));
-    }
-    return result;
-  }
 
   @CacheEvict(cacheNames = "dungeon_list", key = "#userId")
   public DungeonEnterResult enterDungeonInternal(Long userId, String dungeonName) {
@@ -184,11 +140,19 @@ public class DungeonService {
       Map<Long, User> memberUserMap =
           userRepository.findByIds(sortedMemberIds).stream()
               .collect(Collectors.toMap(User::getId, u -> u));
+
+      // 批量查询所有成员的活跃实例
+      List<DungeonInstance> existingInstances =
+          instanceRepository.findByLeaderIdsAndDungeonIdAndStatus(
+              sortedMemberIds, dungeon.getId(), DungeonStatus.ACTIVE);
+      Map<Long, DungeonInstance> existingInstanceMap =
+          existingInstances.stream()
+              .collect(Collectors.toMap(DungeonInstance::getLeaderId, i -> i));
+
       for (Long memberId : sortedMemberIds) {
         User memberUser = memberUserMap.getOrDefault(memberId, userStateService.loadUser(memberId));
         checkIdleStatus(memberUser);
-        DungeonInstance memberExisting = findActiveInstanceRaw(memberId, dungeon.getId());
-        if (memberExisting != null) {
+        if (existingInstanceMap.containsKey(memberId)) {
           throw new BusinessException(ErrorCode.DUNGEON_ALREADY_IN, dungeonName);
         }
       }
@@ -411,21 +375,9 @@ public class DungeonService {
 
   private void checkExpired(DungeonInstance instance) {
     if (instance.isExpired()) {
-      self.markInstanceAbandoned(instance);
+      instanceManager.markAbandoned(instance);
       throw new BusinessException(ErrorCode.DUNGEON_INSTANCE_EXPIRED);
     }
-  }
-
-  @Transactional(propagation = Propagation.MANDATORY)
-  public void markInstanceFailed(DungeonInstance instance) {
-    instance.markFailed();
-    instanceRepository.save(instance);
-  }
-
-  @Transactional(propagation = Propagation.MANDATORY)
-  public void markInstanceAbandoned(DungeonInstance instance) {
-    instance.setStatus(DungeonStatus.ABANDONED);
-    instanceRepository.save(instance);
   }
 
   private DungeonArea getNextArea(DungeonArea current) {
@@ -536,7 +488,7 @@ public class DungeonService {
     if (!outcome.playerWon()) {
       boolean anyAlive = outcome.memberAlive();
       if (!anyAlive) {
-        self.markInstanceFailed(instance);
+        instanceManager.markFailed(instance);
         throw new BusinessException(ErrorCode.DUNGEON_COMBAT_LOST);
       }
       return new ExploreResultVO(

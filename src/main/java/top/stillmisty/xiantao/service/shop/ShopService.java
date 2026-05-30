@@ -8,7 +8,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -66,13 +65,12 @@ public class ShopService {
   private final PriceEngine priceEngine;
   private final StackableItemService stackableItemService;
   private final FortuneService fortuneService;
+  private final ShopQueryService shopQueryService;
 
   // ===================== 公开 API =====================
 
   public ServiceResult<ProductListVO> listProducts(Long userId) {
-    User user = userStateService.loadUser(userId);
-    ShopNpc npc = findByLocation(user.getLocationId());
-    return new ServiceResult.Success<>(listProducts(npc));
+    return shopQueryService.listProducts(userId);
   }
 
   @Transactional
@@ -93,13 +91,7 @@ public class ShopService {
 
   @Cacheable(cacheNames = "shop_products", key = "#userId")
   public ProductListVO listProductsInternal(Long userId) {
-    ShopChatContext chatCtx = ShopChatContext.current();
-    if (chatCtx != null) {
-      return listProducts(chatCtx.npc());
-    }
-    User user = userStateService.loadUser(userId);
-    ShopNpc npc = findByLocation(user.getLocationId());
-    return listProducts(npc);
+    return shopQueryService.listProductsInternal(userId);
   }
 
   @Transactional
@@ -429,59 +421,12 @@ public class ShopService {
 
   @Cacheable(cacheNames = "shop_player_items", key = "'equipment:' + #userId")
   public EquipmentListVO queryPlayerEquipment(Long userId) {
-    List<Equipment> unequipped = equipmentRepository.findUnequippedByUserId(userId);
-    List<EquipmentListVO.EquipmentEntry> entries =
-        unequipped.stream()
-            .map(
-                e ->
-                    new EquipmentListVO.EquipmentEntry(
-                        e.getId(),
-                        e.getName(),
-                        e.getRarity() != null ? e.getRarity().getName() : "未知",
-                        e.getForgeLevel() != null ? e.getForgeLevel() : 0,
-                        e.getAffixes() != null
-                            ? e.getAffixes().keySet().stream()
-                                .limit(3)
-                                .collect(Collectors.joining("、"))
-                            : "无"))
-            .toList();
-    return new EquipmentListVO(entries);
+    return shopQueryService.queryPlayerEquipment(userId);
   }
 
   @Cacheable(cacheNames = "shop_player_items", key = "'items:' + #userId")
   public PlayerItemsVO queryPlayerItems(Long userId) {
-    List<Equipment> unequipped = equipmentRepository.findUnequippedByUserId(userId);
-    List<StackableItem> items = stackableItemRepository.findByUserId(userId);
-
-    List<PlayerItemsVO.EquipmentInfo> equipInfos =
-        unequipped.stream()
-            .map(
-                e ->
-                    new PlayerItemsVO.EquipmentInfo(
-                        e.getId(),
-                        e.getName(),
-                        e.getRarity() != null ? e.getRarity().getName() : "未知",
-                        e.getForgeLevel() != null ? e.getForgeLevel() : 0,
-                        e.getAffixes() != null
-                            ? e.getAffixes().keySet().stream()
-                                .limit(3)
-                                .collect(Collectors.joining("、"))
-                            : "无"))
-            .toList();
-
-    List<PlayerItemsVO.StackableInfo> itemInfos =
-        items.stream()
-            .map(
-                s ->
-                    new PlayerItemsVO.StackableInfo(
-                        s.getId(),
-                        s.getName(),
-                        s.getQuantity() != null ? s.getQuantity() : 0,
-                        s.getItemType() != null ? s.getItemType().getName() : "未知",
-                        s.getTradable() != null && s.getTradable()))
-            .toList();
-
-    return new PlayerItemsVO(equipInfos, itemInfos);
+    return shopQueryService.queryPlayerItems(userId);
   }
 
   // ===================== 辅助方法 =====================
@@ -496,71 +441,19 @@ public class ShopService {
 
   @Cacheable(cacheNames = "shop_locations", key = "#locationId")
   public ShopNpc findByLocation(Long locationId) {
-    return shopNpcRepository
-        .findByMapNodeId(locationId)
-        .orElseThrow(() -> new BusinessException(ErrorCode.SHOP_NOT_FOUND));
+    return shopQueryService.findByLocation(locationId);
   }
 
   public boolean hasShopAtLocation(Long locationId) {
-    return shopNpcRepository.findByMapNodeId(locationId).isPresent();
+    return shopQueryService.hasShopAtLocation(locationId);
   }
 
   public List<StackableItem> findStackableItemsByName(Long userId, String name) {
-    return stackableItemRepository.findByUserIdAndNameContaining(userId, name);
+    return shopQueryService.findStackableItemsByName(userId, name);
   }
 
   public List<Equipment> findEquipmentByName(Long userId, String name) {
-    return equipmentRepository.findUnequippedByUserId(userId).stream()
-        .filter(e -> e.getName().contains(name))
-        .toList();
-  }
-
-  private ProductListVO listProducts(ShopNpc npc) {
-    List<ShopProduct> products = shopProductRepository.findByShopNpcId(npc.getId());
-    List<ProductListVO.ProductEntry> entries = new ArrayList<>();
-
-    List<Long> itemTemplateIds = new ArrayList<>();
-    List<Long> equipTemplateIds = new ArrayList<>();
-    for (ShopProduct product : products) {
-      priceEngine.applyLazyRestock(product);
-      if (product.getProductType() == ProductType.ITEM) {
-        itemTemplateIds.add(product.getTemplateId());
-      } else {
-        equipTemplateIds.add(product.getTemplateId());
-      }
-    }
-    Map<Long, ItemTemplate> itemMap =
-        itemTemplateIds.isEmpty()
-            ? Map.of()
-            : itemTemplateRepository.findByIds(itemTemplateIds).stream()
-                .collect(Collectors.toMap(ItemTemplate::getId, t -> t));
-    Map<Long, EquipmentTemplate> equipMap =
-        equipTemplateIds.isEmpty()
-            ? Map.of()
-            : equipmentTemplateRepository.findByIds(equipTemplateIds).stream()
-                .collect(Collectors.toMap(EquipmentTemplate::getId, t -> t));
-
-    for (ShopProduct product : products) {
-      String name;
-      String extra = "";
-      if (product.getProductType() == ProductType.ITEM) {
-        var t = itemMap.get(product.getTemplateId());
-        name = t != null ? t.getName() : "未知物品";
-      } else {
-        var t = equipMap.get(product.getTemplateId());
-        name = t != null ? t.getName() : "未知装备";
-        extra = t != null && t.getSlot() != null ? t.getSlot().getName() : "";
-      }
-      entries.add(
-          new ProductListVO.ProductEntry(
-              product.getId(),
-              product.getProductType().getCode(),
-              name,
-              product.getCurrentPrice(),
-              product.getCurrentStock(),
-              extra));
-    }
-    return new ProductListVO(npc.getName(), entries);
+    return shopQueryService.findEquipmentByName(userId, name);
   }
 
   private void addStackableItem(Long userId, ItemTemplate template, int quantity) {

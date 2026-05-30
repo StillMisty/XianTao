@@ -31,7 +31,7 @@ public class TeamInvitation {
   private LocalDateTime expiresAt;
 
   public boolean isPending() {
-    return status != InvitationStatus.PENDING;
+    return status == InvitationStatus.PENDING;
   }
 
   public boolean isExpired() {

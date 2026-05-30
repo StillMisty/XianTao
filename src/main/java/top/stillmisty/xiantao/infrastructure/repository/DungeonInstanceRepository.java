@@ -52,6 +52,17 @@ public class DungeonInstanceRepository {
     return mapper.selectListByQuery(qw);
   }
 
+  public List<DungeonInstance> findByLeaderIdsAndDungeonIdAndStatus(
+      List<Long> leaderIds, Long dungeonId, DungeonStatus status) {
+    if (leaderIds == null || leaderIds.isEmpty()) return List.of();
+    QueryWrapper qw =
+        new QueryWrapper()
+            .in(DungeonInstance::getLeaderId, leaderIds)
+            .eq(DungeonInstance::getDungeonId, dungeonId)
+            .eq(DungeonInstance::getStatus, status);
+    return mapper.selectListByQuery(qw);
+  }
+
   public void deleteById(Long id) {
     mapper.deleteById(id);
   }
