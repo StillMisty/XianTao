@@ -1,8 +1,7 @@
 package top.stillmisty.xiantao.handle.listener;
 
 import lombok.RequiredArgsConstructor;
-import love.forte.simbot.component.onebot.v11.core.event.message.OneBotMessageEvent;
-import love.forte.simbot.component.qguild.event.QGGroupAtMessageCreateEvent;
+import love.forte.simbot.event.MessageEvent;
 import love.forte.simbot.quantcat.common.annotations.ContentTrim;
 import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.FilterValue;
@@ -18,72 +17,35 @@ public class FudiListener {
   private final FudiCommandHandler fudiCommandHandler;
   private final ReplyHelper replyHelper;
 
-  // === OneBotV11 ===
-
   @RequireAuth
   @Listener
   @ContentTrim
   @Filter("福地")
-  public void handleFudi(OneBotMessageEvent event) {
-    replyHelper.oneBot(event, "福地", fudiCommandHandler::handleFudiStatus);
+  public void handleFudi(MessageEvent event) {
+    replyHelper.dispatch(event, "福地", fudiCommandHandler::handleFudiStatus);
   }
 
   @RequireAuth
   @Listener
   @ContentTrim
   @Filter("福地地块")
-  public void handleFudiGrid(OneBotMessageEvent event) {
-    replyHelper.oneBot(event, "福地地块", fudiCommandHandler::handleFudiGrid);
+  public void handleFudiGrid(MessageEvent event) {
+    replyHelper.dispatch(event, "福地地块", fudiCommandHandler::handleFudiGrid);
   }
 
   @RequireAuth
   @Listener
   @ContentTrim
   @Filter("地灵\\s*{{content}}")
-  public void handleFudiSpirit(OneBotMessageEvent event, @FilterValue("content") String content) {
-    replyHelper.oneBot(event, "地灵对话", content, fudiCommandHandler::handleSpiritChat);
+  public void handleFudiSpirit(MessageEvent event, @FilterValue("content") String content) {
+    replyHelper.dispatch(event, "地灵对话", content, fudiCommandHandler::handleSpiritChat);
   }
 
   @RequireAuth
   @Listener
   @ContentTrim
   @Filter("福地渡劫")
-  public void handleFudiTribulation(OneBotMessageEvent event) {
-    replyHelper.oneBot(event, "福地渡劫", fudiCommandHandler::handleTriggerTribulation);
-  }
-
-  // === QQ ===
-
-  @RequireAuth
-  @Listener
-  @ContentTrim
-  @Filter("福地")
-  public void handleFudiQq(QGGroupAtMessageCreateEvent event) {
-    replyHelper.qq(event, "福地", fudiCommandHandler::handleFudiStatus);
-  }
-
-  @RequireAuth
-  @Listener
-  @ContentTrim
-  @Filter("福地地块")
-  public void handleFudiGridQq(QGGroupAtMessageCreateEvent event) {
-    replyHelper.qq(event, "福地地块", fudiCommandHandler::handleFudiGrid);
-  }
-
-  @RequireAuth
-  @Listener
-  @ContentTrim
-  @Filter("地灵\\s*{{content}}")
-  public void handleFudiSpiritQq(
-      QGGroupAtMessageCreateEvent event, @FilterValue("content") String content) {
-    replyHelper.qq(event, "地灵对话", content, fudiCommandHandler::handleSpiritChat);
-  }
-
-  @RequireAuth
-  @Listener
-  @ContentTrim
-  @Filter("福地渡劫")
-  public void handleFudiTribulationQq(QGGroupAtMessageCreateEvent event) {
-    replyHelper.qq(event, "福地渡劫", fudiCommandHandler::handleTriggerTribulation);
+  public void handleFudiTribulation(MessageEvent event) {
+    replyHelper.dispatch(event, "福地渡劫", fudiCommandHandler::handleTriggerTribulation);
   }
 }

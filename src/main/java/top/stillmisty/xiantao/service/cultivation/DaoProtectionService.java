@@ -18,6 +18,7 @@ import top.stillmisty.xiantao.domain.user.vo.ProtectionInfo;
 import top.stillmisty.xiantao.infrastructure.repository.DaoProtectionRepository;
 import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
 import top.stillmisty.xiantao.service.ProtectionHelper;
+import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.map.MapService;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
@@ -31,6 +32,11 @@ public class DaoProtectionService {
   private final UserStateService userStateService;
   private final MapService mapService;
   private final DaoProtectionRepository daoProtectionRepository;
+
+  @CacheEvict(cacheNames = "dao_protection", key = "#protectorId")
+  public ServiceResult<DaoProtectionResult> establish(Long protectorId, String protegeNickname) {
+    return new ServiceResult.Success<>(establishProtection(protectorId, protegeNickname));
+  }
 
   @Transactional
   @CacheEvict(cacheNames = "dao_protection", key = "#protectorId")
@@ -128,6 +134,11 @@ public class DaoProtectionService {
         ProtectionHelper.isInSameLocation(protector, protege));
   }
 
+  @CacheEvict(cacheNames = "dao_protection", key = "#protectorId")
+  public ServiceResult<DaoProtectionResult> remove(Long protectorId, String protegeNickname) {
+    return new ServiceResult.Success<>(removeProtection(protectorId, protegeNickname));
+  }
+
   @Transactional
   @CacheEvict(cacheNames = "dao_protection", key = "#protectorId")
   public DaoProtectionResult removeProtection(Long protectorId, String protegeNickname) {
@@ -180,6 +191,10 @@ public class DaoProtectionService {
         null,
         null,
         null);
+  }
+
+  public ServiceResult<DaoProtectionQueryResult> query(Long userId) {
+    return new ServiceResult.Success<>(queryProtectionInfo(userId));
   }
 
   @Cacheable(cacheNames = "dao_protection", key = "#userId")

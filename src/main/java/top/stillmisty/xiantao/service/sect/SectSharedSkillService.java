@@ -53,6 +53,7 @@ public class SectSharedSkillService {
   private final StackableItemService stackableItemService;
   private final StackableItemRepository stackableItemRepository;
   private final SectBuildingService sectBuildingService;
+  private final SectMemberService sectMemberService;
 
   // ===================== 公开 API =====================
 
@@ -359,10 +360,7 @@ public class SectSharedSkillService {
   }
 
   private SectMember requireMember(Long userId) {
-    return sectMemberRepository
-        .findByUserId(userId)
-        .filter(m -> m.getSectId() != null)
-        .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_IN));
+    return sectMemberService.requireMember(userId);
   }
 
   private <T> T resolveByName(List<T> items, String input, Function<T, String> nameExtractor) {

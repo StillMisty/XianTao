@@ -97,6 +97,16 @@ public class ReplyHelper {
     replyQQ(event, text);
   }
 
+  // ===================== 平台类型识别 =====================
+
+  public static PlatformType platformTypeOf(MessageEvent event) {
+    return switch (event) {
+      case OneBotMessageEvent __ -> PlatformType.ONE_BOT_V11;
+      case QGGroupAtMessageCreateEvent __ -> PlatformType.QQ;
+      default -> throw new IllegalArgumentException("不支持的事件类型: " + event.getClass().getName());
+    };
+  }
+
   // ===================== 底层 reply 方法 =====================
 
   public void replyOneBot(OneBotMessageEvent event, String text) {

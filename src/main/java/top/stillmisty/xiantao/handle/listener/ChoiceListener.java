@@ -1,8 +1,7 @@
 package top.stillmisty.xiantao.handle.listener;
 
 import lombok.RequiredArgsConstructor;
-import love.forte.simbot.component.onebot.v11.core.event.message.OneBotMessageEvent;
-import love.forte.simbot.component.qguild.event.QGGroupAtMessageCreateEvent;
+import love.forte.simbot.event.MessageEvent;
 import love.forte.simbot.quantcat.common.annotations.ContentTrim;
 import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.FilterValue;
@@ -22,15 +21,7 @@ public class ChoiceListener {
   @ContentTrim
   @RequireAuth
   @Filter("选\\s*{{choice}}")
-  public void choice(OneBotMessageEvent event, @FilterValue("choice") String choice) {
-    replyHelper.oneBot(event, "选择", choice, choiceCommandHandler::handleChoice);
-  }
-
-  @Listener
-  @ContentTrim
-  @RequireAuth
-  @Filter("选\\s*{{choice}}")
-  public void choiceQq(QGGroupAtMessageCreateEvent event, @FilterValue("choice") String choice) {
-    replyHelper.qq(event, "选择", choice, choiceCommandHandler::handleChoice);
+  public void choice(MessageEvent event, @FilterValue("choice") String choice) {
+    replyHelper.dispatch(event, "选择", choice, choiceCommandHandler::handleChoice);
   }
 }

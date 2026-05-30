@@ -28,6 +28,7 @@ public class SectShopService {
   private final SectShopItemRepository sectShopItemRepository;
   private final ItemTemplateRepository itemTemplateRepository;
   private final StackableItemService stackableItemService;
+  private final SectMemberService sectMemberService;
 
   // ===================== 公开 API =====================
 
@@ -141,9 +142,6 @@ public class SectShopService {
   }
 
   private SectMember requireMember(Long userId) {
-    return sectMemberRepository
-        .findByUserId(userId)
-        .filter(m -> m.getSectId() != null)
-        .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_IN));
+    return sectMemberService.requireMember(userId);
   }
 }

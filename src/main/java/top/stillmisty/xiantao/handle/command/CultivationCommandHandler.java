@@ -14,6 +14,7 @@ import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.cultivation.CultivationService;
+import top.stillmisty.xiantao.service.cultivation.DaoProtectionService;
 
 @Slf4j
 @Component
@@ -21,6 +22,7 @@ import top.stillmisty.xiantao.service.cultivation.CultivationService;
 public class CultivationCommandHandler implements CommandGroup {
 
   private final CultivationService cultivationService;
+  private final DaoProtectionService daoProtectionService;
 
   public String handleBreakthrough(TextFormat fmt) {
     Long userId = UserContext.requireCurrentUserId();
@@ -35,7 +37,7 @@ public class CultivationCommandHandler implements CommandGroup {
     Long userId = UserContext.requireCurrentUserId();
     log.debug("处理护道 - UserId: {}, Protege: {}", userId, protegeNickname);
     return CommandHandlerHelper.safeCall(
-        () -> cultivationService.establishProtection(userId, protegeNickname),
+        () -> daoProtectionService.establish(userId, protegeNickname),
         fmt,
         vo -> vo.success() ? formatProtectionResult(vo, fmt) : vo.message());
   }
@@ -44,16 +46,14 @@ public class CultivationCommandHandler implements CommandGroup {
     Long userId = UserContext.requireCurrentUserId();
     log.debug("处理护道解除 - UserId: {}, Protege: {}", userId, protegeNickname);
     return CommandHandlerHelper.safeCall(
-        () -> cultivationService.removeProtection(userId, protegeNickname),
-        fmt,
-        vo -> vo.message());
+        () -> daoProtectionService.remove(userId, protegeNickname), fmt, vo -> vo.message());
   }
 
   public String handleQueryProtection(TextFormat fmt) {
     Long userId = UserContext.requireCurrentUserId();
     log.debug("处理护道查询 - UserId: {}", userId);
     return CommandHandlerHelper.safeCall(
-        () -> cultivationService.queryProtectionInfo(userId),
+        () -> daoProtectionService.query(userId),
         fmt,
         vo -> vo.isSuccess() ? formatProtectionQueryResult(vo, fmt) : vo.getMessage());
   }

@@ -77,6 +77,13 @@ public class Sect extends Model<Sect> {
     return true;
   }
 
+  public void deductFundsOrThrow(long amount) {
+    if (!deductFunds(amount)) {
+      throw new top.stillmisty.xiantao.service.BusinessException(
+          top.stillmisty.xiantao.service.ErrorCode.SECT_FUNDS_INSUFFICIENT, amount, this.funds);
+    }
+  }
+
   public boolean isMaxLevel() {
     return level >= 5;
   }

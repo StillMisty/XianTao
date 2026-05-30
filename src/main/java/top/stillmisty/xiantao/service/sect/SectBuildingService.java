@@ -35,6 +35,7 @@ public class SectBuildingService {
   private final SectRepository sectRepository;
   private final SectMemberRepository sectMemberRepository;
   private final SectBuildingRepository sectBuildingRepository;
+  private final SectMemberService sectMemberService;
 
   // ===================== 公开 API =====================
 
@@ -133,9 +134,7 @@ public class SectBuildingService {
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_FOUND));
 
     long cost = type.getBuildCost();
-    if (!sect.deductFunds(cost)) {
-      throw new BusinessException(ErrorCode.SECT_FUNDS_INSUFFICIENT, cost, sect.getFunds());
-    }
+    sect.deductFundsOrThrow(cost);
     sectRepository.save(sect);
 
     SectBuilding building =
@@ -175,9 +174,7 @@ public class SectBuildingService {
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_FOUND));
 
     long cost = type.upgradeCost();
-    if (!sect.deductFunds(cost)) {
-      throw new BusinessException(ErrorCode.SECT_FUNDS_INSUFFICIENT, cost, sect.getFunds());
-    }
+    sect.deductFundsOrThrow(cost);
     sectRepository.save(sect);
 
     int oldLevel = building.getLevel();
@@ -298,9 +295,6 @@ public class SectBuildingService {
   }
 
   private SectMember requireMember(Long userId) {
-    return sectMemberRepository
-        .findByUserId(userId)
-        .filter(m -> m.getSectId() != null)
-        .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_IN));
+    return sectMemberService.requireMember(userId);
   }
 }

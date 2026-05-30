@@ -12,14 +12,13 @@ import top.stillmisty.xiantao.domain.fudi.entity.FudiCell;
 import top.stillmisty.xiantao.domain.fudi.enums.CellType;
 import top.stillmisty.xiantao.domain.monster.CombatTeam;
 import top.stillmisty.xiantao.domain.monster.TribulationBoss;
-import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.infrastructure.repository.FudiCellRepository;
 import top.stillmisty.xiantao.infrastructure.repository.FudiRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SpiritRepository;
 import top.stillmisty.xiantao.service.SpiritStoneService;
 import top.stillmisty.xiantao.service.combat.CombatService;
-import top.stillmisty.xiantao.service.combat.PostCombatProcessor;
+import top.stillmisty.xiantao.service.combat.TribulationCombatExecutor;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
 @Service
@@ -27,16 +26,14 @@ import top.stillmisty.xiantao.service.player.UserStateService;
 @Slf4j
 public class TribulationService {
 
-  private static final int TRIBULATION_MAX_ROUNDS = 40;
   private static final int TRIBULATION_COOLDOWN_HOURS = 1;
 
   private final FudiCellRepository fudiCellRepository;
   private final FudiRepository fudiRepository;
   private final SpiritRepository spiritRepository;
   private final SpiritStoneService spiritStoneService;
-  private final CombatService combatService;
   private final UserStateService userStateService;
-  private final PostCombatProcessor postCombatProcessor;
+  private final TribulationCombatExecutor tribulationCombatExecutor;
 
   /**
    * 触发天劫 — 使用战斗引擎进行回合制战斗（玩家于福地手动触发）
@@ -62,15 +59,15 @@ public class TribulationService {
     fudiRepository.save(fudi);
 
     // 构建防守方队伍（玩家 + 出战灵兽）
-    CombatTeam defendingTeam = combatService.buildPlayerTeam(user);
+    CombatTeam defendingTeam = tribulationCombatExecutor.buildTeamOrReturnNull(user);
 
     // 检查是否有存活成员
-    if (defendingTeam.aliveMembers().isEmpty()) {
+    if (defendingTeam == null) {
       return "⚠️ 没有可出战的单位，天劫无法降临";
     }
 
     // 计算防守方队伍总属性（用于 Boss 缩放，天然支持未来多人组队）
-    CombatService.TeamStats teamStats = combatService.calculateTeamStats(defendingTeam);
+    CombatService.TeamStats teamStats = tribulationCombatExecutor.calculateTeamStats(defendingTeam);
 
     // 检查是否触发怜悯
     var spirit = spiritRepository.findByFudiId(fudi.getId()).orElse(null);
@@ -87,20 +84,14 @@ public class TribulationService {
             fudi.getTribulationStage(),
             compassionTriggered);
 
-    // Boss 队伍
-    CombatTeam bossTeam = new CombatTeam(0L, "天劫");
-    bossTeam.addMember(boss);
-
     // 执行战斗
-    BattleResultVO result = combatService.simulate(defendingTeam, bossTeam, TRIBULATION_MAX_ROUNDS);
+    var battleResult = tribulationCombatExecutor.execute(defendingTeam, boss);
 
-    boolean playerWon = "Player".equals(result.winner());
+    boolean playerWon = battleResult.playerWon();
     boolean compassionUsed = compassionTriggered && !playerWon;
 
     // 应用 HP 变化到玩家和灵兽
-    postCombatProcessor.applyHpToUser(user, defendingTeam);
     userStateService.saveHpStatus(user);
-    postCombatProcessor.applyCombatHpToBeasts(defendingTeam, user, playerWon);
 
     String tribulationResult;
     if (playerWon) {

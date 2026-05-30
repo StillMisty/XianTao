@@ -3,7 +3,6 @@ package top.stillmisty.xiantao.service.sect;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -582,9 +581,7 @@ public class SectMemberService {
           default -> Long.MAX_VALUE;
         };
 
-    if (!sect.deductFunds(cost)) {
-      throw new BusinessException(ErrorCode.SECT_FUNDS_INSUFFICIENT, cost, sect.getFunds());
-    }
+    sect.deductFundsOrThrow(cost);
 
     int oldLevel = sect.getLevel();
     sect.setLevel(oldLevel + 1);
@@ -610,9 +607,7 @@ public class SectMemberService {
     int slots = 5;
     long cost = slots * 500L;
 
-    if (!sect.deductFunds(cost)) {
-      throw new BusinessException(ErrorCode.SECT_FUNDS_INSUFFICIENT, cost, sect.getFunds());
-    }
+    sect.deductFundsOrThrow(cost);
 
     sect.setMaxMembers(sect.getMaxMembers() + slots);
     sectRepository.save(sect);
@@ -622,31 +617,6 @@ public class SectMemberService {
   }
 
   // ===================== 跨服务接口 =====================
-
-  public boolean isInSect(Long userId) {
-    Optional<SectMember> member = sectMemberRepository.findByUserId(userId);
-    return member.isPresent() && member.get().getSectId() != null;
-  }
-
-  public Long getSectId(Long userId) {
-    return sectMemberRepository.findByUserId(userId).map(SectMember::getSectId).orElse(null);
-  }
-
-  public boolean isInSameSect(Long userIdA, Long userIdB) {
-    Optional<SectMember> memberA = sectMemberRepository.findByUserId(userIdA);
-    Optional<SectMember> memberB = sectMemberRepository.findByUserId(userIdB);
-    if (memberA.isEmpty() || memberB.isEmpty()) {
-      return false;
-    }
-    Long sectA = memberA.get().getSectId();
-    Long sectB = memberB.get().getSectId();
-    return sectA.equals(sectB);
-  }
-
-  public boolean areBothRogue(Long userIdA, Long userIdB) {
-    return (sectMemberRepository.findByUserId(userIdA).isEmpty()
-        && sectMemberRepository.findByUserId(userIdB).isEmpty());
-  }
 
   @Transactional
   public void joinSectInternal(Long userId, Long sectId) {
@@ -667,7 +637,7 @@ public class SectMemberService {
 
   // ===================== 包内工具方法 =====================
 
-  SectMember requireMember(Long userId) {
+  public SectMember requireMember(Long userId) {
     return sectMemberRepository
         .findByUserId(userId)
         .filter(m -> m.getSectId() != null)

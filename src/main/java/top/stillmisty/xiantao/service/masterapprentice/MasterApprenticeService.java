@@ -27,6 +27,7 @@ import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.player.UserStateService;
+import top.stillmisty.xiantao.service.sect.SectQueryService;
 
 @Slf4j
 @Service
@@ -40,6 +41,7 @@ public class MasterApprenticeService {
   private final UserRepository userRepository;
   private final UserStateService userStateService;
   private final SectMemberRepository sectMemberRepository;
+  private final SectQueryService sectQueryService;
 
   @Lazy @Autowired private MasterApprenticeService self;
 
@@ -48,12 +50,14 @@ public class MasterApprenticeService {
       DaoProtectionRepository daoProtectionRepository,
       UserRepository userRepository,
       UserStateService userStateService,
-      SectMemberRepository sectMemberRepository) {
+      SectMemberRepository sectMemberRepository,
+      SectQueryService sectQueryService) {
     this.masterApprenticeRepository = masterApprenticeRepository;
     this.daoProtectionRepository = daoProtectionRepository;
     this.userRepository = userRepository;
     this.userStateService = userStateService;
     this.sectMemberRepository = sectMemberRepository;
+    this.sectQueryService = sectQueryService;
   }
 
   // ===================== 公开 API =====================
@@ -398,7 +402,7 @@ public class MasterApprenticeService {
   }
 
   private boolean isInSect(Long userId) {
-    return sectMemberRepository.findByUserId(userId).filter(m -> m.getSectId() != null).isPresent();
+    return sectQueryService.isInSect(userId);
   }
 
   private void leaveSectInternal(Long userId) {
@@ -417,16 +421,10 @@ public class MasterApprenticeService {
   }
 
   private boolean isInSameSect(Long userIdA, Long userIdB) {
-    Optional<SectMember> memberA = sectMemberRepository.findByUserId(userIdA);
-    Optional<SectMember> memberB = sectMemberRepository.findByUserId(userIdB);
-    if (memberA.isEmpty() || memberB.isEmpty()) return false;
-    Long sectA = memberA.get().getSectId();
-    Long sectB = memberB.get().getSectId();
-    return sectA.equals(sectB);
+    return sectQueryService.isInSameSect(userIdA, userIdB);
   }
 
   private boolean areBothRogue(Long userIdA, Long userIdB) {
-    return sectMemberRepository.findByUserId(userIdA).isEmpty()
-        && sectMemberRepository.findByUserId(userIdB).isEmpty();
+    return sectQueryService.areBothRogue(userIdA, userIdB);
   }
 }

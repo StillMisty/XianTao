@@ -18,7 +18,7 @@ import top.stillmisty.xiantao.service.ProtectionHelper;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.SpiritStoneService;
 import top.stillmisty.xiantao.service.combat.CombatService;
-import top.stillmisty.xiantao.service.combat.PostCombatProcessor;
+import top.stillmisty.xiantao.service.combat.TribulationCombatExecutor;
 import top.stillmisty.xiantao.service.masterapprentice.MasterApprenticeService;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
@@ -28,17 +28,14 @@ import top.stillmisty.xiantao.service.player.UserStateService;
 @RequiredArgsConstructor
 public class CultivationService {
 
-  private static final int TRIBULATION_MAX_ROUNDS = 40;
-
   private final UserStateService userStateService;
   private final PlayerBuffRepository playerBuffRepository;
   private final ProtectionHelper protectionHelper;
   private final DaoProtectionService daoProtectionService;
   private final SpiritStoneService spiritStoneService;
   private final MasterApprenticeService masterApprenticeService;
-  private final CombatService combatService;
-  private final PostCombatProcessor postCombatProcessor;
   private final TribulationNarrativeGenerator narrativeGenerator;
+  private final TribulationCombatExecutor tribulationCombatExecutor;
 
   // ===================== 公开 API =====================
 
@@ -46,34 +43,7 @@ public class CultivationService {
     return new ServiceResult.Success<>(attemptBreakthroughInternal(userId));
   }
 
-  public ServiceResult<DaoProtectionResult> establishProtection(
-      Long userId, String protegeNickname) {
-    return new ServiceResult.Success<>(
-        daoProtectionService.establishProtection(userId, protegeNickname));
-  }
-
-  public ServiceResult<DaoProtectionResult> removeProtection(Long userId, String protegeNickname) {
-    return new ServiceResult.Success<>(
-        daoProtectionService.removeProtection(userId, protegeNickname));
-  }
-
-  public ServiceResult<DaoProtectionQueryResult> queryProtectionInfo(Long userId) {
-    return new ServiceResult.Success<>(daoProtectionService.queryProtectionInfo(userId));
-  }
-
   // ===================== 内部 API =====================
-
-  public DaoProtectionResult establishProtectionInternal(Long userId, String protegeNickname) {
-    return daoProtectionService.establishProtection(userId, protegeNickname);
-  }
-
-  public DaoProtectionResult removeProtectionInternal(Long userId, String protegeNickname) {
-    return daoProtectionService.removeProtection(userId, protegeNickname);
-  }
-
-  public DaoProtectionQueryResult queryProtectionInfoInternal(Long userId) {
-    return daoProtectionService.queryProtectionInfo(userId);
-  }
 
   /**
    * 突破境界
@@ -156,8 +126,8 @@ public class CultivationService {
         TribulationType.randomForBreakthrough(targetRealmOrdinal, isTribulationRealm);
 
     // 构建队伍
-    CombatTeam defendingTeam = combatService.buildPlayerTeam(user);
-    if (defendingTeam.aliveMembers().isEmpty()) {
+    CombatTeam defendingTeam = tribulationCombatExecutor.buildTeamOrReturnNull(user);
+    if (defendingTeam == null) {
       return new BreakthroughResult(
           false,
           "⚠️ 没有可出战的单位，雷劫无法降临",
@@ -175,7 +145,7 @@ public class CultivationService {
     // 扣除修为（无论胜败）
     user.setExp(user.getExp() - expNeeded);
 
-    CombatService.TeamStats teamStats = combatService.calculateTeamStats(defendingTeam);
+    CombatService.TeamStats teamStats = tribulationCombatExecutor.calculateTeamStats(defendingTeam);
 
     TribulationBoss boss =
         TribulationBoss.forPlayerBreakthrough(
@@ -190,27 +160,26 @@ public class CultivationService {
             tribulationResist,
             tribulationLevel);
 
-    CombatTeam bossTeam = new CombatTeam(0L, "天劫");
-    bossTeam.addMember(boss);
+    var battleResult = tribulationCombatExecutor.execute(defendingTeam, boss);
 
-    BattleResultVO result = combatService.simulate(defendingTeam, bossTeam, TRIBULATION_MAX_ROUNDS);
-
-    boolean playerWon = "Player".equals(result.winner());
-
-    // 应用 HP 变化
-    postCombatProcessor.applyHpToUser(user, defendingTeam);
     userStateService.saveHpStatus(user);
-    postCombatProcessor.applyCombatHpToBeasts(defendingTeam, user, playerWon);
 
     // 清除 buff 和护道关系
     daoProtectionService.clearProtegeRelations(user.getId());
     playerBuffRepository.deleteByUserIdAndType(user.getId(), PlayerBuffType.BREAKTHROUGH);
 
-    if (playerWon) {
+    if (battleResult.playerWon()) {
       return handleCombatBreakthroughSuccess(
-          user, newLevel, newRealm, isMajor, isTribulationRealm, tribulationType, result);
+          user,
+          newLevel,
+          newRealm,
+          isMajor,
+          isTribulationRealm,
+          tribulationType,
+          battleResult.battleResult());
     } else {
-      return handleCombatBreakthroughFailure(user, oldLevel, isMajor, tribulationType, result);
+      return handleCombatBreakthroughFailure(
+          user, oldLevel, isMajor, tribulationType, battleResult.battleResult());
     }
   }
 

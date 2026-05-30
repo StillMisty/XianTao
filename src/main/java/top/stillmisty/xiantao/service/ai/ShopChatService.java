@@ -39,26 +39,26 @@ public class ShopChatService extends AbstractChatService {
   }
 
   public ServiceResult<String> chatWithShopkeeper(Long userId, String userInput) {
-    return new ServiceResult.Success<>(chatWithShopkeeperInternal(userId, userInput));
+    try {
+      String result = chatWithShopkeeperInternal(userId, userInput);
+      return new ServiceResult.Success<>(result);
+    } catch (BusinessException e) {
+      return ServiceResult.businessFailure(e.getMessage());
+    } catch (Exception e) {
+      log.error("商铺对话失败 - userId: {}, error: {}", userId, e.getMessage(), e);
+      return ServiceResult.businessFailure("掌柜暂时不在，请稍后再来。");
+    }
   }
 
   String chatWithShopkeeperInternal(Long userId, String userInput) {
-    try {
-      User user = userStateService.loadUser(userId);
-      ShopNpc npc = shopService.findByLocation(user.getLocationId());
-      List<WorldEvent> activeEvents = worldEventRepository.findActiveEvents();
-      return ShopChatContext.with(
-          user,
-          npc,
-          activeEvents,
-          () ->
-              callLlm(buildPrompt(npc), userInput, ChatType.SHOP, userId, npc.getId(), shopTools));
-    } catch (BusinessException e) {
-      return e.getMessage();
-    } catch (Exception e) {
-      log.error("商铺对话失败 - userId: {}, error: {}", userId, e.getMessage(), e);
-      return "掌柜暂时不在，请稍后再来。";
-    }
+    User user = userStateService.loadUser(userId);
+    ShopNpc npc = shopService.findByLocation(user.getLocationId());
+    List<WorldEvent> activeEvents = worldEventRepository.findActiveEvents();
+    return ShopChatContext.with(
+        user,
+        npc,
+        activeEvents,
+        () -> callLlm(buildPrompt(npc), userInput, ChatType.SHOP, userId, npc.getId(), shopTools));
   }
 
   private String buildPrompt(ShopNpc npc) {

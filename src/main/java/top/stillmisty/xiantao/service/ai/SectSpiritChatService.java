@@ -50,63 +50,64 @@ public class SectSpiritChatService extends AbstractChatService {
   }
 
   public ServiceResult<String> chatWithSectSpirit(Long userId, String userInput) {
-    return new ServiceResult.Success<>(chatWithSectSpiritInternal(userId, userInput));
+    try {
+      String result = chatWithSectSpiritInternal(userId, userInput);
+      return new ServiceResult.Success<>(result);
+    } catch (BusinessException e) {
+      return ServiceResult.businessFailure(e.getMessage());
+    } catch (Exception e) {
+      log.error("宗灵对话失败 - userId: {}, error: {}", userId, e.getMessage(), e);
+      return ServiceResult.businessFailure("宗灵暂时无法回应，请稍后再试。");
+    }
   }
 
   String chatWithSectSpiritInternal(Long userId, String userInput) {
-    try {
-      SectMember member =
-          sectMemberRepository
-              .findByUserId(userId)
-              .filter(m -> m.getSectId() != null)
-              .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_IN));
+    SectMember member =
+        sectMemberRepository
+            .findByUserId(userId)
+            .filter(m -> m.getSectId() != null)
+            .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_IN));
 
-      Sect sect =
-          sectRepository
-              .findById(member.getSectId())
-              .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_FOUND));
+    Sect sect =
+        sectRepository
+            .findById(member.getSectId())
+            .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_FOUND));
 
-      sectBuildingService.settleSpiritVein(sect.getId());
+    sectBuildingService.settleSpiritVein(sect.getId());
 
-      String response =
-          switch (member.getPosition()) {
-            case MEMBER ->
-                callLlm(
-                    buildPrompt(sect, member),
-                    userInput,
-                    ChatType.SECT,
-                    userId,
-                    sect.getId(),
-                    sectMemberTools);
-            case ELDER ->
-                callLlm(
-                    buildPrompt(sect, member),
-                    userInput,
-                    ChatType.SECT,
-                    userId,
-                    sect.getId(),
-                    sectMemberTools,
-                    sectElderTools);
-            case LEADER ->
-                callLlm(
-                    buildPrompt(sect, member),
-                    userInput,
-                    ChatType.SECT,
-                    userId,
-                    sect.getId(),
-                    sectMemberTools,
-                    sectElderTools,
-                    sectLeaderTools);
-          };
+    String response =
+        switch (member.getPosition()) {
+          case MEMBER ->
+              callLlm(
+                  buildPrompt(sect, member),
+                  userInput,
+                  ChatType.SECT,
+                  userId,
+                  sect.getId(),
+                  sectMemberTools);
+          case ELDER ->
+              callLlm(
+                  buildPrompt(sect, member),
+                  userInput,
+                  ChatType.SECT,
+                  userId,
+                  sect.getId(),
+                  sectMemberTools,
+                  sectElderTools);
+          case LEADER ->
+              callLlm(
+                  buildPrompt(sect, member),
+                  userInput,
+                  ChatType.SECT,
+                  userId,
+                  sect.getId(),
+                  sectMemberTools,
+                  sectElderTools,
+                  sectLeaderTools);
+        };
 
-      log.debug("宗灵对话成功 - userId: {}, sect: {}, input: {}", userId, sect.getName(), userInput);
-      return response != null ? response : "宗灵暂时无法回应，请稍后再试。";
-    } catch (BusinessException e) {
-      return e.getMessage();
-    } catch (Exception e) {
-      log.error("宗灵对话失败 - userId: {}, error: {}", userId, e.getMessage(), e);
-      return "宗灵暂时无法回应，请稍后再试。";
-    }
+    log.debug("宗灵对话成功 - userId: {}, sect: {}, input: {}", userId, sect.getName(), userInput);
+    return response != null ? response : "宗灵暂时无法回应，请稍后再试。";
   }
 
   private String buildPrompt(Sect sect, SectMember member) {
