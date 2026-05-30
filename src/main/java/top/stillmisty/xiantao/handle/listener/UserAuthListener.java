@@ -9,6 +9,7 @@ import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.handle.command.UserCommandHandler;
+import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
 
 @Slf4j
 @Component
@@ -20,6 +21,7 @@ public class UserAuthListener {
 
   @Listener
   @ContentTrim
+  @RequireAuth
   @Filter("改号\\s*{{newNickname}}")
   public void changeNickname(MessageEvent event, @FilterValue("newNickname") String newNickname) {
     replyHelper.dispatch(event, "改号", newNickname, userCommandHandler::handleChangeNickname);

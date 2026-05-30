@@ -8,6 +8,7 @@ import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.handle.platform.PlatformHandler;
 import top.stillmisty.xiantao.handle.platform.PlatformRegistry;
+import top.stillmisty.xiantao.service.UserContext;
 
 /** 平台回复辅助 集中处理多平台回复方式 */
 @Component
@@ -37,8 +38,13 @@ public class ReplyHelper {
     TextFormat fmt = getTextFormat(platform);
 
     log.debug("[{}] {}请求 - AuthorId: {}", platform, command, handler.extractOpenId(event));
-    String text = fn.execute(fmt);
-    replyWithHandler(handler, event, text);
+
+    executeWithUserContext(
+        event,
+        () -> {
+          String text = fn.execute(fmt);
+          replyWithHandler(handler, event, text);
+        });
   }
 
   public void dispatch(MessageEvent event, String command, String arg, CommandFn1 fn) {
@@ -48,8 +54,13 @@ public class ReplyHelper {
 
     log.debug(
         "[{}] {}请求 - AuthorId: {}, Arg: {}", platform, command, handler.extractOpenId(event), arg);
-    String text = fn.execute(arg, fmt);
-    replyWithHandler(handler, event, text);
+
+    executeWithUserContext(
+        event,
+        () -> {
+          String text = fn.execute(arg, fmt);
+          replyWithHandler(handler, event, text);
+        });
   }
 
   // ===================== 平台类型识别 =====================
@@ -72,6 +83,20 @@ public class ReplyHelper {
       case QQ -> TextFormat.markdown();
       case WEB -> TextFormat.plain();
     };
+  }
+
+  private void executeWithUserContext(MessageEvent event, Runnable action) {
+    Long userId = UserContext.retrieveFromEvent(event);
+    if (userId != null) {
+      UserContext.withUser(
+          userId,
+          () -> {
+            action.run();
+            return null;
+          });
+    } else {
+      action.run();
+    }
   }
 
   private void replyWithHandler(PlatformHandler handler, MessageEvent event, String text) {

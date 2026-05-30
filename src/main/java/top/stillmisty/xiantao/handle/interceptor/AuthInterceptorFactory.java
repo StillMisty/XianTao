@@ -49,7 +49,7 @@ public class AuthInterceptorFactory implements AnnotationEventInterceptorFactory
       var event = context.getSource().getEventListenerContext().getEvent();
 
       if (!(event instanceof MessageEvent messageEvent)) {
-        throw new IllegalArgumentException("不支持的事件类型: " + event.getClass().getName());
+        return context.invoke();
       }
 
       var handler = platformRegistry.getHandler(messageEvent);
@@ -63,10 +63,13 @@ public class AuthInterceptorFactory implements AnnotationEventInterceptorFactory
 
       Long userId = ((ServiceResult.Success<Long>) auth).data();
 
+      // ScopedValue 无法跨越 coroutine dispatch（IO 线程），
+      // 因此暂存到事件映射中，由 ReplyHelper.dispatch() 在 IO 线程上绑定。
+      UserContext.bindForEvent(messageEvent, userId);
       try {
-        return UserContext.withUser(userId, context::invoke);
-      } catch (Exception e) {
-        throw new RuntimeException(e);
+        return context.invoke();
+      } finally {
+        UserContext.unbindForEvent(messageEvent);
       }
     }
   }

@@ -2,6 +2,7 @@ package top.stillmisty.xiantao.handle.interceptor;
 
 import love.forte.simbot.event.EventResult;
 import love.forte.simbot.event.JBlockEventInterceptor;
+import love.forte.simbot.event.MessageEvent;
 import love.forte.simbot.quantcat.common.interceptor.AnnotationEventInterceptorFactory;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
@@ -38,7 +39,16 @@ public class GmInterceptorFactory implements AnnotationEventInterceptorFactory {
 
     @Override
     public EventResult intercept(JBlockEventInterceptor.Context context) throws Exception {
-      Long userId = UserContext.requireCurrentUserId();
+      var event = context.getSource().getEventListenerContext().getEvent();
+      if (!(event instanceof MessageEvent)) {
+        return context.invoke();
+      }
+
+      // AuthInterceptor 已将 userId 存入事件映射（原始线程），此处直接读取（IO 线程）
+      Long userId = UserContext.retrieveFromEvent(event);
+      if (userId == null) {
+        return EventResult.of("AUTH_ERROR: 未登录");
+      }
 
       boolean isGm =
           userRepository.findById(userId).map(u -> Boolean.TRUE.equals(u.getGm())).orElse(false);
