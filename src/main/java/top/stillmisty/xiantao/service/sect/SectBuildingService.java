@@ -3,7 +3,6 @@ package top.stillmisty.xiantao.service.sect;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -82,7 +81,7 @@ public class SectBuildingService {
 
   public BuildingsQueryVO getBuildingsInternal(Long userId) {
     SectMember member = requireMember(userId);
-    return getBuildingsBySectId(requireSectId(member));
+    return getBuildingsBySectId(member.requireSectId());
   }
 
   @Cacheable(cacheNames = "sect_buildings", key = "#sectId")
@@ -130,13 +129,13 @@ public class SectBuildingService {
 
     SectBuildingType type = resolveBuildingType(buildingTypeCode);
 
-    if (sectBuildingRepository.findBySectIdAndType(requireSectId(member), type).isPresent()) {
+    if (sectBuildingRepository.findBySectIdAndType(member.requireSectId(), type).isPresent()) {
       throw new BusinessException(ErrorCode.SECT_BUILDING_ALREADY_EXISTS);
     }
 
     Sect sect =
         sectRepository
-            .findById(requireSectId(member))
+            .findById(member.requireSectId())
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_FOUND));
 
     long cost = type.getBuildCost();
@@ -144,7 +143,7 @@ public class SectBuildingService {
     sectRepository.save(sect);
 
     SectBuilding building =
-        SectBuilding.create().setSectId(requireSectId(member)).setBuildingType(type).setLevel(1);
+        SectBuilding.create().setSectId(member.requireSectId()).setBuildingType(type).setLevel(1);
     sectBuildingRepository.save(building);
 
     log.info("宗门 {} 建造建筑 {} Lv.1", sect.getId(), type.getName());
@@ -167,7 +166,7 @@ public class SectBuildingService {
 
     SectBuilding building =
         sectBuildingRepository
-            .findBySectIdAndType(requireSectId(member), type)
+            .findBySectIdAndType(member.requireSectId(), type)
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_BUILDING_NOT_FOUND));
 
     if (building.isMaxLevel()) {
@@ -176,7 +175,7 @@ public class SectBuildingService {
 
     Sect sect =
         sectRepository
-            .findById(requireSectId(member))
+            .findById(member.requireSectId())
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_FOUND));
 
     long cost = type.upgradeCost();
@@ -302,9 +301,5 @@ public class SectBuildingService {
 
   private SectMember requireMember(Long userId) {
     return sectMemberService.requireMember(userId);
-  }
-
-  private Long requireSectId(SectMember member) {
-    return Objects.requireNonNull(member.getSectId());
   }
 }

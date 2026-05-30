@@ -2,7 +2,6 @@ package top.stillmisty.xiantao.service.sect;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -646,7 +645,7 @@ public class SectMemberService {
   }
 
   private Long requireSectId(SectMember member) {
-    return Objects.requireNonNull(member.getSectId());
+    return member.requireSectId();
   }
 
   boolean isOnCooldown(Long userId) {

@@ -2,7 +2,6 @@ package top.stillmisty.xiantao.service.sect;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -368,7 +367,7 @@ public class SectSharedSkillService {
   }
 
   private Long requireSectId(SectMember member) {
-    return Objects.requireNonNull(member.getSectId());
+    return member.requireSectId();
   }
 
   private <T> @Nullable T resolveByName(

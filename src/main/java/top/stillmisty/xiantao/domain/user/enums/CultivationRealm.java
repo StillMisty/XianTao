@@ -8,6 +8,7 @@ import lombok.Getter;
 public enum CultivationRealm {
   QI_REFINING(
       "炼气期",
+      0,
       1,
       10,
       List.of("启灵", "引气", "炼息", "凝旋", "聚海", "通玄", "化液", "淬液", "冲关", "圆满"),
@@ -21,6 +22,7 @@ public enum CultivationRealm {
                      仙途漫漫，此为一始。"""),
   FOUNDATION(
       "筑基期",
+      1,
       11,
       20,
       List.of("开光", "辟府", "筑台", "炼神", "通脉", "融合", "化罡", "洗髓", "问心", "圆满"),
@@ -34,6 +36,7 @@ public enum CultivationRealm {
                      凡胎脱去，仙骨初成——恭喜踏入筑基期！"""),
   GOLDEN_CORE(
       "金丹期",
+      2,
       21,
       30,
       List.of("凝丹", "养丹", "固丹", "淬丹", "通灵", "孕神", "丹纹", "丹火", "碎丹", "圆满"),
@@ -47,6 +50,7 @@ public enum CultivationRealm {
                      一粒金丹吞入腹，始知我命由我不由天——恭喜踏入金丹期！"""),
   NASCENT_SOUL(
       "元婴期",
+      3,
       31,
       40,
       List.of("孕婴", "育婴", "凝婴", "开窍", "固婴", "化形", "出窍", "分神", "感道", "圆满"),
@@ -60,6 +64,7 @@ public enum CultivationRealm {
                      金丹碎裂元婴出，从此天大地大何处不可去——恭喜踏入元婴期！"""),
   DEITY_TRANSFORMATION(
       "化神期",
+      4,
       41,
       55,
       List.of(
@@ -74,6 +79,7 @@ public enum CultivationRealm {
                      元神出窍化万千，一念通天地——恭喜踏入化神期！"""),
   VOID_TRAINING(
       "炼虚期",
+      5,
       56,
       70,
       List.of(
@@ -88,6 +94,7 @@ public enum CultivationRealm {
                      虚空中见真我，万象归寂道心明——恭喜踏入炼虚期！"""),
   UNITY(
       "合体期",
+      6,
       71,
       90,
       List.of(
@@ -103,6 +110,7 @@ public enum CultivationRealm {
                      天地人三才合一，道法自然——恭喜踏入合体期！"""),
   MAHAYANA(
       "大乘期",
+      7,
       91,
       110,
       List.of(
@@ -118,6 +126,7 @@ public enum CultivationRealm {
                      大乘圆满道心成，仙门已在眼前——恭喜踏入大乘期！"""),
   TRIBULATION(
       "渡劫期",
+      8,
       111,
       Integer.MAX_VALUE,
       /* 渡劫期前10层有独立命名，之后按"第N劫"生成。 layerNames仅存储前10层，internalLayerForName()超出部分走公式。 */
@@ -138,6 +147,7 @@ public enum CultivationRealm {
   public static final int MAJOR_BREAKTHROUGH_SPIRIT_STONES_BASE = 2000;
 
   private final String realmName;
+  private final int rank;
   private final int startLevel;
   private final int endLevel;
 
@@ -149,12 +159,14 @@ public enum CultivationRealm {
 
   CultivationRealm(
       String realmName,
+      int rank,
       int startLevel,
       int endLevel,
       List<String> layerNames,
       String description,
       String breakthroughMessage) {
     this.realmName = realmName;
+    this.rank = rank;
     this.startLevel = startLevel;
     this.endLevel = endLevel;
     this.layerNames = List.copyOf(layerNames);
@@ -188,17 +200,17 @@ public enum CultivationRealm {
     return "第" + innerLayer + "劫";
   }
 
-  @SuppressWarnings("EnumOrdinal")
   public int getRank() {
-    return ordinal();
+    return rank;
   }
 
   public static CultivationRealm fromRank(int rank) {
-    CultivationRealm[] values = values();
-    if (rank < 0 || rank >= values.length) {
-      throw new IllegalArgumentException("Unknown CultivationRealm rank: " + rank);
+    for (CultivationRealm realm : values()) {
+      if (realm.rank == rank) {
+        return realm;
+      }
     }
-    return values[rank];
+    throw new IllegalArgumentException("Unknown CultivationRealm rank: " + rank);
   }
 
   /** 判断是否跨大境界突破 */

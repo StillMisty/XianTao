@@ -5,6 +5,7 @@ import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -43,5 +44,9 @@ public class SectMember {
 
   public boolean isOnCooldown() {
     return cooldownUntil != null && cooldownUntil.isAfter(TimeUtil.now());
+  }
+
+  public Long requireSectId() {
+    return Objects.requireNonNull(sectId);
   }
 }

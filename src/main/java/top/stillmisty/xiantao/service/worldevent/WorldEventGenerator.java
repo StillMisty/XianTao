@@ -110,8 +110,9 @@ public class WorldEventGenerator {
     event.setTitle(template.getTitle());
     event.setDescription(template.getDescription());
     event.setStatus(status);
-    event.setStartTime(TimeUtil.now());
-    event.setEndTime(TimeUtil.now().plusHours(template.getDurationHours()));
+    var now = TimeUtil.now();
+    event.setStartTime(now);
+    event.setEndTime(now.plusHours(template.getDurationHours()));
     event.setAffectedTags(template.getAffectedTags());
     event.setGlobalMultiplier(template.getGlobalMultiplier());
     event.setEffects(template.getEffects());
