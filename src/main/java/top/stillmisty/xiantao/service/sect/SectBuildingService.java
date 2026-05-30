@@ -78,10 +78,14 @@ public class SectBuildingService {
 
   // ===================== 内部 API =====================
 
-  @Cacheable(cacheNames = "sect_buildings", key = "#userId")
   public BuildingsQueryVO getBuildingsInternal(Long userId) {
     SectMember member = requireMember(userId);
-    List<SectBuilding> buildings = sectBuildingRepository.findBySectId(member.getSectId());
+    return getBuildingsBySectId(member.getSectId());
+  }
+
+  @Cacheable(cacheNames = "sect_buildings", key = "#sectId")
+  public BuildingsQueryVO getBuildingsBySectId(Long sectId) {
+    List<SectBuilding> buildings = sectBuildingRepository.findBySectId(sectId);
 
     List<BuildingsQueryVO.BuildingEntry> built =
         buildings.stream()
@@ -113,7 +117,7 @@ public class SectBuildingService {
   @Transactional
   @Caching(
       evict = {
-        @CacheEvict(cacheNames = "sect_buildings", key = "#userId"),
+        @CacheEvict(cacheNames = "sect_buildings", key = "#result.sectId()"),
         @CacheEvict(cacheNames = "sect_overview", key = "#userId")
       })
   public BuildResultVO buildStructureInternal(Long userId, String buildingTypeCode) {
@@ -148,7 +152,7 @@ public class SectBuildingService {
   @Transactional
   @Caching(
       evict = {
-        @CacheEvict(cacheNames = "sect_buildings", key = "#userId"),
+        @CacheEvict(cacheNames = "sect_buildings", key = "#result.sectId()"),
         @CacheEvict(cacheNames = "sect_overview", key = "#userId")
       })
   public UpgradeBuildingResultVO upgradeBuildingInternal(Long userId, String buildingTypeCode) {

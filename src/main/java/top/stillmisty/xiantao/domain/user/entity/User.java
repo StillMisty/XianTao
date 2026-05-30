@@ -236,4 +236,12 @@ public class User extends Model<User> {
     this.activityStartTime = null;
     this.activityTargetId = null;
   }
+
+  /** 判断用户是否处于稳定状态（无需结算）：IDLE + HP 满 + 无活动 */
+  public boolean isStableState() {
+    if (status != UserStatus.IDLE) return false;
+    if (activityType != null) return false;
+    int maxHp = calculateMaxHp();
+    return hpCurrent != null && hpCurrent >= maxHp;
+  }
 }

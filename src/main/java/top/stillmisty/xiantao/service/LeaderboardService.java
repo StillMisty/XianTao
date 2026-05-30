@@ -18,13 +18,13 @@ public class LeaderboardService {
   private final UserRepository userRepository;
 
   @Transactional(readOnly = true)
-  @Cacheable(cacheNames = "leaderboard", key = "'level'")
+  @Cacheable(cacheNames = "leaderboard", key = "'level'", sync = true)
   public ServiceResult<LeaderboardVO> getLevelLeaderboard(Long userId) {
     return new ServiceResult.Success<>(buildLevelLeaderboardInternal());
   }
 
   @Transactional(readOnly = true)
-  @Cacheable(cacheNames = "leaderboard", key = "'spiritStones'")
+  @Cacheable(cacheNames = "leaderboard", key = "'spiritStones'", sync = true)
   public ServiceResult<LeaderboardVO> getSpiritStoneLeaderboard(Long userId) {
     return new ServiceResult.Success<>(buildSpiritStoneLeaderboardInternal());
   }

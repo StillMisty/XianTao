@@ -119,6 +119,9 @@ public class UserStateService {
   // ===================== 状态结算 =====================
 
   private void resolveState(User user) {
+    // 快速路径：稳定状态下跳过所有 handler
+    if (user.isStableState()) return;
+
     boolean dirty = false;
     for (StateHandler handler : stateHandlers) {
       dirty |= handler.tryResolve(user);

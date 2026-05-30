@@ -76,7 +76,29 @@ public class BeastRepository {
 
   public List<Beast> saveAll(List<Beast> beasts) {
     if (beasts == null || beasts.isEmpty()) return List.of();
-    beasts.forEach(mapper::insertOrUpdateSelective);
+
+    // 分离新记录和已存在的记录
+    List<Beast> toInsert = new java.util.ArrayList<>();
+    List<Beast> toUpdate = new java.util.ArrayList<>();
+
+    for (Beast beast : beasts) {
+      if (beast.getId() == null) {
+        toInsert.add(beast);
+      } else {
+        toUpdate.add(beast);
+      }
+    }
+
+    // 批量插入新记录
+    if (!toInsert.isEmpty()) {
+      mapper.insertBatch(toInsert);
+    }
+
+    // 逐个更新已存在的记录（MyBatis-Flex 没有 updateBatch）
+    for (Beast beast : toUpdate) {
+      mapper.insertOrUpdateSelective(beast);
+    }
+
     return beasts;
   }
 

@@ -88,6 +88,7 @@ public class DungeonService {
 
   // ===================== 内部 API =====================
 
+  @Transactional
   @CacheEvict(cacheNames = "dungeon_list", key = "#userId")
   public DungeonEnterResult enterDungeonInternal(Long userId, String dungeonName) {
     User user = userStateService.loadUser(userId);
@@ -336,6 +337,7 @@ public class DungeonService {
     return new DungeonContinueResult.AreaView(areaView);
   }
 
+  @Transactional
   @CacheEvict(cacheNames = "dungeon_list", key = "#userId")
   public String retreatDungeonInternal(Long userId) {
     userStateService.loadUser(userId);

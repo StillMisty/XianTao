@@ -35,6 +35,7 @@ public class SpiritStoneService {
     userRepository.addSpiritStonesAtomically(userId, amount);
   }
 
+  @Transactional(readOnly = true)
   public long getBalance(Long userId) {
     return userRepository.findById(userId).map(User::getSpiritStones).orElse(0L);
   }

@@ -1,7 +1,8 @@
 package top.stillmisty.xiantao.service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.user.entity.DaoProtection;
@@ -22,15 +23,20 @@ public class ProtectionHelper {
   /** 计算总护道加成（仅统计同地点的护道者） */
   public double calculateProtectionBonus(User protege) {
     List<DaoProtection> protections = daoProtectionRepository.findByProtegeId(protege.getId());
-    double totalBonus = 0.0;
+    if (protections.isEmpty()) return 0.0;
 
+    // 批量查询所有护道者，消除 N+1 问题
+    List<Long> protectorIds =
+        protections.stream().map(DaoProtection::getProtectorId).collect(Collectors.toList());
+    Map<Long, User> protectorMap =
+        userRepository.findByIds(protectorIds).stream()
+            .collect(Collectors.toMap(User::getId, u -> u));
+
+    double totalBonus = 0.0;
     for (DaoProtection protection : protections) {
-      Optional<User> protectorOpt = userRepository.findById(protection.getProtectorId());
-      if (protectorOpt.isPresent()) {
-        User protector = protectorOpt.get();
-        if (isInSameLocation(protector, protege)) {
-          totalBonus += calculateSingleProtectorBonus(protector, protege);
-        }
+      User protector = protectorMap.get(protection.getProtectorId());
+      if (protector != null && isInSameLocation(protector, protege)) {
+        totalBonus += calculateSingleProtectorBonus(protector, protege);
       }
     }
 
