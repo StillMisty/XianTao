@@ -1,5 +1,7 @@
 package top.stillmisty.xiantao.infrastructure.repository;
 
+import static top.stillmisty.xiantao.domain.sect.entity.table.ChatHistoryTableDef.CHAT_HISTORY;
+
 import com.mybatisflex.core.query.QueryWrapper;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -22,11 +24,11 @@ public class ChatHistoryRepository {
   public List<ChatHistory> findAllByChatTypeAndConversationIdAndUserId(
       ChatType chatType, Long conversationId, Long userId) {
     QueryWrapper query =
-        new QueryWrapper()
-            .eq(ChatHistory::getChatType, chatType)
-            .eq(ChatHistory::getConversationId, conversationId)
-            .eq(ChatHistory::getUserId, userId)
-            .orderBy(ChatHistory::getCreateTime, true);
+        QueryWrapper.create()
+            .where(CHAT_HISTORY.CHAT_TYPE.eq(chatType))
+            .and(CHAT_HISTORY.CONVERSATION_ID.eq(conversationId))
+            .and(CHAT_HISTORY.USER_ID.eq(userId))
+            .orderBy(CHAT_HISTORY.CREATE_TIME.asc());
     return mapper.selectListByQuery(query);
   }
 

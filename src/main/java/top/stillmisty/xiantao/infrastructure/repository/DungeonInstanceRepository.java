@@ -1,12 +1,13 @@
 package top.stillmisty.xiantao.infrastructure.repository;
 
+import static top.stillmisty.xiantao.domain.dungeon.entity.table.DungeonInstanceTableDef.DUNGEON_INSTANCE;
+
 import com.mybatisflex.core.query.QueryWrapper;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonInstance;
-import top.stillmisty.xiantao.domain.dungeon.entity.table.DungeonInstanceTableDef;
 import top.stillmisty.xiantao.domain.dungeon.enums.DungeonStatus;
 import top.stillmisty.xiantao.infrastructure.mapper.DungeonInstanceMapper;
 
@@ -26,18 +27,17 @@ public class DungeonInstanceRepository {
   }
 
   public Optional<DungeonInstance> findByIdForUpdate(Long id) {
-    QueryWrapper qw =
-        QueryWrapper.create().where(DungeonInstanceTableDef.DUNGEON_INSTANCE.ID.eq(id)).forUpdate();
+    QueryWrapper qw = QueryWrapper.create().where(DUNGEON_INSTANCE.ID.eq(id)).forUpdate();
     return Optional.ofNullable(mapper.selectOneByQuery(qw));
   }
 
   public Optional<DungeonInstance> findByLeaderIdAndDungeonIdAndStatus(
       Long leaderId, Long dungeonId, DungeonStatus status) {
     QueryWrapper qw =
-        new QueryWrapper()
-            .eq(DungeonInstance::getLeaderId, leaderId)
-            .eq(DungeonInstance::getDungeonId, dungeonId)
-            .eq(DungeonInstance::getStatus, status);
+        QueryWrapper.create()
+            .where(DUNGEON_INSTANCE.LEADER_ID.eq(leaderId))
+            .and(DUNGEON_INSTANCE.DUNGEON_ID.eq(dungeonId))
+            .and(DUNGEON_INSTANCE.STATUS.eq(status));
     return Optional.ofNullable(mapper.selectOneByQuery(qw));
   }
 
@@ -45,10 +45,10 @@ public class DungeonInstanceRepository {
       Long leaderId, List<Long> dungeonIds, DungeonStatus status) {
     if (dungeonIds == null || dungeonIds.isEmpty()) return List.of();
     QueryWrapper qw =
-        new QueryWrapper()
-            .eq(DungeonInstance::getLeaderId, leaderId)
-            .in(DungeonInstance::getDungeonId, dungeonIds)
-            .eq(DungeonInstance::getStatus, status);
+        QueryWrapper.create()
+            .where(DUNGEON_INSTANCE.LEADER_ID.eq(leaderId))
+            .and(DUNGEON_INSTANCE.DUNGEON_ID.in(dungeonIds))
+            .and(DUNGEON_INSTANCE.STATUS.eq(status));
     return mapper.selectListByQuery(qw);
   }
 
@@ -56,10 +56,10 @@ public class DungeonInstanceRepository {
       List<Long> leaderIds, Long dungeonId, DungeonStatus status) {
     if (leaderIds == null || leaderIds.isEmpty()) return List.of();
     QueryWrapper qw =
-        new QueryWrapper()
-            .in(DungeonInstance::getLeaderId, leaderIds)
-            .eq(DungeonInstance::getDungeonId, dungeonId)
-            .eq(DungeonInstance::getStatus, status);
+        QueryWrapper.create()
+            .where(DUNGEON_INSTANCE.LEADER_ID.in(leaderIds))
+            .and(DUNGEON_INSTANCE.DUNGEON_ID.eq(dungeonId))
+            .and(DUNGEON_INSTANCE.STATUS.eq(status));
     return mapper.selectListByQuery(qw);
   }
 

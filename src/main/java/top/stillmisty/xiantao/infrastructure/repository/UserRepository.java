@@ -1,5 +1,7 @@
 package top.stillmisty.xiantao.infrastructure.repository;
 
+import static top.stillmisty.xiantao.domain.user.entity.table.UserTableDef.USER;
+
 import com.mybatisflex.core.query.QueryWrapper;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,26 +35,26 @@ public class UserRepository {
   }
 
   public boolean existsByNickname(String nickname) {
-    QueryWrapper query = new QueryWrapper().eq(User::getNickname, nickname);
+    QueryWrapper query = QueryWrapper.create().where(USER.NICKNAME.eq(nickname));
     return userMapper.selectCountByQuery(query) > 0;
   }
 
   public Optional<User> findByNickname(String nickname) {
-    QueryWrapper query = new QueryWrapper().eq(User::getNickname, nickname);
+    QueryWrapper query = QueryWrapper.create().where(USER.NICKNAME.eq(nickname));
     return Optional.ofNullable(userMapper.selectOneByQuery(query));
   }
 
   public List<User> findTopByLevel(int limit) {
     QueryWrapper query =
-        new QueryWrapper().orderBy(User::getLevel, true).orderBy(User::getExp, true).limit(limit);
+        QueryWrapper.create().orderBy(USER.LEVEL.asc()).orderBy(USER.EXP.asc()).limit(limit);
     return userMapper.selectListByQuery(query);
   }
 
   public List<User> findTopBySpiritStones(int limit) {
     QueryWrapper query =
-        new QueryWrapper()
-            .orderBy(User::getSpiritStones, true)
-            .orderBy(User::getLevel, true)
+        QueryWrapper.create()
+            .orderBy(USER.SPIRIT_STONES.asc())
+            .orderBy(USER.LEVEL.asc())
             .limit(limit);
     return userMapper.selectListByQuery(query);
   }

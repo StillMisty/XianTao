@@ -1,5 +1,7 @@
 package top.stillmisty.xiantao.infrastructure.repository;
 
+import static top.stillmisty.xiantao.domain.sect.entity.table.SectTaskProgressTableDef.SECT_TASK_PROGRESS;
+
 import com.mybatisflex.core.query.QueryWrapper;
 import java.util.List;
 import java.util.Optional;
@@ -24,25 +26,25 @@ public class SectTaskProgressRepository {
   }
 
   public List<SectTaskProgress> findByTaskId(Long taskId) {
-    QueryWrapper query = new QueryWrapper().eq(SectTaskProgress::getTaskId, taskId);
+    QueryWrapper query = QueryWrapper.create().where(SECT_TASK_PROGRESS.TASK_ID.eq(taskId));
     return mapper.selectListByQuery(query);
   }
 
   public Optional<SectTaskProgress> findByTaskIdAndUserId(Long taskId, Long userId) {
     QueryWrapper query =
-        new QueryWrapper()
-            .eq(SectTaskProgress::getTaskId, taskId)
-            .eq(SectTaskProgress::getUserId, userId);
+        QueryWrapper.create()
+            .where(SECT_TASK_PROGRESS.TASK_ID.eq(taskId))
+            .and(SECT_TASK_PROGRESS.USER_ID.eq(userId));
     return Optional.ofNullable(mapper.selectOneByQuery(query));
   }
 
   public void deleteByTaskId(Long taskId) {
-    QueryWrapper query = new QueryWrapper().eq(SectTaskProgress::getTaskId, taskId);
+    QueryWrapper query = QueryWrapper.create().where(SECT_TASK_PROGRESS.TASK_ID.eq(taskId));
     mapper.deleteByQuery(query);
   }
 
   public void deleteByUserId(Long userId) {
-    QueryWrapper query = new QueryWrapper().eq(SectTaskProgress::getUserId, userId);
+    QueryWrapper query = QueryWrapper.create().where(SECT_TASK_PROGRESS.USER_ID.eq(userId));
     mapper.deleteByQuery(query);
   }
 }

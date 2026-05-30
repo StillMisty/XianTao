@@ -1,5 +1,7 @@
 package top.stillmisty.xiantao.infrastructure.repository;
 
+import static top.stillmisty.xiantao.domain.sect.entity.table.SectShopItemTableDef.SECT_SHOP_ITEM;
+
 import com.mybatisflex.core.query.QueryWrapper;
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +26,7 @@ public class SectShopItemRepository {
   }
 
   public List<SectShopItem> findBySectId(Long sectId) {
-    QueryWrapper query = new QueryWrapper().eq(SectShopItem::getSectId, sectId);
+    QueryWrapper query = QueryWrapper.create().where(SECT_SHOP_ITEM.SECT_ID.eq(sectId));
     return sectShopItemMapper.selectListByQuery(query);
   }
 
@@ -33,7 +35,7 @@ public class SectShopItemRepository {
   }
 
   public void deleteBySectId(Long sectId) {
-    QueryWrapper query = new QueryWrapper().eq(SectShopItem::getSectId, sectId);
+    QueryWrapper query = QueryWrapper.create().where(SECT_SHOP_ITEM.SECT_ID.eq(sectId));
     sectShopItemMapper.deleteByQuery(query);
   }
 }

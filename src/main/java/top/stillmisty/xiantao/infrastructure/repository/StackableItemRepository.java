@@ -1,5 +1,7 @@
 package top.stillmisty.xiantao.infrastructure.repository;
 
+import static top.stillmisty.xiantao.domain.item.entity.table.StackableItemTableDef.STACKABLE_ITEM;
+
 import com.mybatisflex.core.query.QueryWrapper;
 import java.util.List;
 import java.util.Optional;
@@ -25,33 +27,33 @@ public class StackableItemRepository {
   }
 
   public List<StackableItem> findByUserId(Long userId) {
-    QueryWrapper query = new QueryWrapper().eq(StackableItem::getUserId, userId);
+    QueryWrapper query = QueryWrapper.create().where(STACKABLE_ITEM.USER_ID.eq(userId));
     return stackableItemMapper.selectListByQuery(query);
   }
 
   public Optional<StackableItem> findByUserIdAndTemplateId(Long userId, Long templateId) {
     QueryWrapper query =
-        new QueryWrapper()
-            .eq(StackableItem::getUserId, userId)
-            .eq(StackableItem::getTemplateId, templateId);
+        QueryWrapper.create()
+            .where(STACKABLE_ITEM.USER_ID.eq(userId))
+            .and(STACKABLE_ITEM.TEMPLATE_ID.eq(templateId));
     return Optional.ofNullable(stackableItemMapper.selectOneByQuery(query));
   }
 
   public Optional<StackableItem> findByUserIdAndTemplateIdAndPropertiesHash(
       Long userId, Long templateId, int propertiesHash) {
     QueryWrapper query =
-        new QueryWrapper()
-            .eq(StackableItem::getUserId, userId)
-            .eq(StackableItem::getTemplateId, templateId)
-            .eq(StackableItem::getPropertiesHash, propertiesHash);
+        QueryWrapper.create()
+            .where(STACKABLE_ITEM.USER_ID.eq(userId))
+            .and(STACKABLE_ITEM.TEMPLATE_ID.eq(templateId))
+            .and(STACKABLE_ITEM.PROPERTIES_HASH.eq(propertiesHash));
     return Optional.ofNullable(stackableItemMapper.selectOneByQuery(query));
   }
 
   public List<StackableItem> findByUserIdAndType(Long userId, ItemType type) {
     QueryWrapper query =
-        new QueryWrapper()
-            .eq(StackableItem::getUserId, userId)
-            .eq(StackableItem::getItemType, type);
+        QueryWrapper.create()
+            .where(STACKABLE_ITEM.USER_ID.eq(userId))
+            .and(STACKABLE_ITEM.ITEM_TYPE.eq(type));
     return stackableItemMapper.selectListByQuery(query);
   }
 
@@ -61,7 +63,9 @@ public class StackableItemRepository {
 
   public List<StackableItem> findByUserIdAndNameContaining(Long userId, String name) {
     QueryWrapper query =
-        new QueryWrapper().eq(StackableItem::getUserId, userId).like(StackableItem::getName, name);
+        QueryWrapper.create()
+            .where(STACKABLE_ITEM.USER_ID.eq(userId))
+            .and(STACKABLE_ITEM.NAME.like(name));
     return stackableItemMapper.selectListByQuery(query);
   }
 

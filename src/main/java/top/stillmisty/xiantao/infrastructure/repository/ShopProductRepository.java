@@ -1,5 +1,7 @@
 package top.stillmisty.xiantao.infrastructure.repository;
 
+import static top.stillmisty.xiantao.domain.shop.entity.table.ShopProductTableDef.SHOP_PRODUCT;
+
 import com.mybatisflex.core.query.QueryWrapper;
 import java.util.List;
 import java.util.Optional;
@@ -25,15 +27,15 @@ public class ShopProductRepository {
 
   public List<ShopProduct> findByShopNpcId(Long shopNpcId) {
     return shopProductMapper.selectListByQuery(
-        new QueryWrapper().eq(ShopProduct::getShopNpcId, shopNpcId));
+        QueryWrapper.create().where(SHOP_PRODUCT.SHOP_NPC_ID.eq(shopNpcId)));
   }
 
   public Optional<ShopProduct> findByShopNpcIdAndTemplateId(Long shopNpcId, Long templateId) {
     return Optional.ofNullable(
         shopProductMapper.selectOneByQuery(
-            new QueryWrapper()
-                .eq(ShopProduct::getShopNpcId, shopNpcId)
-                .eq(ShopProduct::getTemplateId, templateId)));
+            QueryWrapper.create()
+                .where(SHOP_PRODUCT.SHOP_NPC_ID.eq(shopNpcId))
+                .and(SHOP_PRODUCT.TEMPLATE_ID.eq(templateId))));
   }
 
   public void deleteById(Long id) {

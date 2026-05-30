@@ -27,7 +27,7 @@ public class EquipmentTemplateRepository {
 
   public List<EquipmentTemplate> findByIds(List<Long> ids) {
     if (ids == null || ids.isEmpty()) return List.of();
-    return mapper.selectListByQuery(QueryWrapper.create().in("id", ids));
+    return mapper.selectListByQuery(QueryWrapper.create().where(EQUIPMENT_TEMPLATE.ID.in(ids)));
   }
 
   public List<EquipmentTemplate> findAll() {

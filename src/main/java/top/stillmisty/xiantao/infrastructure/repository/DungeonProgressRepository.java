@@ -1,5 +1,7 @@
 package top.stillmisty.xiantao.infrastructure.repository;
 
+import static top.stillmisty.xiantao.domain.dungeon.entity.table.DungeonProgressTableDef.DUNGEON_PROGRESS;
+
 import com.mybatisflex.core.query.QueryWrapper;
 import java.util.List;
 import java.util.Optional;
@@ -21,18 +23,18 @@ public class DungeonProgressRepository {
 
   public Optional<DungeonProgress> findByUserIdAndDungeonId(Long userId, Long dungeonId) {
     QueryWrapper qw =
-        new QueryWrapper()
-            .eq(DungeonProgress::getUserId, userId)
-            .eq(DungeonProgress::getDungeonId, dungeonId);
+        QueryWrapper.create()
+            .where(DUNGEON_PROGRESS.USER_ID.eq(userId))
+            .and(DUNGEON_PROGRESS.DUNGEON_ID.eq(dungeonId));
     return Optional.ofNullable(mapper.selectOneByQuery(qw));
   }
 
   public List<DungeonProgress> findByUserIdAndDungeonIds(Long userId, List<Long> dungeonIds) {
     if (dungeonIds == null || dungeonIds.isEmpty()) return List.of();
     QueryWrapper qw =
-        new QueryWrapper()
-            .eq(DungeonProgress::getUserId, userId)
-            .in(DungeonProgress::getDungeonId, dungeonIds);
+        QueryWrapper.create()
+            .where(DUNGEON_PROGRESS.USER_ID.eq(userId))
+            .and(DUNGEON_PROGRESS.DUNGEON_ID.in(dungeonIds));
     return mapper.selectListByQuery(qw);
   }
 }

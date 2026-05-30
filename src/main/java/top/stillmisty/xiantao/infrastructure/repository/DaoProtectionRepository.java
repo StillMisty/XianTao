@@ -1,5 +1,7 @@
 package top.stillmisty.xiantao.infrastructure.repository;
 
+import static top.stillmisty.xiantao.domain.user.entity.table.DaoProtectionTableDef.DAO_PROTECTION;
+
 import com.mybatisflex.core.query.QueryWrapper;
 import java.util.List;
 import java.util.Optional;
@@ -25,20 +27,20 @@ public class DaoProtectionRepository {
   }
 
   public List<DaoProtection> findByProtectorId(Long protectorId) {
-    QueryWrapper query = new QueryWrapper().eq(DaoProtection::getProtectorId, protectorId);
+    QueryWrapper query = QueryWrapper.create().where(DAO_PROTECTION.PROTECTOR_ID.eq(protectorId));
     return daoProtectionMapper.selectListByQuery(query);
   }
 
   public List<DaoProtection> findByProtegeId(Long protegeId) {
-    QueryWrapper query = new QueryWrapper().eq(DaoProtection::getProtegeId, protegeId);
+    QueryWrapper query = QueryWrapper.create().where(DAO_PROTECTION.PROTEGE_ID.eq(protegeId));
     return daoProtectionMapper.selectListByQuery(query);
   }
 
   public Optional<DaoProtection> findByProtectorAndProtege(Long protectorId, Long protegeId) {
     QueryWrapper query =
-        new QueryWrapper()
-            .eq(DaoProtection::getProtectorId, protectorId)
-            .eq(DaoProtection::getProtegeId, protegeId);
+        QueryWrapper.create()
+            .where(DAO_PROTECTION.PROTECTOR_ID.eq(protectorId))
+            .and(DAO_PROTECTION.PROTEGE_ID.eq(protegeId));
     return Optional.ofNullable(daoProtectionMapper.selectOneByQuery(query));
   }
 
@@ -47,12 +49,12 @@ public class DaoProtectionRepository {
   }
 
   public void deleteByProtegeId(Long protegeId) {
-    QueryWrapper query = new QueryWrapper().eq(DaoProtection::getProtegeId, protegeId);
+    QueryWrapper query = QueryWrapper.create().where(DAO_PROTECTION.PROTEGE_ID.eq(protegeId));
     daoProtectionMapper.deleteByQuery(query);
   }
 
   public long countByProtectorId(Long protectorId) {
-    QueryWrapper query = new QueryWrapper().eq(DaoProtection::getProtectorId, protectorId);
+    QueryWrapper query = QueryWrapper.create().where(DAO_PROTECTION.PROTECTOR_ID.eq(protectorId));
     return daoProtectionMapper.selectCountByQuery(query);
   }
 }

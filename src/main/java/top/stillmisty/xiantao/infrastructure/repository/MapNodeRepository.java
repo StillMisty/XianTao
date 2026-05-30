@@ -1,5 +1,7 @@
 package top.stillmisty.xiantao.infrastructure.repository;
 
+import static top.stillmisty.xiantao.domain.map.entity.table.MapNodeTableDef.MAP_NODE;
+
 import com.mybatisflex.core.query.QueryWrapper;
 import java.util.List;
 import java.util.Optional;
@@ -31,7 +33,7 @@ public class MapNodeRepository {
 
   @Cacheable(value = "mapNodes", key = "'name:' + #name")
   public Optional<MapNode> findByName(String name) {
-    QueryWrapper query = new QueryWrapper().eq(MapNode::getName, name);
+    QueryWrapper query = QueryWrapper.create().where(MAP_NODE.NAME.eq(name));
     return Optional.ofNullable(mapNodeMapper.selectOneByQuery(query));
   }
 
@@ -42,7 +44,7 @@ public class MapNodeRepository {
 
   @Cacheable(value = "mapNodes", key = "'type:' + #mapType.code")
   public List<MapNode> findByType(MapType mapType) {
-    QueryWrapper query = new QueryWrapper().eq(MapNode::getMapType, mapType);
+    QueryWrapper query = QueryWrapper.create().where(MAP_NODE.MAP_TYPE.eq(mapType));
     return mapNodeMapper.selectListByQuery(query);
   }
 

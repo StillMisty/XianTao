@@ -1,5 +1,7 @@
 package top.stillmisty.xiantao.infrastructure.repository;
 
+import static top.stillmisty.xiantao.domain.shop.entity.table.ShopSpecialOrderTableDef.SHOP_SPECIAL_ORDER;
+
 import com.mybatisflex.core.query.QueryWrapper;
 import java.util.List;
 import java.util.Optional;
@@ -26,14 +28,14 @@ public class ShopSpecialOrderRepository {
 
   public List<ShopSpecialOrder> findByPlayerId(Long playerId) {
     return shopSpecialOrderMapper.selectListByQuery(
-        new QueryWrapper().eq(ShopSpecialOrder::getPlayerId, playerId));
+        QueryWrapper.create().where(SHOP_SPECIAL_ORDER.PLAYER_ID.eq(playerId)));
   }
 
   public List<ShopSpecialOrder> findByPlayerIdAndStatus(Long playerId, SpecialOrderStatus status) {
     return shopSpecialOrderMapper.selectListByQuery(
-        new QueryWrapper()
-            .eq(ShopSpecialOrder::getPlayerId, playerId)
-            .eq(ShopSpecialOrder::getStatus, status));
+        QueryWrapper.create()
+            .where(SHOP_SPECIAL_ORDER.PLAYER_ID.eq(playerId))
+            .and(SHOP_SPECIAL_ORDER.STATUS.eq(status)));
   }
 
   public void deleteById(Long id) {

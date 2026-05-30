@@ -3,19 +3,18 @@ package top.stillmisty.xiantao.domain.sect.entity;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
-import com.mybatisflex.core.activerecord.Model;
 import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode
 @Table("xt_sect_task_progress")
 @Accessors(chain = true)
 @Data
 @NoArgsConstructor
-public class SectTaskProgress extends Model<SectTaskProgress> {
+public class SectTaskProgress {
 
   public static SectTaskProgress create() {
     return new SectTaskProgress();

@@ -1,5 +1,7 @@
 package top.stillmisty.xiantao.infrastructure.repository;
 
+import static top.stillmisty.xiantao.domain.user.entity.table.UserAuthTableDef.USER_AUTH;
+
 import com.mybatisflex.core.query.QueryWrapper;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -18,9 +20,9 @@ public class UserAuthRepository {
   @Cacheable(value = "userAuth", key = "#platform.code + ':' + #openId")
   public Optional<UserAuth> findByPlatformAndOpenId(PlatformType platform, String openId) {
     QueryWrapper query =
-        new QueryWrapper()
-            .eq(UserAuth::getPlatform, platform)
-            .eq(UserAuth::getPlatformOpenId, openId);
+        QueryWrapper.create()
+            .where(USER_AUTH.PLATFORM.eq(platform))
+            .and(USER_AUTH.PLATFORM_OPEN_ID.eq(openId));
     return Optional.ofNullable(userAuthMapper.selectOneByQuery(query));
   }
 

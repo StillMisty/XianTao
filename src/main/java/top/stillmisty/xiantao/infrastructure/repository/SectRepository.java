@@ -1,5 +1,7 @@
 package top.stillmisty.xiantao.infrastructure.repository;
 
+import static top.stillmisty.xiantao.domain.sect.entity.table.SectTableDef.SECT;
+
 import com.mybatisflex.core.query.QueryWrapper;
 import java.util.List;
 import java.util.Optional;
@@ -24,12 +26,12 @@ public class SectRepository {
   }
 
   public Optional<Sect> findByName(String name) {
-    QueryWrapper query = new QueryWrapper().eq(Sect::getName, name);
+    QueryWrapper query = QueryWrapper.create().where(SECT.NAME.eq(name));
     return Optional.ofNullable(sectMapper.selectOneByQuery(query));
   }
 
   public Optional<Sect> findByLeaderId(Long leaderId) {
-    QueryWrapper query = new QueryWrapper().eq(Sect::getLeaderId, leaderId);
+    QueryWrapper query = QueryWrapper.create().where(SECT.LEADER_ID.eq(leaderId));
     return Optional.ofNullable(sectMapper.selectOneByQuery(query));
   }
 

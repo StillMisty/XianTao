@@ -4,7 +4,6 @@ import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
-import com.mybatisflex.core.activerecord.Model;
 import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,12 +11,12 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import top.stillmisty.xiantao.domain.sect.enums.SectPosition;
 
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode
 @Table("xt_sect_member")
 @Accessors(chain = true)
 @Data
 @NoArgsConstructor
-public class SectMember extends Model<SectMember> {
+public class SectMember {
 
   public static SectMember create() {
     return new SectMember();

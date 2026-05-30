@@ -4,7 +4,6 @@ import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
-import com.mybatisflex.core.activerecord.Model;
 import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,12 +11,12 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /** 福地核心实体 */
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode
 @Table("xt_fudi")
 @Accessors(chain = true)
 @Data
 @NoArgsConstructor
-public class Fudi extends Model<Fudi> {
+public class Fudi {
 
   public static Fudi create() {
     return new Fudi();

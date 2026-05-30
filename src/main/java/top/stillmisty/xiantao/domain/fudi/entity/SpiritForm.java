@@ -4,7 +4,6 @@ import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
-import com.mybatisflex.core.activerecord.Model;
 import java.util.Set;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,12 +12,12 @@ import lombok.experimental.Accessors;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
 
 /** 地灵形态定义实体 */
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode
 @Table("xt_spirit_form")
 @Accessors(chain = true)
 @Data
 @NoArgsConstructor
-public class SpiritForm extends Model<SpiritForm> {
+public class SpiritForm {
 
   @Id(keyType = KeyType.Auto)
   private Long id;

@@ -4,7 +4,6 @@ import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
-import com.mybatisflex.core.activerecord.Model;
 import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,12 +12,12 @@ import lombok.experimental.Accessors;
 import top.stillmisty.xiantao.domain.masterapprentice.enums.MasterApprenticeStatus;
 
 /** 师徒关系实体 */
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode
 @Table("master_apprentice")
 @Accessors(chain = true)
 @Data
 @NoArgsConstructor
-public class MasterApprentice extends Model<MasterApprentice> {
+public class MasterApprentice {
 
   public static MasterApprentice create() {
     return new MasterApprentice();

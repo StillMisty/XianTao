@@ -1,5 +1,7 @@
 package top.stillmisty.xiantao.infrastructure.repository;
 
+import static top.stillmisty.xiantao.domain.masterapprentice.entity.table.MasterApprenticeTableDef.MASTER_APPRENTICE;
+
 import com.mybatisflex.core.query.QueryWrapper;
 import java.util.List;
 import java.util.Optional;
@@ -24,20 +26,21 @@ public class MasterApprenticeRepository {
   }
 
   public Optional<MasterApprentice> findByApprenticeId(Long apprenticeId) {
-    QueryWrapper query = new QueryWrapper().eq(MasterApprentice::getApprenticeId, apprenticeId);
+    QueryWrapper query =
+        QueryWrapper.create().where(MASTER_APPRENTICE.APPRENTICE_ID.eq(apprenticeId));
     return Optional.ofNullable(masterApprenticeMapper.selectOneByQuery(query));
   }
 
   public List<MasterApprentice> findByMasterId(Long masterId) {
-    QueryWrapper query = new QueryWrapper().eq(MasterApprentice::getMasterId, masterId);
+    QueryWrapper query = QueryWrapper.create().where(MASTER_APPRENTICE.MASTER_ID.eq(masterId));
     return masterApprenticeMapper.selectListByQuery(query);
   }
 
   public long countActiveByMasterId(Long masterId) {
     QueryWrapper query =
-        new QueryWrapper()
-            .eq(MasterApprentice::getMasterId, masterId)
-            .eq(MasterApprentice::getStatus, "ACTIVE");
+        QueryWrapper.create()
+            .where(MASTER_APPRENTICE.MASTER_ID.eq(masterId))
+            .and(MASTER_APPRENTICE.STATUS.eq("ACTIVE"));
     return masterApprenticeMapper.selectCountByQuery(query);
   }
 

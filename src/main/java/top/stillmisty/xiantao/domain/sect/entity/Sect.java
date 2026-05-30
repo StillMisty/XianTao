@@ -4,19 +4,18 @@ import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
-import com.mybatisflex.core.activerecord.Model;
 import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode
 @Table("xt_sect")
 @Accessors(chain = true)
 @Data
 @NoArgsConstructor
-public class Sect extends Model<Sect> {
+public class Sect {
 
   public static Sect create() {
     return new Sect();

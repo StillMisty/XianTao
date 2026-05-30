@@ -4,7 +4,6 @@ import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
-import com.mybatisflex.core.activerecord.Model;
 import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,12 +11,12 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /** 宗门商店商品 */
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode
 @Table("xt_sect_shop_item")
 @Accessors(chain = true)
 @Data
 @NoArgsConstructor
-public class SectShopItem extends Model<SectShopItem> {
+public class SectShopItem {
 
   public static SectShopItem create() {
     return new SectShopItem();

@@ -4,7 +4,6 @@ import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
-import com.mybatisflex.core.activerecord.Model;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Data;
@@ -14,11 +13,11 @@ import top.stillmisty.xiantao.domain.map.enums.MapType;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
 
 /** 地图节点实体 */
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode
 @Table("xt_map_node")
 @Data
 @NoArgsConstructor
-public class MapNode extends Model<MapNode> {
+public class MapNode {
 
   /** 地图 ID */
   @Id(keyType = KeyType.Auto)

@@ -1,5 +1,7 @@
 package top.stillmisty.xiantao.infrastructure.repository;
 
+import static top.stillmisty.xiantao.domain.sect.entity.table.SectTaskTableDef.SECT_TASK;
+
 import com.mybatisflex.core.query.QueryWrapper;
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +26,7 @@ public class SectTaskRepository {
   }
 
   public List<SectTask> findBySectId(Long sectId) {
-    QueryWrapper query = new QueryWrapper().eq(SectTask::getSectId, sectId);
+    QueryWrapper query = QueryWrapper.create().where(SECT_TASK.SECT_ID.eq(sectId));
     return mapper.selectListByQuery(query);
   }
 
@@ -33,7 +35,7 @@ public class SectTaskRepository {
   }
 
   public void deleteBySectId(Long sectId) {
-    QueryWrapper query = new QueryWrapper().eq(SectTask::getSectId, sectId);
+    QueryWrapper query = QueryWrapper.create().where(SECT_TASK.SECT_ID.eq(sectId));
     mapper.deleteByQuery(query);
   }
 }

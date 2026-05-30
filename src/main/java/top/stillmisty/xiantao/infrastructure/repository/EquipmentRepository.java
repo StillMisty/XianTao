@@ -1,5 +1,7 @@
 package top.stillmisty.xiantao.infrastructure.repository;
 
+import static top.stillmisty.xiantao.domain.item.entity.table.EquipmentTableDef.EQUIPMENT;
+
 import com.mybatisflex.core.query.QueryWrapper;
 import java.util.List;
 import java.util.Optional;
@@ -25,28 +27,28 @@ public class EquipmentRepository {
   }
 
   public List<Equipment> findByUserId(Long userId) {
-    QueryWrapper query = new QueryWrapper().eq(Equipment::getUserId, userId);
+    QueryWrapper query = QueryWrapper.create().where(EQUIPMENT.USER_ID.eq(userId));
     return equipmentMapper.selectListByQuery(query);
   }
 
   public List<Equipment> findUnequippedByUserId(Long userId) {
     QueryWrapper query =
-        new QueryWrapper().eq(Equipment::getUserId, userId).eq(Equipment::getEquipped, false);
+        QueryWrapper.create().where(EQUIPMENT.USER_ID.eq(userId)).and(EQUIPMENT.EQUIPPED.eq(false));
     return equipmentMapper.selectListByQuery(query);
   }
 
   public List<Equipment> findEquippedByUserId(Long userId) {
     QueryWrapper query =
-        new QueryWrapper().eq(Equipment::getUserId, userId).eq(Equipment::getEquipped, true);
+        QueryWrapper.create().where(EQUIPMENT.USER_ID.eq(userId)).and(EQUIPMENT.EQUIPPED.eq(true));
     return equipmentMapper.selectListByQuery(query);
   }
 
   public Optional<Equipment> findEquippedByUserIdAndSlot(Long userId, EquipmentSlot slot) {
     QueryWrapper query =
-        new QueryWrapper()
-            .eq(Equipment::getUserId, userId)
-            .eq(Equipment::getSlot, slot)
-            .eq(Equipment::getEquipped, true);
+        QueryWrapper.create()
+            .where(EQUIPMENT.USER_ID.eq(userId))
+            .and(EQUIPMENT.SLOT.eq(slot))
+            .and(EQUIPMENT.EQUIPPED.eq(true));
     return Optional.ofNullable(equipmentMapper.selectOneByQuery(query));
   }
 

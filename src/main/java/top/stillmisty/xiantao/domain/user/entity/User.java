@@ -4,7 +4,6 @@ import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
-import com.mybatisflex.core.activerecord.Model;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -18,12 +17,12 @@ import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 
 /** 游戏角色核心表实体 */
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode
 @Table("xt_user")
 @Accessors(chain = true)
 @Data
 @NoArgsConstructor
-public class User extends Model<User> {
+public class User {
 
   public static User create() {
     return new User();
