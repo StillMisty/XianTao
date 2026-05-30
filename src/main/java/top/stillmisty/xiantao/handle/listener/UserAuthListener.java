@@ -7,6 +7,7 @@ import love.forte.simbot.quantcat.common.annotations.ContentTrim;
 import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
+import love.forte.simbot.quantcat.common.filter.FilterMode;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.handle.command.UserCommandHandler;
 import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
@@ -22,14 +23,14 @@ public class UserAuthListener {
   @Listener
   @ContentTrim
   @RequireAuth
-  @Filter("改号\\s*{{newNickname}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, value = "改号\\s*{{newNickname}}")
   public void changeNickname(MessageEvent event, @FilterValue("newNickname") String newNickname) {
     replyHelper.dispatch(event, "改号", newNickname, userCommandHandler::handleChangeNickname);
   }
 
   @Listener
   @ContentTrim
-  @Filter("我要修仙\\s*{{nickname}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, value = "我要修仙\\s*{{nickname}}")
   public void register(MessageEvent event, @FilterValue("nickname") String nickname) {
     var platform = ReplyHelper.platformTypeOf(event);
     log.info("[{}] 收到注册请求 - AuthorId: {}, Nickname: {}", platform, event.getAuthorId(), nickname);

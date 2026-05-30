@@ -6,6 +6,7 @@ import love.forte.simbot.quantcat.common.annotations.ContentTrim;
 import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
+import love.forte.simbot.quantcat.common.filter.FilterMode;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.handle.command.InventoryCommandHandler;
 import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
@@ -20,7 +21,7 @@ public class ItemListener {
   @Listener
   @ContentTrim
   @RequireAuth
-  @Filter("背包")
+  @Filter(mode = FilterMode.INTERCEPTOR, value = "背包")
   public void inventory(MessageEvent event) {
     replyHelper.dispatch(event, "背包查询", inventoryCommandHandler::handleInventory);
   }
@@ -28,7 +29,7 @@ public class ItemListener {
   @Listener
   @ContentTrim
   @RequireAuth
-  @Filter("背包\\s*{{category}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, value = "背包\\s*{{category}}")
   public void inventoryByCategory(MessageEvent event, @FilterValue("category") String category) {
     replyHelper.dispatch(
         event, "背包分类", category, inventoryCommandHandler::handleInventoryByCategory);
@@ -37,7 +38,7 @@ public class ItemListener {
   @Listener
   @ContentTrim
   @RequireAuth
-  @Filter("装备\\s*{{itemName}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, value = "装备\\s*{{itemName}}")
   public void equip(MessageEvent event, @FilterValue("itemName") String itemName) {
     replyHelper.dispatch(event, "装备穿戴", itemName, inventoryCommandHandler::handleEquip);
   }
@@ -45,7 +46,7 @@ public class ItemListener {
   @Listener
   @ContentTrim
   @RequireAuth
-  @Filter("卸下\\s*{{slotName}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, value = "卸下\\s*{{slotName}}")
   public void unequip(MessageEvent event, @FilterValue("slotName") String slotName) {
     replyHelper.dispatch(event, "装备卸下", slotName, inventoryCommandHandler::handleUnequip);
   }
@@ -53,7 +54,7 @@ public class ItemListener {
   @Listener
   @ContentTrim
   @RequireAuth
-  @Filter("丢弃\\s*{{itemName}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, value = "丢弃\\s*{{itemName}}")
   public void discard(MessageEvent event, @FilterValue("itemName") String itemName) {
     replyHelper.dispatch(event, "丢弃", itemName, inventoryCommandHandler::handleDiscard);
   }

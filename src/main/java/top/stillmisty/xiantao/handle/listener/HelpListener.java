@@ -6,6 +6,7 @@ import love.forte.simbot.quantcat.common.annotations.ContentTrim;
 import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
+import love.forte.simbot.quantcat.common.filter.FilterMode;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.handle.command.HelpCommandHandler;
 import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
@@ -20,7 +21,7 @@ public class HelpListener {
   @Listener
   @ContentTrim
   @RequireAuth
-  @Filter("帮助")
+  @Filter(mode = FilterMode.INTERCEPTOR, value = "帮助")
   public void help(MessageEvent event) {
     replyHelper.dispatch(event, "帮助", f -> helpCommandHandler.handleHelp("", f));
   }
@@ -28,7 +29,7 @@ public class HelpListener {
   @Listener
   @ContentTrim
   @RequireAuth
-  @Filter("帮助\\s*{{command}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, value = "帮助\\s*{{command}}")
   public void helpDetail(MessageEvent event, @FilterValue("command") String command) {
     replyHelper.dispatch(event, "命令详情", command, helpCommandHandler::handleHelp);
   }

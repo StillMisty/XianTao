@@ -6,6 +6,7 @@ import love.forte.simbot.event.MessageEvent;
 import love.forte.simbot.quantcat.common.interceptor.AnnotationEventInterceptorFactory;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
+import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
 import top.stillmisty.xiantao.service.UserContext;
 
@@ -50,13 +51,23 @@ public class GmInterceptorFactory implements AnnotationEventInterceptorFactory {
         return EventResult.of("AUTH_ERROR: 未登录");
       }
 
-      boolean isGm =
-          userRepository.findById(userId).map(u -> Boolean.TRUE.equals(u.getGm())).orElse(false);
-
-      if (!isGm) {
-        return EventResult.of("BUSINESS_ERROR: 你不是GM，无法执行GM指令");
+      Boolean cachedGm = UserContext.getGmCheck(event);
+      if (cachedGm != null) {
+        if (!cachedGm) {
+          return EventResult.of("BUSINESS_ERROR: 你不是GM，无法执行GM指令");
+        }
+        return context.invoke();
       }
 
+      User user = userRepository.findById(userId).orElse(null);
+      boolean isGm = user != null && Boolean.TRUE.equals(user.getGm());
+
+      Boolean first = UserContext.gmCheckIfAbsent(event, isGm);
+      boolean finalGm = (first != null) ? first : isGm;
+
+      if (!finalGm) {
+        return EventResult.of("BUSINESS_ERROR: 你不是GM，无法执行GM指令");
+      }
       return context.invoke();
     }
   }

@@ -8,6 +8,7 @@ import love.forte.simbot.quantcat.common.annotations.ContentTrim;
 import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
+import love.forte.simbot.quantcat.common.filter.FilterMode;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.handle.command.ForgingCommandHandler;
 import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
@@ -22,7 +23,7 @@ public class ForgingListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter("锻造列表")
+  @Filter(mode = FilterMode.INTERCEPTOR, value = "锻造列表")
   public void recipeList(MessageEvent event) {
     replyHelper.dispatch(event, "锻造列表", forgingCommandHandler::handleForgingRecipeList);
   }
@@ -30,7 +31,7 @@ public class ForgingListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter("锻造\\s*{{input}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, value = "锻造\\s*{{input}}")
   public void forge(MessageEvent event, @FilterValue("input") String input) {
     replyHelper.dispatch(
         event,
@@ -49,7 +50,7 @@ public class ForgingListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter("强化\\s*{{input}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, value = "强化\\s*{{input}}")
   public void enhance(MessageEvent event, @FilterValue("input") String input) {
     replyHelper.dispatch(
         event,

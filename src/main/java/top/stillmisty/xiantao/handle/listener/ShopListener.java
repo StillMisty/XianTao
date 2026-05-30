@@ -6,6 +6,7 @@ import love.forte.simbot.quantcat.common.annotations.ContentTrim;
 import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
+import love.forte.simbot.quantcat.common.filter.FilterMode;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.handle.command.ShopCommandHandler;
 import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
@@ -20,7 +21,7 @@ public class ShopListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter("掌柜\\s*{{content}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, value = "掌柜\\s*{{content}}")
   public void shopkeeper(MessageEvent event, @FilterValue("content") String content) {
     replyHelper.dispatch(event, "掌柜", content, shopCommandHandler::handleShopkeeper);
   }
@@ -28,7 +29,7 @@ public class ShopListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter("回收\\s*{{itemName}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, value = "回收\\s*{{itemName}}")
   public void quickSell(MessageEvent event, @FilterValue("itemName") String itemName) {
     replyHelper.dispatch(event, "回收", itemName, shopCommandHandler::handleQuickSell);
   }

@@ -6,6 +6,7 @@ import love.forte.simbot.quantcat.common.annotations.ContentTrim;
 import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
+import love.forte.simbot.quantcat.common.filter.FilterMode;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.handle.command.DungeonCommandHandler;
 import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
@@ -20,7 +21,7 @@ public class DungeonListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter("秘境")
+  @Filter(mode = FilterMode.INTERCEPTOR, value = "秘境")
   public void dungeonList(MessageEvent event) {
     replyHelper.dispatch(event, "秘境列表", dungeonCommandHandler::handleDungeon);
   }
@@ -28,7 +29,7 @@ public class DungeonListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter("秘境\\s*{{dungeonName}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, value = "秘境\\s*{{dungeonName}}")
   public void dungeonEnter(MessageEvent event, @FilterValue("dungeonName") String dungeonName) {
     replyHelper.dispatch(event, "进入秘境", dungeonName, dungeonCommandHandler::handleDungeonEnter);
   }
@@ -36,7 +37,7 @@ public class DungeonListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter("秘境探索")
+  @Filter(mode = FilterMode.INTERCEPTOR, value = "秘境探索")
   public void dungeonExplore(MessageEvent event) {
     replyHelper.dispatch(event, "秘境探索", dungeonCommandHandler::handleDungeonExplore);
   }
@@ -44,7 +45,7 @@ public class DungeonListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter("秘境继续")
+  @Filter(mode = FilterMode.INTERCEPTOR, value = "秘境继续")
   public void dungeonContinue(MessageEvent event) {
     replyHelper.dispatch(event, "秘境继续", dungeonCommandHandler::handleDungeonContinue);
   }
@@ -52,7 +53,7 @@ public class DungeonListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter("秘境撤退")
+  @Filter(mode = FilterMode.INTERCEPTOR, value = "秘境撤退")
   public void dungeonRetreat(MessageEvent event) {
     replyHelper.dispatch(event, "秘境撤退", dungeonCommandHandler::handleDungeonRetreat);
   }

@@ -5,6 +5,7 @@ import love.forte.simbot.event.MessageEvent;
 import love.forte.simbot.quantcat.common.annotations.ContentTrim;
 import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.Listener;
+import love.forte.simbot.quantcat.common.filter.FilterMode;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.handle.command.StatusCommandHandler;
 import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
@@ -19,7 +20,7 @@ public class StatusListener {
   @Listener
   @ContentTrim
   @RequireAuth
-  @Filter("状态")
+  @Filter(mode = FilterMode.INTERCEPTOR, value = "状态")
   public void status(MessageEvent event) {
     replyHelper.dispatch(event, "状态查询", statusCommandHandler::handleStatus);
   }

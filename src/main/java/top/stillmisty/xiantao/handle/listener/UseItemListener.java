@@ -6,6 +6,7 @@ import love.forte.simbot.quantcat.common.annotations.ContentTrim;
 import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
+import love.forte.simbot.quantcat.common.filter.FilterMode;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.handle.command.UseItemCommandHandler;
 import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
@@ -20,7 +21,7 @@ public class UseItemListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter("使用\\s*{{itemName}}\\s+{{args}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, value = "使用\\s*{{itemName}}\\s+{{args}}")
   public void useItemWithArgs(
       MessageEvent event,
       @FilterValue("itemName") String itemName,
@@ -32,7 +33,7 @@ public class UseItemListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter("使用\\s*{{itemName}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, value = "使用\\s*{{itemName}}")
   public void useItem(MessageEvent event, @FilterValue("itemName") String itemName) {
     replyHelper.dispatch(
         event, "使用物品", fmt -> useItemCommandHandler.handleUseItem(itemName, "", fmt));

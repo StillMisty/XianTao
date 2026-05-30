@@ -6,6 +6,7 @@ import love.forte.simbot.quantcat.common.annotations.ContentTrim;
 import love.forte.simbot.quantcat.common.annotations.Filter;
 import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
+import love.forte.simbot.quantcat.common.filter.FilterMode;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.handle.command.WorldEventCommandHandler;
 import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
@@ -20,7 +21,7 @@ public class WorldEventListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter("世界事件")
+  @Filter(mode = FilterMode.INTERCEPTOR, value = "世界事件")
   public void listEvents(MessageEvent event) {
     replyHelper.dispatch(event, "世界事件列表", worldEventCommandHandler::handleListEvents);
   }
@@ -28,7 +29,7 @@ public class WorldEventListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter("参与事件\\s*{{eventId,\\d+}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, value = "参与事件\\s*{{eventId,\\d+}}")
   public void joinEvent(MessageEvent event, @FilterValue("eventId") String eventId) {
     replyHelper.dispatch(event, "参与世界事件", eventId, worldEventCommandHandler::handleJoinEvent);
   }

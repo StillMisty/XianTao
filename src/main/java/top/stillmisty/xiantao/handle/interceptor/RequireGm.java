@@ -9,5 +9,5 @@ import love.forte.simbot.quantcat.common.annotations.Interceptor;
 /** 要求GM权限的注解 标记在监听方法上，表示该方法需要GM权限才能执行 */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-@Interceptor(GmInterceptorFactory.class)
+@Interceptor(value = GmInterceptorFactory.class, priority = 200)
 public @interface RequireGm {}

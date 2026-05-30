@@ -52,6 +52,12 @@ public class AuthInterceptorFactory implements AnnotationEventInterceptorFactory
         return context.invoke();
       }
 
+      // 同一事件已被之前某个 @RequireAuth 拦截器认证过，跳过
+      Long existing = UserContext.retrieveFromEvent(messageEvent);
+      if (existing != null) {
+        return context.invoke();
+      }
+
       var handler = platformRegistry.getHandler(messageEvent);
       var platform = handler.getPlatformType();
       var openId = handler.extractOpenId(messageEvent);
@@ -63,14 +69,8 @@ public class AuthInterceptorFactory implements AnnotationEventInterceptorFactory
 
       Long userId = ((ServiceResult.Success<Long>) auth).data();
 
-      // ScopedValue 无法跨越 coroutine dispatch（IO 线程），
-      // 因此暂存到事件映射中，由 ReplyHelper.dispatch() 在 IO 线程上绑定。
-      UserContext.bindForEvent(messageEvent, userId);
-      try {
-        return context.invoke();
-      } finally {
-        UserContext.unbindForEvent(messageEvent);
-      }
+      UserContext.bindIfAbsent(messageEvent, userId);
+      return context.invoke();
     }
   }
 }
