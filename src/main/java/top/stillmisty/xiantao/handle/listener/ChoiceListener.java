@@ -21,7 +21,7 @@ public class ChoiceListener {
   @Listener
   @ContentTrim
   @RequireAuth
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "选\\s*{{choice}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "选\\s*{{choice}}")
   public void choice(MessageEvent event, @FilterValue("choice") String choice) {
     replyHelper.dispatch(event, "选择", choice, choiceCommandHandler::handleChoice);
   }

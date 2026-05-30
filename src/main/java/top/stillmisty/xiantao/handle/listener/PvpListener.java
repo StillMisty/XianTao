@@ -20,7 +20,7 @@ public class PvpListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "切磋\\s*{{targetNickname}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "切磋\\s*{{targetNickname}}")
   public void spar(MessageEvent event, @FilterValue("targetNickname") String targetNickname) {
     replyHelper.dispatch(event, "切磋", targetNickname, pvpCommandHandler::handleSpar);
   }

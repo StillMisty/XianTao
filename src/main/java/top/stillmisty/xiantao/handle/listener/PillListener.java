@@ -22,7 +22,7 @@ public class PillListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "丹方")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "丹方")
   public void recipeList(MessageEvent event) {
     replyHelper.dispatch(event, "丹方列表", pillCommandHandler::handleRecipeList);
   }
@@ -30,7 +30,7 @@ public class PillListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "丹方\\s*{{recipeName}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "丹方\\s*{{recipeName}}")
   public void recipeDetail(MessageEvent event, @FilterValue("recipeName") String recipeName) {
     replyHelper.dispatch(event, "丹方详情", recipeName, pillCommandHandler::handleRecipeDetail);
   }
@@ -38,7 +38,7 @@ public class PillListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "炼方\\s*{{recipeName}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "炼方\\s*{{recipeName}}")
   public void refineAuto(MessageEvent event, @FilterValue("recipeName") String recipeName) {
     replyHelper.dispatch(event, "自动炼丹", recipeName, pillCommandHandler::handleRefineAuto);
   }
@@ -46,7 +46,7 @@ public class PillListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "炼\\s*{{herbInput}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "炼\\s*{{herbInput}}")
   public void refineManual(MessageEvent event, @FilterValue("herbInput") String herbInput) {
     List<String> herbInputs = Arrays.asList(herbInput.split("\\s+"));
     replyHelper.dispatch(

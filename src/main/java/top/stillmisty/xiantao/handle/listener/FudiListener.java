@@ -21,7 +21,7 @@ public class FudiListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "福地")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "福地")
   public void handleFudi(MessageEvent event) {
     replyHelper.dispatch(event, "福地", fudiCommandHandler::handleFudiStatus);
   }
@@ -29,7 +29,7 @@ public class FudiListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "福地地块")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "福地地块")
   public void handleFudiGrid(MessageEvent event) {
     replyHelper.dispatch(event, "福地地块", fudiCommandHandler::handleFudiGrid);
   }
@@ -37,7 +37,7 @@ public class FudiListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "地灵\\s*{{content}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "地灵\\s*{{content}}")
   public void handleFudiSpirit(MessageEvent event, @FilterValue("content") String content) {
     replyHelper.dispatch(event, "地灵对话", content, fudiCommandHandler::handleSpiritChat);
   }
@@ -45,7 +45,7 @@ public class FudiListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "福地渡劫")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "福地渡劫")
   public void handleFudiTribulation(MessageEvent event) {
     replyHelper.dispatch(event, "福地渡劫", fudiCommandHandler::handleTriggerTribulation);
   }

@@ -20,7 +20,7 @@ public class SkillListener {
   @Listener
   @ContentTrim
   @RequireAuth
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "法决装载\\s*{{skill}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "法决装载\\s*{{skill}}")
   public void equipSkill(MessageEvent event, @FilterValue("skill") String skill) {
     replyHelper.dispatch(event, "法决装载", skill, skillCommandHandler::handleEquipSkill);
   }
@@ -28,7 +28,7 @@ public class SkillListener {
   @Listener
   @ContentTrim
   @RequireAuth
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "法决卸下\\s*{{skill}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "法决卸下\\s*{{skill}}")
   public void unequipSkill(MessageEvent event, @FilterValue("skill") String skill) {
     replyHelper.dispatch(event, "法决卸下", skill, skillCommandHandler::handleUnequipSkill);
   }
@@ -36,7 +36,7 @@ public class SkillListener {
   @Listener
   @ContentTrim
   @RequireAuth
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "法决")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "法决")
   public void skills(MessageEvent event) {
     replyHelper.dispatch(event, "法决查询", skillCommandHandler::handleSkills);
   }

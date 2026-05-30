@@ -23,7 +23,7 @@ public class ForgingListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "锻造列表")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "锻造列表")
   public void recipeList(MessageEvent event) {
     replyHelper.dispatch(event, "锻造列表", forgingCommandHandler::handleForgingRecipeList);
   }
@@ -31,7 +31,7 @@ public class ForgingListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "锻造\\s*{{input}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "锻造\\s*{{input}}")
   public void forge(MessageEvent event, @FilterValue("input") String input) {
     replyHelper.dispatch(
         event,
@@ -50,7 +50,7 @@ public class ForgingListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "强化\\s*{{input}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "强化\\s*{{input}}")
   public void enhance(MessageEvent event, @FilterValue("input") String input) {
     replyHelper.dispatch(
         event,

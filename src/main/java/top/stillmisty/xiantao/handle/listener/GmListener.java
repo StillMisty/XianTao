@@ -23,7 +23,7 @@ public class GmListener {
   @RequireGm
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "GM帮助")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "GM帮助")
   public void gmHelp(MessageEvent event) {
     replyHelper.dispatch(event, "GM帮助", gmCommandHandler::handleGmHelp);
   }
@@ -32,7 +32,10 @@ public class GmListener {
   @RequireGm
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "GM给灵石\\s*{{nickname}}\\s+{{amount}}")
+  @Filter(
+      mode = FilterMode.INTERCEPTOR,
+      priority = 50,
+      value = "GM给灵石\\s*{{nickname}}\\s+{{amount}}")
   public void giveSpiritStones(
       MessageEvent event,
       @FilterValue("nickname") String nickname,
@@ -45,7 +48,10 @@ public class GmListener {
   @RequireGm
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "GM给修为\\s*{{nickname}}\\s+{{amount}}")
+  @Filter(
+      mode = FilterMode.INTERCEPTOR,
+      priority = 50,
+      value = "GM给修为\\s*{{nickname}}\\s+{{amount}}")
   public void giveExp(
       MessageEvent event,
       @FilterValue("nickname") String nickname,
@@ -58,7 +64,7 @@ public class GmListener {
   @RequireGm
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "GM治疗\\s*{{nickname}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "GM治疗\\s*{{nickname}}")
   public void healUser(MessageEvent event, @FilterValue("nickname") String nickname) {
     replyHelper.dispatch(event, "GM治疗", nickname, gmCommandHandler::handleHealUser);
   }
@@ -67,7 +73,7 @@ public class GmListener {
   @RequireGm
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "GM复活\\s*{{nickname}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "GM复活\\s*{{nickname}}")
   public void reviveUser(MessageEvent event, @FilterValue("nickname") String nickname) {
     replyHelper.dispatch(event, "GM复活", nickname, gmCommandHandler::handleReviveUser);
   }
@@ -76,7 +82,7 @@ public class GmListener {
   @RequireGm
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "GM等级\\s*{{nickname}}\\s+{{level}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "GM等级\\s*{{nickname}}\\s+{{level}}")
   public void setLevel(
       MessageEvent event,
       @FilterValue("nickname") String nickname,
@@ -89,7 +95,10 @@ public class GmListener {
   @RequireGm
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "GM传送\\s*{{nickname}}\\s+{{locationName}}")
+  @Filter(
+      mode = FilterMode.INTERCEPTOR,
+      priority = 50,
+      value = "GM传送\\s*{{nickname}}\\s+{{locationName}}")
   public void setLocation(
       MessageEvent event,
       @FilterValue("nickname") String nickname,

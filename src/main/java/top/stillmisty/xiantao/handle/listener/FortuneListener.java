@@ -20,7 +20,7 @@ public class FortuneListener {
   @Listener
   @ContentTrim
   @RequireAuth
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "今日运势")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "今日运势")
   public void fortune(MessageEvent event) {
     replyHelper.dispatch(event, "今日运势", fortuneCommandHandler::handleFortune);
   }

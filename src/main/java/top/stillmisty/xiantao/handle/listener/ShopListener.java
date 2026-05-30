@@ -21,7 +21,7 @@ public class ShopListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "掌柜\\s*{{content}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "掌柜\\s*{{content}}")
   public void shopkeeper(MessageEvent event, @FilterValue("content") String content) {
     replyHelper.dispatch(event, "掌柜", content, shopCommandHandler::handleShopkeeper);
   }
@@ -29,7 +29,7 @@ public class ShopListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "回收\\s*{{itemName}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "回收\\s*{{itemName}}")
   public void quickSell(MessageEvent event, @FilterValue("itemName") String itemName) {
     replyHelper.dispatch(event, "回收", itemName, shopCommandHandler::handleQuickSell);
   }

@@ -23,14 +23,14 @@ public class UserAuthListener {
   @Listener
   @ContentTrim
   @RequireAuth
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "改号\\s*{{newNickname}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "改号\\s*{{newNickname}}")
   public void changeNickname(MessageEvent event, @FilterValue("newNickname") String newNickname) {
     replyHelper.dispatch(event, "改号", newNickname, userCommandHandler::handleChangeNickname);
   }
 
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "我要修仙\\s*{{nickname}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "我要修仙\\s*{{nickname}}")
   public void register(MessageEvent event, @FilterValue("nickname") String nickname) {
     var platform = ReplyHelper.platformTypeOf(event);
     log.info("[{}] 收到注册请求 - AuthorId: {}, Nickname: {}", platform, event.getAuthorId(), nickname);

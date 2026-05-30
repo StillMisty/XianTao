@@ -21,7 +21,7 @@ public class SectListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "宗门")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "宗门")
   public void overview(MessageEvent event) {
     replyHelper.dispatch(event, "宗门", sectCommandHandler::handleOverview);
   }
@@ -29,7 +29,10 @@ public class SectListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "宗门创建\\s*{{name,\\S+}}\\s+{{ethosDesc,.+?}}")
+  @Filter(
+      mode = FilterMode.INTERCEPTOR,
+      priority = 50,
+      value = "宗门创建\\s*{{name,\\S+}}\\s+{{ethosDesc,.+?}}")
   public void createWithEthos(
       MessageEvent event,
       @FilterValue("name") String name,
@@ -41,7 +44,7 @@ public class SectListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "宗门创建\\s*{{name,\\S+}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "宗门创建\\s*{{name,\\S+}}")
   public void create(MessageEvent event, @FilterValue("name") String name) {
     replyHelper.dispatch(event, "宗门创建", fmt -> sectCommandHandler.handleCreate(name, "", fmt));
   }
@@ -49,7 +52,7 @@ public class SectListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "宗灵\\s*{{content,.+}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "宗灵\\s*{{content,.+}}")
   public void sectSpirit(MessageEvent event, @FilterValue("content") String content) {
     replyHelper.dispatch(event, "宗灵对话", content, sectCommandHandler::handleSectSpiritChat);
   }
@@ -57,7 +60,7 @@ public class SectListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "宗门退出")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "宗门退出")
   public void leave(MessageEvent event) {
     replyHelper.dispatch(event, "宗门退出", sectCommandHandler::handleLeave);
   }
@@ -65,7 +68,7 @@ public class SectListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "宗门解散")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "宗门解散")
   public void dismiss(MessageEvent event) {
     replyHelper.dispatch(event, "宗门解散", sectCommandHandler::handleDismiss);
   }

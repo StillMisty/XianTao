@@ -21,7 +21,7 @@ public class UseItemListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "使用\\s*{{itemName}}\\s+{{args}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "使用\\s*{{itemName}}\\s+{{args}}")
   public void useItemWithArgs(
       MessageEvent event,
       @FilterValue("itemName") String itemName,
@@ -33,7 +33,7 @@ public class UseItemListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "使用\\s*{{itemName}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "使用\\s*{{itemName}}")
   public void useItem(MessageEvent event, @FilterValue("itemName") String itemName) {
     replyHelper.dispatch(
         event, "使用物品", fmt -> useItemCommandHandler.handleUseItem(itemName, "", fmt));

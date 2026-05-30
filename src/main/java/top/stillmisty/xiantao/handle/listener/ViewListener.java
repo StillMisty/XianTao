@@ -21,7 +21,7 @@ public class ViewListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "查看\\s*{{target}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "查看\\s*{{target}}")
   public void view(MessageEvent event, @FilterValue("target") String target) {
     replyHelper.dispatch(event, "查看", target, viewCommandHandler::handleView);
   }

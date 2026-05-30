@@ -21,7 +21,7 @@ public class HelpListener {
   @Listener
   @ContentTrim
   @RequireAuth
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "帮助")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "帮助")
   public void help(MessageEvent event) {
     replyHelper.dispatch(event, "帮助", f -> helpCommandHandler.handleHelp("", f));
   }
@@ -29,7 +29,7 @@ public class HelpListener {
   @Listener
   @ContentTrim
   @RequireAuth
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "帮助\\s*{{command}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "帮助\\s*{{command}}")
   public void helpDetail(MessageEvent event, @FilterValue("command") String command) {
     replyHelper.dispatch(event, "命令详情", command, helpCommandHandler::handleHelp);
   }

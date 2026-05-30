@@ -21,7 +21,7 @@ public class MasterApprenticeListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "拜师\\s*{{targetNickname,\\S+}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "拜师\\s*{{targetNickname,\\S+}}")
   public void requestMentor(
       MessageEvent event, @FilterValue("targetNickname") String targetNickname) {
     replyHelper.dispatch(
@@ -31,7 +31,7 @@ public class MasterApprenticeListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "收徒\\s*{{targetNickname,\\S+}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "收徒\\s*{{targetNickname,\\S+}}")
   public void requestApprentice(
       MessageEvent event, @FilterValue("targetNickname") String targetNickname) {
     replyHelper.dispatch(
@@ -41,7 +41,7 @@ public class MasterApprenticeListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "师徒")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "师徒")
   public void status(MessageEvent event) {
     replyHelper.dispatch(event, "师徒", masterApprenticeCommandHandler::handleStatus);
   }
@@ -49,7 +49,7 @@ public class MasterApprenticeListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "逐出师门\\s*{{targetNickname,\\S+}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "逐出师门\\s*{{targetNickname,\\S+}}")
   public void dismiss(MessageEvent event, @FilterValue("targetNickname") String targetNickname) {
     replyHelper.dispatch(
         event, "逐出师门", targetNickname, masterApprenticeCommandHandler::handleDismiss);
@@ -58,7 +58,7 @@ public class MasterApprenticeListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "叛师")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "叛师")
   public void renounce(MessageEvent event) {
     replyHelper.dispatch(event, "叛师", masterApprenticeCommandHandler::handleRenounce);
   }

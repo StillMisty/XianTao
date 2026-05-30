@@ -20,7 +20,7 @@ public class StatusListener {
   @Listener
   @ContentTrim
   @RequireAuth
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "状态")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "状态")
   public void status(MessageEvent event) {
     replyHelper.dispatch(event, "状态查询", statusCommandHandler::handleStatus);
   }

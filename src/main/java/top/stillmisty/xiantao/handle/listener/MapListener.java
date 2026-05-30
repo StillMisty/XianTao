@@ -20,7 +20,7 @@ public class MapListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "地图")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "地图")
   public void currentMap(MessageEvent event) {
     replyHelper.dispatch(event, "地图", mapCommandHandler::handleMap);
   }
@@ -28,7 +28,7 @@ public class MapListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "前往\\s*{{mapName}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "前往\\s*{{mapName}}")
   public void goTo(MessageEvent event, @FilterValue("mapName") String mapName) {
     replyHelper.dispatch(event, "前往", mapName, mapCommandHandler::handleGoTo);
   }
@@ -36,7 +36,7 @@ public class MapListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "历练")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "历练")
   public void training(MessageEvent event) {
     replyHelper.dispatch(event, "历练", mapCommandHandler::handleTraining);
   }
@@ -44,7 +44,7 @@ public class MapListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "历练结算")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "历练结算")
   public void endTraining(MessageEvent event) {
     replyHelper.dispatch(event, "历练结算", mapCommandHandler::handleEndTraining);
   }
@@ -52,7 +52,7 @@ public class MapListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "悬赏")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "悬赏")
   public void bounty(MessageEvent event) {
     replyHelper.dispatch(event, "悬赏", mapCommandHandler::handleBounty);
   }
@@ -60,7 +60,7 @@ public class MapListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "悬赏接取\\s*{{bountyId}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "悬赏接取\\s*{{bountyId}}")
   public void startBounty(MessageEvent event, @FilterValue("bountyId") String bountyId) {
     replyHelper.dispatch(event, "悬赏接取", bountyId, mapCommandHandler::handleStartBounty);
   }
@@ -68,7 +68,7 @@ public class MapListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "悬赏结算")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "悬赏结算")
   public void completeBounty(MessageEvent event) {
     replyHelper.dispatch(event, "悬赏结算", mapCommandHandler::handleCompleteBounty);
   }
@@ -76,7 +76,7 @@ public class MapListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "悬赏放弃")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "悬赏放弃")
   public void abandonBounty(MessageEvent event) {
     replyHelper.dispatch(event, "悬赏放弃", mapCommandHandler::handleAbandonBounty);
   }

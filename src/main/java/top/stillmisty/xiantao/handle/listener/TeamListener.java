@@ -21,7 +21,7 @@ public class TeamListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "组队")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "组队")
   public void teamStatus(MessageEvent event) {
     replyHelper.dispatch(event, "组队", teamCommandHandler::handleTeamStatus);
   }
@@ -29,7 +29,7 @@ public class TeamListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "组队邀请\\s*{{targetNickname,\\S+}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "组队邀请\\s*{{targetNickname,\\S+}}")
   public void invite(MessageEvent event, @FilterValue("targetNickname") String targetNickname) {
     replyHelper.dispatch(event, "组队邀请", targetNickname, teamCommandHandler::handleInvite);
   }
@@ -37,7 +37,7 @@ public class TeamListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "组队接受\\s*{{invitationId,\\d+}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "组队接受\\s*{{invitationId,\\d+}}")
   public void accept(MessageEvent event, @FilterValue("invitationId") String invitationId) {
     replyHelper.dispatch(event, "组队接受", invitationId, teamCommandHandler::handleAccept);
   }
@@ -45,7 +45,7 @@ public class TeamListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "组队拒绝\\s*{{invitationId,\\d+}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "组队拒绝\\s*{{invitationId,\\d+}}")
   public void reject(MessageEvent event, @FilterValue("invitationId") String invitationId) {
     replyHelper.dispatch(event, "组队拒绝", invitationId, teamCommandHandler::handleReject);
   }
@@ -53,7 +53,7 @@ public class TeamListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "组队离开")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "组队离开")
   public void leave(MessageEvent event) {
     replyHelper.dispatch(event, "组队离开", teamCommandHandler::handleLeave);
   }

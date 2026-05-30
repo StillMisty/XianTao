@@ -66,7 +66,6 @@ public class InventoryCommandHandler implements CommandGroup {
   }
 
   public String handleInventoryByCategory(String category, TextFormat fmt) {
-    Long userId = UserContext.requireCurrentUserId();
     for (var cat : InventoryCategory.values()) {
       if (cat.getChineseName().equals(category)) {
         if (cat == InventoryCategory.EQUIPMENT) {

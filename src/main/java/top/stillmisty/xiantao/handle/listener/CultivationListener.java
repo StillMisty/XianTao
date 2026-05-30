@@ -21,7 +21,7 @@ public class CultivationListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "突破")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "突破")
   public void breakthrough(MessageEvent event) {
     replyHelper.dispatch(event, "突破", cultivationCommandHandler::handleBreakthrough);
   }
@@ -29,7 +29,7 @@ public class CultivationListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "护道\\s*{{nickname}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "护道\\s*{{nickname}}")
   public void establishProtection(MessageEvent event, @FilterValue("nickname") String nickname) {
     replyHelper.dispatch(
         event, "护道", nickname, cultivationCommandHandler::handleEstablishProtection);
@@ -38,7 +38,7 @@ public class CultivationListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "护道解除\\s*{{nickname}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "护道解除\\s*{{nickname}}")
   public void removeProtection(MessageEvent event, @FilterValue("nickname") String nickname) {
     replyHelper.dispatch(
         event, "护道解除", nickname, cultivationCommandHandler::handleRemoveProtection);
@@ -47,7 +47,7 @@ public class CultivationListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "护道查询")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "护道查询")
   public void queryProtection(MessageEvent event) {
     replyHelper.dispatch(event, "护道查询", cultivationCommandHandler::handleQueryProtection);
   }

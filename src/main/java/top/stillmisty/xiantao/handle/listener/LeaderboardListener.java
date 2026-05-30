@@ -19,7 +19,7 @@ public class LeaderboardListener {
   @Listener
   @ContentTrim
   @RequireAuth
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "排行榜")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "排行榜")
   public void levelLeaderboard(MessageEvent event) {
     replyHelper.dispatch(event, "排行榜", leaderboardCommandHandler::handleLevelLeaderboard);
   }
@@ -27,7 +27,7 @@ public class LeaderboardListener {
   @Listener
   @ContentTrim
   @RequireAuth
-  @Filter(mode = FilterMode.INTERCEPTOR, value = "排行榜 灵石")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "排行榜 灵石")
   public void spiritStoneLeaderboard(MessageEvent event) {
     replyHelper.dispatch(event, "灵石排行榜", leaderboardCommandHandler::handleSpiritStoneLeaderboard);
   }
