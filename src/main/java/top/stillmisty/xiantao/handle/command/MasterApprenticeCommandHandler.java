@@ -71,7 +71,7 @@ public class MasterApprenticeCommandHandler implements CommandGroup {
       sb.append(
           fmt.listItem(
               "师傅: "
-                  + fmt.bold(info.masterName())
+                  + fmt.bold(info.masterName() != null ? info.masterName() : "未知")
                   + " (Lv."
                   + info.masterLevel()
                   + " "

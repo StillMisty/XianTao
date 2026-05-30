@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
@@ -99,26 +100,26 @@ public class FudiGiftService {
     return items.getFirst();
   }
 
-  private SpiritForm resolveSpiritForm(Spirit spirit) {
+  private @Nullable SpiritForm resolveSpiritForm(Spirit spirit) {
     if (spirit.getFormId() != null) {
       return spiritFormRepository.findById(spirit.getFormId()).orElse(null);
     }
     return null;
   }
 
-  private Set<String> getLikedTags(SpiritForm spiritForm) {
+  private Set<String> getLikedTags(@Nullable SpiritForm spiritForm) {
     return spiritForm != null && spiritForm.getLikedTags() != null
         ? spiritForm.getLikedTags()
         : Set.of();
   }
 
-  private Set<String> getDislikedTags(SpiritForm spiritForm) {
+  private Set<String> getDislikedTags(@Nullable SpiritForm spiritForm) {
     return spiritForm != null && spiritForm.getDislikedTags() != null
         ? spiritForm.getDislikedTags()
         : Set.of();
   }
 
-  private Set<String> resolveItemTags(StackableItem gift, ItemTemplate template) {
+  private Set<String> resolveItemTags(StackableItem gift, @Nullable ItemTemplate template) {
     if (gift.getTags() != null && !gift.getTags().isEmpty()) return gift.getTags();
     if (template != null && template.getTags() != null) return template.getTags();
     return Set.of();

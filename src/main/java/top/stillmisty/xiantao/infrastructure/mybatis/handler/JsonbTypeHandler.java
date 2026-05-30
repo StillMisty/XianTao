@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
+import org.jspecify.annotations.Nullable;
 import org.postgresql.util.PGobject;
 import tools.jackson.databind.ObjectMapper;
 
@@ -38,21 +39,24 @@ public class JsonbTypeHandler extends BaseTypeHandler<Object> {
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public Object getNullableResult(ResultSet rs, String columnName) throws SQLException {
     return deserialize(rs.getString(columnName));
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public Object getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
     return deserialize(rs.getString(columnIndex));
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public Object getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
     return deserialize(cs.getString(columnIndex));
   }
 
-  private Object deserialize(String jsonString) throws SQLException {
+  private @Nullable Object deserialize(String jsonString) throws SQLException {
     if (jsonString == null || jsonString.trim().isEmpty()) {
       return null;
     }

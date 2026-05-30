@@ -10,6 +10,7 @@ import lombok.EqualsAndHashCode;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 
 /** 跨平台授权绑定表实体 */
+@SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table("xt_user_auth")

@@ -1,6 +1,7 @@
 package top.stillmisty.xiantao.service.inventory.handler;
 
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
@@ -20,7 +21,7 @@ public class RecipeScrollUseHandler implements ItemUseHandler {
   }
 
   @Override
-  public String use(Long userId, StackableItem item, ItemTemplate template, String args) {
+  public String use(Long userId, StackableItem item, @Nullable ItemTemplate template, String args) {
     PillRecipeVO recipe = pillRecipeService.learnRecipeInternal(userId, item.getName());
     return recipe != null ? "学习丹方成功：" + recipe.recipeName() : "学习丹方失败，请检查背包中是否有丹方卷轴";
   }

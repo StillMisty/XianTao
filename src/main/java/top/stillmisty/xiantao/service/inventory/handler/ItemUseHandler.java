@@ -1,5 +1,6 @@
 package top.stillmisty.xiantao.service.inventory.handler;
 
+import org.jspecify.annotations.Nullable;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
@@ -19,5 +20,5 @@ public interface ItemUseHandler {
     return false;
   }
 
-  String use(Long userId, StackableItem item, ItemTemplate template, String args);
+  String use(Long userId, StackableItem item, @Nullable ItemTemplate template, String args);
 }

@@ -6,16 +6,18 @@ import lombok.Getter;
 /** 宗门职位枚举 */
 @Getter
 public enum SectPosition {
-  LEADER("LEADER", "宗主"),
-  ELDER("ELDER", "长老"),
-  MEMBER("MEMBER", "弟子");
+  LEADER("LEADER", "宗主", 0),
+  ELDER("ELDER", "长老", 1),
+  MEMBER("MEMBER", "弟子", 2);
 
   @EnumValue private final String code;
   private final String name;
+  private final int rank;
 
-  SectPosition(String code, String name) {
+  SectPosition(String code, String name, int rank) {
     this.code = code;
     this.name = name;
+    this.rank = rank;
   }
 
   public static SectPosition fromCode(String code) {
@@ -28,7 +30,7 @@ public enum SectPosition {
   }
 
   public boolean isHigherThan(SectPosition other) {
-    return this.ordinal() < other.ordinal();
+    return this.rank < other.rank;
   }
 
   public boolean canManage() {

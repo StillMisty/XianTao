@@ -77,9 +77,9 @@ public class BeastEvolutionService {
         (int) effectResolver.sumEffectValue(beast, MutationEffectType.QUALITY_UP_CHANCE);
     if (beast.getQuality() != BeastQuality.DIVINE
         && ThreadLocalRandom.current().nextInt(100) < qualityUpgradeChance) {
-      int nextOrdinal = beast.getQuality().ordinal() + 1;
+      int nextRank = beast.getQuality().getRank() + 1;
       for (BeastQuality q : BeastQuality.values()) {
-        if (q.ordinal() == nextOrdinal) {
+        if (q.getRank() == nextRank) {
           beast.setQuality(q);
           break;
         }

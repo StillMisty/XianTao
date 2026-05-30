@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
@@ -23,6 +24,7 @@ import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.infrastructure.repository.BeastTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.FudiCellRepository;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.fudi.FudiHelper;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
@@ -82,7 +84,8 @@ public class BeastProductionService {
 
     log.debug("玩家 {} 收取地块 {} 的灵兽产出 {} 件", fudi.getUserId(), cellId, totalItems);
 
-    return new CollectVO(cellId, "PEN", null, beastName, totalItems, totalItems);
+    return new CollectVO(
+        cellId, "PEN", null, beastName != null ? beastName : "灵兽", totalItems, totalItems);
   }
 
   public void updateBeastProduction(FudiCell cell, Fudi fudi) {
@@ -91,7 +94,7 @@ public class BeastProductionService {
     LocalDateTime matureTime = pen.matureTime();
     if (matureTime == null) return;
 
-    LocalDateTime now = LocalDateTime.now();
+    LocalDateTime now = TimeUtil.now();
     if (now.isBefore(matureTime)) return;
 
     Beast beast = beastDisplayHelper.findBeastByCell(cell);
@@ -109,7 +112,7 @@ public class BeastProductionService {
     long intervalSeconds = (long) (intervalHours * 3600);
     if (intervalSeconds <= 0) intervalSeconds = 14400;
 
-    long elapsed = java.time.Duration.between(lastProduction, now).getSeconds();
+    long elapsed = java.time.Duration.between(lastProduction, now).toSeconds();
     if (elapsed < 0) {
       log.warn("检测到灵兽产出台账时间异常: lastProduction={}, now={}", lastProduction, now);
       return;
@@ -158,7 +161,7 @@ public class BeastProductionService {
       for (int i = 0; i < toProduce; i++) {
         var selectedItem = selectRandomProductionItem(productionItems);
         if (selectedItem != null) {
-          pen.addProductionItem(selectedItem.templateId(), resolveName(selectedItem), 1);
+          pen = pen.addProductionItem(selectedItem.templateId(), resolveName(selectedItem), 1);
         }
       }
       double rareChance = effectResolver.sumEffectValue(beast, MutationEffectType.RARE_ITEM_CHANCE);
@@ -166,7 +169,7 @@ public class BeastProductionService {
         if (ThreadLocalRandom.current().nextInt(100) < rareChance) {
           var higherItem = selectHigherTierItem(productionItems);
           if (higherItem != null) {
-            pen.addProductionItem(higherItem.templateId(), resolveName(higherItem), 1);
+            pen = pen.addProductionItem(higherItem.templateId(), resolveName(higherItem), 1);
           }
         }
       }
@@ -199,7 +202,7 @@ public class BeastProductionService {
     return List.of();
   }
 
-  ProductionItem selectRandomProductionItem(List<ProductionItem> productionItems) {
+  @Nullable ProductionItem selectRandomProductionItem(List<ProductionItem> productionItems) {
     if (productionItems.isEmpty()) {
       return null;
     }
@@ -221,7 +224,7 @@ public class BeastProductionService {
     return productionItems.getFirst();
   }
 
-  ProductionItem selectHigherTierItem(List<ProductionItem> productionItems) {
+  @Nullable ProductionItem selectHigherTierItem(List<ProductionItem> productionItems) {
     if (productionItems.isEmpty()) return null;
     return productionItems.stream()
         .min(Comparator.comparingInt(ProductionItem::weight))

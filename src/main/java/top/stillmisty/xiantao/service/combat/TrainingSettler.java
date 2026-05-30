@@ -75,7 +75,11 @@ public class TrainingSettler {
     List<Long> combatTemplateIds =
         pool.stream()
             .filter(e -> e.getEventType() == EventTypeEnum.COMBAT)
-            .map(e -> ((Number) e.getParams().get("monster_template_id")).longValue())
+            .map(
+                e -> {
+                  Object val = e.getParams().get("monster_template_id");
+                  return val != null ? ((Number) val).longValue() : 0L;
+                })
             .distinct()
             .toList();
     Map<Long, MonsterTemplate> templateMap =

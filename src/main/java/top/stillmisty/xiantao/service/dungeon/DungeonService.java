@@ -1,6 +1,5 @@
 package top.stillmisty.xiantao.service.dungeon;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +7,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +33,7 @@ import top.stillmisty.xiantao.infrastructure.repository.DungeonTemplateRepositor
 import top.stillmisty.xiantao.infrastructure.repository.TeamMemberRepository;
 import top.stillmisty.xiantao.infrastructure.repository.TeamRepository;
 import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
@@ -173,7 +174,7 @@ public class DungeonService {
     instance.setHasCoreToken(false);
     instance.setExploredPois(new ArrayList<>());
     instance.setStatus(DungeonStatus.ACTIVE);
-    instance.setExpiresAt(LocalDateTime.now().plusHours(dungeon.getTimeoutHours()));
+    instance.setExpiresAt(TimeUtil.now().plusHours(dungeon.getTimeoutHours()));
     instanceRepository.save(instance);
 
     Map<Long, User> allMemberUserMap = new java.util.HashMap<>();
@@ -187,15 +188,17 @@ public class DungeonService {
     }
     for (Long memberId : memberIds) {
       User memberUser = allMemberUserMap.get(memberId);
+      if (memberUser == null) continue;
       memberUser.setStatus(UserStatus.DUNGEON);
       memberUser.setActivityType(ActivityType.DUNGEON);
-      memberUser.setActivityStartTime(LocalDateTime.now());
+      memberUser.setActivityStartTime(TimeUtil.now());
       memberUser.setActivityTargetId(instance.getId());
       userStateService.saveActivity(memberUser);
     }
 
     for (Long memberId : memberIds) {
       User memberUser = allMemberUserMap.get(memberId);
+      if (memberUser == null) continue;
       dungeonEventCompleter.onAreaAdvance(
           memberId, memberUser, dungeon.getId(), dungeon.getName(), DungeonArea.OUTER.getName());
     }
@@ -369,6 +372,7 @@ public class DungeonService {
         .orElseThrow(() -> new BusinessException(ErrorCode.DUNGEON_NO_ACTIVE_INSTANCE));
   }
 
+  @Nullable
   private DungeonInstance findActiveInstanceRaw(Long userId, Long dungeonId) {
     return instanceRepository
         .findByLeaderIdAndDungeonIdAndStatus(userId, dungeonId, DungeonStatus.ACTIVE)
@@ -382,6 +386,7 @@ public class DungeonService {
     }
   }
 
+  @Nullable
   private DungeonArea getNextArea(DungeonArea current) {
     return switch (current) {
       case OUTER -> DungeonArea.INNER;
@@ -390,6 +395,7 @@ public class DungeonService {
     };
   }
 
+  @Nullable
   private Long pickPassagePoi(List<DungeonPoiConfig> pois) {
     List<DungeonPoiConfig> candidates =
         pois.stream().filter(p -> Boolean.TRUE.equals(p.getIsPassage())).toList();

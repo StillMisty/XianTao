@@ -1,7 +1,6 @@
 package top.stillmisty.xiantao.service.player.state;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +13,7 @@ import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.repository.MapNodeRepository;
 import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.GameEventService;
 import top.stillmisty.xiantao.service.combat.CombatSummary;
 import top.stillmisty.xiantao.service.combat.TrainingSettler;
@@ -37,9 +37,8 @@ class TrainingSettlementHandler implements StateHandler {
     if (user.getActivityType() != ActivityType.TRAINING) return false;
     if (user.getActivityStartTime() == null) return false;
 
-    long minutesElapsed =
-        Duration.between(user.getActivityStartTime(), LocalDateTime.now()).toMinutes();
-    long lastSettled = user.getLastSettlementMinute() != null ? user.getLastSettlementMinute() : 0;
+    long minutesElapsed = Duration.between(user.getActivityStartTime(), TimeUtil.now()).toMinutes();
+    long lastSettled = user.getLastSettlementMinute();
     if (lastSettled + TRAINING_SETTLEMENT_INTERVAL_MINUTES > minutesElapsed) return false;
 
     var mapNode = mapNodeRepository.findById(user.getLocationId()).orElse(null);

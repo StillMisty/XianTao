@@ -9,10 +9,12 @@ import java.util.List;
 import java.util.Set;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jspecify.annotations.Nullable;
 import top.stillmisty.xiantao.domain.skill.enums.BindingType;
 import top.stillmisty.xiantao.domain.skill.enums.SkillType;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
 
+@SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table("xt_skill")
@@ -24,7 +26,7 @@ public class Skill {
 
   private String name;
 
-  private String description;
+  @Nullable private String description;
 
   private SkillType skillType;
 
@@ -34,13 +36,13 @@ public class Skill {
 
   private BindingType bindingType;
 
-  private String bindingValue;
+  @Nullable private String bindingValue;
 
   private Integer cooldownSeconds;
 
-  private Integer requireWis;
+  @Nullable private Integer requireWis;
 
-  private Long requireSkillId;
+  @Nullable private Long requireSkillId;
 
   @Column(typeHandler = JsonbCollectionTypeHandler.class)
   private Set<String> tags;

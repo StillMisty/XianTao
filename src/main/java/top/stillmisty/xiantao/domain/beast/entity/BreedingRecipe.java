@@ -10,6 +10,7 @@ import lombok.EqualsAndHashCode;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
 
 /** 灵兽繁育配方实体 */
+@SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table("xt_breeding_recipe")

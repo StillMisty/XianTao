@@ -9,7 +9,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import top.stillmisty.xiantao.domain.team.enums.InvitationStatus;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 
+@SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Accessors(chain = true)
@@ -35,7 +37,7 @@ public class TeamInvitation {
   }
 
   public boolean isExpired() {
-    return expiresAt != null && LocalDateTime.now().isAfter(expiresAt);
+    return expiresAt != null && TimeUtil.now().isAfter(expiresAt);
   }
 
   public void accept() {

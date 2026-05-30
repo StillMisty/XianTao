@@ -16,6 +16,7 @@ import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table("xt_activity_event")
+@SuppressWarnings("NullAway")
 @NoArgsConstructor
 public class ActivityEvent {
 

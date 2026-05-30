@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
@@ -110,6 +111,7 @@ public class ItemUseService {
     }
   }
 
+  @Nullable
   private StackableItem findFirstWithValidTemplate(List<StackableItem> items) {
     if (items.isEmpty()) {
       return null;

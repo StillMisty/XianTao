@@ -1,6 +1,5 @@
 package top.stillmisty.xiantao.service.ai;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +12,7 @@ import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
 import top.stillmisty.xiantao.domain.fudi.entity.FudiCell;
 import top.stillmisty.xiantao.infrastructure.repository.BeastRepository;
 import top.stillmisty.xiantao.infrastructure.repository.FudiCellRepository;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.fudi.FarmService;
 
 /**
@@ -100,7 +100,7 @@ public class FudiStateBuilder {
                 .append(")");
           }
           if (beast.getBreedingCooldownUntil() != null
-              && beast.getBreedingCooldownUntil().isAfter(LocalDateTime.now())) {
+              && beast.getBreedingCooldownUntil().isAfter(TimeUtil.now())) {
             sb.append(" 🔥繁育冷却中");
           }
         }

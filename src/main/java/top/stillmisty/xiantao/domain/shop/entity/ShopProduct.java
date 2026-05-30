@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import top.stillmisty.xiantao.domain.shop.enums.ProductType;
 
+@SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table("shop_product")

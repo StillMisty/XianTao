@@ -3,6 +3,7 @@ package top.stillmisty.xiantao.service.enhance;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.forge.vo.EnhanceResultVO;
@@ -29,6 +30,7 @@ public class EnhancementCore {
   public static final List<String> FORGE_ATTRIBUTES =
       Arrays.stream(MaterialAttribute.values()).map(MaterialAttribute::getCode).toList();
 
+  @Nullable
   public Equipment resolveEquipment(Long userId, String input) {
     var result = itemResolver.resolveEquipment(userId, input);
     if (result instanceof ItemResolver.Found<Equipment> f) return f.item();
@@ -143,7 +145,7 @@ public class EnhancementCore {
       int stoneCost,
       Map<String, Integer> usedMaterials,
       Long userId) {
-    int previousLevel = equipment.getForgeLevel() != null ? equipment.getForgeLevel() : 0;
+    int previousLevel = equipment.getForgeLevel();
     equipment.setForgeLevel(targetLevel);
 
     String milestoneReward = applyMilestoneReward(equipment, targetLevel);
@@ -189,7 +191,7 @@ public class EnhancementCore {
         successRate,
         stoneCost,
         usedMaterials,
-        null);
+        (@Nullable String) null);
   }
 
   void consumeMaterials(
@@ -220,6 +222,7 @@ public class EnhancementCore {
         .toList();
   }
 
+  @Nullable
   private String applyMilestoneReward(Equipment equipment, int newForgeLevel) {
     if (newForgeLevel == 5) {
       var statAffixes =

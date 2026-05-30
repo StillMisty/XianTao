@@ -15,6 +15,7 @@ import lombok.experimental.Accessors;
 @Table("xt_dao_protection")
 @Accessors(chain = true)
 @Data
+@SuppressWarnings("NullAway")
 @NoArgsConstructor
 public class DaoProtection {
 

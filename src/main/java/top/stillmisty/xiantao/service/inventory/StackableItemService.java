@@ -3,6 +3,7 @@ package top.stillmisty.xiantao.service.inventory;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
@@ -47,7 +48,7 @@ public class StackableItemService {
       ItemType itemType,
       String name,
       int quantity,
-      Map<String, Object> properties) {
+      @Nullable Map<String, Object> properties) {
 
     var template = itemTemplateRepository.findById(templateId).orElse(null);
     var tags = template != null ? template.getTags() : null;

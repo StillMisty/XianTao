@@ -1,15 +1,16 @@
 package top.stillmisty.xiantao.domain.item.vo;
 
+import org.jspecify.annotations.Nullable;
 import top.stillmisty.xiantao.domain.item.enums.EquipmentSlot;
 
 /** 装备穿戴结果 VO */
 public record EquipResult(
     boolean success,
     String message,
-    Long equipmentId,
-    String equipmentName,
-    EquipmentSlot slot,
-    String slotName,
-    Long replacedEquipmentId,
-    String replacedEquipmentName,
-    AttributeChange attributeChange) {}
+    @Nullable Long equipmentId,
+    @Nullable String equipmentName,
+    @Nullable EquipmentSlot slot,
+    @Nullable String slotName,
+    @Nullable Long replacedEquipmentId,
+    @Nullable String replacedEquipmentName,
+    @Nullable AttributeChange attributeChange) {}

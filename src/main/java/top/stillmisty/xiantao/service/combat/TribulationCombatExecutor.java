@@ -2,6 +2,7 @@ package top.stillmisty.xiantao.service.combat;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.monster.CombatTeam;
 import top.stillmisty.xiantao.domain.monster.TribulationBoss;
@@ -27,7 +28,7 @@ public class TribulationCombatExecutor {
    *
    * @return 玩家队伍；若无可出战单位返回 null
    */
-  public CombatTeam buildTeamOrReturnNull(User user) {
+  public @Nullable CombatTeam buildTeamOrReturnNull(User user) {
     CombatTeam team = combatService.buildPlayerTeam(user);
     return team.aliveMembers().isEmpty() ? null : team;
   }

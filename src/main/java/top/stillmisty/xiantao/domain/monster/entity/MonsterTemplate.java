@@ -8,9 +8,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jspecify.annotations.Nullable;
 import top.stillmisty.xiantao.domain.monster.enums.MonsterType;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
 
+@SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table("xt_monster_template")
@@ -22,7 +24,7 @@ public class MonsterTemplate {
 
   private String name;
 
-  private String description;
+  @Nullable private String description;
 
   private MonsterType monsterType;
 

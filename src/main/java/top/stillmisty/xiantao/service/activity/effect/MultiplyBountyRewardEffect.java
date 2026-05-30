@@ -16,7 +16,9 @@ public class MultiplyBountyRewardEffect implements SubEventEffect {
   @Override
   public Map<String, Object> execute(
       Long userId, User user, Map<String, Object> params, Map<String, Object> context) {
-    double multiplier = ((Number) params.get("multiplier")).doubleValue();
+    Number multiplierNum = (Number) params.get("multiplier");
+    if (multiplierNum == null) return Map.of();
+    double multiplier = multiplierNum.doubleValue();
     long[] holder = EventContextKeys.BOUNTY_REWARD.get(context);
     if (holder != null) {
       holder[0] = (long) (holder[0] * multiplier);

@@ -14,6 +14,7 @@ import top.stillmisty.xiantao.domain.bounty.enums.BountyStatus;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.BountyRewardListTypeHandler;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
 
+@SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table("xt_user_bounty")

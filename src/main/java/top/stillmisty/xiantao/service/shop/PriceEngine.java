@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
@@ -14,6 +15,7 @@ import top.stillmisty.xiantao.domain.shop.entity.ShopProduct;
 import top.stillmisty.xiantao.domain.worldevent.entity.WorldEvent;
 import top.stillmisty.xiantao.domain.worldevent.enums.WorldEventCategory;
 import top.stillmisty.xiantao.infrastructure.repository.WorldEventRepository;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.ai.ShopChatContext;
 
 @Component
@@ -106,7 +108,7 @@ public class PriceEngine {
     };
   }
 
-  private double getWorldEventMultiplier(Set<String> tags) {
+  private double getWorldEventMultiplier(@Nullable Set<String> tags) {
     ShopChatContext ctx = ShopChatContext.current();
     List<WorldEvent> activeEvents =
         ctx != null ? ctx.activeEvents() : worldEventRepository.findActiveEvents();
@@ -124,7 +126,7 @@ public class PriceEngine {
   private String inferCategoryFromTags(Set<String> tags) {
     if (tags == null || tags.isEmpty()) return "MATERIAL";
     for (String tag : tags) {
-      String upper = tag.toUpperCase();
+      String upper = tag.toUpperCase(java.util.Locale.ROOT);
       if (upper.contains("HERB") || upper.contains("MEDICINE")) return "HERB";
       if (upper.contains("ORE") || upper.contains("METAL") || upper.contains("FORGE")) return "ORE";
       if (upper.contains("POTION") || upper.contains("PILL")) return "POTION";
@@ -137,7 +139,7 @@ public class PriceEngine {
   /** 懒补货 & 懒调价：打开商铺或交易时触发 */
   public void applyLazyRestock(ShopProduct product) {
     if (product.getLastSaleTime() == null) return;
-    LocalDateTime now = LocalDateTime.now();
+    LocalDateTime now = TimeUtil.now();
 
     int currentStock = product.getCurrentStock();
     long currentPrice = product.getCurrentPrice();

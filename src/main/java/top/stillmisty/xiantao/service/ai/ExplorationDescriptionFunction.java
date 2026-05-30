@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Component;
 
@@ -129,19 +130,20 @@ public class ExplorationDescriptionFunction {
       @JsonProperty(required = true, value = "mapName") @JsonPropertyDescription("地图名称，如'幽暗沼泽'")
           String mapName,
       @JsonProperty(value = "mapDescription") @JsonPropertyDescription("地图描述文本")
-          String mapDescription,
+          @Nullable String mapDescription,
       @JsonProperty(required = true, value = "eventType")
           @JsonPropertyDescription("事件类型，如'发现基础材料'、'发现稀有材料'、'重大发现'、'惊人发现'")
           String eventType,
       @JsonProperty(value = "foundItems") @JsonPropertyDescription("发现的物品名称列表，如['毒龙草', '铁矿石']")
-          List<String> foundItems,
+          @Nullable List<String> foundItems,
       @JsonProperty(value = "expGained") @JsonPropertyDescription("获得的修为（探索不获取修为时为空）")
-          Long expGained,
-      @JsonProperty(value = "recipeName") @JsonPropertyDescription("发现的配方名称（如有）") String recipeName,
+          @Nullable Long expGained,
+      @JsonProperty(value = "recipeName") @JsonPropertyDescription("发现的配方名称（如有）")
+          @Nullable String recipeName,
       @JsonProperty(value = "eventDescription") @JsonPropertyDescription("探索中触发的事件描述（如有）")
-          String eventDescription,
+          @Nullable String eventDescription,
       @JsonProperty(value = "combatHighlight") @JsonPropertyDescription("高光战斗的详细描述（如有）")
-          String combatHighlight) {}
+          @Nullable String combatHighlight) {}
 
   @JsonInclude(JsonInclude.Include.NON_NULL)
   public record Response(@JsonPropertyDescription("美化的探索描述文本") String description) {}

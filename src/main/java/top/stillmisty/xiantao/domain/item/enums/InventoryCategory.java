@@ -1,6 +1,7 @@
 package top.stillmisty.xiantao.domain.item.enums;
 
 import lombok.Getter;
+import org.jspecify.annotations.Nullable;
 
 /** 背包查询类别（供 LLM Function Calling 使用） */
 @Getter
@@ -22,6 +23,7 @@ public enum InventoryCategory {
     this.chineseName = chineseName;
   }
 
+  @Nullable
   public ItemType toItemType() {
     return switch (this) {
       case SEED -> ItemType.SEED;

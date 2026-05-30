@@ -16,6 +16,7 @@ import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionType
 @Table("xt_spirit_form")
 @Accessors(chain = true)
 @Data
+@SuppressWarnings("NullAway")
 @NoArgsConstructor
 public class SpiritForm {
 

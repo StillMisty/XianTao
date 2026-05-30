@@ -15,6 +15,7 @@ import lombok.experimental.Accessors;
 @Table("xt_sect_shop_item")
 @Accessors(chain = true)
 @Data
+@SuppressWarnings("NullAway")
 @NoArgsConstructor
 public class SectShopItem {
 

@@ -119,7 +119,11 @@ public class MapService {
         combatEventsByMap.values().stream()
             .flatMap(List::stream)
             .filter(e -> e.getParams() != null && e.getParams().containsKey("monster_template_id"))
-            .map(e -> ((Number) e.getParams().get("monster_template_id")).longValue())
+            .map(
+                e -> {
+                  Object val = e.getParams().get("monster_template_id");
+                  return val != null ? ((Number) val).longValue() : 0L;
+                })
             .distinct()
             .collect(Collectors.toList());
     if (templateIds.isEmpty()) return Map.of();
@@ -135,15 +139,13 @@ public class MapService {
         .map(
             event -> {
               Map<String, Object> params = event.getParams();
-              long templateId = ((Number) params.get("monster_template_id")).longValue();
+              Number monsterIdNum = (Number) params.get("monster_template_id");
+              long templateId = monsterIdNum != null ? monsterIdNum.longValue() : 0L;
               MonsterTemplate template = templateMap.get(templateId);
               return MapInfoVO.MonsterInfoVO.builder()
                   .templateId(templateId)
                   .name(template != null ? template.getName() : "未知怪物")
-                  .typeName(
-                      template != null && template.getMonsterType() != null
-                          ? template.getMonsterType().getName()
-                          : "未知")
+                  .typeName(template != null ? template.getMonsterType().getName() : "未知")
                   .baseLevel(template != null ? template.getBaseLevel() : null)
                   .weight(event.getWeight())
                   .minCount(

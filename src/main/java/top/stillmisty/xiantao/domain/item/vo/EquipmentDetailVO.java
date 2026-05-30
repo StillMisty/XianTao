@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.Builder;
 import lombok.Data;
+import org.jspecify.annotations.Nullable;
 import top.stillmisty.xiantao.domain.item.enums.EquipmentSlot;
 import top.stillmisty.xiantao.domain.item.enums.Rarity;
 import top.stillmisty.xiantao.domain.item.enums.WeaponType;
@@ -48,14 +49,17 @@ public class EquipmentDetailVO {
 
   /** 法器子类型 */
   @JsonProperty("weapon_type")
+  @Nullable
   private WeaponType weaponType;
 
   /** 法器子类型名称 */
   @JsonProperty("weapon_type_name")
+  @Nullable
   private String weaponTypeName;
 
   /** 品质系数（实际波动值） */
   @JsonProperty("quality_multiplier")
+  @Nullable
   private Double qualityMultiplier;
 
   /** 锻造强化等级 */

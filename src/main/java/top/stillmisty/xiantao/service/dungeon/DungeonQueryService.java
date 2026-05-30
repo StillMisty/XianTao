@@ -84,7 +84,7 @@ public class DungeonQueryService {
               progress != null
                   ? progress.getDailyLimit()
                   : DungeonProgress.calculateDailyLimit(user.getLevel()),
-              progress != null && progress.getFirstClear() != null && progress.getFirstClear()));
+              progress != null && progress.getFirstClear()));
     }
     return result;
   }

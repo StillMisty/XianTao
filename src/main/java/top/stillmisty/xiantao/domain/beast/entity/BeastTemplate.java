@@ -14,6 +14,7 @@ import top.stillmisty.xiantao.domain.item.entity.ProductionItem;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
 
+@SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table("xt_beast_template")

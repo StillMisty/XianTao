@@ -8,6 +8,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.event.entity.GameEvent;
 import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
@@ -101,7 +102,7 @@ public class EnlightenmentProcessor {
     return true;
   }
 
-  private Skill tryLearnRandomSkill(Long userId, User user) {
+  private @Nullable Skill tryLearnRandomSkill(Long userId, User user) {
     Set<Long> learnedSkillIds =
         playerSkillRepository.findByUserId(userId).stream()
             .map(PlayerSkill::getSkillId)

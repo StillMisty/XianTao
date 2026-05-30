@@ -105,7 +105,9 @@ public class DungeonCommandHandler implements CommandGroup {
       sb.append(fmt.listItem("队伍上限: " + d.maxTeamSize() + "人"));
 
       if (d.hasActiveInstance()) {
-        sb.append(fmt.listItem("状态: " + d.activeArea().getName() + " · 进行中"));
+        sb.append(
+            fmt.listItem(
+                "状态: " + (d.activeArea() != null ? d.activeArea().getName() : "未知") + " · 进行中"));
       } else if (d.firstClear()) {
         sb.append(fmt.listItem("奖励: " + d.rewardCount() + "/" + d.dailyLimit() + " · 已首通"));
       } else {

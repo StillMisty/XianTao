@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
@@ -33,6 +34,7 @@ import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.MutationTraitConfigRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SpiritRepository;
 import top.stillmisty.xiantao.infrastructure.repository.StackableItemRepository;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.SpiritStoneService;
@@ -149,7 +151,7 @@ public class BeastBreedingService {
     validateCellForHatch(cell, cellId);
 
     HatchSetup setup = prepareHatchSetup(userId, eggTemplate, cell.getCellLevel(), fudi);
-    LocalDateTime now = LocalDateTime.now();
+    LocalDateTime now = TimeUtil.now();
 
     Beast beast =
         createBeastFromTemplate(
@@ -261,7 +263,8 @@ public class BeastBreedingService {
     var pcb = beastDisplayHelper.findPenCell(userId, position, false, false);
     var cell = pcb.cell();
     var beast = pcb.beast();
-    String beastName = beast != null ? beast.getBeastName() : "未知灵兽";
+    String beastName =
+        beast != null && beast.getBeastName() != null ? beast.getBeastName() : "未知灵兽";
     int tier = beast != null ? beast.getTier() : 1;
     String qualityStr =
         beast != null ? beast.getQuality().getCode() : BeastQuality.MORTAL.getCode();
@@ -309,8 +312,8 @@ public class BeastBreedingService {
 
   public BeastQuality rollBeastQuality(int affection, int cellLevel) {
     int[] weights = new int[BeastQuality.values().length];
-    for (int i = 0; i < weights.length; i++) {
-      weights[i] = BeastQuality.values()[i].getHatchWeight();
+    for (BeastQuality q : BeastQuality.values()) {
+      weights[q.getRank()] = q.getHatchWeight();
     }
 
     int cellBonus = cellLevel * 10;
@@ -369,7 +372,7 @@ public class BeastBreedingService {
         1,
         java.util.Map.of());
 
-    LocalDateTime now = LocalDateTime.now();
+    LocalDateTime now = TimeUtil.now();
     double cooldownReduce =
         effectResolver.sumEffectValue(beast1, MutationEffectType.BREED_COOLDOWN_REDUCE)
             + effectResolver.sumEffectValue(beast2, MutationEffectType.BREED_COOLDOWN_REDUCE);
@@ -391,20 +394,22 @@ public class BeastBreedingService {
                         .orElse("未知"))
             .toList();
 
+    String beastName1 = beast1.getBeastName() != null ? beast1.getBeastName() : "未知灵兽";
+    String beastName2 = beast2.getBeastName() != null ? beast2.getBeastName() : "未知灵兽";
     log.info(
         "玩家 {} 繁育 {}({}) + {}({}) → {}({})",
         userId,
-        beast1.getBeastName(),
+        beastName1,
         beast1.getGender().getChineseName(),
-        beast2.getBeastName(),
+        beastName2,
         beast2.getGender().getChineseName(),
         eggTemplate.getName(),
         offspringQuality.getChineseName());
 
     return new BreedResult(
-        beast1.getBeastName(),
+        beastName1,
         beast1.getGender().getChineseName(),
-        beast2.getBeastName(),
+        beastName2,
         beast2.getGender().getChineseName(),
         eggTemplate.getName(),
         offspringQuality.getChineseName(),
@@ -465,10 +470,12 @@ public class BeastBreedingService {
     if (egg1 != null && egg2 != null) {
       return ThreadLocalRandom.current().nextBoolean() ? egg1 : egg2;
     }
-    return egg1 != null ? egg1 : egg2;
+    if (egg1 != null) return egg1;
+    if (egg2 != null) return egg2;
+    throw new BusinessException(ITEM_NOT_FOUND, "繁育配方兽卵");
   }
 
-  private ItemTemplate findEggTemplate(String beastName) {
+  private @Nullable ItemTemplate findEggTemplate(String beastName) {
     return itemTemplateRepository.findByType(ItemType.BEAST_EGG).stream()
         .filter(t -> t.getName().equals(beastName + "卵"))
         .findFirst()
@@ -477,8 +484,8 @@ public class BeastBreedingService {
 
   private List<String> extractCategoryTags(java.util.Set<String> tags) {
     return tags.stream()
-        .filter(t -> !RARITY_TAGS.contains(t.toLowerCase()))
-        .map(String::toLowerCase)
+        .filter(t -> !RARITY_TAGS.contains(t.toLowerCase(java.util.Locale.ROOT)))
+        .map(t -> t.toLowerCase(java.util.Locale.ROOT))
         .toList();
   }
 
@@ -504,7 +511,7 @@ public class BeastBreedingService {
   }
 
   private BeastQuality rollOffspringQuality(Beast parent1, Beast parent2) {
-    double avg = (parent1.getQuality().ordinal() + parent2.getQuality().ordinal()) / 2.0;
+    double avg = (parent1.getQuality().getRank() + parent2.getQuality().getRank()) / 2.0;
     double roll = ThreadLocalRandom.current().nextDouble(-0.5, 1.0);
 
     double qualityBoost =
@@ -512,9 +519,9 @@ public class BeastBreedingService {
             + effectResolver.sumEffectValue(parent2, MutationEffectType.BREED_QUALITY_BOOST);
     roll += qualityBoost / 100;
 
-    int resultOrdinal = (int) Math.round(avg + roll);
-    resultOrdinal = Math.clamp(resultOrdinal, 0, BeastQuality.values().length - 1);
-    return BeastQuality.values()[resultOrdinal];
+    int resultRank = (int) Math.round(avg + roll);
+    resultRank = Math.clamp(resultRank, 0, BeastQuality.values().length - 1);
+    return BeastQuality.fromRank(resultRank);
   }
 
   private List<Long> rollInheritedTraits(Beast parent1, Beast parent2) {

@@ -2,6 +2,7 @@ package top.stillmisty.xiantao.service.pill;
 
 import java.util.*;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.item.entity.ElementRange;
@@ -33,7 +34,7 @@ public class PillCombinationFinder {
   private final CombinationStrategy strategy =
       new CombinationStrategy(PILL_ELEMENTS, 5, PillCombinationFinder::getElementValue);
 
-  public ItemProperties.Scroll getRecipeScroll(ItemTemplate template) {
+  public ItemProperties.@Nullable Scroll getRecipeScroll(ItemTemplate template) {
     var props = template.typedProperties();
     if (props instanceof ItemProperties.Scroll s) return s;
     return null;

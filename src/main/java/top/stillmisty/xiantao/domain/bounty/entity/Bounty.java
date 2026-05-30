@@ -12,6 +12,7 @@ import top.stillmisty.xiantao.domain.bounty.BountyRewardPool;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.BountyRewardPoolListTypeHandler;
 
 /** 悬赏任务实体 */
+@SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table("xt_bounty")
@@ -45,6 +46,6 @@ public class Bounty {
   private LocalDateTime updateTime;
 
   public boolean requiresLevel(int userLevel) {
-    return requireLevel == null || userLevel >= requireLevel;
+    return userLevel >= requireLevel;
   }
 }

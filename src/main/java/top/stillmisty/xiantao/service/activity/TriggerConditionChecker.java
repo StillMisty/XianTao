@@ -26,9 +26,14 @@ public class TriggerConditionChecker {
     if (triggerType == null || triggerParams == null) return true;
 
     return switch (triggerType) {
-      case "HAS_SKILL" -> hasSkill(userId, ((Number) triggerParams.get("skill_id")).longValue());
-      case "HAS_ITEM" ->
-          hasItem(userId, ((Number) triggerParams.get("item_template_id")).longValue());
+      case "HAS_SKILL" -> {
+        Number val = (Number) triggerParams.get("skill_id");
+        yield val != null && hasSkill(userId, val.longValue());
+      }
+      case "HAS_ITEM" -> {
+        Number val = (Number) triggerParams.get("item_template_id");
+        yield val != null && hasItem(userId, val.longValue());
+      }
       case "STAT_THRESHOLD" -> checkStatThreshold(triggerParams, user);
       default -> true;
     };

@@ -2,7 +2,6 @@ package top.stillmisty.xiantao.service.beast;
 
 import static top.stillmisty.xiantao.service.ErrorCode.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +13,7 @@ import top.stillmisty.xiantao.domain.beast.vo.BeastStatusVO;
 import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
 import top.stillmisty.xiantao.domain.fudi.enums.BeastQuality;
 import top.stillmisty.xiantao.infrastructure.repository.BeastRepository;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.fudi.FudiHelper;
@@ -79,6 +79,9 @@ public class BeastCombatService {
         beastDisplayHelper.getBeastFromPenCell(userId, position, false);
     Beast beast = pcb.beast();
 
+    if (beast == null) {
+      throw new BusinessException(BEAST_NOT_FOUND);
+    }
     if (Boolean.TRUE.equals(beast.getIsDeployed())) {
       beast.setIsDeployed(false);
       beastRepository.save(beast);
@@ -89,7 +92,7 @@ public class BeastCombatService {
       throw new BusinessException(BEAST_DEAD);
     }
 
-    if (beast.getRecoveryUntil() != null && beast.getRecoveryUntil().isAfter(LocalDateTime.now())) {
+    if (beast.getRecoveryUntil() != null && beast.getRecoveryUntil().isAfter(TimeUtil.now())) {
       throw new BusinessException(BEAST_IN_RECOVERY);
     }
 

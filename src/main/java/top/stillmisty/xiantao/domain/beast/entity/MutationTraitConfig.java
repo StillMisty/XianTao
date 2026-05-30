@@ -8,10 +8,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
 
 /** 灵兽变异特性配置实体 */
+@SuppressWarnings("NullAway")
 @Data
 @NoArgsConstructor
 @Table("xt_mutation_trait_config")
@@ -32,9 +34,10 @@ public class MutationTraitConfig {
   private List<MutationEffect> effects;
 
   @Column(typeHandler = JsonbCollectionTypeHandler.class)
+  @Nullable
   private List<String> requiredTags;
 
-  private String requiredQuality;
+  @Nullable private String requiredQuality;
 
   private Boolean isActive;
 

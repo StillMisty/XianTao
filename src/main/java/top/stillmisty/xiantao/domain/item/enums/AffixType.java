@@ -1,6 +1,7 @@
 package top.stillmisty.xiantao.domain.item.enums;
 
 import lombok.Getter;
+import org.jspecify.annotations.Nullable;
 
 /** 装备随机词条类型枚举 */
 @Getter
@@ -22,12 +23,12 @@ public enum AffixType {
   private final String name;
 
   /** 对应的属性字段（null表示特殊词条） */
-  private final String statField;
+  private final @Nullable String statField;
 
   /** 中文名称（用于显示） */
   private final String displayName;
 
-  AffixType(String code, String name, String statField, String displayName) {
+  AffixType(String code, String name, @Nullable String statField, String displayName) {
     this.code = code;
     this.name = name;
     this.statField = statField;
@@ -56,7 +57,7 @@ public enum AffixType {
 
   /** 从存储的key值获取词条类型（兼容statField和枚举名） */
   public static AffixType fromKey(String key) {
-    String upper = key.toUpperCase();
+    String upper = key.toUpperCase(java.util.Locale.ROOT);
     for (AffixType type : values()) {
       if (upper.equals(type.statField) || type.name().equals(upper)) {
         return type;

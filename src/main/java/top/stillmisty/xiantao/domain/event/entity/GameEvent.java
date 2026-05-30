@@ -10,13 +10,16 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import org.jspecify.annotations.Nullable;
 import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 
 /** 游戏事件实体 — 异步事件队列 */
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table("xt_game_event")
 @Accessors(chain = true)
+@SuppressWarnings("NullAway")
 @Data
 @NoArgsConstructor
 public class GameEvent {
@@ -34,7 +37,7 @@ public class GameEvent {
 
   private Boolean delivered;
 
-  private String narrativeKey;
+  @Nullable private String narrativeKey;
 
   @Column(typeHandler = JsonbTypeHandler.class)
   private Map<String, Object> narrativeArgs;
@@ -46,14 +49,14 @@ public class GameEvent {
     GameEvent event = new GameEvent();
     event.userId = userId;
     event.category = category;
-    event.occurredAt = LocalDateTime.now();
+    event.occurredAt = TimeUtil.now();
     event.delivered = false;
     event.narrativeArgs = Map.of();
     event.effects = Map.of();
     return event;
   }
 
-  public GameEvent withNarrative(String key, Map<String, Object> args) {
+  public GameEvent withNarrative(String key, @Nullable Map<String, Object> args) {
     this.narrativeKey = key;
     this.narrativeArgs = args != null ? args : Map.of();
     return this;

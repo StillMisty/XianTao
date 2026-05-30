@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.function.ToIntFunction;
+import org.jspecify.annotations.Nullable;
 
 public final class WeightedRandom {
 
@@ -19,7 +20,8 @@ public final class WeightedRandom {
    * @param rng 随机数生成器
    * @return 选中的元素，总权重≤0 时返回 null
    */
-  public static <T> T select(List<T> items, ToIntFunction<T> weightExtractor, Random rng) {
+  public static <T> @Nullable T select(
+      List<T> items, ToIntFunction<T> weightExtractor, Random rng) {
     int total = 0;
     for (T item : items) {
       total += weightExtractor.applyAsInt(item);
@@ -47,8 +49,9 @@ public final class WeightedRandom {
     return new CumulativeWeighted<>(List.copyOf(items), cumsum, total);
   }
 
+  @SuppressWarnings("ArrayRecordComponent")
   public record CumulativeWeighted<T>(List<T> items, int[] cumulativeSums, int totalWeight) {
-    public T select(Random rng) {
+    public @Nullable T select(Random rng) {
       if (totalWeight <= 0) return null;
       int roll = rng.nextInt(totalWeight);
       int idx = Arrays.binarySearch(cumulativeSums, roll);

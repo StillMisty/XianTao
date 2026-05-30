@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+@SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table("dungeon_template")

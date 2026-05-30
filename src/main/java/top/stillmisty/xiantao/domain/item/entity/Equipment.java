@@ -8,12 +8,15 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jspecify.annotations.Nullable;
 import top.stillmisty.xiantao.domain.item.enums.EquipmentSlot;
 import top.stillmisty.xiantao.domain.item.enums.Rarity;
 import top.stillmisty.xiantao.domain.item.enums.WeaponType;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 
 /** 装备实例实体 */
+@SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table("xt_equipment")
@@ -39,10 +42,10 @@ public class Equipment {
   private Rarity rarity;
 
   /** 法器子类型（护甲/饰品为 null） */
-  private WeaponType weaponType;
+  @Nullable private WeaponType weaponType;
 
   /** 品质系数（实际波动值，如1.35） */
-  private Double qualityMultiplier;
+  @Nullable private Double qualityMultiplier;
 
   /** 随机词条 JSONB: {"STR": 3, "AGI": 2, "LIFE_STEAL": 5} */
   @Column(typeHandler = JsonbTypeHandler.class)
@@ -84,7 +87,7 @@ public class Equipment {
       String name,
       EquipmentSlot slot,
       Rarity rarity,
-      WeaponType weaponType,
+      @Nullable WeaponType weaponType,
       Double qualityMultiplier,
       Map<String, Integer> affixes,
       Map<String, Integer> statBonus,
@@ -104,7 +107,7 @@ public class Equipment {
     equipment.defenseBonus = defenseBonus;
     equipment.forgeLevel = 0;
     equipment.equipped = false;
-    equipment.createTime = LocalDateTime.now();
+    equipment.createTime = TimeUtil.now();
     return equipment;
   }
 
@@ -115,13 +118,12 @@ public class Equipment {
 
   /** 获取波动后的攻击力 */
   private int getFluctuatedAttack() {
-    if (attackBonus == null || qualityMultiplier == null) return 0;
+    if (qualityMultiplier == null) return attackBonus;
     return (int) Math.floor(attackBonus * qualityMultiplier);
   }
 
   /** 获取锻造加成（每级+5点攻击力） */
   private int getForgeBonus() {
-    if (forgeLevel == null) return 0;
     return forgeLevel * 5;
   }
 
@@ -132,7 +134,7 @@ public class Equipment {
 
   /** 获取波动后的防御力 */
   private int getFluctuatedDefense() {
-    if (defenseBonus == null || qualityMultiplier == null) return 0;
+    if (qualityMultiplier == null) return defenseBonus;
     return (int) Math.floor(defenseBonus * qualityMultiplier);
   }
 
@@ -144,13 +146,13 @@ public class Equipment {
   /** 获取基础属性加成 */
   public int getBaseStatBonus(String statName) {
     if (statBonus == null) return 0;
-    return statBonus.getOrDefault(statName.toUpperCase(), 0);
+    return statBonus.getOrDefault(statName.toUpperCase(java.util.Locale.ROOT), 0);
   }
 
   /** 获取词条属性加成 */
   public int getAffixBonus(String statName) {
     if (affixes == null) return 0;
-    return affixes.getOrDefault(statName.toUpperCase(), 0);
+    return affixes.getOrDefault(statName.toUpperCase(java.util.Locale.ROOT), 0);
   }
 
   /** 获取力量加成 */

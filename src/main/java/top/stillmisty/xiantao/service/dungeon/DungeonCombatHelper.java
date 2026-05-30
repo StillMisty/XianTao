@@ -1,6 +1,5 @@
 package top.stillmisty.xiantao.service.dungeon;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +21,7 @@ import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.repository.BeastRepository;
 import top.stillmisty.xiantao.infrastructure.repository.MonsterTemplateRepository;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.infrastructure.util.WeightedRandom;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
@@ -121,16 +121,16 @@ public class DungeonCombatHelper {
 
     if (!playerWon && !anyAlive) {
       leader.setStatus(UserStatus.DYING);
-      leader.setDyingStartTime(LocalDateTime.now());
+      leader.setDyingStartTime(TimeUtil.now());
       userStateService.saveHpStatus(leader);
       for (User m : memberUsers.values()) {
         if (m.getHpCurrent() != null && m.getHpCurrent() <= 0) {
           m.setStatus(UserStatus.DYING);
-          m.setDyingStartTime(LocalDateTime.now());
+          m.setDyingStartTime(TimeUtil.now());
           userStateService.saveHpStatus(m);
         }
       }
-      return new CombatOutcome(false, false, 0, monster.getName(), null);
+      return new CombatOutcome(false, false, 0, monster.getName(), "全军覆没");
     }
 
     long expGained = battleResult.expGained();

@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.infrastructure.mapper.BeastMapper;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 
 @Slf4j
 @Repository
@@ -49,7 +50,7 @@ public class BeastRepository {
   }
 
   public List<Beast> findDeployedByUserId(Long userId) {
-    LocalDateTime now = LocalDateTime.now();
+    LocalDateTime now = TimeUtil.now();
     return mapper.selectListByQuery(
         QueryWrapper.create()
             .select()

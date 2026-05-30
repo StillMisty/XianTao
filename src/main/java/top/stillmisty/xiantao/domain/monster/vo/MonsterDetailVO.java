@@ -1,11 +1,12 @@
 package top.stillmisty.xiantao.domain.monster.vo;
 
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 public record MonsterDetailVO(
     long id,
     String name,
-    String description,
+    @Nullable String description,
     String typeName,
     int baseLevel,
     int baseHp,

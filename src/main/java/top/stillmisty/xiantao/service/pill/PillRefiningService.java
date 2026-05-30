@@ -67,6 +67,9 @@ public class PillRefiningService {
     if (targetRecipe == null) {
       throw new BusinessException(ErrorCode.RECIPE_NOT_FOUND, recipeName);
     }
+    if (recipeTemplate == null) {
+      throw new BusinessException(ErrorCode.RECIPE_PILL_DATA_ERROR);
+    }
 
     var recipeScroll = combinationFinder.getRecipeScroll(recipeTemplate);
     if (recipeScroll == null || recipeScroll.requirements().isEmpty()) {

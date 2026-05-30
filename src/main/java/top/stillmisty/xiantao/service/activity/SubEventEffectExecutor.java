@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
 import top.stillmisty.xiantao.domain.user.entity.User;
@@ -13,6 +14,7 @@ import top.stillmisty.xiantao.service.activity.effect.SubEventEffect;
 import top.stillmisty.xiantao.service.activity.effect.SubEventEffectType;
 
 /** 子事件效果执行引擎 — 读 params JSONB，分发到对应 effect handler */
+@Slf4j
 @Component
 public class SubEventEffectExecutor {
 
@@ -45,7 +47,8 @@ public class SubEventEffectExecutor {
     double roll = ThreadLocalRandom.current().nextDouble();
     double cumulative = 0;
     for (Map<String, Object> branch : branches) {
-      double chance = ((Number) branch.get("chance")).doubleValue();
+      Object chanceObj = branch.get("chance");
+      double chance = chanceObj instanceof Number n ? n.doubleValue() : 0;
       cumulative += chance;
       if (roll < cumulative || Math.abs(cumulative - 1.0) < 1e-9) {
         return executeEffects(branch, userId, user, context);
@@ -65,13 +68,18 @@ public class SubEventEffectExecutor {
       String typeStr = (String) effectConfig.get("type");
       if (typeStr == null) continue;
       SubEventEffectType effectType = SubEventEffectType.fromCode(typeStr);
-      if (effectType == null) continue;
+      if (effectType == null) {
+        log.warn("Unknown sub-event effect type: {}", typeStr);
+        continue;
+      }
       SubEventEffect handler = handlerMap.get(effectType);
-      if (handler != null) {
-        Map<String, Object> result = handler.execute(userId, user, effectConfig, context);
-        if (result != null) {
-          templateArgs.putAll(result);
-        }
+      if (handler == null) {
+        log.warn("No handler registered for effect type: {}", effectType);
+        continue;
+      }
+      Map<String, Object> result = handler.execute(userId, user, effectConfig, context);
+      if (result != null) {
+        templateArgs.putAll(result);
       }
     }
     return templateArgs;

@@ -14,6 +14,7 @@ import top.stillmisty.xiantao.domain.sect.enums.SectBuildingType;
 @EqualsAndHashCode
 @Table("xt_sect_building")
 @Accessors(chain = true)
+@SuppressWarnings("NullAway")
 @Data
 @NoArgsConstructor
 public class SectBuilding {

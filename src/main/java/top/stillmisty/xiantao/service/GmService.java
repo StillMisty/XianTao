@@ -2,6 +2,7 @@ package top.stillmisty.xiantao.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.user.entity.User;
@@ -230,6 +231,7 @@ public class GmService {
     return "未找到物品/装备：" + itemName;
   }
 
+  @Nullable
   private User getTargetUser(String nickname) {
     return userRepository.findByNickname(nickname).orElse(null);
   }

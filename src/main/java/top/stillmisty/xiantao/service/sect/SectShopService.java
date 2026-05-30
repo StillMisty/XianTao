@@ -1,6 +1,7 @@
 package top.stillmisty.xiantao.service.sect;
 
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -49,7 +50,8 @@ public class SectShopService {
   @Cacheable(cacheNames = "sect_shop", key = "#userId")
   public ShopQueryVO getShopInternal(Long userId) {
     SectMember member = requireMember(userId);
-    List<SectShopItem> items = sectShopItemRepository.findBySectId(member.getSectId());
+    List<SectShopItem> items =
+        sectShopItemRepository.findBySectId(Objects.requireNonNull(member.getSectId()));
 
     List<SectShopItemVO> itemVOs =
         items.stream()

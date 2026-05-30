@@ -1,6 +1,7 @@
 package top.stillmisty.xiantao.domain.monster;
 
 import lombok.Getter;
+import org.jspecify.annotations.Nullable;
 import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
 
 /**
@@ -17,7 +18,7 @@ public class Battle {
   private final int maxRounds;
   private final CombatEngine combatEngine;
 
-  private BattleResultVO result;
+  private @Nullable BattleResultVO result;
   private boolean executed;
 
   private Battle(
@@ -52,6 +53,7 @@ public class Battle {
   }
 
   /** 执行战斗，返回结果 */
+  @Nullable
   public BattleResultVO execute() {
     if (executed) return result;
     BattleContext context =

@@ -60,7 +60,7 @@ public class SectCommandHandler implements CommandGroup {
 
   private String formatSectOverview(SectOverviewVO vo, TextFormat fmt) {
     StringBuilder sb = new StringBuilder();
-    sb.append(fmt.heading(vo.name(), null));
+    sb.append(fmt.heading(vo.name(), ""));
     if (vo.verse() != null && !vo.verse().isBlank()) {
       sb.append("「").append(vo.verse()).append("」\n");
     }

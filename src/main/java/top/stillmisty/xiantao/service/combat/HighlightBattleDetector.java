@@ -3,6 +3,7 @@ package top.stillmisty.xiantao.service.combat;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
 import top.stillmisty.xiantao.domain.monster.vo.HpChange;
@@ -26,7 +27,7 @@ public class HighlightBattleDetector {
    * @param battleIndex 战斗序号
    * @return 高光战斗信息，如果不是高光战斗返回null
    */
-  public HighlightInfo detectHighlight(BattleResultVO battleResult, int battleIndex) {
+  public @Nullable HighlightInfo detectHighlight(BattleResultVO battleResult, int battleIndex) {
     if (battleResult == null) {
       return null;
     }

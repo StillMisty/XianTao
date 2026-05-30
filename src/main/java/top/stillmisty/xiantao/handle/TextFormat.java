@@ -1,6 +1,7 @@
 package top.stillmisty.xiantao.handle;
 
 /** 文本格式抽象 纯文本和Markdown只需提供不同的格式化令牌即可统一处理 */
+@SuppressWarnings("ClassInitializationDeadlock")
 public sealed interface TextFormat {
 
   TextFormat PLAIN = new PlainFormat();

@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table("xt_hidden_completion")
+@SuppressWarnings("NullAway")
 @NoArgsConstructor
 public class HiddenCompletion {
 

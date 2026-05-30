@@ -13,6 +13,7 @@ import lombok.experimental.Accessors;
 @Table("xt_sect_task_progress")
 @Accessors(chain = true)
 @Data
+@SuppressWarnings("NullAway")
 @NoArgsConstructor
 public class SectTaskProgress {
 

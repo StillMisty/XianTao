@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
 
+@SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table("shop_npc")
@@ -47,7 +48,7 @@ public class ShopNpc {
 
   public double getHaggleDifficulty() {
     if (personality == null || personality.isBlank()) return 0.1;
-    return switch (personality.toUpperCase()) {
+    return switch (personality.toUpperCase(java.util.Locale.ROOT)) {
       case "ESFJ" -> 0.0; // 热情好客
       case "ISFJ" -> 0.05; // 温和良善
       case "INTJ" -> 0.1; // 疏离冷静

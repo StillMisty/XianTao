@@ -2,9 +2,11 @@ package top.stillmisty.xiantao.service.sect;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -101,13 +103,13 @@ public class SectSharedSkillService {
     SectMember member = requireMember(userId);
     Sect sect =
         sectRepository
-            .findById(member.getSectId())
+            .findById(requireSectId(member))
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_FOUND));
 
     int maxSlots = sectBuildingService.getScriptureSlotCount(sect.getId());
     List<SectSharedSkill> listedSkills =
         sectSharedSkillRepository.findBySectIdAndStatus(
-            member.getSectId(), SectSharedSkillStatus.LISTED);
+            requireSectId(member), SectSharedSkillStatus.LISTED);
 
     Map<Long, Skill> skillCache =
         listedSkills.isEmpty()
@@ -146,7 +148,7 @@ public class SectSharedSkillService {
       pendingCount =
           (int)
               sectSharedSkillRepository.countBySectIdAndStatus(
-                  member.getSectId(), SectSharedSkillStatus.PENDING);
+                  requireSectId(member), SectSharedSkillStatus.PENDING);
     }
 
     return new SharedSkillsQueryVO(
@@ -163,7 +165,7 @@ public class SectSharedSkillService {
             .findById(sharedSkillId)
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_SHARED_SKILL_NOT_FOUND));
 
-    if (!sharedSkill.getSectId().equals(member.getSectId())) {
+    if (!sharedSkill.getSectId().equals(requireSectId(member))) {
       throw new BusinessException(ErrorCode.SECT_SHARED_SKILL_NOT_FOUND);
     }
 
@@ -195,10 +197,10 @@ public class SectSharedSkillService {
     sectMemberRepository.save(member);
 
     PlayerSkill playerSkill = PlayerSkill.create(userId, skill.getId(), false);
-    playerSkill.setSourceSectId(member.getSectId());
+    playerSkill.setSourceSectId(requireSectId(member));
     playerSkillRepository.save(playerSkill);
 
-    log.info("玩家 {} 从宗门 {} 学习共享功法 {}", userId, member.getSectId(), skill.getName());
+    log.info("玩家 {} 从宗门 {} 学习共享功法 {}", userId, requireSectId(member), skill.getName());
     return new LearnSkillResultVO(skill.getName(), cost, member.getContribution());
   }
 
@@ -232,17 +234,19 @@ public class SectSharedSkillService {
       throw new BusinessException(ErrorCode.SECT_SHARED_SKILL_NOT_FOUND);
     }
 
-    if (sectSharedSkillRepository.findBySectIdAndSkillId(member.getSectId(), skillId).isPresent()) {
+    if (sectSharedSkillRepository
+        .findBySectIdAndSkillId(requireSectId(member), skillId)
+        .isPresent()) {
       throw new BusinessException(ErrorCode.SECT_SHARED_SKILL_ALREADY_EXISTS);
     }
 
-    int maxSlots = sectBuildingService.getScriptureSlotCount(member.getSectId());
+    int maxSlots = sectBuildingService.getScriptureSlotCount(requireSectId(member));
     long listedCount =
         sectSharedSkillRepository.countBySectIdAndStatus(
-            member.getSectId(), SectSharedSkillStatus.LISTED);
+            requireSectId(member), SectSharedSkillStatus.LISTED);
     long pendingCount =
         sectSharedSkillRepository.countBySectIdAndStatus(
-            member.getSectId(), SectSharedSkillStatus.PENDING);
+            requireSectId(member), SectSharedSkillStatus.PENDING);
     if (listedCount + pendingCount >= maxSlots) {
       throw new BusinessException(
           ErrorCode.SECT_SHARED_SKILL_LIMIT, listedCount + pendingCount, maxSlots);
@@ -252,7 +256,7 @@ public class SectSharedSkillService {
 
     SectSharedSkill sharedSkill =
         SectSharedSkill.create()
-            .setSectId(member.getSectId())
+            .setSectId(requireSectId(member))
             .setSkillId(skillId)
             .setSubmitterUserId(userId)
             .setStatus(SectSharedSkillStatus.PENDING);
@@ -261,7 +265,7 @@ public class SectSharedSkillService {
     member.setContribution(member.getContribution() + SKILL_SUBMIT_CONTRIBUTION);
     sectMemberRepository.save(member);
 
-    log.info("玩家 {} 提交功法玉简 {} 到宗门 {}", userId, skill.getName(), member.getSectId());
+    log.info("玩家 {} 提交功法玉简 {} 到宗门 {}", userId, skill.getName(), requireSectId(member));
     return new SubmitJadeResultVO(skill.getName(), SKILL_SUBMIT_CONTRIBUTION);
   }
 
@@ -293,10 +297,10 @@ public class SectSharedSkillService {
       throw new BusinessException(ErrorCode.SECT_SHARED_SKILL_ALREADY_LISTED);
     }
 
-    int maxSlots = sectBuildingService.getScriptureSlotCount(member.getSectId());
+    int maxSlots = sectBuildingService.getScriptureSlotCount(requireSectId(member));
     long listedCount =
         sectSharedSkillRepository.countBySectIdAndStatus(
-            member.getSectId(), SectSharedSkillStatus.LISTED);
+            requireSectId(member), SectSharedSkillStatus.LISTED);
     if (listedCount >= maxSlots) {
       throw new BusinessException(ErrorCode.SECT_SHARED_SKILL_LIMIT, listedCount, maxSlots);
     }
@@ -353,7 +357,7 @@ public class SectSharedSkillService {
             .findById(sharedSkillId)
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_SHARED_SKILL_NOT_FOUND));
 
-    if (!sharedSkill.getSectId().equals(member.getSectId())) {
+    if (!sharedSkill.getSectId().equals(requireSectId(member))) {
       throw new BusinessException(ErrorCode.SECT_SHARED_SKILL_NOT_FOUND);
     }
     return sharedSkill;
@@ -363,7 +367,12 @@ public class SectSharedSkillService {
     return sectMemberService.requireMember(userId);
   }
 
-  private <T> T resolveByName(List<T> items, String input, Function<T, String> nameExtractor) {
+  private Long requireSectId(SectMember member) {
+    return Objects.requireNonNull(member.getSectId());
+  }
+
+  private <T> @Nullable T resolveByName(
+      List<T> items, String input, Function<T, String> nameExtractor) {
     if (input == null || input.isBlank()) return null;
     for (var item : items) {
       if (nameExtractor.apply(item).equals(input)) return item;

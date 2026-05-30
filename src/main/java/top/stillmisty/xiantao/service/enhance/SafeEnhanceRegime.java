@@ -21,6 +21,6 @@ public class SafeEnhanceRegime {
   public EnhanceResultVO executeAuto(
       Long userId, Equipment equipment, int currentLevel, int targetLevel, int stoneCost) {
     spiritStoneService.withdraw(userId, stoneCost);
-    return core.applyEnhanceSuccess(equipment, targetLevel, stoneCost, null, userId);
+    return core.applyEnhanceSuccess(equipment, targetLevel, stoneCost, java.util.Map.of(), userId);
   }
 }

@@ -2,6 +2,7 @@ package top.stillmisty.xiantao.service.ai;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Service;
@@ -163,7 +164,8 @@ public class ShopTools {
       return shopService.appraiseStackableItem(
           userId, resolved.npc(), matchingItems.getFirst().getId());
     } catch (BusinessException e) {
-      return new AppraisalResult(false, 0, 0, 0, itemName, e.getMessage());
+      return new AppraisalResult(
+          false, 0, 0, 0, itemName, e.getMessage() != null ? e.getMessage() : "估价失败");
     } catch (Exception e) {
       log.error("估价失败: itemName={}, itemId={}", itemName, itemId, e);
       return new AppraisalResult(false, 0, 0, 0, itemName, "估价失败：" + e.getMessage());
@@ -317,6 +319,7 @@ public class ShopTools {
 
   // ===================== 私有辅助方法 =====================
 
+  @Nullable
   private AppraisalResult tryAppraiseEquipment(Long userId, ShopNpc npc, Long equipmentId) {
     try {
       return shopService.appraiseEquipment(userId, npc, equipmentId);
@@ -326,6 +329,7 @@ public class ShopTools {
     }
   }
 
+  @Nullable
   private AppraisalResult tryAppraiseStackable(Long userId, ShopNpc npc, Long itemId) {
     try {
       return shopService.appraiseStackableItem(userId, npc, itemId);

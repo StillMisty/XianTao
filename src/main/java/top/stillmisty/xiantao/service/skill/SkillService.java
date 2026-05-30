@@ -6,6 +6,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -92,6 +93,7 @@ public class SkillService {
         .build();
   }
 
+  @Nullable
   private Skill resolveSkillFromJade(StackableItem matchedJade) {
     var template = itemTemplateRepository.findById(matchedJade.getTemplateId()).orElse(null);
     if (template == null) return null;
@@ -102,6 +104,7 @@ public class SkillService {
     return skillRepository.findById(skillId).orElse(null);
   }
 
+  @Nullable
   private SkillSlotResult validateLearningEligibility(Long userId, Skill skill) {
     if (playerSkillRepository.findByUserIdAndSkillId(userId, skill.getId()).isPresent()) {
       return SkillSlotResult.builder()
@@ -259,17 +262,18 @@ public class SkillService {
 
   // ===================== 工具方法 =====================
 
-  private SkillVO toSkillVO(PlayerSkill ps, Skill skill) {
+  @Nullable
+  private SkillVO toSkillVO(PlayerSkill ps, @Nullable Skill skill) {
     if (skill == null) return null;
     return new SkillVO(
         ps.getId(),
         skill.getId(),
         skill.getName(),
-        skill.getDescription(),
+        skill.getDescription() != null ? skill.getDescription() : "",
         skill.getEffects(),
         skill.getBindingType() != null ? skill.getBindingType().getCode() : "NONE",
         skill.getBindingType() != null ? skill.getBindingType().getName() : "无",
-        skill.getBindingValue(),
+        skill.getBindingValue() != null ? skill.getBindingValue() : "",
         skill.getCooldownSeconds(),
         skill.getLevelRequirement(),
         Boolean.TRUE.equals(ps.getIsEquipped()));
@@ -283,10 +287,12 @@ public class SkillService {
     return 1;
   }
 
+  @Nullable
   private StackableItem resolveJade(List<StackableItem> jadeItems, String input) {
     return resolveByIndexOrName(jadeItems, input, StackableItem::getName);
   }
 
+  @Nullable
   private PlayerSkill resolvePlayerSkill(List<PlayerSkill> playerSkills, String input) {
     var skillIds = playerSkills.stream().map(PlayerSkill::getSkillId).toList();
     var skillMap =
@@ -302,6 +308,7 @@ public class SkillService {
   }
 
   /** 按编号→精确名称→模糊名称三级解析 */
+  @Nullable
   private <T> T resolveByIndexOrName(
       List<T> items, String input, java.util.function.Function<T, String> nameExtractor) {
     if (input == null || input.isEmpty()) return null;

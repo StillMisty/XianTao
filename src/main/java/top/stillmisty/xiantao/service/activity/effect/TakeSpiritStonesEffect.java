@@ -20,7 +20,9 @@ public class TakeSpiritStonesEffect implements SubEventEffect {
   @Override
   public Map<String, Object> execute(
       Long userId, User user, Map<String, Object> params, Map<String, Object> context) {
-    long stones = ((Number) params.get("amount")).longValue();
+    Number amountNum = (Number) params.get("amount");
+    if (amountNum == null) return Map.of();
+    long stones = amountNum.longValue();
     spiritStoneService.withdraw(userId, stones);
     return Map.of("spiritStones", -stones);
   }

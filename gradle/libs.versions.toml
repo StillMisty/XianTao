@@ -16,6 +16,9 @@ lombok = "1.+"
 junitLauncher = "1.+"
 dependencyManagement = "1.+"
 spotless = "8.+"
+errorprone = "2.+"
+nullaway = "0.+"
+jspecify = "1.+"
 
 
 [libraries]
@@ -60,6 +63,11 @@ junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform
 # Caffeine 缓存
 caffeine = { group = "com.github.ben-manes.caffeine", name = "caffeine" }
 
+# NullAway / JSpecify
+jspecify = { group = "org.jspecify", name = "jspecify", version.ref = "jspecify" }
+errorprone-core = { group = "com.google.errorprone", name = "error_prone_core", version.ref = "errorprone" }
+nullaway = { group = "com.uber.nullaway", name = "nullaway", version.ref = "nullaway" }
+
 # Jackson 库
 jackson-databind = { group = "com.fasterxml.jackson.core", name = "jackson-databind" }
 
@@ -67,3 +75,4 @@ jackson-databind = { group = "com.fasterxml.jackson.core", name = "jackson-datab
 spring-boot = { id = "org.springframework.boot", version.ref = "springBoot" }
 dependency-management = { id = "io.spring.dependency-management", version.ref = "dependencyManagement" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+errorprone = { id = "net.ltgt.errorprone", version = "4.+" }

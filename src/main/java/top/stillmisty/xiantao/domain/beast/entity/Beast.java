@@ -10,10 +10,13 @@ import java.util.Set;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.jspecify.annotations.Nullable;
 import top.stillmisty.xiantao.domain.beast.enums.BeastGender;
 import top.stillmisty.xiantao.domain.fudi.enums.BeastQuality;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 
+@SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Accessors(chain = true)
@@ -30,7 +33,7 @@ public class Beast {
 
   private Long templateId;
 
-  private String beastName;
+  @Nullable private String beastName;
 
   private BeastGender gender;
 
@@ -58,13 +61,13 @@ public class Beast {
 
   private Boolean isDeployed;
 
-  private LocalDateTime recoveryUntil;
+  @Nullable private LocalDateTime recoveryUntil;
 
-  private Integer pennedCellId;
+  @Nullable private Integer pennedCellId;
 
-  private LocalDateTime birthTime;
+  @Nullable private LocalDateTime birthTime;
 
-  private LocalDateTime breedingCooldownUntil;
+  @Nullable private LocalDateTime breedingCooldownUntil;
 
   @Column(onInsertValue = "now()")
   private LocalDateTime createTime;
@@ -77,38 +80,38 @@ public class Beast {
   }
 
   public int getLevelCap() {
-    return tier != null ? tier * 10 + 10 : 20;
+    return tier * 10 + 10;
   }
 
   public boolean needsRecovery() {
-    return hpCurrent != null && maxHp != null && hpCurrent < maxHp;
+    return hpCurrent < maxHp;
   }
 
   public boolean canFight() {
     if (!Boolean.TRUE.equals(isDeployed)) return false;
-    if (hpCurrent == null || hpCurrent <= 0) return false;
-    return recoveryUntil == null || !recoveryUntil.isAfter(LocalDateTime.now());
+    if (hpCurrent <= 0) return false;
+    return recoveryUntil == null || !recoveryUntil.isAfter(TimeUtil.now());
   }
 
   public boolean canBreed() {
-    return breedingCooldownUntil == null || !breedingCooldownUntil.isAfter(LocalDateTime.now());
+    return breedingCooldownUntil == null || !breedingCooldownUntil.isAfter(TimeUtil.now());
   }
 
   public boolean isAdult() {
-    return tier != null && tier >= 2;
+    return tier >= 2;
   }
 
   /** 兽栏内自动回血：每 5 分钟恢复 1% 最大 HP（仅未出战且未满血时） */
   public boolean tryAutoHeal() {
     if (Boolean.TRUE.equals(isDeployed)) return false;
-    if (hpCurrent == null || maxHp == null || hpCurrent >= maxHp) return false;
+    if (hpCurrent >= maxHp) return false;
     int heal = Math.max(1, maxHp / 100);
     hpCurrent = Math.min(maxHp, hpCurrent + heal);
     return true;
   }
 
   public long calculateExpToNextLevel() {
-    if (level == null || level <= 0) return 50;
+    if (level <= 0) return 50;
     return (long) (50 * Math.pow(level, 1.5));
   }
 
@@ -146,16 +149,12 @@ public class Beast {
   }
 
   public void recalculateAttributes() {
-    if (level != null) {
-      double q = getQualityMultiplier();
-      attack = (int) Math.round((10 + (level - 1) * 3 * q) * q);
-      defense = (int) Math.round((8 + (level - 1) * 2 * q) * q);
-    }
-    if (tier != null && level != null) {
-      maxHp = tier * 200 + (level - 1) * tier * 20;
-      if (hpCurrent != null && hpCurrent > maxHp) {
-        hpCurrent = maxHp;
-      }
+    double q = getQualityMultiplier();
+    attack = (int) Math.round((10 + (level - 1) * 3 * q) * q);
+    defense = (int) Math.round((8 + (level - 1) * 2 * q) * q);
+    maxHp = tier * 200 + (level - 1) * tier * 20;
+    if (hpCurrent > maxHp) {
+      hpCurrent = maxHp;
     }
   }
 
@@ -190,6 +189,6 @@ public class Beast {
   }
 
   public String getQualityName() {
-    return quality != null ? quality.getChineseName() : "凡品";
+    return quality.getChineseName();
   }
 }

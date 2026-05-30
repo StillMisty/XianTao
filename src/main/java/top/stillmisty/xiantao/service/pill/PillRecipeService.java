@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.item.entity.ItemProperties;
@@ -116,7 +117,7 @@ public class PillRecipeService {
 
   // ===================== 辅助方法 =====================
 
-  private static ItemProperties.Scroll getRecipeScroll(ItemTemplate template) {
+  private static ItemProperties.@Nullable Scroll getRecipeScroll(ItemTemplate template) {
     var props = template.typedProperties();
     if (props instanceof ItemProperties.Scroll s) return s;
     return null;

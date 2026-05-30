@@ -4,9 +4,9 @@ import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
+import org.jspecify.annotations.Nullable;
 import org.postgresql.util.PGobject;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ObjectMapper;
@@ -20,7 +20,7 @@ public class JsonbCollectionTypeHandler extends BaseTypeHandler<Object> {
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   private final Class<?> propertyType;
-  private final Class<?> genericType;
+  private final @Nullable Class<?> genericType;
 
   public JsonbCollectionTypeHandler() {
     this.propertyType = Object.class;
@@ -51,21 +51,24 @@ public class JsonbCollectionTypeHandler extends BaseTypeHandler<Object> {
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public Object getNullableResult(ResultSet rs, String columnName) throws SQLException {
     return deserialize(rs.getString(columnName));
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public Object getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
     return deserialize(rs.getString(columnIndex));
   }
 
   @Override
+  @SuppressWarnings("NullAway")
   public Object getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
     return deserialize(cs.getString(columnIndex));
   }
 
-  private Object deserialize(String jsonString) throws SQLException {
+  private @Nullable Object deserialize(String jsonString) throws SQLException {
     if (jsonString == null || jsonString.trim().isEmpty()) {
       return null;
     }
@@ -75,7 +78,18 @@ public class JsonbCollectionTypeHandler extends BaseTypeHandler<Object> {
             OBJECT_MAPPER.getTypeFactory().constructCollectionLikeType(propertyType, genericType);
         return OBJECT_MAPPER.readValue(jsonString, javaType);
       }
-      return OBJECT_MAPPER.readValue(jsonString, List.class);
+      if (propertyType.isAssignableFrom(java.util.Set.class)) {
+        return OBJECT_MAPPER.readValue(
+            jsonString,
+            OBJECT_MAPPER
+                .getTypeFactory()
+                .constructCollectionType(java.util.HashSet.class, Object.class));
+      }
+      return OBJECT_MAPPER.readValue(
+          jsonString,
+          OBJECT_MAPPER
+              .getTypeFactory()
+              .constructCollectionType(java.util.ArrayList.class, Object.class));
     } catch (Exception e) {
       throw new SQLException("Failed to deserialize JSONB to collection: " + jsonString, e);
     }

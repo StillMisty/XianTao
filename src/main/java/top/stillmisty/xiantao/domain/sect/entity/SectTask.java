@@ -15,6 +15,7 @@ import top.stillmisty.xiantao.domain.sect.enums.SectTaskType;
 @Table("xt_sect_task")
 @Accessors(chain = true)
 @Data
+@SuppressWarnings("NullAway")
 @NoArgsConstructor
 public class SectTask {
 

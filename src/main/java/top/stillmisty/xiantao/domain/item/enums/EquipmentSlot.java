@@ -2,6 +2,7 @@ package top.stillmisty.xiantao.domain.item.enums;
 
 import com.mybatisflex.annotation.EnumValue;
 import lombok.Getter;
+import org.jspecify.annotations.Nullable;
 
 /** 装备部位枚举 */
 @Getter
@@ -33,7 +34,7 @@ public enum EquipmentSlot {
     throw new IllegalArgumentException("Unknown EquipmentSlot code: " + code);
   }
 
-  public static EquipmentSlot fromChineseName(String name) {
+  public static @Nullable EquipmentSlot fromChineseName(String name) {
     for (EquipmentSlot slot : values()) {
       if (slot.name.equals(name)) {
         return slot;

@@ -12,6 +12,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.event.enums.FortuneLevel;
 import top.stillmisty.xiantao.domain.event.vo.FortuneVO;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 
 @Slf4j
 @Service
@@ -25,7 +26,7 @@ public class FortuneService {
 
   @Cacheable(cacheNames = "fortunes", key = "#userId + '-' + T(java.time.LocalDate).now()")
   public FortuneVO calculate(Long userId) {
-    long[] seeds = generateSeeds(userId, LocalDate.now());
+    long[] seeds = generateSeeds(userId, TimeUtil.today());
     int wealth = (int) (Math.abs(seeds[0]) % 101);
     int fate = (int) (Math.abs(seeds[1]) % 101);
     int luck = (int) (Math.abs(seeds[2]) % 101);

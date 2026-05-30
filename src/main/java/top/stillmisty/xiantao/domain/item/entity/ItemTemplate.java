@@ -11,11 +11,13 @@ import java.util.Map;
 import java.util.Set;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jspecify.annotations.Nullable;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
 
 /** 物品模板配置实体 存储所有物品的静态配置数据 */
+@SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table("xt_item_template")
@@ -50,7 +52,7 @@ public class ItemTemplate {
   private Long baseValue;
 
   /** 物品描述 */
-  private String description;
+  @Nullable private String description;
 
   /** 创建时间 */
   @Column(onInsertValue = "now()")

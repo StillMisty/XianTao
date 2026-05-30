@@ -6,6 +6,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
@@ -66,6 +67,7 @@ public class ViewCommandHandler implements CommandGroup {
     return "未找到 [" + target + "]，可输入装备名/编号、怪物名或物品名";
   }
 
+  @Nullable
   private <T> String tryResolve(Supplier<ServiceResult<T>> call, Function<T, String> onSuccess) {
     try {
       return switch (call.get()) {
@@ -80,6 +82,7 @@ public class ViewCommandHandler implements CommandGroup {
     }
   }
 
+  @Nullable
   private MonsterDetailVO resolveMonsterDetail(String target) {
     return monsterTemplateRepository
         .findByName(target)
@@ -88,14 +91,14 @@ public class ViewCommandHandler implements CommandGroup {
                 new MonsterDetailVO(
                     t.getId(),
                     t.getName(),
-                    t.getDescription(),
-                    t.getMonsterType() != null ? t.getMonsterType().getName() : "",
-                    t.getBaseLevel() != null ? t.getBaseLevel() : 0,
-                    t.getBaseHp() != null ? t.getBaseHp() : 0,
-                    t.getBaseAttack() != null ? t.getBaseAttack() : 0,
-                    t.getBaseDefense() != null ? t.getBaseDefense() : 0,
-                    t.getBaseSpeed() != null ? t.getBaseSpeed() : 0,
-                    t.getExpReward() != null ? t.getExpReward() : 0,
+                    t.getDescription() != null ? t.getDescription() : "",
+                    t.getMonsterType().getName(),
+                    t.getBaseLevel(),
+                    t.getBaseHp(),
+                    t.getBaseAttack(),
+                    t.getBaseDefense(),
+                    t.getBaseSpeed(),
+                    t.getExpReward(),
                     t.getTags()))
         .orElse(null);
   }
@@ -121,7 +124,7 @@ public class ViewCommandHandler implements CommandGroup {
         fmt.listItem(
             String.format(
                 "锻造：+%d | 品质系数：%.2f",
-                vo.getForgeLevel() != null ? vo.getForgeLevel() : 0,
+                vo.getForgeLevel(),
                 vo.getQualityMultiplier() != null ? vo.getQualityMultiplier() : 1.0)));
     if (Boolean.TRUE.equals(vo.getEquipped())) {
       sb.append(fmt.listItem("状态：已穿戴"));

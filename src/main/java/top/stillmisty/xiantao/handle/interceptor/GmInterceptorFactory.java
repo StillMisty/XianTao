@@ -28,6 +28,7 @@ public class GmInterceptorFactory implements AnnotationEventInterceptorFactory {
   }
 
   /** GM权限拦截器实现 */
+  @SuppressWarnings("EffectivelyPrivate")
   private static class GmInterceptor implements JBlockEventInterceptor {
 
     private final UserRepository userRepository;

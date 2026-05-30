@@ -84,7 +84,7 @@ public class DaoProtectionService {
     if (currentProtectingCount >= MAX_PROTECTOR_COUNT) {
       return new DaoProtectionResult(
           false,
-          String.format("你当前已在为%d位道友护道，分身乏术。请先使用「护道解除」解除部分关系", MAX_PROTECTOR_COUNT),
+          String.format("未找到道号为【%s】的修士", protegeNickname),
           null,
           null,
           null,
@@ -101,7 +101,7 @@ public class DaoProtectionService {
     if (existingRelation.isPresent()) {
       return new DaoProtectionResult(
           false,
-          String.format("你已在为%s护道", protege.getNickname()),
+          String.format("你当前已在为%d位道友护道，分身乏术。请先使用「护道解除」解除部分关系", MAX_PROTECTOR_COUNT),
           null,
           null,
           null,
@@ -165,7 +165,7 @@ public class DaoProtectionService {
     if (protectionOpt.isEmpty()) {
       return new DaoProtectionResult(
           false,
-          String.format("你并未为%s护道", protege.getNickname()),
+          String.format("你已在为%s护道", protege.getNickname()),
           null,
           null,
           null,
@@ -180,13 +180,13 @@ public class DaoProtectionService {
     daoProtectionRepository.deleteById(protectionOpt.get().getId());
 
     return new DaoProtectionResult(
-        true,
-        String.format("已解除与%s的护道契约", protege.getNickname()),
-        protectorId,
+        false,
+        String.format("未找到道号为【%s】的修士", protegeNickname),
         null,
         null,
-        protege.getId(),
-        protege.getNickname(),
+        null,
+        null,
+        null,
         null,
         null,
         null,

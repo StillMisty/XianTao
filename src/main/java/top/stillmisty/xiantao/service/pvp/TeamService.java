@@ -1,6 +1,5 @@
 package top.stillmisty.xiantao.service.pvp;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -20,6 +19,7 @@ import top.stillmisty.xiantao.infrastructure.repository.TeamInvitationRepository
 import top.stillmisty.xiantao.infrastructure.repository.TeamMemberRepository;
 import top.stillmisty.xiantao.infrastructure.repository.TeamRepository;
 import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
@@ -165,8 +165,8 @@ public class TeamService {
     invitation.setInviterId(userId);
     invitation.setInviteeId(invitee.getId());
     invitation.setStatus(InvitationStatus.PENDING);
-    invitation.setCreatedAt(LocalDateTime.now());
-    invitation.setExpiresAt(LocalDateTime.now().plusMinutes(5));
+    invitation.setCreatedAt(TimeUtil.now());
+    invitation.setExpiresAt(TimeUtil.now().plusMinutes(5));
     invitationRepository.save(invitation);
 
     log.info("玩家 {} 邀请 {} 组队, 邀请ID={}", userId, invitee.getId(), invitation.getId());
@@ -222,7 +222,7 @@ public class TeamService {
     TeamMember member = new TeamMember();
     member.setTeamId(team.getId());
     member.setUserId(userId);
-    member.setJoinedAt(LocalDateTime.now());
+    member.setJoinedAt(TimeUtil.now());
     teamMemberRepository.save(member);
 
     teamRepository.incrementMemberCount(team.getId());
@@ -331,13 +331,13 @@ public class TeamService {
     team.setLeaderId(userId);
     team.setMemberCount(1);
     team.setStatus(TeamStatus.ACTIVE);
-    team.setCreatedAt(LocalDateTime.now());
+    team.setCreatedAt(TimeUtil.now());
     teamRepository.save(team);
 
     TeamMember selfMember = new TeamMember();
     selfMember.setTeamId(team.getId());
     selfMember.setUserId(userId);
-    selfMember.setJoinedAt(LocalDateTime.now());
+    selfMember.setJoinedAt(TimeUtil.now());
     teamMemberRepository.save(selfMember);
 
     return team;

@@ -1,6 +1,7 @@
 package top.stillmisty.xiantao.service.ai;
 
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 import top.stillmisty.xiantao.domain.shop.entity.ShopNpc;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.worldevent.entity.WorldEvent;
@@ -27,6 +28,7 @@ public final class ShopChatContext {
     return ScopedValue.where(CURRENT, new ShopChatContext(user, npc, activeEvents)).call(op);
   }
 
+  @Nullable
   public static ShopChatContext current() {
     return CURRENT.isBound() ? CURRENT.get() : null;
   }

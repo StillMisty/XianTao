@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.item.entity.ItemProperties;
@@ -22,6 +23,7 @@ import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.PillResistanceRepository;
 import top.stillmisty.xiantao.infrastructure.repository.PlayerBuffRepository;
 import top.stillmisty.xiantao.infrastructure.repository.StackableItemRepository;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
@@ -81,6 +83,7 @@ public class PillConsumptionService {
 
   // ===================== 效果应用 =====================
 
+  @Nullable
   private String applyEffect(
       User user,
       ItemProperties.Effect effect,
@@ -101,6 +104,7 @@ public class PillConsumptionService {
     };
   }
 
+  @Nullable
   private String applyExp(
       User user,
       ItemProperties.Effect.Exp e,
@@ -137,6 +141,7 @@ public class PillConsumptionService {
     return "恢复 " + actualHealed + " 生命值";
   }
 
+  @Nullable
   private String applyStat(
       User user,
       ItemProperties.Effect.Stat e,
@@ -180,13 +185,14 @@ public class PillConsumptionService {
     return statName + " +" + actualStat;
   }
 
+  @Nullable
   private String applyBreakthrough(
       User user, ItemProperties.Effect.Breakthrough e, double qualityMultiplier, int grade) {
     double gradeDecay = calcGradeDecay(user.getLevel(), grade, true);
     int bonusValue = (int) (e.rate() * 100 * qualityMultiplier * gradeDecay);
     if (bonusValue <= 0) return null;
 
-    LocalDateTime expiresAt = LocalDateTime.now().plusHours(1);
+    LocalDateTime expiresAt = TimeUtil.now().plusHours(1);
     PlayerBuff buff =
         PlayerBuff.create(user.getId(), PlayerBuffType.BREAKTHROUGH, bonusValue, expiresAt);
     playerBuffRepository.save(buff);
@@ -194,6 +200,7 @@ public class PillConsumptionService {
     return "突破成功率 +" + bonusValue + "%（1小时内有效）";
   }
 
+  @Nullable
   private String applyBuff(
       User user, ItemProperties.Effect.Buff e, double qualityMultiplier, int grade) {
     double gradeDecay = calcGradeDecay(user.getLevel(), grade, true);
@@ -209,7 +216,7 @@ public class PillConsumptionService {
       return buffType.getDisplayName() + " buff 已达堆叠上限（" + MAX_ACTIVE_BUFFS_PER_TYPE + "层）";
     }
 
-    LocalDateTime expiresAt = LocalDateTime.now().plusSeconds(e.durationSeconds());
+    LocalDateTime expiresAt = TimeUtil.now().plusSeconds(e.durationSeconds());
     PlayerBuff buff = PlayerBuff.create(user.getId(), buffType, actualValue, expiresAt);
     playerBuffRepository.save(buff);
 
@@ -255,6 +262,7 @@ public class PillConsumptionService {
 
   // ===================== 辅助方法 =====================
 
+  @Nullable
   private StackableItem findPill(Long userId, String pillName) {
     List<StackableItem> pills =
         stackableItemRepository.findByUserId(userId).stream()

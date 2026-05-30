@@ -9,6 +9,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.event.enums.ActivityType;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
@@ -22,6 +23,7 @@ import top.stillmisty.xiantao.infrastructure.repository.DaoProtectionRepository;
 import top.stillmisty.xiantao.infrastructure.repository.EquipmentRepository;
 import top.stillmisty.xiantao.infrastructure.repository.MapNodeRepository;
 import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.ProtectionHelper;
 import top.stillmisty.xiantao.service.ServiceResult;
 
@@ -128,13 +130,13 @@ public class CharacterStatusService {
 
   private record TravelData(
       String locationName,
-      Long destinationId,
-      String destinationName,
-      LocalDateTime startTime,
-      LocalDateTime estimatedArrivalTime,
-      Integer timeMinutes,
-      Long minutesElapsed,
-      Long minutesRemaining) {}
+      @Nullable Long destinationId,
+      @Nullable String destinationName,
+      @Nullable LocalDateTime startTime,
+      @Nullable LocalDateTime estimatedArrivalTime,
+      @Nullable Integer timeMinutes,
+      @Nullable Long minutesElapsed,
+      @Nullable Long minutesRemaining) {}
 
   private EquipData buildEquipData(Long userId) {
     List<Equipment> equippedItems = equipmentRepository.findEquippedByUserId(userId);
@@ -207,7 +209,7 @@ public class CharacterStatusService {
       }
 
       if (travelStartTime != null) {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = TimeUtil.now();
         if (travelTimeMinutes != null) {
           travelMinutesElapsed =
               Math.min(

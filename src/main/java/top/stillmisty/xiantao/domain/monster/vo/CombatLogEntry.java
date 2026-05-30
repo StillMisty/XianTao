@@ -1,6 +1,7 @@
 package top.stillmisty.xiantao.domain.monster.vo;
 
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 public record CombatLogEntry(
     int round,
@@ -8,10 +9,10 @@ public record CombatLogEntry(
     String attackerName,
     String defenderName,
     AttackType attackType,
-    String skillName,
-    List<String> effects,
+    @Nullable String skillName,
+    @Nullable List<String> effects,
     boolean buffApplied,
-    String buffTarget,
+    @Nullable String buffTarget,
     int damageDealt,
     int defenderHpBefore,
     int defenderHpAfter,

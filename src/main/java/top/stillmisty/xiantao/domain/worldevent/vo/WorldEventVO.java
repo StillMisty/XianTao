@@ -28,6 +28,6 @@ public record WorldEventVO(
         event.getEndTime(),
         Boolean.TRUE.equals(event.getParticipationEnabled()),
         event.getParticipationLimit() != null ? event.getParticipationLimit() : 0,
-        event.getParticipationCount() != null ? event.getParticipationCount() : 0);
+        event.getParticipationCount());
   }
 }

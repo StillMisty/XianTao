@@ -68,7 +68,7 @@ public class DamageCalculator {
     if (attacker instanceof PlayerCombatant pc && defender instanceof Monster monster) {
       WeaponType weaponType = pc.getWeaponType();
       MonsterType monsterType = monster.getMonsterType();
-      if (weaponType != null && monsterType != null) {
+      if (weaponType != null) {
         MonsterType advantaged = ADVANTAGE_MAP.get(weaponType);
         if (advantaged == monsterType) return 1.5;
       }

@@ -1,6 +1,7 @@
 package top.stillmisty.xiantao.domain.skill.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.jspecify.annotations.Nullable;
 import top.stillmisty.xiantao.domain.skill.enums.EffectType;
 
 /** 法决效果定义 存储在 Skill.effects JSONB 列表中 */
@@ -14,7 +15,7 @@ public record SkillEffect(
     /*
      伤害公式（仅 type=damage/multi_hit/execute 时使用）
     */
-    String formula,
+    @Nullable String formula,
 
     /*
      效果数值
@@ -22,32 +23,32 @@ public record SkillEffect(
      - 对于 dot：每回合伤害比例
      - 对于 heal：治疗比例
     */
-    Double value,
+    @Nullable Double value,
 
     /*
      持续回合数（buff/debuff/dot 使用）
     */
-    Integer duration,
+    @Nullable Integer duration,
 
     /*
      最大叠加层数（dot 使用）
     */
-    Integer maxStacks,
+    @Nullable Integer maxStacks,
 
     /*
      触发概率（0-1，默认 1.0）
     */
-    Double chance,
+    @Nullable Double chance,
 
     /*
      元素类型（可选，如 fire/ice/lightning）
     */
-    String element,
+    @Nullable String element,
 
     /*
      目标选择（可选：single/aoe/random）
     */
-    String target) {
+    @Nullable String target) {
   /** 创建伤害效果 */
   public static SkillEffect damage(String formula) {
     return new SkillEffect(EffectType.DAMAGE, formula, null, null, null, null, null, null);

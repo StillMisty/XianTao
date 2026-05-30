@@ -21,6 +21,7 @@ import top.stillmisty.xiantao.infrastructure.repository.DaoProtectionRepository;
 import top.stillmisty.xiantao.infrastructure.repository.MasterApprenticeRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SectMemberRepository;
 import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
@@ -224,7 +225,7 @@ public class MasterApprenticeService {
     }
 
     relation.setStatus(MasterApprenticeStatus.DISMISSED);
-    relation.setCooldownUntil(LocalDateTime.now().plusHours(COOLDOWN_HOURS));
+    relation.setCooldownUntil(TimeUtil.now().plusHours(COOLDOWN_HOURS));
     masterApprenticeRepository.save(relation);
 
     clearDaoProtection(userId, target.getId());
@@ -246,7 +247,7 @@ public class MasterApprenticeService {
 
     MasterApprentice relation = relationOpt.get();
     relation.setStatus(MasterApprenticeStatus.RENEGED);
-    relation.setCooldownUntil(LocalDateTime.now().plusHours(COOLDOWN_HOURS));
+    relation.setCooldownUntil(TimeUtil.now().plusHours(COOLDOWN_HOURS));
     masterApprenticeRepository.save(relation);
 
     clearDaoProtection(relation.getMasterId(), userId);
@@ -327,7 +328,7 @@ public class MasterApprenticeService {
     CultivationRealm apprenticeRealm = CultivationRealm.fromLevel(apprentice.getLevel());
     CultivationRealm masterRealm = CultivationRealm.fromLevel(master.getLevel());
 
-    if (apprenticeRealm.ordinal() >= masterRealm.ordinal()) {
+    if (apprenticeRealm.getRank() >= masterRealm.getRank()) {
       graduate(userId, relation);
       log.info("玩家 {} 自动出师，达到师傅境界 {}", userId, apprenticeRealm.getRealmName());
     }
@@ -335,7 +336,7 @@ public class MasterApprenticeService {
 
   private void graduate(Long apprenticeId, MasterApprentice relation) {
     relation.setStatus(MasterApprenticeStatus.GRADUATED);
-    relation.setGraduatedAt(LocalDateTime.now());
+    relation.setGraduatedAt(TimeUtil.now());
     masterApprenticeRepository.save(relation);
 
     clearDaoProtection(relation.getMasterId(), apprenticeId);
@@ -376,7 +377,7 @@ public class MasterApprenticeService {
   private boolean isLevelGapSufficient(int higherLevel, int lowerLevel) {
     CultivationRealm higherRealm = CultivationRealm.fromLevel(higherLevel);
     CultivationRealm lowerRealm = CultivationRealm.fromLevel(lowerLevel);
-    return higherRealm.ordinal() <= lowerRealm.ordinal();
+    return higherRealm.getRank() <= lowerRealm.getRank();
   }
 
   private boolean isOnCooldown(Long userId) {
@@ -386,7 +387,7 @@ public class MasterApprenticeService {
             r -> {
               if (r.isActive()) return false;
               LocalDateTime cooldown = r.getCooldownUntil();
-              return (cooldown != null && cooldown.isAfter(LocalDateTime.now()));
+              return (cooldown != null && cooldown.isAfter(TimeUtil.now()));
             })
         .orElse(false);
   }

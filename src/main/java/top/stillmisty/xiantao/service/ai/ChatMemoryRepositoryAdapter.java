@@ -88,7 +88,7 @@ public class ChatMemoryRepositoryAdapter implements ChatMemoryRepository {
       entry.setConversationId(cid.entityId());
       entry.setUserId(cid.userId());
       entry.setRole(toRole(message));
-      entry.setContent(message.getText());
+      entry.setContent(message.getText() != null ? message.getText() : "");
 
       if (message.getMessageType() == MessageType.ASSISTANT && reasoning != null) {
         Map<String, Object> extraData = new HashMap<>();

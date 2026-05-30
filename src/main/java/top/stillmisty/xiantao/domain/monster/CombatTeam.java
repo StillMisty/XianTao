@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import org.jspecify.annotations.Nullable;
 
 public class CombatTeam {
 
@@ -45,7 +46,7 @@ public class CombatTeam {
     return name;
   }
 
-  public Combatant selectTargetForPVE() {
+  public @Nullable Combatant selectTargetForPVE() {
     List<Combatant> alive = aliveMembers();
     if (alive.isEmpty()) return null;
     return alive.stream()
@@ -53,7 +54,7 @@ public class CombatTeam {
         .orElse(alive.getFirst());
   }
 
-  public Combatant selectTargetRandom() {
+  public @Nullable Combatant selectTargetRandom() {
     List<Combatant> alive = aliveMembers();
     if (alive.isEmpty()) return null;
     return alive.get(ThreadLocalRandom.current().nextInt(alive.size()));

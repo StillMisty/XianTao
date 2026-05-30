@@ -54,16 +54,19 @@ public sealed interface CellConfig {
       return productionStored.stream().mapToInt(ProductionItem::quantity).sum();
     }
 
-    public void addProductionItem(Long templateId, String name, int quantity) {
-      for (ProductionItem item : productionStored) {
+    public PenConfig addProductionItem(Long templateId, String name, int quantity) {
+      List<ProductionItem> newList = new ArrayList<>(productionStored);
+      for (int i = 0; i < newList.size(); i++) {
+        ProductionItem item = newList.get(i);
         if (item.templateId().equals(templateId)) {
-          int idx = productionStored.indexOf(item);
-          productionStored.set(
-              idx, new ProductionItem(templateId, name, item.quantity() + quantity));
-          return;
+          newList.set(i, new ProductionItem(templateId, name, item.quantity() + quantity));
+          return new PenConfig(
+              beastId, this.templateId, hatchTime, matureTime, newList, lastProductionTime);
         }
       }
-      productionStored.add(new ProductionItem(templateId, name, quantity));
+      newList.add(new ProductionItem(templateId, name, quantity));
+      return new PenConfig(
+          beastId, this.templateId, hatchTime, matureTime, newList, lastProductionTime);
     }
 
     public PenConfig withClearedProduction() {

@@ -8,10 +8,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import java.util.function.Function;
 
-@JsonTypeInfo(
-    use = JsonTypeInfo.Id.NAME,
-    property = "type",
-    defaultImpl = BountyRewardPool.RareItem.class)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
   @JsonSubTypes.Type(value = BountyRewardPool.RareItem.class, name = "rare_item"),
   @JsonSubTypes.Type(value = BountyRewardPool.SpiritStones.class, name = "spirit_stones"),

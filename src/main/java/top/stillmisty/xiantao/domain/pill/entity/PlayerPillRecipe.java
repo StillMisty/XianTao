@@ -7,8 +7,10 @@ import com.mybatisflex.annotation.Table;
 import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 
 /** 玩家已学丹方实体 */
+@SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table("xt_player_pill_recipe")
@@ -41,7 +43,7 @@ public class PlayerPillRecipe {
     recipe.userId = userId;
     recipe.recipeTemplateId = recipeTemplateId;
     recipe.resultItemId = resultItemId;
-    recipe.learnTime = LocalDateTime.now();
+    recipe.learnTime = TimeUtil.now();
     return recipe;
   }
 }

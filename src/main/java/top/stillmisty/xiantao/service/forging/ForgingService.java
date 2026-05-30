@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.forge.entity.PlayerForgingRecipe;
@@ -57,7 +58,12 @@ public class ForgingService {
   }
 
   public ServiceResult<ForgingRecipeVO> getForgingRecipeDetail(Long userId, String recipeName) {
-    return new ServiceResult.Success<>(getForgingRecipeDetailInternal(userId, recipeName));
+    ForgingRecipeVO result = getForgingRecipeDetailInternal(userId, recipeName);
+    if (result == null) {
+      return new ServiceResult.Failure<>(
+          top.stillmisty.xiantao.service.ErrorCode.ITEM_NOT_FOUND, recipeName);
+    }
+    return new ServiceResult.Success<>(result);
   }
 
   @Transactional
@@ -83,6 +89,9 @@ public class ForgingService {
 
     if (targetRecipe == null) {
       throw new BusinessException(ErrorCode.BLUEPRINT_SCROLL_NOT_FOUND, blueprintName);
+    }
+    if (blueprintTemplate == null) {
+      throw new BusinessException(ErrorCode.BLUEPRINT_DATA_ERROR);
     }
 
     var blueprint = combinationFinder.getForgingBlueprint(blueprintTemplate);
@@ -231,6 +240,7 @@ public class ForgingService {
         .toList();
   }
 
+  @Nullable
   public ForgingRecipeVO getForgingRecipeDetailInternal(Long userId, String recipeName) {
     List<PlayerForgingRecipe> recipes = playerForgingRecipeRepository.findByUserId(userId);
     Map<Long, ItemTemplate> blueprintMap = loadBlueprintTemplates(recipes);

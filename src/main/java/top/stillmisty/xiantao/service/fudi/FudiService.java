@@ -1,10 +1,10 @@
 package top.stillmisty.xiantao.service.fudi;
 
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
@@ -25,6 +25,7 @@ import top.stillmisty.xiantao.infrastructure.repository.FudiRepository;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SpiritFormRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SpiritRepository;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
@@ -113,7 +114,7 @@ public class FudiService {
     fudi.setUserId(userId);
     fudi.setTribulationStage(0);
     fudi.setTribulationWinStreak(0);
-    fudi.setLastOnlineTime(LocalDateTime.now());
+    fudi.setLastOnlineTime(TimeUtil.now());
 
     try {
       fudi = fudiRepository.save(fudi);
@@ -209,7 +210,7 @@ public class FudiService {
     return buildFudiStatusVO(fudi, null);
   }
 
-  private FudiStatusVO buildFudiStatusVO(Fudi fudi, String tribulationResult) {
+  private FudiStatusVO buildFudiStatusVO(Fudi fudi, @Nullable String tribulationResult) {
     List<FudiCell> allCells = fudiCellRepository.findByFudiId(fudi.getId());
     List<CellDetailVO> cellDetails = buildCellDetailsFromCells(fudi, allCells);
 
@@ -276,13 +277,6 @@ public class FudiService {
     return details;
   }
 
-  private int getOccupiedCellCount(Fudi fudi) {
-    return (int)
-        fudiCellRepository.findByFudiId(fudi.getId()).stream()
-            .filter(cell -> cell.getCellType() != CellType.EMPTY)
-            .count();
-  }
-
   // ===================== 天劫触发 =====================
 
   @Transactional
@@ -298,31 +292,6 @@ public class FudiService {
         result != null ? result : "天劫未触发",
         fudi.getTribulationStage(),
         fudi.getTribulationWinStreak());
-  }
-
-  // ===================== 地块详情构建 =====================
-
-  private List<CellDetailVO> buildCellDetails(Fudi fudi) {
-    List<FudiCell> cells = fudiCellRepository.findByFudiId(fudi.getId());
-    List<CellDetailVO> details = new ArrayList<>();
-
-    for (FudiCell cell : cells) {
-      CellDetailVO.CellDetailVOBuilder builder =
-          CellDetailVO.builder()
-              .cellId(cell.getCellId())
-              .type(cell.getCellType())
-              .cellLevel(cell.getCellLevel());
-
-      switch (cell.getCellType()) {
-        case FARM -> farmService.buildFarmCellDetail(builder, cell);
-        case PEN -> beastDisplayHelper.buildPenCellDetail(builder, cell);
-        default -> {}
-      }
-
-      details.add(builder.build());
-    }
-
-    return details;
   }
 
   // ===================== 统一收取系统（种植收获 + 灵兽产出） =====================
@@ -629,6 +598,7 @@ public class FudiService {
           builder.productionStored(cell.getTotalProductionQuantity());
           builder.isIncubating(beastDisplayHelper.isIncubating(cell));
         }
+        default -> {}
       }
 
       occupiedCells.add(builder.build());

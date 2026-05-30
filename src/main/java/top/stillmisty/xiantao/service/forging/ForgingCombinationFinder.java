@@ -2,6 +2,7 @@ package top.stillmisty.xiantao.service.forging;
 
 import java.util.*;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.forge.vo.ForgingResultVO;
@@ -32,7 +33,7 @@ public class ForgingCombinationFinder {
   private final CombinationStrategy strategy =
       new CombinationStrategy(FORGE_ATTRIBUTES, 3, ForgingCombinationFinder::getMaterialValue);
 
-  public ItemProperties.ForgingBlueprint getForgingBlueprint(ItemTemplate template) {
+  public ItemProperties.@Nullable ForgingBlueprint getForgingBlueprint(ItemTemplate template) {
     var props = template.typedProperties();
     if (props instanceof ItemProperties.ForgingBlueprint fb) return fb;
     return null;

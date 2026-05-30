@@ -1,6 +1,5 @@
 package top.stillmisty.xiantao.service.worldevent;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +14,7 @@ import top.stillmisty.xiantao.domain.worldevent.enums.WorldEventScope;
 import top.stillmisty.xiantao.domain.worldevent.enums.WorldEventStatus;
 import top.stillmisty.xiantao.infrastructure.repository.WorldEventRepository;
 import top.stillmisty.xiantao.infrastructure.repository.WorldEventTemplateRepository;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 
 @Slf4j
 @Service
@@ -110,8 +110,8 @@ public class WorldEventGenerator {
     event.setTitle(template.getTitle());
     event.setDescription(template.getDescription());
     event.setStatus(status);
-    event.setStartTime(LocalDateTime.now());
-    event.setEndTime(LocalDateTime.now().plusHours(template.getDurationHours()));
+    event.setStartTime(TimeUtil.now());
+    event.setEndTime(TimeUtil.now().plusHours(template.getDurationHours()));
     event.setAffectedTags(template.getAffectedTags());
     event.setGlobalMultiplier(template.getGlobalMultiplier());
     event.setEffects(template.getEffects());

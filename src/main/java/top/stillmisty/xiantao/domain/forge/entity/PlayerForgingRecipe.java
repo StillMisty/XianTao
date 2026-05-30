@@ -7,8 +7,10 @@ import com.mybatisflex.annotation.Table;
 import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 
 /** 玩家已学锻造图纸实体 */
+@SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table("xt_player_forging_recipe")
@@ -31,7 +33,7 @@ public class PlayerForgingRecipe {
     recipe.userId = userId;
     recipe.blueprintTemplateId = blueprintTemplateId;
     recipe.equipmentTemplateId = equipmentTemplateId;
-    recipe.learnTime = LocalDateTime.now();
+    recipe.learnTime = TimeUtil.now();
     return recipe;
   }
 }

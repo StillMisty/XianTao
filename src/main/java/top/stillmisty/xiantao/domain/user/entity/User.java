@@ -12,6 +12,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import org.jspecify.annotations.Nullable;
 import top.stillmisty.xiantao.domain.event.enums.ActivityType;
 import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
@@ -20,6 +21,7 @@ import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 @EqualsAndHashCode
 @Table("xt_user")
 @Accessors(chain = true)
+@SuppressWarnings("NullAway")
 @Data
 @NoArgsConstructor
 public class User {
@@ -67,28 +69,28 @@ public class User {
   private Long locationId;
 
   /** 通用活动类型 (TRAVEL/TRAINING/BOUNTY) */
-  private ActivityType activityType;
+  @Nullable private ActivityType activityType;
 
   /** 活动开始时间戳 */
-  private LocalDateTime activityStartTime;
+  @Nullable private LocalDateTime activityStartTime;
 
   /** 活动目标 ID (根据 activity_type 引用不同表: TRAVEL/TRAINING→map_id, BOUNTY→bounty_record_id) */
-  private Long activityTargetId;
+  @Nullable private Long activityTargetId;
 
   /** 上次 HP 自然恢复时间 */
-  private LocalDateTime lastHpRecoveryTime;
+  @Nullable private LocalDateTime lastHpRecoveryTime;
 
   /** 濒死开始时间 */
-  private LocalDateTime dyingStartTime;
+  @Nullable private LocalDateTime dyingStartTime;
 
   /** 突破失败次数 (影响下一次突破成功率) */
   private Integer breakthroughFailCount;
 
   /** 历练中途结算的已处理分钟数 */
-  private Long lastSettlementMinute;
+  private long lastSettlementMinute;
 
   /** 上次运势生成日期 */
-  private LocalDate lastFortuneDate;
+  @Nullable private LocalDate lastFortuneDate;
 
   // ===================== 境界显示方法 =====================
 
@@ -131,36 +133,36 @@ public class User {
   }
 
   public int getEffectiveStatStr() {
-    return (statStr != null ? statStr : 0) + (4 + (level != null ? level : 0));
+    return statStr + 4 + level;
   }
 
   public int getEffectiveStatCon() {
-    return (statCon != null ? statCon : 0) + (4 + (level != null ? level : 0));
+    return statCon + 4 + level;
   }
 
   public int getEffectiveStatAgi() {
-    return (statAgi != null ? statAgi : 0) + (4 + (level != null ? level : 0));
+    return statAgi + 4 + level;
   }
 
   public int getEffectiveStatWis() {
-    return (statWis != null ? statWis : 0) + (4 + (level != null ? level : 0));
+    return statWis + 4 + level;
   }
 
   /** 直接加属性值（丹药等来源，不加基础值） */
   public void addStatStr(int amount) {
-    this.statStr = (this.statStr != null ? this.statStr : 0) + amount;
+    this.statStr += amount;
   }
 
   public void addStatCon(int amount) {
-    this.statCon = (this.statCon != null ? this.statCon : 0) + amount;
+    this.statCon += amount;
   }
 
   public void addStatAgi(int amount) {
-    this.statAgi = (this.statAgi != null ? this.statAgi : 0) + amount;
+    this.statAgi += amount;
   }
 
   public void addStatWis(int amount) {
-    this.statWis = (this.statWis != null ? this.statWis : 0) + amount;
+    this.statWis += amount;
   }
 
   /** 计算升级到下一级所需修为 */
@@ -241,6 +243,6 @@ public class User {
     if (status != UserStatus.IDLE) return false;
     if (activityType != null) return false;
     int maxHp = calculateMaxHp();
-    return hpCurrent != null && hpCurrent >= maxHp;
+    return hpCurrent >= maxHp;
   }
 }

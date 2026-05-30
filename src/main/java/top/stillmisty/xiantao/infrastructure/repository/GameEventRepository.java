@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import top.stillmisty.xiantao.domain.event.entity.GameEvent;
 import top.stillmisty.xiantao.infrastructure.mapper.GameEventMapper;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 
 @Repository
 @RequiredArgsConstructor
@@ -44,7 +45,6 @@ public class GameEventRepository {
     return gameEventMapper.deleteByQuery(
         QueryWrapper.create()
             .where(GAME_EVENT.DELIVERED.eq(true))
-            .and(
-                GAME_EVENT.OCCURRED_AT.le(java.time.LocalDateTime.now().minusDays(retentionDays))));
+            .and(GAME_EVENT.OCCURRED_AT.le(TimeUtil.now().minusDays(retentionDays))));
   }
 }

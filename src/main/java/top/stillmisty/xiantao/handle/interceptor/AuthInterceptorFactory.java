@@ -34,6 +34,7 @@ public class AuthInterceptorFactory implements AnnotationEventInterceptorFactory
   }
 
   /** 认证拦截器实现 */
+  @SuppressWarnings("EffectivelyPrivate")
   private static class AuthInterceptor implements JBlockEventInterceptor {
 
     private final AuthenticationService authService;
@@ -56,7 +57,7 @@ public class AuthInterceptorFactory implements AnnotationEventInterceptorFactory
       var platform = handler.getPlatformType();
       var openId = handler.extractOpenId(messageEvent);
 
-      ServiceResult<Long> auth = authService.authenticate(platform, openId, null);
+      ServiceResult<Long> auth = authService.authenticate(platform, openId);
       if (auth instanceof ServiceResult.Failure<Long>(var errorCode, var errorMessage)) {
         return EventResult.of(errorCode + ": " + errorMessage);
       }

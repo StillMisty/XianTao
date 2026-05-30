@@ -42,7 +42,7 @@ public class SectListener {
   @ContentTrim
   @Filter("宗门创建\\s*{{name,\\S+}}")
   public void create(MessageEvent event, @FilterValue("name") String name) {
-    replyHelper.dispatch(event, "宗门创建", fmt -> sectCommandHandler.handleCreate(name, null, fmt));
+    replyHelper.dispatch(event, "宗门创建", fmt -> sectCommandHandler.handleCreate(name, "", fmt));
   }
 
   @RequireAuth

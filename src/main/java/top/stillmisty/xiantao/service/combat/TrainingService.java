@@ -1,12 +1,12 @@
 package top.stillmisty.xiantao.service.combat;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.event.enums.ActivityType;
@@ -23,6 +23,7 @@ import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.MapNodeRepository;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.infrastructure.util.WeightedRandom;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
@@ -83,7 +84,7 @@ public class TrainingService {
           .build();
     }
     user.setActivityType(ActivityType.TRAINING);
-    user.setActivityStartTime(LocalDateTime.now());
+    user.setActivityStartTime(TimeUtil.now());
     user.setActivityTargetId(mapNode.getId());
     user.setStatus(UserStatus.TRAINING);
     user.setLastSettlementMinute(0L);
@@ -102,11 +103,12 @@ public class TrainingService {
     if (earlyResult != null) return earlyResult;
 
     long minutesTraining =
-        Duration.between(user.getActivityStartTime(), LocalDateTime.now()).toMinutes();
+        Duration.between(user.getActivityStartTime(), TimeUtil.now()).toMinutes();
     MapNode mapNode = mapNodeRepository.findById(user.getLocationId()).orElseThrow();
     return processNormalTrainingEnd(userId, user, minutesTraining, mapNode);
   }
 
+  @Nullable
   private TrainingRewardVO checkEndTrainingEarlyExit(Long userId, User user) {
     if (user.getStatus() == UserStatus.DYING) {
       return TrainingRewardVO.builder()
@@ -126,7 +128,7 @@ public class TrainingService {
           .build();
     }
     long minutesTraining =
-        Duration.between(user.getActivityStartTime(), LocalDateTime.now()).toMinutes();
+        Duration.between(user.getActivityStartTime(), TimeUtil.now()).toMinutes();
     if (minutesTraining <= 5) {
       user.setStatus(UserStatus.IDLE);
       user.clearActivity();
@@ -148,7 +150,7 @@ public class TrainingService {
 
   private TrainingRewardVO processNormalTrainingEnd(
       Long userId, User user, long minutesTraining, MapNode mapNode) {
-    long lastSettled = user.getLastSettlementMinute() != null ? user.getLastSettlementMinute() : 0;
+    long lastSettled = user.getLastSettlementMinute();
     long remainingMinutes = Math.max(0, minutesTraining - lastSettled);
 
     CombatSummary combatSummary = CombatSummary.empty();
@@ -231,7 +233,7 @@ public class TrainingService {
       List<String> itemNames,
       CombatSummary combatSummary,
       String fallback) {
-    String combatHighlight = buildHighlightBattleText(combatSummary);
+    @Nullable String combatHighlight = buildHighlightBattleText(combatSummary);
     var request =
         new ExplorationDescriptionFunction.Request(
             mapNode.getName(),
@@ -262,6 +264,7 @@ public class TrainingService {
     return sb.toString();
   }
 
+  @Nullable
   private String buildHighlightBattleText(CombatSummary cs) {
     if (!cs.hasHighlight() || cs.firstHighlightLogs().isEmpty()) return null;
     StringBuilder sb = new StringBuilder();

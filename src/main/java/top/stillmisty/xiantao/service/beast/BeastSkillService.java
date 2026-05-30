@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.beast.vo.BeastSkillPoolVO;
@@ -22,7 +23,7 @@ public class BeastSkillService {
   private final ItemTemplateRepository itemTemplateRepository;
   private final BeastTemplateRepository beastTemplateRepository;
 
-  BeastSkillPoolVO getBeastSkillPool(Integer templateId) {
+  @Nullable BeastSkillPoolVO getBeastSkillPool(Integer templateId) {
     if (templateId == null) {
       return null;
     }

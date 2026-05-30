@@ -1,5 +1,6 @@
 package top.stillmisty.xiantao.handle.command;
 
+import org.jspecify.annotations.Nullable;
 import top.stillmisty.xiantao.domain.skill.entity.SkillEffect;
 
 /** 技能效果格式化，供 SkillCommandHandler 和 ViewCommandHandler 共用 */
@@ -55,7 +56,7 @@ final class SkillFormatter {
     return name + (detail.isEmpty() ? "" : "(" + detail + ")");
   }
 
-  static String formatFormula(String formula) {
+  static String formatFormula(@Nullable String formula) {
     if (formula == null || formula.isBlank()) return "";
     return formula
         .replace("attack", "攻击")

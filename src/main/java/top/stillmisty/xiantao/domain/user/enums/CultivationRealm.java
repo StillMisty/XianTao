@@ -120,7 +120,7 @@ public enum CultivationRealm {
       "渡劫期",
       111,
       Integer.MAX_VALUE,
-      /** 渡劫期前10层有独立命名，之后按"第N劫"生成。 layerNames仅存储前10层，internalLayerForName()超出部分走公式。 */
+      /* 渡劫期前10层有独立命名，之后按"第N劫"生成。 layerNames仅存储前10层，internalLayerForName()超出部分走公式。 */
       List.of("一劫", "二劫", "三劫", "四劫", "五劫", "六劫", "七劫", "八劫", "九劫", "飞升劫"),
       """
                      天道降下雷劫考验。每一劫都是生死之间的大恐怖。
@@ -140,7 +140,10 @@ public enum CultivationRealm {
   private final String realmName;
   private final int startLevel;
   private final int endLevel;
+
+  @SuppressWarnings("ImmutableEnumChecker") // List.copyOf() in constructor
   private final List<String> layerNames;
+
   private final String description;
   private final String breakthroughMessage;
 
@@ -154,7 +157,7 @@ public enum CultivationRealm {
     this.realmName = realmName;
     this.startLevel = startLevel;
     this.endLevel = endLevel;
-    this.layerNames = layerNames;
+    this.layerNames = List.copyOf(layerNames);
     this.description = description.strip().replace("\n", "");
     this.breakthroughMessage = breakthroughMessage.strip().replace("\n", " ");
   }
@@ -185,6 +188,19 @@ public enum CultivationRealm {
     return "第" + innerLayer + "劫";
   }
 
+  @SuppressWarnings("EnumOrdinal")
+  public int getRank() {
+    return ordinal();
+  }
+
+  public static CultivationRealm fromRank(int rank) {
+    CultivationRealm[] values = values();
+    if (rank < 0 || rank >= values.length) {
+      throw new IllegalArgumentException("Unknown CultivationRealm rank: " + rank);
+    }
+    return values[rank];
+  }
+
   /** 判断是否跨大境界突破 */
   public static boolean isMajorBreakthrough(int oldLevel, int newLevel) {
     return fromLevel(oldLevel) != fromLevel(newLevel);
@@ -192,6 +208,6 @@ public enum CultivationRealm {
 
   /** 获取突破该境界时的灵石奖励 */
   public static long breakthroughSpiritStonesReward(CultivationRealm realm) {
-    return (long) (realm.ordinal() + 1) * MAJOR_BREAKTHROUGH_SPIRIT_STONES_BASE;
+    return (long) (realm.getRank() + 1) * MAJOR_BREAKTHROUGH_SPIRIT_STONES_BASE;
   }
 }

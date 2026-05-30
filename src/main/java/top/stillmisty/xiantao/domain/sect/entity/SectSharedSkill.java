@@ -14,6 +14,7 @@ import top.stillmisty.xiantao.domain.sect.enums.SectSharedSkillStatus;
 @EqualsAndHashCode
 @Table("xt_sect_shared_skill")
 @Accessors(chain = true)
+@SuppressWarnings("NullAway")
 @Data
 @NoArgsConstructor
 public class SectSharedSkill {

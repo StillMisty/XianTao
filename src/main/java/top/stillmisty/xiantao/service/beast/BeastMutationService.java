@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.beast.entity.MutationTraitConfig;
@@ -32,12 +33,12 @@ public class BeastMutationService {
   public boolean canAddTrait(Beast beast) {
     Set<Long> traits = beast.getMutationTraits();
     int current = traits != null ? traits.size() : 0;
-    return current < getMaxSlots(beast.getTier() != null ? beast.getTier() : 1);
+    return current < getMaxSlots(beast.getTier());
   }
 
-  public Long rollRandomTrait(Beast beast) {
+  public @Nullable Long rollRandomTrait(Beast beast) {
     List<String> beastTags = getBeastTags(beast.getTemplateId());
-    BeastQuality quality = beast.getQuality() != null ? beast.getQuality() : BeastQuality.MORTAL;
+    BeastQuality quality = beast.getQuality();
 
     List<MutationTraitConfig> available =
         traitConfigRepository.findAvailableForBeast(beastTags, quality);
@@ -64,11 +65,11 @@ public class BeastMutationService {
       beast.setMutationTraits(currentTraits);
     }
 
-    int maxSlots = getMaxSlots(beast.getTier() != null ? beast.getTier() : 1);
+    int maxSlots = getMaxSlots(beast.getTier());
     if (currentTraits.size() >= maxSlots) return;
 
     List<String> beastTags = getBeastTags(beast.getTemplateId());
-    BeastQuality quality = beast.getQuality() != null ? beast.getQuality() : BeastQuality.MORTAL;
+    BeastQuality quality = beast.getQuality();
 
     List<MutationTraitConfig> available =
         traitConfigRepository.findAvailableForBeast(beastTags, quality);

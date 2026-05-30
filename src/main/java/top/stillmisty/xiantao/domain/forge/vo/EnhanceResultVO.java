@@ -1,6 +1,7 @@
 package top.stillmisty.xiantao.domain.forge.vo;
 
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 
 /** 强化结果VO */
 public record EnhanceResultVO(
@@ -12,5 +13,5 @@ public record EnhanceResultVO(
     int previousForgeLevel,
     double successRate,
     int spiritStoneCost,
-    Map<String, Integer> usedMaterials,
-    String milestoneReward) {}
+    @Nullable Map<String, Integer> usedMaterials,
+    @Nullable String milestoneReward) {}

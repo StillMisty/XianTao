@@ -34,6 +34,7 @@ import top.stillmisty.xiantao.infrastructure.repository.EquipmentTemplateReposit
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.MapNodeRepository;
 import top.stillmisty.xiantao.infrastructure.repository.UserBountyRepository;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.infrastructure.util.WeightedRandom;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ServiceResult;
@@ -111,15 +112,13 @@ public class BountyService {
     if (eligible.isEmpty()) return List.of();
 
     // Deterministic seed: per user, per map, per day → same list within same day
-    long seed = userId * 31 + mapNode.getId() * 17 + LocalDate.now().toEpochDay();
+    long seed = userId * 31 + mapNode.getId() * 17 + TimeUtil.today().toEpochDay();
     Random rng = new Random(seed);
 
     int count = rng.nextInt(2) + 3; // 3–4 bounties
     count = Math.min(count, eligible.size());
 
-    List<Bounty> selected =
-        WeightedRandom.selectN(
-            eligible, b -> b.getEventWeight() != null ? b.getEventWeight() : 0, count, rng);
+    List<Bounty> selected = WeightedRandom.selectN(eligible, b -> b.getEventWeight(), count, rng);
 
     return selected.stream()
         .map(
@@ -142,7 +141,7 @@ public class BountyService {
       return new BountyStatusVO(null, "无进行中的悬赏", "", null, 0, 0, 0, List.of());
     }
 
-    long minutesElapsed = Duration.between(record.getStartTime(), LocalDateTime.now()).toMinutes();
+    long minutesElapsed = Duration.between(record.getStartTime(), TimeUtil.now()).toMinutes();
     long minutesRemaining = Math.max(0, record.getDurationMinutes() - minutesElapsed);
 
     Bounty bounty =
@@ -191,7 +190,8 @@ public class BountyService {
       throw new BusinessException(BOUNTY_ALREADY_COMPLETED);
     }
 
-    long seed = userId * 31 + LocalDate.now().toEpochDay() + ThreadLocalRandom.current().nextLong();
+    long seed =
+        userId * 31 + TimeUtil.today().toEpochDay() + ThreadLocalRandom.current().nextLong();
     Random rng = new Random(seed);
     List<BountyRewardItem> predeterminedRewards = determineRewards(bounty, mapNode, rng);
 
@@ -199,7 +199,7 @@ public class BountyService {
     record.setUserId(userId);
     record.setBountyId(bountyId);
     record.setBountyName(bounty.getName());
-    record.setStartTime(LocalDateTime.now());
+    record.setStartTime(TimeUtil.now());
     record.setDurationMinutes(bounty.getDurationMinutes());
     record.setRewards(predeterminedRewards);
     record.setStatus(BountyStatus.ACTIVE);
@@ -208,7 +208,7 @@ public class BountyService {
 
     user.setStatus(UserStatus.BOUNTY);
     user.setActivityType(ActivityType.BOUNTY);
-    user.setActivityStartTime(LocalDateTime.now());
+    user.setActivityStartTime(TimeUtil.now());
     user.setActivityTargetId(record.getId());
     userStateService.saveActivity(user);
 
@@ -272,7 +272,7 @@ public class BountyService {
             case BountyRewardPool.SpiritStones(var minAmount, var maxAmount) -> {
               long amount =
                   minAmount
-                      + (minAmount == maxAmount ? 0 : (rng.nextLong(maxAmount - minAmount + 1)));
+                      + (minAmount == maxAmount ? 0 : rng.nextLong(maxAmount - minAmount + 1));
               yield List.of(new BountyRewardItem.SpiritStonesReward(amount));
             }
             case BountyRewardPool.BeastEgg(_, var templateId) -> {

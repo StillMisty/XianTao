@@ -54,7 +54,7 @@ public class SectSpiritChatService extends AbstractChatService {
       String result = chatWithSectSpiritInternal(userId, userInput);
       return new ServiceResult.Success<>(result);
     } catch (BusinessException e) {
-      return ServiceResult.businessFailure(e.getMessage());
+      return ServiceResult.businessFailure(e.getMessage() != null ? e.getMessage() : "宗门操作失败");
     } catch (Exception e) {
       log.error("宗灵对话失败 - userId: {}, error: {}", userId, e.getMessage(), e);
       return ServiceResult.businessFailure("宗灵暂时无法回应，请稍后再试。");
@@ -68,9 +68,11 @@ public class SectSpiritChatService extends AbstractChatService {
             .filter(m -> m.getSectId() != null)
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_IN));
 
+    Long sectId = member.getSectId();
+    if (sectId == null) throw new BusinessException(ErrorCode.SECT_NOT_IN);
     Sect sect =
         sectRepository
-            .findById(member.getSectId())
+            .findById(sectId)
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_FOUND));
 
     sectBuildingService.settleSpiritVein(sect.getId());

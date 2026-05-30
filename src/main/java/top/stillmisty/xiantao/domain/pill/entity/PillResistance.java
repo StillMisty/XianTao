@@ -7,8 +7,10 @@ import com.mybatisflex.annotation.Table;
 import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 
 /** 丹药抗性实体 — 记录玩家对每种丹药各品质的服用次数 */
+@SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table("xt_pill_resistance")
@@ -40,7 +42,7 @@ public class PillResistance {
     pr.templateId = templateId;
     pr.quality = quality;
     pr.count = 1;
-    pr.updatedAt = LocalDateTime.now();
+    pr.updatedAt = TimeUtil.now();
     return pr;
   }
 }

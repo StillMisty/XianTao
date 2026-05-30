@@ -11,6 +11,7 @@ import top.stillmisty.xiantao.domain.event.entity.GameEvent;
 import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.GameEventService;
 
 @Slf4j
@@ -27,7 +28,7 @@ class DyingRecoveryHandler implements StateHandler {
   public boolean tryResolve(User user) {
     if (user.getStatus() != UserStatus.DYING) return false;
 
-    LocalDateTime now = LocalDateTime.now();
+    LocalDateTime now = TimeUtil.now();
     LocalDateTime dyingSince = user.getDyingStartTime();
     if (dyingSince == null) {
       user.setDyingStartTime(now);

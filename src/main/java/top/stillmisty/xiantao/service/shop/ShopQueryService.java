@@ -94,8 +94,8 @@ public class ShopQueryService {
                     new EquipmentListVO.EquipmentEntry(
                         e.getId(),
                         e.getName(),
-                        e.getRarity() != null ? e.getRarity().getName() : "未知",
-                        e.getForgeLevel() != null ? e.getForgeLevel() : 0,
+                        e.getRarity().getName(),
+                        e.getForgeLevel(),
                         e.getAffixes() != null
                             ? e.getAffixes().keySet().stream()
                                 .limit(3)
@@ -124,8 +124,8 @@ public class ShopQueryService {
                     new PlayerItemsVO.EquipmentInfo(
                         e.getId(),
                         e.getName(),
-                        e.getRarity() != null ? e.getRarity().getName() : "未知",
-                        e.getForgeLevel() != null ? e.getForgeLevel() : 0,
+                        e.getRarity().getName(),
+                        e.getForgeLevel(),
                         e.getAffixes() != null
                             ? e.getAffixes().keySet().stream()
                                 .limit(3)
@@ -140,9 +140,9 @@ public class ShopQueryService {
                     new PlayerItemsVO.StackableInfo(
                         s.getId(),
                         s.getName(),
-                        s.getQuantity() != null ? s.getQuantity() : 0,
-                        s.getItemType() != null ? s.getItemType().getName() : "未知",
-                        s.getTradable() != null && s.getTradable()))
+                        s.getQuantity(),
+                        s.getItemType().getName(),
+                        s.getTradable()))
             .toList();
 
     return new PlayerItemsVO(equipInfos, itemInfos);

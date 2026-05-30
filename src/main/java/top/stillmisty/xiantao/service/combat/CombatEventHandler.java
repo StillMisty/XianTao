@@ -51,7 +51,9 @@ public class CombatEventHandler {
       Map<Long, Skill> skillMap,
       int encounterIndex) {
     Map<String, Object> params = event.getParams();
-    long templateId = ((Number) params.get("monster_template_id")).longValue();
+    Number monsterTemplateIdNum = (Number) params.get("monster_template_id");
+    if (monsterTemplateIdNum == null) return EncounterResult.lost();
+    long templateId = monsterTemplateIdNum.longValue();
     MonsterTemplate tmpl = templateMap.get(templateId);
     if (tmpl == null) return EncounterResult.lost();
 

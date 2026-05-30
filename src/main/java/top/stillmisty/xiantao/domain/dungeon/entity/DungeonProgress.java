@@ -7,7 +7,9 @@ import java.time.LocalDate;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import top.stillmisty.xiantao.domain.dungeon.enums.DungeonArea;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 
+@SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table("dungeon_progress")
@@ -26,20 +28,20 @@ public class DungeonProgress {
   private DungeonArea bestArea;
 
   public boolean canGetReward() {
-    LocalDate today = LocalDate.now();
+    LocalDate today = TimeUtil.today();
     if (lastRewardDate == null || !lastRewardDate.equals(today)) {
       return true;
     }
-    return rewardCount != null && dailyLimit != null && rewardCount < dailyLimit;
+    return rewardCount < dailyLimit;
   }
 
   public void recordReward() {
-    LocalDate today = LocalDate.now();
+    LocalDate today = TimeUtil.today();
     if (lastRewardDate == null || !lastRewardDate.equals(today)) {
       lastRewardDate = today;
       rewardCount = 1;
     } else {
-      rewardCount = (rewardCount != null ? rewardCount : 0) + 1;
+      rewardCount++;
     }
   }
 

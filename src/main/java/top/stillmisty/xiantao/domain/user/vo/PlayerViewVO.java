@@ -1,6 +1,7 @@
 package top.stillmisty.xiantao.domain.user.vo;
 
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 public record PlayerViewVO(
     String nickname,
@@ -14,6 +15,6 @@ public record PlayerViewVO(
     int statCon,
     int statAgi,
     int statWis,
-    String locationName,
+    @Nullable String locationName,
     String statusName,
     List<String> equippedItems) {}

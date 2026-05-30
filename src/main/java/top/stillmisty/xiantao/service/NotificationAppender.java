@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.event.entity.GameEvent;
@@ -162,5 +163,6 @@ public class NotificationAppender {
     return result;
   }
 
-  public record AppendResult(String text, List<Long> eventIds, Long pendingChoiceEventId) {}
+  public record AppendResult(
+      String text, List<Long> eventIds, @Nullable Long pendingChoiceEventId) {}
 }

@@ -1,8 +1,11 @@
+import net.ltgt.gradle.errorprone.errorprone
+
 plugins {
     java
     alias(libs.plugins.spring.boot)
     alias(libs.plugins.dependency.management)
     alias(libs.plugins.spotless)
+    alias(libs.plugins.errorprone)
 }
 
 spotless {
@@ -33,6 +36,15 @@ java {
 tasks.withType<Test> {
     useJUnitPlatform()
     systemProperty("junit.jupiter.execution.parallel.enabled", "false")
+}
+
+tasks.withType<JavaCompile>().configureEach {
+    options.errorprone {
+        error("NullAway")
+        option("NullAway:AnnotatedPackages", "top.stillmisty.xiantao")
+        disable("UnusedVariable")
+        excludedPaths.set(".*/build/generated/.*")
+    }
 }
 
 configurations {
@@ -72,6 +84,13 @@ dependencies {
     implementation(libs.simbot.component.onebot.v11.core)
     implementation(libs.simbot.component.qq.guild.core)
     implementation(libs.ktor.client.cio)
+    // NullAway
+    implementation(libs.jspecify)
+    testImplementation(libs.jspecify)
+    annotationProcessor(libs.errorprone.core)
+    annotationProcessor(libs.nullaway)
+    testAnnotationProcessor(libs.errorprone.core)
+    testAnnotationProcessor(libs.nullaway)
 }
 
 tasks.withType<Test> {

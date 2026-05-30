@@ -5,6 +5,7 @@ import static top.stillmisty.xiantao.service.ErrorCode.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
@@ -19,6 +20,7 @@ import top.stillmisty.xiantao.domain.fudi.vo.PenCellVO;
 import top.stillmisty.xiantao.infrastructure.repository.BeastRepository;
 import top.stillmisty.xiantao.infrastructure.repository.FudiCellRepository;
 import top.stillmisty.xiantao.infrastructure.repository.MutationTraitConfigRepository;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.fudi.FudiHelper;
 
@@ -32,7 +34,7 @@ public class BeastDisplayHelper {
   private final FudiHelper fudiHelper;
   private final MutationTraitConfigRepository traitConfigRepository;
 
-  public record PenCellBeast(Fudi fudi, FudiCell cell, Integer cellId, Beast beast) {}
+  public record PenCellBeast(Fudi fudi, FudiCell cell, Integer cellId, @Nullable Beast beast) {}
 
   PenCellBeast findPenCell(
       Long userId, String position, boolean checkIncubating, boolean requireBeast) {
@@ -63,7 +65,7 @@ public class BeastDisplayHelper {
     return findPenCell(userId, position, checkIncubating, true);
   }
 
-  public Beast findBeastByCell(FudiCell cell) {
+  public @Nullable Beast findBeastByCell(FudiCell cell) {
     if (!(cell.getConfig() instanceof CellConfig.PenConfig pen) || pen.beastId() == null)
       return null;
     return beastRepository.findById(pen.beastId()).orElse(null);
@@ -101,7 +103,7 @@ public class BeastDisplayHelper {
     String beastName = beast != null ? beast.getBeastName() : "未知灵兽";
     int tier = beast != null ? beast.getTier() : 1;
     String qualityChinese = beast != null ? beast.getQuality().getChineseName() : "凡品";
-    int qualityOrdinal = beast != null ? beast.getQuality().ordinal() : 1;
+    int qualityRank = beast != null ? beast.getQuality().getRank() : 1;
     List<String> mutationTraits =
         beast != null ? resolveTraitNames(beast.getMutationTraits()) : List.of();
     int powerScore = tier * 10;
@@ -113,7 +115,7 @@ public class BeastDisplayHelper {
         beastName,
         tier,
         qualityChinese,
-        qualityOrdinal,
+        qualityRank,
         mutationTraits,
         isIncubating(cell),
         pen != null ? pen.hatchTime() : null,
@@ -133,7 +135,7 @@ public class BeastDisplayHelper {
       String qualityChinese = beast.getQuality().getChineseName();
       List<String> traits = resolveTraitNames(beast.getMutationTraits());
       builder
-          .name(beast.getBeastName())
+          .name(beast.getBeastName() != null ? beast.getBeastName() : "未知灵兽")
           .level(beast.getTier())
           .quality(qualityChinese)
           .mutationTraits(traits)
@@ -152,7 +154,7 @@ public class BeastDisplayHelper {
     if (!(cell.getConfig() instanceof CellConfig.PenConfig pen)) return false;
     LocalDateTime matureTime = pen.matureTime();
     if (matureTime == null) return false;
-    return LocalDateTime.now().isBefore(matureTime);
+    return TimeUtil.now().isBefore(matureTime);
   }
 
   /** 将变异特性ID列表解析为中文名称列表 */

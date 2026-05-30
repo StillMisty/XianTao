@@ -9,12 +9,14 @@ import java.util.Map;
 import java.util.Set;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jspecify.annotations.Nullable;
 import top.stillmisty.xiantao.domain.item.enums.EquipmentSlot;
 import top.stillmisty.xiantao.domain.item.enums.WeaponType;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
 
 /** 装备模板实体 独立于 xt_item_template，存储装备专属属性 */
+@SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table("xt_equipment_template")
@@ -26,16 +28,16 @@ public class EquipmentTemplate {
 
   private String name;
 
-  private String description;
+  @Nullable private String description;
 
   @Column(typeHandler = JsonbCollectionTypeHandler.class)
   private Set<String> tags;
 
   private EquipmentSlot slot;
 
-  private WeaponType weaponType;
+  @Nullable private WeaponType weaponType;
 
-  private String category;
+  @Nullable private String category;
 
   private Integer equipLevel;
 
@@ -51,9 +53,9 @@ public class EquipmentTemplate {
 
   private Integer baseWis;
 
-  private Double attackSpeed;
+  @Nullable private Double attackSpeed;
 
-  private String attackRange;
+  @Nullable private String attackRange;
 
   @Column(typeHandler = JsonbTypeHandler.class)
   private Map<String, Integer> dropWeight;

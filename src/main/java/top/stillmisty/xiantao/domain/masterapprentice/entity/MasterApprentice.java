@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import org.jspecify.annotations.Nullable;
 import top.stillmisty.xiantao.domain.masterapprentice.enums.MasterApprenticeStatus;
 
 /** 师徒关系实体 */
@@ -16,6 +17,7 @@ import top.stillmisty.xiantao.domain.masterapprentice.enums.MasterApprenticeStat
 @Table("master_apprentice")
 @Accessors(chain = true)
 @Data
+@SuppressWarnings("NullAway")
 @NoArgsConstructor
 public class MasterApprentice {
 
@@ -35,9 +37,9 @@ public class MasterApprentice {
   @Column(onInsertValue = "now()")
   private LocalDateTime createdAt;
 
-  private LocalDateTime graduatedAt;
+  private @Nullable LocalDateTime graduatedAt;
 
-  private LocalDateTime cooldownUntil;
+  private @Nullable LocalDateTime cooldownUntil;
 
   public boolean isActive() {
     return status == MasterApprenticeStatus.ACTIVE;

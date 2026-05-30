@@ -3,6 +3,7 @@ package top.stillmisty.xiantao.service.activity;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
 import top.stillmisty.xiantao.infrastructure.repository.ActivityEventRepository;
@@ -26,7 +27,7 @@ public class SubEventSelector {
    * @param userId 用户 ID (用于运势修正)
    * @return 选中的事件，或 null (未触发)
    */
-  public ActivityEvent selectSubEvent(
+  public @Nullable ActivityEvent selectSubEvent(
       String activityType, Long ownerId, double triggerChance, Long userId) {
     var fortune = fortuneService.calculate(userId);
     double adjustedChance = triggerChance * fortuneService.getFateMultiplier(fortune.fate());

@@ -1,6 +1,7 @@
 package top.stillmisty.xiantao.service.inventory.handler;
 
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.fudi.entity.CellConfig;
@@ -38,12 +39,12 @@ public class BeastEssenceUseHandler implements ItemUseHandler {
   }
 
   @Override
-  public String use(Long userId, StackableItem item, ItemTemplate template, String args) {
+  public String use(Long userId, StackableItem item, @Nullable ItemTemplate template, String args) {
     if (args == null || args.isBlank()) {
       throw new BusinessException(ErrorCode.PARAM_INVALID, "请指定数量和兽栏地块编号，如：使用 灵兽精华 3 5");
     }
 
-    String[] parts = args.trim().split("\\s+");
+    String[] parts = args.trim().split("\\s+", -1);
     if (parts.length < 2) {
       throw new BusinessException(ErrorCode.PARAM_INVALID, "请同时指定数量和兽栏地块编号，如：使用 灵兽精华 3 5");
     }

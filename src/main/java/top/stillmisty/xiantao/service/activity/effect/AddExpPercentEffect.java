@@ -15,7 +15,9 @@ public class AddExpPercentEffect implements SubEventEffect {
   @Override
   public Map<String, Object> execute(
       Long userId, User user, Map<String, Object> params, Map<String, Object> context) {
-    double percent = ((Number) params.get("percent")).doubleValue();
+    Number percentNum = (Number) params.get("percent");
+    if (percentNum == null) return Map.of();
+    double percent = percentNum.doubleValue();
     long exp = (long) (user.calculateExpToNextLevel() * percent);
     user.addExp(exp);
     return Map.of("exp", exp);

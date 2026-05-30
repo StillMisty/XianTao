@@ -105,7 +105,7 @@ public class EnhancementService {
       throw new BusinessException(ErrorCode.EQUIPMENT_NOT_FOUND);
     }
 
-    int currentLevel = equipment.getForgeLevel() != null ? equipment.getForgeLevel() : 0;
+    int currentLevel = equipment.getForgeLevel();
     int targetLevel = currentLevel + 1;
     int maxLevel = core.getMaxForgeLevel(equipment.getRarity());
 

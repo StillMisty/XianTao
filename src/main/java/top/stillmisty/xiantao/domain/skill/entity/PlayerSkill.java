@@ -7,7 +7,9 @@ import com.mybatisflex.annotation.Table;
 import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jspecify.annotations.Nullable;
 
+@SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table("xt_player_skill")
@@ -23,7 +25,7 @@ public class PlayerSkill {
 
   private Boolean isEquipped;
 
-  private Long sourceSectId;
+  @Nullable private Long sourceSectId;
 
   @Column(onInsertValue = "now()")
   private LocalDateTime createTime;

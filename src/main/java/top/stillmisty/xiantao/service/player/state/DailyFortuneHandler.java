@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.event.entity.GameEvent;
 import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.FortuneService;
 import top.stillmisty.xiantao.service.GameEventService;
 
@@ -21,7 +22,7 @@ class DailyFortuneHandler implements StateHandler {
 
   @Override
   public boolean tryResolve(User user) {
-    LocalDate today = LocalDate.now();
+    LocalDate today = TimeUtil.today();
     if (today.equals(user.getLastFortuneDate())) return false;
 
     user.setLastFortuneDate(today);

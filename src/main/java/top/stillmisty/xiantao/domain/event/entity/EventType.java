@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table("xt_event_type")
+@SuppressWarnings("NullAway")
 @NoArgsConstructor
 public class EventType {
 

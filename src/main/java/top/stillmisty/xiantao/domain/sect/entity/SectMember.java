@@ -9,11 +9,14 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import org.jspecify.annotations.Nullable;
 import top.stillmisty.xiantao.domain.sect.enums.SectPosition;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 
 @EqualsAndHashCode
 @Table("xt_sect_member")
 @Accessors(chain = true)
+@SuppressWarnings("NullAway")
 @Data
 @NoArgsConstructor
 public class SectMember {
@@ -25,7 +28,7 @@ public class SectMember {
   @Id(keyType = KeyType.Auto)
   private Long id;
 
-  private Long sectId;
+  @Nullable private Long sectId;
 
   private Long userId;
 
@@ -36,9 +39,9 @@ public class SectMember {
   @Column(onInsertValue = "now()")
   private LocalDateTime joinedAt;
 
-  private LocalDateTime cooldownUntil;
+  @Nullable private LocalDateTime cooldownUntil;
 
   public boolean isOnCooldown() {
-    return cooldownUntil != null && cooldownUntil.isAfter(LocalDateTime.now());
+    return cooldownUntil != null && cooldownUntil.isAfter(TimeUtil.now());
   }
 }

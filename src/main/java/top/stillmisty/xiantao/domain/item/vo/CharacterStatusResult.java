@@ -1,6 +1,8 @@
 package top.stillmisty.xiantao.domain.item.vo;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 import top.stillmisty.xiantao.domain.item.enums.EquipmentSlot;
 import top.stillmisty.xiantao.domain.item.enums.Rarity;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
@@ -20,13 +22,13 @@ public record CharacterStatusResult(
     String statusName,
     Long locationId,
     String locationName,
-    Long travelDestinationId,
-    String travelDestinationName,
-    java.time.LocalDateTime travelStartTime,
-    java.time.LocalDateTime estimatedArrivalTime,
-    Integer travelTimeMinutes,
-    Long travelMinutesElapsed,
-    Long travelMinutesRemaining,
+    @Nullable Long travelDestinationId,
+    @Nullable String travelDestinationName,
+    @Nullable LocalDateTime travelStartTime,
+    @Nullable LocalDateTime estimatedArrivalTime,
+    @Nullable Integer travelTimeMinutes,
+    @Nullable Long travelMinutesElapsed,
+    @Nullable Long travelMinutesRemaining,
     Integer hpCurrent,
     Integer hpMax,
     Double hpPercentage,

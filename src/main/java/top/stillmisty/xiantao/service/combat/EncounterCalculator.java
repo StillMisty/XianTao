@@ -35,9 +35,9 @@ public class EncounterCalculator {
   }
 
   double calculateInterval(User user, MapNode mapNode) {
-    int mapLevel = mapNode.getLevelRequirement() != null ? mapNode.getLevelRequirement() : 1;
+    int mapLevel = mapNode.getLevelRequirement();
     int playerLevel = user.getLevel();
-    int richness = mapNode.getEncounterRichness() != null ? mapNode.getEncounterRichness() : 5;
+    int richness = mapNode.getEncounterRichness();
 
     double mapDanger = 1.0 + (mapLevel - 1) * MAP_DANGER_COEFFICIENT;
     int levelDelta = Math.abs(playerLevel - mapLevel);

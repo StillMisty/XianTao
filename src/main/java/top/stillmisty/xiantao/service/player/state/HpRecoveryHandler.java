@@ -10,6 +10,7 @@ import top.stillmisty.xiantao.domain.event.entity.GameEvent;
 import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.GameEventService;
 
 @Slf4j
@@ -29,7 +30,7 @@ class HpRecoveryHandler implements StateHandler {
     int maxHp = user.calculateMaxHp();
     if (user.getHpCurrent() >= maxHp) return false;
 
-    LocalDateTime now = LocalDateTime.now();
+    LocalDateTime now = TimeUtil.now();
     LocalDateTime lastRecovery = user.getLastHpRecoveryTime();
     if (lastRecovery == null) {
       user.setLastHpRecoveryTime(now);

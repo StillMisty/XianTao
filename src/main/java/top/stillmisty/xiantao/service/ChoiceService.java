@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.event.entity.GameEvent;
@@ -27,7 +28,7 @@ public class ChoiceService {
 
   @Transactional
   public String handleChoiceInternal(Long userId, String choiceText) {
-    String key = choiceText.trim().toUpperCase();
+    String key = choiceText.trim().toUpperCase(java.util.Locale.ROOT);
     if (key.length() != 1 || key.charAt(0) < 'A' || key.charAt(0) > 'Z') {
       return "无效的选择，请使用 A/B/C 等字母作答。";
     }
@@ -79,7 +80,7 @@ public class ChoiceService {
   }
 
   @SuppressWarnings("unchecked")
-  private Map<String, Object> getChoice(Map<String, Object> effects) {
+  private @Nullable Map<String, Object> getChoice(Map<String, Object> effects) {
     if (effects == null) return null;
     return (Map<String, Object>) effects.get("choice");
   }

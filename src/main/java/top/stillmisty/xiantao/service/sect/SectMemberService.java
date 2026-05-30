@@ -1,8 +1,8 @@
 package top.stillmisty.xiantao.service.sect;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +27,7 @@ import top.stillmisty.xiantao.infrastructure.repository.SectRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SectSharedSkillRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SectShopItemRepository;
 import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
@@ -155,7 +156,7 @@ public class SectMemberService {
     SectMember member = requireMember(userId);
     Sect sect =
         sectRepository
-            .findById(member.getSectId())
+            .findById(requireSectId(member))
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_FOUND));
     User leader = userStateService.loadUserReadOnly(sect.getLeaderId());
     List<SectMember> members = sectMemberRepository.findBySectId(sect.getId());
@@ -202,8 +203,8 @@ public class SectMemberService {
   public String createSectInternal(Long userId, String name, String ethosDesc) {
     User user = userStateService.loadUser(userId);
 
-    if (CultivationRealm.fromLevel(user.getLevel()).ordinal()
-        < CultivationRealm.GOLDEN_CORE.ordinal()) {
+    if (CultivationRealm.fromLevel(user.getLevel()).getRank()
+        < CultivationRealm.GOLDEN_CORE.getRank()) {
       throw new BusinessException(ErrorCode.SECT_CREATE_LEVEL_INSUFFICIENT);
     }
 
@@ -244,7 +245,7 @@ public class SectMemberService {
 
     StringBuilder sb = new StringBuilder();
     sb.append("宗门【").append(name).append("】创建成功！你已成为宗主。\n");
-    if (!sect.getVerse().isBlank()) {
+    if (sect.getVerse() != null && !sect.getVerse().isBlank()) {
       sb.append("「").append(sect.getVerse()).append("」\n");
     }
     sb.append("初始资金: ").append(SECT_INITIAL_FUNDS).append(" 灵石。");
@@ -287,7 +288,7 @@ public class SectMemberService {
       String ethos = "";
       String personality = "";
 
-      for (String line : response.split("\n")) {
+      for (String line : response.lines().toList()) {
         String trimmed = line.trim();
         if (trimmed.startsWith("诗号：") || trimmed.startsWith("诗号:")) {
           verse = extractSuffix(trimmed);
@@ -348,7 +349,7 @@ public class SectMemberService {
 
     Sect sect =
         sectRepository
-            .findById(inviterMember.getSectId())
+            .findById(requireSectId(inviterMember))
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_FOUND));
 
     long memberCount = sectMemberRepository.countBySectId(sect.getId());
@@ -392,7 +393,7 @@ public class SectMemberService {
       throw new BusinessException(ErrorCode.SECT_CANNOT_KICK_LEADER);
     }
 
-    if (!targetMember.getSectId().equals(actorMember.getSectId())) {
+    if (!requireSectId(targetMember).equals(requireSectId(actorMember))) {
       throw new BusinessException(ErrorCode.SECT_NOT_SAME);
     }
 
@@ -403,7 +404,7 @@ public class SectMemberService {
 
     executeLeave(target.getId(), targetMember);
 
-    log.info("玩家 {} 被 {} 踢出宗门 {}", target.getId(), userId, targetMember.getSectId());
+    log.info("玩家 {} 被 {} 踢出宗门 {}", target.getId(), userId, requireSectId(targetMember));
     return ("已将【" + targetNickname + "】踢出宗门，" + SECT_COOLDOWN_HOURS + " 小时内无法加入新宗门。");
   }
 
@@ -412,16 +413,16 @@ public class SectMemberService {
     SectMember member = requireMember(userId);
 
     if (member.getPosition() == SectPosition.LEADER) {
-      long memberCount = sectMemberRepository.countBySectId(member.getSectId());
+      long memberCount = sectMemberRepository.countBySectId(requireSectId(member));
       if (memberCount > 1) {
         throw new BusinessException(ErrorCode.SECT_DISSOLVE_HAS_MEMBERS, memberCount - 1);
       }
-      sectRepository.deleteById(member.getSectId());
+      sectRepository.deleteById(requireSectId(member));
     }
 
     executeLeave(userId, member);
 
-    log.info("玩家 {} 退出宗门 {}", userId, member.getSectId());
+    log.info("玩家 {} 退出宗门 {}", userId, requireSectId(member));
     return ("你已退出宗门，贡献值清零，已学共享功法已遗忘，" + SECT_COOLDOWN_HOURS + " 小时内无法加入新宗门。");
   }
 
@@ -442,7 +443,7 @@ public class SectMemberService {
             .findByUserId(target.getId())
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_SAME));
 
-    if (!targetMember.getSectId().equals(actorMember.getSectId())) {
+    if (!requireSectId(targetMember).equals(requireSectId(actorMember))) {
       throw new BusinessException(ErrorCode.SECT_NOT_SAME);
     }
 
@@ -459,7 +460,7 @@ public class SectMemberService {
       }
       Sect sect =
           sectRepository
-              .findById(actorMember.getSectId())
+              .findById(requireSectId(actorMember))
               .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_FOUND));
       actorMember.setPosition(SectPosition.ELDER);
       sectMemberRepository.save(actorMember);
@@ -467,7 +468,7 @@ public class SectMemberService {
       sectMemberRepository.save(targetMember);
       sect.setLeaderId(target.getId());
       sectRepository.save(sect);
-      log.info("玩家 {} 将宗门 {} 的宗主之位传给 {}", userId, actorMember.getSectId(), target.getId());
+      log.info("玩家 {} 将宗门 {} 的宗主之位传给 {}", userId, requireSectId(actorMember), target.getId());
       return "已将宗主之位传给【" + targetNickname + "】，你已成为长老。";
     }
 
@@ -475,7 +476,7 @@ public class SectMemberService {
     sectMemberRepository.save(targetMember);
 
     log.info(
-        "玩家 {} 被任命为宗门 {} 的 {}", target.getId(), actorMember.getSectId(), newPosition.getName());
+        "玩家 {} 被任命为宗门 {} 的 {}", target.getId(), requireSectId(actorMember), newPosition.getName());
     return ("已将【" + targetNickname + "】任命为" + newPosition.getName() + "。");
   }
 
@@ -488,7 +489,7 @@ public class SectMemberService {
 
     Sect sect =
         sectRepository
-            .findById(member.getSectId())
+            .findById(requireSectId(member))
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_FOUND));
 
     sectShopItemRepository.deleteBySectId(sect.getId());
@@ -519,7 +520,7 @@ public class SectMemberService {
 
     Sect sect =
         sectRepository
-            .findById(member.getSectId())
+            .findById(requireSectId(member))
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_FOUND));
     sect.setNotice(content);
     sectRepository.save(sect);
@@ -539,7 +540,7 @@ public class SectMemberService {
 
     Sect sect =
         sectRepository
-            .findById(member.getSectId())
+            .findById(requireSectId(member))
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_FOUND));
     sect.addFunds(amount);
     sectRepository.save(sect);
@@ -565,7 +566,7 @@ public class SectMemberService {
 
     Sect sect =
         sectRepository
-            .findById(member.getSectId())
+            .findById(requireSectId(member))
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_FOUND));
 
     if (sect.isMaxLevel()) {
@@ -601,7 +602,7 @@ public class SectMemberService {
 
     Sect sect =
         sectRepository
-            .findById(member.getSectId())
+            .findById(requireSectId(member))
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_FOUND));
 
     int slots = 5;
@@ -644,6 +645,10 @@ public class SectMemberService {
         .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_IN));
   }
 
+  private Long requireSectId(SectMember member) {
+    return Objects.requireNonNull(member.getSectId());
+  }
+
   boolean isOnCooldown(Long userId) {
     return sectMemberRepository
         .findByUserId(userId)
@@ -661,14 +666,14 @@ public class SectMemberService {
   void executeLeave(Long userId, SectMember member) {
     sectMemberRepository.deleteByUserId(userId);
 
-    forgetSharedSkills(userId, member.getSectId());
+    forgetSharedSkills(userId, requireSectId(member));
 
     sectMemberRepository.save(
         SectMember.create()
             .setUserId(userId)
             .setSectId(null)
             .setContribution(0)
-            .setCooldownUntil(LocalDateTime.now().plusHours(SECT_COOLDOWN_HOURS)));
+            .setCooldownUntil(TimeUtil.now().plusHours(SECT_COOLDOWN_HOURS)));
 
     masterApprenticeService.handleMasterSectLeave(userId);
   }

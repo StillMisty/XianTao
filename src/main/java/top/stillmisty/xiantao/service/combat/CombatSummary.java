@@ -1,6 +1,7 @@
 package top.stillmisty.xiantao.service.combat;
 
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 import top.stillmisty.xiantao.domain.monster.vo.CombatLogEntry;
 import top.stillmisty.xiantao.domain.monster.vo.DropItem;
 import top.stillmisty.xiantao.domain.monster.vo.SkillProc;
@@ -17,7 +18,7 @@ public record CombatSummary(
     List<CombatLogEntry> allLogs,
     List<SkillProc> allSkillProcs,
     boolean hasHighlight,
-    String firstHighlightMonsterName,
+    @Nullable String firstHighlightMonsterName,
     List<CombatLogEntry> firstHighlightLogs,
     List<SkillProc> firstHighlightSkillProcs) {
 

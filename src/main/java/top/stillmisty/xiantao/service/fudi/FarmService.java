@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.fudi.entity.CellConfig;
@@ -19,6 +20,7 @@ import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.infrastructure.repository.FudiCellRepository;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.StackableItemRepository;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
@@ -75,7 +77,7 @@ public class FarmService {
     double baseGrowthHours = getBaseGrowthHours(cropId);
     double actualGrowthHours = Math.max(0.1, baseGrowthHours / levelSpeedMultiplier);
 
-    LocalDateTime now = LocalDateTime.now();
+    LocalDateTime now = TimeUtil.now();
     LocalDateTime matureTime = now.plusHours((long) actualGrowthHours);
 
     FudiCell farmCell = existingCell != null ? existingCell : new FudiCell();
@@ -227,7 +229,7 @@ public class FarmService {
         stackableItemService.addStackableItem(
             userId, item.templateId(), prodType, name, normalCount);
       }
-      if (mutationCount > 0) {
+      if (mutationCount > 0 && mutationTemplateId != null) {
         var mutationTemplate = itemTemplateRepository.findById(mutationTemplateId).orElse(null);
         if (mutationTemplate != null) {
           stackableItemService.addStackableItem(
@@ -245,7 +247,7 @@ public class FarmService {
   void replantAfterHarvest(FudiCell cell) {
     if (!(cell.getConfig() instanceof CellConfig.FarmConfig farm)) return;
 
-    LocalDateTime now = LocalDateTime.now();
+    LocalDateTime now = TimeUtil.now();
     double baseGrowthHours = getBaseGrowthHours(farm.cropId());
     int cellLevel = cell.getCellLevel();
     int cropTier = FudiHelper.getCropTier((int) baseGrowthHours);
@@ -308,22 +310,21 @@ public class FarmService {
     double baseGrowthHours = getBaseGrowthHours(farm.cropId());
     LocalDateTime matureTime = farm.matureTime();
     long maxSeconds = (long) (baseGrowthHours * 3600 * 2);
-    long secondsSinceMature =
-        java.time.Duration.between(matureTime, LocalDateTime.now()).getSeconds();
+    long secondsSinceMature = java.time.Duration.between(matureTime, TimeUtil.now()).toSeconds();
     return secondsSinceMature > maxSeconds;
   }
 
-  public Double calculateGrowthProgress(FudiCell cell) {
+  public @Nullable Double calculateGrowthProgress(FudiCell cell) {
     if (!(cell.getConfig() instanceof CellConfig.FarmConfig farm)) return null;
 
     LocalDateTime plantTime = farm.plantTime();
     LocalDateTime matureTime = farm.matureTime();
     if (plantTime == null || matureTime == null) return null;
 
-    LocalDateTime now = LocalDateTime.now();
-    long totalSeconds = java.time.Duration.between(plantTime, matureTime).getSeconds();
+    LocalDateTime now = TimeUtil.now();
+    long totalSeconds = java.time.Duration.between(plantTime, matureTime).toSeconds();
     if (totalSeconds <= 0) return 1.0;
-    long elapsedSeconds = java.time.Duration.between(plantTime, now).getSeconds();
+    long elapsedSeconds = java.time.Duration.between(plantTime, now).toSeconds();
     return (double) elapsedSeconds / totalSeconds;
   }
 

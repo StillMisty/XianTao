@@ -16,7 +16,9 @@ import top.stillmisty.xiantao.domain.worldevent.enums.WorldEventScope;
 import top.stillmisty.xiantao.domain.worldevent.enums.WorldEventStatus;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 
+@SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table("world_event")
@@ -69,7 +71,7 @@ public class WorldEvent {
   private String createdBy;
 
   public boolean isActive() {
-    var now = LocalDateTime.now();
+    var now = TimeUtil.now();
     return status == WorldEventStatus.ACTIVE
         && startTime != null
         && endTime != null

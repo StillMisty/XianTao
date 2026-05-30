@@ -36,7 +36,7 @@ public class ForgingListener {
         event,
         "锻造",
         fmt -> {
-          String[] parts = input.split("\\s+");
+          String[] parts = input.split("\\s+", -1);
           if (MaterialParser.isMaterialInput(parts[0])) {
             List<String> materialInputs = Arrays.asList(parts);
             return forgingCommandHandler.handleForgeManual(materialInputs, fmt);
@@ -55,7 +55,7 @@ public class ForgingListener {
         event,
         "强化",
         fmt -> {
-          String[] parts = input.split("\\s+");
+          String[] parts = input.split("\\s+", -1);
           if (parts.length > 1 && MaterialParser.isMaterialInput(parts[1])) {
             String equipmentInput = parts[0];
             List<String> materialInputs = Arrays.asList(Arrays.copyOfRange(parts, 1, parts.length));

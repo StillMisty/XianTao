@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.AssistantMessage;
@@ -18,6 +19,7 @@ public abstract class AbstractChatService {
   protected final ChatClient chatClient;
   protected final ChatMemory chatMemory;
 
+  @Nullable
   protected String callLlm(
       String systemPrompt,
       String userInput,

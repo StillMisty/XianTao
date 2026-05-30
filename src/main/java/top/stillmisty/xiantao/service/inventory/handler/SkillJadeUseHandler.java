@@ -1,6 +1,7 @@
 package top.stillmisty.xiantao.service.inventory.handler;
 
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
@@ -25,7 +26,7 @@ public class SkillJadeUseHandler implements ItemUseHandler {
   }
 
   @Override
-  public String use(Long userId, StackableItem item, ItemTemplate template, String args) {
+  public String use(Long userId, StackableItem item, @Nullable ItemTemplate template, String args) {
     SkillSlotResult result = skillService.learnFromJade(userId, item.getName());
     StringBuilder sb = new StringBuilder();
     sb.append(result.getMessage());

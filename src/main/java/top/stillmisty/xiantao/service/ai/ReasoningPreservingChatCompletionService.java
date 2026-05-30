@@ -23,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public class ReasoningPreservingChatCompletionService implements ChatCompletionService {
 
@@ -34,12 +35,14 @@ public class ReasoningPreservingChatCompletionService implements ChatCompletionS
     this.delegate = delegate;
   }
 
+  @Nullable
   private static AtomicReference<String> reasoningHolder() {
     return ReasoningScopeAdvisor.REASONING_HOLDER.isBound()
         ? ReasoningScopeAdvisor.REASONING_HOLDER.get()
         : null;
   }
 
+  @Nullable
   private static String conversationId() {
     return ReasoningScopeAdvisor.CONVERSATION_ID.isBound()
         ? ReasoningScopeAdvisor.CONVERSATION_ID.get()
@@ -55,6 +58,7 @@ public class ReasoningPreservingChatCompletionService implements ChatCompletionS
     return response;
   }
 
+  @SuppressWarnings("MustBeClosedChecker")
   @Override
   public @NonNull StreamResponse<ChatCompletionChunk> createStreaming(
       @NonNull ChatCompletionCreateParams params, @NonNull RequestOptions options) {

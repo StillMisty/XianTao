@@ -9,6 +9,7 @@ import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import top.stillmisty.xiantao.domain.map.enums.MapType;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
 
@@ -16,6 +17,7 @@ import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionType
 @EqualsAndHashCode
 @Table("xt_map_node")
 @Data
+@SuppressWarnings("NullAway")
 @NoArgsConstructor
 public class MapNode {
 
@@ -37,6 +39,7 @@ public class MapNode {
 
   /** 相邻地图 (JSONB) 格式: [{"targetId": 1, "cost": 5}] */
   @Column(typeHandler = JsonbCollectionTypeHandler.class)
+  @Nullable
   private List<NeighborEntry> neighbors;
 
   /** 特产/掉落池 (JSONB) */
@@ -58,7 +61,6 @@ public class MapNode {
 
   /** 检查玩家等级是否满足要求 */
   public boolean isAccessibleBy(int playerLevel) {
-    if (levelRequirement == null) return true;
     return playerLevel >= levelRequirement;
   }
 

@@ -1,6 +1,7 @@
 package top.stillmisty.xiantao.service.combat;
 
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 import top.stillmisty.xiantao.domain.monster.vo.CombatLogEntry;
 import top.stillmisty.xiantao.domain.monster.vo.DropItem;
 import top.stillmisty.xiantao.domain.monster.vo.SkillProc;
@@ -16,7 +17,7 @@ public record EncounterResult(
     List<CombatLogEntry> logs,
     List<SkillProc> skillProcs,
     boolean isHighlight,
-    String monsterName) {
+    @Nullable String monsterName) {
 
   public static EncounterResult lost() {
     return new EncounterResult(false, 0, 0, 0, false, List.of(), List.of(), List.of(), false, null);

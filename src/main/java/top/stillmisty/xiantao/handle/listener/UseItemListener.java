@@ -35,6 +35,6 @@ public class UseItemListener {
   @Filter("使用\\s*{{itemName}}")
   public void useItem(MessageEvent event, @FilterValue("itemName") String itemName) {
     replyHelper.dispatch(
-        event, "使用物品", fmt -> useItemCommandHandler.handleUseItem(itemName, null, fmt));
+        event, "使用物品", fmt -> useItemCommandHandler.handleUseItem(itemName, "", fmt));
   }
 }

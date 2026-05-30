@@ -3,6 +3,7 @@ package top.stillmisty.xiantao.domain.map.vo;
 import java.util.List;
 import lombok.Builder;
 import lombok.Data;
+import org.jspecify.annotations.Nullable;
 import top.stillmisty.xiantao.domain.map.entity.NeighborEntry;
 import top.stillmisty.xiantao.domain.map.entity.SpecialtyEntry;
 import top.stillmisty.xiantao.domain.map.enums.MapType;
@@ -30,7 +31,7 @@ public class MapInfoVO {
   private Integer levelRequirement;
 
   /** 相邻地图列表 (JSONB 反序列化后处理) 格式: [{"targetId": 1, "cost": 5}] */
-  private List<NeighborEntry> neighbors;
+  @Nullable private List<NeighborEntry> neighbors;
 
   /** 相邻地图名称列表（已解析，用于展示） */
   private List<String> adjacentMapNames;
@@ -55,7 +56,7 @@ public class MapInfoVO {
     private String typeName;
 
     /** 基础等级 */
-    private Integer baseLevel;
+    @Nullable private Integer baseLevel;
 
     /** 出现权重 */
     private int weight;

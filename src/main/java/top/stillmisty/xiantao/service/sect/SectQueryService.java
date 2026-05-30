@@ -2,6 +2,7 @@ package top.stillmisty.xiantao.service.sect;
 
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.sect.entity.SectMember;
 import top.stillmisty.xiantao.infrastructure.repository.SectMemberRepository;
@@ -18,7 +19,7 @@ public class SectQueryService {
     return member.isPresent() && member.get().getSectId() != null;
   }
 
-  public Long getSectId(Long userId) {
+  public @Nullable Long getSectId(Long userId) {
     return sectMemberRepository.findByUserId(userId).map(SectMember::getSectId).orElse(null);
   }
 
@@ -30,6 +31,7 @@ public class SectQueryService {
     }
     Long sectA = memberA.get().getSectId();
     Long sectB = memberB.get().getSectId();
+    if (sectA == null || sectB == null) return false;
     return sectA.equals(sectB);
   }
 

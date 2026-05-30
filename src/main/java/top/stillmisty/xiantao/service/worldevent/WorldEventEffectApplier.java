@@ -82,7 +82,8 @@ public class WorldEventEffectApplier {
     double roll = ThreadLocalRandom.current().nextDouble();
     double cumulative = 0;
     for (Map<String, Object> branch : branches) {
-      double chance = ((Number) branch.get("chance")).doubleValue();
+      Object chanceObj = branch.get("chance");
+      double chance = chanceObj instanceof Number n ? n.doubleValue() : 0;
       cumulative += chance;
       if (roll < cumulative || Math.abs(cumulative - 1.0) < 1e-9) {
         List<Map<String, Object>> effects = (List<Map<String, Object>>) branch.get("effects");

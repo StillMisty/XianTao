@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.user.entity.User;
@@ -64,7 +65,7 @@ public class UserStateService {
   }
 
   /** 根据道号加载用户，不结算状态。 */
-  public User loadUserByNickname(String nickname) {
+  public @Nullable User loadUserByNickname(String nickname) {
     return userRepository.findByNickname(nickname).orElse(null);
   }
 

@@ -6,6 +6,7 @@ import com.mybatisflex.core.query.QueryWrapper;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Repository;
 import top.stillmisty.xiantao.domain.beast.entity.MutationTraitConfig;
 import top.stillmisty.xiantao.domain.fudi.enums.BeastQuality;
@@ -52,7 +53,7 @@ public class MutationTraitConfigRepository {
   }
 
   /** 检查标签要求：requiredTags 为 null 或空表示通用，否则 beastTags 必须包含全部 requiredTags */
-  private boolean checkTagRequirement(List<String> requiredTags, List<String> beastTags) {
+  private boolean checkTagRequirement(@Nullable List<String> requiredTags, List<String> beastTags) {
     if (requiredTags == null || requiredTags.isEmpty()) {
       return true;
     }
@@ -63,7 +64,8 @@ public class MutationTraitConfigRepository {
   }
 
   /** 检查品质要求：requiredQuality 为 null 表示无限制，否则 beastQuality 必须 >= requiredQuality */
-  private boolean checkQualityRequirement(String requiredQuality, BeastQuality beastQuality) {
+  private boolean checkQualityRequirement(
+      @Nullable String requiredQuality, BeastQuality beastQuality) {
     if (requiredQuality == null) {
       return true;
     }
@@ -72,7 +74,7 @@ public class MutationTraitConfigRepository {
     }
     try {
       BeastQuality required = BeastQuality.fromCode(requiredQuality);
-      return beastQuality.ordinal() >= required.ordinal();
+      return beastQuality.getRank() >= required.getRank();
     } catch (IllegalArgumentException e) {
       return false;
     }

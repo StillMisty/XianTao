@@ -2,12 +2,13 @@ package top.stillmisty.xiantao.infrastructure.util;
 
 import java.util.Map;
 import java.util.Random;
+import org.jspecify.annotations.Nullable;
 
 public final class TypeUtils {
 
   private TypeUtils() {}
 
-  public static Long toLong(Object value) {
+  public static @Nullable Long toLong(Object value) {
     if (value instanceof Long longVal) return longVal;
     if (value instanceof Integer intVal) return intVal.longValue();
     if (value instanceof Number number) return number.longValue();
@@ -21,7 +22,7 @@ public final class TypeUtils {
    * @param rng 随机数生成器
    * @return 选中的 key，如果总权重为0则返回 null
    */
-  public static Long weightedRandomSelect(Map<Long, Integer> weightMap, Random rng) {
+  public static @Nullable Long weightedRandomSelect(Map<Long, Integer> weightMap, Random rng) {
     var entries =
         weightMap.entrySet().stream().map(e -> Map.entry(e.getKey(), e.getValue())).toList();
     var result = WeightedRandom.select(entries, Map.Entry::getValue, rng);

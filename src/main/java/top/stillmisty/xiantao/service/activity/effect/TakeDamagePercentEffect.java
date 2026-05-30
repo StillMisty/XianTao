@@ -15,7 +15,9 @@ public class TakeDamagePercentEffect implements SubEventEffect {
   @Override
   public Map<String, Object> execute(
       Long userId, User user, Map<String, Object> params, Map<String, Object> context) {
-    double amount = ((Number) params.get("amount")).doubleValue();
+    Number amountNum = (Number) params.get("amount");
+    if (amountNum == null) return Map.of();
+    double amount = amountNum.doubleValue();
     int damage = (int) (user.calculateMaxHp() * amount);
     user.takeDamage(damage);
     return Map.of("damage", damage, "hpCurrent", user.getHpCurrent());

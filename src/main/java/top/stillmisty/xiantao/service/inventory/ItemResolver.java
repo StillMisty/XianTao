@@ -255,7 +255,7 @@ public class ItemResolver {
         equipmentRepository.findUnequippedByUserId(userId).stream()
             .sorted(
                 (a, b) -> {
-                  int cmp = Integer.compare(b.getRarity().ordinal(), a.getRarity().ordinal());
+                  int cmp = Integer.compare(b.getRarity().getRank(), a.getRarity().getRank());
                   if (cmp != 0) return cmp;
                   cmp = Integer.compare(b.getForgeLevel(), a.getForgeLevel());
                   if (cmp != 0) return cmp;

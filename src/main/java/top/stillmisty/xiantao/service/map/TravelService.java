@@ -12,6 +12,7 @@ import top.stillmisty.xiantao.domain.map.vo.TravelResultVO;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.repository.MapNodeRepository;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
@@ -73,11 +74,11 @@ public class TravelService {
 
     user.setStatus(UserStatus.TRAVELING);
     user.setActivityType(ActivityType.TRAVEL);
-    user.setActivityStartTime(LocalDateTime.now());
+    user.setActivityStartTime(TimeUtil.now());
     user.setActivityTargetId(targetMap.getId());
     userStateService.saveActivity(user);
 
-    LocalDateTime estimatedArrival = LocalDateTime.now().plusMinutes(travelTime);
+    LocalDateTime estimatedArrival = TimeUtil.now().plusMinutes(travelTime);
 
     log.info("玩家 {} 开始旅行到 {}, 耗时 {} 分钟", userId, targetMap.getName(), travelTime);
 

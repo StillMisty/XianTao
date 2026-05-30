@@ -3,11 +3,11 @@ package top.stillmisty.xiantao.service.bounty;
 import static top.stillmisty.xiantao.service.ErrorCode.*;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.bounty.BountyRewardItem;
@@ -23,6 +23,7 @@ import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.MapNodeRepository;
 import top.stillmisty.xiantao.infrastructure.repository.UserBountyRepository;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.FortuneService;
 import top.stillmisty.xiantao.service.SpiritStoneService;
@@ -59,7 +60,7 @@ public class BountyCombatService {
             .findActiveByUserIdForUpdate(userId)
             .orElseThrow(() -> new BusinessException(BOUNTY_NO_ACTIVE));
 
-    long minutesElapsed = Duration.between(record.getStartTime(), LocalDateTime.now()).toMinutes();
+    long minutesElapsed = Duration.between(record.getStartTime(), TimeUtil.now()).toMinutes();
     if (minutesElapsed < record.getDurationMinutes()) {
       long remaining = record.getDurationMinutes() - minutesElapsed;
       throw new BusinessException(
@@ -108,7 +109,7 @@ public class BountyCombatService {
     String rewardDescription =
         buildRewardDescription(finalSpiritStones, items, stats.hasBeastEgg, stats.hasEquipment);
     String beautified =
-        beautifyBountyCompletion(mapNode, record.getBountyName(), rewardDescription, null, items);
+        beautifyBountyCompletion(mapNode, record.getBountyName(), rewardDescription, "", items);
 
     record.setStatus(BountyStatus.COMPLETED);
     userBountyRepository.save(record);
@@ -240,6 +241,7 @@ public class BountyCombatService {
     return sb.toString();
   }
 
+  @Nullable
   private String beautifyBountyCompletion(
       MapNode mapNode,
       String bountyName,

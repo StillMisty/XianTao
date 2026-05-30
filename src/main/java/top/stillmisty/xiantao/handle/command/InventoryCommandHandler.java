@@ -156,7 +156,12 @@ public class InventoryCommandHandler implements CommandGroup {
 
   private String formatEquipResult(
       top.stillmisty.xiantao.domain.item.vo.EquipResult result, TextFormat fmt) {
-    return formatAttributeChangeResult(result.message(), result.attributeChange(), fmt);
+    return formatAttributeChangeResult(
+        result.message(),
+        result.attributeChange() != null
+            ? result.attributeChange()
+            : new top.stillmisty.xiantao.domain.item.vo.AttributeChange(0, 0, 0, 0, 0, 0, 0),
+        fmt);
   }
 
   private String formatUnequipResult(

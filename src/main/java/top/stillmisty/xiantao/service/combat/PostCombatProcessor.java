@@ -1,6 +1,5 @@
 package top.stillmisty.xiantao.service.combat;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +13,7 @@ import top.stillmisty.xiantao.domain.monster.Combatant;
 import top.stillmisty.xiantao.domain.monster.PlayerCombatant;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.infrastructure.repository.BeastRepository;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.beast.BeastSkillService;
 import top.stillmisty.xiantao.service.beast.MutationEffectResolver;
 
@@ -55,7 +55,7 @@ public class PostCombatProcessor {
         if (!c.isAlive()) {
           beast.setIsDeployed(false);
           int recoveryMinutes = beast.getQuality().getRecoveryMinutes();
-          beast.setRecoveryUntil(LocalDateTime.now().plusMinutes(recoveryMinutes));
+          beast.setRecoveryUntil(TimeUtil.now().plusMinutes(recoveryMinutes));
         } else {
           double healPercent =
               effectResolver.sumEffectValue(beast, MutationEffectType.ON_BATTLE_END_HEAL);

@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Repository;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.infrastructure.mapper.UserMapper;
@@ -75,13 +76,13 @@ public class UserRepository {
       Long userId,
       String status,
       String activityType,
-      LocalDateTime activityStartTime,
-      Long activityTargetId) {
+      @Nullable LocalDateTime activityStartTime,
+      @Nullable Long activityTargetId) {
     userMapper.startActivity(userId, status, activityType, activityStartTime, activityTargetId);
   }
 
   public void updateHpStatus(
-      Long userId, int hpCurrent, String status, LocalDateTime dyingStartTime) {
+      Long userId, int hpCurrent, String status, @Nullable LocalDateTime dyingStartTime) {
     userMapper.updateHpStatus(userId, hpCurrent, status, dyingStartTime);
   }
 
@@ -90,10 +91,10 @@ public class UserRepository {
       int hpCurrent,
       long exp,
       String status,
-      LocalDateTime dyingStartTime,
-      String activityType,
-      LocalDateTime activityStartTime,
-      Long activityTargetId) {
+      @Nullable LocalDateTime dyingStartTime,
+      @Nullable String activityType,
+      @Nullable LocalDateTime activityStartTime,
+      @Nullable Long activityTargetId) {
     userMapper.completeTraining(
         userId,
         hpCurrent,

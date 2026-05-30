@@ -11,6 +11,7 @@ import top.stillmisty.xiantao.domain.dungeon.enums.DungeonArea;
 import top.stillmisty.xiantao.domain.dungeon.enums.PoiType;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
 
+@SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table("dungeon_poi_config")

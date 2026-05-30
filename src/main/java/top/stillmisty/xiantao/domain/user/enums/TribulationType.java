@@ -84,6 +84,8 @@ public enum TribulationType {
   private final double difficultyMultiplier;
   private final int minRealmOrdinal;
   private final double weight;
+
+  @SuppressWarnings("ImmutableEnumChecker") // List.copyOf() in constructor
   private final List<TribulationSkillSpec> skillSpecs;
 
   TribulationType(
@@ -96,7 +98,7 @@ public enum TribulationType {
     this.difficultyMultiplier = difficultyMultiplier;
     this.minRealmOrdinal = minRealmOrdinal;
     this.weight = weight;
-    this.skillSpecs = skillSpecs;
+    this.skillSpecs = List.copyOf(skillSpecs);
   }
 
   /** 根据目标境界序号随机选择雷劫类型。 渡劫期内部等级（isTribulationRealm=true）始终解锁全类型。 */

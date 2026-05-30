@@ -1,10 +1,10 @@
 package top.stillmisty.xiantao.service.ai;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.stereotype.Service;
@@ -16,6 +16,7 @@ import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.infrastructure.repository.FudiRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SpiritFormRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SpiritRepository;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.GameEventService;
@@ -67,16 +68,16 @@ public class SpiritChatService extends AbstractChatService {
   public ServiceResult<String> chatWithSpirit(Long userId, String userInput) {
     try {
       String result = chatWithSpiritInternal(userId, userInput);
-      return new ServiceResult.Success<>(result);
+      return new ServiceResult.Success<>(result != null ? result : "地灵暂时无法回应，请稍后再试。");
     } catch (BusinessException e) {
-      return ServiceResult.businessFailure(e.getMessage());
+      return ServiceResult.businessFailure(e.getMessage() != null ? e.getMessage() : "地灵操作失败");
     } catch (Exception e) {
       log.error("地灵对话失败 - userId: {}, error: {}", userId, e.getMessage(), e);
       return ServiceResult.businessFailure("地灵暂时无法回应，请稍后再试。");
     }
   }
 
-  String chatWithSpiritInternal(Long userId, String userInput) {
+  @Nullable String chatWithSpiritInternal(Long userId, String userInput) {
     Fudi fudi =
         fudiRepository
             .findByUserId(userId)
@@ -89,7 +90,11 @@ public class SpiritChatService extends AbstractChatService {
     fudi.touchOnlineTime();
     spiritRepository.save(spirit);
 
-    List<FudiEventTemplate> events = fudiEventGenerator.generateEvents(spirit.getLastEventTime());
+    List<FudiEventTemplate> events =
+        fudiEventGenerator.generateEvents(
+            spirit.getLastEventTime() != null
+                ? spirit.getLastEventTime()
+                : java.time.LocalDateTime.MIN);
 
     String response =
         callLlm(
@@ -101,7 +106,7 @@ public class SpiritChatService extends AbstractChatService {
             spiritTools);
 
     if (!events.isEmpty()) {
-      spirit.setLastEventTime(LocalDateTime.now());
+      spirit.setLastEventTime(TimeUtil.now());
       spiritRepository.save(spirit);
       applyFudiEventTemplateEffects(userId, events);
     }
@@ -170,7 +175,7 @@ public class SpiritChatService extends AbstractChatService {
             fudi.getTribulationStage(),
             spirit.getAffection(),
             cellDetail,
-            formName)
+            formName != null ? formName : "未知形态")
         + eventContext;
   }
 }

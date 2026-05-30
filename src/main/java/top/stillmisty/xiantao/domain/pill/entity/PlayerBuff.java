@@ -8,8 +8,10 @@ import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import top.stillmisty.xiantao.domain.pill.enums.PlayerBuffType;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 
 /** 玩家 Buff 实体 — 战斗增益和突破加成等时效性 buff */
+@SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table("xt_player_buff")
@@ -36,7 +38,7 @@ public class PlayerBuff {
   private LocalDateTime createdAt;
 
   public boolean isExpired() {
-    return expiresAt == null || expiresAt.isBefore(LocalDateTime.now());
+    return expiresAt == null || expiresAt.isBefore(TimeUtil.now());
   }
 
   public boolean isActive() {
@@ -50,7 +52,7 @@ public class PlayerBuff {
     buff.buffType = buffType;
     buff.value = value;
     buff.expiresAt = expiresAt;
-    buff.createdAt = LocalDateTime.now();
+    buff.createdAt = TimeUtil.now();
     return buff;
   }
 }

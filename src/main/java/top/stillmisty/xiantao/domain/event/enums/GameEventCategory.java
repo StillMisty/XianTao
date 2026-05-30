@@ -2,6 +2,7 @@ package top.stillmisty.xiantao.domain.event.enums;
 
 import com.mybatisflex.annotation.EnumValue;
 import lombok.Getter;
+import org.jspecify.annotations.Nullable;
 
 /** 游戏事件大类 — 用于 NotificationAppender 按节分组 */
 @Getter
@@ -37,9 +38,9 @@ public enum GameEventCategory {
   @EnumValue private final String code;
 
   /** 节标题 (null 表示纯文本提示，无框线) */
-  private final String sectionTitle;
+  private final @Nullable String sectionTitle;
 
-  GameEventCategory(String code, String sectionTitle) {
+  GameEventCategory(String code, @Nullable String sectionTitle) {
     this.code = code;
     this.sectionTitle = sectionTitle;
   }

@@ -9,6 +9,7 @@ import top.stillmisty.xiantao.domain.event.enums.ActivityType;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.repository.MapNodeRepository;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.activity.TravelCompleter;
 
 @Slf4j
@@ -52,7 +53,7 @@ class TravelCompletionHandler implements StateHandler {
     }
 
     LocalDateTime arrivalTime = startTime.plusMinutes(travelTime);
-    if (LocalDateTime.now().isBefore(arrivalTime)) return false;
+    if (TimeUtil.now().isBefore(arrivalTime)) return false;
 
     log.info(
         "玩家 {} 旅行自动结算：{} → {}",

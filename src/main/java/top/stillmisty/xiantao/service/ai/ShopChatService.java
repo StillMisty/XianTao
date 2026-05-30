@@ -43,7 +43,7 @@ public class ShopChatService extends AbstractChatService {
       String result = chatWithShopkeeperInternal(userId, userInput);
       return new ServiceResult.Success<>(result);
     } catch (BusinessException e) {
-      return ServiceResult.businessFailure(e.getMessage());
+      return ServiceResult.businessFailure(e.getMessage() != null ? e.getMessage() : "商铺操作失败");
     } catch (Exception e) {
       log.error("商铺对话失败 - userId: {}, error: {}", userId, e.getMessage(), e);
       return ServiceResult.businessFailure("掌柜暂时不在，请稍后再来。");

@@ -45,7 +45,7 @@ public class InventoryService {
     List<StackableItem> stackableItems = stackableItemRepository.findByUserId(userId);
     Map<ItemType, List<ItemEntry>> itemsByType = new LinkedHashMap<>();
     for (StackableItem item : stackableItems) {
-      int qty = item.getQuantity() != null ? item.getQuantity() : 0;
+      int qty = item.getQuantity();
       itemsByType
           .computeIfAbsent(item.getItemType(), k -> new ArrayList<>())
           .add(new ItemEntry(0, item.getId(), item.getName(), qty, ""));
@@ -102,11 +102,11 @@ public class InventoryService {
               item.getTemplateId(),
               item.getName(),
               item.getItemType().getName(),
-              item.getQuantity() != null ? item.getQuantity() : 0,
+              item.getQuantity(),
               item.getQuality(),
-              description,
-              item.getProperties(),
-              item.getTags()));
+              description != null ? description : "",
+              item.getProperties() != null ? item.getProperties() : java.util.Map.of(),
+              item.getTags() != null ? item.getTags() : java.util.Set.of()));
     }
     if (result instanceof ItemResolver.Ambiguous<?> ambiguous) {
       var sb = new StringBuilder("找到多个物品，请使用更精确的名称：\n");

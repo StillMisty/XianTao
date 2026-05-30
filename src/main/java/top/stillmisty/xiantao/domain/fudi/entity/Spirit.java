@@ -9,11 +9,13 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import org.jspecify.annotations.Nullable;
 import top.stillmisty.xiantao.domain.fudi.enums.MBTIPersonality;
 
 @EqualsAndHashCode
 @Table("xt_spirit")
 @Accessors(chain = true)
+@SuppressWarnings("NullAway")
 @Data
 @NoArgsConstructor
 public class Spirit {
@@ -35,9 +37,9 @@ public class Spirit {
 
   private MBTIPersonality mbtiType;
 
-  private LocalDateTime lastGiftTime;
+  @Nullable private LocalDateTime lastGiftTime;
 
-  private LocalDateTime lastEventTime;
+  @Nullable private LocalDateTime lastEventTime;
 
   @Column(onInsertValue = "now()")
   private LocalDateTime createTime;

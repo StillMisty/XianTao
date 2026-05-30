@@ -1,14 +1,15 @@
 package top.stillmisty.xiantao.service.cultivation;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
 import top.stillmisty.xiantao.domain.fudi.entity.FudiCell;
+import top.stillmisty.xiantao.domain.fudi.entity.Spirit;
 import top.stillmisty.xiantao.domain.fudi.enums.CellType;
 import top.stillmisty.xiantao.domain.monster.CombatTeam;
 import top.stillmisty.xiantao.domain.monster.TribulationBoss;
@@ -16,6 +17,7 @@ import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.infrastructure.repository.FudiCellRepository;
 import top.stillmisty.xiantao.infrastructure.repository.FudiRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SpiritRepository;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.SpiritStoneService;
 import top.stillmisty.xiantao.service.combat.CombatService;
 import top.stillmisty.xiantao.service.combat.TribulationCombatExecutor;
@@ -46,14 +48,14 @@ public class TribulationService {
   public String resolveTribulation(Fudi fudi, User user) {
     if (fudi.getLastTribulationTime() != null) {
       long hoursSinceLast =
-          Duration.between(fudi.getLastTribulationTime(), LocalDateTime.now()).toHours();
+          Duration.between(fudi.getLastTribulationTime(), TimeUtil.now()).toHours();
       if (hoursSinceLast < TRIBULATION_COOLDOWN_HOURS) {
         long remaining = TRIBULATION_COOLDOWN_HOURS - hoursSinceLast;
         return String.format("天劫刚过不久，灵气尚在激荡。请%d小时后再次引动。", remaining);
       }
     }
 
-    fudi.setLastTribulationTime(LocalDateTime.now());
+    fudi.setLastTribulationTime(TimeUtil.now());
 
     // 先持久化天劫状态，防止并发重复触发
     fudiRepository.save(fudi);
@@ -126,8 +128,7 @@ public class TribulationService {
   }
 
   /** 胜利：正常进阶，好感+5 */
-  private String applyTribulationWin(
-      Fudi fudi, top.stillmisty.xiantao.domain.fudi.entity.Spirit spirit, TribulationBoss boss) {
+  private String applyTribulationWin(Fudi fudi, @Nullable Spirit spirit, TribulationBoss boss) {
     TribulationProgress p = advanceTribulation(fudi);
 
     int oldAffection = spirit != null ? spirit.getAffection() : 0;
@@ -151,10 +152,12 @@ public class TribulationService {
 
   /** 怜悯：地灵挡劫，进阶但精力归零 */
   private String applyTribulationCompassion(
-      Fudi fudi, top.stillmisty.xiantao.domain.fudi.entity.Spirit spirit, TribulationBoss boss) {
+      Fudi fudi, @Nullable Spirit spirit, TribulationBoss boss) {
     TribulationProgress p = advanceTribulation(fudi);
 
-    spiritRepository.save(spirit);
+    if (spirit != null) {
+      spiritRepository.save(spirit);
+    }
 
     return """
         🪽⚡ 天劫降临！地灵燃烧灵体为你扛过天雷……
@@ -165,8 +168,7 @@ public class TribulationService {
   }
 
   /** 失败：地块摧毁，好感下降，连胜中断 摧毁数量根据 Boss 剩余HP比例决定（剩得越少输得越体面） */
-  private String applyTribulationLoss(
-      Fudi fudi, top.stillmisty.xiantao.domain.fudi.entity.Spirit spirit, TribulationBoss boss) {
+  private String applyTribulationLoss(Fudi fudi, @Nullable Spirit spirit, TribulationBoss boss) {
     int oldWinStreak = fudi.getTribulationWinStreak();
     fudi.setTribulationWinStreak(0);
 

@@ -11,13 +11,16 @@ import java.util.Set;
 import java.util.TreeMap;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jspecify.annotations.Nullable;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.enums.MaterialAttribute;
 import top.stillmisty.xiantao.domain.pill.enums.ElementType;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 
 /** 堆叠类物品实例实体 用于存储：材料、种子、灵蛋、消耗品、草药、丹药 */
+@SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table("xt_inventory_item")
@@ -44,14 +47,14 @@ public class StackableItem {
 
   /** 物品标签 JSONB，用于AI检索和NPC交互 示例: ["ore", "metal", "forge_base"] */
   @Column(typeHandler = JsonbCollectionTypeHandler.class)
-  private Set<String> tags;
+  private @Nullable Set<String> tags;
 
   /**
    * 类型特有属性 JSONB 丹药: {"grade": 3, "quality": "SUPERIOR"} 药材: {"elements": {"WOOD": 3, "FIRE": 1,
    * "WATER": 2}}
    */
   @Column(typeHandler = JsonbTypeHandler.class)
-  private Map<String, Object> properties;
+  private @Nullable Map<String, Object> properties;
 
   /** properties 的确定性哈希值，用于按属性拆分堆叠行 */
   private Integer propertiesHash;
@@ -79,16 +82,13 @@ public class StackableItem {
     item.name = name;
     item.quantity = quantity;
     item.tradable = true;
-    item.createTime = LocalDateTime.now();
+    item.createTime = TimeUtil.now();
     item.propertiesHash = computeHash(item.properties);
     return item;
   }
 
   /** 增加数量 */
   public void addQuantity(int amount) {
-    if (this.quantity == null) {
-      this.quantity = 0;
-    }
     this.quantity += amount;
   }
 
@@ -99,7 +99,7 @@ public class StackableItem {
    * @return 是否已用完（true=数量归零或不足，需要删除该物品）
    */
   public boolean reduceQuantity(int amount) {
-    if (this.quantity == null || this.quantity < amount) {
+    if (this.quantity < amount) {
       return true;
     }
     this.quantity -= amount;
@@ -108,7 +108,7 @@ public class StackableItem {
 
   /** 检查数量是否足够 */
   public boolean hasEnoughQuantity(int amount) {
-    return this.quantity != null && this.quantity >= amount;
+    return this.quantity >= amount;
   }
 
   /** 检查是否包含指定标签 */
@@ -188,7 +188,7 @@ public class StackableItem {
    *
    * <p>先按键排序再哈希，保证相同内容的 Map 产生相同哈希值。properties 为 null 或空时返回 0。
    */
-  public static int computeHash(Map<String, Object> properties) {
+  public static int computeHash(@Nullable Map<String, Object> properties) {
     if (properties == null || properties.isEmpty()) return 0;
     return new TreeMap<>(properties).hashCode();
   }

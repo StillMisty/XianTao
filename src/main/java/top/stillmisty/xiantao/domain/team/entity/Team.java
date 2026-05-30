@@ -10,6 +10,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import top.stillmisty.xiantao.domain.team.enums.TeamStatus;
 
+@SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Accessors(chain = true)

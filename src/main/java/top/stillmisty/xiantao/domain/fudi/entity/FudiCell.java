@@ -12,6 +12,7 @@ import top.stillmisty.xiantao.domain.fudi.enums.CellType;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.CellConfigTypeHandler;
 
 /** 福地地块实体 */
+@SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table("xt_fudi_cell")

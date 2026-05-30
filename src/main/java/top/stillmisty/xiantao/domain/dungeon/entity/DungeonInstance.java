@@ -9,10 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jspecify.annotations.Nullable;
 import top.stillmisty.xiantao.domain.dungeon.enums.DungeonArea;
 import top.stillmisty.xiantao.domain.dungeon.enums.DungeonStatus;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 
+@SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table("dungeon_instance")
@@ -24,10 +27,10 @@ public class DungeonInstance {
 
   private Long dungeonId;
   private Long leaderId;
-  private Long teamId;
+  @Nullable private Long teamId;
   private DungeonArea currentArea;
   private Boolean passageUnlocked;
-  private Long passagePoiId;
+  @Nullable private Long passagePoiId;
   private Boolean hasCoreToken;
 
   @Column(typeHandler = JsonbCollectionTypeHandler.class)
@@ -39,14 +42,14 @@ public class DungeonInstance {
   private LocalDateTime createdAt;
 
   private LocalDateTime expiresAt;
-  private LocalDateTime completedAt;
+  @Nullable private LocalDateTime completedAt;
 
   public boolean isActive() {
     return status == DungeonStatus.ACTIVE;
   }
 
   public boolean isExpired() {
-    return expiresAt != null && LocalDateTime.now().isAfter(expiresAt);
+    return expiresAt != null && TimeUtil.now().isAfter(expiresAt);
   }
 
   public void addExploredPoi(Long poiConfigId) {
@@ -74,7 +77,7 @@ public class DungeonInstance {
 
   public void markCompleted() {
     status = DungeonStatus.COMPLETED;
-    completedAt = LocalDateTime.now();
+    completedAt = TimeUtil.now();
   }
 
   public void markFailed() {

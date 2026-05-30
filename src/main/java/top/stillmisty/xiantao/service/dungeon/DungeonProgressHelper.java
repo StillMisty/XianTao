@@ -1,6 +1,5 @@
 package top.stillmisty.xiantao.service.dungeon;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +14,7 @@ import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.infrastructure.repository.DungeonFirstClearRepository;
 import top.stillmisty.xiantao.infrastructure.repository.DungeonProgressRepository;
 import top.stillmisty.xiantao.infrastructure.repository.DungeonTemplateRepository;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.SpiritStoneService;
@@ -56,7 +56,7 @@ public class DungeonProgressHelper {
                   p.setRewardCount(0);
                   p.setDailyLimit(DungeonProgress.calculateDailyLimit(user.getLevel()));
                   p.setFirstClear(false);
-                  p.setLastRewardDate(java.time.LocalDate.now());
+                  p.setLastRewardDate(TimeUtil.today());
                   return p;
                 });
 
@@ -69,16 +69,14 @@ public class DungeonProgressHelper {
         globalFirst.setDungeonId(dungeon.getId());
         globalFirst.setTeamMembers(List.of(userId));
         globalFirst.setDurationMinutes(
-            (int)
-                java.time.Duration.between(instance.getCreatedAt(), LocalDateTime.now())
-                    .toMinutes());
+            (int) java.time.Duration.between(instance.getCreatedAt(), TimeUtil.now()).toMinutes());
         firstClearRepository.save(globalFirst);
       }
       progress.setFirstClear(true);
     }
 
     if (progress.getBestArea() == null
-        || progress.getBestArea().ordinal() < DungeonArea.CORE.ordinal()) {
+        || progress.getBestArea().getRank() < DungeonArea.CORE.getRank()) {
       progress.setBestArea(DungeonArea.CORE);
     }
 

@@ -22,7 +22,7 @@ public class HelpListener {
   @RequireAuth
   @Filter("帮助")
   public void help(MessageEvent event) {
-    replyHelper.dispatch(event, "帮助", f -> helpCommandHandler.handleHelp(null, f));
+    replyHelper.dispatch(event, "帮助", f -> helpCommandHandler.handleHelp("", f));
   }
 
   @Listener

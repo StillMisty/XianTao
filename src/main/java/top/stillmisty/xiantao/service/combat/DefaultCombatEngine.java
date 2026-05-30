@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.monster.BattleContext;
 import top.stillmisty.xiantao.domain.monster.Buff;
@@ -153,7 +154,8 @@ public class DefaultCombatEngine implements CombatEngine {
 
   // ===================== 行动处理 =====================
 
-  Skill selectSkill(Combatant attacker, Map<String, Integer> cooldowns, BuffManager buffManager) {
+  @Nullable Skill selectSkill(
+      Combatant attacker, Map<String, Integer> cooldowns, BuffManager buffManager) {
     boolean silenced = buffManager.hasSilence(attacker.getId());
     if (silenced) return null;
 
@@ -173,7 +175,7 @@ public class DefaultCombatEngine implements CombatEngine {
   CombatLogEntry resolveAction(
       Combatant attacker,
       Combatant defender,
-      Skill selectedSkill,
+      @Nullable Skill selectedSkill,
       Map<String, Integer> skillCooldowns,
       Map<String, Integer> skillProcs,
       Map<String, Integer> damageDealt,
@@ -418,6 +420,7 @@ public class DefaultCombatEngine implements CombatEngine {
             .build());
   }
 
+  @Nullable
   private Combatant selectTarget(CombatTeam defenderTeam) {
     return defenderTeam.selectTargetForPVE();
   }

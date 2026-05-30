@@ -9,10 +9,12 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import org.jspecify.annotations.Nullable;
 
 @EqualsAndHashCode
 @Table("xt_sect")
 @Accessors(chain = true)
+@SuppressWarnings("NullAway")
 @Data
 @NoArgsConstructor
 public class Sect {
@@ -34,25 +36,25 @@ public class Sect {
 
   private Integer maxMembers;
 
-  private String description;
+  @Nullable private String description;
 
-  private String notice;
+  @Nullable private String notice;
 
-  private String verse;
+  @Nullable private String verse;
 
-  private String ethos;
+  @Nullable private String ethos;
 
-  private String spiritPersonality;
+  @Nullable private String spiritPersonality;
 
-  private String lastEventType;
+  @Nullable private String lastEventType;
 
-  private String lastEventText;
+  @Nullable private String lastEventText;
 
-  private LocalDateTime lastEventTime;
+  @Nullable private LocalDateTime lastEventTime;
 
-  private LocalDateTime eventExpiresAt;
+  @Nullable private LocalDateTime eventExpiresAt;
 
-  private LocalDateTime lastVeinPayout;
+  @Nullable private LocalDateTime lastVeinPayout;
 
   @Column(onInsertValue = "now()")
   private LocalDateTime createdAt;

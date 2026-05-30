@@ -98,7 +98,7 @@ public class CultivationService {
       boolean isTribulationRealm,
       long expNeeded) {
     int oldLevel = user.getLevel();
-    int targetRealmOrdinal = newRealm.ordinal();
+    int targetRealmOrdinal = newRealm.getRank();
     int tribulationLevel = isTribulationRealm ? newLevel - newRealm.getStartLevel() + 1 : 0;
 
     // 读取丹药+护道加成，转为 Boss 削弱

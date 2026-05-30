@@ -23,7 +23,7 @@ public class BeastCombatant implements Combatant {
     this.beast = beast;
     this.skills = skills != null ? skills : List.of();
     this.effectResolver = effectResolver;
-    this.hp = beast.getHpCurrent() != null ? beast.getHpCurrent() : beast.getMaxHp();
+    this.hp = beast.getHpCurrent();
   }
 
   @Override
@@ -38,19 +38,19 @@ public class BeastCombatant implements Combatant {
 
   @Override
   public int getSpeed() {
-    int base = beast.getLevel() != null ? beast.getLevel() * 2 + 8 : 10;
+    int base = beast.getLevel() * 2 + 8;
     return (int) (base * getSpeedMultiplier());
   }
 
   @Override
   public int getAttack() {
-    int base = beast.getAttack() != null ? beast.getAttack() : 10;
+    int base = beast.getAttack();
     return (int) (base * getAttackMultiplier());
   }
 
   @Override
   public int getDefense() {
-    int base = beast.getDefense() != null ? beast.getDefense() : 8;
+    int base = beast.getDefense();
     return (int) (base * getDefenseMultiplier());
   }
 
@@ -61,7 +61,7 @@ public class BeastCombatant implements Combatant {
 
   @Override
   public int getMaxHp() {
-    return beast.getMaxHp() != null ? beast.getMaxHp() : 100;
+    return beast.getMaxHp();
   }
 
   @Override

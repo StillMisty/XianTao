@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
@@ -47,7 +48,11 @@ public class CombatService {
   public BattleResultVO simulate(CombatTeam teamA, CombatTeam teamB, int maxRounds) {
     Battle battle =
         Battle.of(teamA, teamB, BattleContext.BattleScene.TRAINING, maxRounds, combatEngine);
-    return battle.execute();
+    BattleResultVO result = battle.execute();
+    if (result == null) {
+      throw new IllegalStateException("战斗执行失败");
+    }
+    return result;
   }
 
   public CombatTeam buildPlayerTeam(User user) {
@@ -92,7 +97,7 @@ public class CombatService {
     return team;
   }
 
-  private List<Skill> loadEquippedSkills(Long userId, Equipment weapon) {
+  private List<Skill> loadEquippedSkills(Long userId, @Nullable Equipment weapon) {
     List<Long> equippedSkillIds =
         playerSkillRepository.findEquippedByUserId(userId).stream()
             .map(top.stillmisty.xiantao.domain.skill.entity.PlayerSkill::getSkillId)
@@ -101,11 +106,13 @@ public class CombatService {
     if (equippedSkillIds.isEmpty()) return List.of();
 
     List<Skill> allSkills = skillRepository.findByIds(equippedSkillIds);
-    return allSkills.stream().filter(skill -> isSkillCompatibleWithWeapon(skill, weapon)).toList();
+    return allSkills.stream()
+        .filter(skill -> weapon == null || isSkillCompatibleWithWeapon(skill, weapon))
+        .toList();
   }
 
   private List<Skill> loadEquippedSkillsFromLookup(
-      Long userId, Equipment weapon, Map<Long, Skill> skillLookup) {
+      Long userId, @Nullable Equipment weapon, Map<Long, Skill> skillLookup) {
     List<Long> equippedSkillIds =
         playerSkillRepository.findEquippedByUserId(userId).stream()
             .map(top.stillmisty.xiantao.domain.skill.entity.PlayerSkill::getSkillId)
@@ -120,11 +127,11 @@ public class CombatService {
     return equippedSkillIds.stream()
         .map(skillLookup::get)
         .filter(java.util.Objects::nonNull)
-        .filter(skill -> isSkillCompatibleWithWeapon(skill, weapon))
+        .filter(skill -> weapon == null || isSkillCompatibleWithWeapon(skill, weapon))
         .toList();
   }
 
-  private boolean isSkillCompatibleWithWeapon(Skill skill, Equipment weapon) {
+  private boolean isSkillCompatibleWithWeapon(Skill skill, @Nullable Equipment weapon) {
     BindingType bindingType = skill.getBindingType();
     if (bindingType == null || bindingType == BindingType.NONE) return true;
 
@@ -159,14 +166,14 @@ public class CombatService {
     return new BuffValues(attackBuff, defenseBuff, speedBuff);
   }
 
-  private Equipment findWeapon(Long userId) {
+  private @Nullable Equipment findWeapon(Long userId) {
     return equipmentRepository.findEquippedByUserId(userId).stream()
         .filter(e -> e.getSlot() == EquipmentSlot.WEAPON)
         .findFirst()
         .orElse(null);
   }
 
-  private double getWeaponAttackSpeed(Long userId, Equipment weapon) {
+  private double getWeaponAttackSpeed(Long userId, @Nullable Equipment weapon) {
     if (weapon == null) return 1.0;
     return equipmentTemplateRepository
         .findById(weapon.getTemplateId())

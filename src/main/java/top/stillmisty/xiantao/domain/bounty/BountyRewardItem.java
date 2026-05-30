@@ -3,6 +3,7 @@ package top.stillmisty.xiantao.domain.bounty;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 
 /** 预存的悬赏奖励物品 — 接取时确定，完成时发放 */
 public sealed interface BountyRewardItem {
@@ -72,24 +73,27 @@ public sealed interface BountyRewardItem {
       return new SpiritStonesReward(((Number) map.getOrDefault("amount", 0)).longValue());
     }
     if ("BEAST_EGG".equals(rewardType)) {
-      return new BeastEggReward(toLong(map.get("templateId")), (String) map.get("name"));
+      return new BeastEggReward(
+          toLong(map.get("templateId")), (String) map.getOrDefault("name", ""));
     }
     if ("equipment".equals(rewardType)) {
-      return new EquipmentRewardItem(toLong(map.get("templateId")), (String) map.get("name"));
+      return new EquipmentRewardItem(
+          toLong(map.get("templateId")), (String) map.getOrDefault("name", ""));
     }
     if ("skill_jade".equals(rewardType)) {
-      return new SkillJadeRewardItem(toLong(map.get("templateId")), (String) map.get("name"));
+      return new SkillJadeRewardItem(
+          toLong(map.get("templateId")), (String) map.getOrDefault("name", ""));
     }
     // "item" or missing _rewardType (legacy data)
     return new ItemReward(
         toLong(map.get("templateId")),
-        (String) map.get("name"),
+        (String) map.getOrDefault("name", ""),
         ((Number) map.getOrDefault("quantity", 1)).intValue());
   }
 
-  private static Long toLong(Object value) {
+  private static long toLong(@Nullable Object value) {
     if (value instanceof Long longVal) return longVal;
     if (value instanceof Number number) return number.longValue();
-    return null;
+    return 0L;
   }
 }

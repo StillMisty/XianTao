@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.fudi.entity.FudiEventTemplate;
 import top.stillmisty.xiantao.infrastructure.repository.FudiEventTemplateRepository;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 
 /** 福地事件生成器 对话时从模板池懒生成 */
 @Component
@@ -33,7 +34,7 @@ public class FudiEventGenerator {
    * @return 事件列表（最多6条，无重复）
    */
   public List<FudiEventTemplate> generateEvents(LocalDateTime lastEventTime) {
-    LocalDateTime now = LocalDateTime.now();
+    LocalDateTime now = TimeUtil.now();
 
     if (lastEventTime != null) {
       long hoursSinceLastEvent = ChronoUnit.HOURS.between(lastEventTime, now);

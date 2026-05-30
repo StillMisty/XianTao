@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
+import org.jspecify.annotations.Nullable;
 import top.stillmisty.xiantao.domain.user.entity.User;
 
 @Mapper
@@ -35,8 +36,8 @@ public interface UserMapper extends BaseMapper<User> {
       @Param("userId") Long userId,
       @Param("status") String status,
       @Param("activityType") String activityType,
-      @Param("activityStartTime") LocalDateTime activityStartTime,
-      @Param("activityTargetId") Long activityTargetId);
+      @Param("activityStartTime") @Nullable LocalDateTime activityStartTime,
+      @Param("activityTargetId") @Nullable Long activityTargetId);
 
   @Update(
       """
@@ -47,7 +48,7 @@ public interface UserMapper extends BaseMapper<User> {
       @Param("userId") Long userId,
       @Param("hpCurrent") int hpCurrent,
       @Param("status") String status,
-      @Param("dyingStartTime") LocalDateTime dyingStartTime);
+      @Param("dyingStartTime") @Nullable LocalDateTime dyingStartTime);
 
   @Update(
       """
@@ -61,10 +62,10 @@ public interface UserMapper extends BaseMapper<User> {
       @Param("hpCurrent") int hpCurrent,
       @Param("exp") long exp,
       @Param("status") String status,
-      @Param("dyingStartTime") LocalDateTime dyingStartTime,
-      @Param("activityType") String activityType,
-      @Param("activityStartTime") LocalDateTime activityStartTime,
-      @Param("activityTargetId") Long activityTargetId);
+      @Param("dyingStartTime") @Nullable LocalDateTime dyingStartTime,
+      @Param("activityType") @Nullable String activityType,
+      @Param("activityStartTime") @Nullable LocalDateTime activityStartTime,
+      @Param("activityTargetId") @Nullable Long activityTargetId);
 
   @Update(
       """

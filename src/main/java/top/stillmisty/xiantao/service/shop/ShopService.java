@@ -1,6 +1,5 @@
 package top.stillmisty.xiantao.service.shop;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -41,6 +40,7 @@ import top.stillmisty.xiantao.infrastructure.repository.ShopNpcRepository;
 import top.stillmisty.xiantao.infrastructure.repository.ShopProductRepository;
 import top.stillmisty.xiantao.infrastructure.repository.StackableItemRepository;
 import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.FortuneService;
@@ -138,7 +138,7 @@ public class ShopService {
 
     ShopProduct saleTouch = new ShopProduct();
     saleTouch.setId(product.getId());
-    saleTouch.setLastSaleTime(LocalDateTime.now());
+    saleTouch.setLastSaleTime(TimeUtil.now());
     shopProductRepository.save(saleTouch);
 
     addStackableItem(userId, template, quantity);
@@ -208,7 +208,7 @@ public class ShopService {
 
     ShopProduct saleTouch = new ShopProduct();
     saleTouch.setId(product.getId());
-    saleTouch.setLastSaleTime(LocalDateTime.now());
+    saleTouch.setLastSaleTime(TimeUtil.now());
     shopProductRepository.save(saleTouch);
 
     String description = rarity.getName() + "品质，品质系数 " + String.format("%.2f", qualityMultiplier);
@@ -229,10 +229,10 @@ public class ShopService {
     if (!item.getUserId().equals(userId)) {
       throw new BusinessException(ErrorCode.ITEM_OWNERSHIP_MISMATCH);
     }
-    if (item.getTradable() != null && !item.getTradable()) {
+    if (!item.getTradable()) {
       throw new BusinessException(ErrorCode.ITEM_NOT_TRADABLE);
     }
-    if (item.getQuantity() == null || item.getQuantity() <= 0) {
+    if (item.getQuantity() <= 0) {
       throw new BusinessException(ErrorCode.ITEM_NOT_IN_BAG);
     }
 
@@ -277,10 +277,10 @@ public class ShopService {
     if (!equipment.getUserId().equals(userId)) {
       throw new BusinessException(ErrorCode.EQUIPMENT_NOT_OWNED);
     }
-    if (equipment.getEquipped() != null && equipment.getEquipped()) {
+    if (equipment.getEquipped()) {
       throw new BusinessException(ErrorCode.EQUIPMENT_ALREADY_EQUIPPED);
     }
-    if (equipment.getTradable() != null && !equipment.getTradable()) {
+    if (!equipment.getTradable()) {
       throw new BusinessException(ErrorCode.EQUIPMENT_NOT_TRADABLE);
     }
 
@@ -325,7 +325,7 @@ public class ShopService {
             .findById(item.getTemplateId())
             .orElseThrow(() -> new BusinessException(ErrorCode.ITEM_NOT_EXISTS));
 
-    boolean tradable = item.getTradable() == null || item.getTradable();
+    boolean tradable = item.getTradable();
     if (!tradable) {
       return new AppraisalResult(false, 0, 0, 0, item.getName(), "此物伴有绑定印记，不可回收");
     }
@@ -346,10 +346,10 @@ public class ShopService {
     if (!equipment.getUserId().equals(userId)) {
       throw new BusinessException(ErrorCode.EQUIPMENT_NOT_OWNED);
     }
-    if (equipment.getEquipped() != null && equipment.getEquipped()) {
+    if (equipment.getEquipped()) {
       return new AppraisalResult(false, 0, 0, 0, equipment.getName(), "客官还穿着呢，脱下来再说吧");
     }
-    if (equipment.getTradable() != null && !equipment.getTradable()) {
+    if (!equipment.getTradable()) {
       return new AppraisalResult(false, 0, 0, 0, equipment.getName(), "此物伴有神魂烙印，收不得");
     }
 
@@ -488,14 +488,10 @@ public class ShopService {
 
   private Map<String, Integer> buildStatBonus(EquipmentTemplate template) {
     Map<String, Integer> stats = new HashMap<>();
-    if (template.getBaseStr() != null && template.getBaseStr() > 0)
-      stats.put("STR", template.getBaseStr());
-    if (template.getBaseCon() != null && template.getBaseCon() > 0)
-      stats.put("CON", template.getBaseCon());
-    if (template.getBaseAgi() != null && template.getBaseAgi() > 0)
-      stats.put("AGI", template.getBaseAgi());
-    if (template.getBaseWis() != null && template.getBaseWis() > 0)
-      stats.put("WIS", template.getBaseWis());
+    if (template.getBaseStr() > 0) stats.put("STR", template.getBaseStr());
+    if (template.getBaseCon() > 0) stats.put("CON", template.getBaseCon());
+    if (template.getBaseAgi() > 0) stats.put("AGI", template.getBaseAgi());
+    if (template.getBaseWis() > 0) stats.put("WIS", template.getBaseWis());
     return stats;
   }
 
@@ -506,10 +502,8 @@ public class ShopService {
   private String buildEquipmentAppraisalDesc(Equipment equipment, long basePrice) {
     StringBuilder sb = new StringBuilder();
     Rarity rarity = equipment.getRarity();
-    if (rarity != null) {
-      sb.append(rarity.getName()).append("品质");
-    }
-    if (equipment.getForgeLevel() != null && equipment.getForgeLevel() > 0) {
+    sb.append(rarity.getName()).append("品质");
+    if (equipment.getForgeLevel() > 0) {
       sb.append("，锻造+").append(equipment.getForgeLevel());
     }
     if (equipment.getAffixes() != null && !equipment.getAffixes().isEmpty()) {

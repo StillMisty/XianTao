@@ -9,11 +9,14 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import org.jspecify.annotations.Nullable;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 
 /** 福地核心实体 */
 @EqualsAndHashCode
 @Table("xt_fudi")
 @Accessors(chain = true)
+@SuppressWarnings("NullAway")
 @Data
 @NoArgsConstructor
 public class Fudi {
@@ -34,7 +37,7 @@ public class Fudi {
   private LocalDateTime lastOnlineTime;
 
   /** 天劫最后发生时间 */
-  private LocalDateTime lastTribulationTime;
+  @Nullable private LocalDateTime lastTribulationTime;
 
   /** 天劫连续胜利次数 */
   private Integer tribulationWinStreak;
@@ -49,6 +52,6 @@ public class Fudi {
 
   /** 更新在线时间 */
   public void touchOnlineTime() {
-    lastOnlineTime = LocalDateTime.now();
+    lastOnlineTime = TimeUtil.now();
   }
 }

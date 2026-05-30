@@ -13,6 +13,7 @@ import top.stillmisty.xiantao.domain.worldevent.enums.WorldEventCategory;
 import top.stillmisty.xiantao.domain.worldevent.enums.WorldEventScope;
 import top.stillmisty.xiantao.domain.worldevent.enums.WorldEventStatus;
 import top.stillmisty.xiantao.infrastructure.repository.WorldEventRepository;
+import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 
 @Slf4j
 @Service
@@ -53,7 +54,7 @@ public class WorldEventService {
     if (event.getStatus() == null) {
       event.setStatus(WorldEventStatus.ACTIVE);
     }
-    event.setCreatedAt(LocalDateTime.now());
+    event.setCreatedAt(TimeUtil.now());
     return worldEventRepository.save(event);
   }
 
@@ -67,7 +68,7 @@ public class WorldEventService {
     int count = 0;
     List<WorldEvent> activeEvents = worldEventRepository.findActiveEvents();
     for (WorldEvent event : activeEvents) {
-      if (event.getEndTime() != null && event.getEndTime().isBefore(LocalDateTime.now())) {
+      if (event.getEndTime() != null && event.getEndTime().isBefore(TimeUtil.now())) {
         worldEventRepository.markStatus(event.getId(), WorldEventStatus.EXPIRED.getCode());
         count++;
         activateChainedChildren(event);
@@ -75,7 +76,7 @@ public class WorldEventService {
     }
     List<WorldEvent> upcoming = worldEventRepository.findUpcoming();
     for (WorldEvent event : upcoming) {
-      if (event.getStartTime() != null && !event.getStartTime().isAfter(LocalDateTime.now())) {
+      if (event.getStartTime() != null && !event.getStartTime().isAfter(TimeUtil.now())) {
         worldEventRepository.markStatus(event.getId(), WorldEventStatus.ACTIVE.getCode());
         count++;
       }
@@ -89,7 +90,7 @@ public class WorldEventService {
     for (WorldEvent upcoming : allUpcoming) {
       if (upcoming.getParentEventId() != null
           && upcoming.getParentEventId().equals(expiredEvent.getId())) {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = TimeUtil.now();
         upcoming.setStartTime(now);
         upcoming.setEndTime(now.plusHours(6));
         upcoming.setStatus(WorldEventStatus.ACTIVE);

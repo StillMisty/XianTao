@@ -26,7 +26,9 @@ public class AddItemEffect implements SubEventEffect {
   @Override
   public Map<String, Object> execute(
       Long userId, User user, Map<String, Object> params, Map<String, Object> context) {
-    long templateId = ((Number) params.get("template_id")).longValue();
+    Number templateIdNum = (Number) params.get("template_id");
+    if (templateIdNum == null) return Map.of();
+    long templateId = templateIdNum.longValue();
     int count =
         params.containsKey("count")
             ? ((Number) params.get("count")).intValue()

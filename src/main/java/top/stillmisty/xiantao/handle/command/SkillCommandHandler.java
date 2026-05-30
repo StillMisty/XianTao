@@ -103,7 +103,7 @@ public class SkillCommandHandler implements CommandGroup {
     sb.append(result.getMessage());
     if (result.getSkill() != null) {
       sb.append("\n\n");
-      sb.append(formatSkillDetail(null, result.getSkill(), fmt));
+      sb.append(formatSkillDetail(0, result.getSkill(), fmt));
     }
     if (result.getEquippedCount() > 0 || result.getMaxSlots() > 0) {
       sb.append("\n");

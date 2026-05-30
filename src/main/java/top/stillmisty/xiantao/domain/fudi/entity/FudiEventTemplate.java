@@ -14,6 +14,7 @@ import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
 
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@SuppressWarnings("NullAway")
 @NoArgsConstructor
 @Table("fudi_event_template")
 public class FudiEventTemplate {

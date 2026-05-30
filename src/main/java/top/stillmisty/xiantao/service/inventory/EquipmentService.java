@@ -2,6 +2,7 @@ package top.stillmisty.xiantao.service.inventory;
 
 import java.util.*;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
@@ -159,7 +160,9 @@ public class EquipmentService {
   }
 
   private record ReplacementResult(
-      Long replacedEquipmentId, String replacedEquipmentName, Equipment replacedEquipment) {}
+      @Nullable Long replacedEquipmentId,
+      @Nullable String replacedEquipmentName,
+      @Nullable Equipment replacedEquipment) {}
 
   private ReplacementResult handleSlotReplacement(Long userId, EquipmentSlot slot) {
     var currentEquipped = equipmentRepository.findEquippedByUserIdAndSlotForUpdate(userId, slot);
@@ -303,7 +306,7 @@ public class EquipmentService {
             .filter(e -> !e.getEquipped())
             .sorted(
                 (a, b) -> {
-                  int rarityCompare = b.getRarity().ordinal() - a.getRarity().ordinal();
+                  int rarityCompare = b.getRarity().getRank() - a.getRarity().getRank();
                   if (rarityCompare != 0) return rarityCompare;
                   int aForge = a.getForgeLevel();
                   int bForge = b.getForgeLevel();
@@ -322,6 +325,7 @@ public class EquipmentService {
 
   /** 查看装备详细属性 */
   @Cacheable(cacheNames = "player_equipment", key = "'detail:' + #equipmentId")
+  @Nullable
   public EquipmentDetailVO getEquipmentDetail(Long userId, Long equipmentId) {
     return equipmentRepository
         .findById(equipmentId)
@@ -333,7 +337,7 @@ public class EquipmentService {
   // ===================== 辅助方法 =====================
 
   private AttributeChange calculateAttributeChange(
-      Equipment replacedEquipment, Equipment newEquipment) {
+      @Nullable Equipment replacedEquipment, @Nullable Equipment newEquipment) {
 
     int strChange = newEquipment != null ? newEquipment.getStrBonus() : 0;
     int conChange = newEquipment != null ? newEquipment.getConBonus() : 0;
