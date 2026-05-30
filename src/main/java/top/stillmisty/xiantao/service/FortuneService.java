@@ -12,6 +12,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.event.enums.FortuneLevel;
 import top.stillmisty.xiantao.domain.event.vo.FortuneVO;
+import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 
 @Slf4j
@@ -38,20 +39,16 @@ public class FortuneService {
   }
 
   public String buildDisplay(Long userId) {
-    return buildDisplay(calculate(userId));
+    return buildDisplay(calculate(userId), TextFormat.plain());
   }
 
-  public String buildDisplay(FortuneVO fortune) {
-    StringBuilder sb = new StringBuilder();
-    sb.append("\n════ 今日运势 ════\n");
-    sb.append(formatBar("财运", fortune.wealth())).append("\n");
-    sb.append(formatBar("机缘", fortune.fate())).append("\n");
-    sb.append(formatBar("气运", fortune.luck())).append("\n");
-    sb.append("点评：").append(fortune.level().getDisplay());
-    if (!fortune.comment().isEmpty()) {
-      sb.append(" · ").append(fortune.comment());
-    }
-    sb.append("\n══════════════════");
+  public String buildDisplay(FortuneVO fortune, TextFormat fmt) {
+    var sb = new StringBuilder();
+    sb.append(fmt.heading("今日运势"));
+    sb.append(dimensionLine("财运", fortune.wealth())).append("\n");
+    sb.append(dimensionLine("情缘", fortune.fate())).append("\n");
+    sb.append(dimensionLine("机缘", fortune.luck())).append("\n");
+    sb.append(fmt.bold("「" + fortune.level().getDisplay() + "」 ") + fortune.comment());
     return sb.toString();
   }
 
@@ -71,20 +68,11 @@ public class FortuneService {
     return Math.clamp((50 - luck) / 30, -3, 3);
   }
 
-  private String formatBar(String label, int value) {
+  private String dimensionLine(String label, int value) {
     int filled = (int) Math.round(value / 10.0);
     filled = Math.clamp(filled, 0, BAR_COUNT);
     String bar = "█".repeat(filled) + "░".repeat(BAR_COUNT - filled);
-    return String.format("%s %s %2d  %s", label, bar, value, describeDimension(label, value));
-  }
-
-  private String describeDimension(String label, int value) {
-    if (value >= 95) return label + "极旺";
-    if (value >= 80) return label + "旺盛";
-    if (value >= 60) return label + "渐旺";
-    if (value >= 40) return "中规中矩";
-    if (value >= 20) return label + "不济";
-    return label + "衰微";
+    return String.format("%s  %s %2d", label, bar, value);
   }
 
   private FortuneLevel determineLevel(int wealth, int fate, int luck) {

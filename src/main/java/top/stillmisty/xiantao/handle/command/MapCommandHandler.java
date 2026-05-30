@@ -85,7 +85,7 @@ public class MapCommandHandler implements CommandGroup {
         () -> mapService.getCurrentMapInfo(userId),
         fmt,
         vo -> formatCurrentMap(vo, fmt),
-        msg -> "❌ " + msg);
+        msg -> fmt.error(msg));
   }
 
   // ===================== 悬赏统一处理方法 =====================

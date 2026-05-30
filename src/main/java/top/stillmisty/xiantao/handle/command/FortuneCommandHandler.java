@@ -22,7 +22,7 @@ public class FortuneCommandHandler implements CommandGroup {
     Long userId = UserContext.requireCurrentUserId();
     log.debug("处理运势查询 - UserId: {}", userId);
     return CommandHandlerHelper.safeCall(
-        () -> fortuneService.getFortune(userId), fmt, fortuneService::buildDisplay);
+        () -> fortuneService.getFortune(userId), fmt, vo -> fortuneService.buildDisplay(vo, fmt));
   }
 
   @Override

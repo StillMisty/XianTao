@@ -64,7 +64,7 @@ public sealed interface TextFormat {
   record PlainFormat() implements TextFormat {
     @Override
     public String heading(String text) {
-      return "【" + text + "】\n";
+      return "━━━ " + text + " ━━━\n";
     }
 
     @Override
@@ -74,12 +74,12 @@ public sealed interface TextFormat {
 
     @Override
     public String subHeading(String text) {
-      return heading(text);
+      return "━ " + text + " ━\n";
     }
 
     @Override
     public String bold(String text) {
-      return "【" + text + "】";
+      return "「" + text + "」";
     }
 
     @Override
@@ -94,22 +94,22 @@ public sealed interface TextFormat {
 
     @Override
     public String listItem(String text) {
-      return "   " + text + "\n";
+      return "  · " + text + "\n";
     }
 
     @Override
     public String separator() {
-      return "\n";
+      return "\n······\n";
     }
 
     @Override
     public String subListItem(String text) {
-      return "    " + text + "\n";
+      return "    · " + text + "\n";
     }
 
     @Override
     public String emoji(String code, String fallbackText) {
-      return "[" + fallbackText + "]";
+      return fallbackText;
     }
 
     @Override
@@ -161,7 +161,7 @@ public sealed interface TextFormat {
 
     @Override
     public String separator() {
-      return "\n---\n";
+      return "\n---\n\n";
     }
 
     @Override

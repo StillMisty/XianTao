@@ -24,7 +24,7 @@ public class GmCommandHandler {
     try {
       amount = Long.parseLong(amountStr);
     } catch (NumberFormatException e) {
-      return "❌ 数量格式错误：" + amountStr;
+      return fmt.error("数量格式错误：" + amountStr);
     }
     return CommandHandlerHelper.safeCall(
         () -> gmService.giveSpiritStones(userId, targetNickname, amount), fmt, text -> text);
@@ -36,7 +36,7 @@ public class GmCommandHandler {
     try {
       amount = Long.parseLong(amountStr);
     } catch (NumberFormatException e) {
-      return "❌ 数量格式错误：" + amountStr;
+      return fmt.error("数量格式错误：" + amountStr);
     }
     return CommandHandlerHelper.safeCall(
         () -> gmService.giveExp(userId, targetNickname, amount), fmt, text -> text);
@@ -60,7 +60,7 @@ public class GmCommandHandler {
     try {
       level = Integer.parseInt(levelStr);
     } catch (NumberFormatException e) {
-      return "❌ 等级格式错误：" + levelStr;
+      return fmt.error("等级格式错误：" + levelStr);
     }
     return CommandHandlerHelper.safeCall(
         () -> gmService.setLevel(userId, targetNickname, level), fmt, text -> text);
@@ -80,7 +80,7 @@ public class GmCommandHandler {
       try {
         quantity = Integer.parseInt(quantityStr);
       } catch (NumberFormatException e) {
-        return "❌ 数量格式错误：" + quantityStr;
+        return fmt.error("数量格式错误：" + quantityStr);
       }
     }
     int finalQuantity = quantity;

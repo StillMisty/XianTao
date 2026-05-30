@@ -122,14 +122,14 @@ public class InventoryCommandHandler implements CommandGroup {
 
   private String formatItemList(String title, List<ItemEntry> entries, TextFormat fmt) {
     if (entries.isEmpty()) {
-      return fmt.heading(title + "列表（空）").trim();
+      return fmt.heading(title + "列表（空）").strip();
     }
     var sb = new StringBuilder(fmt.heading(title + "列表"));
     for (var e : entries) {
-      sb.append(e.index()).append(". ").append(e.name());
-      if (e.quantity() > 1) sb.append(" x").append(e.quantity());
-      if (!e.metadata().isBlank()) sb.append(" [").append(e.metadata()).append("]");
-      sb.append("\n");
+      var itemLine = e.index() + ". " + e.name();
+      if (e.quantity() > 1) itemLine += " x" + e.quantity();
+      if (!e.metadata().isBlank()) itemLine += " [" + e.metadata() + "]";
+      sb.append(fmt.listItem(itemLine));
     }
     return sb.toString().strip();
   }

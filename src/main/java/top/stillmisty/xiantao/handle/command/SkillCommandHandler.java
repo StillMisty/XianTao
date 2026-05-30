@@ -32,13 +32,13 @@ public class SkillCommandHandler implements CommandGroup {
             () -> new ServiceResult.Success<>(skillService.getEquippedSkills(userId)),
             fmt,
             skills -> formatEquippedSkills(skills, fmt),
-            msg -> "❌ " + msg);
+            msg -> fmt.error(msg));
     var learnedPart =
         CommandHandlerHelper.safeCall(
             () -> new ServiceResult.Success<>(skillService.getLearnedSkills(userId)),
             fmt,
             skills -> formatLearnedSkills(skills, fmt),
-            msg -> "❌ " + msg);
+            msg -> fmt.error(msg));
     return equippedPart + fmt.separator() + learnedPart;
   }
 

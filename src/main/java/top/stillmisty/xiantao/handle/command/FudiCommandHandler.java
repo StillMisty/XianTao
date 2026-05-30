@@ -55,56 +55,48 @@ public class FudiCommandHandler implements CommandGroup {
     }
 
     sb.append(fmt.heading("福地状态", "🏔️"));
-    sb.append(fmt.separator());
-    sb.append("⛈️ 劫数：")
-        .append(status.tribulationStage())
-        .append("  连胜×")
-        .append(status.tribulationWinStreak())
-        .append("\n");
-    sb.append("🧚 地灵形态：")
-        .append(status.spiritFormName() != null ? status.spiritFormName() : "未知形态")
-        .append("\n");
+    sb.append(
+        fmt.listItem("劫数：" + status.tribulationStage() + "  连胜×" + status.tribulationWinStreak()));
+    sb.append(
+        fmt.listItem(
+            "地灵形态：" + (status.spiritFormName() != null ? status.spiritFormName() : "未知形态")));
     if (status.mbtiType() != null) {
-      sb.append("🎭 地灵人格：").append(status.mbtiType().getCode()).append("\n");
+      sb.append(fmt.listItem("地灵人格：" + status.mbtiType().getCode()));
     }
-    sb.append("🏗️ 已占地块：")
-        .append(status.occupiedCells())
-        .append("/")
-        .append(status.totalCells())
-        .append("\n");
+    sb.append(fmt.listItem("已占地块：" + status.occupiedCells() + "/" + status.totalCells()));
     sb.append(fmt.separator());
-    sb.append("💡 输入「福地地块」查看详细布局");
+    sb.append(fmt.tip("输入「福地地块」查看详细布局"));
     return sb.toString();
   }
 
   private String formatCellLayout(FudiStatusVO status, TextFormat fmt) {
     StringBuilder sb = new StringBuilder();
     sb.append(fmt.heading("福地地块布局", "🗺️"));
-    sb.append(fmt.separator());
     if (status.cellDetails() == null || status.cellDetails().isEmpty()) {
       sb.append("（空地，尚未建造任何地块）\n");
     } else {
       for (var cell : status.cellDetails()) {
-        sb.append("📍 #").append(cell.cellId()).append(" ");
-        sb.append(cell.type().getChineseName());
+        StringBuilder cellLine = new StringBuilder();
+        cellLine.append("#").append(cell.cellId()).append(" ");
+        cellLine.append(cell.type().getChineseName());
         if (cell.cellLevel() != null && cell.cellLevel() > 1) {
-          sb.append(" Lv").append(cell.cellLevel());
+          cellLine.append(" Lv").append(cell.cellLevel());
         }
-        if (cell.name() != null) sb.append(" - ").append(cell.name());
+        if (cell.name() != null) cellLine.append(" - ").append(cell.name());
         if (cell.growthProgress() != null) {
           int percent = (int) (cell.growthProgress() * 100);
-          sb.append(" [").append(percent).append("%]");
-          if (Boolean.TRUE.equals(cell.isMature())) sb.append(" ✅ 可收取");
+          cellLine.append(" [").append(percent).append("%]");
+          if (Boolean.TRUE.equals(cell.isMature())) cellLine.append(fmt.bold("可收取"));
         }
-        if (cell.quality() != null) sb.append(" ").append(cell.quality());
+        if (cell.quality() != null) cellLine.append(" ").append(cell.quality());
         if (cell.productionStored() != null && cell.productionStored() > 0)
-          sb.append(" 📦x").append(cell.productionStored());
-        if (Boolean.TRUE.equals(cell.isIncubating())) sb.append(" 🥚孵化中");
-        sb.append("\n");
+          cellLine.append(" x").append(cell.productionStored());
+        if (Boolean.TRUE.equals(cell.isIncubating())) cellLine.append(" 孵化中");
+        sb.append(fmt.listItem(cellLine.toString()));
       }
     }
     sb.append(fmt.separator());
-    sb.append("💡 与地灵聊天即可进行种植、建造、收取等操作");
+    sb.append(fmt.tip("与地灵聊天即可进行种植、建造、收取等操作"));
     return sb.toString();
   }
 

@@ -62,30 +62,29 @@ public class SectCommandHandler implements CommandGroup {
     StringBuilder sb = new StringBuilder();
     sb.append(fmt.heading(vo.name(), ""));
     if (vo.verse() != null && !vo.verse().isBlank()) {
-      sb.append("「").append(vo.verse()).append("」\n");
+      sb.append(vo.verse()).append("\n");
     }
-    sb.append(fmt.separator());
-    sb.append("等级: Lv.").append(vo.level()).append("\n");
-    sb.append("宗主: ").append(vo.leaderNickname()).append("\n");
-    sb.append("成员: ").append(vo.memberCount()).append("/").append(vo.maxMembers()).append("\n");
-    sb.append("资金: ").append(vo.funds()).append(" 灵石\n");
-    sb.append("我的贡献: ").append(vo.myContribution()).append("\n");
-    sb.append("我的职位: ").append(vo.myPosition()).append("\n");
+    sb.append(fmt.listItem("等级：Lv." + vo.level()));
+    sb.append(fmt.listItem("宗主：" + vo.leaderNickname()));
+    sb.append(fmt.listItem("成员：" + vo.memberCount() + "/" + vo.maxMembers()));
+    sb.append(fmt.listItem("资金：" + vo.funds() + " 灵石"));
+    sb.append(fmt.listItem("我的贡献：" + vo.myContribution()));
+    sb.append(fmt.listItem("我的职位：" + vo.myPosition()));
     if (vo.description() != null && !vo.description().isBlank()) {
-      sb.append("简介: ").append(vo.description()).append("\n");
+      sb.append(fmt.listItem("简介：" + vo.description()));
     }
     if (vo.notice() != null && !vo.notice().isBlank()) {
-      sb.append("公告: ").append(vo.notice()).append("\n");
+      sb.append(fmt.listItem("公告：" + vo.notice()));
     }
     if (vo.currentEvent() != null && !vo.currentEvent().isBlank()) {
-      sb.append("当前事件: ").append(vo.currentEvent()).append("\n");
+      sb.append(fmt.listItem("当前事件：" + vo.currentEvent()));
     }
-    sb.append("\n成员列表:\n");
+    sb.append(fmt.separator());
+    sb.append(fmt.heading("成员列表"));
     for (var m : vo.members()) {
-      sb.append("  ").append(m.positionName()).append(" ").append(m.nickname());
-      sb.append(" (Lv.").append(m.level()).append(")");
-      if (m.isMe()) sb.append(" [我]");
-      sb.append("\n");
+      var memberLine = m.positionName() + " " + m.nickname() + " (Lv." + m.level() + ")";
+      if (m.isMe()) memberLine += " [我]";
+      sb.append(fmt.listItem(memberLine));
     }
     return sb.toString();
   }

@@ -78,16 +78,12 @@ public class WorldEventCommandHandler implements CommandGroup {
     for (int i = 0; i < events.size(); i++) {
       WorldEvent event = events.get(i);
       sb.append(fmt.separator());
-      sb.append(fmt.heading("["))
-          .append(event.getCategory().getName())
-          .append("] #")
-          .append(event.getId())
-          .append(" ");
+      sb.append(fmt.bold("[" + event.getCategory().getName() + " #" + event.getId() + "]"));
       if (event.isRegional()) {
-        sb.append("【").append(event.getScope().getName()).append("】");
+        sb.append(" ").append(fmt.bold(event.getScope().getName()));
       }
-      sb.append(event.getTitle());
-      sb.append("\n").append(event.getDescription());
+      sb.append(" ").append(event.getTitle()).append("\n");
+      sb.append(event.getDescription()).append("\n");
 
       if (event.getCategory() == WorldEventCategory.PARTICIPATORY
           && Boolean.TRUE.equals(event.getParticipationEnabled())) {

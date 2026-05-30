@@ -41,17 +41,21 @@ public class BeastCommandHandler implements CommandGroup {
     StringBuilder sb = new StringBuilder(fmt.heading("出战灵兽", "🐾"));
     for (int i = 0; i < beasts.size(); i++) {
       BeastStatusVO beast = beasts.get(i);
-      sb.append(
-          String.format(
-              "%d. %s %s（%s %s）\n",
-              i + 1,
-              beast.beastName(),
-              beast.gender(),
-              Beast.getTierName(beast.tier()),
-              beast.quality()));
+      var header =
+          (i + 1)
+              + ". "
+              + beast.beastName()
+              + " "
+              + beast.gender()
+              + "（"
+              + Beast.getTierName(beast.tier())
+              + " "
+              + beast.quality()
+              + "）";
+      sb.append(fmt.bold(header)).append("\n");
       sb.append(fmt.listItem("等级：" + beast.level()));
       sb.append(fmt.listItem("HP：" + beast.hpCurrent() + "/" + beast.maxHp()));
-      sb.append(fmt.listItem("攻击：" + beast.attack() + " 防御：" + beast.defense()));
+      sb.append(fmt.listItem("攻击：" + beast.attack() + "  防御：" + beast.defense()));
       if (beast.skills() != null && !beast.skills().isEmpty()) {
         sb.append(fmt.listItem("技能：" + beast.skills().size() + "个"));
       }
@@ -65,25 +69,30 @@ public class BeastCommandHandler implements CommandGroup {
       return fmt.heading("灵兽列表（空）", "📋") + "你还没有任何灵兽。";
     }
     StringBuilder sb = new StringBuilder(fmt.heading("灵兽列表", "📋"));
-    sb.append(fmt.listItem("共 " + beasts.size() + " 只")).append(fmt.separator());
+    sb.append(fmt.listItem("共 " + beasts.size() + " 只"));
     for (int i = 0; i < beasts.size(); i++) {
       BeastStatusVO beast = beasts.get(i);
-      StringBuilder status = new StringBuilder();
-      if (beast.isDeployed()) status.append("⚔️出战");
-      else if (beast.needsRecovery()) status.append("🛌休养");
-      else if (beast.pennedCellId() > 0) status.append("🏠在栏");
-      else status.append("💤待命");
-      if (beast.breedCooldown()) status.append(" 🔥繁育冷却");
-      sb.append(
-          "%d. %s %s %s %s Lv%d %s\n"
-              .formatted(
-                  i + 1,
-                  beast.beastName(),
-                  beast.gender(),
-                  Beast.getTierName(beast.tier()),
-                  beast.quality(),
-                  beast.level(),
-                  status));
+      String status;
+      if (beast.isDeployed()) status = "出战";
+      else if (beast.needsRecovery()) status = "休养";
+      else if (beast.pennedCellId() > 0) status = "在栏";
+      else status = "待命";
+      if (beast.breedCooldown()) status += " 繁育冷却";
+      var line =
+          (i + 1)
+              + ". "
+              + beast.beastName()
+              + " "
+              + beast.gender()
+              + " "
+              + Beast.getTierName(beast.tier())
+              + " "
+              + beast.quality()
+              + " Lv"
+              + beast.level()
+              + " "
+              + fmt.bold(status);
+      sb.append(fmt.listItem(line));
     }
     return sb.toString();
   }

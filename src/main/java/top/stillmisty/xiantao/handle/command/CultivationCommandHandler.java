@@ -97,23 +97,25 @@ public class CultivationCommandHandler implements CommandGroup {
     Integer protegeLevel = result.protegeLevel();
     Boolean isInSameLocation = result.isInSameLocation();
     Double singleBonus = result.singleProtectorBonus();
-    return (result.message()
-        + "\n\n"
-        + fmt.heading("护道详情")
-        + fmt.listItem(
+    var sb = new StringBuilder(result.message()).append("\n\n");
+    sb.append(fmt.heading("护道详情"));
+    sb.append(
+        fmt.listItem(
             "护道者："
                 + result.protectorName()
                 + "（"
                 + CultivationRealm.realmDisplay(protectorLevel != null ? protectorLevel : 0)
-                + "）")
-        + fmt.listItem(
+                + "）"));
+    sb.append(
+        fmt.listItem(
             "被护道者："
                 + result.protegeName()
                 + "（"
                 + CultivationRealm.realmDisplay(protegeLevel != null ? protegeLevel : 0)
-                + "）")
-        + fmt.listItem(String.format("单人加成：%.1f%%", singleBonus != null ? singleBonus : 0.0))
-        + fmt.listItem("是否同地点：" + (Boolean.TRUE.equals(isInSameLocation) ? "是" : "否")));
+                + "）"));
+    sb.append(fmt.listItem(String.format("单人加成：%.1f%%", singleBonus != null ? singleBonus : 0.0)));
+    sb.append(fmt.listItem("是否同地点：" + (Boolean.TRUE.equals(isInSameLocation) ? "是" : "否")));
+    return sb.toString();
   }
 
   private String formatProtectionQueryResult(DaoProtectionQueryResult result, TextFormat fmt) {

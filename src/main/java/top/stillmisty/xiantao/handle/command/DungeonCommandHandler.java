@@ -72,21 +72,21 @@ public class DungeonCommandHandler implements CommandGroup {
   private String formatDungeonEnterResult(
       DungeonEnterResult result, String flavorText, TextFormat fmt) {
     StringBuilder sb = new StringBuilder();
-    sb.append("你们进入了【")
-        .append(result.dungeonName())
-        .append("】的")
+    sb.append(fmt.bold(result.dungeonName()))
+        .append(" · ")
         .append(result.areaName())
-        .append("区域。\n");
+        .append("\n\n");
     if (result.memberCount() > 1) {
-      sb.append("队伍人数: ").append(result.memberCount()).append("人\n");
+      sb.append(fmt.listItem("队伍人数：" + result.memberCount() + "人"));
     }
     sb.append(flavorText).append("\n\n");
-    sb.append(fmt.heading("可探索的建筑："));
+    sb.append(fmt.heading("可探索的建筑"));
     for (var poi : result.pois()) {
-      String locked = poi.locked() ? " 🔒" : "";
-      sb.append(fmt.listItem(poi.name() + " [" + poi.typeName() + "]" + locked));
+      String locked = poi.locked() ? fmt.italic("已探索") : "";
+      String suffix = locked.isEmpty() ? "" : " " + locked;
+      sb.append(fmt.listItem(poi.name() + " [" + poi.typeName() + "]" + suffix));
     }
-    sb.append("\n输入「秘境探索」开始探索。");
+    sb.append(fmt.separator()).append(fmt.tip("输入「秘境探索」开始探索"));
     return sb.toString();
   }
 
@@ -99,24 +99,23 @@ public class DungeonCommandHandler implements CommandGroup {
     sb.append(fmt.heading("秘境列表"));
 
     for (DungeonListVO d : dungeons) {
-      sb.append(fmt.bold(d.name()));
-      sb.append("\n");
-      sb.append(fmt.listItem("等级: " + d.minLevel() + "-" + d.maxLevel()));
-      sb.append(fmt.listItem("队伍上限: " + d.maxTeamSize() + "人"));
+      sb.append(fmt.bold(d.name())).append("\n");
+      sb.append(fmt.listItem("等级：" + d.minLevel() + "-" + d.maxLevel()));
+      sb.append(fmt.listItem("队伍上限：" + d.maxTeamSize() + "人"));
 
       if (d.hasActiveInstance()) {
         sb.append(
             fmt.listItem(
-                "状态: " + (d.activeArea() != null ? d.activeArea().getName() : "未知") + " · 进行中"));
+                "状态：" + (d.activeArea() != null ? d.activeArea().getName() : "未知") + " · 进行中"));
       } else if (d.firstClear()) {
-        sb.append(fmt.listItem("奖励: " + d.rewardCount() + "/" + d.dailyLimit() + " · 已首通"));
+        sb.append(fmt.listItem("奖励：" + d.rewardCount() + "/" + d.dailyLimit() + " · 已首通"));
       } else {
-        sb.append(fmt.listItem("奖励: " + d.rewardCount() + "/" + d.dailyLimit()));
+        sb.append(fmt.listItem("奖励：" + d.rewardCount() + "/" + d.dailyLimit()));
       }
       sb.append("\n");
     }
 
-    sb.append("「秘境 秘境名」进入秘境  「秘境探索」探索  「秘境继续」推进  「秘境撤退」退出");
+    sb.append(fmt.tip("「秘境 秘境名」进入秘境  「秘境探索」探索  「秘境继续」推进  「秘境撤退」退出"));
     return sb.toString();
   }
 
@@ -124,7 +123,7 @@ public class DungeonCommandHandler implements CommandGroup {
     StringBuilder sb = new StringBuilder();
 
     String typeLabel = result.poiType();
-    sb.append(fmt.bold("【")).append(typeLabel).append("】").append(result.poiName()).append("\n");
+    sb.append(fmt.bold(typeLabel)).append(" ").append(result.poiName()).append("\n");
 
     if (result.combatSummary() != null && !result.combatSummary().isEmpty()) {
       sb.append(result.combatSummary()).append("\n");
