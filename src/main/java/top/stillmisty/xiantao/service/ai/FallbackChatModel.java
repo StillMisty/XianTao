@@ -8,6 +8,9 @@ import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.deepseek.DeepSeekChatModel;
+import org.springframework.ai.deepseek.DeepSeekChatOptions;
+import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
 
 @Slf4j
@@ -29,8 +32,9 @@ public class FallbackChatModel implements ChatModel {
     Exception lastException = null;
     for (int i = 0; i < delegates.size(); i++) {
       try {
-        Prompt p = (i == 0 || fallbackModel == null) ? prompt : adaptForFallback(prompt);
-        return delegates.get(i).call(p);
+        ChatModel delegate = delegates.get(i);
+        Prompt p = adaptPrompt(prompt, delegate, i == 0 ? null : fallbackModel);
+        return delegate.call(p);
       } catch (Exception e) {
         log.warn("ChatModel[{}] failed, trying next: {}", i, e.getMessage());
         lastException = e;
@@ -39,15 +43,28 @@ public class FallbackChatModel implements ChatModel {
     throw new IllegalStateException("All ChatModels in fallback chain failed", lastException);
   }
 
-  private Prompt adaptForFallback(Prompt prompt) {
+  private Prompt adaptPrompt(Prompt prompt, ChatModel delegate, @Nullable String overrideModel) {
     ChatOptions opts = prompt.getOptions();
-    return new Prompt(
-        prompt.getInstructions(),
-        OpenAiChatOptions.builder()
-            .model(fallbackModel)
-            .maxTokens(opts != null ? opts.getMaxTokens() : null)
-            .temperature(opts != null ? opts.getTemperature() : null)
-            .topP(opts != null ? opts.getTopP() : null)
-            .build());
+    if (delegate instanceof DeepSeekChatModel) {
+      return new Prompt(
+          prompt.getInstructions(),
+          DeepSeekChatOptions.builder()
+              .model(overrideModel != null ? overrideModel : opts != null ? opts.getModel() : null)
+              .maxTokens(opts != null ? opts.getMaxTokens() : null)
+              .temperature(opts != null ? opts.getTemperature() : null)
+              .topP(opts != null ? opts.getTopP() : null)
+              .build());
+    }
+    if (delegate instanceof OpenAiChatModel) {
+      return new Prompt(
+          prompt.getInstructions(),
+          OpenAiChatOptions.builder()
+              .model(overrideModel != null ? overrideModel : opts != null ? opts.getModel() : null)
+              .maxTokens(opts != null ? opts.getMaxTokens() : null)
+              .temperature(opts != null ? opts.getTemperature() : null)
+              .topP(opts != null ? opts.getTopP() : null)
+              .build());
+    }
+    return prompt;
   }
 }
