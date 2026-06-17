@@ -6,6 +6,7 @@ import love.forte.simbot.component.qguild.message.QGMarkdown;
 import love.forte.simbot.event.MessageEvent;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.service.NotificationAppender;
 
 /** QQ 平台处理器 */
@@ -41,7 +42,9 @@ public class QQPlatformHandler implements PlatformHandler {
 
   @Override
   public void replyText(MessageEvent event, String text) {
-    var result = notificationAppender.prepareAppend(PlatformType.QQ, extractOpenId(event), text);
+    var result =
+        notificationAppender.prepareAppend(
+            PlatformType.QQ, extractOpenId(event), text, TextFormat.markdown());
     if (event instanceof QGGroupAtMessageCreateEvent qqEvent) {
       qqEvent.replyBlocking(QGMarkdown.create(result.text()));
     } else if (event instanceof QGC2CMessageCreateEvent qqEvent) {

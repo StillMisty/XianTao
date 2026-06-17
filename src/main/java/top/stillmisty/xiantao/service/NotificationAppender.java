@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +16,7 @@ import top.stillmisty.xiantao.domain.event.EffectData;
 import top.stillmisty.xiantao.domain.event.entity.GameEvent;
 import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.handle.TextFormat;
 
 /** 通知追加器 — 在每条回复发送前查询未投递事件，格式化后追加到回复尾部 */
 @Slf4j
@@ -26,7 +29,8 @@ public class NotificationAppender {
 
   /** 根据平台和 openId 解析 userId，查询 events，格式化拼接 */
   @Transactional(readOnly = true)
-  public AppendResult prepareAppend(PlatformType platform, String openId, String response) {
+  public AppendResult prepareAppend(
+      PlatformType platform, String openId, String response, TextFormat fmt) {
     ServiceResult<Long> auth = authenticationService.authenticate(platform, openId);
     if (auth instanceof ServiceResult.Failure<Long>) {
       return new AppendResult(response, List.of(), null);
@@ -38,7 +42,7 @@ public class NotificationAppender {
       return new AppendResult(response, List.of(), null);
     }
 
-    String notificationText = formatEvents(events);
+    String notificationText = formatEvents(events, fmt);
 
     // 检测是否有 CHOICE 事件未决，有则只投递到 choice 之前的事件
     Long pendingChoiceEventId = null;
@@ -74,7 +78,7 @@ public class NotificationAppender {
 
   // ===================== 格式化 =====================
 
-  private String formatEvents(List<GameEvent> events) {
+  private String formatEvents(List<GameEvent> events, TextFormat fmt) {
     StringBuilder sb = new StringBuilder();
 
     var grouped =
@@ -90,13 +94,13 @@ public class NotificationAppender {
       List<GameEvent> group = entry.getValue();
 
       if (!sectionTitle.isEmpty()) {
-        sb.append("\n━━━ ").append(sectionTitle).append(" ━━━\n");
+        sb.append("\n").append(fmt.heading(sectionTitle));
         for (GameEvent event : group) {
-          sb.append(formatSingleEvent(event)).append("\n");
+          sb.append(formatSingleEvent(event, fmt)).append("\n");
         }
       } else {
         for (GameEvent event : group) {
-          sb.append(formatSingleEvent(event));
+          sb.append(formatSingleEvent(event, fmt));
         }
       }
     }
@@ -109,20 +113,24 @@ public class NotificationAppender {
     return category.getSectionTitle() != null ? category.getSectionTitle() : "";
   }
 
-  private String formatSingleEvent(GameEvent event) {
+  private static final Pattern BRACKET_PATTERN = Pattern.compile("【([^】]+)】");
+
+  private String formatSingleEvent(GameEvent event, TextFormat fmt) {
     String narrativeKey = event.getNarrativeKey();
     Map<String, Object> args = event.getNarrativeArgs();
 
     if (narrativeKey != null && args != null) {
       String rendered = renderTemplate(narrativeKey, args);
+      rendered = applyBoldFormatting(rendered, fmt);
+      rendered = applyWorldEventBold(rendered, event.getCategory(), fmt);
       if (event.isChoiceEvent()) {
-        return rendered + "\n" + renderChoiceOptions(event.getEffectData());
+        return rendered + "\n" + renderChoiceOptions(event.getEffectData(), fmt);
       }
       return rendered;
     }
 
     if (event.isChoiceEvent()) {
-      return renderChoiceOptions(event.getEffectData());
+      return renderChoiceOptions(event.getEffectData(), fmt);
     }
 
     return switch (event.getCategory()) {
@@ -138,13 +146,41 @@ public class NotificationAppender {
     };
   }
 
-  private String renderChoiceOptions(@Nullable EffectData effectData) {
+  private String applyBoldFormatting(String text, TextFormat fmt) {
+    Matcher matcher = BRACKET_PATTERN.matcher(text);
+    if (!matcher.find()) {
+      return text;
+    }
+    matcher.reset();
+    StringBuilder sb = new StringBuilder();
+    while (matcher.find()) {
+      matcher.appendReplacement(sb, Matcher.quoteReplacement(fmt.bold(matcher.group(1))));
+    }
+    matcher.appendTail(sb);
+    return sb.toString();
+  }
+
+  private String applyWorldEventBold(String text, GameEventCategory category, TextFormat fmt) {
+    if (category != GameEventCategory.WORLD_EVENT
+        && category != GameEventCategory.WORLD_EVENT_PARTICIPATION) {
+      return text;
+    }
+    int colonIdx = text.indexOf('：');
+    if (colonIdx <= 0) {
+      return text;
+    }
+    return fmt.bold(text.substring(0, colonIdx)) + text.substring(colonIdx + 1);
+  }
+
+  private String renderChoiceOptions(@Nullable EffectData effectData, TextFormat fmt) {
     if (!(effectData instanceof EffectData.ChoiceOptions choiceOptions)) return "";
     List<EffectData.Option> options = choiceOptions.options();
     if (options.isEmpty()) return "";
     StringBuilder sb = new StringBuilder("\n请选择：\n");
     for (EffectData.Option option : options) {
-      sb.append("【").append(option.key()).append("】").append(option.text()).append("\n");
+      String optKey = option.key() != null ? option.key() : "?";
+      String optText = option.text() != null ? option.text() : "";
+      sb.append(fmt.bold(optKey)).append(" ").append(optText).append("\n");
     }
     return sb.toString();
   }

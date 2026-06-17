@@ -4,6 +4,7 @@ import love.forte.simbot.component.onebot.v11.core.event.message.OneBotMessageEv
 import love.forte.simbot.event.MessageEvent;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.service.NotificationAppender;
 
 /** OneBotV11 平台处理器 */
@@ -39,7 +40,10 @@ public class OneBotV11PlatformHandler implements PlatformHandler {
     if (event instanceof OneBotMessageEvent oneBotEvent) {
       var result =
           notificationAppender.prepareAppend(
-              PlatformType.ONE_BOT_V11, oneBotEvent.getAuthorId().toString(), text);
+              PlatformType.ONE_BOT_V11,
+              oneBotEvent.getAuthorId().toString(),
+              text,
+              TextFormat.plain());
       oneBotEvent.replyBlocking(result.text());
       notificationAppender.markDelivered(result.eventIds());
     } else {

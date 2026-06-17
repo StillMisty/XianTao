@@ -135,8 +135,7 @@ public class SpiritChatService extends AbstractChatService {
         if (event.hasEffects()) {
           GameEvent gameEvent =
               GameEvent.create(userId, GameEventCategory.WORLD_EVENT)
-                  .withNarrative(
-                      "【" + event.getName() + "】" + event.getDescription(), templateArgs);
+                  .withNarrative(event.getName() + "：" + event.getDescription(), templateArgs);
           gameEvents.add(gameEvent);
         }
       }

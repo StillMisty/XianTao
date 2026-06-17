@@ -69,9 +69,7 @@ public class WorldEventParticipationService {
 
     GameEvent gameEvent =
         GameEvent.create(userId, GameEventCategory.WORLD_EVENT_PARTICIPATION)
-            .withNarrative(
-                "参与世界事件",
-                Map.of("eventTitle", event.getTitle(), "eventDescription", event.getDescription()));
+            .withNarrative("{{eventTitle}}：参与了世界事件", Map.of("eventTitle", event.getTitle()));
 
     gameEventService.save(gameEvent);
 

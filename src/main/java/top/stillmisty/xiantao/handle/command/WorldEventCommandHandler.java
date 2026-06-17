@@ -67,7 +67,9 @@ public class WorldEventCommandHandler implements CommandGroup {
       return fmt.error("事件编号格式错误，请输入数字编号");
     }
     return CommandHandlerHelper.safeCall(
-        () -> worldEventParticipationService.participate(userId, eventId), fmt, result -> result);
+        () -> worldEventParticipationService.participate(userId, eventId),
+        fmt,
+        result -> CommandHandlerHelper.applyBoldFormatting(result, fmt));
   }
 
   private String formatEventList(List<WorldEvent> events, TextFormat fmt) {

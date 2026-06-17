@@ -22,7 +22,9 @@ public class ChoiceCommandHandler implements CommandGroup {
     Long userId = UserContext.requireCurrentUserId();
     log.debug("处理选择 - UserId: {}, Choice: {}", userId, choice);
     return CommandHandlerHelper.safeCall(
-        () -> choiceService.handleChoice(userId, choice), fmt, result -> result);
+        () -> choiceService.handleChoice(userId, choice),
+        fmt,
+        result -> CommandHandlerHelper.applyBoldFormatting(result, fmt));
   }
 
   @Override

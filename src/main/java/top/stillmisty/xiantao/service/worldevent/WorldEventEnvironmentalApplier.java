@@ -46,7 +46,7 @@ public class WorldEventEnvironmentalApplier {
 
       gameEventService.save(
           GameEvent.create(userId, GameEventCategory.WORLD_EVENT)
-              .withNarrative("【" + event.getTitle() + "】" + event.getDescription(), result));
+              .withNarrative(event.getTitle() + "：" + event.getDescription(), result));
     }
   }
 }
