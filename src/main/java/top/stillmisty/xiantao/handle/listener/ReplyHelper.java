@@ -71,6 +71,7 @@ public class ReplyHelper {
           PlatformType.ONE_BOT_V11;
       case love.forte.simbot.component.qguild.event.QGGroupAtMessageCreateEvent __ ->
           PlatformType.QQ;
+      case love.forte.simbot.component.qguild.event.QGC2CMessageCreateEvent __ -> PlatformType.QQ;
       default -> throw new IllegalArgumentException("不支持的事件类型: " + event.getClass().getName());
     };
   }

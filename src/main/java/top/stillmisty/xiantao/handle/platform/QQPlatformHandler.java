@@ -1,5 +1,6 @@
 package top.stillmisty.xiantao.handle.platform;
 
+import love.forte.simbot.component.qguild.event.QGC2CMessageCreateEvent;
 import love.forte.simbot.component.qguild.event.QGGroupAtMessageCreateEvent;
 import love.forte.simbot.component.qguild.message.QGMarkdown;
 import love.forte.simbot.event.MessageEvent;
@@ -24,7 +25,7 @@ public class QQPlatformHandler implements PlatformHandler {
 
   @Override
   public boolean supports(MessageEvent event) {
-    return event instanceof QGGroupAtMessageCreateEvent;
+    return event instanceof QGGroupAtMessageCreateEvent || event instanceof QGC2CMessageCreateEvent;
   }
 
   @Override
@@ -32,19 +33,22 @@ public class QQPlatformHandler implements PlatformHandler {
     if (event instanceof QGGroupAtMessageCreateEvent qqEvent) {
       return qqEvent.getAuthorId().toString();
     }
+    if (event instanceof QGC2CMessageCreateEvent qqEvent) {
+      return qqEvent.getAuthorId().toString();
+    }
     throw new IllegalArgumentException("不支持的事件类型: " + event.getClass().getName());
   }
 
   @Override
   public void replyText(MessageEvent event, String text) {
+    var result = notificationAppender.prepareAppend(PlatformType.QQ, extractOpenId(event), text);
     if (event instanceof QGGroupAtMessageCreateEvent qqEvent) {
-      var result =
-          notificationAppender.prepareAppend(
-              PlatformType.QQ, qqEvent.getAuthorId().toString(), text);
       qqEvent.replyBlocking(QGMarkdown.create(result.text()));
-      notificationAppender.markDelivered(result.eventIds());
+    } else if (event instanceof QGC2CMessageCreateEvent qqEvent) {
+      qqEvent.replyBlocking(QGMarkdown.create(result.text()));
     } else {
       throw new IllegalArgumentException("不支持的事件类型: " + event.getClass().getName());
     }
+    notificationAppender.markDelivered(result.eventIds());
   }
 }

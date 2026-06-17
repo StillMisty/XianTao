@@ -42,4 +42,5 @@ public class UserAuthListener {
             userCommandHandler.handleRegister(
                 platform, event.getAuthorId().toString(), nickname, fmt));
   }
+
 }

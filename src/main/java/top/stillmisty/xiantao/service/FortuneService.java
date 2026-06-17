@@ -47,7 +47,7 @@ public class FortuneService {
     sb.append(dimensionLine("财运", fortune.wealth())).append("\n");
     sb.append(dimensionLine("情缘", fortune.fate())).append("\n");
     sb.append(dimensionLine("机缘", fortune.luck())).append("\n");
-    sb.append(fmt.bold("「" + fortune.level().getDisplay() + "」 ") + fortune.comment());
+    sb.append(fmt.bold("「" + fortune.level().getDisplay() + "」") + ' ' + fortune.comment());
     return sb.toString();
   }
 
