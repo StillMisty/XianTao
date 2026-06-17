@@ -79,11 +79,12 @@ dependencies {
     testImplementation(libs.spring.boot.starter.webmvc.test)
     testRuntimeOnly(libs.junit.platform.launcher)
     implementation(libs.spring.ai.bom)
+    implementation(libs.spring.ai.starter.model.deepseek)
     implementation(libs.spring.ai.starter.model.openai)
     implementation(libs.simbot.core.spring.boot.starter)
     implementation(libs.simbot.component.onebot.v11.core)
     implementation(libs.simbot.component.qq.guild.core)
-    implementation(libs.ktor.client.cio)
+    implementation(libs.ktor.client.java)
     // NullAway
     implementation(libs.jspecify)
     testImplementation(libs.jspecify)

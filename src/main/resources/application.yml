@@ -1,46 +1,65 @@
 spring:
-    profiles:
-        active: local
-    application:
-        name: XianTao
-        version: 0.0.1
-    threads:
-        virtual:
-            enabled: true
-    datasource:
-        url: ${DB_URL:jdbc:postgresql://localhost:5432/xiantao}
-        username: ${DB_USERNAME:postgres}
-        password: ${DB_PASSWORD:}
-        driver-class-name: org.postgresql.Driver
-        connection-fetch: lazy
-        # HikariCP 连接池配置
-        hikari:
-            maximum-pool-size: 50
-            max-lifetime: 1800000
-            connection-timeout: 3000
-            pool-name: XianTaoHikariCP
+  profiles:
+    active: local
+  application:
+    name: XianTao
+    version: 0.0.1
+  threads:
+    virtual:
+      enabled: true
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/xiantao}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:}
+    driver-class-name: org.postgresql.Driver
+    connection-fetch: lazy
+    # HikariCP 连接池配置
+    hikari:
+      maximum-pool-size: 50
+      max-lifetime: 1800000
+      connection-timeout: 3000
+      pool-name: XianTaoHikariCP
 
-    flyway:
-        enabled: true
-        baseline-on-migrate: true
-        locations: classpath:db/migration
-        validate-on-migrate: false
-    ai:
-        openai:
-            api-key: ${OPENAI_API_KEY:sk-placeholder}
-            base-url: ${OPENAI_BASE_URL:https://api.deepseek.com}
-            chat:
-                model: ${OPENAI_MODEL:deepseek-v4-flash}
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+    validate-on-migrate: false
+  ai:
+    deepseek:
+      api-key: ${DEEPSEEK_API_KEY:secret-key}
+      base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
+    # OpenAI 兼容模型连接配置（降级后备）
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      base-url: ${OPENAI_BASE_URL}
+
+# XianTao AI 分级配置
+xiantao:
+  ai:
+    # 决定实例化哪些 Model 以及调用时的尝试顺序（列表靠前的优先）
+    chat-models: [deepseek, openai]
+    # 三级模型配置：heavy（重度任务）、standard（常规任务）、light（轻量任务）
+    tiers:
+      heavy:
+        deepseek: ${XIANTAO_AI_HEAVY_DEEPSEEK:deepseek-v4-pro}
+        openai: ${XIANTAO_AI_HEAVY_OPENAI}
+      standard:
+        deepseek: ${XIANTAO_AI_STANDARD_DEEPSEEK:deepseek-v4-flash}
+        openai: ${XIANTAO_AI_STANDARD_OPENAI}
+      light:
+        deepseek: ${XIANTAO_AI_LIGHT_DEEPSEEK:deepseek-v4-flash}
+        openai: ${XIANTAO_AI_LIGHT_OPENAI}
 
 # MyBatis-Flex 配置
 mybatis-flex:
-    mapper-locations: classpath*:/mappers/**/*.xml
-    type-aliases-package: top.stillmisty.xiantao.domain
-    configuration:
-        log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+  mapper-locations: classpath*:/mappers/**/*.xml
+  type-aliases-package: top.stillmisty.xiantao.domain
+  configuration:
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
 
 # 日志配置
 logging:
-    level:
-        # MyBatis-Flex SQL 日志
-        top.stillmisty.xiantao.infrastructure.mapper: DEBUG
+  level:
+    # MyBatis-Flex SQL 日志
+    top.stillmisty.xiantao.infrastructure.mapper: DEBUG

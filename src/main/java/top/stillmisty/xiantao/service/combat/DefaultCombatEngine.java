@@ -84,7 +84,7 @@ public class DefaultCombatEngine implements CombatEngine {
         }
 
         CombatTeam attackerTeam = teamA.members().contains(attacker) ? teamA : teamB;
-        CombatTeam defenderTeam = attackerTeam == teamA ? teamB : teamA;
+        CombatTeam defenderTeam = attackerTeam.equals(teamA) ? teamB : teamA;
         sequence++;
 
         Skill selectedSkill = selectSkill(attacker, skillCooldowns, buffManager);
@@ -212,7 +212,7 @@ public class DefaultCombatEngine implements CombatEngine {
                   damageCalculator.calculateEffectDamage(attacker, defender, effect, buffManager);
               damage += aoeBase;
               for (Combatant other : defenderTeam.members()) {
-                if (other != defender && other.isAlive()) {
+                if (!other.equals(defender) && other.isAlive()) {
                   int aoeDmg = (int) (aoeBase * 0.6);
                   other.takeDamage(aoeDmg);
                   damageDealt.merge(attacker.getName(), aoeDmg, Integer::sum);

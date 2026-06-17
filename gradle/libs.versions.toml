@@ -47,6 +47,7 @@ lombok = { group = "org.projectlombok", name = "lombok", version.ref = "lombok" 
 
 # Spring AI 库
 spring-ai-bom = { group = "org.springframework.ai", name = "spring-ai-bom", version.ref = "springAi" }
+spring-ai-starter-model-deepseek = { group = "org.springframework.ai", name = "spring-ai-starter-model-deepseek", version.ref = "springAi" }
 spring-ai-starter-model-openai = { group = "org.springframework.ai", name = "spring-ai-starter-model-openai", version.ref = "springAi" }
 
 # SimBot 库
@@ -55,7 +56,7 @@ simbot-component-onebot-v11-core = { group = "love.forte.simbot.component", name
 simbot-component-qq-guild-core = { group = "love.forte.simbot.component", name = "simbot-component-qq-guild-core", version.ref = "simbotComponentQqGuild" }
 
 # Ktor 客户端库
-ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio", version.ref = "ktor" }
+ktor-client-java = { group = "io.ktor", name = "ktor-client-java", version.ref = "ktor" }
 
 # JUnit 测试库
 junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher", version.ref = "junitLauncher" }

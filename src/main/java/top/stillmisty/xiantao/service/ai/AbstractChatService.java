@@ -1,7 +1,6 @@
 package top.stillmisty.xiantao.service.ai;
 
 import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
@@ -10,6 +9,8 @@ import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.deepseek.DeepSeekAssistantMessage;
 import top.stillmisty.xiantao.domain.sect.enums.ChatType;
 
 @Slf4j
@@ -31,7 +32,7 @@ public abstract class AbstractChatService {
 
     List<Message> history = chatMemory.get(conversationId);
 
-    String content =
+    ChatResponse chatResponse =
         chatClient
             .prompt()
             .system(systemPrompt)
@@ -40,24 +41,36 @@ public abstract class AbstractChatService {
             .tools(tools)
             .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, conversationId))
             .call()
-            .content();
+            .chatResponse();
 
-    String reasoning =
-        ReasoningPreservingChatCompletionService.CONVERSATION_REASONING.remove(conversationId);
+    if (chatResponse == null || chatResponse.getResult() == null) {
+      log.warn("LLM returned null response for conversation: {}", conversationId);
+      return null;
+    }
+
+    AssistantMessage output = chatResponse.getResult().getOutput();
+    if (output == null) {
+      log.warn("LLM returned null output for conversation: {}", conversationId);
+      return null;
+    }
+
+    String reasoning = null;
+    if (output instanceof DeepSeekAssistantMessage dsMsg) {
+      reasoning = dsMsg.getReasoningContent();
+    }
+
+    String content = output.getText() != null ? output.getText() : "";
 
     AssistantMessage assistantMessage;
     if (reasoning != null && !reasoning.isEmpty()) {
       assistantMessage =
-          AssistantMessage.builder()
-              .content(content)
-              .properties(Map.of("reasoning_content", reasoning))
-              .build();
+          DeepSeekAssistantMessage.builder().content(content).reasoningContent(reasoning).build();
     } else {
       assistantMessage = new AssistantMessage(content);
     }
 
     chatMemory.add(conversationId, List.of(new UserMessage(userInput), assistantMessage));
 
-    return content;
+    return content.isEmpty() ? null : content;
   }
 }

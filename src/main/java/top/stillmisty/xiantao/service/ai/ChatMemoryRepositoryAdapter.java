@@ -4,15 +4,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.ai.chat.memory.ChatMemoryRepository;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.MessageType;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.deepseek.DeepSeekAssistantMessage;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,22 +43,11 @@ public class ChatMemoryRepositoryAdapter implements ChatMemoryRepository {
             cid.chatType(), cid.entityId(), cid.userId());
 
     List<Message> messages = new ArrayList<>();
-    String lastReasoning = null;
     for (ChatHistory entry : entries) {
       if (entry.getRole() == ChatRole.TOOL) {
         continue;
       }
       messages.add(toMessage(entry));
-      if (entry.isFromAssistant() && entry.getExtraData() != null) {
-        Object reasoning = entry.getExtraData().get(ChatRole.REASONING_CONTENT.getCode());
-        if (reasoning instanceof String s && !s.isEmpty()) {
-          lastReasoning = s;
-        }
-      }
-    }
-    if (lastReasoning != null) {
-      ReasoningPreservingChatCompletionService.CONVERSATION_REASONING.put(
-          conversationId, lastReasoning);
     }
     return messages;
   }
@@ -70,11 +60,7 @@ public class ChatMemoryRepositoryAdapter implements ChatMemoryRepository {
     chatHistoryRepository.deleteByChatTypeAndConversationIdAndUserId(
         cid.chatType(), cid.entityId(), cid.userId());
 
-    String reasoning = null;
-    if (ReasoningScopeAdvisor.REASONING_HOLDER.isBound()) {
-      AtomicReference<String> ref = ReasoningScopeAdvisor.REASONING_HOLDER.get();
-      reasoning = ref != null ? ref.get() : null;
-    }
+    String reasoning = extractReasoning(messages);
 
     int maxMessages = maxMessagesFor(cid.chatType());
     int skip = Math.max(0, messages.size() - maxMessages);
@@ -92,7 +78,7 @@ public class ChatMemoryRepositoryAdapter implements ChatMemoryRepository {
 
       if (message.getMessageType() == MessageType.ASSISTANT && reasoning != null) {
         Map<String, Object> extraData = new HashMap<>();
-        extraData.put(ChatRole.REASONING_CONTENT.getCode(), reasoning);
+        extraData.put(ChatHistory.REASONING_CONTENT_KEY, reasoning);
         entry.setExtraData(extraData);
       }
 
@@ -100,11 +86,25 @@ public class ChatMemoryRepositoryAdapter implements ChatMemoryRepository {
     }
   }
 
+  @Nullable
+  private static String extractReasoning(List<Message> messages) {
+    for (Message message : messages) {
+      if (message instanceof DeepSeekAssistantMessage dsMsg) {
+        String rc = dsMsg.getReasoningContent();
+        if (rc != null && !rc.isEmpty()) {
+          return rc;
+        }
+      }
+    }
+    return null;
+  }
+
   private static int maxMessagesFor(ChatType type) {
     return switch (type) {
       case SHOP -> PerTypeChatMemory.SHOP_MAX;
       case SPIRIT -> PerTypeChatMemory.SPIRIT_MAX;
       case SECT -> PerTypeChatMemory.SECT_MAX;
+      case DUNGEON -> PerTypeChatMemory.DUNGEON_MAX;
       default -> 25;
     };
   }
@@ -121,14 +121,17 @@ public class ChatMemoryRepositoryAdapter implements ChatMemoryRepository {
     return switch (entry.getRole()) {
       case USER -> new UserMessage(entry.getContent());
       case ASSISTANT -> {
-        Map<String, Object> metadata = new HashMap<>();
         Map<String, Object> extraData = entry.getExtraData();
-        if (extraData != null && !extraData.isEmpty()) {
-          metadata.putAll(extraData);
+        if (extraData != null && extraData.containsKey(ChatHistory.REASONING_CONTENT_KEY)) {
+          Object reasoning = extraData.get(ChatHistory.REASONING_CONTENT_KEY);
+          if (reasoning instanceof String s && !s.isEmpty()) {
+            yield DeepSeekAssistantMessage.builder()
+                .content(entry.getContent())
+                .reasoningContent(s)
+                .build();
+          }
         }
-        yield metadata.isEmpty()
-            ? new AssistantMessage(entry.getContent())
-            : AssistantMessage.builder().content(entry.getContent()).properties(metadata).build();
+        yield new AssistantMessage(entry.getContent());
       }
       case SYSTEM -> new SystemMessage(entry.getContent());
       default -> new SystemMessage(entry.getContent());

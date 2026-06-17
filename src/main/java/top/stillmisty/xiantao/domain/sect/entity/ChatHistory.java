@@ -30,6 +30,9 @@ public class ChatHistory {
   @Id(keyType = KeyType.Auto)
   private Long id;
 
+  /** ChatHistory.extraData 中用于存储 DeepSeek reasoning_content 的 key */
+  public static final String REASONING_CONTENT_KEY = "reasoning_content";
+
   private ChatType chatType;
 
   private Long conversationId;

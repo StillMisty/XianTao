@@ -9,9 +9,7 @@ public enum ChatRole {
   USER("user", "用户"),
   ASSISTANT("assistant", "助手"),
   SYSTEM("system", "系统"),
-  TOOL("tool", "工具"),
-  /** ChatHistory.extraData 中用于存储 DeepSeek reasoning_content */
-  REASONING_CONTENT("reasoning_content", "推理内容");
+  TOOL("tool", "工具");
 
   @EnumValue private final String code;
   private final String name;
