@@ -1,0 +1,14 @@
+{
+  "component": "simbot.qqguild",
+  "ticket": {
+    "appId": "appId-placeholder",
+    "secret": "secret-placeholder",
+    "token": "token-placeholder"
+  },
+  "config": {
+    "intents": {
+      "type": "nameBased",
+      "names": ["GroupAndC2CEvent"]
+    }
+  }
+}
