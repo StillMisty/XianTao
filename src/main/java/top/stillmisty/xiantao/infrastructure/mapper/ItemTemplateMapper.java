@@ -30,6 +30,10 @@ public interface ItemTemplateMapper extends BaseMapper<ItemTemplate> {
    * @param tags 标签列表
    * @return 物品模板列表
    */
+  @Select(
+      "<script>SELECT * FROM xt_item_template WHERE tags ?| ARRAY["
+          + "<foreach collection='tags' item='tag' separator=','>#{tag}</foreach>"
+          + "]</script>")
   List<ItemTemplate> selectByAnyTags(@Param("tags") List<String> tags);
 
   /**
@@ -38,6 +42,10 @@ public interface ItemTemplateMapper extends BaseMapper<ItemTemplate> {
    * @param tags 标签列表
    * @return 物品模板列表
    */
+  @Select(
+      "<script>SELECT * FROM xt_item_template WHERE tags ?&amp; ARRAY["
+          + "<foreach collection='tags' item='tag' separator=','>#{tag}</foreach>"
+          + "]</script>")
   List<ItemTemplate> selectByAllTags(@Param("tags") List<String> tags);
 
   /** 根据物品名称查找模板 */
@@ -45,5 +53,9 @@ public interface ItemTemplateMapper extends BaseMapper<ItemTemplate> {
   ItemTemplate selectByName(@Param("name") String name);
 
   /** 根据多个物品类型查找模板 */
+  @Select(
+      "<script>SELECT * FROM xt_item_template WHERE type IN "
+          + "<foreach collection='types' item='type' open='(' separator=',' close=')'>#{type}</foreach>"
+          + "</script>")
   List<ItemTemplate> selectByTypes(@Param("types") List<ItemType> types);
 }

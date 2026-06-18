@@ -21,8 +21,8 @@ public interface StackableItemMapper extends BaseMapper<StackableItem> {
 
   @Update(
       "INSERT INTO xt_inventory_item (user_id, template_id, item_type, name, quantity, tags, properties, properties_hash, tradable, create_time, update_time) "
-          + "VALUES (#{item.userId}, #{item.templateId}, #{item.itemType}, #{item.name}, #{item.quantity}, COALESCE(#{item.tags}::jsonb, '[]'::jsonb), "
-          + "COALESCE(#{item.properties}::jsonb, '{}'::jsonb), #{item.propertiesHash}, "
+          + "VALUES (#{item.userId}, #{item.templateId}, #{item.itemType}, #{item.name}, #{item.quantity}, COALESCE(#{item.tags, typeHandler=top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler}::jsonb, '[]'::jsonb), "
+          + "COALESCE(#{item.properties, typeHandler=top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler}::jsonb, '{}'::jsonb), #{item.propertiesHash}, "
           + "#{item.tradable}, NOW(), NOW()) "
           + "ON CONFLICT (user_id, template_id, properties_hash) DO UPDATE SET quantity = xt_inventory_item.quantity + #{item.quantity}, update_time = NOW()")
   int upsertIncrementQuantity(@Param("item") StackableItem item);
