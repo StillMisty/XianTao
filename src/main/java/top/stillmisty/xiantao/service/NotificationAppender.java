@@ -95,12 +95,14 @@ public class NotificationAppender {
 
       if (!sectionTitle.isEmpty()) {
         sb.append("\n").append(fmt.heading(sectionTitle));
-        for (GameEvent event : group) {
-          sb.append(formatSingleEvent(event, fmt)).append("\n");
+        for (int i = 0; i < group.size(); i++) {
+          if (i > 0) sb.append(fmt.separator());
+          sb.append(formatSingleEvent(group.get(i), fmt)).append("\n");
         }
       } else {
-        for (GameEvent event : group) {
-          sb.append(formatSingleEvent(event, fmt));
+        for (int i = 0; i < group.size(); i++) {
+          if (i > 0) sb.append(fmt.separator());
+          sb.append(formatSingleEvent(group.get(i), fmt));
         }
       }
     }
