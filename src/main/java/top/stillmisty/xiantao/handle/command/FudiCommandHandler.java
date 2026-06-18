@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
+import top.stillmisty.xiantao.domain.fudi.enums.CellType;
 import top.stillmisty.xiantao.domain.fudi.vo.FudiStatusVO;
 import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
@@ -76,23 +77,50 @@ public class FudiCommandHandler implements CommandGroup {
       sb.append("（空地，尚未建造任何地块）\n");
     } else {
       for (var cell : status.cellDetails()) {
-        StringBuilder cellLine = new StringBuilder();
-        cellLine.append("#").append(cell.cellId()).append(" ");
-        cellLine.append(cell.type().getChineseName());
+        if (cell.type() == CellType.EMPTY) {
+          sb.append(fmt.listItem("#" + cell.cellId() + " 空地"));
+          continue;
+        }
+        StringBuilder header = new StringBuilder();
+        header.append("#").append(cell.cellId()).append(" ");
+        header.append(cell.type().getChineseName());
         if (cell.cellLevel() != null && cell.cellLevel() > 1) {
-          cellLine.append(" Lv").append(cell.cellLevel());
+          header.append(" Lv").append(cell.cellLevel());
         }
-        if (cell.name() != null) cellLine.append(" - ").append(cell.name());
-        if (cell.growthProgress() != null) {
-          int percent = (int) (cell.growthProgress() * 100);
-          cellLine.append(" [").append(percent).append("%]");
-          if (Boolean.TRUE.equals(cell.isMature())) cellLine.append(fmt.bold("可收取"));
+        if (cell.name() != null) {
+          header.append(" - ").append(cell.name());
         }
-        if (cell.quality() != null) cellLine.append(" ").append(cell.quality());
-        if (cell.productionStored() != null && cell.productionStored() > 0)
-          cellLine.append(" x").append(cell.productionStored());
-        if (Boolean.TRUE.equals(cell.isIncubating())) cellLine.append(" 孵化中");
-        sb.append(fmt.listItem(cellLine.toString()));
+        sb.append(fmt.listItem(header.toString()));
+        switch (cell.type()) {
+          case FARM -> {
+            if (cell.growthProgress() != null) {
+              int percent = (int) Math.min(cell.growthProgress() * 100, 100);
+              String progressStr = percent + "%";
+              if (Boolean.TRUE.equals(cell.isMature())) {
+                progressStr += " " + fmt.bold("可收取");
+              }
+              sb.append(fmt.subListItem("生长: " + progressStr));
+            }
+          }
+          case PEN -> {
+            if (cell.quality() != null) {
+              sb.append(fmt.subListItem("品质: " + cell.quality()));
+            }
+            if (cell.level() != null && cell.level() > 0) {
+              sb.append(fmt.subListItem("等阶: T" + cell.level()));
+            }
+            if (cell.mutationTraits() != null && !cell.mutationTraits().isEmpty()) {
+              sb.append(fmt.subListItem("特质: " + String.join(", ", cell.mutationTraits())));
+            }
+            if (cell.productionStored() != null && cell.productionStored() > 0) {
+              sb.append(fmt.subListItem("产出: x" + cell.productionStored()));
+            }
+            if (Boolean.TRUE.equals(cell.isIncubating())) {
+              sb.append(fmt.subListItem(fmt.bold("孵化中")));
+            }
+          }
+          default -> {}
+        }
       }
     }
     sb.append(fmt.separator());

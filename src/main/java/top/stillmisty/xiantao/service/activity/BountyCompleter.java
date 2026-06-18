@@ -1,7 +1,9 @@
 package top.stillmisty.xiantao.service.activity;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -38,11 +40,32 @@ public class BountyCompleter {
   @Transactional
   public void produceCompletionEvent(
       Long userId, String bountyName, List<BountyRewardItem> items, long spiritStones) {
-    Map<String, Object> args = Map.of("bountyName", bountyName, "spiritStones", spiritStones);
+    List<String> parts = new ArrayList<>();
+    if (spiritStones > 0) {
+      parts.add("✨ 灵石 +" + spiritStones);
+    }
+    if (!items.isEmpty()) {
+      String itemsStr =
+          items.stream()
+              .map(
+                  i ->
+                      switch (i) {
+                        case BountyRewardItem.ItemReward(_, var name, var quantity) ->
+                            name + " x" + quantity;
+                        case BountyRewardItem.BeastEggReward(_, var name) -> name + " x1";
+                        case BountyRewardItem.EquipmentRewardItem(_, var name) -> name + " x1";
+                        case BountyRewardItem.SkillJadeRewardItem(_, var name) -> name + " x1";
+                        default -> "";
+                      })
+              .filter(s -> !s.isEmpty())
+              .collect(Collectors.joining("、"));
+      parts.add(itemsStr);
+    }
+    String rewardsText = String.join("、", parts);
     gameEventService.save(
         GameEvent.create(userId, GameEventCategory.BOUNTY_COMPLETE)
             .withNarrative(
-                "委托「{{bountyName}}」已完成。\n你从发布人处领取了约定的报酬：\n✨ 灵石 +{{spiritStones}}", args));
+                "委托「" + bountyName + "」已完成。\n你从发布人处领取了约定的报酬：\n" + rewardsText, Map.of()));
   }
 
   /** 悬赏已可领取提示 */
