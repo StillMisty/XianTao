@@ -1,3 +1,4 @@
+// 去除文件名的example后缀才可取用
 {
   "component": "simbot.qqguild",
   "ticket": {
