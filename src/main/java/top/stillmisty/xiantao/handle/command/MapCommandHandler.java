@@ -245,9 +245,11 @@ public class MapCommandHandler implements CommandGroup {
                             r -> r.displayText(resolvers.itemResolver(), resolvers.equipResolver()))
                         .collect(Collectors.joining("、"))));
       }
-      sb.append(fmt.separator());
+      if (bounties.indexOf(b) < bounties.size() - 1) {
+        sb.append(fmt.separator());
+      }
     }
-    sb.append("「悬赏接取 [ID]」接取，完成后「悬赏结算」。");
+    sb.append(fmt.tip("「悬赏接取 [ID]」接取，完成后「悬赏结算」。"));
     return sb.toString();
   }
 

@@ -72,17 +72,17 @@ public class FudiCommandHandler implements CommandGroup {
 
   private String formatCellLayout(FudiStatusVO status, TextFormat fmt) {
     StringBuilder sb = new StringBuilder();
-    sb.append(fmt.heading("福地地块布局", "🗺️"));
+    sb.append(fmt.heading("福地地块布局"));
     if (status.cellDetails() == null || status.cellDetails().isEmpty()) {
       sb.append("（空地，尚未建造任何地块）\n");
     } else {
       for (var cell : status.cellDetails()) {
         if (cell.type() == CellType.EMPTY) {
-          sb.append(fmt.listItem("#" + cell.cellId() + " 空地"));
+          sb.append(fmt.listItem("No." + cell.cellId() + " 空地"));
           continue;
         }
         StringBuilder header = new StringBuilder();
-        header.append("#").append(cell.cellId()).append(" ");
+        header.append("No.").append(cell.cellId()).append(" ");
         header.append(cell.type().getChineseName());
         if (cell.cellLevel() != null && cell.cellLevel() > 1) {
           header.append(" Lv").append(cell.cellLevel());
@@ -123,7 +123,6 @@ public class FudiCommandHandler implements CommandGroup {
         }
       }
     }
-    sb.append(fmt.separator());
     sb.append(fmt.tip("与地灵聊天即可进行种植、建造、收取等操作"));
     return sb.toString();
   }
