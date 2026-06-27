@@ -39,8 +39,6 @@ public class Spirit {
 
   @Nullable private LocalDateTime lastGiftTime;
 
-  @Nullable private LocalDateTime lastEventTime;
-
   @Column(onInsertValue = "now()")
   private LocalDateTime createTime;
 

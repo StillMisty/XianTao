@@ -11,7 +11,6 @@ CREATE
                 affection_max INTEGER NOT NULL DEFAULT 1000,
                 mbti_type VARCHAR(4) NOT NULL,
                 last_gift_time TIMESTAMP,
-                last_event_time TIMESTAMP,
                 create_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 update_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 CONSTRAINT chk_spirit_affection_max CHECK(
