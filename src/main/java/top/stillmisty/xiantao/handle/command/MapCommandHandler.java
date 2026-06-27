@@ -22,6 +22,7 @@ import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.map.vo.MapInfoVO;
 import top.stillmisty.xiantao.domain.map.vo.TrainingRewardVO;
 import top.stillmisty.xiantao.domain.map.vo.TravelResultVO;
+import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
 import top.stillmisty.xiantao.domain.monster.vo.DropItem;
 import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
@@ -329,15 +330,18 @@ public class MapCommandHandler implements CommandGroup {
 
   private String formatCurrentMap(MapInfoVO map, TextFormat fmt) {
     StringBuilder sb = new StringBuilder();
+
     sb.append(
         String.format(
-            "%s%s (推荐等级: %d)\n",
-            fmt.bold(map.getMapTypeName()), map.getName(), map.getLevelRequirement()));
+            "【%s】（%s · 适合%s）\n",
+            map.getName(),
+            map.getMapType().getName(),
+            CultivationRealm.realmDisplay(map.getLevelRequirement())));
     if (map.getDescription() != null && !map.getDescription().isEmpty()) {
-      sb.append(String.format("\n%s\n", map.getDescription()));
+      sb.append("\n").append(map.getDescription()).append("\n");
     }
     if (map.getMonsters() != null && !map.getMonsters().isEmpty()) {
-      sb.append("\n").append(fmt.heading("遇怪列表"));
+      sb.append("\n").append(fmt.heading("妖兽出没"));
       for (MapInfoVO.MonsterInfoVO monster : map.getMonsters()) {
         String countRange =
             monster.getMinCount() == monster.getMaxCount()
@@ -346,16 +350,15 @@ public class MapCommandHandler implements CommandGroup {
         sb.append(
             fmt.listItem(
                 String.format(
-                    "%s [%s] Lv%d  权重:%d  数量:%s",
+                    "%s [%s] Lv%d  数量:%s",
                     monster.getName(),
                     monster.getTypeName(),
                     monster.getBaseLevel(),
-                    monster.getWeight(),
                     countRange)));
       }
     }
     if (map.getAdjacentMapNames() != null && !map.getAdjacentMapNames().isEmpty()) {
-      sb.append("\n").append(fmt.heading("相邻地图"));
+      sb.append("\n").append(fmt.heading("四方可达"));
       for (int i = 0; i < map.getAdjacentMapNames().size(); i++) {
         String adjName = map.getAdjacentMapNames().get(i);
         Integer travelTime =
@@ -363,11 +366,11 @@ public class MapCommandHandler implements CommandGroup {
                 ? map.getNeighbors().get(i).minutes()
                 : null;
         String timeStr =
-            travelTime != null ? " (" + FormatUtils.formatMinutes(travelTime) + ")" : "";
+            travelTime != null ? "（御剑" + FormatUtils.formatMinutes(travelTime) + "）" : "";
         sb.append(fmt.listItem(adjName + timeStr));
       }
     }
-    sb.append("\n使用「前往 [地图名]」开始旅行。");
+    sb.append(fmt.tip("使用「前往 [地名]」启程修行。"));
     return sb.toString();
   }
 
