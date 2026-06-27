@@ -60,8 +60,8 @@ public class NotificationAppender {
     }
 
     String combined = response;
-    if (!combined.endsWith("\n") && !combined.isEmpty()) {
-      combined += "\n";
+    if (!combined.isEmpty()) {
+      combined += fmt.separator();
     }
     combined += notificationText;
 
@@ -89,7 +89,12 @@ public class NotificationAppender {
                     LinkedHashMap::new,
                     Collectors.toList()));
 
+    boolean firstGroup = true;
     for (Map.Entry<String, List<GameEvent>> entry : grouped.entrySet()) {
+      if (!firstGroup) {
+        sb.append(fmt.separator());
+      }
+      firstGroup = false;
       String sectionTitle = entry.getKey();
       List<GameEvent> group = entry.getValue();
 
