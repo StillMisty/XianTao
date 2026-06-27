@@ -38,6 +38,7 @@ out/
 ## ai编程工具配置信息 ##
 .claude/
 .qwen/
+.mimocode/
 
 # 本地配置文件（包含敏感信息）
 src/main/resources/application-local.yml

@@ -39,7 +39,7 @@ public class FortuneService {
   }
 
   public String buildDisplay(Long userId) {
-    return buildDisplay(calculate(userId), TextFormat.plain());
+    return buildDisplay(calculate(userId), TextFormat.get());
   }
 
   public String buildDisplay(FortuneVO fortune, TextFormat fmt) {

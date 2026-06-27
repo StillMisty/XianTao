@@ -2,6 +2,7 @@ package top.stillmisty.xiantao.handle.platform;
 
 import love.forte.simbot.component.qguild.event.QGC2CMessageCreateEvent;
 import love.forte.simbot.component.qguild.event.QGGroupAtMessageCreateEvent;
+import love.forte.simbot.component.qguild.event.QGGroupMessageCreateEvent;
 import love.forte.simbot.component.qguild.message.QGMarkdown;
 import love.forte.simbot.event.MessageEvent;
 import org.springframework.stereotype.Component;
@@ -26,12 +27,17 @@ public class QQPlatformHandler implements PlatformHandler {
 
   @Override
   public boolean supports(MessageEvent event) {
-    return event instanceof QGGroupAtMessageCreateEvent || event instanceof QGC2CMessageCreateEvent;
+    return event instanceof QGGroupAtMessageCreateEvent
+        || event instanceof QGGroupMessageCreateEvent
+        || event instanceof QGC2CMessageCreateEvent;
   }
 
   @Override
   public String extractOpenId(MessageEvent event) {
     if (event instanceof QGGroupAtMessageCreateEvent qqEvent) {
+      return qqEvent.getAuthorId().toString();
+    }
+    if (event instanceof QGGroupMessageCreateEvent qqEvent) {
       return qqEvent.getAuthorId().toString();
     }
     if (event instanceof QGC2CMessageCreateEvent qqEvent) {
@@ -44,8 +50,10 @@ public class QQPlatformHandler implements PlatformHandler {
   public void replyText(MessageEvent event, String text) {
     var result =
         notificationAppender.prepareAppend(
-            PlatformType.QQ, extractOpenId(event), text, TextFormat.markdown());
+            PlatformType.QQ, extractOpenId(event), text, TextFormat.get());
     if (event instanceof QGGroupAtMessageCreateEvent qqEvent) {
+      qqEvent.replyBlocking(QGMarkdown.create(result.text()));
+    } else if (event instanceof QGGroupMessageCreateEvent qqEvent) {
       qqEvent.replyBlocking(QGMarkdown.create(result.text()));
     } else if (event instanceof QGC2CMessageCreateEvent qqEvent) {
       qqEvent.replyBlocking(QGMarkdown.create(result.text()));

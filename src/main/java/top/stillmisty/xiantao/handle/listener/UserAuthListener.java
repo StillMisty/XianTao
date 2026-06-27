@@ -9,6 +9,7 @@ import love.forte.simbot.quantcat.common.annotations.FilterValue;
 import love.forte.simbot.quantcat.common.annotations.Listener;
 import love.forte.simbot.quantcat.common.filter.FilterMode;
 import org.springframework.stereotype.Component;
+import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.command.UserCommandHandler;
 import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
 
@@ -32,14 +33,13 @@ public class UserAuthListener {
   @ContentTrim
   @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "我要修仙\\s*{{nickname}}")
   public void register(MessageEvent event, @FilterValue("nickname") String nickname) {
-    var platform = ReplyHelper.platformTypeOf(event);
-    log.info("[{}] 收到注册请求 - AuthorId: {}, Nickname: {}", platform, event.getAuthorId(), nickname);
+    log.info("[QQ] 收到注册请求 - AuthorId: {}, Nickname: {}", event.getAuthorId(), nickname);
     replyHelper.dispatch(
         event,
         "注册",
         nickname,
         (arg, fmt) ->
             userCommandHandler.handleRegister(
-                platform, event.getAuthorId().toString(), nickname, fmt));
+                PlatformType.QQ, event.getAuthorId().toString(), nickname, fmt));
   }
 }
