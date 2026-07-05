@@ -4,7 +4,7 @@ import com.mybatisflex.core.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Update;
-import top.stillmisty.xiantao.domain.event.entity.GameEvent;
+import top.stillmisty.xiantao.domain.notification.entity.GameEvent;
 
 @Mapper
 public interface GameEventMapper extends BaseMapper<GameEvent> {

@@ -104,7 +104,7 @@ COMMENT ON
 COLUMN world_event.status IS '状态：UPCOMING(预告) / ACTIVE(进行中) / ENDING(收尾) / EXPIRED(已过期)';
 
 COMMENT ON
-COLUMN world_event.effects IS '效果配置 JSONB，与 xt_activity_event.params 同格式，由 SubEventEffectExecutor 执行';
+COLUMN world_event.effects IS '效果配置 JSONB，由 EffectEntryListTypeHandler 序列化为 List<EffectEntry>';
 
 COMMENT ON
 COLUMN world_event.participation_count IS '当前参与人数（原子更新）';

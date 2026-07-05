@@ -3,7 +3,6 @@ package top.stillmisty.xiantao.service.activity;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -43,24 +42,9 @@ public class SubEventEffectExecutor {
 
   private Map<String, Object> executeBranches(
       List<Map<String, Object>> branches, Long userId, User user, EventContext context) {
-    if (branches.isEmpty()) return Map.of();
-
-    double roll = ThreadLocalRandom.current().nextDouble();
-    double cumulative = 0;
-    for (Map<String, Object> branch : branches) {
-      Object chanceObj = branch.get("chance");
-      double chance = chanceObj instanceof Number n ? n.doubleValue() : 0;
-      cumulative += chance;
-      if (roll < cumulative || Math.abs(cumulative - 1.0) < 1e-9) {
-        @SuppressWarnings("unchecked")
-        List<Map<String, Object>> effects = (List<Map<String, Object>>) branch.get("effects");
-        if (effects != null) {
-          return executeEffects(effects, userId, user, context);
-        }
-        return Map.of();
-      }
-    }
-    return Map.of();
+    List<Map<String, Object>> effects = BranchResolver.resolve(branches);
+    if (effects == null) return Map.of();
+    return executeEffects(effects, userId, user, context);
   }
 
   /** 执行效果列表，返回叙事模板参数 */

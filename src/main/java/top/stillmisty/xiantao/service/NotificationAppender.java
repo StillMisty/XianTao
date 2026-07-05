@@ -13,8 +13,8 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.event.EffectData;
-import top.stillmisty.xiantao.domain.event.entity.GameEvent;
-import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
+import top.stillmisty.xiantao.domain.notification.entity.GameEvent;
+import top.stillmisty.xiantao.domain.notification.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.TextFormat;
 

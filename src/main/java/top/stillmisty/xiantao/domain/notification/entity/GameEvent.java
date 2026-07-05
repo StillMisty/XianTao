@@ -1,4 +1,4 @@
-package top.stillmisty.xiantao.domain.event.entity;
+package top.stillmisty.xiantao.domain.notification.entity;
 
 import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.jspecify.annotations.Nullable;
 import top.stillmisty.xiantao.domain.event.EffectData;
-import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
+import top.stillmisty.xiantao.domain.notification.enums.GameEventCategory;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.EffectDataTypeHandler;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
 import top.stillmisty.xiantao.infrastructure.util.TimeUtil;

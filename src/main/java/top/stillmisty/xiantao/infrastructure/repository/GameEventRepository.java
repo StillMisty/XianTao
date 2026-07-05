@@ -1,12 +1,12 @@
 package top.stillmisty.xiantao.infrastructure.repository;
 
-import static top.stillmisty.xiantao.domain.event.entity.table.GameEventTableDef.GAME_EVENT;
+import static top.stillmisty.xiantao.domain.notification.entity.table.GameEventTableDef.GAME_EVENT;
 
 import com.mybatisflex.core.query.QueryWrapper;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import top.stillmisty.xiantao.domain.event.entity.GameEvent;
+import top.stillmisty.xiantao.domain.notification.entity.GameEvent;
 import top.stillmisty.xiantao.infrastructure.mapper.GameEventMapper;
 import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 

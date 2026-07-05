@@ -12,14 +12,10 @@ import top.stillmisty.xiantao.domain.bounty.BountyRewardItem;
 import top.stillmisty.xiantao.domain.bounty.entity.UserBounty;
 import top.stillmisty.xiantao.domain.event.EventContext;
 import top.stillmisty.xiantao.domain.event.EventContextKeys;
-import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
-import top.stillmisty.xiantao.domain.event.entity.GameEvent;
-import top.stillmisty.xiantao.domain.event.entity.HiddenCompletion;
 import top.stillmisty.xiantao.domain.event.enums.ActivityType;
-import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
+import top.stillmisty.xiantao.domain.notification.entity.GameEvent;
+import top.stillmisty.xiantao.domain.notification.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.user.entity.User;
-import top.stillmisty.xiantao.infrastructure.repository.HiddenCompletionRepository;
-import top.stillmisty.xiantao.service.FortuneService;
 import top.stillmisty.xiantao.service.GameEventService;
 
 /** 悬赏完成器 — 悬赏领奖的子事件调节和隐藏事件 */
@@ -29,12 +25,7 @@ import top.stillmisty.xiantao.service.GameEventService;
 public class BountyCompleter {
 
   private final GameEventService gameEventService;
-  private final SubEventSelector subEventSelector;
-  private final SubEventEffectExecutor effectExecutor;
-  private final HiddenCompletionRepository hiddenCompletionRepository;
-  private final ActivityEventHelper activityEventHelper;
-  private final TriggerConditionChecker triggerConditionChecker;
-  private final FortuneService fortuneService;
+  private final ActivitySubEventPipeline subEventPipeline;
 
   /** 悬赏完成叙事 */
   @Transactional
@@ -81,46 +72,34 @@ public class BountyCompleter {
   @Transactional
   public void rollBountySideEvent(
       Long userId, User user, Long bountyId, String bountyName, EventContext context) {
-    ActivityEvent selected =
-        subEventSelector.selectSubEvent(ActivityType.BOUNTY_SIDE.getCode(), bountyId, 1.0, userId);
-    if (selected == null) return;
-
     EventContextKeys.BOUNTY_NAME.put(context, bountyName);
-    var fortune = fortuneService.calculate(userId);
-    EventContextKeys.FORTUNE.put(context, fortune);
-    var templateArgs = effectExecutor.execute(selected, userId, user, context);
-    String narrativeKey = activityEventHelper.resolveNarrativeKey(selected.getCode());
-    gameEventService.save(
-        GameEvent.create(userId, GameEventCategory.BOUNTY_SIDE_MODIFIER)
-            .withNarrative(narrativeKey, templateArgs));
+    subEventPipeline.rollSubEvent(
+        ActivityType.BOUNTY_SIDE.getCode(),
+        bountyId,
+        1.0,
+        userId,
+        user,
+        GameEventCategory.BOUNTY_SIDE_MODIFIER,
+        fortune -> {
+          EventContextKeys.FORTUNE.put(context, fortune);
+          return context;
+        });
   }
 
   /** 检查悬赏隐藏事件 */
   @Transactional
   public void checkHiddenEvents(Long userId, User user, UserBounty record) {
-    var fortune = fortuneService.calculate(userId);
-    var hiddenEvents =
-        subEventSelector.findHiddenEvents(ActivityType.BOUNTY_SIDE.getCode(), record.getBountyId());
-    for (ActivityEvent event : hiddenEvents) {
-      if (!activityEventHelper.checkPrerequisite(userId, event)) continue;
-      boolean alreadyDone =
-          hiddenCompletionRepository.exists(
-              userId, ActivityType.BOUNTY_SIDE.getCode(), record.getBountyId(), event.getCode());
-      if (alreadyDone) continue;
-      if (!triggerConditionChecker.check(event, userId, user)) continue;
-
-      hiddenCompletionRepository.save(
-          HiddenCompletion.create(
-              userId, ActivityType.BOUNTY_SIDE.getCode(), record.getBountyId(), event.getCode()));
-
-      EventContext hiddenContext = EventContext.empty();
-      EventContextKeys.BOUNTY_NAME.put(hiddenContext, record.getBountyName());
-      EventContextKeys.FORTUNE.put(hiddenContext, fortune);
-      var templateArgs = effectExecutor.execute(event, userId, user, hiddenContext);
-      String narrativeKey = activityEventHelper.resolveNarrativeKey(event.getCode());
-      gameEventService.save(
-          GameEvent.create(userId, GameEventCategory.BOUNTY_HIDDEN)
-              .withNarrative(narrativeKey, templateArgs));
-    }
+    subEventPipeline.checkHiddenEvents(
+        ActivityType.BOUNTY_SIDE.getCode(),
+        record.getBountyId(),
+        userId,
+        user,
+        GameEventCategory.BOUNTY_HIDDEN,
+        fortune -> {
+          EventContext ctx = EventContext.empty();
+          EventContextKeys.BOUNTY_NAME.put(ctx, record.getBountyName());
+          EventContextKeys.FORTUNE.put(ctx, fortune);
+          return ctx;
+        });
   }
 }

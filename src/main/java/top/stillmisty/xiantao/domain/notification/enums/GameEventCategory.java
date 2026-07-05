@@ -1,4 +1,4 @@
-package top.stillmisty.xiantao.domain.event.enums;
+package top.stillmisty.xiantao.domain.notification.enums;
 
 import com.mybatisflex.annotation.EnumValue;
 import lombok.Getter;
@@ -52,20 +52,5 @@ public enum GameEventCategory {
       }
     }
     throw new IllegalArgumentException("Unknown GameEventCategory code: " + code);
-  }
-
-  /** Travel categories share the same section title */
-  public static boolean isTravel(String code) {
-    return code != null && code.startsWith("TRAVEL_");
-  }
-
-  /** Training categories share the same section title */
-  public static boolean isTraining(String code) {
-    return code != null && code.startsWith("TRAINING_");
-  }
-
-  /** Bounty categories share the same section title */
-  public static boolean isBounty(String code) {
-    return code != null && code.startsWith("BOUNTY_");
   }
 }

@@ -56,6 +56,13 @@ public final class EventContext {
     return ctx;
   }
 
+  /** 创建带运势的上下文 */
+  public static EventContext withFortune(top.stillmisty.xiantao.domain.event.vo.FortuneVO fortune) {
+    EventContext ctx = new EventContext();
+    ctx.put(EventContextKeys.FORTUNE, fortune);
+    return ctx;
+  }
+
   /** 创建带地图信息和运势的上下文 */
   public static EventContext withMapAndFortune(
       top.stillmisty.xiantao.domain.map.entity.MapNode mapNode,

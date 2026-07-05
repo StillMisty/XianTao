@@ -7,14 +7,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.event.EventContext;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
-import top.stillmisty.xiantao.domain.event.entity.GameEvent;
-import top.stillmisty.xiantao.domain.event.entity.HiddenCompletion;
 import top.stillmisty.xiantao.domain.event.enums.ActivityType;
-import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
+import top.stillmisty.xiantao.domain.notification.entity.GameEvent;
+import top.stillmisty.xiantao.domain.notification.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.user.entity.User;
-import top.stillmisty.xiantao.infrastructure.repository.HiddenCompletionRepository;
-import top.stillmisty.xiantao.service.FortuneService;
 import top.stillmisty.xiantao.service.GameEventService;
 import top.stillmisty.xiantao.service.worldevent.WorldEventEnvironmentalApplier;
 
@@ -25,12 +22,7 @@ import top.stillmisty.xiantao.service.worldevent.WorldEventEnvironmentalApplier;
 public class TrainingCompleter {
 
   private final GameEventService gameEventService;
-  private final SubEventSelector subEventSelector;
-  private final SubEventEffectExecutor effectExecutor;
-  private final HiddenCompletionRepository hiddenCompletionRepository;
-  private final TriggerConditionChecker triggerConditionChecker;
-  private final ActivityEventHelper activityEventHelper;
-  private final FortuneService fortuneService;
+  private final ActivitySubEventPipeline subEventPipeline;
   private final WorldEventEnvironmentalApplier worldEventEnvApplier;
 
   @Transactional
@@ -54,38 +46,20 @@ public class TrainingCompleter {
   @Transactional
   public void handleNumericEvent(
       Long userId, User user, ActivityEvent event, EventContext context) {
-    var templateArgs = effectExecutor.execute(event, userId, user, context);
-    String narrativeKey = activityEventHelper.resolveNarrativeKey(event.getCode());
-    gameEventService.save(
-        GameEvent.create(userId, GameEventCategory.TRAINING_EVENT)
-            .withNarrative(narrativeKey, templateArgs));
+    subEventPipeline.processEventWithContext(
+        event, userId, user, GameEventCategory.TRAINING_EVENT, context);
   }
 
   /** 检查历练隐藏事件 */
   @Transactional
   public void checkHiddenEvents(Long userId, User user, MapNode mapNode) {
-    var fortune = fortuneService.calculate(userId);
-    var hiddenEvents =
-        subEventSelector.findHiddenEvents(ActivityType.TRAINING.getCode(), mapNode.getId());
-    for (ActivityEvent event : hiddenEvents) {
-      if (!activityEventHelper.checkPrerequisite(userId, event)) continue;
-      boolean alreadyDone =
-          hiddenCompletionRepository.exists(
-              userId, ActivityType.TRAINING.getCode(), mapNode.getId(), event.getCode());
-      if (alreadyDone) continue;
-      if (!triggerConditionChecker.check(event, userId, user)) continue;
-
-      hiddenCompletionRepository.save(
-          HiddenCompletion.create(
-              userId, ActivityType.TRAINING.getCode(), mapNode.getId(), event.getCode()));
-
-      EventContext context = EventContext.withMapAndFortune(mapNode, fortune);
-      var templateArgs = effectExecutor.execute(event, userId, user, context);
-      String narrativeKey = activityEventHelper.resolveNarrativeKey(event.getCode());
-      gameEventService.save(
-          GameEvent.create(userId, GameEventCategory.TRAINING_HIDDEN)
-              .withNarrative(narrativeKey, templateArgs));
-    }
+    subEventPipeline.checkHiddenEvents(
+        ActivityType.TRAINING.getCode(),
+        mapNode.getId(),
+        userId,
+        user,
+        GameEventCategory.TRAINING_HIDDEN,
+        fortune -> EventContext.withMapAndFortune(mapNode, fortune));
   }
 
   /** 应用环境世界事件（历练结算时查询当前地图的区域 + 全局 ENVIRONMENTAL 事件） */

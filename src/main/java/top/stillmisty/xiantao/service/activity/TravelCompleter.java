@@ -6,15 +6,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.event.EventContext;
-import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
-import top.stillmisty.xiantao.domain.event.entity.GameEvent;
-import top.stillmisty.xiantao.domain.event.entity.HiddenCompletion;
 import top.stillmisty.xiantao.domain.event.enums.ActivityType;
-import top.stillmisty.xiantao.domain.event.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
+import top.stillmisty.xiantao.domain.notification.entity.GameEvent;
+import top.stillmisty.xiantao.domain.notification.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.user.entity.User;
-import top.stillmisty.xiantao.infrastructure.repository.HiddenCompletionRepository;
-import top.stillmisty.xiantao.service.FortuneService;
 import top.stillmisty.xiantao.service.GameEventService;
 import top.stillmisty.xiantao.service.worldevent.WorldEventEnvironmentalApplier;
 
@@ -25,12 +21,7 @@ import top.stillmisty.xiantao.service.worldevent.WorldEventEnvironmentalApplier;
 public class TravelCompleter {
 
   private final GameEventService gameEventService;
-  private final SubEventSelector subEventSelector;
-  private final SubEventEffectExecutor effectExecutor;
-  private final HiddenCompletionRepository hiddenCompletionRepository;
-  private final TriggerConditionChecker triggerConditionChecker;
-  private final ActivityEventHelper activityEventHelper;
-  private final FortuneService fortuneService;
+  private final ActivitySubEventPipeline subEventPipeline;
   private final WorldEventEnvironmentalApplier worldEventEnvApplier;
 
   @Transactional
@@ -59,42 +50,23 @@ public class TravelCompleter {
   }
 
   private void rollSubEvents(Long userId, User user, MapNode mapNode) {
-    ActivityEvent selected =
-        subEventSelector.selectSubEvent(
-            ActivityType.TRAVEL.getCode(), mapNode.getId(), 0.30, userId);
-    if (selected == null) return;
-
-    var fortune = fortuneService.calculate(userId);
-    EventContext context = EventContext.withMapAndFortune(mapNode, fortune);
-    var templateArgs = effectExecutor.execute(selected, userId, user, context);
-    String narrativeKey = activityEventHelper.resolveNarrativeKey(selected.getCode());
-    gameEventService.save(
-        GameEvent.create(userId, GameEventCategory.TRAVEL_EVENT)
-            .withNarrative(narrativeKey, templateArgs));
+    subEventPipeline.rollSubEvent(
+        ActivityType.TRAVEL.getCode(),
+        mapNode.getId(),
+        0.30,
+        userId,
+        user,
+        GameEventCategory.TRAVEL_EVENT,
+        fortune -> EventContext.withMapAndFortune(mapNode, fortune));
   }
 
   private void checkHiddenEvents(Long userId, User user, MapNode mapNode) {
-    var fortune = fortuneService.calculate(userId);
-    var hiddenEvents =
-        subEventSelector.findHiddenEvents(ActivityType.TRAVEL.getCode(), mapNode.getId());
-    for (ActivityEvent event : hiddenEvents) {
-      if (!activityEventHelper.checkPrerequisite(userId, event)) continue;
-      boolean alreadyDone =
-          hiddenCompletionRepository.exists(
-              userId, ActivityType.TRAVEL.getCode(), mapNode.getId(), event.getCode());
-      if (alreadyDone) continue;
-      if (!triggerConditionChecker.check(event, userId, user)) continue;
-
-      hiddenCompletionRepository.save(
-          HiddenCompletion.create(
-              userId, ActivityType.TRAVEL.getCode(), mapNode.getId(), event.getCode()));
-
-      EventContext hiddenContext = EventContext.withMapAndFortune(mapNode, fortune);
-      var templateArgs = effectExecutor.execute(event, userId, user, hiddenContext);
-      String narrativeKey = activityEventHelper.resolveNarrativeKey(event.getCode());
-      gameEventService.save(
-          GameEvent.create(userId, GameEventCategory.TRAVEL_HIDDEN)
-              .withNarrative(narrativeKey, templateArgs));
-    }
+    subEventPipeline.checkHiddenEvents(
+        ActivityType.TRAVEL.getCode(),
+        mapNode.getId(),
+        userId,
+        user,
+        GameEventCategory.TRAVEL_HIDDEN,
+        fortune -> EventContext.withMapAndFortune(mapNode, fortune));
   }
 }

@@ -1,16 +1,18 @@
 package top.stillmisty.xiantao.service.worldevent;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.event.EventContext;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.worldevent.entity.WorldEvent;
+import top.stillmisty.xiantao.service.activity.BranchResolver;
 import top.stillmisty.xiantao.service.activity.SubEventEffectExecutor;
+import top.stillmisty.xiantao.service.activity.effect.EffectEntry;
 
 @Slf4j
 @Component
@@ -22,7 +24,11 @@ public class WorldEventEffectApplier {
   public Map<String, Object> applyEffects(WorldEvent event, User user) {
     if (!event.hasEffects()) return Map.of();
     try {
-      return applyFlatEffects(event.getEffects(), user.getId(), user);
+      List<Map<String, Object>> effectMaps = new ArrayList<>(event.getEffects().size());
+      for (EffectEntry entry : event.getEffects()) {
+        effectMaps.add(entry.toEffectMap());
+      }
+      return applyFlatEffects(effectMaps, user.getId(), user);
     } catch (Exception e) {
       log.warn(
           "应用世界事件效果失败 - eventId: {}, userId: {}, error: {}",
@@ -76,22 +82,8 @@ public class WorldEventEffectApplier {
   @SuppressWarnings("unchecked")
   private Map<String, Object> applyBranches(Map<String, Object> config, Long userId, User user) {
     List<Map<String, Object>> branches = (List<Map<String, Object>>) config.get("branches");
-    if (branches == null || branches.isEmpty()) return Map.of();
-
-    double roll = ThreadLocalRandom.current().nextDouble();
-    double cumulative = 0;
-    for (Map<String, Object> branch : branches) {
-      Object chanceObj = branch.get("chance");
-      double chance = chanceObj instanceof Number n ? n.doubleValue() : 0;
-      cumulative += chance;
-      if (roll < cumulative || Math.abs(cumulative - 1.0) < 1e-9) {
-        List<Map<String, Object>> effects = (List<Map<String, Object>>) branch.get("effects");
-        if (effects != null && !effects.isEmpty()) {
-          return applyFlatEffects(effects, userId, user);
-        }
-        return Map.of();
-      }
-    }
-    return Map.of();
+    List<Map<String, Object>> effects = BranchResolver.resolve(branches);
+    if (effects == null) return Map.of();
+    return applyFlatEffects(effects, userId, user);
   }
 }

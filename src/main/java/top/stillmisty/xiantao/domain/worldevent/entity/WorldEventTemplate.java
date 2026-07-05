@@ -12,8 +12,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import top.stillmisty.xiantao.domain.worldevent.enums.WorldEventCategory;
 import top.stillmisty.xiantao.domain.worldevent.enums.WorldEventScope;
+import top.stillmisty.xiantao.infrastructure.mybatis.handler.EffectEntryListTypeHandler;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
+import top.stillmisty.xiantao.service.activity.effect.EffectEntry;
 
 @SuppressWarnings("NullAway")
 @Data
@@ -44,8 +46,8 @@ public class WorldEventTemplate {
 
   private java.math.BigDecimal globalMultiplier;
 
-  @Column(typeHandler = JsonbTypeHandler.class)
-  private List<Map<String, Object>> effects;
+  @Column(typeHandler = EffectEntryListTypeHandler.class)
+  private List<EffectEntry> effects;
 
   private Boolean participationEnabled;
 
