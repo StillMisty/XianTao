@@ -232,6 +232,25 @@ public class DefaultCombatEngine implements CombatEngine {
               isControl = true;
             }
             case DOT -> applyDot(attacker, defender, effect, selectedSkill, buffManager);
+            case DODGE -> {
+              applyBuff(attacker, BuffType.DODGE, effect, selectedSkill, buffManager);
+              isBuff = true;
+            }
+            case COUNTER -> {
+              applyBuff(attacker, BuffType.COUNTER, effect, selectedSkill, buffManager);
+              isBuff = true;
+            }
+            case REFLECT -> {
+              applyBuff(attacker, BuffType.REFLECT, effect, selectedSkill, buffManager);
+              isBuff = true;
+            }
+            case CLEANSE -> {
+              buffManager.removeDebuffs(attacker.getId());
+              isBuff = true;
+            }
+            case RESIST_BUFF, HP_BUFF, SURVIVE_LETHAL -> {
+              // PASSIVE-only effects, should not reach active combat engine
+            }
             case EXECUTE -> {
               int baseDmg =
                   damageCalculator.calculateEffectDamage(attacker, defender, effect, buffManager);
@@ -292,7 +311,14 @@ public class DefaultCombatEngine implements CombatEngine {
                                 || e.type() == EffectType.ARMOR_BREAK
                                 || e.type() == EffectType.SLOW
                                 || e.type() == EffectType.LIFESTEAL
-                                || e.type() == EffectType.EXECUTE);
+                                || e.type() == EffectType.EXECUTE
+                                || e.type() == EffectType.DODGE
+                                || e.type() == EffectType.COUNTER
+                                || e.type() == EffectType.REFLECT
+                                || e.type() == EffectType.CLEANSE
+                                || e.type() == EffectType.RESIST_BUFF
+                                || e.type() == EffectType.HP_BUFF
+                                || e.type() == EffectType.SURVIVE_LETHAL);
         if (!anyEffectProcessed) {
           damage = damageCalculator.calculateNormalDamage(attacker, defender, buffManager);
         }

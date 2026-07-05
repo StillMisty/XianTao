@@ -43,6 +43,14 @@ public class BuffManager {
     }
   }
 
+  /** 清除战斗单位的所有Debuff */
+  public void removeDebuffs(Long combatantId) {
+    List<Buff> buffs = buffsMap.get(combatantId);
+    if (buffs != null) {
+      buffs.removeIf(Buff::isDebuff);
+    }
+  }
+
   /** 获取战斗单位的所有Buff */
   public List<Buff> getBuffs(Long combatantId) {
     return buffsMap.getOrDefault(combatantId, List.of());
@@ -100,6 +108,51 @@ public class BuffManager {
       modifier += buff.getValue();
     }
     return Math.min(3.0, modifier);
+  }
+
+  /** 计算抗性修正 */
+  public double getResistModifier(Long combatantId) {
+    double modifier = 1.0;
+    for (Buff buff : getBuffsByType(combatantId, BuffType.RESIST_BUFF)) {
+      modifier += buff.getValue();
+    }
+    return Math.min(3.0, modifier);
+  }
+
+  /** 计算生命上限修正 */
+  public double getHpBonusModifier(Long combatantId) {
+    double modifier = 1.0;
+    for (Buff buff : getBuffsByType(combatantId, BuffType.HP_BUFF)) {
+      modifier += buff.getValue();
+    }
+    return Math.min(3.0, modifier);
+  }
+
+  /** 获取闪避概率（各层之和） */
+  public double getDodgeChance(Long combatantId) {
+    double chance = 0;
+    for (Buff buff : getBuffsByType(combatantId, BuffType.DODGE)) {
+      chance += buff.getValue() * buff.getStackCount();
+    }
+    return Math.min(1.0, chance);
+  }
+
+  /** 获取反击概率（各层之和） */
+  public double getCounterChance(Long combatantId) {
+    double chance = 0;
+    for (Buff buff : getBuffsByType(combatantId, BuffType.COUNTER)) {
+      chance += buff.getValue() * buff.getStackCount();
+    }
+    return Math.min(1.0, chance);
+  }
+
+  /** 获取反射比例（各层之和） */
+  public double getReflectPercent(Long combatantId) {
+    double pct = 0;
+    for (Buff buff : getBuffsByType(combatantId, BuffType.REFLECT)) {
+      pct += buff.getValue() * buff.getStackCount();
+    }
+    return Math.min(1.0, pct);
   }
 
   /**

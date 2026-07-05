@@ -18,7 +18,14 @@ public enum EffectType {
   STUN("STUN", "眩晕"),
   FREEZE("FREEZE", "冰冻"),
   SILENCE("SILENCE", "沉默"),
-  AOE_DAMAGE("AOE_DAMAGE", "群体伤害");
+  AOE_DAMAGE("AOE_DAMAGE", "群体伤害"),
+  RESIST_BUFF("RESIST_BUFF", "抗性增益"),
+  HP_BUFF("HP_BUFF", "生命增益"),
+  DODGE("DODGE", "闪避"),
+  CLEANSE("CLEANSE", "净化"),
+  COUNTER("COUNTER", "反击"),
+  REFLECT("REFLECT", "反射"),
+  SURVIVE_LETHAL("SURVIVE_LETHAL", "濒死生存");
 
   private final String code;
   private final String name;

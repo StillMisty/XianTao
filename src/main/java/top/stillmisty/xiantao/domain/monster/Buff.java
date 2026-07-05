@@ -37,7 +37,16 @@ public class Buff {
   public boolean isDebuff() {
     return switch (type) {
       case ARMOR_BREAK, SLOW, DOT, STUN, FREEZE, SILENCE -> true;
-      case HEAL, ATTACK_BUFF, DEFENSE_BUFF, SPEED_BUFF -> false;
+      case HEAL,
+          ATTACK_BUFF,
+          DEFENSE_BUFF,
+          SPEED_BUFF,
+          RESIST_BUFF,
+          HP_BUFF,
+          DODGE,
+          COUNTER,
+          REFLECT ->
+          false;
     };
   }
 

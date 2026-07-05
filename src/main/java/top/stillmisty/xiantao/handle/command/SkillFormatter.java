@@ -52,6 +52,18 @@ final class SkillFormatter {
             int stacks = effect.maxStacks() != null ? effect.maxStacks() : 3;
             yield pct + "%攻击力×" + rounds + "回合，可叠" + stacks + "层";
           }
+          case RESIST_BUFF, HP_BUFF, DODGE, COUNTER, REFLECT -> {
+            int pct = effect.value() != null ? effect.value().intValue() : 20;
+            var dur = effect.duration() != null ? "，" + effect.duration() + "回合" : "";
+            yield "+" + pct + "%" + dur;
+          }
+          case CLEANSE -> {
+            yield "净化";
+          }
+          case SURVIVE_LETHAL -> {
+            int pct = effect.value() != null ? effect.value().intValue() : 20;
+            yield pct + "%概率";
+          }
         };
     return name + (detail.isEmpty() ? "" : "(" + detail + ")");
   }
