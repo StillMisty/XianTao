@@ -4,7 +4,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonTemplate;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.infrastructure.repository.DungeonProgressRepository;
 import top.stillmisty.xiantao.infrastructure.repository.HiddenCompletionRepository;
 import top.stillmisty.xiantao.infrastructure.repository.StackableItemRepository;
@@ -19,7 +19,7 @@ public class DungeonAccessChecker {
   private final DungeonProgressRepository progressRepository;
   private final HiddenCompletionRepository hiddenCompletionRepository;
 
-  public boolean canAccess(User user, DungeonTemplate dungeon) {
+  public boolean canAccess(Player user, DungeonTemplate dungeon) {
     try {
       checkAccess(user, dungeon);
       return true;
@@ -28,7 +28,7 @@ public class DungeonAccessChecker {
     }
   }
 
-  public void checkAccess(User user, DungeonTemplate dungeon) {
+  public void checkAccess(Player user, DungeonTemplate dungeon) {
     List<DungeonTemplate.AccessCondition> conditions = dungeon.getAccessRules();
     if (conditions == null || conditions.isEmpty()) return;
 

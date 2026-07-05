@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.repository.EquipmentTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
@@ -90,7 +90,7 @@ public class GmService {
   @Transactional
   String giveSpiritStonesInternal(Long gmUserId, String targetNickname, long amount) {
     if (amount <= 0) throw new BusinessException(ErrorCode.PARAM_INVALID, "数量必须大于0");
-    User target = getTargetUser(targetNickname);
+    Player target = getTargetUser(targetNickname);
     if (target == null) throw new BusinessException(ErrorCode.GM_TARGET_NOT_FOUND, targetNickname);
     spiritStoneService.deposit(target.getId(), amount);
     long newBalance = spiritStoneService.getBalance(target.getId());
@@ -101,7 +101,7 @@ public class GmService {
   @Transactional
   String giveExpInternal(Long gmUserId, String targetNickname, long amount) {
     if (amount <= 0) throw new BusinessException(ErrorCode.PARAM_INVALID, "数量必须大于0");
-    User target = getTargetUser(targetNickname);
+    Player target = getTargetUser(targetNickname);
     if (target == null) throw new BusinessException(ErrorCode.GM_TARGET_NOT_FOUND, targetNickname);
     long before = target.getExp();
     target.addExp(amount);
@@ -124,7 +124,7 @@ public class GmService {
 
   @Transactional
   String healUserInternal(Long gmUserId, String targetNickname) {
-    User target = getTargetUser(targetNickname);
+    Player target = getTargetUser(targetNickname);
     if (target == null) throw new BusinessException(ErrorCode.GM_TARGET_NOT_FOUND, targetNickname);
     int maxHp = target.calculateMaxHp();
     int before = target.getHpCurrent();
@@ -136,7 +136,7 @@ public class GmService {
 
   @Transactional
   String reviveUserInternal(Long gmUserId, String targetNickname) {
-    User target = getTargetUser(targetNickname);
+    Player target = getTargetUser(targetNickname);
     if (target == null) throw new BusinessException(ErrorCode.GM_TARGET_NOT_FOUND, targetNickname);
     if (target.getStatus() != UserStatus.DYING)
       throw new BusinessException(ErrorCode.GM_STATUS_NOT_DYING, targetNickname);
@@ -153,7 +153,7 @@ public class GmService {
   @Transactional
   String setLevelInternal(Long gmUserId, String targetNickname, int level) {
     if (level < 1) throw new BusinessException(ErrorCode.PARAM_INVALID, "等级必须大于等于1");
-    User target = getTargetUser(targetNickname);
+    Player target = getTargetUser(targetNickname);
     if (target == null) throw new BusinessException(ErrorCode.GM_TARGET_NOT_FOUND, targetNickname);
     int before = target.getLevel();
     target.setLevel(level);
@@ -165,7 +165,7 @@ public class GmService {
 
   @Transactional
   String setLocationInternal(Long gmUserId, String targetNickname, String locationName) {
-    User target = getTargetUser(targetNickname);
+    Player target = getTargetUser(targetNickname);
     if (target == null) throw new BusinessException(ErrorCode.GM_TARGET_NOT_FOUND, targetNickname);
     var mapNode = mapNodeRepository.findByName(locationName);
     if (mapNode.isEmpty())
@@ -181,7 +181,7 @@ public class GmService {
   @Transactional
   String giveItemInternal(Long gmUserId, String targetNickname, String itemName, int quantity) {
     if (quantity <= 0) throw new BusinessException(ErrorCode.PARAM_INVALID, "数量必须大于0");
-    User target = getTargetUser(targetNickname);
+    Player target = getTargetUser(targetNickname);
     if (target == null) throw new BusinessException(ErrorCode.GM_TARGET_NOT_FOUND, targetNickname);
 
     var itemTemplate = itemTemplateRepository.findByName(itemName);
@@ -207,7 +207,7 @@ public class GmService {
   }
 
   @Nullable
-  private User getTargetUser(String nickname) {
+  private Player getTargetUser(String nickname) {
     return userRepository.findByNickname(nickname).orElse(null);
   }
 }

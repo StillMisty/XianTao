@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.monster.CombatTeam;
 import top.stillmisty.xiantao.domain.pvp.vo.SparResultVO;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
@@ -31,8 +31,8 @@ public class PvpService {
 
   @Transactional
   public SparResultVO sparInternal(Long userId, String targetNickname) {
-    User attacker = userStateService.loadUser(userId);
-    User defender =
+    Player attacker = userStateService.loadUser(userId);
+    Player defender =
         userRepository
             .findByNickname(targetNickname)
             .orElseThrow(() -> new BusinessException(ErrorCode.PLAYER_NOT_FOUND, targetNickname));

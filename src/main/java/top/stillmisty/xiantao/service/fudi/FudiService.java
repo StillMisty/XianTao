@@ -18,7 +18,7 @@ import top.stillmisty.xiantao.domain.fudi.enums.MBTIPersonality;
 import top.stillmisty.xiantao.domain.fudi.vo.*;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.infrastructure.repository.BeastRepository;
 import top.stillmisty.xiantao.infrastructure.repository.FudiCellRepository;
 import top.stillmisty.xiantao.infrastructure.repository.FudiRepository;
@@ -283,7 +283,7 @@ public class FudiService {
   public TriggerTribulationVO triggerTribulationInternal(Long userId) {
     Fudi fudi = getFudiOrThrow(userId);
 
-    User user = fudiHelper.getUserOrThrow(userId);
+    Player user = fudiHelper.getUserOrThrow(userId);
 
     String result = tribulationService.resolveTribulation(fudi, user);
     fudiRepository.save(fudi);

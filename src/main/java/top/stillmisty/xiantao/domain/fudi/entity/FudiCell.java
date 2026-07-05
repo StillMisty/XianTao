@@ -15,7 +15,7 @@ import top.stillmisty.xiantao.infrastructure.mybatis.handler.CellConfigTypeHandl
 @SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table("xt_fudi_cell")
+@Table("fudi_cell")
 public class FudiCell {
 
   @EqualsAndHashCode.Include

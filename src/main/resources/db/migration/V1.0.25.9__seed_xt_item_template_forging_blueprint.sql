@@ -1,7 +1,7 @@
--- 锻造图纸种子数据 (xt_item_template, type=FORGING_BLUEPRINT)
+-- 锻造图纸种子数据 (item_template, type=FORGING_BLUEPRINT)
 INSERT
     INTO
-        xt_item_template(
+        item_template(
             name,
             TYPE,
             properties,
@@ -17,7 +17,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_equipment_template
+                    equipment_template
                 WHERE
                     name = '砍柴刀'
             ),
@@ -38,7 +38,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_equipment_template
+                    equipment_template
                 WHERE
                     name = '青锋刀'
             ),
@@ -59,7 +59,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_equipment_template
+                    equipment_template
                 WHERE
                     name = '青冥剑'
             ),
@@ -80,7 +80,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_equipment_template
+                    equipment_template
                 WHERE
                     name = '纯钧剑'
             ),
@@ -101,7 +101,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_equipment_template
+                    equipment_template
                 WHERE
                     name = '开山斧'
             ),
@@ -122,7 +122,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_equipment_template
+                    equipment_template
                 WHERE
                     name = '旋风斧'
             ),
@@ -143,7 +143,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_equipment_template
+                    equipment_template
                 WHERE
                     name = '亮银枪'
             ),
@@ -164,7 +164,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_equipment_template
+                    equipment_template
                 WHERE
                     name = '镇魔棍'
             ),
@@ -185,7 +185,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_equipment_template
+                    equipment_template
                 WHERE
                     name = '玄铁甲'
             ),
@@ -206,7 +206,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_equipment_template
+                    equipment_template
                 WHERE
                     name = '寒铁重甲'
             ),
@@ -227,7 +227,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_equipment_template
+                    equipment_template
                 WHERE
                     name = '灵蚕法袍'
             ),
@@ -248,7 +248,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_equipment_template
+                    equipment_template
                 WHERE
                     name = '陨铁战甲'
             ),
@@ -269,7 +269,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_equipment_template
+                    equipment_template
                 WHERE
                     name = '穿云弓'
             ),
@@ -290,7 +290,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_equipment_template
+                    equipment_template
                 WHERE
                     name = '灵玉戒指'
             ),
@@ -311,7 +311,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_equipment_template
+                    equipment_template
                 WHERE
                     name = '灵石吊坠'
             ),
@@ -332,7 +332,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_equipment_template
+                    equipment_template
                 WHERE
                     name = '玉镯'
             ),
@@ -353,7 +353,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_equipment_template
+                    equipment_template
                 WHERE
                     name = '龙鳞软甲'
             ),
@@ -374,7 +374,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_equipment_template
+                    equipment_template
                 WHERE
                     name = '龙雀刀'
             ),
@@ -395,7 +395,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_equipment_template
+                    equipment_template
                 WHERE
                     name = '天刑刀'
             ),
@@ -416,7 +416,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_equipment_template
+                    equipment_template
                 WHERE
                     name = '七星剑'
             ),
@@ -437,7 +437,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_equipment_template
+                    equipment_template
                 WHERE
                     name = '诛仙剑'
             ),
@@ -458,7 +458,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_equipment_template
+                    equipment_template
                 WHERE
                     name = '轩辕剑'
             ),
@@ -479,7 +479,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_equipment_template
+                    equipment_template
                 WHERE
                     name = '游龙枪'
             ),
@@ -500,7 +500,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_equipment_template
+                    equipment_template
                 WHERE
                     name = '霸王枪'
             ),
@@ -521,7 +521,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_equipment_template
+                    equipment_template
                 WHERE
                     name = '流星弓'
             ),
@@ -542,7 +542,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_equipment_template
+                    equipment_template
                 WHERE
                     name = '帝江戟'
             ),
@@ -563,7 +563,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_equipment_template
+                    equipment_template
                 WHERE
                     name = '雷霆战锤'
             ),
@@ -584,7 +584,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_equipment_template
+                    equipment_template
                 WHERE
                     name = '东皇钟'
             ),
@@ -605,7 +605,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_equipment_template
+                    equipment_template
                 WHERE
                     name = '云锦仙袍'
             ),
@@ -626,7 +626,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_equipment_template
+                    equipment_template
                 WHERE
                     name = '玄武甲'
             ),
@@ -647,7 +647,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_equipment_template
+                    equipment_template
                 WHERE
                     name = '乾坤戒'
             ),
@@ -668,7 +668,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_equipment_template
+                    equipment_template
                 WHERE
                     name = '盘龙金带'
             ),
@@ -689,7 +689,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_equipment_template
+                    equipment_template
                 WHERE
                     name = '山河社稷图'
             ),

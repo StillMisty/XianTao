@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.event.enums.ActivityType;
 import top.stillmisty.xiantao.domain.notification.entity.GameEvent;
 import top.stillmisty.xiantao.domain.notification.enums.GameEventCategory;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.repository.MapNodeRepository;
 import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
@@ -32,7 +32,7 @@ class TrainingSettlementHandler implements StateHandler {
   private final UserRepository userRepository;
 
   @Override
-  public boolean tryResolve(User user) {
+  public boolean tryResolve(Player user) {
     if (user.getStatus() != UserStatus.TRAINING) return false;
     if (user.getActivityType() != ActivityType.TRAINING) return false;
     if (user.getActivityStartTime() == null) return false;

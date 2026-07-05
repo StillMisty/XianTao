@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 @EqualsAndHashCode
-@Table("xt_sect_task_progress")
+@Table("sect_task_progress")
 @Accessors(chain = true)
 @Data
 @SuppressWarnings("NullAway")

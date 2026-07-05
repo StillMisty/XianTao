@@ -4,7 +4,7 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.event.EventContext;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.service.SpiritStoneService;
 
 @Component
@@ -20,7 +20,7 @@ public class AddSpiritStonesEffect implements SubEventEffect {
 
   @Override
   public Map<String, Object> execute(
-      Long userId, User user, EffectParams params, EventContext context) {
+      Long userId, Player user, EffectParams params, EventContext context) {
     if (!(params instanceof EffectParams.AmountParams p)) return Map.of();
     long stones = p.resolveAmount();
     if (stones <= 0) return Map.of();

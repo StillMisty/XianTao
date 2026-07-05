@@ -11,24 +11,24 @@ import top.stillmisty.xiantao.domain.pill.entity.PlayerBuff;
 @Mapper
 public interface PlayerBuffMapper extends BaseMapper<PlayerBuff> {
 
-  @Select("SELECT * FROM xt_player_buff WHERE user_id = #{userId} AND expires_at > NOW()")
+  @Select("SELECT * FROM player_buff WHERE user_id = #{userId} AND expires_at > NOW()")
   List<PlayerBuff> selectActiveByUserId(@Param("userId") Long userId);
 
   @Select(
-      "SELECT * FROM xt_player_buff WHERE user_id = #{userId} AND buff_type = #{buffType} AND expires_at > NOW()")
+      "SELECT * FROM player_buff WHERE user_id = #{userId} AND buff_type = #{buffType} AND expires_at > NOW()")
   List<PlayerBuff> selectActiveByUserIdAndType(
       @Param("userId") Long userId, @Param("buffType") String buffType);
 
   @Select(
-      "SELECT COUNT(*) FROM xt_player_buff WHERE user_id = #{userId} AND buff_type = #{buffType} AND expires_at > NOW()")
+      "SELECT COUNT(*) FROM player_buff WHERE user_id = #{userId} AND buff_type = #{buffType} AND expires_at > NOW()")
   int countActiveByUserIdAndType(@Param("userId") Long userId, @Param("buffType") String buffType);
 
-  @Delete("DELETE FROM xt_player_buff WHERE user_id = #{userId} AND buff_type = #{buffType}")
+  @Delete("DELETE FROM player_buff WHERE user_id = #{userId} AND buff_type = #{buffType}")
   void deleteByUserIdAndType(@Param("userId") Long userId, @Param("buffType") String buffType);
 
-  @Delete("DELETE FROM xt_player_buff WHERE expires_at <= NOW()")
+  @Delete("DELETE FROM player_buff WHERE expires_at <= NOW()")
   void deleteExpired();
 
-  @Delete("DELETE FROM xt_player_buff WHERE user_id = #{userId} AND expires_at <= NOW()")
+  @Delete("DELETE FROM player_buff WHERE user_id = #{userId} AND expires_at <= NOW()")
   void deleteExpiredByUserId(@Param("userId") Long userId);
 }

@@ -12,7 +12,7 @@ import lombok.experimental.Accessors;
 import top.stillmisty.xiantao.domain.sect.enums.SectBuildingType;
 
 @EqualsAndHashCode
-@Table("xt_sect_building")
+@Table("sect_building")
 @Accessors(chain = true)
 @SuppressWarnings("NullAway")
 @Data

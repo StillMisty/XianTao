@@ -1,20 +1,20 @@
 /* 宗门共享功法表（玩家提交） */
 CREATE
     TABLE
-        xt_sect_shared_skill(
+        sect_shared_skill(
             id BIGSERIAL PRIMARY KEY,
             sect_id BIGINT NOT NULL,
             skill_id BIGINT NOT NULL,
             submitter_user_id BIGINT NOT NULL,
             status VARCHAR(16) NOT NULL DEFAULT 'PENDING',
             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            CONSTRAINT fk_sect_shared_skill_sect FOREIGN KEY(sect_id) REFERENCES xt_sect(id) ON
+            CONSTRAINT fk_sect_shared_skill_sect FOREIGN KEY(sect_id) REFERENCES sect(id) ON
             DELETE
                 CASCADE,
-                CONSTRAINT fk_sect_shared_skill_skill FOREIGN KEY(skill_id) REFERENCES xt_skill(id) ON
+                CONSTRAINT fk_sect_shared_skill_skill FOREIGN KEY(skill_id) REFERENCES skill(id) ON
                 DELETE
                     CASCADE,
-                    CONSTRAINT fk_sect_shared_skill_user FOREIGN KEY(submitter_user_id) REFERENCES xt_user(id) ON
+                    CONSTRAINT fk_sect_shared_skill_user FOREIGN KEY(submitter_user_id) REFERENCES player(id) ON
                     DELETE
                         CASCADE,
                         CONSTRAINT uq_sect_shared_skill UNIQUE(
@@ -31,35 +31,35 @@ CREATE
 
 COMMENT ON
 TABLE
-    xt_sect_shared_skill IS '宗门共享功法表（玩家提交）';
+    sect_shared_skill IS '宗门共享功法表（玩家提交）';
 
 COMMENT ON
-COLUMN xt_sect_shared_skill.id IS '记录ID';
+COLUMN sect_shared_skill.id IS '记录ID';
 
 COMMENT ON
-COLUMN xt_sect_shared_skill.sect_id IS '宗门ID';
+COLUMN sect_shared_skill.sect_id IS '宗门ID';
 
 COMMENT ON
-COLUMN xt_sect_shared_skill.skill_id IS '功法ID';
+COLUMN sect_shared_skill.skill_id IS '功法ID';
 
 COMMENT ON
-COLUMN xt_sect_shared_skill.submitter_user_id IS '提交者用户ID';
+COLUMN sect_shared_skill.submitter_user_id IS '提交者用户ID';
 
 COMMENT ON
-COLUMN xt_sect_shared_skill.status IS '状态：PENDING/​LISTED';
+COLUMN sect_shared_skill.status IS '状态：PENDING/​LISTED';
 
 COMMENT ON
-COLUMN xt_sect_shared_skill.created_at IS '提交时间';
+COLUMN sect_shared_skill.created_at IS '提交时间';
 
 CREATE
     INDEX idx_sect_shared_skill_sect ON
-    xt_sect_shared_skill(sect_id);
+    sect_shared_skill(sect_id);
 
 CREATE INDEX idx_sect_shared_skill_sect_status
-    ON xt_sect_shared_skill (sect_id, status);
+    ON sect_shared_skill (sect_id, status);
 
 CREATE INDEX idx_sect_shared_skill_submitter
-    ON xt_sect_shared_skill (submitter_user_id);
+    ON sect_shared_skill (submitter_user_id);
 
 CREATE INDEX idx_sect_shared_skill_skill
-    ON xt_sect_shared_skill (skill_id);
+    ON sect_shared_skill (skill_id);

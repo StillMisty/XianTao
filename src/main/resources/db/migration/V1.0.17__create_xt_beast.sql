@@ -1,7 +1,7 @@
--- 灵兽实体表 (xt_beast)
+-- 灵兽实体表 (beast)
 CREATE
     TABLE
-        xt_beast(
+        beast(
             id BIGSERIAL PRIMARY KEY,
             user_id BIGINT NOT NULL,
             fudi_id BIGINT NOT NULL,
@@ -62,68 +62,68 @@ CREATE
                 penned_cell_id IS NULL
                 OR penned_cell_id >= 1
             ),
-            CONSTRAINT fk_beast_user FOREIGN KEY(user_id) REFERENCES xt_user(id),
-            CONSTRAINT fk_beast_fudi FOREIGN KEY(fudi_id) REFERENCES xt_fudi(id),
-            CONSTRAINT fk_beast_template FOREIGN KEY(template_id) REFERENCES xt_beast_template(id)
+            CONSTRAINT fk_beast_user FOREIGN KEY(user_id) REFERENCES player(id),
+            CONSTRAINT fk_beast_fudi FOREIGN KEY(fudi_id) REFERENCES fudi(id),
+            CONSTRAINT fk_beast_template FOREIGN KEY(template_id) REFERENCES beast_template(id)
         );
 
 COMMENT ON
 TABLE
-    xt_beast IS '灵兽实体表（战斗化）';
+    beast IS '灵兽实体表（战斗化）';
 
 COMMENT ON
-COLUMN xt_beast.user_id IS 'FK → xt_user(id)';
+COLUMN beast.user_id IS 'FK → player(id)';
 
 COMMENT ON
-COLUMN xt_beast.fudi_id IS 'FK → xt_fudi(id)，所属福地';
+COLUMN beast.fudi_id IS 'FK → fudi(id)，所属福地';
 
 COMMENT ON
-COLUMN xt_beast.template_id IS 'FK → xt_beast_template(id)，灵兽模板';
+COLUMN beast.template_id IS 'FK → beast_template(id)，灵兽模板';
 
 COMMENT ON
-COLUMN xt_beast.gender IS '性别：YIN(阴)/YANG(阳)，孵化时随机分配，繁育需一阴一阳';
+COLUMN beast.gender IS '性别：YIN(阴)/YANG(阳)，孵化时随机分配，繁育需一阴一阳';
 
 COMMENT ON
-COLUMN xt_beast.quality IS '品质：MORTAL/SPIRIT/IMMORTAL/SAINT/DIVINE';
+COLUMN beast.quality IS '品质：MORTAL/SPIRIT/IMMORTAL/SAINT/DIVINE';
 
 COMMENT ON
-COLUMN xt_beast.mutation_traits IS '变异特质列表 JSONB';
+COLUMN beast.mutation_traits IS '变异特质列表 JSONB';
 
 COMMENT ON
-COLUMN xt_beast.skills IS '技能ID列表 JSONB，引用 xt_skill';
+COLUMN beast.skills IS '技能ID列表 JSONB，引用 skill';
 
 COMMENT ON
-COLUMN xt_beast.is_deployed IS '是否出战（福地选择）';
+COLUMN beast.is_deployed IS '是否出战（福地选择）';
 
 COMMENT ON
-COLUMN xt_beast.recovery_until IS '休养截止时间（阵亡后设置）';
+COLUMN beast.recovery_until IS '休养截止时间（阵亡后设置）';
 
 COMMENT ON
-COLUMN xt_beast.penned_cell_id IS '所属栏位编号，null = 栏外休憩';
+COLUMN beast.penned_cell_id IS '所属栏位编号，null = 栏外休憩';
 
 COMMENT ON
-COLUMN xt_beast.breeding_cooldown_until IS '繁育冷却截止时间，冷却期内不可繁育';
+COLUMN beast.breeding_cooldown_until IS '繁育冷却截止时间，冷却期内不可繁育';
 
 CREATE
     INDEX idx_beast_user_id ON
-    xt_beast(user_id);
+    beast(user_id);
 
 CREATE
     INDEX idx_beast_fudi_id ON
-    xt_beast(fudi_id);
+    beast(fudi_id);
 
 CREATE
     INDEX idx_beast_deployed ON
-    xt_beast(is_deployed);
+    beast(is_deployed);
 
 CREATE
     INDEX idx_beast_template_id ON
-    xt_beast(template_id);
+    beast(template_id);
 
 CREATE
     INDEX idx_beast_penned_cell ON
-    xt_beast(penned_cell_id);
+    beast(penned_cell_id);
 
 CREATE
     INDEX idx_beast_user_quality ON
-    xt_beast(user_id, quality);
+    beast(user_id, quality);

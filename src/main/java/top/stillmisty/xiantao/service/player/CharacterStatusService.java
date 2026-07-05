@@ -16,7 +16,7 @@ import top.stillmisty.xiantao.domain.item.entity.Equipment;
 import top.stillmisty.xiantao.domain.item.vo.CharacterStatusResult;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
 import top.stillmisty.xiantao.domain.user.entity.DaoProtection;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.repository.DaoProtectionRepository;
@@ -47,7 +47,7 @@ public class CharacterStatusService {
 
   /** 查看角色状态（状态） 包含：HP、属性、装扮（已穿戴装备）、境界进度（等级修为）、当前状态 */
   public CharacterStatusResult getCharacterStatusInternal(Long userId) {
-    User user = userStateService.loadUserReadOnly(userId);
+    Player user = userStateService.loadUserReadOnly(userId);
 
     EquipData equipData = buildEquipData(userId);
     ProtectionData protData = buildProtectionData(userId, user);
@@ -162,11 +162,11 @@ public class CharacterStatusService {
         summary, equipStr, equipCon, equipAgi, equipWis, equipAttack, equipDefense);
   }
 
-  private ProtectionData buildProtectionData(Long userId, User user) {
+  private ProtectionData buildProtectionData(Long userId, Player user) {
     List<DaoProtection> protectingList = daoProtectionRepository.findByProtectorId(userId);
     List<DaoProtection> protectedByList = daoProtectionRepository.findByProtegeId(userId);
 
-    Map<Long, User> userCache = buildUserCache(protectingList, protectedByList);
+    Map<Long, Player> userCache = buildUserCache(protectingList, protectedByList);
 
     List<CharacterStatusResult.ProtectionInfoVO> protectingVOList =
         convertToProtectionInfoVO(protectingList, user, userCache);
@@ -184,7 +184,7 @@ public class CharacterStatusService {
         protectingVOList, protectedByVOList, protectingList.size(), totalProtectionBonus);
   }
 
-  private TravelData buildTravelData(User user) {
+  private TravelData buildTravelData(Player user) {
     String locationName =
         mapNodeRepository.findById(user.getLocationId()).map(MapNode::getName).orElse("未知");
     Long travelDestinationId = null;
@@ -252,17 +252,17 @@ public class CharacterStatusService {
         equipment.getFinalDefense());
   }
 
-  private Map<Long, User> buildUserCache(
+  private Map<Long, Player> buildUserCache(
       List<DaoProtection> protectingList, List<DaoProtection> protectedByList) {
     var ids = new java.util.ArrayList<Long>();
     protectingList.forEach(p -> ids.add(p.getProtegeId()));
     protectedByList.forEach(p -> ids.add(p.getProtectorId()));
     if (ids.isEmpty()) return Map.of();
-    return userRepository.findByIds(ids).stream().collect(Collectors.toMap(User::getId, u -> u));
+    return userRepository.findByIds(ids).stream().collect(Collectors.toMap(Player::getId, u -> u));
   }
 
   private List<CharacterStatusResult.ProtectionInfoVO> convertToProtectionInfoVO(
-      List<DaoProtection> protections, User currentUser, Map<Long, User> userCache) {
+      List<DaoProtection> protections, Player currentUser, Map<Long, Player> userCache) {
     if (protections == null || protections.isEmpty()) {
       return List.of();
     }
@@ -273,7 +273,7 @@ public class CharacterStatusService {
     return protections.stream()
         .map(
             protection -> {
-              User targetUser = userCache.get(protection.getProtegeId());
+              Player targetUser = userCache.get(protection.getProtegeId());
               if (targetUser == null) {
                 return null;
               }
@@ -296,7 +296,7 @@ public class CharacterStatusService {
   }
 
   private List<CharacterStatusResult.ProtectionInfoVO> convertToProtectionInfoVOWithBonus(
-      List<DaoProtection> protections, User currentUser, Map<Long, User> userCache) {
+      List<DaoProtection> protections, Player currentUser, Map<Long, Player> userCache) {
     if (protections == null || protections.isEmpty()) {
       return List.of();
     }
@@ -307,7 +307,7 @@ public class CharacterStatusService {
     return protections.stream()
         .map(
             protection -> {
-              User protector = userCache.get(protection.getProtectorId());
+              Player protector = userCache.get(protection.getProtectorId());
               if (protector == null) {
                 return null;
               }
@@ -336,10 +336,10 @@ public class CharacterStatusService {
       List<DaoProtection> protections,
       java.util.function.Function<DaoProtection, Long> targetUserIdExtractor) {
     var userIds = protections.stream().map(targetUserIdExtractor).collect(Collectors.toSet());
-    Map<Long, User> users = buildUserCacheFromIds(userIds);
+    Map<Long, Player> users = buildUserCacheFromIds(userIds);
     List<Long> locationIds =
         users.values().stream()
-            .map(User::getLocationId)
+            .map(Player::getLocationId)
             .filter(Objects::nonNull)
             .distinct()
             .toList();
@@ -351,14 +351,14 @@ public class CharacterStatusService {
     return users.values().stream()
         .collect(
             Collectors.toMap(
-                User::getLocationId,
+                Player::getLocationId,
                 u -> locationNameMap.getOrDefault(u.getLocationId(), "未知"),
                 (a, b) -> a));
   }
 
-  private Map<Long, User> buildUserCacheFromIds(java.util.Set<Long> ids) {
+  private Map<Long, Player> buildUserCacheFromIds(java.util.Set<Long> ids) {
     if (ids.isEmpty()) return Map.of();
     return userRepository.findByIds(new ArrayList<>(ids)).stream()
-        .collect(Collectors.toMap(User::getId, u -> u));
+        .collect(Collectors.toMap(Player::getId, u -> u));
   }
 }

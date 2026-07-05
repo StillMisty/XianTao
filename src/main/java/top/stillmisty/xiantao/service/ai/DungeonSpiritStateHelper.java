@@ -1,4 +1,4 @@
-package top.stillmisty.xiantao.service.dungeon;
+package top.stillmisty.xiantao.service.ai;
 
 import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;

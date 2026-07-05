@@ -3,7 +3,7 @@ package top.stillmisty.xiantao.service.activity.effect;
 import java.util.Map;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.event.EventContext;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
 
@@ -26,7 +26,7 @@ public class AddItemEffect implements SubEventEffect {
 
   @Override
   public Map<String, Object> execute(
-      Long userId, User user, EffectParams params, EventContext context) {
+      Long userId, Player user, EffectParams params, EventContext context) {
     if (!(params instanceof EffectParams.AddItemParams p)) return Map.of();
     if (p.templateId() == null) return Map.of();
     int count = p.resolveCount();

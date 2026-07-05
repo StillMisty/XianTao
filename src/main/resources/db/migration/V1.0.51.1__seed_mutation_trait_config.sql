@@ -1,6 +1,6 @@
 INSERT
     INTO
-        xt_mutation_trait_config(
+        mutation_trait_config(
             name,
             chinese_name,
             description,

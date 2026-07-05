@@ -1,7 +1,7 @@
--- 物品实例表 (xt_inventory_item)
+-- 物品实例表 (inventory_item)
 -- 外键关联
 -- 唯一约束：同一用户同模板同属性合并为一行，不同属性分行为不同物品
-CREATE TABLE xt_inventory_item(
+CREATE TABLE inventory_item(
     id BIGSERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL,
     template_id BIGINT NOT NULL,
@@ -14,8 +14,8 @@ CREATE TABLE xt_inventory_item(
     tradable BOOLEAN NOT NULL DEFAULT TRUE,
     create_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     update_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_inventory_item_user FOREIGN KEY(user_id) REFERENCES xt_user(id) ON DELETE CASCADE,
-    CONSTRAINT fk_inventory_item_template FOREIGN KEY(template_id) REFERENCES xt_item_template(id),
+    CONSTRAINT fk_inventory_item_user FOREIGN KEY(user_id) REFERENCES player(id) ON DELETE CASCADE,
+    CONSTRAINT fk_inventory_item_template FOREIGN KEY(template_id) REFERENCES item_template(id),
     CONSTRAINT uk_user_template_props UNIQUE(user_id, template_id, properties_hash),
     CONSTRAINT chk_inventory_item_type CHECK(
         item_type IN(
@@ -34,25 +34,25 @@ CREATE TABLE xt_inventory_item(
 );
 
 -- 字段备注
-COMMENT ON TABLE xt_inventory_item IS '物品实例表 (堆叠类物品)';
-COMMENT ON COLUMN xt_inventory_item.id IS '物品实例ID';
-COMMENT ON COLUMN xt_inventory_item.user_id IS '持有者用户ID';
-COMMENT ON COLUMN xt_inventory_item.template_id IS '物品模板ID';
-COMMENT ON COLUMN xt_inventory_item.item_type IS '物品类型 (MATERIAL, SEED, BEAST_EGG, POTION, SKILL_JADE, RECIPE_SCROLL, HERB)';
-COMMENT ON COLUMN xt_inventory_item.name IS '物品名称 (从模板复制)';
-COMMENT ON COLUMN xt_inventory_item.quantity IS '数量';
-COMMENT ON COLUMN xt_inventory_item.tags IS '物品标签 JSONB，用于AI检索和NPC交互';
-COMMENT ON COLUMN xt_inventory_item.properties IS '类型特有属性 JSONB：
+COMMENT ON TABLE inventory_item IS '物品实例表 (堆叠类物品)';
+COMMENT ON COLUMN inventory_item.id IS '物品实例ID';
+COMMENT ON COLUMN inventory_item.user_id IS '持有者用户ID';
+COMMENT ON COLUMN inventory_item.template_id IS '物品模板ID';
+COMMENT ON COLUMN inventory_item.item_type IS '物品类型 (MATERIAL, SEED, BEAST_EGG, POTION, SKILL_JADE, RECIPE_SCROLL, HERB)';
+COMMENT ON COLUMN inventory_item.name IS '物品名称 (从模板复制)';
+COMMENT ON COLUMN inventory_item.quantity IS '数量';
+COMMENT ON COLUMN inventory_item.tags IS '物品标签 JSONB，用于AI检索和NPC交互';
+COMMENT ON COLUMN inventory_item.properties IS '类型特有属性 JSONB：
    丹药: {"grade": 3, "quality": "SUPERIOR"}
    药材: {"elements": {"wood": 3, "fire": 1, "water": 2}}
    其他: {}';
-COMMENT ON COLUMN xt_inventory_item.properties_hash IS 'properties 的确定性哈希值，用于唯一约束拆分不同属性的堆叠物品';
-COMMENT ON COLUMN xt_inventory_item.tradable IS '是否可出售给商铺掌柜，默认 TRUE';
-COMMENT ON COLUMN xt_inventory_item.create_time IS '创建时间';
-COMMENT ON COLUMN xt_inventory_item.update_time IS '更新时间';
+COMMENT ON COLUMN inventory_item.properties_hash IS 'properties 的确定性哈希值，用于唯一约束拆分不同属性的堆叠物品';
+COMMENT ON COLUMN inventory_item.tradable IS '是否可出售给商铺掌柜，默认 TRUE';
+COMMENT ON COLUMN inventory_item.create_time IS '创建时间';
+COMMENT ON COLUMN inventory_item.update_time IS '更新时间';
 
 -- 索引
-CREATE INDEX idx_inventory_item_user_id ON xt_inventory_item(user_id);
-CREATE INDEX idx_inventory_item_user_type ON xt_inventory_item(user_id, item_type);
-CREATE INDEX idx_inventory_item_name ON xt_inventory_item(name);
-CREATE INDEX idx_inventory_item_template_id ON xt_inventory_item(template_id);
+CREATE INDEX idx_inventory_item_user_id ON inventory_item(user_id);
+CREATE INDEX idx_inventory_item_user_type ON inventory_item(user_id, item_type);
+CREATE INDEX idx_inventory_item_name ON inventory_item(name);
+CREATE INDEX idx_inventory_item_template_id ON inventory_item(template_id);

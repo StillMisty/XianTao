@@ -13,7 +13,7 @@ import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 @SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table("xt_player_pill_recipe")
+@Table("player_pill_recipe")
 public class PlayerPillRecipe {
 
   @EqualsAndHashCode.Include

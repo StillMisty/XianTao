@@ -1,7 +1,7 @@
--- 灵兽变异特性配置表 (xt_mutation_trait_config)
+-- 灵兽变异特性配置表 (mutation_trait_config)
 CREATE
     TABLE
-        xt_mutation_trait_config(
+        mutation_trait_config(
             id BIGSERIAL PRIMARY KEY,
             name VARCHAR(64) NOT NULL UNIQUE,
             chinese_name VARCHAR(32) NOT NULL,
@@ -39,44 +39,44 @@ CREATE
 
 COMMENT ON
 TABLE
-    xt_mutation_trait_config IS '灵兽变异特性配置表';
+    mutation_trait_config IS '灵兽变异特性配置表';
 
 COMMENT ON
-COLUMN xt_mutation_trait_config.name IS '特性代码（唯一标识）';
+COLUMN mutation_trait_config.name IS '特性代码（唯一标识）';
 
 COMMENT ON
-COLUMN xt_mutation_trait_config.chinese_name IS '中文名称';
+COLUMN mutation_trait_config.chinese_name IS '中文名称';
 
 COMMENT ON
-COLUMN xt_mutation_trait_config.description IS '效果描述';
+COLUMN mutation_trait_config.description IS '效果描述';
 
 COMMENT ON
-COLUMN xt_mutation_trait_config.category IS '分类：ATTACK/DEFENSE/SPEED/PRODUCTION/BREAKTHROUGH/EXP/BREEDING/COMBAT';
+COLUMN mutation_trait_config.category IS '分类：ATTACK/DEFENSE/SPEED/PRODUCTION/BREAKTHROUGH/EXP/BREEDING/COMBAT';
 
 COMMENT ON
-COLUMN xt_mutation_trait_config.effects IS '效果数组 JSONB，示例: [{"type":"ATTACK_PERCENT","value":15}]';
+COLUMN mutation_trait_config.effects IS '效果数组 JSONB，示例: [{"type":"ATTACK_PERCENT","value":15}]';
 
 COMMENT ON
-COLUMN xt_mutation_trait_config.required_tags IS '所需tags JSONB，null=通用，需全部包含';
+COLUMN mutation_trait_config.required_tags IS '所需tags JSONB，null=通用，需全部包含';
 
 COMMENT ON
-COLUMN xt_mutation_trait_config.required_quality IS '最低品质要求，null=无限制';
+COLUMN mutation_trait_config.required_quality IS '最低品质要求，null=无限制';
 
 COMMENT ON
-COLUMN xt_mutation_trait_config.is_active IS '是否启用';
+COLUMN mutation_trait_config.is_active IS '是否启用';
 
 COMMENT ON
-COLUMN xt_mutation_trait_config.sort_order IS '排序顺序';
+COLUMN mutation_trait_config.sort_order IS '排序顺序';
 
 CREATE
     INDEX idx_mutation_trait_category ON
-    xt_mutation_trait_config(category);
+    mutation_trait_config(category);
 
 CREATE
     INDEX idx_mutation_trait_active ON
-    xt_mutation_trait_config(is_active);
+    mutation_trait_config(is_active);
 
 CREATE
     INDEX idx_mutation_trait_tags ON
-    xt_mutation_trait_config
+    mutation_trait_config
         USING GIN(required_tags);

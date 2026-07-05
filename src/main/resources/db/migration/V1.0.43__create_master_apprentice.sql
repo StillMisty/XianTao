@@ -9,10 +9,10 @@ CREATE
             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             graduated_at TIMESTAMP,
             cooldown_until TIMESTAMP,
-            CONSTRAINT fk_ma_master FOREIGN KEY(master_id) REFERENCES xt_user(id) ON
+            CONSTRAINT fk_ma_master FOREIGN KEY(master_id) REFERENCES player(id) ON
             DELETE
                 CASCADE,
-                CONSTRAINT fk_ma_apprentice FOREIGN KEY(apprentice_id) REFERENCES xt_user(id) ON
+                CONSTRAINT fk_ma_apprentice FOREIGN KEY(apprentice_id) REFERENCES player(id) ON
                 DELETE
                     CASCADE,
                     CONSTRAINT uq_ma_apprentice UNIQUE(apprentice_id),

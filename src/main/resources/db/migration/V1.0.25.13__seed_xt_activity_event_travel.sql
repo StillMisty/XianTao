@@ -10,7 +10,7 @@
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -69,7 +69,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '灵芝'
                         ),
@@ -77,7 +77,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '玄铁矿石'
                         )
@@ -109,7 +109,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '灵芝'
                         ),
@@ -117,7 +117,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '灵木'
                         )
@@ -202,7 +202,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '玄铁矿石'
                     ),
@@ -244,7 +244,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '玄铁矿石'
                         ),
@@ -252,7 +252,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '兽骨'
                         )
@@ -305,7 +305,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '灵芝'
                         ),
@@ -313,7 +313,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '玄铁矿石'
                         ),
@@ -321,7 +321,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '灵木'
                         )
@@ -380,7 +380,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '玄铁矿石'
                         ),
@@ -388,7 +388,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '寒铁'
                         ),
@@ -396,7 +396,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '朱砂'
                         )
@@ -488,7 +488,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '地火芝'
                         ),
@@ -496,7 +496,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '寒铁'
                         ),
@@ -504,7 +504,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '朱砂'
                         )
@@ -600,7 +600,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '天外陨铁'
                     ),
@@ -630,7 +630,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '天外陨铁'
                     ),
@@ -654,7 +654,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_item_template
+                    item_template
                 WHERE
                     name = '魂玉碎片'
             )
@@ -703,7 +703,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '天外陨铁'
                     ),
@@ -834,7 +834,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '玄铁矿石'
                     ),
@@ -892,7 +892,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '玄铁矿石'
                         ),
@@ -900,7 +900,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '寒铁'
                         )
@@ -964,7 +964,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '朱砂'
                     ),
@@ -1108,7 +1108,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '玄铁矿石'
                         ),
@@ -1116,7 +1116,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '紫金砂'
                         )
@@ -1175,7 +1175,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '灵芝'
                         ),
@@ -1183,7 +1183,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '地火芝'
                         ),
@@ -1191,7 +1191,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '灵木'
                         )
@@ -1303,7 +1303,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '天外陨铁'
                     ),
@@ -1533,7 +1533,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '天外陨铁'
                     ),
@@ -1555,7 +1555,7 @@ INSERT
 -- =================================================================
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -1586,7 +1586,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '大悟道丹'
                     ),
@@ -1610,7 +1610,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_item_template
+                    item_template
                 WHERE
                     name = '九转金莲'
             )
@@ -1647,7 +1647,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '刑天斧法'
             )
@@ -1682,7 +1682,7 @@ INSERT
 -- =================================================================
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -1731,7 +1731,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '朱砂'
                         ),
@@ -1739,7 +1739,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '玄晶'
                         )
@@ -1798,7 +1798,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '灵芝'
                         ),
@@ -1806,7 +1806,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '地火芝'
                         ),
@@ -1814,7 +1814,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '灵木'
                         )
@@ -1878,7 +1878,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '魂玉碎片'
                     ),
@@ -1942,7 +1942,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '寒铁'
                         ),
@@ -1950,7 +1950,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '朱砂'
                         ),
@@ -1958,7 +1958,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '紫金砂'
                         )
@@ -1995,7 +1995,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '灵芝'
                     ),
@@ -2106,7 +2106,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_item_template
+                    item_template
                 WHERE
                     name = '魂玉碎片'
             )
@@ -2128,7 +2128,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '天外陨铁'
                     ),
@@ -2231,7 +2231,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '天外陨铁'
                         ),
@@ -2239,7 +2239,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '紫金砂'
                         )
@@ -2317,7 +2317,7 @@ INSERT
 -- =================================================================
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -2355,7 +2355,7 @@ INSERT
                                 SELECT
                                     id
                                 FROM
-                                    xt_item_template
+                                    item_template
                                 WHERE
                                     name = '万剑归宗玉简'
                             ),
@@ -2379,7 +2379,7 @@ INSERT
                                 SELECT
                                     id
                                 FROM
-                                    xt_item_template
+                                    item_template
                                 WHERE
                                     name = '火蟾卵'
                             ),
@@ -2439,7 +2439,7 @@ INSERT
                                 SELECT
                                     id
                                 FROM
-                                    xt_item_template
+                                    item_template
                                 WHERE
                                     name = '青冥剑图'
                             ),
@@ -2463,7 +2463,7 @@ INSERT
                                 SELECT
                                     id
                                 FROM
-                                    xt_item_template
+                                    item_template
                                 WHERE
                                     name = '雪狐卵'
                             ),
@@ -2517,7 +2517,7 @@ INSERT
                                 SELECT
                                     id
                                 FROM
-                                    xt_equipment_template
+                                    equipment_template
                                 WHERE
                                     name = '纯钧剑'
                             )
@@ -2539,7 +2539,7 @@ INSERT
                                 SELECT
                                     id
                                 FROM
-                                    xt_item_template
+                                    item_template
                                 WHERE
                                     name = '碧鳞蛇卵'
                             ),
@@ -2563,7 +2563,7 @@ INSERT
                                 SELECT
                                     id
                                 FROM
-                                    xt_item_template
+                                    item_template
                                 WHERE
                                     name = '聚灵丹'
                             ),
@@ -2608,7 +2608,7 @@ INSERT
                                 SELECT
                                     id
                                 FROM
-                                    xt_item_template
+                                    item_template
                                 WHERE
                                     name = '轩辕剑法玉简'
                             ),
@@ -2632,7 +2632,7 @@ INSERT
                                 SELECT
                                     id
                                 FROM
-                                    xt_item_template
+                                    item_template
                                 WHERE
                                     name = '青鸾卵'
                             ),
@@ -2662,7 +2662,7 @@ INSERT
                                 SELECT
                                     id
                                 FROM
-                                    xt_item_template
+                                    item_template
                                 WHERE
                                     name = '天元丹'
                             ),
@@ -2701,7 +2701,7 @@ INSERT
                                 SELECT
                                     id
                                 FROM
-                                    xt_equipment_template
+                                    equipment_template
                                 WHERE
                                     name = '龙雀刀'
                             )
@@ -2723,7 +2723,7 @@ INSERT
                                 SELECT
                                     id
                                 FROM
-                                    xt_item_template
+                                    item_template
                                 WHERE
                                     name = '金翼雕卵'
                             ),
@@ -2747,7 +2747,7 @@ INSERT
                                 SELECT
                                     id
                                 FROM
-                                    xt_item_template
+                                    item_template
                                 WHERE
                                     name = '太乙金丹'
                             ),
@@ -2769,7 +2769,7 @@ INSERT
 -- 旅行商人事件变体扩展 (CHOICE事件)
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -2790,7 +2790,7 @@ INSERT
                     'key', 'A',
                     'text', '云来村口的茶摊旁，一位老翁摆着地摊——「灵猫卵，温顺通灵，五百灵石拿去。」',
                     'effects', jsonb_build_array(
-                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name = '灵猫卵'), 'count', 1),
+                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM item_template WHERE name = '灵猫卵'), 'count', 1),
                         jsonb_build_object('type', 'TAKE_SPIRIT_STONES', 'amount', 500)
                     )
                 ),
@@ -2798,7 +2798,7 @@ INSERT
                     'key', 'B',
                     'text', '老翁压低声音从袖中摸出一枚泛着霞光的卵——「九色鹿卵，祥瑞之兆，两千五百灵石，有缘者得。」',
                     'effects', jsonb_build_array(
-                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name = '九色鹿卵'), 'count', 1),
+                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM item_template WHERE name = '九色鹿卵'), 'count', 1),
                         jsonb_build_object('type', 'TAKE_SPIRIT_STONES', 'amount', 2500)
                     )
                 ),
@@ -2826,7 +2826,7 @@ INSERT
                     'key', 'A',
                     'text', '灵虚洞天入口处，一位鹤发童颜的老者席地而坐——「灵鲤卵，水中精灵，六百灵石。」',
                     'effects', jsonb_build_array(
-                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name = '灵鲤卵'), 'count', 1),
+                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM item_template WHERE name = '灵鲤卵'), 'count', 1),
                         jsonb_build_object('type', 'TAKE_SPIRIT_STONES', 'amount', 600)
                     )
                 ),
@@ -2834,7 +2834,7 @@ INSERT
                     'key', 'B',
                     'text', '老者从怀中取出一枚雪白的卵，表面隐约有祥云纹路——「白泽幼卵，通晓万物，两千灵石，你我有缘。」',
                     'effects', jsonb_build_array(
-                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name = '白泽幼卵'), 'count', 1),
+                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM item_template WHERE name = '白泽幼卵'), 'count', 1),
                         jsonb_build_object('type', 'TAKE_SPIRIT_STONES', 'amount', 2000)
                     )
                 ),
@@ -2842,7 +2842,7 @@ INSERT
                     'key', 'C',
                     'text', '你拱手谢绝，老者微微颔首：「心性不错，这枚丹药送你。」',
                     'effects', jsonb_build_array(
-                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name = '小聚灵丹'), 'count', 1)
+                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM item_template WHERE name = '小聚灵丹'), 'count', 1)
                     )
                 )
             )
@@ -2861,7 +2861,7 @@ INSERT
                     'key', 'A',
                     'text', '青云门遗址的断壁残垣间，一位蒙面人拦住去路——「别怕，我卖灵蛇卵的，五百灵石一条。」',
                     'effects', jsonb_build_array(
-                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name = '灵蛇卵'), 'count', 1),
+                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM item_template WHERE name = '灵蛇卵'), 'count', 1),
                         jsonb_build_object('type', 'TAKE_SPIRIT_STONES', 'amount', 500)
                     )
                 ),
@@ -2869,7 +2869,7 @@ INSERT
                     'key', 'B',
                     'text', '蒙面人从背后摸出一枚幽蓝的卵——「玄水蛇卵，此地水脉所孕，一千八百灵石。」',
                     'effects', jsonb_build_array(
-                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name = '玄水蛇卵'), 'count', 1),
+                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM item_template WHERE name = '玄水蛇卵'), 'count', 1),
                         jsonb_build_object('type', 'TAKE_SPIRIT_STONES', 'amount', 1800)
                     )
                 ),
@@ -2877,7 +2877,7 @@ INSERT
                     'key', 'C',
                     'text', '你警惕后退，蒙面人叹了口气：「罢了，这枚丹药算赔罪。」',
                     'effects', jsonb_build_array(
-                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name = '培元丹'), 'count', 1)
+                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM item_template WHERE name = '培元丹'), 'count', 1)
                     )
                 )
             )
@@ -2896,7 +2896,7 @@ INSERT
                     'key', 'A',
                     'text', '归墟海外围的礁石上，一位渔夫打扮的汉子招手——「雪兔卵，冰原灵兽，七百灵石。」',
                     'effects', jsonb_build_array(
-                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name = '雪兔卵'), 'count', 1),
+                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM item_template WHERE name = '雪兔卵'), 'count', 1),
                         jsonb_build_object('type', 'TAKE_SPIRIT_STONES', 'amount', 700)
                     )
                 ),
@@ -2904,7 +2904,7 @@ INSERT
                     'key', 'B',
                     'text', '汉子从船舱里取出一枚泛着寒气的卵——「霜狼卵，此兽凶猛但忠主，两千二百灵石。」',
                     'effects', jsonb_build_array(
-                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name = '霜狼卵'), 'count', 1),
+                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM item_template WHERE name = '霜狼卵'), 'count', 1),
                         jsonb_build_object('type', 'TAKE_SPIRIT_STONES', 'amount', 2200)
                     )
                 ),
@@ -2912,7 +2912,7 @@ INSERT
                     'key', 'C',
                     'text', '你摆手拒绝，汉子也不纠缠：「那这壶酒算我请你的，暖暖身子。」',
                     'effects', jsonb_build_array(
-                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name = '聚灵丹'), 'count', 1)
+                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM item_template WHERE name = '聚灵丹'), 'count', 1)
                     )
                 )
             )
@@ -2931,7 +2931,7 @@ INSERT
                     'key', 'A',
                     'text', '飞云城集市角落，一位红衣女子守着几枚火红的卵——「火鼠卵，五百灵石，城里独一份。」',
                     'effects', jsonb_build_array(
-                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name = '火鼠卵'), 'count', 1),
+                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM item_template WHERE name = '火鼠卵'), 'count', 1),
                         jsonb_build_object('type', 'TAKE_SPIRIT_STONES', 'amount', 500)
                     )
                 ),
@@ -2939,7 +2939,7 @@ INSERT
                     'key', 'B',
                     'text', '女子神秘一笑取出一枚金红相间的卵——「火鸦卵，天生灵禽，一千六百灵石。」',
                     'effects', jsonb_build_array(
-                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name = '火鸦卵'), 'count', 1),
+                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM item_template WHERE name = '火鸦卵'), 'count', 1),
                         jsonb_build_object('type', 'TAKE_SPIRIT_STONES', 'amount', 1600)
                     )
                 ),
@@ -2947,7 +2947,7 @@ INSERT
                     'key', 'C',
                     'text', '你婉言谢绝，女子掩嘴轻笑：「不碍事，这枚丹药送你路上用。」',
                     'effects', jsonb_build_array(
-                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name = '小聚灵丹'), 'count', 1)
+                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM item_template WHERE name = '小聚灵丹'), 'count', 1)
                     )
                 )
             )
@@ -2966,7 +2966,7 @@ INSERT
                     'key', 'A',
                     'text', '天机阁外山的山道上，一位书生模样的青年背着竹篓——「云鸽卵，六百灵石，此鸟最善传书。」',
                     'effects', jsonb_build_array(
-                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name = '云鸽卵'), 'count', 1),
+                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM item_template WHERE name = '云鸽卵'), 'count', 1),
                         jsonb_build_object('type', 'TAKE_SPIRIT_STONES', 'amount', 600)
                     )
                 ),
@@ -2974,7 +2974,7 @@ INSERT
                     'key', 'B',
                     'text', '青年从篓中取出一枚七彩流光的卵——「青鸾卵，祥瑞灵禽，两千灵石，天机阁弟子特供。」',
                     'effects', jsonb_build_array(
-                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name = '青鸾卵'), 'count', 1),
+                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM item_template WHERE name = '青鸾卵'), 'count', 1),
                         jsonb_build_object('type', 'TAKE_SPIRIT_STONES', 'amount', 2000)
                     )
                 ),
@@ -2982,7 +2982,7 @@ INSERT
                     'key', 'C',
                     'text', '你摇头走过，青年拱手：「无妨，这枚丹药权当结个善缘。」',
                     'effects', jsonb_build_array(
-                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name = '培元丹'), 'count', 1)
+                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM item_template WHERE name = '培元丹'), 'count', 1)
                     )
                 )
             )
@@ -3001,7 +3001,7 @@ INSERT
                     'key', 'A',
                     'text', '幽冥谷深处的暗河边，一位黑衣人蹲在石上——「水蛙卵，七百灵石，此兽通水性。」',
                     'effects', jsonb_build_array(
-                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name = '水蛙卵'), 'count', 1),
+                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM item_template WHERE name = '水蛙卵'), 'count', 1),
                         jsonb_build_object('type', 'TAKE_SPIRIT_STONES', 'amount', 700)
                     )
                 ),
@@ -3009,7 +3009,7 @@ INSERT
                     'key', 'B',
                     'text', '黑衣人从暗河中捞出一枚幽绿的卵——「碧水蛟卵，此地水脉精华所凝，两千二百灵石。」',
                     'effects', jsonb_build_array(
-                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name = '碧水蛟卵'), 'count', 1),
+                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM item_template WHERE name = '碧水蛟卵'), 'count', 1),
                         jsonb_build_object('type', 'TAKE_SPIRIT_STONES', 'amount', 2200)
                     )
                 ),
@@ -3017,7 +3017,7 @@ INSERT
                     'key', 'C',
                     'text', '你心生警惕转身便走，黑衣人也不追赶：「胆小鬼，这丹药拿去压压惊。」',
                     'effects', jsonb_build_array(
-                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name = '聚灵丹'), 'count', 1)
+                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM item_template WHERE name = '聚灵丹'), 'count', 1)
                     )
                 )
             )
@@ -3036,7 +3036,7 @@ INSERT
                     'key', 'A',
                     'text', '迷雾沼泽的木桥上，一位采药女背着药篓——「风蝶卵，五百灵石，此蝶能辨风向。」',
                     'effects', jsonb_build_array(
-                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name = '风蝶卵'), 'count', 1),
+                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM item_template WHERE name = '风蝶卵'), 'count', 1),
                         jsonb_build_object('type', 'TAKE_SPIRIT_STONES', 'amount', 500)
                     )
                 ),
@@ -3044,7 +3044,7 @@ INSERT
                     'key', 'B',
                     'text', '采药女从篓中取出一枚紫电缠绕的卵——「雷雀卵，沼泽雷暴所生，一千六百灵石。」',
                     'effects', jsonb_build_array(
-                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name = '雷雀卵'), 'count', 1),
+                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM item_template WHERE name = '雷雀卵'), 'count', 1),
                         jsonb_build_object('type', 'TAKE_SPIRIT_STONES', 'amount', 1600)
                     )
                 ),
@@ -3052,7 +3052,7 @@ INSERT
                     'key', 'C',
                     'text', '你摆手谢绝，采药女莞尔：「那这株草药送你，沼泽里用得上。」',
                     'effects', jsonb_build_array(
-                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name = '小聚灵丹'), 'count', 1)
+                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM item_template WHERE name = '小聚灵丹'), 'count', 1)
                     )
                 )
             )
@@ -3071,7 +3071,7 @@ INSERT
                     'key', 'A',
                     'text', '天剑宗遗址的剑碑前，一位铸剑师模样的大汉——「金蝉卵，六百灵石，此虫能食金铁。」',
                     'effects', jsonb_build_array(
-                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name = '金蝉卵'), 'count', 1),
+                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM item_template WHERE name = '金蝉卵'), 'count', 1),
                         jsonb_build_object('type', 'TAKE_SPIRIT_STONES', 'amount', 600)
                     )
                 ),
@@ -3079,7 +3079,7 @@ INSERT
                     'key', 'B',
                     'text', '大汉从怀中取出一枚金光闪闪的卵——「金蛇卵，剑气所养，一千八百灵石。」',
                     'effects', jsonb_build_array(
-                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name = '金蛇卵'), 'count', 1),
+                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM item_template WHERE name = '金蛇卵'), 'count', 1),
                         jsonb_build_object('type', 'TAKE_SPIRIT_STONES', 'amount', 1800)
                     )
                 ),
@@ -3087,7 +3087,7 @@ INSERT
                     'key', 'C',
                     'text', '你摇头离去，大汉喊住你：「等等！这丹药你拿着，剑修不易。」',
                     'effects', jsonb_build_array(
-                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name = '培元丹'), 'count', 1)
+                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM item_template WHERE name = '培元丹'), 'count', 1)
                     )
                 )
             )
@@ -3106,7 +3106,7 @@ INSERT
                     'key', 'A',
                     'text', '魔王岭的山脚茶棚里，一位胖商人满面堆笑——「福鼠卵，五百灵石，此鼠能招财。」',
                     'effects', jsonb_build_array(
-                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name = '福鼠卵'), 'count', 1),
+                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM item_template WHERE name = '福鼠卵'), 'count', 1),
                         jsonb_build_object('type', 'TAKE_SPIRIT_STONES', 'amount', 500)
                     )
                 ),
@@ -3114,7 +3114,7 @@ INSERT
                     'key', 'B',
                     'text', '胖商人神秘兮兮地取出一枚泛着银光的卵——「瑞兔卵，月华所孕，一千五百灵石，买了保平安。」',
                     'effects', jsonb_build_array(
-                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name = '瑞兔卵'), 'count', 1),
+                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM item_template WHERE name = '瑞兔卵'), 'count', 1),
                         jsonb_build_object('type', 'TAKE_SPIRIT_STONES', 'amount', 1500)
                     )
                 ),
@@ -3122,7 +3122,7 @@ INSERT
                     'key', 'C',
                     'text', '你笑着摇头，胖商人也不介意：「不买没关系，这茶算我请客！」',
                     'effects', jsonb_build_array(
-                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM xt_item_template WHERE name = '聚灵丹'), 'count', 1)
+                        jsonb_build_object('type', 'ADD_ITEM', 'template_id', (SELECT id FROM item_template WHERE name = '聚灵丹'), 'count', 1)
                     )
                 )
             )

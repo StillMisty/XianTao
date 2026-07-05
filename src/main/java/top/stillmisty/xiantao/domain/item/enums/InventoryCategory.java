@@ -15,7 +15,15 @@ public enum InventoryCategory {
   SKILL_JADE("法决玉简"),
   RECIPE_SCROLL("丹方卷轴"),
   FORGING_BLUEPRINT("锻造图纸"),
-  BEAST_ESSENCE("灵兽精华");
+  BEAST_ESSENCE("灵兽精华"),
+  ALL("全部");
+
+  /** 枚举参数描述（供 @ToolParam 引用，在 LLM 调用侧显示可用值及其中文含义） */
+  public static final String PARAM_DESCRIPTION =
+      "物品类别: SEED(种子) BEAST_EGG(兽卵) POTION(丹药) HERB(药材) EQUIPMENT(装备)"
+          + " MATERIAL(锻材) SKILL_JADE(法决玉简) RECIPE_SCROLL(丹方卷轴)"
+          + " FORGING_BLUEPRINT(锻造图纸) BEAST_ESSENCE(灵兽精华) |"
+          + " ALL=查看全部";
 
   private final String chineseName;
 
@@ -36,6 +44,7 @@ public enum InventoryCategory {
       case FORGING_BLUEPRINT -> ItemType.FORGING_BLUEPRINT;
       case BEAST_ESSENCE -> ItemType.BEAST_ESSENCE;
       case EQUIPMENT -> null;
+      case ALL -> null;
     };
   }
 }

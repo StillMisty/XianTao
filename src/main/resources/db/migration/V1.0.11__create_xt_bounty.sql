@@ -1,7 +1,7 @@
 -- 悬赏配置表
 CREATE
     TABLE
-        xt_bounty(
+        bounty(
             id BIGSERIAL PRIMARY KEY,
             map_id BIGINT NOT NULL,
             name VARCHAR(100) NOT NULL,
@@ -13,7 +13,7 @@ CREATE
             is_unique BOOLEAN NOT NULL DEFAULT FALSE,
             create_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             update_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            CONSTRAINT fk_bounty_map FOREIGN KEY(map_id) REFERENCES xt_map_node(id),
+            CONSTRAINT fk_bounty_map FOREIGN KEY(map_id) REFERENCES map_node(id),
             CONSTRAINT chk_bounty_duration CHECK(
                 duration_minutes > 0
             ),
@@ -27,32 +27,32 @@ CREATE
 
 COMMENT ON
 TABLE
-    xt_bounty IS '悬赏任务配置表';
+    bounty IS '悬赏任务配置表';
 
 COMMENT ON
-COLUMN xt_bounty.map_id IS '所属地图 ID';
+COLUMN bounty.map_id IS '所属地图 ID';
 
 COMMENT ON
-COLUMN xt_bounty.name IS '悬赏名称';
+COLUMN bounty.name IS '悬赏名称';
 
 COMMENT ON
-COLUMN xt_bounty.description IS '悬赏描述';
+COLUMN bounty.description IS '悬赏描述';
 
 COMMENT ON
-COLUMN xt_bounty.duration_minutes IS '悬赏耗时（分钟）';
+COLUMN bounty.duration_minutes IS '悬赏耗时（分钟）';
 
 COMMENT ON
-COLUMN xt_bounty.rewards IS '奖励池 JSONB，type 区分类型: 稀有物品 {"type":"rare_item","weight":60,"min":1,"max":2,"template_id":123}, 灵石 {"type":"spirit_stones","weight":40,"min":100,"max":200}, 兽卵 {"type":"beast_egg","weight":20,"name":"灵兽蛋"}, 装备 {"type":"equipment","weight":30,"template_id":456}';
+COLUMN bounty.rewards IS '奖励池 JSONB，type 区分类型: 稀有物品 {"type":"rare_item","weight":60,"min":1,"max":2,"template_id":123}, 灵石 {"type":"spirit_stones","weight":40,"min":100,"max":200}, 兽卵 {"type":"beast_egg","weight":20,"name":"灵兽蛋"}, 装备 {"type":"equipment","weight":30,"template_id":456}';
 
 COMMENT ON
-COLUMN xt_bounty.require_level IS '最低接取等级';
+COLUMN bounty.require_level IS '最低接取等级';
 
 COMMENT ON
-COLUMN xt_bounty.event_weight IS '旅行事件触发权重';
+COLUMN bounty.event_weight IS '旅行事件触发权重';
 
 COMMENT ON
-COLUMN xt_bounty.is_unique IS '是否为唯一悬赏（完成后不可再接取）';
+COLUMN bounty.is_unique IS '是否为唯一悬赏（完成后不可再接取）';
 
 CREATE
     INDEX idx_bounty_map_id ON
-    xt_bounty(map_id);
+    bounty(map_id);

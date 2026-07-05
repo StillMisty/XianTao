@@ -8,7 +8,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.notification.entity.GameEvent;
 import top.stillmisty.xiantao.domain.notification.enums.GameEventCategory;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.GameEventService;
@@ -24,7 +24,7 @@ class HpRecoveryHandler implements StateHandler {
   private final GameEventService gameEventService;
 
   @Override
-  public boolean tryResolve(User user) {
+  public boolean tryResolve(Player user) {
     if (user.getStatus() != UserStatus.IDLE) return false;
 
     int maxHp = user.calculateMaxHp();

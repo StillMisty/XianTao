@@ -1,7 +1,7 @@
--- 怪物模板表 (xt_monster_template)
+-- 怪物模板表 (monster_template)
 CREATE
     TABLE
-        xt_monster_template(
+        monster_template(
             id BIGSERIAL PRIMARY KEY,
             name VARCHAR(64) NOT NULL,
             description TEXT,
@@ -51,26 +51,26 @@ CREATE
 
 CREATE
     INDEX idx_monster_template_type_level ON
-    xt_monster_template(monster_type, base_level);
+    monster_template(monster_type, base_level);
 
 COMMENT ON
 TABLE
-    xt_monster_template IS '怪物模板表';
+    monster_template IS '怪物模板表';
 
 COMMENT ON
-COLUMN xt_monster_template.description IS '怪物描述';
+COLUMN monster_template.description IS '怪物描述';
 
 COMMENT ON
-COLUMN xt_monster_template.monster_type IS 'BEAST / SPIRIT / ARMORED / WILD_BEAST / EVIL / FLYING / HUMAN';
+COLUMN monster_template.monster_type IS 'BEAST / SPIRIT / ARMORED / WILD_BEAST / EVIL / FLYING / HUMAN';
 
 COMMENT ON
-COLUMN xt_monster_template.exp_reward IS '击杀修为';
+COLUMN monster_template.exp_reward IS '击杀修为';
 
 COMMENT ON
-COLUMN xt_monster_template.skills IS '法决ID列表 JSONB，如 [1, 2, 3]';
+COLUMN monster_template.skills IS '法决ID列表 JSONB，如 [1, 2, 3]';
 
 COMMENT ON
-COLUMN xt_monster_template.drop_table IS '掉落表 JSONB: [{"category": "equipment", "templateId": 1, "weight": 50}]';
+COLUMN monster_template.drop_table IS '掉落表 JSONB: [{"category": "equipment", "templateId": 1, "weight": 50}]';
 
 COMMENT ON
-COLUMN xt_monster_template.tags IS '标签列表 JSONB，如 ["beast", "fire"]';
+COLUMN monster_template.tags IS '标签列表 JSONB，如 ["beast", "fire"]';

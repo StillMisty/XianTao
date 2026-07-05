@@ -3,7 +3,7 @@ CREATE TABLE dungeon_spirit_state(
     id                BIGSERIAL PRIMARY KEY,
     instance_id       BIGINT NOT NULL REFERENCES dungeon_instance(id),
     dungeon_id        BIGINT NOT NULL REFERENCES dungeon_template(id),
-    user_id           BIGINT NOT NULL REFERENCES xt_user(id),
+    user_id           BIGINT NOT NULL REFERENCES player(id),
     favor             INT NOT NULL DEFAULT 0,
     favor_log         JSONB,
     hidden_finds      JSONB NOT NULL DEFAULT '[]'::jsonb,

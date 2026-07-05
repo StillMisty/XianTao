@@ -13,7 +13,7 @@ import top.stillmisty.xiantao.domain.map.entity.MapNode;
 import top.stillmisty.xiantao.domain.map.entity.NeighborEntry;
 import top.stillmisty.xiantao.domain.map.vo.MapInfoVO;
 import top.stillmisty.xiantao.domain.monster.entity.MonsterTemplate;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.infrastructure.repository.ActivityEventRepository;
 import top.stillmisty.xiantao.infrastructure.repository.MapNodeRepository;
 import top.stillmisty.xiantao.infrastructure.repository.MonsterTemplateRepository;
@@ -64,7 +64,7 @@ public class MapService {
 
   /** 获取当前所在地图详情 */
   public MapInfoVO loadCurrentMapInfo(Long userId) {
-    User user = userStateService.loadUser(userId);
+    Player user = userStateService.loadUser(userId);
     MapNode mapNode =
         mapNodeRepository
             .findById(user.getLocationId())

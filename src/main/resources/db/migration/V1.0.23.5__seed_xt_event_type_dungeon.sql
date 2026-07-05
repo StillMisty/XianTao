@@ -1,7 +1,7 @@
 -- DUNGEON 事件类型种子
 INSERT
     INTO
-        xt_event_type(
+        event_type(
             activity_type,
             code,
             name,

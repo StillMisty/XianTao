@@ -32,7 +32,7 @@ import top.stillmisty.xiantao.domain.shop.vo.PlayerItemsVO;
 import top.stillmisty.xiantao.domain.shop.vo.ProductListVO;
 import top.stillmisty.xiantao.domain.shop.vo.PurchaseResult;
 import top.stillmisty.xiantao.domain.shop.vo.SellResult;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.infrastructure.repository.EquipmentRepository;
 import top.stillmisty.xiantao.infrastructure.repository.EquipmentTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
@@ -75,14 +75,14 @@ public class ShopService {
 
   @Transactional
   public ServiceResult<PurchaseResult> purchaseItem(Long userId, Long templateId, int quantity) {
-    User user = userStateService.loadUser(userId);
+    Player user = userStateService.loadUser(userId);
     ShopNpc npc = findByLocation(user.getLocationId());
     return new ServiceResult.Success<>(purchaseItemInternal(userId, npc, templateId, quantity));
   }
 
   @Transactional
   public ServiceResult<EquipmentPurchaseResult> purchaseEquipment(Long userId, Long templateId) {
-    User user = userStateService.loadUser(userId);
+    Player user = userStateService.loadUser(userId);
     ShopNpc npc = findByLocation(user.getLocationId());
     return new ServiceResult.Success<>(purchaseEquipmentInternal(userId, npc, templateId));
   }
@@ -126,7 +126,7 @@ public class ShopService {
 
     int rows = userRepository.deductSpiritStonesIfEnough(userId, totalPrice);
     if (rows == 0) {
-      User user = userStateService.loadUser(userId);
+      Player user = userStateService.loadUser(userId);
       throw new BusinessException(
           ErrorCode.SHOP_SPIRIT_STONES_INSUFFICIENT, totalPrice, user.getSpiritStones());
     }
@@ -174,7 +174,7 @@ public class ShopService {
 
     int rows = userRepository.deductSpiritStonesIfEnough(userId, price);
     if (rows == 0) {
-      User user = userStateService.loadUser(userId);
+      Player user = userStateService.loadUser(userId);
       throw new BusinessException(
           ErrorCode.SHOP_SPIRIT_STONES_INSUFFICIENT, price, user.getSpiritStones());
     }
@@ -368,7 +368,7 @@ public class ShopService {
 
   public HaggleResult haggleItem(
       Long userId, ShopNpc npc, long currentPrice, long basePrice, boolean isBuying) {
-    User user;
+    Player user;
     ShopChatContext chatCtx = ShopChatContext.current();
     if (chatCtx != null) {
       user = chatCtx.user();

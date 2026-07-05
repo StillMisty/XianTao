@@ -11,7 +11,7 @@ import top.stillmisty.xiantao.domain.event.enums.ActivityType;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
 import top.stillmisty.xiantao.domain.notification.entity.GameEvent;
 import top.stillmisty.xiantao.domain.notification.enums.GameEventCategory;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.service.GameEventService;
 import top.stillmisty.xiantao.service.worldevent.WorldEventEnvironmentalApplier;
 
@@ -27,7 +27,7 @@ public class TrainingCompleter {
 
   @Transactional
   public void produceCompletionEvent(
-      Long userId, User user, MapNode mapNode, long minutesTraining) {
+      Long userId, Player user, MapNode mapNode, long minutesTraining) {
     Map<String, Object> args = Map.of("mapName", mapNode.getName(), "minutes", minutesTraining);
     gameEventService.save(
         GameEvent.create(userId, GameEventCategory.TRAINING_COMPLETE)
@@ -45,14 +45,14 @@ public class TrainingCompleter {
   /** 处理单个非 COMBAT 事件（由统一循环调用） */
   @Transactional
   public void handleNumericEvent(
-      Long userId, User user, ActivityEvent event, EventContext context) {
+      Long userId, Player user, ActivityEvent event, EventContext context) {
     subEventPipeline.processEventWithContext(
         event, userId, user, GameEventCategory.TRAINING_EVENT, context);
   }
 
   /** 检查历练隐藏事件 */
   @Transactional
-  public void checkHiddenEvents(Long userId, User user, MapNode mapNode) {
+  public void checkHiddenEvents(Long userId, Player user, MapNode mapNode) {
     subEventPipeline.checkHiddenEvents(
         ActivityType.TRAINING.getCode(),
         mapNode.getId(),
@@ -64,7 +64,7 @@ public class TrainingCompleter {
 
   /** 应用环境世界事件（历练结算时查询当前地图的区域 + 全局 ENVIRONMENTAL 事件） */
   @Transactional
-  public void applyEnvironmentalEvents(Long userId, User user, MapNode mapNode) {
+  public void applyEnvironmentalEvents(Long userId, Player user, MapNode mapNode) {
     worldEventEnvApplier.apply(userId, user, mapNode);
   }
 }

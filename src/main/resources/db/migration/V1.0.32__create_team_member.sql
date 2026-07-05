@@ -7,7 +7,7 @@ CREATE
             user_id BIGINT NOT NULL,
             joined_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             CONSTRAINT fk_team_member_team FOREIGN KEY(team_id) REFERENCES team(id),
-            CONSTRAINT fk_team_member_user FOREIGN KEY(user_id) REFERENCES xt_user(id),
+            CONSTRAINT fk_team_member_user FOREIGN KEY(user_id) REFERENCES player(id),
             CONSTRAINT uq_team_member_user UNIQUE(user_id)
         );
 

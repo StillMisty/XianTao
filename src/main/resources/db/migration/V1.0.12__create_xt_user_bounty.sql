@@ -1,7 +1,7 @@
 -- 用户悬赏记录表
 CREATE
     TABLE
-        xt_user_bounty(
+        user_bounty(
             id BIGSERIAL PRIMARY KEY,
             user_id BIGINT NOT NULL,
             bounty_id BIGINT NOT NULL,
@@ -13,8 +13,8 @@ CREATE
             status VARCHAR(16) NOT NULL DEFAULT 'ACTIVE',
             create_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             update_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            CONSTRAINT fk_user_bounty_user FOREIGN KEY(user_id) REFERENCES xt_user(id),
-            CONSTRAINT fk_user_bounty_bounty FOREIGN KEY(bounty_id) REFERENCES xt_bounty(id),
+            CONSTRAINT fk_user_bounty_user FOREIGN KEY(user_id) REFERENCES player(id),
+            CONSTRAINT fk_user_bounty_bounty FOREIGN KEY(bounty_id) REFERENCES bounty(id),
             CONSTRAINT chk_user_bounty_status CHECK(
                 status IN(
                     'ACTIVE',
@@ -29,49 +29,49 @@ CREATE
 
 COMMENT ON
 TABLE
-    xt_user_bounty IS '用户悬赏记录表';
+    user_bounty IS '用户悬赏记录表';
 
 COMMENT ON
-COLUMN xt_user_bounty.user_id IS '用户 ID';
+COLUMN user_bounty.user_id IS '用户 ID';
 
 COMMENT ON
-COLUMN xt_user_bounty.bounty_id IS '悬赏 ID';
+COLUMN user_bounty.bounty_id IS '悬赏 ID';
 
 COMMENT ON
-COLUMN xt_user_bounty.bounty_name IS '悬赏名称（快照）';
+COLUMN user_bounty.bounty_name IS '悬赏名称（快照）';
 
 COMMENT ON
-COLUMN xt_user_bounty.start_time IS '接取时间';
+COLUMN user_bounty.start_time IS '接取时间';
 
 COMMENT ON
-COLUMN xt_user_bounty.duration_minutes IS '悬赏耗时（分钟）';
+COLUMN user_bounty.duration_minutes IS '悬赏耗时（分钟）';
 
 COMMENT ON
-COLUMN xt_user_bounty.rewards IS '预确定的奖励物品 JSONB，接取时由种子计算写入';
+COLUMN user_bounty.rewards IS '预确定的奖励物品 JSONB，接取时由种子计算写入';
 
 COMMENT ON
-COLUMN xt_user_bounty.hidden_clues IS '隐藏事件线索 JSONB（预留字段，当前未使用）';
+COLUMN user_bounty.hidden_clues IS '隐藏事件线索 JSONB（预留字段，当前未使用）';
 
 COMMENT ON
-COLUMN xt_user_bounty.status IS '状态: ACTIVE / COMPLETED / ABANDONED';
+COLUMN user_bounty.status IS '状态: ACTIVE / COMPLETED / ABANDONED';
 
 CREATE
     INDEX idx_user_bounty_user_id ON
-    xt_user_bounty(user_id);
+    user_bounty(user_id);
 
 CREATE
     INDEX idx_user_bounty_status ON
-    xt_user_bounty(
+    user_bounty(
         user_id,
         status
     );
 
 CREATE
     INDEX idx_user_bounty_bounty_id ON
-    xt_user_bounty(bounty_id);
+    user_bounty(bounty_id);
 
 CREATE
     UNIQUE INDEX idx_one_active_bounty ON
-    xt_user_bounty(user_id)
+    user_bounty(user_id)
 WHERE
     status = 'ACTIVE';

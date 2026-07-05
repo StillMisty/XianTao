@@ -6,7 +6,7 @@ import love.forte.simbot.event.MessageEvent;
 import love.forte.simbot.quantcat.common.interceptor.AnnotationEventInterceptorFactory;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
 import top.stillmisty.xiantao.service.UserContext;
 
@@ -59,7 +59,7 @@ public class GmInterceptorFactory implements AnnotationEventInterceptorFactory {
         return context.invoke();
       }
 
-      User user = userRepository.findById(userId).orElse(null);
+      Player user = userRepository.findById(userId).orElse(null);
       boolean isGm = user != null && Boolean.TRUE.equals(user.getGm());
 
       Boolean first = UserContext.gmCheckIfAbsent(event, isGm);

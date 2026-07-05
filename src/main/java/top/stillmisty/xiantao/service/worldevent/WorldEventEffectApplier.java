@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.event.EventContext;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.domain.worldevent.entity.WorldEvent;
 import top.stillmisty.xiantao.service.activity.BranchResolver;
 import top.stillmisty.xiantao.service.activity.SubEventEffectExecutor;
@@ -21,7 +21,7 @@ public class WorldEventEffectApplier {
 
   private final SubEventEffectExecutor subEventEffectExecutor;
 
-  public Map<String, Object> applyEffects(WorldEvent event, User user) {
+  public Map<String, Object> applyEffects(WorldEvent event, Player user) {
     if (!event.hasEffects()) return Map.of();
     try {
       List<Map<String, Object>> effectMaps = new ArrayList<>(event.getEffects().size());
@@ -40,7 +40,7 @@ public class WorldEventEffectApplier {
   }
 
   public Map<String, Object> applyEffectsFromConfig(
-      List<Map<String, Object>> effectConfigs, Long userId, User user) {
+      List<Map<String, Object>> effectConfigs, Long userId, Player user) {
     if (effectConfigs == null || effectConfigs.isEmpty()) return Map.of();
     try {
       Map<String, Object> allResults = new HashMap<>();
@@ -64,13 +64,13 @@ public class WorldEventEffectApplier {
 
   /** 处理平铺效果列表 (容器含 effects 字段) */
   private Map<String, Object> applyFlatEffects(
-      List<Map<String, Object>> effects, Long userId, User user) {
+      List<Map<String, Object>> effects, Long userId, Player user) {
     return subEventEffectExecutor.executeEffects(effects, userId, user, EventContext.empty());
   }
 
   /** 处理单个平铺效果项 (项内直接含 type 字段) */
   @SuppressWarnings("unchecked")
-  private Map<String, Object> applyFlatItem(Map<String, Object> config, Long userId, User user) {
+  private Map<String, Object> applyFlatItem(Map<String, Object> config, Long userId, Player user) {
     List<Map<String, Object>> effectList = (List<Map<String, Object>>) config.get("effects");
     if (effectList != null && !effectList.isEmpty()) {
       return applyFlatEffects(effectList, userId, user);
@@ -80,7 +80,7 @@ public class WorldEventEffectApplier {
 
   /** 处理分支随机效果 */
   @SuppressWarnings("unchecked")
-  private Map<String, Object> applyBranches(Map<String, Object> config, Long userId, User user) {
+  private Map<String, Object> applyBranches(Map<String, Object> config, Long userId, Player user) {
     List<Map<String, Object>> branches = (List<Map<String, Object>>) config.get("branches");
     List<Map<String, Object>> effects = BranchResolver.resolve(branches);
     if (effects == null) return Map.of();

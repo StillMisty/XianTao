@@ -14,7 +14,7 @@ import top.stillmisty.xiantao.domain.team.entity.TeamInvitation;
 import top.stillmisty.xiantao.domain.team.entity.TeamMember;
 import top.stillmisty.xiantao.domain.team.enums.InvitationStatus;
 import top.stillmisty.xiantao.domain.team.enums.TeamStatus;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.infrastructure.repository.TeamInvitationRepository;
 import top.stillmisty.xiantao.infrastructure.repository.TeamMemberRepository;
 import top.stillmisty.xiantao.infrastructure.repository.TeamRepository;
@@ -81,11 +81,11 @@ public class TeamService {
 
       // 批量查询所有成员用户
       List<Long> memberIds = members.stream().map(TeamMember::getUserId).toList();
-      Map<Long, User> memberUserMap =
+      Map<Long, Player> memberUserMap =
           userRepository.findByIds(memberIds).stream()
-              .collect(Collectors.toMap(User::getId, u -> u));
+              .collect(Collectors.toMap(Player::getId, u -> u));
 
-      User leader = memberUserMap.get(team.getLeaderId());
+      Player leader = memberUserMap.get(team.getLeaderId());
       if (leader == null) {
         leader = userStateService.loadUserReadOnly(team.getLeaderId());
       }
@@ -97,7 +97,7 @@ public class TeamService {
       sb.append("人数: ").append(members.size()).append("\n");
       sb.append("成员:\n");
       for (TeamMember m : members) {
-        User memberUser = memberUserMap.get(m.getUserId());
+        Player memberUser = memberUserMap.get(m.getUserId());
         if (memberUser == null) {
           memberUser = userStateService.loadUserReadOnly(m.getUserId());
         }
@@ -114,13 +114,13 @@ public class TeamService {
       // 批量查询邀请者
       List<Long> inviterIds =
           pendingInvitations.stream().map(TeamInvitation::getInviterId).toList();
-      Map<Long, User> inviterMap =
+      Map<Long, Player> inviterMap =
           userRepository.findByIds(inviterIds).stream()
-              .collect(Collectors.toMap(User::getId, u -> u));
+              .collect(Collectors.toMap(Player::getId, u -> u));
 
       sb.append("\n=== 待处理的组队邀请 ===\n");
       for (TeamInvitation inv : pendingInvitations) {
-        User inviter = inviterMap.get(inv.getInviterId());
+        Player inviter = inviterMap.get(inv.getInviterId());
         if (inviter == null) {
           inviter = userStateService.loadUserReadOnly(inv.getInviterId());
         }
@@ -137,7 +137,7 @@ public class TeamService {
 
   public String invitePlayerInternal(Long userId, String targetNickname) {
     userStateService.loadUser(userId);
-    User invitee = userStateService.loadUserByNickname(targetNickname);
+    Player invitee = userStateService.loadUserByNickname(targetNickname);
 
     if (invitee == null) {
       throw new BusinessException(ErrorCode.PLAYER_NOT_FOUND, targetNickname);

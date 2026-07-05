@@ -13,7 +13,7 @@ import org.jspecify.annotations.Nullable;
 import top.stillmisty.xiantao.domain.fudi.enums.MBTIPersonality;
 
 @EqualsAndHashCode
-@Table("xt_spirit")
+@Table("spirit")
 @Accessors(chain = true)
 @SuppressWarnings("NullAway")
 @Data

@@ -16,7 +16,7 @@ import top.stillmisty.xiantao.domain.pill.entity.PlayerBuff;
 import top.stillmisty.xiantao.domain.skill.entity.PlayerSkill;
 import top.stillmisty.xiantao.domain.skill.entity.Skill;
 import top.stillmisty.xiantao.domain.skill.enums.BindingType;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.infrastructure.repository.BeastRepository;
 import top.stillmisty.xiantao.infrastructure.repository.EquipmentRepository;
 import top.stillmisty.xiantao.infrastructure.repository.EquipmentTemplateRepository;
@@ -40,12 +40,12 @@ public class DefaultTeamBuilder implements TeamBuilder {
   private final PlayerBuffRepository playerBuffRepository;
 
   @Override
-  public CombatTeam buildPlayerTeam(User user) {
+  public CombatTeam buildPlayerTeam(Player user) {
     return buildPlayerTeam(user, BuildOptions.DEFAULT);
   }
 
   @Override
-  public CombatTeam buildPlayerTeam(User user, BuildOptions options) {
+  public CombatTeam buildPlayerTeam(Player user, BuildOptions options) {
     CombatTeam team = new CombatTeam(user.getId(), options.teamName());
 
     BuffValues buffs = loadActiveBuffs(user.getId());

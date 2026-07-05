@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.event.EffectData;
 import top.stillmisty.xiantao.domain.event.EventContext;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.service.activity.effect.SubEventEffect;
 import top.stillmisty.xiantao.service.activity.effect.SubEventEffectType;
 
@@ -29,7 +29,7 @@ public class SubEventEffectExecutor {
 
   /** 执行一个 ActivityEvent 的所有效果，返回叙事模板参数 */
   public Map<String, Object> execute(
-      ActivityEvent event, Long userId, User user, EventContext context) {
+      ActivityEvent event, Long userId, Player user, EventContext context) {
     EffectData.ActivityConfig config = event.effectData();
     if (config.branches() != null) {
       return executeBranches(config.branches(), userId, user, context);
@@ -41,7 +41,7 @@ public class SubEventEffectExecutor {
   }
 
   private Map<String, Object> executeBranches(
-      List<Map<String, Object>> branches, Long userId, User user, EventContext context) {
+      List<Map<String, Object>> branches, Long userId, Player user, EventContext context) {
     List<Map<String, Object>> effects = BranchResolver.resolve(branches);
     if (effects == null) return Map.of();
     return executeEffects(effects, userId, user, context);
@@ -49,7 +49,7 @@ public class SubEventEffectExecutor {
 
   /** 执行效果列表，返回叙事模板参数 */
   public Map<String, Object> executeEffects(
-      List<Map<String, Object>> effectList, Long userId, User user, EventContext context) {
+      List<Map<String, Object>> effectList, Long userId, Player user, EventContext context) {
     if (effectList == null || effectList.isEmpty()) return Map.of();
 
     Map<String, Object> templateArgs = new HashMap<>();

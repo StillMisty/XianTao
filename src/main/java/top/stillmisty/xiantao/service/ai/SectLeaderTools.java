@@ -45,7 +45,7 @@ public class SectLeaderTools {
   @Transactional
   public AppointMemberResponse appointMember(
       @ToolParam(description = "目标成员道号") String targetNickname,
-      @ToolParam(description = "职位") SectPosition position) {
+      @ToolParam(description = SectPosition.PARAM_DESCRIPTION) SectPosition position) {
     return toolExecutor.execute(
         "appointMember",
         () -> {
@@ -101,7 +101,7 @@ public class SectLeaderTools {
   @Tool(description = "消耗宗门资金建造宗门建筑。仅宗主操作")
   @Transactional
   public BuildStructureResponse buildStructure(
-      @ToolParam(description = "建筑类型") SectBuildingType buildingType) {
+      @ToolParam(description = SectBuildingType.PARAM_DESCRIPTION) SectBuildingType buildingType) {
     return toolExecutor.execute(
         "buildStructure",
         () -> {
@@ -123,7 +123,7 @@ public class SectLeaderTools {
   @Tool(description = "消耗宗门资金升级宗门建筑。有最大等级限制")
   @Transactional
   public UpgradeBuildingResponse upgradeBuilding(
-      @ToolParam(description = "建筑类型") SectBuildingType buildingType) {
+      @ToolParam(description = SectBuildingType.PARAM_DESCRIPTION) SectBuildingType buildingType) {
     return toolExecutor.execute(
         "upgradeBuilding",
         () -> {

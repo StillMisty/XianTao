@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 /** 隐藏事件完成记录实体 */
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table("xt_hidden_completion")
+@Table("hidden_completion")
 @SuppressWarnings("NullAway")
 @NoArgsConstructor
 public class HiddenCompletion {

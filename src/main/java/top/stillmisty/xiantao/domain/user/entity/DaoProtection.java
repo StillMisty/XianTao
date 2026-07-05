@@ -12,7 +12,7 @@ import lombok.experimental.Accessors;
 
 /** 护道关系实体 */
 @EqualsAndHashCode
-@Table("xt_dao_protection")
+@Table("dao_protection")
 @Accessors(chain = true)
 @Data
 @SuppressWarnings("NullAway")

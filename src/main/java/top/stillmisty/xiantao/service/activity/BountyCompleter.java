@@ -15,7 +15,7 @@ import top.stillmisty.xiantao.domain.event.EventContextKeys;
 import top.stillmisty.xiantao.domain.event.enums.ActivityType;
 import top.stillmisty.xiantao.domain.notification.entity.GameEvent;
 import top.stillmisty.xiantao.domain.notification.enums.GameEventCategory;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.service.GameEventService;
 
 /** 悬赏完成器 — 悬赏领奖的子事件调节和隐藏事件 */
@@ -71,7 +71,7 @@ public class BountyCompleter {
   /** 悬赏子事件调节主奖励 — 通过 context 传出修改后的灵石数 */
   @Transactional
   public void rollBountySideEvent(
-      Long userId, User user, Long bountyId, String bountyName, EventContext context) {
+      Long userId, Player user, Long bountyId, String bountyName, EventContext context) {
     EventContextKeys.BOUNTY_NAME.put(context, bountyName);
     subEventPipeline.rollSubEvent(
         ActivityType.BOUNTY_SIDE.getCode(),
@@ -88,7 +88,7 @@ public class BountyCompleter {
 
   /** 检查悬赏隐藏事件 */
   @Transactional
-  public void checkHiddenEvents(Long userId, User user, UserBounty record) {
+  public void checkHiddenEvents(Long userId, Player user, UserBounty record) {
     subEventPipeline.checkHiddenEvents(
         ActivityType.BOUNTY_SIDE.getCode(),
         record.getBountyId(),

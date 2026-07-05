@@ -20,7 +20,7 @@ import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
 @SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table("xt_item_template")
+@Table("item_template")
 public class ItemTemplate {
 
   private static final ObjectMapper OBJECT_MAPPER =

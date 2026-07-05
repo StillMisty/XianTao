@@ -1,7 +1,7 @@
 -- 活动事件关联表 — 子事件/隐藏事件配置
 CREATE
     TABLE
-        xt_activity_event(
+        activity_event(
             id BIGSERIAL PRIMARY KEY,
             activity_type VARCHAR(32) NOT NULL CHECK(
                 activity_type IN(
@@ -12,7 +12,7 @@ CREATE
                 )
             ),
             owner_id BIGINT NOT NULL,
-            code VARCHAR(64) NOT NULL REFERENCES xt_event_type(code),
+            code VARCHAR(64) NOT NULL REFERENCES event_type(code),
             event_type VARCHAR(16) NOT NULL DEFAULT 'NUMERIC' CHECK(
                 event_type IN(
                     'NUMERIC',
@@ -32,41 +32,41 @@ CREATE
         );
 
 CREATE INDEX idx_activity_event_lookup
-    ON xt_activity_event (activity_type, owner_id, is_hidden);
+    ON activity_event (activity_type, owner_id, is_hidden);
 
 CREATE INDEX idx_activity_event_type_lookup
-    ON xt_activity_event (activity_type, owner_id, event_type, is_hidden);
+    ON activity_event (activity_type, owner_id, event_type, is_hidden);
 
 COMMENT ON
 TABLE
-    xt_activity_event IS '活动事件关联表 — 子事件/隐藏事件的权重和触发条件配置';
+    activity_event IS '活动事件关联表 — 子事件/隐藏事件的权重和触发条件配置';
 
 COMMENT ON
-COLUMN xt_activity_event.activity_type IS '所属活动: TRAVEL / TRAINING / BOUNTY_SIDE / DUNGEON';
+COLUMN activity_event.activity_type IS '所属活动: TRAVEL / TRAINING / BOUNTY_SIDE / DUNGEON';
 
 COMMENT ON
-COLUMN xt_activity_event.owner_id IS '事件归属: map_id(TRAVEL/TRAINING) 或 dungeon_id(DUNGEON) 或 bounty_id(BOUNTY_SIDE)';
+COLUMN activity_event.owner_id IS '事件归属: map_id(TRAVEL/TRAINING) 或 dungeon_id(DUNGEON) 或 bounty_id(BOUNTY_SIDE)';
 
 COMMENT ON
-COLUMN xt_activity_event.code IS '事件 code (引用 xt_event_type)';
+COLUMN activity_event.code IS '事件 code (引用 event_type)';
 
 COMMENT ON
-COLUMN xt_activity_event.event_type IS '事件类型: NUMERIC(数值效果) / COMBAT(遇怪战斗) / CHOICE(交互选择)';
+COLUMN activity_event.event_type IS '事件类型: NUMERIC(数值效果) / COMBAT(遇怪战斗) / CHOICE(交互选择)';
 
 COMMENT ON
-COLUMN xt_activity_event.weight IS '权重 (加权随机使用)';
+COLUMN activity_event.weight IS '权重 (加权随机使用)';
 
 COMMENT ON
-COLUMN xt_activity_event.is_hidden IS '是否为隐藏事件';
+COLUMN activity_event.is_hidden IS '是否为隐藏事件';
 
 COMMENT ON
-COLUMN xt_activity_event.trigger_type IS '隐藏事件触发条件类型: HAS_SKILL / HAS_ITEM / STAT_THRESHOLD / etc';
+COLUMN activity_event.trigger_type IS '隐藏事件触发条件类型: HAS_SKILL / HAS_ITEM / STAT_THRESHOLD / etc';
 
 COMMENT ON
-COLUMN xt_activity_event.trigger_params IS '隐藏事件触发条件参数 JSONB';
+COLUMN activity_event.trigger_params IS '隐藏事件触发条件参数 JSONB';
 
 COMMENT ON
-COLUMN xt_activity_event.params IS '事件效果参数 JSONB。NUMERIC: {"effects":[...]}  COMBAT: {"monster_template_id":N,...}  CHOICE: {"options":[{key,text,effects},...]}';
+COLUMN activity_event.params IS '事件效果参数 JSONB。NUMERIC: {"effects":[...]}  COMBAT: {"monster_template_id":N,...}  CHOICE: {"options":[{key,text,effects},...]}';
 
 COMMENT ON
-COLUMN xt_activity_event.prerequisite_code IS '前置事件 code (需完成该隐藏事件后才解锁)';
+COLUMN activity_event.prerequisite_code IS '前置事件 code (需完成该隐藏事件后才解锁)';

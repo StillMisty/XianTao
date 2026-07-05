@@ -11,7 +11,7 @@ import top.stillmisty.xiantao.domain.dungeon.entity.DungeonInstance;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonTemplate;
 import top.stillmisty.xiantao.domain.dungeon.enums.DungeonStatus;
 import top.stillmisty.xiantao.domain.event.enums.ActivityType;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.repository.DungeonInstanceRepository;
 import top.stillmisty.xiantao.infrastructure.repository.DungeonTemplateRepository;
@@ -20,6 +20,7 @@ import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
+import top.stillmisty.xiantao.service.ai.DungeonStateBuilder;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
 @Slf4j
@@ -54,7 +55,7 @@ public class DungeonService {
   }
 
   public String enterDungeonInternal(Long userId, String dungeonName) {
-    User user = userStateService.loadUser(userId);
+    Player user = userStateService.loadUser(userId);
     DungeonTemplate dungeon =
         dungeonTemplateRepository
             .findByName(dungeonName)
@@ -118,7 +119,7 @@ public class DungeonService {
   }
 
   public String getStatusInternal(Long userId) {
-    User user = userStateService.loadUser(userId);
+    Player user = userStateService.loadUser(userId);
     if (user.getActivityTargetId() == null || user.getStatus() != UserStatus.DUNGEON) {
       return "你当前不在任何秘境中。输入「秘境」查看可进入的秘境。";
     }
@@ -156,7 +157,7 @@ public class DungeonService {
         + "\n输入「秘灵 内容」探索秘境";
   }
 
-  private void checkIdleStatus(User user) {
+  private void checkIdleStatus(Player user) {
     if (user.getStatus() != UserStatus.IDLE) {
       throw new BusinessException(
           ErrorCode.DUNGEON_STATUS_BLOCKED,

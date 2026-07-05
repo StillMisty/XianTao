@@ -16,7 +16,7 @@ import top.stillmisty.xiantao.domain.item.enums.EquipmentSlot;
 import top.stillmisty.xiantao.domain.item.enums.Rarity;
 import top.stillmisty.xiantao.domain.item.service.EquipmentFactory;
 import top.stillmisty.xiantao.domain.item.vo.*;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.infrastructure.repository.EquipmentRepository;
 import top.stillmisty.xiantao.infrastructure.repository.EquipmentTemplateRepository;
 import top.stillmisty.xiantao.service.BusinessException;
@@ -92,7 +92,7 @@ public class EquipmentService {
         @CacheEvict(cacheNames = "player_inventory", key = "'summary:' + #userId")
       })
   public EquipResult equipItemInternal(Long userId, String input) {
-    User user = userStateService.loadUser(userId);
+    Player user = userStateService.loadUser(userId);
 
     var result = itemResolver.resolveEquipment(userId, input);
     if (result instanceof ItemResolver.NotFound<?>(String input1)) {

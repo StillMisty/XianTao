@@ -10,7 +10,7 @@ import top.stillmisty.xiantao.domain.event.entity.HiddenCompletion;
 import top.stillmisty.xiantao.domain.event.vo.FortuneVO;
 import top.stillmisty.xiantao.domain.notification.entity.GameEvent;
 import top.stillmisty.xiantao.domain.notification.enums.GameEventCategory;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.infrastructure.repository.HiddenCompletionRepository;
 import top.stillmisty.xiantao.service.FortuneService;
 import top.stillmisty.xiantao.service.GameEventService;
@@ -34,7 +34,7 @@ public class ActivitySubEventPipeline {
       Long ownerId,
       double triggerChance,
       Long userId,
-      User user,
+      Player user,
       GameEventCategory category,
       Function<FortuneVO, EventContext> contextFactory) {
     ActivityEvent selected =
@@ -48,7 +48,7 @@ public class ActivitySubEventPipeline {
       String activityType,
       Long ownerId,
       Long userId,
-      User user,
+      Player user,
       GameEventCategory category,
       Function<FortuneVO, EventContext> contextFactory) {
     var fortune = fortuneService.calculate(userId);
@@ -72,7 +72,7 @@ public class ActivitySubEventPipeline {
   public GameEvent processEvent(
       ActivityEvent event,
       Long userId,
-      User user,
+      Player user,
       GameEventCategory category,
       Function<FortuneVO, EventContext> contextFactory) {
     var fortune = fortuneService.calculate(userId);
@@ -87,7 +87,7 @@ public class ActivitySubEventPipeline {
   public GameEvent processEventWithContext(
       ActivityEvent event,
       Long userId,
-      User user,
+      Player user,
       GameEventCategory category,
       EventContext context) {
     var templateArgs = effectExecutor.execute(event, userId, user, context);

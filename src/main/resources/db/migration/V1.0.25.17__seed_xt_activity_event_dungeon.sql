@@ -1,7 +1,7 @@
 -- DUNGEON 活动事件种子 — 绑定到紫府秘境 (dungeon_template id=1)
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -54,7 +54,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '玄铁矿石'
                         ),
@@ -62,7 +62,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '玄晶'
                         ),
@@ -70,7 +70,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '天外陨铁'
                         )
@@ -124,7 +124,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '魂玉碎片'
                     ),
@@ -152,7 +152,7 @@ INSERT
 -- =================================================================
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -286,7 +286,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '玄晶'
                         ),
@@ -294,7 +294,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '紫金砂'
                         ),
@@ -302,7 +302,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '朱砂'
                         )
@@ -343,7 +343,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '魂玉碎片'
                     ),

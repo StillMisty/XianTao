@@ -10,7 +10,7 @@ import top.stillmisty.xiantao.domain.dungeon.entity.DungeonProgress;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonSpiritState;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonTemplate;
 import top.stillmisty.xiantao.domain.sect.enums.ChatType;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.infrastructure.repository.DungeonInstanceRepository;
 import top.stillmisty.xiantao.infrastructure.repository.DungeonProgressRepository;
 import top.stillmisty.xiantao.infrastructure.repository.DungeonSpiritStateRepository;
@@ -19,9 +19,6 @@ import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.dungeon.DungeonSpiritStateHelper;
-import top.stillmisty.xiantao.service.dungeon.DungeonStateBuilder;
-import top.stillmisty.xiantao.service.dungeon.DungeonTools;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
 @Slf4j
@@ -33,7 +30,9 @@ public class DungeonChatService extends AbstractChatService {
   private final DungeonSpiritStateRepository spiritStateRepository;
   private final DungeonProgressRepository progressRepository;
   private final DungeonStateBuilder stateBuilder;
-  private final DungeonTools dungeonTools;
+  private final DungeonExplorationTools dungeonExplorationTools;
+  private final DungeonNavigationTools dungeonNavigationTools;
+  private final DungeonFavorTools dungeonFavorTools;
   private final DungeonSpiritStateHelper spiritStateHelper;
   private final UserStateService userStateService;
 
@@ -45,7 +44,9 @@ public class DungeonChatService extends AbstractChatService {
       DungeonSpiritStateRepository spiritStateRepository,
       DungeonProgressRepository progressRepository,
       DungeonStateBuilder stateBuilder,
-      DungeonTools dungeonTools,
+      DungeonExplorationTools dungeonExplorationTools,
+      DungeonNavigationTools dungeonNavigationTools,
+      DungeonFavorTools dungeonFavorTools,
       DungeonSpiritStateHelper spiritStateHelper,
       UserStateService userStateService) {
     super(dungeonChatClient, chatMemory);
@@ -54,7 +55,9 @@ public class DungeonChatService extends AbstractChatService {
     this.spiritStateRepository = spiritStateRepository;
     this.progressRepository = progressRepository;
     this.stateBuilder = stateBuilder;
-    this.dungeonTools = dungeonTools;
+    this.dungeonExplorationTools = dungeonExplorationTools;
+    this.dungeonNavigationTools = dungeonNavigationTools;
+    this.dungeonFavorTools = dungeonFavorTools;
     this.spiritStateHelper = spiritStateHelper;
     this.userStateService = userStateService;
   }
@@ -72,7 +75,7 @@ public class DungeonChatService extends AbstractChatService {
   }
 
   @Nullable String chatInternal(Long userId, String userInput) {
-    User user = userStateService.loadUser(userId);
+    Player user = userStateService.loadUser(userId);
     if (user.getActivityTargetId() == null) {
       throw new BusinessException(ErrorCode.DUNGEON_NO_ACTIVE_INSTANCE);
     }
@@ -96,7 +99,21 @@ public class DungeonChatService extends AbstractChatService {
     String systemPrompt = stateBuilder.buildSystemPrompt(dungeon, instance, spiritState);
 
     String response =
-        callLlm(systemPrompt, userInput, ChatType.DUNGEON, userId, instance.getId(), dungeonTools);
+        DungeonChatContext.with(
+            user,
+            instance,
+            dungeon,
+            spiritState,
+            () ->
+                callLlm(
+                    systemPrompt,
+                    userInput,
+                    ChatType.DUNGEON,
+                    userId,
+                    instance.getId(),
+                    dungeonExplorationTools,
+                    dungeonNavigationTools,
+                    dungeonFavorTools));
 
     if (spiritState != null) {
       spiritStateRepository.save(spiritState);
@@ -127,7 +144,7 @@ public class DungeonChatService extends AbstractChatService {
   }
 
   public String buildStatusOverview(Long userId) {
-    User user = userStateService.loadUser(userId);
+    Player user = userStateService.loadUser(userId);
     if (user.getActivityTargetId() == null) {
       return "你当前不在任何秘境中。";
     }

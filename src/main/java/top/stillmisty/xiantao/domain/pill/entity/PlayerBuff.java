@@ -14,7 +14,7 @@ import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 @SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table("xt_player_buff")
+@Table("player_buff")
 public class PlayerBuff {
 
   @EqualsAndHashCode.Include

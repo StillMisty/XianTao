@@ -12,7 +12,7 @@ import lombok.experimental.Accessors;
 import org.jspecify.annotations.Nullable;
 
 @EqualsAndHashCode
-@Table("xt_sect")
+@Table("sect")
 @Accessors(chain = true)
 @SuppressWarnings("NullAway")
 @Data

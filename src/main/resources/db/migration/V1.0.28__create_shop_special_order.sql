@@ -7,9 +7,9 @@ CREATE
     TABLE
         shop_special_order(
             id BIGSERIAL PRIMARY KEY,
-            player_id BIGINT NOT NULL REFERENCES xt_user(id),
+            player_id BIGINT NOT NULL REFERENCES player(id),
             shop_npc_id BIGINT NOT NULL REFERENCES shop_npc(id),
-            template_id BIGINT NOT NULL REFERENCES xt_item_template(id),
+            template_id BIGINT NOT NULL REFERENCES item_template(id),
             unit_price BIGINT NOT NULL,
             quantity INT NOT NULL DEFAULT 1,
             deposit BIGINT NOT NULL,

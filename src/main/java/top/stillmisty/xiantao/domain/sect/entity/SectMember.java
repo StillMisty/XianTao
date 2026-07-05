@@ -15,7 +15,7 @@ import top.stillmisty.xiantao.domain.sect.enums.SectPosition;
 import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 
 @EqualsAndHashCode
-@Table("xt_sect_member")
+@Table("sect_member")
 @Accessors(chain = true)
 @SuppressWarnings("NullAway")
 @Data

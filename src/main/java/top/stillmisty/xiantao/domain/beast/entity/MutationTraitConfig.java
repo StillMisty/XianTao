@@ -16,7 +16,7 @@ import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
 @SuppressWarnings("NullAway")
 @Data
 @NoArgsConstructor
-@Table("xt_mutation_trait_config")
+@Table("mutation_trait_config")
 public class MutationTraitConfig {
 
   @Id(keyType = KeyType.Auto)

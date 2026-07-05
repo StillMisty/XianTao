@@ -14,7 +14,7 @@ import top.stillmisty.xiantao.domain.fudi.enums.CellType;
 import top.stillmisty.xiantao.domain.monster.CombatTeam;
 import top.stillmisty.xiantao.domain.monster.TribulationBoss;
 import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.infrastructure.repository.FudiCellRepository;
 import top.stillmisty.xiantao.infrastructure.repository.FudiRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SpiritRepository;
@@ -45,7 +45,7 @@ public class TribulationService {
    * @return 天劫结果文本
    */
   @Transactional
-  public String resolveTribulation(Fudi fudi, User user) {
+  public String resolveTribulation(Fudi fudi, Player user) {
     if (fudi.getLastTribulationTime() != null) {
       long hoursSinceLast =
           Duration.between(fudi.getLastTribulationTime(), TimeUtil.now()).toHours();

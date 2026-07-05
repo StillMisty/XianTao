@@ -17,7 +17,7 @@ import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
 @SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table("xt_beast_template")
+@Table("beast_template")
 public class BeastTemplate {
 
   @EqualsAndHashCode.Include

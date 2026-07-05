@@ -1,7 +1,7 @@
 -- 法决种子数据
 INSERT
     INTO
-        xt_skill(
+        skill(
             name,
             description,
             skill_type,

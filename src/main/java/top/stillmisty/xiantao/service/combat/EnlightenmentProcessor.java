@@ -14,7 +14,7 @@ import top.stillmisty.xiantao.domain.notification.entity.GameEvent;
 import top.stillmisty.xiantao.domain.notification.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.skill.entity.PlayerSkill;
 import top.stillmisty.xiantao.domain.skill.entity.Skill;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.infrastructure.repository.PlayerSkillRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SkillRepository;
 import top.stillmisty.xiantao.service.GameEventService;
@@ -28,7 +28,7 @@ public class EnlightenmentProcessor {
   private final PlayerSkillRepository playerSkillRepository;
   private final GameEventService gameEventService;
 
-  public boolean process(Long userId, User user) {
+  public boolean process(Long userId, Player user) {
     int wis = user.getEffectiveStatWis();
     double chance = 0.02 + wis * 0.0005;
     if (ThreadLocalRandom.current().nextDouble() >= chance) return false;
@@ -102,7 +102,7 @@ public class EnlightenmentProcessor {
     return true;
   }
 
-  private @Nullable Skill tryLearnRandomSkill(Long userId, User user) {
+  private @Nullable Skill tryLearnRandomSkill(Long userId, Player user) {
     Set<Long> learnedSkillIds =
         playerSkillRepository.findByUserId(userId).stream()
             .map(PlayerSkill::getSkillId)

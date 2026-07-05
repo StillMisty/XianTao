@@ -17,7 +17,7 @@ import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionType
 @SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table("xt_skill")
+@Table("skill")
 public class Skill {
 
   @EqualsAndHashCode.Include

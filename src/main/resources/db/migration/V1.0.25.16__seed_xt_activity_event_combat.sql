@@ -1,6 +1,6 @@
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -20,7 +20,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '野狼'
             ),
@@ -33,7 +33,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -53,7 +53,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '毒蛇'
             ),
@@ -66,7 +66,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -86,7 +86,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '山魈'
             ),
@@ -99,7 +99,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -119,7 +119,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '妖鼠'
             ),
@@ -133,7 +133,7 @@ INSERT
 -- 食人花已从翠竹林移除，移至青石矿洞 (map 3) 作为稀有遭遇
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -153,7 +153,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '食人花'
             ),
@@ -166,7 +166,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -186,7 +186,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '石灵'
             ),
@@ -199,7 +199,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -219,7 +219,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '妖鼠'
             ),
@@ -232,7 +232,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -252,7 +252,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '山魈'
             ),
@@ -265,7 +265,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -285,7 +285,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '野猪妖'
             ),
@@ -298,7 +298,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -318,7 +318,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '骷髅兵'
             ),
@@ -331,7 +331,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -351,7 +351,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '毒蛇'
             ),
@@ -364,7 +364,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -384,7 +384,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '风狼'
             ),
@@ -397,7 +397,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -417,7 +417,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '树精'
             ),
@@ -430,7 +430,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -450,7 +450,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '冰狼'
             ),
@@ -463,7 +463,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -483,7 +483,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '石甲龟'
             ),
@@ -496,7 +496,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -516,7 +516,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '火焰蜥'
             ),
@@ -529,7 +529,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -549,7 +549,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '树精'
             ),
@@ -562,7 +562,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -582,7 +582,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '幽魂'
             ),
@@ -595,7 +595,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -615,7 +615,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '螳螂妖'
             ),
@@ -628,7 +628,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -648,7 +648,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '山贼'
             ),
@@ -661,7 +661,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -681,7 +681,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '蝙蝠妖'
             ),
@@ -694,7 +694,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -714,7 +714,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '铁甲虫'
             ),
@@ -727,7 +727,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -747,7 +747,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '水鬼'
             ),
@@ -760,7 +760,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -780,7 +780,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '螳螂妖'
             ),
@@ -793,7 +793,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -813,7 +813,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '妖狐'
             ),
@@ -826,7 +826,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -846,7 +846,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '幽魂'
             ),
@@ -859,7 +859,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -879,7 +879,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '铁甲虫'
             ),
@@ -892,7 +892,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -912,7 +912,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '怨灵'
             ),
@@ -925,7 +925,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -945,7 +945,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '蝙蝠妖'
             ),
@@ -958,7 +958,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -978,7 +978,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '血蝠'
             ),
@@ -991,7 +991,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -1011,7 +1011,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '石魔'
             ),
@@ -1024,7 +1024,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -1044,7 +1044,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '妖道'
             ),
@@ -1057,7 +1057,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -1077,7 +1077,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '怨灵'
             ),
@@ -1090,7 +1090,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -1110,7 +1110,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '幽魂'
             ),
@@ -1123,7 +1123,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -1143,7 +1143,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '怨灵'
             ),
@@ -1156,7 +1156,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -1176,7 +1176,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '冰蚕'
             ),
@@ -1189,7 +1189,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -1209,7 +1209,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '猿妖'
             ),
@@ -1222,7 +1222,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -1242,7 +1242,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '血蝠'
             ),
@@ -1255,7 +1255,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -1275,7 +1275,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '毒蟾'
             ),
@@ -1288,7 +1288,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -1308,7 +1308,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '蛇妖'
             ),
@@ -1321,7 +1321,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -1341,7 +1341,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '怨灵'
             ),
@@ -1354,7 +1354,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -1374,7 +1374,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '摄魂妖'
             ),
@@ -1387,7 +1387,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -1407,7 +1407,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '妖道'
             ),
@@ -1420,7 +1420,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -1440,7 +1440,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '飞头蛮'
             ),
@@ -1453,7 +1453,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -1473,7 +1473,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '熔岩巨兽'
             ),
@@ -1486,7 +1486,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -1506,7 +1506,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '雪女'
             ),
@@ -1519,7 +1519,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -1539,7 +1539,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '熔岩巨兽'
             ),
@@ -1552,7 +1552,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -1572,7 +1572,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '摄魂妖'
             ),
@@ -1585,7 +1585,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -1605,7 +1605,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '夜叉'
             ),
@@ -1618,7 +1618,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -1638,7 +1638,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '金甲尸'
             ),
@@ -1651,7 +1651,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -1671,7 +1671,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '蛇妖'
             ),
@@ -1684,7 +1684,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -1704,7 +1704,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '猿妖'
             ),
@@ -1717,7 +1717,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -1737,7 +1737,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '狮鹫'
             ),
@@ -1750,7 +1750,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -1770,7 +1770,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '摄魂妖'
             ),
@@ -1783,7 +1783,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -1803,7 +1803,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '千年树妖'
             ),
@@ -1816,7 +1816,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -1836,7 +1836,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '雷鹰'
             ),
@@ -1849,7 +1849,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -1869,7 +1869,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '熔岩巨兽'
             ),
@@ -1882,7 +1882,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -1902,7 +1902,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '修罗'
             ),
@@ -1915,7 +1915,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -1935,7 +1935,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '夜叉'
             ),
@@ -1948,7 +1948,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -1968,7 +1968,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '狮鹫'
             ),
@@ -1981,7 +1981,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -2001,7 +2001,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '飞头蛮'
             ),
@@ -2014,7 +2014,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -2034,7 +2034,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '摄魂妖'
             ),
@@ -2047,7 +2047,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -2067,7 +2067,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '熔岩巨兽'
             ),
@@ -2080,7 +2080,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -2100,7 +2100,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '千年树妖'
             ),
@@ -2113,7 +2113,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -2133,7 +2133,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '狮鹫'
             ),
@@ -2146,7 +2146,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -2166,7 +2166,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '雷鹰'
             ),
@@ -2179,7 +2179,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -2199,7 +2199,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '黑风老妖'
             ),
@@ -2212,7 +2212,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -2232,7 +2232,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '九尾妖狐'
             ),
@@ -2245,7 +2245,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -2265,7 +2265,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '黑风老妖'
             ),
@@ -2278,7 +2278,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -2298,7 +2298,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '雷鹰'
             ),
@@ -2311,7 +2311,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -2331,7 +2331,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '火凤雏'
             ),
@@ -2344,7 +2344,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -2364,7 +2364,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '山鬼'
             ),
@@ -2377,7 +2377,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -2397,7 +2397,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '狮鹫'
             ),
@@ -2410,7 +2410,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -2430,7 +2430,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '蜚廉'
             ),
@@ -2443,7 +2443,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -2463,7 +2463,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '熔岩巨兽'
             ),
@@ -2476,7 +2476,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -2496,7 +2496,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '修罗'
             ),
@@ -2509,7 +2509,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -2529,7 +2529,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '黑风老妖'
             ),
@@ -2542,7 +2542,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -2562,7 +2562,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '雷鹰'
             ),
@@ -2575,7 +2575,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -2595,7 +2595,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '山鬼'
             ),
@@ -2608,7 +2608,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -2628,7 +2628,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '九尾妖狐'
             ),
@@ -2641,7 +2641,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -2661,7 +2661,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '火凤雏'
             ),
@@ -2674,7 +2674,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -2694,7 +2694,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '山鬼'
             ),
@@ -2707,7 +2707,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -2727,7 +2727,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '蜚廉'
             ),
@@ -2740,7 +2740,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -2760,7 +2760,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '幽冥骑士'
             ),
@@ -2773,7 +2773,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -2793,7 +2793,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '雪女'
             ),
@@ -2806,7 +2806,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -2826,7 +2826,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '九尾妖狐'
             ),
@@ -2839,7 +2839,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -2859,7 +2859,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '修罗'
             ),
@@ -2872,7 +2872,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -2892,7 +2892,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '山鬼'
             ),
@@ -2905,7 +2905,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -2925,7 +2925,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '幽冥骑士'
             ),
@@ -2938,7 +2938,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -2958,7 +2958,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '蜚廉'
             ),
@@ -2971,7 +2971,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -2991,7 +2991,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '千年树妖'
             ),
@@ -3004,7 +3004,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -3024,7 +3024,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '狮鹫'
             ),
@@ -3037,7 +3037,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -3057,7 +3057,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '黑风老妖'
             ),
@@ -3070,7 +3070,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -3090,7 +3090,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '蜚廉'
             ),
@@ -3103,7 +3103,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -3123,7 +3123,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '幽冥骑士'
             ),
@@ -3136,7 +3136,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -3156,7 +3156,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '雷鹰'
             ),
@@ -3169,7 +3169,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -3189,7 +3189,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '幽冥骑士'
             ),
@@ -3202,7 +3202,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -3222,7 +3222,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '蜚廉'
             ),
@@ -3235,7 +3235,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -3255,7 +3255,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '蛟龙'
             ),
@@ -3268,7 +3268,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -3288,7 +3288,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '山鬼'
             ),
@@ -3301,7 +3301,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -3321,7 +3321,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '九尾妖狐'
             ),
@@ -3334,7 +3334,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -3354,7 +3354,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '天罗蛛'
             ),
@@ -3367,7 +3367,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -3387,7 +3387,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '天罗蛛'
             ),
@@ -3400,7 +3400,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -3420,7 +3420,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '蛟龙'
             ),
@@ -3433,7 +3433,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -3453,7 +3453,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '火凤雏'
             ),
@@ -3466,7 +3466,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -3486,7 +3486,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '山鬼'
             ),
@@ -3499,7 +3499,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -3519,7 +3519,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '蜚廉'
             ),
@@ -3532,7 +3532,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -3552,7 +3552,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '梼杌'
             ),
@@ -3565,7 +3565,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -3585,7 +3585,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '夔牛'
             ),
@@ -3598,7 +3598,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -3618,7 +3618,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '梼杌'
             ),
@@ -3631,7 +3631,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -3651,7 +3651,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '金乌'
             ),
@@ -3664,7 +3664,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -3684,7 +3684,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '旱魃'
             ),
@@ -3697,7 +3697,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -3717,7 +3717,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '白泽'
             ),
@@ -3730,7 +3730,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -3750,7 +3750,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '烛龙'
             ),
@@ -3763,7 +3763,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -3783,7 +3783,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '夔牛'
             ),
@@ -3796,7 +3796,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -3816,7 +3816,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '金乌'
             ),
@@ -3829,7 +3829,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -3849,7 +3849,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '烛龙'
             ),
@@ -3862,7 +3862,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -3882,7 +3882,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '梼杌'
             ),
@@ -3895,7 +3895,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -3915,7 +3915,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '天魔王'
             ),
@@ -3928,7 +3928,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -3948,7 +3948,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '麒麟'
             ),
@@ -3961,7 +3961,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -3981,7 +3981,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '相柳'
             ),
@@ -3994,7 +3994,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -4014,7 +4014,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '刑天'
             ),
@@ -4027,7 +4027,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -4047,7 +4047,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '毕方'
             ),
@@ -4060,7 +4060,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -4080,7 +4080,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '应龙'
             ),
@@ -4093,7 +4093,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -4113,7 +4113,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '守鹤'
             ),
@@ -4126,7 +4126,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -4146,7 +4146,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '旱魃'
             ),
@@ -4159,7 +4159,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -4179,7 +4179,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '白泽'
             ),
@@ -4192,7 +4192,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -4212,7 +4212,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '梼杌'
             ),
@@ -4225,7 +4225,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -4245,7 +4245,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '烛龙'
             ),
@@ -4258,7 +4258,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -4278,7 +4278,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '相柳'
             ),
@@ -4291,7 +4291,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -4311,7 +4311,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '毕方'
             ),
@@ -4324,7 +4324,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -4344,7 +4344,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '应龙'
             ),
@@ -4357,7 +4357,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -4377,7 +4377,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '刑天'
             ),
@@ -4390,7 +4390,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -4410,7 +4410,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '相柳'
             ),
@@ -4423,7 +4423,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -4443,7 +4443,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '守鹤'
             ),
@@ -4456,7 +4456,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -4476,7 +4476,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '鲲鹏'
             ),
@@ -4489,7 +4489,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -4509,7 +4509,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '白泽'
             ),
@@ -4522,7 +4522,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -4542,7 +4542,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '天魔王'
             ),
@@ -4555,7 +4555,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -4575,7 +4575,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '麒麟'
             ),
@@ -4588,7 +4588,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -4608,7 +4608,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '应龙'
             ),
@@ -4621,7 +4621,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -4641,7 +4641,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '刑天'
             ),
@@ -4654,7 +4654,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -4674,7 +4674,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '鲲鹏'
             ),
@@ -4687,7 +4687,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -4707,7 +4707,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '毕方'
             ),
@@ -4720,7 +4720,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -4740,7 +4740,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '应龙'
             ),
@@ -4753,7 +4753,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -4773,7 +4773,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '守鹤'
             ),
@@ -4786,7 +4786,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -4806,7 +4806,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '神龙'
             ),
@@ -4819,7 +4819,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -4839,7 +4839,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '阎罗天子'
             ),
@@ -4852,7 +4852,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -4872,7 +4872,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '刑天'
             ),
@@ -4885,7 +4885,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -4905,7 +4905,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '应龙'
             ),
@@ -4918,7 +4918,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -4938,7 +4938,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '毕方'
             ),
@@ -4951,7 +4951,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -4971,7 +4971,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '相柳'
             ),
@@ -4984,7 +4984,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -5004,7 +5004,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '鲲鹏'
             ),
@@ -5017,7 +5017,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -5037,7 +5037,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '神龙'
             ),
@@ -5050,7 +5050,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -5070,7 +5070,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '刑天'
             ),
@@ -5083,7 +5083,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -5103,7 +5103,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '鲲鹏'
             ),
@@ -5116,7 +5116,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -5136,7 +5136,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '阎罗天子'
             ),
@@ -5149,7 +5149,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -5169,7 +5169,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '相柳'
             ),
@@ -5182,7 +5182,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -5202,7 +5202,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '守鹤'
             ),
@@ -5215,7 +5215,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -5235,7 +5235,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '神龙'
             ),
@@ -5248,7 +5248,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -5268,7 +5268,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '毕方'
             ),
@@ -5281,7 +5281,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -5301,7 +5301,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '应龙'
             ),
@@ -5314,7 +5314,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -5334,7 +5334,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '刑天'
             ),
@@ -5347,7 +5347,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -5367,7 +5367,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '鲲鹏'
             ),
@@ -5380,7 +5380,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -5400,7 +5400,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '神龙'
             ),
@@ -5413,7 +5413,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -5433,7 +5433,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '原始天魔'
             ),
@@ -5446,7 +5446,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -5466,7 +5466,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '阎罗天子'
             ),
@@ -5479,7 +5479,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -5499,7 +5499,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '鲲鹏'
             ),
@@ -5512,7 +5512,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -5532,7 +5532,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '神龙'
             ),
@@ -5545,7 +5545,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -5565,7 +5565,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '守鹤'
             ),
@@ -5578,7 +5578,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -5598,7 +5598,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '应龙'
             ),
@@ -5611,7 +5611,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -5631,7 +5631,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '原始天魔'
             ),
@@ -5644,7 +5644,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -5664,7 +5664,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '应龙'
             ),
@@ -5677,7 +5677,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -5697,7 +5697,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '毕方'
             ),
@@ -5710,7 +5710,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -5730,7 +5730,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '鲲鹏'
             ),
@@ -5743,7 +5743,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -5763,7 +5763,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '阎罗天子'
             ),
@@ -5776,7 +5776,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -5796,7 +5796,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '相柳'
             ),
@@ -5809,7 +5809,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -5829,7 +5829,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '刑天'
             ),
@@ -5842,7 +5842,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -5862,7 +5862,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '鲲鹏'
             ),
@@ -5875,7 +5875,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -5895,7 +5895,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '守鹤'
             ),
@@ -5908,7 +5908,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -5928,7 +5928,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '阎罗天子'
             ),
@@ -5941,7 +5941,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -5961,7 +5961,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '原始天魔'
             ),
@@ -5974,7 +5974,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -5994,7 +5994,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '鲲鹏'
             ),
@@ -6007,7 +6007,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -6027,7 +6027,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '阎罗天子'
             ),
@@ -6040,7 +6040,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -6060,7 +6060,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '神龙'
             ),
@@ -6073,7 +6073,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -6093,7 +6093,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '原始天魔'
             ),
@@ -6106,7 +6106,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -6126,7 +6126,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '阎罗天子'
             ),
@@ -6139,7 +6139,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -6159,7 +6159,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '原始天魔'
             ),
@@ -6172,7 +6172,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -6192,7 +6192,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '守鹤'
             ),
@@ -6205,7 +6205,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -6225,7 +6225,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '阎罗天子'
             ),
@@ -6238,7 +6238,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -6258,7 +6258,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '神龙'
             ),
@@ -6271,7 +6271,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -6291,7 +6291,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '原始天魔'
             ),
@@ -6304,7 +6304,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -6324,7 +6324,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '鲲鹏'
             ),
@@ -6337,7 +6337,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -6357,7 +6357,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '原始天魔'
             ),
@@ -6371,7 +6371,7 @@ INSERT
 -- 混沌 COMBAT events (level 96, 上古四凶)
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -6391,7 +6391,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '混沌'
             ),
@@ -6404,7 +6404,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -6424,7 +6424,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '混沌'
             ),
@@ -6437,7 +6437,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -6457,7 +6457,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_monster_template
+                    monster_template
                 WHERE
                     name = '混沌'
             ),

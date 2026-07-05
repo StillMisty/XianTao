@@ -3,7 +3,7 @@
 -- 青石镇 (map_id=1)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -31,7 +31,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵芝'
                 )
@@ -67,7 +67,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -84,7 +84,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -128,7 +128,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '寒铁'
                 )
@@ -160,7 +160,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '破风斩玉简'
                 )
@@ -188,7 +188,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -213,7 +213,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵木'
                 )
@@ -245,7 +245,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '清风剑法玉简'
                 )
@@ -258,7 +258,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '砍柴刀'
                 )
@@ -294,7 +294,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵木'
                 )
@@ -311,7 +311,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '千年灵木'
                 )
@@ -347,7 +347,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '朱砂'
                 )
@@ -364,7 +364,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -392,7 +392,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵芝'
                 )
@@ -409,7 +409,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '血参'
                 )
@@ -453,7 +453,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '赤铜矿'
                 )
@@ -470,7 +470,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄铁矿石'
                 )
@@ -498,7 +498,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -542,7 +542,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -568,7 +568,7 @@ INSERT
 -- 翠竹林 (map_id=2)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -596,7 +596,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵芝'
                 )
@@ -632,7 +632,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -657,7 +657,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -685,7 +685,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵木'
                 )
@@ -710,7 +710,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄铁矿石'
                 )
@@ -738,7 +738,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '月华露'
                 )
@@ -782,7 +782,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -799,7 +799,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -827,7 +827,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵木'
                 )
@@ -852,7 +852,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄铁矿石'
                 )
@@ -888,7 +888,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -905,7 +905,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -937,7 +937,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '青木诀玉简'
                 )
@@ -979,7 +979,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -1007,7 +1007,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '朱砂'
                 )
@@ -1043,7 +1043,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵木'
                 )
@@ -1083,7 +1083,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '轻身术玉简'
                 )
@@ -1115,7 +1115,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '小聚灵丹'
                 )
@@ -1147,7 +1147,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '轻身散'
                 )
@@ -1173,7 +1173,7 @@ INSERT
 -- 青石矿洞 (map_id=3)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -1201,7 +1201,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄铁矿石'
                 )
@@ -1226,7 +1226,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '寒铁'
                 )
@@ -1262,7 +1262,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄铁矿石'
                 )
@@ -1279,7 +1279,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '赤铜矿'
                 )
@@ -1307,7 +1307,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '寒铁'
                 )
@@ -1332,7 +1332,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄铁矿石'
                 )
@@ -1364,7 +1364,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '蛮牛劲玉简'
                 )
@@ -1400,7 +1400,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -1417,7 +1417,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -1449,7 +1449,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '金灵剑气玉简'
                 )
@@ -1462,7 +1462,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '桃木剑'
                 )
@@ -1498,7 +1498,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '寒铁'
                 )
@@ -1515,7 +1515,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '赤铜矿'
                 )
@@ -1551,7 +1551,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -1568,7 +1568,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -1596,7 +1596,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -1636,7 +1636,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '霸刀诀玉简'
                 )
@@ -1670,7 +1670,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '寒铁'
                 )
@@ -1714,7 +1714,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -1731,7 +1731,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄铁矿石'
                 )
@@ -1763,7 +1763,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '聚灵丹方'
                 )
@@ -1780,7 +1780,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '朱砂'
                 )
@@ -1812,7 +1812,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '青锋刀图'
                 )
@@ -1829,7 +1829,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄铁矿石'
                 )
@@ -1861,7 +1861,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '壮骨丹'
                 )
@@ -1887,7 +1887,7 @@ INSERT
 -- 碧水潭 (map_id=4)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -1915,7 +1915,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '冰魄花'
                 )
@@ -1940,7 +1940,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '雪莲'
                 )
@@ -1976,7 +1976,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -1993,7 +1993,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '月华露'
                 )
@@ -2029,7 +2029,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵芝'
                 )
@@ -2046,7 +2046,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '血参'
                 )
@@ -2082,7 +2082,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 )
@@ -2099,7 +2099,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '冰魄花'
                 )
@@ -2135,7 +2135,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -2152,7 +2152,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -2180,7 +2180,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '何首乌'
                 )
@@ -2205,7 +2205,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵芝'
                 )
@@ -2241,7 +2241,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '地火芝'
                 )
@@ -2258,7 +2258,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '太阳花'
                 )
@@ -2294,7 +2294,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '月华露'
                 )
@@ -2311,7 +2311,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '朱砂'
                 )
@@ -2347,7 +2347,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -2364,7 +2364,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -2396,7 +2396,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '寒冰掌玉简'
                 )
@@ -2415,7 +2415,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '亮银枪'
                 )
@@ -2443,7 +2443,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '雪莲'
                 )
@@ -2487,7 +2487,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵芝'
                 )
@@ -2504,7 +2504,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '血参'
                 )
@@ -2536,7 +2536,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '聚灵丹'
                 )
@@ -2553,7 +2553,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '冰魄花'
                 )
@@ -2585,7 +2585,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '金刚散'
                 )
@@ -2611,7 +2611,7 @@ INSERT
 -- 枫叶坡 (map_id=5)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -2639,7 +2639,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '地火芝'
                 )
@@ -2683,7 +2683,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -2700,7 +2700,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '血参'
                 )
@@ -2736,7 +2736,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '朱砂'
                 )
@@ -2753,7 +2753,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -2781,7 +2781,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '朱砂'
                 )
@@ -2806,7 +2806,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '月华露'
                 )
@@ -2838,7 +2838,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '霸刀诀玉简'
                 )
@@ -2851,7 +2851,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '开山斧'
                 )
@@ -2887,7 +2887,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵芝'
                 )
@@ -2904,7 +2904,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵蚕丝'
                 )
@@ -2932,7 +2932,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '太阳花'
                 )
@@ -2976,7 +2976,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -2989,7 +2989,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '兽皮甲'
                 )
@@ -3017,7 +3017,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵蚕丝'
                 )
@@ -3042,7 +3042,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵木'
                 )
@@ -3074,7 +3074,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '静心诀玉简'
                 )
@@ -3102,7 +3102,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '血参'
                 )
@@ -3146,7 +3146,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '朱砂'
                 )
@@ -3163,7 +3163,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵木'
                 )
@@ -3208,7 +3208,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '筑基丹方'
                 )
@@ -3221,7 +3221,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '回春丹'
                 )
@@ -3235,7 +3235,7 @@ INSERT
 -- 云来村 (map_id=6)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -3271,7 +3271,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵芝'
                 )
@@ -3288,7 +3288,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '血参'
                 )
@@ -3324,7 +3324,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -3341,7 +3341,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '朱砂'
                 )
@@ -3377,7 +3377,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -3394,7 +3394,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -3430,7 +3430,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '朱砂'
                 )
@@ -3447,7 +3447,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '月华露'
                 )
@@ -3483,7 +3483,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '血参'
                 )
@@ -3500,7 +3500,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '千年灵芝'
                 )
@@ -3536,7 +3536,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄铁矿石'
                 )
@@ -3553,7 +3553,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫丹参'
                 )
@@ -3585,7 +3585,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '通明心法玉简'
                 )
@@ -3604,7 +3604,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '玄铁甲'
                 )
@@ -3640,7 +3640,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵芝'
                 )
@@ -3657,7 +3657,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '血参'
                 )
@@ -3693,7 +3693,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '朱砂'
                 )
@@ -3710,7 +3710,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '月华露'
                 )
@@ -3742,7 +3742,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '青冥剑'
                 )
@@ -3759,7 +3759,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '朱砂'
                 )
@@ -3795,7 +3795,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵木'
                 )
@@ -3812,7 +3812,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄铁矿石'
                 )
@@ -3840,7 +3840,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵芝'
                 )
@@ -3857,7 +3857,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '血参'
                 )
@@ -3897,7 +3897,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '开智丹'
                 )
@@ -3923,7 +3923,7 @@ INSERT
 -- 落日峰 (map_id=7)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -3959,7 +3959,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '朱砂'
                 )
@@ -3976,7 +3976,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '太阳花'
                 )
@@ -4012,7 +4012,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -4029,7 +4029,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -4057,7 +4057,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '地火芝'
                 )
@@ -4097,7 +4097,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '烈火掌玉简'
                 )
@@ -4110,7 +4110,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '青冥剑'
                 )
@@ -4138,7 +4138,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '太阳花'
                 )
@@ -4178,7 +4178,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天人感应玉简'
                 )
@@ -4191,7 +4191,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '穿云弓'
                 )
@@ -4227,7 +4227,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -4244,7 +4244,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -4272,7 +4272,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫丹参'
                 )
@@ -4316,7 +4316,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '血参'
                 )
@@ -4333,7 +4333,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵芝'
                 )
@@ -4365,7 +4365,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '焚天诀玉简'
                 )
@@ -4384,7 +4384,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '纯钧剑'
                 )
@@ -4412,7 +4412,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '朱砂'
                 )
@@ -4456,7 +4456,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '太阳花'
                 )
@@ -4473,7 +4473,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '朱砂'
                 )
@@ -4505,7 +4505,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '青冥剑图'
                 )
@@ -4522,7 +4522,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '寒铁'
                 )
@@ -4554,7 +4554,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '追风丹'
                 )
@@ -4571,7 +4571,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫丹参'
                 )
@@ -4597,7 +4597,7 @@ INSERT
 -- 迷雾沼泽 (map_id=8)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -4625,7 +4625,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '幽冥花'
                 )
@@ -4669,7 +4669,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -4686,7 +4686,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -4722,7 +4722,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -4739,7 +4739,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '幽冥花'
                 )
@@ -4767,7 +4767,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '还魂草'
                 )
@@ -4811,7 +4811,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -4828,7 +4828,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '曼陀罗'
                 )
@@ -4860,7 +4860,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '万剑归宗玉简'
                 )
@@ -4879,7 +4879,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '灵蚕法袍'
                 )
@@ -4907,7 +4907,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '曼陀罗'
                 )
@@ -4951,7 +4951,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -4968,7 +4968,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -5000,7 +5000,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '静心诀玉简'
                 )
@@ -5036,7 +5036,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -5053,7 +5053,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -5081,7 +5081,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '还魂草'
                 )
@@ -5125,7 +5125,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -5142,7 +5142,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '幽冥花'
                 )
@@ -5174,7 +5174,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '避毒丹'
                 )
@@ -5191,7 +5191,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '曼陀罗'
                 )
@@ -5217,7 +5217,7 @@ INSERT
 -- 青云门遗址 (map_id=9)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -5253,7 +5253,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -5270,7 +5270,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -5306,7 +5306,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -5323,7 +5323,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '月华露'
                 )
@@ -5355,7 +5355,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '诛仙剑诀玉简'
                 )
@@ -5368,7 +5368,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '灵蚕法袍'
                 )
@@ -5404,7 +5404,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -5421,7 +5421,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '寒铁'
                 )
@@ -5457,7 +5457,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -5470,7 +5470,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '纯钧剑'
                 )
@@ -5498,7 +5498,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -5538,7 +5538,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '轩辕剑法玉简'
                 )
@@ -5574,7 +5574,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -5591,7 +5591,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -5623,7 +5623,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '莲华涅槃玉简'
                 )
@@ -5642,7 +5642,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '金刚杵'
                 )
@@ -5674,7 +5674,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '道心通明玉简'
                 )
@@ -5710,7 +5710,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -5727,7 +5727,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -5763,7 +5763,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -5780,7 +5780,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '寒铁'
                 )
@@ -5812,7 +5812,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '结丹丹方'
                 )
@@ -5825,7 +5825,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '大还丹'
                 )
@@ -5857,7 +5857,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '龙力丹'
                 )
@@ -5883,7 +5883,7 @@ INSERT
 -- 古道驿站 (map_id=10)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -5919,7 +5919,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵木'
                 )
@@ -5936,7 +5936,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄铁矿石'
                 )
@@ -5972,7 +5972,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '朱砂'
                 )
@@ -5989,7 +5989,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -6025,7 +6025,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -6042,7 +6042,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -6078,7 +6078,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '朱砂'
                 )
@@ -6095,7 +6095,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 )
@@ -6127,7 +6127,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '剑心通明玉简'
                 )
@@ -6155,7 +6155,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '千年灵木'
                 )
@@ -6180,7 +6180,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵木'
                 )
@@ -6216,7 +6216,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '赤铜矿'
                 )
@@ -6229,7 +6229,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '玄铁甲'
                 )
@@ -6265,7 +6265,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -6282,7 +6282,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -6318,7 +6318,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -6360,7 +6360,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -6377,7 +6377,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -6405,7 +6405,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '千年灵木'
                 )
@@ -6449,7 +6449,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '朱砂'
                 )
@@ -6466,7 +6466,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -6498,7 +6498,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '亮银枪图'
                 )
@@ -6515,7 +6515,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '赤铜矿'
                 )
@@ -6541,7 +6541,7 @@ INSERT
 -- 飞云城 (map_id=11)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -6577,7 +6577,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄铁矿石'
                 )
@@ -6594,7 +6594,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '寒铁'
                 )
@@ -6630,7 +6630,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '朱砂'
                 )
@@ -6647,7 +6647,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -6683,7 +6683,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -6700,7 +6700,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -6732,7 +6732,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '青冥剑'
                 )
@@ -6749,7 +6749,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '朱砂'
                 )
@@ -6785,7 +6785,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '血参'
                 )
@@ -6802,7 +6802,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '何首乌'
                 )
@@ -6834,7 +6834,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '鹰眼术玉简'
                 )
@@ -6866,7 +6866,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '奇门遁甲玉简'
                 )
@@ -6902,7 +6902,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -6944,7 +6944,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -6961,7 +6961,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -6997,7 +6997,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '朱砂'
                 )
@@ -7014,7 +7014,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '何首乌'
                 )
@@ -7050,7 +7050,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '血参'
                 )
@@ -7067,7 +7067,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '何首乌'
                 )
@@ -7103,7 +7103,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄铁矿石'
                 )
@@ -7120,7 +7120,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '寒铁'
                 )
@@ -7152,7 +7152,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '大聚灵丹'
                 )
@@ -7178,7 +7178,7 @@ INSERT
 -- 万兽山 (map_id=12)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -7214,7 +7214,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -7231,7 +7231,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -7259,7 +7259,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -7303,7 +7303,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -7316,7 +7316,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '穿云弓'
                 )
@@ -7348,7 +7348,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '蛮牛劲玉简'
                 )
@@ -7390,7 +7390,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '龙血草'
                 )
@@ -7426,7 +7426,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -7443,7 +7443,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '血参'
                 )
@@ -7479,7 +7479,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -7521,7 +7521,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -7538,7 +7538,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -7574,7 +7574,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -7587,7 +7587,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '银丝软鞭'
                 )
@@ -7615,7 +7615,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '血参'
                 )
@@ -7659,7 +7659,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -7676,7 +7676,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -7712,7 +7712,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '龙血草'
                 )
@@ -7729,7 +7729,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -7776,7 +7776,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '金翼雕卵'
                 )
@@ -7793,7 +7793,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -7807,7 +7807,7 @@ INSERT
 -- 幽冥谷 (map_id=13)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -7835,7 +7835,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '幽冥花'
                 )
@@ -7879,7 +7879,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -7896,7 +7896,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '幽冥花'
                 )
@@ -7924,7 +7924,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '太阴菇'
                 )
@@ -7964,7 +7964,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '伏魔棍玉简'
                 )
@@ -7983,7 +7983,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '七星剑'
                 )
@@ -8015,7 +8015,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '镇魂钟声玉简'
                 )
@@ -8051,7 +8051,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -8064,7 +8064,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '镇魂铃'
                 )
@@ -8092,7 +8092,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '曼陀罗'
                 )
@@ -8136,7 +8136,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -8153,7 +8153,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '幽冥花'
                 )
@@ -8189,7 +8189,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -8206,7 +8206,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '太阴菇'
                 )
@@ -8234,7 +8234,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '太阴菇'
                 )
@@ -8278,7 +8278,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -8295,7 +8295,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -8331,7 +8331,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -8348,7 +8348,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '幽冥花'
                 )
@@ -8380,7 +8380,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '不动明王丹'
                 )
@@ -8397,7 +8397,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '曼陀罗'
                 )
@@ -8423,7 +8423,7 @@ INSERT
 -- 灵虚洞天 (map_id=14)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -8459,7 +8459,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵芝'
                 )
@@ -8476,7 +8476,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '千年灵芝'
                 )
@@ -8508,7 +8508,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天人感应玉简'
                 )
@@ -8544,7 +8544,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -8557,7 +8557,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '云纹内甲'
                 )
@@ -8585,7 +8585,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天心兰'
                 )
@@ -8625,7 +8625,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '万剑归宗玉简'
                 )
@@ -8659,7 +8659,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '千年灵芝'
                 )
@@ -8703,7 +8703,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -8735,7 +8735,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '莲华涅槃玉简'
                 )
@@ -8748,7 +8748,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '蚕丝法袍'
                 )
@@ -8776,7 +8776,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '朱砂'
                 )
@@ -8820,7 +8820,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -8837,7 +8837,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 )
@@ -8869,7 +8869,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '三昧真火玉简'
                 )
@@ -8905,7 +8905,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天心兰'
                 )
@@ -8922,7 +8922,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -8954,7 +8954,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '化婴丹方'
                 )
@@ -8967,7 +8967,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '大聚灵丹'
                 )
@@ -8999,7 +8999,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玲珑心丹'
                 )
@@ -9016,7 +9016,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天心兰'
                 )
@@ -9042,7 +9042,7 @@ INSERT
 -- 天剑宗遗址 (map_id=15)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -9078,7 +9078,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -9095,7 +9095,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '寒铁'
                 )
@@ -9131,7 +9131,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '寒铁'
                 )
@@ -9148,7 +9148,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '赤铜矿'
                 )
@@ -9180,7 +9180,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '诛仙剑诀玉简'
                 )
@@ -9193,7 +9193,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '纯钧剑'
                 )
@@ -9229,7 +9229,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -9242,7 +9242,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '七星剑'
                 )
@@ -9274,7 +9274,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '养剑术玉简'
                 )
@@ -9310,7 +9310,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '寒铁'
                 )
@@ -9327,7 +9327,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄铁矿石'
                 )
@@ -9363,7 +9363,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -9380,7 +9380,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -9412,7 +9412,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '轩辕剑法玉简'
                 )
@@ -9431,7 +9431,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '七星剑'
                 )
@@ -9467,7 +9467,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -9484,7 +9484,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '寒铁'
                 )
@@ -9520,7 +9520,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '寒铁'
                 )
@@ -9533,7 +9533,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '青冥剑'
                 )
@@ -9569,7 +9569,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -9586,7 +9586,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '寒铁'
                 )
@@ -9614,7 +9614,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄铁矿石'
                 )
@@ -9654,7 +9654,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天元丹'
                 )
@@ -9671,7 +9671,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -9697,7 +9697,7 @@ INSERT
 -- 焚天岭 (map_id=16)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -9725,7 +9725,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '赤铜矿'
                 )
@@ -9769,7 +9769,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天外陨铁'
                 )
@@ -9805,7 +9805,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '地火芝'
                 )
@@ -9818,7 +9818,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '刑天斧'
                 )
@@ -9846,7 +9846,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '地火芝'
                 )
@@ -9886,7 +9886,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '焚天诀玉简'
                 )
@@ -9928,7 +9928,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '赤铜矿'
                 )
@@ -9945,7 +9945,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '地火芝'
                 )
@@ -9981,7 +9981,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '赤铜矿'
                 )
@@ -9998,7 +9998,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -10030,7 +10030,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '三昧真火玉简'
                 )
@@ -10043,7 +10043,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '龙雀刀'
                 )
@@ -10079,7 +10079,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '赤铜矿'
                 )
@@ -10096,7 +10096,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '地火芝'
                 )
@@ -10132,7 +10132,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -10149,7 +10149,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '地火芝'
                 )
@@ -10185,7 +10185,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '赤铜矿'
                 )
@@ -10202,7 +10202,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '寒铁'
                 )
@@ -10238,7 +10238,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -10255,7 +10255,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '赤铜矿'
                 )
@@ -10299,7 +10299,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '龙雀刀图'
                 )
@@ -10316,7 +10316,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '赤铜矿'
                 )
@@ -10350,7 +10350,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '朱雀卵'
                 )
@@ -10367,7 +10367,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '地火芝'
                 )
@@ -10381,7 +10381,7 @@ INSERT
 -- 归墟海外围 (map_id=17)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -10417,7 +10417,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -10434,7 +10434,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -10462,7 +10462,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '冰魄花'
                 )
@@ -10502,7 +10502,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '水镜术玉简'
                 )
@@ -10544,7 +10544,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -10561,7 +10561,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '雪莲'
                 )
@@ -10589,7 +10589,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '雪莲'
                 )
@@ -10633,7 +10633,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -10646,7 +10646,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '龙鳞软甲'
                 )
@@ -10674,7 +10674,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵蚕丝'
                 )
@@ -10714,7 +10714,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '霸王枪'
                 )
@@ -10731,7 +10731,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 )
@@ -10759,7 +10759,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵芝'
                 )
@@ -10803,7 +10803,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -10820,7 +10820,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '雪莲'
                 )
@@ -10856,7 +10856,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵木'
                 )
@@ -10873,7 +10873,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄铁矿石'
                 )
@@ -10909,7 +10909,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '冰魄花'
                 )
@@ -10926,7 +10926,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 )
@@ -10958,7 +10958,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '虎骨丹'
                 )
@@ -10975,7 +10975,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 )
@@ -11001,7 +11001,7 @@ INSERT
 -- 玲珑坊 (map_id=18)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -11037,7 +11037,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '赤铜矿'
                 )
@@ -11054,7 +11054,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '寒铁'
                 )
@@ -11090,7 +11090,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '寒铁'
                 )
@@ -11107,7 +11107,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 )
@@ -11143,7 +11143,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -11160,7 +11160,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 )
@@ -11196,7 +11196,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -11213,7 +11213,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -11245,7 +11245,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兵锋诀玉简'
                 )
@@ -11258,7 +11258,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '玄铁甲'
                 )
@@ -11294,7 +11294,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -11311,7 +11311,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -11347,7 +11347,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '寒铁'
                 )
@@ -11360,7 +11360,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '寒铁重甲'
                 )
@@ -11396,7 +11396,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '寒铁'
                 )
@@ -11413,7 +11413,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '赤铜矿'
                 )
@@ -11441,7 +11441,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵蚕丝'
                 )
@@ -11485,7 +11485,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -11498,7 +11498,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '开山斧'
                 )
@@ -11534,7 +11534,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄铁矿石'
                 )
@@ -11551,7 +11551,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '寒铁'
                 )
@@ -11587,7 +11587,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '朱砂'
                 )
@@ -11604,7 +11604,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -11649,7 +11649,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '太乙金丹方'
                 )
@@ -11662,7 +11662,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天元丹'
                 )
@@ -11676,7 +11676,7 @@ INSERT
 -- 魔王岭 (map_id=19)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -11704,7 +11704,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '龙血草'
                 )
@@ -11744,7 +11744,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '伏魔钟玉简'
                 )
@@ -11780,7 +11780,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -11793,7 +11793,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '追魂枪'
                 )
@@ -11829,7 +11829,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -11846,7 +11846,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '曼陀罗'
                 )
@@ -11878,7 +11878,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '拂尘净心玉简'
                 )
@@ -11914,7 +11914,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -11931,7 +11931,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -11963,7 +11963,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '水镜术玉简'
                 )
@@ -11995,7 +11995,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '逆乱阴阳玉简'
                 )
@@ -12008,7 +12008,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '陨铁战甲'
                 )
@@ -12036,7 +12036,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '曼陀罗'
                 )
@@ -12080,7 +12080,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵木'
                 )
@@ -12097,7 +12097,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -12133,7 +12133,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -12150,7 +12150,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '龙血草'
                 )
@@ -12178,7 +12178,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '龙血草'
                 )
@@ -12218,7 +12218,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '破境丹'
                 )
@@ -12235,7 +12235,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '曼陀罗'
                 )
@@ -12267,7 +12267,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '破境丹'
                 )
@@ -12284,7 +12284,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -12310,7 +12310,7 @@ INSERT
 -- 天机阁外山 (map_id=20)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -12346,7 +12346,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -12363,7 +12363,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '赤铜矿'
                 )
@@ -12391,7 +12391,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '赤铜矿'
                 )
@@ -12435,7 +12435,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -12452,7 +12452,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 )
@@ -12484,7 +12484,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '八门金锁玉简'
                 )
@@ -12520,7 +12520,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '寒铁'
                 )
@@ -12533,7 +12533,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '玄铁甲'
                 )
@@ -12561,7 +12561,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -12601,7 +12601,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '太乙遁甲玉简'
                 )
@@ -12637,7 +12637,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '虚空石'
                 )
@@ -12665,7 +12665,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天雷竹'
                 )
@@ -12709,7 +12709,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '寒铁'
                 )
@@ -12726,7 +12726,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -12762,7 +12762,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄铁矿石'
                 )
@@ -12779,7 +12779,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵木'
                 )
@@ -12807,7 +12807,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 )
@@ -12847,7 +12847,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '帝江戟图'
                 )
@@ -12864,7 +12864,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 )
@@ -12878,7 +12878,7 @@ INSERT
 -- 九幽魔窟·一层 (map_id=21)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -12914,7 +12914,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -12931,7 +12931,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '幽冥花'
                 )
@@ -12967,7 +12967,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -12984,7 +12984,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '曼陀罗'
                 )
@@ -13020,7 +13020,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -13037,7 +13037,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -13069,7 +13069,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '血魔真经玉简'
                 )
@@ -13097,7 +13097,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -13141,7 +13141,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -13158,7 +13158,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -13194,7 +13194,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -13207,7 +13207,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '镇魔棍'
                 )
@@ -13239,7 +13239,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '偷天换日玉简'
                 )
@@ -13252,7 +13252,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '陨铁战甲'
                 )
@@ -13288,7 +13288,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -13305,7 +13305,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '曼陀罗'
                 )
@@ -13341,7 +13341,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -13358,7 +13358,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -13394,7 +13394,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '太阴菇'
                 )
@@ -13411,7 +13411,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -13447,7 +13447,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -13464,7 +13464,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 )
@@ -13478,7 +13478,7 @@ INSERT
 -- 冰霜冻原 (map_id=22)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -13506,7 +13506,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '冰魄花'
                 )
@@ -13550,7 +13550,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵蚕丝'
                 )
@@ -13567,7 +13567,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天蚕'
                 )
@@ -13599,7 +13599,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '冰封万里玉简'
                 )
@@ -13627,7 +13627,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '雪莲'
                 )
@@ -13671,7 +13671,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '冰魄花'
                 )
@@ -13684,7 +13684,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '寒铁重甲'
                 )
@@ -13716,7 +13716,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '寒冰掌玉简'
                 )
@@ -13752,7 +13752,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '雪莲'
                 )
@@ -13769,7 +13769,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '月华露'
                 )
@@ -13801,7 +13801,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '冰封万里玉简'
                 )
@@ -13837,7 +13837,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -13854,7 +13854,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -13882,7 +13882,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '万载玄冰'
                 )
@@ -13926,7 +13926,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '雪莲'
                 )
@@ -13943,7 +13943,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '冰魄花'
                 )
@@ -13979,7 +13979,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '冰魄花'
                 )
@@ -13996,7 +13996,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 )
@@ -14028,7 +14028,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '化神丹方'
                 )
@@ -14041,7 +14041,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '大还魂丹'
                 )
@@ -14075,7 +14075,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '青龙卵'
                 )
@@ -14092,7 +14092,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '万载玄冰'
                 )
@@ -14124,7 +14124,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄武甲丹'
                 )
@@ -14138,7 +14138,7 @@ INSERT
 -- 神木林 (map_id=23)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -14166,7 +14166,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '千年灵木'
                 )
@@ -14206,7 +14206,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '万木逢春玉简'
                 )
@@ -14234,7 +14234,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '菩提叶'
                 )
@@ -14278,7 +14278,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '千年灵木'
                 )
@@ -14291,7 +14291,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '金刚杵'
                 )
@@ -14327,7 +14327,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵木'
                 )
@@ -14344,7 +14344,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '千年灵木'
                 )
@@ -14376,7 +14376,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '荆棘缠绕玉简'
                 )
@@ -14412,7 +14412,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '千年灵木'
                 )
@@ -14429,7 +14429,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天心兰'
                 )
@@ -14465,7 +14465,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '千年灵木'
                 )
@@ -14478,7 +14478,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '云锦仙袍'
                 )
@@ -14506,7 +14506,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵木'
                 )
@@ -14542,7 +14542,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天蚕'
                 )
@@ -14586,7 +14586,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵芝'
                 )
@@ -14603,7 +14603,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '千年灵芝'
                 )
@@ -14639,7 +14639,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵木'
                 )
@@ -14656,7 +14656,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '千年灵木'
                 )
@@ -14688,7 +14688,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '大悟道丹'
                 )
@@ -14705,7 +14705,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '菩提叶'
                 )
@@ -14719,7 +14719,7 @@ INSERT
 -- 金沙荒漠 (map_id=24)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -14747,7 +14747,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '赤铜矿'
                 )
@@ -14783,7 +14783,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -14823,7 +14823,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '厚土盾玉简'
                 )
@@ -14859,7 +14859,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -14876,7 +14876,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -14908,7 +14908,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '地动术玉简'
                 )
@@ -14936,7 +14936,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '太阳花'
                 )
@@ -14980,7 +14980,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -14997,7 +14997,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 )
@@ -15029,7 +15029,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '泰山压顶玉简'
                 )
@@ -15057,7 +15057,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄铁矿石'
                 )
@@ -15101,7 +15101,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -15118,7 +15118,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -15154,7 +15154,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '朱砂'
                 )
@@ -15171,7 +15171,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵芝'
                 )
@@ -15207,7 +15207,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '赤铜矿'
                 )
@@ -15224,7 +15224,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -15256,7 +15256,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '踏风丹'
                 )
@@ -15270,7 +15270,7 @@ INSERT
 -- 暗影沼泽 (map_id=25)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -15298,7 +15298,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '幽冥花'
                 )
@@ -15342,7 +15342,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -15355,7 +15355,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '镇魂铃'
                 )
@@ -15387,7 +15387,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '曼陀罗'
                 )
@@ -15423,7 +15423,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -15440,7 +15440,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '幽冥花'
                 )
@@ -15476,7 +15476,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -15493,7 +15493,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '幽冥花'
                 )
@@ -15525,7 +15525,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '偷天换日玉简'
                 )
@@ -15538,7 +15538,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '陨铁战甲'
                 )
@@ -15574,7 +15574,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '曼陀罗'
                 )
@@ -15591,7 +15591,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -15623,7 +15623,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '血魔真经玉简'
                 )
@@ -15651,7 +15651,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '曼陀罗'
                 )
@@ -15695,7 +15695,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -15708,7 +15708,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '银丝软鞭'
                 )
@@ -15736,7 +15736,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '太阴菇'
                 )
@@ -15780,7 +15780,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -15797,7 +15797,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '幽冥花'
                 )
@@ -15829,7 +15829,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '七星剑图'
                 )
@@ -15846,7 +15846,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -15860,7 +15860,7 @@ INSERT
 -- 太虚城 (map_id=26)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -15896,7 +15896,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -15913,7 +15913,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -15945,7 +15945,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '七星剑'
                 )
@@ -15962,7 +15962,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -15998,7 +15998,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -16015,7 +16015,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 )
@@ -16051,7 +16051,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '血参'
                 )
@@ -16068,7 +16068,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '何首乌'
                 )
@@ -16104,7 +16104,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -16121,7 +16121,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天心兰'
                 )
@@ -16157,7 +16157,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '菩提叶'
                 )
@@ -16174,7 +16174,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天心兰'
                 )
@@ -16206,7 +16206,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天罡北斗阵玉简'
                 )
@@ -16238,7 +16238,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '一气化三清玉简'
                 )
@@ -16251,7 +16251,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '龙鳞软甲'
                 )
@@ -16287,7 +16287,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫丹参'
                 )
@@ -16304,7 +16304,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '何首乌'
                 )
@@ -16340,7 +16340,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '菩提叶'
                 )
@@ -16357,7 +16357,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天心兰'
                 )
@@ -16393,7 +16393,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -16410,7 +16410,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -16446,7 +16446,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -16463,7 +16463,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 )
@@ -16477,7 +16477,7 @@ INSERT
 -- 不周山 (map_id=27)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -16505,7 +16505,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '混沌石'
                 )
@@ -16545,7 +16545,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '碎星斧玉简'
                 )
@@ -16581,7 +16581,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 )
@@ -16594,7 +16594,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '震地锤'
                 )
@@ -16626,7 +16626,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '盘古开天玉简'
                 )
@@ -16654,7 +16654,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 )
@@ -16694,7 +16694,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '五雷正法玉简'
                 )
@@ -16730,7 +16730,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -16743,7 +16743,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '碎山锤'
                 )
@@ -16775,7 +16775,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '袖里乾坤玉简'
                 )
@@ -16788,7 +16788,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '盘古斧'
                 )
@@ -16816,7 +16816,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 )
@@ -16860,7 +16860,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -16873,7 +16873,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '震地锤'
                 )
@@ -16901,7 +16901,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -16945,7 +16945,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -16962,7 +16962,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天雷竹'
                 )
@@ -16994,7 +16994,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '太乙金丹'
                 )
@@ -17011,7 +17011,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '混沌石'
                 )
@@ -17043,7 +17043,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '大悟道丹'
                 )
@@ -17060,7 +17060,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '菩提叶'
                 )
@@ -17074,7 +17074,7 @@ INSERT
 -- 昆仑墟 (map_id=28)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -17110,7 +17110,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -17127,7 +17127,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -17163,7 +17163,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -17180,7 +17180,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 )
@@ -17212,7 +17212,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '逆乱阴阳玉简'
                 )
@@ -17248,7 +17248,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '凤羽'
                 )
@@ -17261,7 +17261,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '落日弓'
                 )
@@ -17293,7 +17293,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '蟠桃仙术玉简'
                 )
@@ -17329,7 +17329,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '菩提叶'
                 )
@@ -17346,7 +17346,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天心兰'
                 )
@@ -17382,7 +17382,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -17395,7 +17395,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '刑天斧'
                 )
@@ -17427,7 +17427,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '混沌钟玉简'
                 )
@@ -17455,7 +17455,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -17499,7 +17499,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -17512,7 +17512,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '灵犀拂尘'
                 )
@@ -17540,7 +17540,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天心兰'
                 )
@@ -17584,7 +17584,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '菩提叶'
                 )
@@ -17601,7 +17601,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天心兰'
                 )
@@ -17635,7 +17635,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '麒麟卵'
                 )
@@ -17652,7 +17652,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -17666,7 +17666,7 @@ INSERT
 -- 封神台 (map_id=29)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -17698,7 +17698,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兵主杀伐玉简'
                 )
@@ -17734,7 +17734,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '朱砂'
                 )
@@ -17751,7 +17751,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -17787,7 +17787,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -17804,7 +17804,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天心兰'
                 )
@@ -17840,7 +17840,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -17853,7 +17853,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '金刚降魔杵'
                 )
@@ -17885,7 +17885,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '后羿射日玉简'
                 )
@@ -17917,7 +17917,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天罡北斗阵玉简'
                 )
@@ -17945,7 +17945,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天心兰'
                 )
@@ -17985,7 +17985,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '混沌钟玉简'
                 )
@@ -17998,7 +17998,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '缚龙索'
                 )
@@ -18026,7 +18026,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -18070,7 +18070,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -18083,7 +18083,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '盘古斧'
                 )
@@ -18111,7 +18111,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -18155,7 +18155,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天心兰'
                 )
@@ -18172,7 +18172,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -18186,7 +18186,7 @@ INSERT
 -- 星河古道 (map_id=30)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -18214,7 +18214,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天外陨铁'
                 )
@@ -18258,7 +18258,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '虚空石'
                 )
@@ -18275,7 +18275,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -18307,7 +18307,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '混沌钟玉简'
                 )
@@ -18335,7 +18335,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '九天仙草'
                 )
@@ -18379,7 +18379,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天外陨铁'
                 )
@@ -18396,7 +18396,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 )
@@ -18432,7 +18432,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 )
@@ -18449,7 +18449,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天外陨铁'
                 )
@@ -18481,7 +18481,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天罡北斗阵玉简'
                 )
@@ -18513,7 +18513,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '八门金锁玉简'
                 )
@@ -18526,7 +18526,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '流星弓'
                 )
@@ -18554,7 +18554,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 )
@@ -18598,7 +18598,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '虚空石'
                 )
@@ -18611,7 +18611,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '流星弓'
                 )
@@ -18639,7 +18639,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '九天仙草'
                 )
@@ -18683,7 +18683,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天外陨铁'
                 )
@@ -18700,7 +18700,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 )
@@ -18714,7 +18714,7 @@ INSERT
 -- 紫府秘境 (map_id=31)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -18750,7 +18750,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -18767,7 +18767,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天心兰'
                 )
@@ -18803,7 +18803,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -18820,7 +18820,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -18852,7 +18852,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '一气化三清玉简'
                 )
@@ -18865,7 +18865,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '蚕丝法袍'
                 )
@@ -18901,7 +18901,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -18914,7 +18914,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '金刚杵'
                 )
@@ -18950,7 +18950,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天心兰'
                 )
@@ -18967,7 +18967,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '菩提叶'
                 )
@@ -18995,7 +18995,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '菩提叶'
                 )
@@ -19035,7 +19035,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '袖里乾坤玉简'
                 )
@@ -19067,7 +19067,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '混元功玉简'
                 )
@@ -19095,7 +19095,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -19139,7 +19139,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -19152,7 +19152,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '穿云弓'
                 )
@@ -19180,7 +19180,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天心兰'
                 )
@@ -19224,7 +19224,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '菩提叶'
                 )
@@ -19241,7 +19241,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -19255,7 +19255,7 @@ INSERT
 -- 九天雷池 (map_id=32)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -19291,7 +19291,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天雷竹'
                 )
@@ -19308,7 +19308,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -19336,7 +19336,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天雷竹'
                 )
@@ -19380,7 +19380,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -19393,7 +19393,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '穿云弓'
                 )
@@ -19425,7 +19425,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '五雷正法玉简'
                 )
@@ -19453,7 +19453,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天雷竹'
                 )
@@ -19497,7 +19497,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天雷竹'
                 )
@@ -19514,7 +19514,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 )
@@ -19542,7 +19542,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '混沌石'
                 )
@@ -19582,7 +19582,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '混沌钟玉简'
                 )
@@ -19595,7 +19595,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '昊天锤'
                 )
@@ -19623,7 +19623,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '混沌石'
                 )
@@ -19667,7 +19667,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天雷竹'
                 )
@@ -19680,7 +19680,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '昊天锤'
                 )
@@ -19708,7 +19708,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -19752,7 +19752,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天雷竹'
                 )
@@ -19769,7 +19769,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -19783,7 +19783,7 @@ INSERT
 -- 蚩尤血渊 (map_id=33)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -19811,7 +19811,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '龙血草'
                 )
@@ -19851,7 +19851,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '盘古开天玉简'
                 )
@@ -19887,7 +19887,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -19900,7 +19900,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '刑天斧'
                 )
@@ -19936,7 +19936,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -19953,7 +19953,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '龙血草'
                 )
@@ -19985,7 +19985,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '刑天斧法玉简'
                 )
@@ -19998,7 +19998,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '陨铁战甲'
                 )
@@ -20034,7 +20034,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -20051,7 +20051,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '幽冥花'
                 )
@@ -20079,7 +20079,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -20119,7 +20119,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '盘古开天玉简'
                 )
@@ -20132,7 +20132,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '盘古斧'
                 )
@@ -20160,7 +20160,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '幽冥花'
                 )
@@ -20204,7 +20204,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -20217,7 +20217,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '陨铁战甲'
                 )
@@ -20245,7 +20245,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -20289,7 +20289,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -20306,7 +20306,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '龙血草'
                 )
@@ -20320,7 +20320,7 @@ INSERT
 -- 太上道场 (map_id=34)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -20356,7 +20356,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天心兰'
                 )
@@ -20373,7 +20373,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '菩提叶'
                 )
@@ -20409,7 +20409,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -20426,7 +20426,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天心兰'
                 )
@@ -20458,7 +20458,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '逆乱阴阳玉简'
                 )
@@ -20494,7 +20494,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -20511,7 +20511,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '虚空石'
                 )
@@ -20547,7 +20547,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -20560,7 +20560,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '金刚降魔杵'
                 )
@@ -20592,7 +20592,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '地动术玉简'
                 )
@@ -20620,7 +20620,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天心兰'
                 )
@@ -20660,7 +20660,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '一气化三清玉简'
                 )
@@ -20696,7 +20696,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -20713,7 +20713,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天心兰'
                 )
@@ -20749,7 +20749,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -20762,7 +20762,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '金刚降魔杵'
                 )
@@ -20790,7 +20790,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -20834,7 +20834,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天心兰'
                 )
@@ -20851,7 +20851,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '菩提叶'
                 )
@@ -20865,7 +20865,7 @@ INSERT
 -- 仙魔战场 (map_id=35)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -20901,7 +20901,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -20918,7 +20918,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -20954,7 +20954,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -20967,7 +20967,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '追魂枪'
                 )
@@ -20999,7 +20999,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '太白斩魔玉简'
                 )
@@ -21027,7 +21027,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -21067,7 +21067,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '混沌钟玉简'
                 )
@@ -21095,7 +21095,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '混沌石'
                 )
@@ -21139,7 +21139,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -21156,7 +21156,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '虚空石'
                 )
@@ -21188,7 +21188,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '盘古开天玉简'
                 )
@@ -21201,7 +21201,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '混元战甲'
                 )
@@ -21229,7 +21229,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -21273,7 +21273,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -21286,7 +21286,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '混元战甲'
                 )
@@ -21314,7 +21314,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '混沌石'
                 )
@@ -21358,7 +21358,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天外陨铁'
                 )
@@ -21375,7 +21375,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 )
@@ -21389,7 +21389,7 @@ INSERT
 -- 万妖谷 (map_id=36)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -21425,7 +21425,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -21442,7 +21442,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -21470,7 +21470,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '龙血草'
                 )
@@ -21510,7 +21510,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '霸下真身玉简'
                 )
@@ -21538,7 +21538,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -21578,7 +21578,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '射日弓玉简'
                 )
@@ -21591,7 +21591,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '玄武甲'
                 )
@@ -21619,7 +21619,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '九天仙草'
                 )
@@ -21663,7 +21663,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -21680,7 +21680,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -21712,7 +21712,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '蟠桃仙术玉简'
                 )
@@ -21740,7 +21740,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -21784,7 +21784,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -21797,7 +21797,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '龙鳞软甲'
                 )
@@ -21825,7 +21825,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '龙血草'
                 )
@@ -21869,7 +21869,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -21886,7 +21886,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '龙血草'
                 )
@@ -21900,7 +21900,7 @@ INSERT
 -- 死神沼泽 (map_id=37)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -21928,7 +21928,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '还魂草'
                 )
@@ -21972,7 +21972,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -21985,7 +21985,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '镇魂铃'
                 )
@@ -22017,7 +22017,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '偷天换日玉简'
                 )
@@ -22053,7 +22053,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -22070,7 +22070,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '幽冥花'
                 )
@@ -22106,7 +22106,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -22123,7 +22123,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '曼陀罗'
                 )
@@ -22151,7 +22151,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '曼陀罗'
                 )
@@ -22191,7 +22191,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '九天魔音玉简'
                 )
@@ -22223,7 +22223,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '太乙遁甲玉简'
                 )
@@ -22236,7 +22236,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '混元战甲'
                 )
@@ -22264,7 +22264,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -22308,7 +22308,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -22321,7 +22321,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '摄魂钟'
                 )
@@ -22349,7 +22349,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '太阴菇'
                 )
@@ -22393,7 +22393,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -22410,7 +22410,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '还魂草'
                 )
@@ -22424,7 +22424,7 @@ INSERT
 -- 悟道山 (map_id=38)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -22460,7 +22460,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天心兰'
                 )
@@ -22477,7 +22477,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '菩提叶'
                 )
@@ -22513,7 +22513,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -22530,7 +22530,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天心兰'
                 )
@@ -22562,7 +22562,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '道心通明玉简'
                 )
@@ -22598,7 +22598,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -22615,7 +22615,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -22651,7 +22651,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '菩提叶'
                 )
@@ -22668,7 +22668,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天心兰'
                 )
@@ -22704,7 +22704,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -22717,7 +22717,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '太极仙衣'
                 )
@@ -22745,7 +22745,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '菩提叶'
                 )
@@ -22785,7 +22785,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天人感应玉简'
                 )
@@ -22813,7 +22813,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天心兰'
                 )
@@ -22857,7 +22857,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -22870,7 +22870,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '太极仙衣'
                 )
@@ -22898,7 +22898,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -22942,7 +22942,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天心兰'
                 )
@@ -22959,7 +22959,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '菩提叶'
                 )
@@ -22973,7 +22973,7 @@ INSERT
 -- 大道河 (map_id=39)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -23009,7 +23009,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天心兰'
                 )
@@ -23026,7 +23026,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 )
@@ -23062,7 +23062,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 )
@@ -23079,7 +23079,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -23111,7 +23111,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '踏波行玉简'
                 )
@@ -23147,7 +23147,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -23160,7 +23160,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '如意金箍棒'
                 )
@@ -23188,7 +23188,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '冰魄花'
                 )
@@ -23232,7 +23232,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -23249,7 +23249,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 )
@@ -23285,7 +23285,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '血参'
                 )
@@ -23302,7 +23302,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '何首乌'
                 )
@@ -23334,7 +23334,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '逆转丹行玉简'
                 )
@@ -23362,7 +23362,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '冰魄花'
                 )
@@ -23406,7 +23406,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 )
@@ -23419,7 +23419,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '如意金箍棒'
                 )
@@ -23447,7 +23447,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 )
@@ -23491,7 +23491,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '雪莲'
                 )
@@ -23508,7 +23508,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '冰魄花'
                 )
@@ -23522,7 +23522,7 @@ INSERT
 -- 浮世幻境 (map_id=40)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -23558,7 +23558,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -23575,7 +23575,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天心兰'
                 )
@@ -23611,7 +23611,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -23628,7 +23628,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -23664,7 +23664,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天心兰'
                 )
@@ -23681,7 +23681,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '忘忧草'
                 )
@@ -23713,7 +23713,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '逆乱阴阳玉简'
                 )
@@ -23749,7 +23749,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -23762,7 +23762,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '七星剑'
                 )
@@ -23790,7 +23790,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '菩提叶'
                 )
@@ -23834,7 +23834,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -23851,7 +23851,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '虚空石'
                 )
@@ -23883,7 +23883,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '千幻刺杀玉简'
                 )
@@ -23919,7 +23919,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -23936,7 +23936,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '忘忧草'
                 )
@@ -23972,7 +23972,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -23985,7 +23985,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '霓裳扇'
                 )
@@ -24013,7 +24013,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '菩提叶'
                 )
@@ -24057,7 +24057,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '三生花'
                 )
@@ -24074,7 +24074,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '菩提叶'
                 )
@@ -24088,7 +24088,7 @@ INSERT
 -- 混沌海 (map_id=41)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -24116,7 +24116,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '混沌石'
                 )
@@ -24160,7 +24160,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '混沌石'
                 )
@@ -24177,7 +24177,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '虚空石'
                 )
@@ -24209,7 +24209,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '混沌钟玉简'
                 )
@@ -24245,7 +24245,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '混沌石'
                 )
@@ -24258,7 +24258,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '盘古斧'
                 )
@@ -24286,7 +24286,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '先天庚金'
                 )
@@ -24326,7 +24326,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '盘古开天玉简'
                 )
@@ -24362,7 +24362,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天心兰'
                 )
@@ -24379,7 +24379,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '菩提叶'
                 )
@@ -24411,7 +24411,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '蟠桃仙术玉简'
                 )
@@ -24439,7 +24439,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '混沌石'
                 )
@@ -24483,7 +24483,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '龙鳞'
                 )
@@ -24496,7 +24496,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '射日神弓'
                 )
@@ -24524,7 +24524,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '虚空石'
                 )
@@ -24568,7 +24568,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '地脉精华'
                 )
@@ -24585,7 +24585,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '混沌石'
                 )
@@ -24599,7 +24599,7 @@ INSERT
 -- 飞升台 (map_id=42)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -24635,7 +24635,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '地脉精华'
                 )
@@ -24652,7 +24652,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '混沌石'
                 )
@@ -24688,7 +24688,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '菩提叶'
                 )
@@ -24705,7 +24705,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天心兰'
                 )
@@ -24741,7 +24741,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -24758,7 +24758,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 )
@@ -24790,7 +24790,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '一气化三清玉简'
                 )
@@ -24826,7 +24826,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天心兰'
                 )
@@ -24843,7 +24843,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -24879,7 +24879,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -24896,7 +24896,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '虚空石'
                 )
@@ -24928,7 +24928,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '道心通明玉简'
                 )
@@ -24960,7 +24960,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '袖里乾坤玉简'
                 )
@@ -24988,7 +24988,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '混沌石'
                 )
@@ -25032,7 +25032,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '地脉精华'
                 )
@@ -25049,7 +25049,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '混沌石'
                 )
@@ -25077,7 +25077,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -25121,7 +25121,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '菩提叶'
                 )
@@ -25138,7 +25138,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天心兰'
                 )
@@ -25152,7 +25152,7 @@ INSERT
 -- 归墟海底 (map_id=43)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -25188,7 +25188,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 )
@@ -25224,7 +25224,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 )
@@ -25241,7 +25241,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '混沌石'
                 )
@@ -25277,7 +25277,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 )
@@ -25290,7 +25290,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '玄武甲'
                 )
@@ -25322,7 +25322,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '混沌钟玉简'
                 )
@@ -25350,7 +25350,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 )
@@ -25394,7 +25394,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -25411,7 +25411,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 )
@@ -25439,7 +25439,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '混沌石'
                 )
@@ -25479,7 +25479,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '霸下真身玉简'
                 )
@@ -25507,7 +25507,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '冰魄花'
                 )
@@ -25551,7 +25551,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '龙鳞'
                 )
@@ -25564,7 +25564,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '东皇钟'
                 )
@@ -25592,7 +25592,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '万载玄冰'
                 )
@@ -25636,7 +25636,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -25653,7 +25653,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 )
@@ -25667,7 +25667,7 @@ INSERT
 -- 仙堺裂缝 (map_id=44)
 INSERT
     INTO
-        xt_bounty(
+        bounty(
             map_id,
             name,
             description,
@@ -25703,7 +25703,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '混沌石'
                 )
@@ -25720,7 +25720,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '龙鳞'
                 )
@@ -25756,7 +25756,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天外陨铁'
                 )
@@ -25773,7 +25773,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '太阳真金'
                 )
@@ -25805,7 +25805,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '袖里乾坤玉简'
                 )
@@ -25841,7 +25841,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '混沌石'
                 )
@@ -25858,7 +25858,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 )
@@ -25894,7 +25894,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -25907,7 +25907,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '轩辕剑'
                 )
@@ -25939,7 +25939,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '逆乱阴阳玉简'
                 )
@@ -25975,7 +25975,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -25992,7 +25992,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '虚空石'
                 )
@@ -26024,7 +26024,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '逍遥游玉简'
                 )
@@ -26060,7 +26060,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '混沌石'
                 )
@@ -26077,7 +26077,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '龙鳞'
                 )
@@ -26113,7 +26113,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 )
@@ -26126,7 +26126,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '方天追魂枪'
                 )
@@ -26154,7 +26154,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 )
@@ -26198,7 +26198,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '地脉精华'
                 )
@@ -26215,7 +26215,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '凤羽'
                 )
@@ -26241,11 +26241,11 @@ INSERT
 -- Reset sequence
 SELECT
     setval(
-        'xt_bounty_id_seq',
+        'bounty_id_seq',
         (
             SELECT
                 MAX( id )
             FROM
-                xt_bounty
+                bounty
         )
     );

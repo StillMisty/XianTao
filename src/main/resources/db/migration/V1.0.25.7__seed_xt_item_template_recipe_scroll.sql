@@ -1,7 +1,7 @@
--- 丹方卷轴种子数据 (xt_item_template, type=RECIPE_SCROLL)
+-- 丹方卷轴种子数据 (item_template, type=RECIPE_SCROLL)
 INSERT
     INTO
-        xt_item_template(
+        item_template(
             name,
             TYPE,
             properties,
@@ -21,7 +21,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '小聚灵丹'
                 ),
@@ -47,7 +47,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '聚灵丹'
                 ),
@@ -73,7 +73,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '大聚灵丹'
                 ),
@@ -99,7 +99,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天元丹'
                 ),
@@ -125,7 +125,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '太乙金丹'
                 ),
@@ -151,7 +151,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '九转仙灵丹'
                 ),
@@ -177,7 +177,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '回春丹'
                 ),
@@ -203,7 +203,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '大还丹'
                 ),
@@ -229,7 +229,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '九转回春丹'
                 ),
@@ -255,7 +255,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '小还魂丹'
                 ),
@@ -281,7 +281,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '大还魂丹'
                 ),
@@ -307,7 +307,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '洗髓丹'
                 ),
@@ -333,7 +333,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '壮骨丹'
                 ),
@@ -359,7 +359,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '金刚散'
                 ),
@@ -385,7 +385,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '轻身散'
                 ),
@@ -411,7 +411,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '开智丹'
                 ),
@@ -437,7 +437,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '龙力丹'
                 ),
@@ -463,7 +463,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '不动明王丹'
                 ),
@@ -489,7 +489,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '踏风丹'
                 ),
@@ -515,7 +515,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '大悟道丹'
                 ),
@@ -541,7 +541,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '筑基丹'
                 ),
@@ -567,7 +567,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '结丹丹'
                 ),
@@ -593,7 +593,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '化婴丹'
                 ),
@@ -619,7 +619,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '化神丹'
                 ),
@@ -645,7 +645,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '瞬回丹'
                 ),
@@ -671,7 +671,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '抗性丹'
                 ),
@@ -697,7 +697,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '避毒丹'
                 ),
@@ -723,7 +723,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '清心丹'
                 ),
@@ -749,7 +749,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '凝神丹'
                 ),
@@ -775,7 +775,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '破甲丹'
                 ),
@@ -801,7 +801,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '延寿丹'
                 ),
@@ -827,7 +827,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天劫丹'
                 ),
@@ -853,7 +853,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '易容丹'
                 ),
@@ -879,7 +879,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '定颜丹'
                 ),
@@ -905,7 +905,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '辟谷丹'
                 ),

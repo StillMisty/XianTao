@@ -1,7 +1,7 @@
--- 丹药种子数据 (xt_item_template, type=POTION)
+-- 丹药种子数据 (item_template, type=POTION)
 INSERT
     INTO
-        xt_item_template(
+        item_template(
             name,
             TYPE,
             properties,

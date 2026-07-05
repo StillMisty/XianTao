@@ -1,6 +1,6 @@
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -31,7 +31,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '灵芝'
                     ),
@@ -63,7 +63,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '玄铁矿石'
                     ),
@@ -93,7 +93,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '赤铜矿'
                     ),
@@ -145,7 +145,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '地火芝'
                     ),
@@ -215,7 +215,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '青莲剑歌'
             )
@@ -242,7 +242,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '地火芝'
                     ),
@@ -274,7 +274,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '紫金砂'
                     ),
@@ -375,7 +375,7 @@ INSERT
 
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -400,7 +400,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '一气化三清'
             )
@@ -416,7 +416,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '魂玉碎片'
                     ),
@@ -451,7 +451,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '轩辕剑法'
             )
@@ -467,7 +467,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_equipment_template
+                            equipment_template
                         WHERE
                             name = '轩辕剑'
                     )
@@ -481,7 +481,7 @@ INSERT
 -- =================================================================
 INSERT
     INTO
-        xt_activity_event(
+        activity_event(
             activity_type,
             owner_id,
             code,
@@ -513,7 +513,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '灵芝'
                         ),
@@ -521,7 +521,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '灵木'
                         )
@@ -563,7 +563,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '地火芝'
                     ),
@@ -645,7 +645,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '兽骨'
                         ),
@@ -653,7 +653,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '妖兽皮'
                         )
@@ -684,7 +684,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '寒铁'
                     ),
@@ -721,7 +721,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '朱砂'
                         ),
@@ -729,7 +729,7 @@ INSERT
                             SELECT
                                 id
                             FROM
-                                xt_item_template
+                                item_template
                             WHERE
                                 name = '玄晶'
                         )
@@ -799,7 +799,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '灵芝'
                     ),
@@ -835,7 +835,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '魂玉碎片'
                     ),
@@ -859,7 +859,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '青莲剑歌'
             )
@@ -880,7 +880,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_item_template
+                    item_template
                 WHERE
                     name = '兽骨'
             )
@@ -896,7 +896,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '聚灵丹'
                     ),

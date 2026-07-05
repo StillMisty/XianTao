@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.infrastructure.repository.BeastRepository;
 import top.stillmisty.xiantao.infrastructure.repository.FudiRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SpiritRepository;
@@ -61,7 +61,7 @@ public class FudiHelper {
   }
 
   /** 获取用户信息，不存在则抛出异常 */
-  public User getUserOrThrow(Long userId) {
+  public Player getUserOrThrow(Long userId) {
     return userStateService.loadUser(userId);
   }
 

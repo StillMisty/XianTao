@@ -1,12 +1,12 @@
 -- 地灵实例表
 CREATE
     TABLE
-        xt_spirit(
+        spirit(
             id BIGSERIAL PRIMARY KEY,
-            fudi_id BIGINT NOT NULL UNIQUE REFERENCES xt_fudi(id) ON
+            fudi_id BIGINT NOT NULL UNIQUE REFERENCES fudi(id) ON
             DELETE
                 CASCADE,
-                form_id INTEGER NOT NULL REFERENCES xt_spirit_form(id),
+                form_id INTEGER NOT NULL REFERENCES spirit_form(id),
                 affection INTEGER NOT NULL DEFAULT 0,
                 affection_max INTEGER NOT NULL DEFAULT 1000,
                 mbti_type VARCHAR(4) NOT NULL,
@@ -26,30 +26,30 @@ CREATE
 
 CREATE
     INDEX idx_spirit_fudi_id ON
-    xt_spirit(fudi_id);
+    spirit(fudi_id);
 
 CREATE
     INDEX idx_spirit_form_id ON
-    xt_spirit(form_id);
+    spirit(form_id);
 
 COMMENT ON
 TABLE
-    xt_spirit IS '地灵实例表（与福地1:1绑定）';
+    spirit IS '地灵实例表（与福地1:1绑定）';
 
 COMMENT ON
-COLUMN xt_spirit.fudi_id IS '所属福地ID';
+COLUMN spirit.fudi_id IS '所属福地ID';
 
 COMMENT ON
-COLUMN xt_spirit.form_id IS '地灵形态ID（关联xt_spirit_form表）';
+COLUMN spirit.form_id IS '地灵形态ID（关联spirit_form表）';
 
 COMMENT ON
-COLUMN xt_spirit.affection IS '好感度';
+COLUMN spirit.affection IS '好感度';
 
 COMMENT ON
-COLUMN xt_spirit.affection_max IS '好感度上限（默认1000）';
+COLUMN spirit.affection_max IS '好感度上限（默认1000）';
 
 COMMENT ON
-COLUMN xt_spirit.mbti_type IS 'MBTI人格类型（锁定，不可更改）';
+COLUMN spirit.mbti_type IS 'MBTI人格类型（锁定，不可更改）';
 
 COMMENT ON
-COLUMN xt_spirit.last_gift_time IS '上次送礼时间（每日限送一次）';
+COLUMN spirit.last_gift_time IS '上次送礼时间（每日限送一次）';

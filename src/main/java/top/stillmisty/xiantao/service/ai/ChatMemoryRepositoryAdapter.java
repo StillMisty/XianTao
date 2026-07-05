@@ -44,9 +44,6 @@ public class ChatMemoryRepositoryAdapter implements ChatMemoryRepository {
 
     List<Message> messages = new ArrayList<>();
     for (ChatHistory entry : entries) {
-      if (entry.getRole() == ChatRole.TOOL) {
-        continue;
-      }
       messages.add(toMessage(entry));
     }
     return messages;
@@ -57,18 +54,19 @@ public class ChatMemoryRepositoryAdapter implements ChatMemoryRepository {
   public void saveAll(String conversationId, List<Message> messages) {
     ConversationId cid = ConversationId.from(conversationId);
 
-    chatHistoryRepository.deleteByChatTypeAndConversationIdAndUserId(
-        cid.chatType(), cid.entityId(), cid.userId());
-
     String reasoning = extractReasoning(messages);
 
     int maxMessages = maxMessagesFor(cid.chatType());
     int skip = Math.max(0, messages.size() - maxMessages);
-    for (int i = skip; i < messages.size(); i++) {
+
+    // Append-only: count existing messages and only insert new ones
+    int existingCount =
+        chatHistoryRepository.countByChatTypeAndConversationIdAndUserId(
+            cid.chatType(), cid.entityId(), cid.userId());
+
+    int newStart = skip + existingCount;
+    for (int i = newStart; i < messages.size(); i++) {
       Message message = messages.get(i);
-      if (message.getMessageType() == MessageType.TOOL) {
-        continue;
-      }
       ChatHistory entry = new ChatHistory();
       entry.setChatType(cid.chatType());
       entry.setConversationId(cid.entityId());
@@ -83,6 +81,13 @@ public class ChatMemoryRepositoryAdapter implements ChatMemoryRepository {
       }
 
       chatHistoryRepository.save(entry);
+    }
+
+    // Trim old messages beyond the configured window
+    int newTotal = existingCount + (messages.size() - newStart);
+    if (newTotal > maxMessages) {
+      chatHistoryRepository.deleteOldestEntries(
+          cid.chatType(), cid.entityId(), cid.userId(), maxMessages);
     }
   }
 

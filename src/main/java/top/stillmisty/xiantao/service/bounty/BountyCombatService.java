@@ -19,7 +19,7 @@ import top.stillmisty.xiantao.domain.event.EventContextKeys;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.MapNodeRepository;
@@ -52,7 +52,7 @@ public class BountyCombatService {
 
   @Transactional
   public BountyRewardVO completeBounty(Long userId) {
-    User user = userStateService.loadUser(userId);
+    Player user = userStateService.loadUser(userId);
     if (user.getStatus() != UserStatus.BOUNTY) {
       throw new BusinessException(STATUS_BLOCKED, user.getStatus().getName(), "悬赏");
     }
@@ -76,7 +76,7 @@ public class BountyCombatService {
   }
 
   private BountyRewardVO processBountyCompletion(
-      Long userId, User user, UserBounty record, MapNode mapNode, long minutesElapsed) {
+      Long userId, Player user, UserBounty record, MapNode mapNode, long minutesElapsed) {
     List<BountyRewardItem> rewardItems = record.getParsedRewardItems();
     RewardStats stats = collectRewardStats(rewardItems);
     List<BountyRewardItem> items = filterNonCurrencyRewards(rewardItems);

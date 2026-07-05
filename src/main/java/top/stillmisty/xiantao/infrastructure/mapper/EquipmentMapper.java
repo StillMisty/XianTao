@@ -11,7 +11,7 @@ import top.stillmisty.xiantao.domain.item.enums.EquipmentSlot;
 public interface EquipmentMapper extends BaseMapper<Equipment> {
 
   @Select(
-      "SELECT * FROM xt_equipment WHERE user_id = #{userId} AND slot = #{slot} AND equipped = true FOR UPDATE")
+      "SELECT * FROM equipment WHERE user_id = #{userId} AND slot = #{slot} AND equipped = true FOR UPDATE")
   Equipment selectEquippedByUserIdAndSlotForUpdate(
       @Param("userId") Long userId, @Param("slot") EquipmentSlot slot);
 }

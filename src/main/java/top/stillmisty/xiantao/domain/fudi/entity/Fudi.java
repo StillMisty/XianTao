@@ -14,7 +14,7 @@ import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 
 /** 福地核心实体 */
 @EqualsAndHashCode
-@Table("xt_fudi")
+@Table("fudi")
 @Accessors(chain = true)
 @SuppressWarnings("NullAway")
 @Data

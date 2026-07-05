@@ -1,7 +1,7 @@
--- 法决定义表 (xt_skill)
+-- 法决定义表 (skill)
 CREATE
     TABLE
-        xt_skill(
+        skill(
             id BIGSERIAL PRIMARY KEY,
             name VARCHAR(64) NOT NULL UNIQUE,
             description VARCHAR(256),
@@ -16,7 +16,7 @@ CREATE
             level_requirement INT NOT NULL DEFAULT 1,
             create_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             update_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            CONSTRAINT fk_skill_prerequisite FOREIGN KEY(require_skill_id) REFERENCES xt_skill(id),
+            CONSTRAINT fk_skill_prerequisite FOREIGN KEY(require_skill_id) REFERENCES skill(id),
             CONSTRAINT chk_skill_type CHECK(
                 skill_type IN(
                     'ACTIVE',
@@ -40,45 +40,45 @@ CREATE
         );
 
 CREATE
-    INDEX idx_xt_skill_prerequisite ON
-    xt_skill(require_skill_id);
+    INDEX idx_skill_prerequisite ON
+    skill(require_skill_id);
 
 CREATE
-    INDEX idx_xt_skill_type ON
-    xt_skill(skill_type);
+    INDEX idx_skill_type ON
+    skill(skill_type);
 
 CREATE
-    INDEX idx_xt_skill_learnable ON
-    xt_skill(level_requirement, require_wis, require_skill_id);
+    INDEX idx_skill_learnable ON
+    skill(level_requirement, require_wis, require_skill_id);
 
 CREATE
-    INDEX idx_xt_skill_binding ON
-    xt_skill(binding_type, binding_value);
+    INDEX idx_skill_binding ON
+    skill(binding_type, binding_value);
 
 COMMENT ON
 TABLE
-    xt_skill IS '法决定义表';
+    skill IS '法决定义表';
 
 COMMENT ON
-COLUMN xt_skill.skill_type IS 'ACTIVE / PASSIVE';
+COLUMN skill.skill_type IS 'ACTIVE / PASSIVE';
 
 COMMENT ON
-COLUMN xt_skill.effects IS '效果列表 JSONB，支持多效果组合';
+COLUMN skill.effects IS '效果列表 JSONB，支持多效果组合';
 
 COMMENT ON
-COLUMN xt_skill.binding_type IS 'NONE / WEAPON_TYPE / WEAPON_CATEGORY / ELEMENT';
+COLUMN skill.binding_type IS 'NONE / WEAPON_TYPE / WEAPON_CATEGORY / ELEMENT';
 
 COMMENT ON
-COLUMN xt_skill.binding_value IS 'SWORD / 刀兵 / fire 等，NONE 时为 null';
+COLUMN skill.binding_value IS 'SWORD / 刀兵 / fire 等，NONE 时为 null';
 
 COMMENT ON
-COLUMN xt_skill.cooldown_seconds IS '冷却秒数';
+COLUMN skill.cooldown_seconds IS '冷却秒数';
 
 COMMENT ON
-COLUMN xt_skill.require_wis IS '智慧要求，NULL表示无要求';
+COLUMN skill.require_wis IS '智慧要求，NULL表示无要求';
 
 COMMENT ON
-COLUMN xt_skill.require_skill_id IS '前置法决ID，NULL表示无前置';
+COLUMN skill.require_skill_id IS '前置法决ID，NULL表示无前置';
 
 COMMENT ON
-COLUMN xt_skill.tags IS '标签数组，JSONB格式';
+COLUMN skill.tags IS '标签数组，JSONB格式';

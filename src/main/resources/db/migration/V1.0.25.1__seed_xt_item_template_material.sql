@@ -1,8 +1,8 @@
--- 材料种子数据 (xt_item_template, type=MATERIAL)
+-- 材料种子数据 (item_template, type=MATERIAL)
 -- properties 存储锻材三性: RIGIDITY(刚/硬度), TOUGHNESS(韧/延展), SPIRIT(灵/灵气蕴含度)
 INSERT
     INTO
-        xt_item_template(
+        item_template(
             name,
             TYPE,
             properties,

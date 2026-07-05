@@ -1,8 +1,8 @@
--- 怪物模板种子数据 (xt_monster_template)
+-- 怪物模板种子数据 (monster_template)
 -- ============ 1-10级 新手区 ============
 INSERT
     INTO
-        xt_monster_template(
+        monster_template(
             name,
             description,
             monster_type,
@@ -36,7 +36,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 ),
@@ -55,7 +55,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 ),
@@ -89,7 +89,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 ),
@@ -108,7 +108,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 ),
@@ -127,7 +127,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵芝'
                 ),
@@ -156,7 +156,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '蛮牛劲'
             )
@@ -170,7 +170,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 ),
@@ -189,7 +189,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 ),
@@ -208,7 +208,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '朱砂'
                 ),
@@ -237,7 +237,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '金刚体'
             )
@@ -251,7 +251,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄铁矿石'
                 ),
@@ -270,7 +270,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '寒铁'
                 ),
@@ -289,7 +289,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '赤铜矿'
                 ),
@@ -323,7 +323,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 ),
@@ -342,7 +342,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 ),
@@ -361,7 +361,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵芝'
                 ),
@@ -390,7 +390,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '蛮牛劲'
             )
@@ -404,7 +404,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 ),
@@ -423,7 +423,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 ),
@@ -442,7 +442,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '血参'
                 ),
@@ -471,7 +471,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '轻身术'
             )
@@ -485,7 +485,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 ),
@@ -504,7 +504,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 ),
@@ -523,7 +523,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '月华露'
                 ),
@@ -552,7 +552,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '破风斩'
             )
@@ -566,7 +566,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 ),
@@ -585,7 +585,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 ),
@@ -604,7 +604,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄铁矿石'
                 ),
@@ -638,7 +638,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵芝'
                 ),
@@ -657,7 +657,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '血参'
                 ),
@@ -676,7 +676,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '地火芝'
                 ),
@@ -705,7 +705,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '金刚体'
             )
@@ -719,7 +719,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵木'
                 ),
@@ -738,7 +738,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '千年灵木'
                 ),
@@ -757,7 +757,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '朱砂'
                 ),
@@ -775,7 +775,7 @@ INSERT
 -- ============ 10-20级 初级历练区 ============
 INSERT
     INTO
-        xt_monster_template(
+        monster_template(
             name,
             description,
             monster_type,
@@ -804,7 +804,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '寒冰掌'
             )
@@ -818,7 +818,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 ),
@@ -837,7 +837,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 ),
@@ -856,7 +856,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '雪莲'
                 ),
@@ -885,7 +885,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '烈火掌'
             )
@@ -899,7 +899,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 ),
@@ -918,7 +918,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '地火芝'
                 ),
@@ -937,7 +937,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '赤铜矿'
                 ),
@@ -966,7 +966,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '金刚体'
             )
@@ -980,7 +980,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄铁矿石'
                 ),
@@ -999,7 +999,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '寒铁'
                 ),
@@ -1018,7 +1018,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '朱砂'
                 ),
@@ -1047,7 +1047,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '静心诀'
             )
@@ -1061,7 +1061,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 ),
@@ -1080,7 +1080,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '月华露'
                 ),
@@ -1099,7 +1099,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '幽冥花'
                 ),
@@ -1128,7 +1128,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '破风斩'
             )
@@ -1142,7 +1142,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 ),
@@ -1161,7 +1161,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 ),
@@ -1180,7 +1180,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '血参'
                 ),
@@ -1209,7 +1209,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '蛮牛劲'
             )
@@ -1223,7 +1223,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '朱砂'
                 ),
@@ -1242,7 +1242,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵芝'
                 ),
@@ -1261,7 +1261,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '血参'
                 ),
@@ -1280,7 +1280,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '砍柴刀'
                 ),
@@ -1309,7 +1309,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '轻身术'
             )
@@ -1323,7 +1323,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 ),
@@ -1342,7 +1342,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 ),
@@ -1361,7 +1361,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '血参'
                 ),
@@ -1390,7 +1390,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '金刚体'
             )
@@ -1404,7 +1404,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄铁矿石'
                 ),
@@ -1423,7 +1423,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '寒铁'
                 ),
@@ -1442,7 +1442,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '赤铜矿'
                 ),
@@ -1471,7 +1471,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '寒冰掌'
             )
@@ -1485,7 +1485,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 ),
@@ -1504,7 +1504,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '幽冥花'
                 ),
@@ -1523,7 +1523,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 ),
@@ -1552,7 +1552,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '静心诀'
             )
@@ -1566,7 +1566,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 ),
@@ -1585,7 +1585,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 ),
@@ -1604,7 +1604,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '月华露'
                 ),
@@ -1622,7 +1622,7 @@ INSERT
 -- ============ 20-35级 中级历练区 ============
 INSERT
     INTO
-        xt_monster_template(
+        monster_template(
             name,
             description,
             monster_type,
@@ -1651,7 +1651,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '蛮牛劲'
             ),
@@ -1659,7 +1659,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '金刚体'
             )
@@ -1673,7 +1673,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄铁矿石'
                 ),
@@ -1692,7 +1692,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 ),
@@ -1711,7 +1711,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '赤铜矿'
                 ),
@@ -1740,7 +1740,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '通明心法'
             )
@@ -1754,7 +1754,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 ),
@@ -1773,7 +1773,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '幽冥花'
                 ),
@@ -1792,7 +1792,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '太阴菇'
                 ),
@@ -1821,7 +1821,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '轻身术'
             )
@@ -1835,7 +1835,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 ),
@@ -1854,7 +1854,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '血参'
                 ),
@@ -1873,7 +1873,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 ),
@@ -1902,7 +1902,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '寒冰掌'
             )
@@ -1916,7 +1916,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵蚕丝'
                 ),
@@ -1935,7 +1935,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '冰魄花'
                 ),
@@ -1954,7 +1954,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '雪莲'
                 ),
@@ -1983,7 +1983,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '清风剑法'
             ),
@@ -1991,7 +1991,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '通明心法'
             )
@@ -2005,7 +2005,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 ),
@@ -2024,7 +2024,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '朱砂'
                 ),
@@ -2043,7 +2043,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '赤铜矿'
                 ),
@@ -2062,7 +2062,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '桃木剑'
                 ),
@@ -2096,7 +2096,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 ),
@@ -2115,7 +2115,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '曼陀罗'
                 ),
@@ -2134,7 +2134,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 ),
@@ -2163,7 +2163,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '通明心法'
             )
@@ -2177,7 +2177,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 ),
@@ -2196,7 +2196,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '幽冥花'
                 ),
@@ -2215,7 +2215,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 ),
@@ -2244,7 +2244,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '开山斧'
             ),
@@ -2252,7 +2252,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '蛮牛劲'
             )
@@ -2266,7 +2266,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 ),
@@ -2285,7 +2285,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 ),
@@ -2304,7 +2304,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '血参'
                 ),
@@ -2333,7 +2333,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '清风剑法'
             ),
@@ -2341,7 +2341,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '轻身术'
             )
@@ -2355,7 +2355,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 ),
@@ -2374,7 +2374,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '龙血草'
                 ),
@@ -2393,7 +2393,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 ),
@@ -2411,7 +2411,7 @@ INSERT
 -- ============ 35-50级 高级历练区 ============
 INSERT
     INTO
-        xt_monster_template(
+        monster_template(
             name,
             description,
             monster_type,
@@ -2440,7 +2440,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '烈火掌'
             ),
@@ -2448,7 +2448,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '蛮牛劲'
             )
@@ -2462,7 +2462,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '赤铜矿'
                 ),
@@ -2481,7 +2481,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '地火芝'
                 ),
@@ -2500,7 +2500,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 ),
@@ -2529,7 +2529,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '天人感应'
             ),
@@ -2537,7 +2537,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '通明心法'
             )
@@ -2551,7 +2551,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 ),
@@ -2570,7 +2570,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '幽冥花'
                 ),
@@ -2589,7 +2589,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 ),
@@ -2618,7 +2618,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '飞仙剑法'
             ),
@@ -2626,7 +2626,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '金刚体'
             )
@@ -2640,7 +2640,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄铁矿石'
                 ),
@@ -2659,7 +2659,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 ),
@@ -2678,7 +2678,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 ),
@@ -2707,7 +2707,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '寒冰掌'
             ),
@@ -2715,7 +2715,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '静心诀'
             )
@@ -2729,7 +2729,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '雪莲'
                 ),
@@ -2748,7 +2748,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '冰魄花'
                 ),
@@ -2767,7 +2767,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 ),
@@ -2796,7 +2796,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '金刚体'
             ),
@@ -2804,7 +2804,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '横刀断岳'
             )
@@ -2818,7 +2818,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '寒铁'
                 ),
@@ -2837,7 +2837,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 ),
@@ -2856,7 +2856,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 ),
@@ -2875,7 +2875,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '玄铁甲'
                 ),
@@ -2904,7 +2904,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '轻身术'
             ),
@@ -2912,7 +2912,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '破风斩'
             )
@@ -2926,7 +2926,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 ),
@@ -2945,7 +2945,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天外陨铁'
                 ),
@@ -2964,7 +2964,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '穿云弓'
                 ),
@@ -2993,7 +2993,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '霸刀诀'
             ),
@@ -3001,7 +3001,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '蛮牛劲'
             )
@@ -3015,7 +3015,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 ),
@@ -3034,7 +3034,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天外陨铁'
                 ),
@@ -3053,7 +3053,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 ),
@@ -3072,7 +3072,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '断岳刀'
                 ),
@@ -3101,7 +3101,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '天人感应'
             ),
@@ -3109,7 +3109,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '金刚体'
             )
@@ -3123,7 +3123,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '千年灵木'
                 ),
@@ -3142,7 +3142,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵芝'
                 ),
@@ -3161,7 +3161,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 ),
@@ -3190,7 +3190,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '轻身术'
             ),
@@ -3198,7 +3198,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '飞仙剑法'
             )
@@ -3212,7 +3212,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天外陨铁'
                 ),
@@ -3231,7 +3231,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 ),
@@ -3250,7 +3250,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 ),
@@ -3268,7 +3268,7 @@ INSERT
 -- ============ 50-65级 大师区 ============
 INSERT
     INTO
-        xt_monster_template(
+        monster_template(
             name,
             description,
             monster_type,
@@ -3297,7 +3297,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '开山斧'
             ),
@@ -3305,7 +3305,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '横刀断岳'
             )
@@ -3319,7 +3319,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '兽骨'
                 ),
@@ -3338,7 +3338,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 ),
@@ -3357,7 +3357,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '血参'
                 ),
@@ -3376,7 +3376,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '开山斧'
                 ),
@@ -3405,7 +3405,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '烈火掌'
             ),
@@ -3413,7 +3413,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '轻身术'
             )
@@ -3427,7 +3427,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '地火芝'
                 ),
@@ -3446,7 +3446,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '太阳花'
                 ),
@@ -3465,7 +3465,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天外陨铁'
                 ),
@@ -3484,7 +3484,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '青冥剑'
                 ),
@@ -3513,7 +3513,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '剑心通明'
             ),
@@ -3521,7 +3521,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '天人感应'
             )
@@ -3535,7 +3535,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 ),
@@ -3554,7 +3554,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 ),
@@ -3573,7 +3573,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '千年灵芝'
                 ),
@@ -3592,7 +3592,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '灵蚕法袍'
                 ),
@@ -3621,7 +3621,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '万剑归宗'
             ),
@@ -3629,7 +3629,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '静心诀'
             )
@@ -3643,7 +3643,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '千年灵木'
                 ),
@@ -3662,7 +3662,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '幽冥花'
                 ),
@@ -3681,7 +3681,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 ),
@@ -3710,7 +3710,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '旋风斧'
             ),
@@ -3718,7 +3718,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '轻身术'
             )
@@ -3732,7 +3732,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天外陨铁'
                 ),
@@ -3751,7 +3751,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 ),
@@ -3770,7 +3770,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 ),
@@ -3799,7 +3799,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '霸刀诀'
             ),
@@ -3807,7 +3807,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '天人感应'
             )
@@ -3821,7 +3821,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 ),
@@ -3840,7 +3840,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '幽冥花'
                 ),
@@ -3859,7 +3859,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 ),
@@ -3878,7 +3878,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '寒铁重甲'
                 ),
@@ -3907,7 +3907,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '万剑归宗'
             ),
@@ -3915,7 +3915,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '剑心通明'
             )
@@ -3929,7 +3929,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '龙血草'
                 ),
@@ -3948,7 +3948,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 ),
@@ -3967,7 +3967,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 ),
@@ -3986,7 +3986,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '龙鳞软甲'
                 ),
@@ -4015,7 +4015,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '轻身术'
             ),
@@ -4023,7 +4023,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '刀光如练'
             )
@@ -4037,7 +4037,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '灵蚕丝'
                 ),
@@ -4056,7 +4056,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '妖兽皮'
                 ),
@@ -4075,7 +4075,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 ),
@@ -4093,7 +4093,7 @@ INSERT
 -- ============ 65-80级 宗师区 ============
 INSERT
     INTO
-        xt_monster_template(
+        monster_template(
             name,
             description,
             monster_type,
@@ -4122,7 +4122,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '霸刀诀'
             ),
@@ -4130,7 +4130,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '蛮牛劲'
             ),
@@ -4138,7 +4138,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '金刚体'
             )
@@ -4152,7 +4152,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天外陨铁'
                 ),
@@ -4171,7 +4171,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 ),
@@ -4190,7 +4190,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 ),
@@ -4219,7 +4219,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '横刀断岳'
             ),
@@ -4227,7 +4227,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '霸刀诀'
             )
@@ -4241,7 +4241,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 ),
@@ -4260,7 +4260,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天外陨铁'
                 ),
@@ -4279,7 +4279,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '千年灵木'
                 ),
@@ -4308,7 +4308,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '烈火掌'
             ),
@@ -4316,7 +4316,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '飞仙剑法'
             )
@@ -4330,7 +4330,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '太阳花'
                 ),
@@ -4349,7 +4349,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天外陨铁'
                 ),
@@ -4368,7 +4368,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 ),
@@ -4397,7 +4397,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '旋风斧'
             ),
@@ -4405,7 +4405,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '天人感应'
             )
@@ -4419,7 +4419,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 ),
@@ -4438,7 +4438,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 ),
@@ -4457,7 +4457,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '赤铜矿'
                 ),
@@ -4486,7 +4486,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '剑心通明'
             ),
@@ -4494,7 +4494,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '万剑归宗'
             ),
@@ -4502,7 +4502,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '道心通明'
             )
@@ -4516,7 +4516,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 ),
@@ -4535,7 +4535,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天心兰'
                 ),
@@ -4554,7 +4554,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '千年灵芝'
                 ),
@@ -4583,7 +4583,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '天刀九式'
             ),
@@ -4591,7 +4591,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '道心通明'
             )
@@ -4605,7 +4605,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '龙血草'
                 ),
@@ -4624,7 +4624,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天外陨铁'
                 ),
@@ -4643,7 +4643,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 ),
@@ -4662,7 +4662,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '纯钧剑'
                 ),
@@ -4691,7 +4691,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '诛仙剑诀'
             ),
@@ -4699,7 +4699,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '天人感应'
             ),
@@ -4707,7 +4707,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '霸刀诀'
             )
@@ -4721,7 +4721,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 ),
@@ -4740,7 +4740,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 ),
@@ -4759,7 +4759,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 ),
@@ -4778,7 +4778,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '七星剑'
                 ),
@@ -4796,7 +4796,7 @@ INSERT
 -- ============ 80-95级 传说区 ============
 INSERT
     INTO
-        xt_monster_template(
+        monster_template(
             name,
             description,
             monster_type,
@@ -4825,7 +4825,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '诛仙剑诀'
             ),
@@ -4833,7 +4833,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '道心通明'
             ),
@@ -4841,7 +4841,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '剑心通明'
             )
@@ -4855,7 +4855,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天外陨铁'
                 ),
@@ -4874,7 +4874,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 ),
@@ -4893,7 +4893,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '千年灵芝'
                 ),
@@ -4912,7 +4912,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '龙雀刀'
                 ),
@@ -4941,7 +4941,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '诛仙剑诀'
             ),
@@ -4949,7 +4949,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '万剑归宗'
             ),
@@ -4957,7 +4957,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '天人感应'
             )
@@ -4971,7 +4971,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 ),
@@ -4990,7 +4990,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 ),
@@ -5009,7 +5009,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '龙血草'
                 ),
@@ -5038,7 +5038,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '天刀九式'
             ),
@@ -5046,7 +5046,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '霸刀诀'
             ),
@@ -5054,7 +5054,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '蛮牛劲'
             ),
@@ -5062,7 +5062,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '金刚体'
             )
@@ -5076,7 +5076,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天外陨铁'
                 ),
@@ -5095,7 +5095,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 ),
@@ -5114,7 +5114,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 ),
@@ -5133,7 +5133,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '刑天斧'
                 ),
@@ -5162,7 +5162,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '青莲剑歌'
             ),
@@ -5170,7 +5170,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '烈火掌'
             ),
@@ -5178,7 +5178,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '轻身术'
             )
@@ -5192,7 +5192,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '太阳花'
                 ),
@@ -5211,7 +5211,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天外陨铁'
                 ),
@@ -5230,7 +5230,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '地火芝'
                 ),
@@ -5249,7 +5249,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '落日弓'
                 ),
@@ -5278,7 +5278,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '诛仙剑诀'
             ),
@@ -5286,7 +5286,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '天刀九式'
             ),
@@ -5294,7 +5294,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '道心通明'
             )
@@ -5308,7 +5308,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天外陨铁'
                 ),
@@ -5327,7 +5327,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '龙血草'
                 ),
@@ -5346,7 +5346,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 ),
@@ -5365,7 +5365,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '诛仙剑'
                 ),
@@ -5384,7 +5384,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '射日神弓'
                 ),
@@ -5413,7 +5413,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '旋风斧'
             ),
@@ -5421,7 +5421,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '金刚体'
             ),
@@ -5429,7 +5429,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '道心通明'
             )
@@ -5443,7 +5443,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '紫金砂'
                 ),
@@ -5462,7 +5462,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 ),
@@ -5481,7 +5481,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天外陨铁'
                 ),
@@ -5499,7 +5499,7 @@ INSERT
 -- ============ 95-100级 巅峰区 ============
 INSERT
     INTO
-        xt_monster_template(
+        monster_template(
             name,
             description,
             monster_type,
@@ -5528,7 +5528,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '诛仙剑诀'
             ),
@@ -5536,7 +5536,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '青莲剑歌'
             ),
@@ -5544,7 +5544,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '万剑归宗'
             ),
@@ -5552,7 +5552,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '轻身术'
             )
@@ -5566,7 +5566,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天外陨铁'
                 ),
@@ -5585,7 +5585,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 ),
@@ -5604,7 +5604,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '冰魄花'
                 ),
@@ -5623,7 +5623,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '射日神弓'
                 ),
@@ -5642,7 +5642,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '乾坤圈'
                 ),
@@ -5671,7 +5671,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '诛仙剑诀'
             ),
@@ -5679,7 +5679,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '天刀九式'
             ),
@@ -5687,7 +5687,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '道心通明'
             ),
@@ -5695,7 +5695,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '金刚体'
             )
@@ -5709,7 +5709,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '混沌石'
                 ),
@@ -5728,7 +5728,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天外陨铁'
                 ),
@@ -5747,7 +5747,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 ),
@@ -5766,7 +5766,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '盘古斧'
                 ),
@@ -5795,7 +5795,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '诛仙剑诀'
             ),
@@ -5803,7 +5803,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '天刀九式'
             ),
@@ -5811,7 +5811,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '道心通明'
             ),
@@ -5819,7 +5819,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '青莲剑歌'
             )
@@ -5833,7 +5833,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '龙血草'
                 ),
@@ -5852,7 +5852,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天外陨铁'
                 ),
@@ -5871,7 +5871,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 ),
@@ -5890,7 +5890,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '诛仙剑'
                 ),
@@ -5909,7 +5909,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '轩辕剑'
                 ),
@@ -5938,7 +5938,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '诛仙剑诀'
             ),
@@ -5946,7 +5946,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '青莲剑歌'
             ),
@@ -5954,7 +5954,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '天刀九式'
             ),
@@ -5962,7 +5962,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '天人感应'
             ),
@@ -5970,7 +5970,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '道心通明'
             )
@@ -5984,7 +5984,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 ),
@@ -6003,7 +6003,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天外陨铁'
                 ),
@@ -6022,7 +6022,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 ),
@@ -6041,7 +6041,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '如意金箍棒'
                 ),
@@ -6060,7 +6060,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '天刑刀'
                 ),
@@ -6089,7 +6089,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '诛仙剑诀'
             ),
@@ -6097,7 +6097,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '天刀九式'
             ),
@@ -6105,7 +6105,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '道心通明'
             ),
@@ -6113,7 +6113,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '青莲剑歌'
             ),
@@ -6121,7 +6121,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '金刚体'
             )
@@ -6135,7 +6135,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '魂玉碎片'
                 ),
@@ -6154,7 +6154,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天外陨铁'
                 ),
@@ -6173,7 +6173,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '玄晶'
                 ),
@@ -6192,7 +6192,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '盘古斧'
                 ),
@@ -6211,7 +6211,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '轩辕剑'
                 ),
@@ -6230,7 +6230,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_equipment_template
+                        equipment_template
                     WHERE
                         name = '射日神弓'
                 ),

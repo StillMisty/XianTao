@@ -10,6 +10,6 @@ import top.stillmisty.xiantao.domain.shop.entity.ShopProduct;
 public interface ShopProductMapper extends BaseMapper<ShopProduct> {
 
   @Update(
-      "UPDATE xt_shop_product SET current_stock = current_stock - #{qty} WHERE id = #{id} AND current_stock >= #{qty}")
+      "UPDATE shop_product SET current_stock = current_stock - #{qty} WHERE id = #{id} AND current_stock >= #{qty}")
   int deductStockIfAvailable(@Param("id") Long id, @Param("qty") int qty);
 }

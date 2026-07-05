@@ -1,7 +1,7 @@
 /* 宗门事件任务表 */
 CREATE
     TABLE
-        xt_sect_task(
+        sect_task(
             id BIGSERIAL PRIMARY KEY,
             sect_id BIGINT NOT NULL,
             task_type VARCHAR(16) NOT NULL,
@@ -9,7 +9,7 @@ CREATE
             required_count INT NOT NULL,
             contribution_reward INT NOT NULL,
             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            CONSTRAINT fk_sect_task_sect FOREIGN KEY(sect_id) REFERENCES xt_sect(id) ON
+            CONSTRAINT fk_sect_task_sect FOREIGN KEY(sect_id) REFERENCES sect(id) ON
             DELETE
                 CASCADE,
                 CONSTRAINT chk_sect_task_type CHECK(
@@ -28,37 +28,37 @@ CREATE
 
 COMMENT ON
 TABLE
-    xt_sect_task IS '宗门事件任务表';
+    sect_task IS '宗门事件任务表';
 
 COMMENT ON
-COLUMN xt_sect_task.id IS '任务ID';
+COLUMN sect_task.id IS '任务ID';
 
 COMMENT ON
-COLUMN xt_sect_task.sect_id IS '宗门ID';
+COLUMN sect_task.sect_id IS '宗门ID';
 
 COMMENT ON
-COLUMN xt_sect_task.task_type IS '任务类型：HUNT/DONATE';
+COLUMN sect_task.task_type IS '任务类型：HUNT/DONATE';
 
 COMMENT ON
-COLUMN xt_sect_task.target_id IS '目标怪物ID或物品ID';
+COLUMN sect_task.target_id IS '目标怪物ID或物品ID';
 
 COMMENT ON
-COLUMN xt_sect_task.required_count IS '需要数量';
+COLUMN sect_task.required_count IS '需要数量';
 
 COMMENT ON
-COLUMN xt_sect_task.contribution_reward IS '完成奖励贡献值';
+COLUMN sect_task.contribution_reward IS '完成奖励贡献值';
 
 COMMENT ON
-COLUMN xt_sect_task.created_at IS '创建时间';
+COLUMN sect_task.created_at IS '创建时间';
 
 CREATE
     INDEX idx_sect_task_sect ON
-    xt_sect_task(sect_id);
+    sect_task(sect_id);
 
 CREATE
     INDEX idx_sect_task_target ON
-    xt_sect_task(target_id);
+    sect_task(target_id);
 
 CREATE
     INDEX idx_sect_task_sect_type ON
-    xt_sect_task(sect_id, task_type);
+    sect_task(sect_id, task_type);

@@ -13,7 +13,7 @@ import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionType
 
 /** 地灵形态定义实体 */
 @EqualsAndHashCode
-@Table("xt_spirit_form")
+@Table("spirit_form")
 @Accessors(chain = true)
 @Data
 @SuppressWarnings("NullAway")

@@ -23,7 +23,7 @@ import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 @SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table("xt_inventory_item")
+@Table("inventory_item")
 public class StackableItem {
 
   @EqualsAndHashCode.Include

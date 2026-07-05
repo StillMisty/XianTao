@@ -1,7 +1,7 @@
--- 种子数据 (xt_item_template, type=SEED)
+-- 种子数据 (item_template, type=SEED)
 INSERT
     INTO
-        xt_item_template(
+        item_template(
             name,
             TYPE,
             properties,
@@ -29,7 +29,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '千年灵芝'
                 )
@@ -42,7 +42,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '灵芝'
                     )
@@ -73,7 +73,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '地髓芝'
                 )
@@ -86,7 +86,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '血参'
                     )
@@ -116,7 +116,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '雪莲'
                     )
@@ -147,7 +147,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '赤炎花'
                 )
@@ -160,7 +160,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '地火芝'
                     )
@@ -190,7 +190,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '紫丹参'
                     )
@@ -220,7 +220,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '天心兰'
                     )
@@ -251,7 +251,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '赤炎花'
                 )
@@ -264,7 +264,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '太阳花'
                     )
@@ -294,7 +294,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '菩提叶'
                     )
@@ -324,7 +324,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '何首乌'
                     )
@@ -354,7 +354,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '龙血草'
                     )
@@ -384,7 +384,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '幽冥花'
                     )
@@ -414,7 +414,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '还魂草'
                     )
@@ -444,7 +444,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '冰魄花'
                     )
@@ -475,7 +475,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '碧落花'
                 )
@@ -488,7 +488,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '星月花'
                     )
@@ -519,7 +519,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '墨玉菇'
                 )
@@ -532,7 +532,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '茯苓'
                     )
@@ -562,7 +562,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '石斛'
                     )
@@ -592,7 +592,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '金银花'
                     )
@@ -622,7 +622,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '元阳草'
                     )
@@ -653,7 +653,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '墨玉菇'
                 )
@@ -666,7 +666,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '太阴菇'
                     )
@@ -696,7 +696,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '赤炼果'
                     )
@@ -726,7 +726,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '九穗禾'
                     )
@@ -756,7 +756,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '七星草'
                     )
@@ -786,7 +786,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '曼陀罗'
                     )
@@ -816,7 +816,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '玄黄根'
                     )
@@ -847,7 +847,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '九色灵芝'
                 )
@@ -860,7 +860,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '千年灵芝'
                     )
@@ -890,7 +890,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '断肠草'
                     )
@@ -920,7 +920,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '蛇涎果'
                     )
@@ -950,7 +950,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '忘忧草'
                     )
@@ -981,7 +981,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '金线莲'
                 )
@@ -994,7 +994,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '天蚕'
                     )
@@ -1025,7 +1025,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '天元果'
                 )
@@ -1038,7 +1038,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '九天仙草'
                     )
@@ -1069,7 +1069,7 @@ INSERT
                     SELECT
                         id
                     FROM
-                        xt_item_template
+                        item_template
                     WHERE
                         name = '九色灵芝'
                 )
@@ -1082,7 +1082,7 @@ INSERT
                         SELECT
                             id
                         FROM
-                            xt_item_template
+                            item_template
                         WHERE
                             name = '琉璃仙菇'
                     )

@@ -17,7 +17,7 @@ import top.stillmisty.xiantao.domain.shop.vo.PlayerItemsVO;
 import top.stillmisty.xiantao.domain.shop.vo.ProductListVO;
 import top.stillmisty.xiantao.domain.shop.vo.PurchaseResult;
 import top.stillmisty.xiantao.domain.shop.vo.SellResult;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.infrastructure.repository.EquipmentTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.service.BusinessException;
@@ -43,12 +43,12 @@ public class ShopTools {
       return new UserAndNpc(ctx.user(), ctx.npc());
     }
     Long userId = UserContext.requireCurrentUserId();
-    User user = userStateService.loadUser(userId);
+    Player user = userStateService.loadUser(userId);
     ShopNpc npc = shopService.findByLocation(user.getLocationId());
     return new UserAndNpc(user, npc);
   }
 
-  private record UserAndNpc(User user, ShopNpc npc) {}
+  private record UserAndNpc(Player user, ShopNpc npc) {}
 
   /**
    * 查看商品列表：当前所在店铺的所有可购买商品及其价格和库存。

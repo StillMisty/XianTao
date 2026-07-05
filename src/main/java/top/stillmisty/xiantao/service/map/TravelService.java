@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.event.enums.ActivityType;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
 import top.stillmisty.xiantao.domain.map.vo.TravelResultVO;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.repository.MapNodeRepository;
 import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
@@ -32,7 +32,7 @@ public class TravelService {
 
   @Transactional
   public TravelResultVO startTravelInternal(Long userId, String mapName) {
-    User user = userStateService.loadUser(userId);
+    Player user = userStateService.loadUser(userId);
 
     if (user.getStatus() != UserStatus.IDLE) {
       throw new BusinessException(ErrorCode.STATUS_BLOCKED, user.getStatus().getName(), "空闲");

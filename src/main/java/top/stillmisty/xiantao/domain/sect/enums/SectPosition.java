@@ -14,6 +14,9 @@ public enum SectPosition {
   private final String name;
   private final int rank;
 
+  /** 枚举参数描述（供 @ToolParam 引用） */
+  public static final String PARAM_DESCRIPTION = "职位: LEADER(宗主) ELDER(长老) MEMBER(弟子)";
+
   SectPosition(String code, String name, int rank) {
     this.code = code;
     this.name = name;

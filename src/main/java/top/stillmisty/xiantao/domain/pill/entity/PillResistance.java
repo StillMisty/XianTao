@@ -13,7 +13,7 @@ import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 @SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table("xt_pill_resistance")
+@Table("pill_resistance")
 public class PillResistance {
 
   @EqualsAndHashCode.Include

@@ -27,7 +27,7 @@ import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
 import top.stillmisty.xiantao.domain.map.entity.SpecialtyEntry;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.repository.BountyRepository;
 import top.stillmisty.xiantao.infrastructure.repository.EquipmentTemplateRepository;
@@ -84,7 +84,7 @@ public class BountyService {
 
   @Cacheable(cacheNames = "bounties", key = "#userId")
   public List<BountyVO> listBountiesInternal(Long userId) {
-    User user = userStateService.loadUser(userId);
+    Player user = userStateService.loadUser(userId);
     MapNode mapNode =
         mapNodeRepository
             .findById(user.getLocationId())
@@ -162,7 +162,7 @@ public class BountyService {
 
   @CacheEvict(cacheNames = "bounties", key = "'status:' + #userId")
   public String startBountyInternal(Long userId, Long bountyId) {
-    User user = userStateService.loadUser(userId);
+    Player user = userStateService.loadUser(userId);
 
     if (user.getStatus() != UserStatus.IDLE) {
       throw new BusinessException(STATUS_BLOCKED, user.getStatus().getName(), "空闲");
@@ -235,7 +235,7 @@ public class BountyService {
   @Transactional
   @CacheEvict(cacheNames = "bounties", key = "'status:' + #userId")
   public String abandonBountyInternal(Long userId) {
-    User user = userStateService.loadUser(userId);
+    Player user = userStateService.loadUser(userId);
     if (user.getStatus() != UserStatus.BOUNTY) {
       throw new BusinessException(STATUS_BLOCKED, user.getStatus().getName(), "悬赏");
     }

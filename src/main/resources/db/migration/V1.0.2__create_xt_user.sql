@@ -5,7 +5,7 @@
 -- 唯一约束：道号必须唯一
 -- GM控制
 -- 时间戳
-CREATE TABLE xt_user(
+CREATE TABLE player(
     id BIGSERIAL PRIMARY KEY,
     nickname VARCHAR(64) NOT NULL,
     LEVEL INT NOT NULL DEFAULT 1,
@@ -46,13 +46,13 @@ CREATE TABLE xt_user(
     CONSTRAINT chk_user_stat_con CHECK(stat_con >= 0),
     CONSTRAINT chk_user_stat_agi CHECK(stat_agi >= 0),
     CONSTRAINT chk_user_stat_wis CHECK(stat_wis >= 0),
-    CONSTRAINT fk_user_location FOREIGN KEY(location_id) REFERENCES xt_map_node(id)
+    CONSTRAINT fk_user_location FOREIGN KEY(location_id) REFERENCES map_node(id)
 );
 
-CREATE INDEX idx_xt_user_status ON xt_user(status);
-CREATE INDEX idx_xt_user_location ON xt_user(location_id);
-CREATE INDEX idx_xt_user_activity_type ON xt_user(activity_type);
-CREATE INDEX idx_xt_user_level_exp ON xt_user(level DESC, exp DESC);
+CREATE INDEX idx_user_status ON player(status);
+CREATE INDEX idx_user_location ON player(location_id);
+CREATE INDEX idx_user_activity_type ON player(activity_type);
+CREATE INDEX idx_user_level_exp ON player(level DESC, exp DESC);
 
-COMMENT ON COLUMN xt_user.last_fortune_date IS '上次运势生成日期，用于每日自动刷新';
-COMMENT ON COLUMN xt_user.last_settlement_minute IS '历练中途结算的已处理分钟数，避免重复结算';
+COMMENT ON COLUMN player.last_fortune_date IS '上次运势生成日期，用于每日自动刷新';
+COMMENT ON COLUMN player.last_settlement_minute IS '历练中途结算的已处理分钟数，避免重复结算';

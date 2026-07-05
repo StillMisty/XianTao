@@ -22,7 +22,7 @@ import top.stillmisty.xiantao.domain.monster.entity.MonsterTemplate;
 import top.stillmisty.xiantao.domain.notification.entity.GameEvent;
 import top.stillmisty.xiantao.domain.notification.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.skill.entity.Skill;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.repository.ActivityEventRepository;
 import top.stillmisty.xiantao.infrastructure.repository.BeastRepository;
@@ -52,7 +52,7 @@ public class TrainingSettler {
 
   /** 对一段历练时间执行统一事件循环（COMBAT + NUMERIC）并返回战斗统计 */
   public SettlementResult settleChunk(
-      Long userId, User user, MapNode mapNode, long fromMinute, long toMinute) {
+      Long userId, Player user, MapNode mapNode, long fromMinute, long toMinute) {
     int durationMinutes = (int) (toMinute - fromMinute);
     if (durationMinutes <= 0) return SettlementResult.empty();
 
@@ -60,7 +60,7 @@ public class TrainingSettler {
     return runUnifiedEventLoop(userId, user, mapNode, durationMinutes, fortune);
   }
 
-  /** 触发一个 CHOICE 事件，将选项写入 xt_game_event.effects */
+  /** 触发一个 CHOICE 事件，将选项写入 game_event.effects */
   @Transactional
   public void fireChoiceEvent(Long userId, String eventCode, Map<String, Object> params) {
     var choiceData = EffectData.ChoiceOptions.fromParamsMap(params);
@@ -69,7 +69,7 @@ public class TrainingSettler {
   }
 
   private SettlementResult runUnifiedEventLoop(
-      Long userId, User user, MapNode mapNode, int minutesTraining, FortuneVO fortune) {
+      Long userId, Player user, MapNode mapNode, int minutesTraining, FortuneVO fortune) {
     List<ActivityEvent> pool = activityEventRepository.findSubEvents("TRAINING", mapNode.getId());
     if (pool.isEmpty()) return SettlementResult.empty();
 

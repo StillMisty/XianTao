@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.fudi.enums.MBTIPersonality;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.domain.user.entity.UserAuth;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.domain.user.vo.RegisterResult;
@@ -55,7 +55,7 @@ public class UserService {
       return ServiceResult.businessFailure("此道号已被他人使用，请另择佳名~");
     }
 
-    var user = userRepository.save(User.create().setNickname(nickname));
+    var user = userRepository.save(Player.create().setNickname(nickname));
 
     log.info("创建用户成功 - UserId: {}, Nickname: {}", user.getId(), user.getNickname());
 

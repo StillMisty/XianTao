@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import org.jspecify.annotations.Nullable;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.ToolCallingAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.ChatMemoryRepository;
 import org.springframework.ai.chat.model.ChatModel;
@@ -14,6 +16,7 @@ import org.springframework.ai.deepseek.DeepSeekChatModel;
 import org.springframework.ai.deepseek.DeepSeekChatOptions;
 import org.springframework.ai.model.deepseek.autoconfigure.DeepSeekChatProperties;
 import org.springframework.ai.model.openai.autoconfigure.OpenAiChatProperties;
+import org.springframework.ai.model.tool.ToolCallingManager;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -24,7 +27,10 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.type.AnnotatedTypeMetadata;
+import top.stillmisty.xiantao.service.ai.ChatOptionsAdapter;
+import top.stillmisty.xiantao.service.ai.DeepSeekChatOptionsAdapter;
 import top.stillmisty.xiantao.service.ai.FallbackChatModel;
+import top.stillmisty.xiantao.service.ai.OpenAiChatOptionsAdapter;
 import top.stillmisty.xiantao.service.ai.PerTypeChatMemory;
 
 @Configuration
@@ -58,15 +64,40 @@ public class SpringAiConfig {
     return OpenAiChatModel.builder().options(chatProperties.toOptions()).build();
   }
 
+  // ---- Advisors ----
+
+  @Bean
+  public ToolCallingAdvisor toolCallingAdvisor(ToolCallingManager toolCallingManager) {
+    return ToolCallingAdvisor.builder().toolCallingManager(toolCallingManager).build();
+  }
+
+  @Bean
+  public MessageChatMemoryAdvisor messageChatMemoryAdvisor(ChatMemory chatMemory) {
+    return MessageChatMemoryAdvisor.builder(chatMemory).build();
+  }
+
+  // ---- ChatOptionsAdapter 注册 ----
+
+  @Bean
+  public ChatOptionsAdapter deepSeekChatOptionsAdapter() {
+    return new DeepSeekChatOptionsAdapter();
+  }
+
+  @Bean
+  public ChatOptionsAdapter openAiChatOptionsAdapter() {
+    return new OpenAiChatOptionsAdapter();
+  }
+
   // ---- ChatClient（每个 Bean 持有自己 tier 的 FallbackChatModel）----
 
   @Bean
   public ChatClient chatClient(
       ObjectProvider<DeepSeekChatModel> dsProvider,
       ObjectProvider<OpenAiChatModel> oaProvider,
-      AiTierConfig config) {
+      AiTierConfig config,
+      List<ChatOptionsAdapter> adapters) {
     var t = config.tiers().light();
-    return ChatClient.builder(createFallback(dsProvider, oaProvider, config, t.openai()))
+    return ChatClient.builder(createFallback(dsProvider, oaProvider, config, t.openai(), adapters))
         .defaultOptions(
             DeepSeekChatOptions.builder().model(t.deepseek()).maxTokens(GENERIC_MAX_TOKENS))
         .build();
@@ -77,9 +108,10 @@ public class SpringAiConfig {
   public ChatClient npcChatClient(
       ObjectProvider<DeepSeekChatModel> dsProvider,
       ObjectProvider<OpenAiChatModel> oaProvider,
-      AiTierConfig config) {
+      AiTierConfig config,
+      List<ChatOptionsAdapter> adapters) {
     var t = config.tiers().standard();
-    return ChatClient.builder(createFallback(dsProvider, oaProvider, config, t.openai()))
+    return ChatClient.builder(createFallback(dsProvider, oaProvider, config, t.openai(), adapters))
         .defaultOptions(DeepSeekChatOptions.builder().model(t.deepseek()).maxTokens(NPC_MAX_TOKENS))
         .build();
   }
@@ -88,11 +120,15 @@ public class SpringAiConfig {
   public ChatClient shopChatClient(
       ObjectProvider<DeepSeekChatModel> dsProvider,
       ObjectProvider<OpenAiChatModel> oaProvider,
-      AiTierConfig config) {
+      AiTierConfig config,
+      ToolCallingAdvisor toolCallingAdvisor,
+      MessageChatMemoryAdvisor messageChatMemoryAdvisor,
+      List<ChatOptionsAdapter> adapters) {
     var t = config.tiers().standard();
-    return ChatClient.builder(createFallback(dsProvider, oaProvider, config, t.openai()))
+    return ChatClient.builder(createFallback(dsProvider, oaProvider, config, t.openai(), adapters))
         .defaultOptions(
             DeepSeekChatOptions.builder().model(t.deepseek()).maxTokens(SHOP_MAX_TOKENS))
+        .defaultAdvisors(toolCallingAdvisor, messageChatMemoryAdvisor)
         .build();
   }
 
@@ -100,11 +136,15 @@ public class SpringAiConfig {
   public ChatClient spiritChatClient(
       ObjectProvider<DeepSeekChatModel> dsProvider,
       ObjectProvider<OpenAiChatModel> oaProvider,
-      AiTierConfig config) {
+      AiTierConfig config,
+      ToolCallingAdvisor toolCallingAdvisor,
+      MessageChatMemoryAdvisor messageChatMemoryAdvisor,
+      List<ChatOptionsAdapter> adapters) {
     var t = config.tiers().heavy();
-    return ChatClient.builder(createFallback(dsProvider, oaProvider, config, t.openai()))
+    return ChatClient.builder(createFallback(dsProvider, oaProvider, config, t.openai(), adapters))
         .defaultOptions(
             DeepSeekChatOptions.builder().model(t.deepseek()).maxTokens(SPIRIT_MAX_TOKENS))
+        .defaultAdvisors(toolCallingAdvisor, messageChatMemoryAdvisor)
         .build();
   }
 
@@ -112,11 +152,15 @@ public class SpringAiConfig {
   public ChatClient sectChatClient(
       ObjectProvider<DeepSeekChatModel> dsProvider,
       ObjectProvider<OpenAiChatModel> oaProvider,
-      AiTierConfig config) {
+      AiTierConfig config,
+      ToolCallingAdvisor toolCallingAdvisor,
+      MessageChatMemoryAdvisor messageChatMemoryAdvisor,
+      List<ChatOptionsAdapter> adapters) {
     var t = config.tiers().standard();
-    return ChatClient.builder(createFallback(dsProvider, oaProvider, config, t.openai()))
+    return ChatClient.builder(createFallback(dsProvider, oaProvider, config, t.openai(), adapters))
         .defaultOptions(
             DeepSeekChatOptions.builder().model(t.deepseek()).maxTokens(SECT_MAX_TOKENS))
+        .defaultAdvisors(toolCallingAdvisor, messageChatMemoryAdvisor)
         .build();
   }
 
@@ -124,11 +168,15 @@ public class SpringAiConfig {
   public ChatClient dungeonChatClient(
       ObjectProvider<DeepSeekChatModel> dsProvider,
       ObjectProvider<OpenAiChatModel> oaProvider,
-      AiTierConfig config) {
+      AiTierConfig config,
+      ToolCallingAdvisor toolCallingAdvisor,
+      MessageChatMemoryAdvisor messageChatMemoryAdvisor,
+      List<ChatOptionsAdapter> adapters) {
     var t = config.tiers().heavy();
-    return ChatClient.builder(createFallback(dsProvider, oaProvider, config, t.openai()))
+    return ChatClient.builder(createFallback(dsProvider, oaProvider, config, t.openai(), adapters))
         .defaultOptions(
             DeepSeekChatOptions.builder().model(t.deepseek()).maxTokens(DUNGEON_MAX_TOKENS))
+        .defaultAdvisors(toolCallingAdvisor, messageChatMemoryAdvisor)
         .build();
   }
 
@@ -136,7 +184,8 @@ public class SpringAiConfig {
       ObjectProvider<DeepSeekChatModel> dsProvider,
       ObjectProvider<OpenAiChatModel> oaProvider,
       AiTierConfig config,
-      @Nullable String fallbackModel) {
+      @Nullable String fallbackModel,
+      List<ChatOptionsAdapter> adapters) {
     Map<String, ChatModel> registry = new HashMap<>();
     ChatModel ds = dsProvider.getIfUnique();
     if (ds != null) {
@@ -157,7 +206,7 @@ public class SpringAiConfig {
       throw new IllegalStateException(
           "No ChatModel available for configured chat-models: " + config.chatModels());
     }
-    return new FallbackChatModel(ordered, fallbackModel);
+    return new FallbackChatModel(ordered, fallbackModel, adapters);
   }
 
   // ---- 条件：仅当 chat-models 列表中包含指定名称时才实例化对应的 ChatModel ----

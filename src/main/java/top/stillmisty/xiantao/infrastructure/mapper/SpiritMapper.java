@@ -10,6 +10,6 @@ import top.stillmisty.xiantao.domain.fudi.entity.Spirit;
 public interface SpiritMapper extends BaseMapper<Spirit> {
 
   @Update(
-      "UPDATE xt_spirit SET last_gift_time = NOW() WHERE id = #{id} AND (last_gift_time IS NULL OR last_gift_time::date < CURRENT_DATE)")
+      "UPDATE spirit SET last_gift_time = NOW() WHERE id = #{id} AND (last_gift_time IS NULL OR last_gift_time::date < CURRENT_DATE)")
   int tryClaimDailyGift(@Param("id") Long id);
 }

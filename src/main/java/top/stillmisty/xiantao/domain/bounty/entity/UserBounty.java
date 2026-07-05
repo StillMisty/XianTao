@@ -17,7 +17,7 @@ import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
 @SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table("xt_user_bounty")
+@Table("user_bounty")
 public class UserBounty {
 
   @EqualsAndHashCode.Include

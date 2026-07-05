@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.sect.entity.Sect;
 import top.stillmisty.xiantao.domain.sect.entity.SectMember;
 import top.stillmisty.xiantao.domain.sect.enums.ChatType;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.infrastructure.repository.SectMemberRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SectRepository;
 import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
@@ -28,6 +28,7 @@ public class SectSpiritChatService extends AbstractChatService {
   private final SectLeaderTools sectLeaderTools;
   private final SectBuildingService sectBuildingService;
   private final UserRepository userRepository;
+  private final SectPromptTemplates promptTemplates;
 
   public SectSpiritChatService(
       ChatClient sectChatClient,
@@ -38,7 +39,8 @@ public class SectSpiritChatService extends AbstractChatService {
       SectElderTools sectElderTools,
       SectLeaderTools sectLeaderTools,
       SectBuildingService sectBuildingService,
-      UserRepository userRepository) {
+      UserRepository userRepository,
+      SectPromptTemplates promptTemplates) {
     super(sectChatClient, chatMemory);
     this.sectRepository = sectRepository;
     this.sectMemberRepository = sectMemberRepository;
@@ -47,6 +49,7 @@ public class SectSpiritChatService extends AbstractChatService {
     this.sectLeaderTools = sectLeaderTools;
     this.sectBuildingService = sectBuildingService;
     this.userRepository = userRepository;
+    this.promptTemplates = promptTemplates;
   }
 
   public ServiceResult<String> chatWithSectSpirit(Long userId, String userInput) {
@@ -113,60 +116,11 @@ public class SectSpiritChatService extends AbstractChatService {
   }
 
   private String buildPrompt(Sect sect, SectMember member) {
-    User user =
+    Player user =
         userRepository
             .findById(member.getUserId())
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_IN));
-    StringBuilder prompt = new StringBuilder();
-
-    prompt.append(
-        """
-            你是【%s】的宗灵，是宗门本身的意志化身。
-            当前与你对话的成员是「%s」，职位%s。
-            宗灵身份：%s
-
-            【宗门信息】
-            宗门名称：%s
-            道统：%s
-            等级：Lv.%d
-            资金：%d 灵石
-            成员：%d/%d
-            宗主ID：%d
-
-            【规则】
-            你是宗门的意志化身，不是长老也不是NPC，是宗门本身
-            成员通过自然语言与你交流，你根据宗门需求调用工具
-            严格执行权限控制——根据成员的职位选择性地使用工具
-            操作完成后根据执行结果生成人格化回复
-            保持宗灵的身份语气，根据宗门道统和宗灵人格种子调整说话风格
-            成员问话时，根据问题类型调用相应工具，不要一次性把所有信息都展示出来
-            如果成员只是聊天，不涉及宗门操作，直接以宗灵身份回复即可，不要调用任何工具
-            """
-            .formatted(
-                sect.getName(),
-                user.getNickname(),
-                member.getPosition().getName(),
-                sect.getSpiritPersonality() != null ? sect.getSpiritPersonality() : "沉稳的宗门意志",
-                sect.getName(),
-                sect.getEthos() != null ? sect.getEthos() : "",
-                sect.getLevel(),
-                sect.getFunds(),
-                sectMemberRepository.countBySectId(sect.getId()),
-                sect.getMaxMembers(),
-                sect.getLeaderId()));
-
-    if (sect.getVerse() != null && !sect.getVerse().isBlank()) {
-      prompt.append("\n诗号：").append(sect.getVerse());
-    }
-
-    if (sect.getNotice() != null && !sect.getNotice().isBlank()) {
-      prompt.append("\n公告：").append(sect.getNotice());
-    }
-
-    if (sect.getLastEventText() != null && !sect.getLastEventText().isBlank()) {
-      prompt.append("\n当前宗门事件：").append(sect.getLastEventText());
-    }
-
-    return prompt.toString();
+    long memberCount = sectMemberRepository.countBySectId(sect.getId());
+    return promptTemplates.buildSectPrompt(sect, member, user, memberCount);
   }
 }

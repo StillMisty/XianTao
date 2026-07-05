@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.domain.user.vo.LeaderboardEntryVO;
 import top.stillmisty.xiantao.domain.user.vo.LeaderboardVO;
 import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
@@ -30,19 +30,19 @@ public class LeaderboardService {
   }
 
   LeaderboardVO buildLevelLeaderboardInternal() {
-    List<User> users = userRepository.findTopByLevel(10);
+    List<Player> users = userRepository.findTopByLevel(10);
     return new LeaderboardVO("【修为排行榜】", buildEntries(users), true);
   }
 
   LeaderboardVO buildSpiritStoneLeaderboardInternal() {
-    List<User> users = userRepository.findTopBySpiritStones(10);
+    List<Player> users = userRepository.findTopBySpiritStones(10);
     return new LeaderboardVO("【灵石排行榜】", buildEntries(users), false);
   }
 
-  private List<LeaderboardEntryVO> buildEntries(List<User> users) {
+  private List<LeaderboardEntryVO> buildEntries(List<Player> users) {
     List<LeaderboardEntryVO> entries = new ArrayList<>();
     for (int i = 0; i < users.size(); i++) {
-      User u = users.get(i);
+      Player u = users.get(i);
       entries.add(
           new LeaderboardEntryVO(i + 1, u.getNickname(), u.getLevel(), u.getSpiritStones()));
     }

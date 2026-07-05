@@ -5,11 +5,11 @@ import org.jspecify.annotations.Nullable;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
 import top.stillmisty.xiantao.domain.item.enums.WeaponType;
 import top.stillmisty.xiantao.domain.skill.entity.Skill;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 
 /** 玩家战斗单位 */
 public class PlayerCombatant implements Combatant {
-  private final User user;
+  private final Player user;
   @Nullable private final Equipment weapon;
   private final double attackSpeed;
   private final List<Skill> skills;
@@ -18,12 +18,12 @@ public class PlayerCombatant implements Combatant {
   private int defenseBuff;
   private int speedBuff;
 
-  public PlayerCombatant(User user, @Nullable Equipment weapon, double attackSpeed) {
+  public PlayerCombatant(Player user, @Nullable Equipment weapon, double attackSpeed) {
     this(user, weapon, attackSpeed, List.of());
   }
 
   public PlayerCombatant(
-      User user, @Nullable Equipment weapon, double attackSpeed, List<Skill> skills) {
+      Player user, @Nullable Equipment weapon, double attackSpeed, List<Skill> skills) {
     this.user = user;
     this.hp = user.getHpCurrent();
     this.weapon = weapon;

@@ -4,7 +4,7 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.PlayerSkillRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SkillRepository;
@@ -21,7 +21,7 @@ public class TriggerConditionChecker {
   private final ItemTemplateRepository itemTemplateRepository;
   private final StackableItemRepository stackableItemRepository;
 
-  public boolean check(ActivityEvent event, Long userId, User user) {
+  public boolean check(ActivityEvent event, Long userId, Player user) {
     String triggerType = event.getTriggerType();
     Map<String, Object> triggerParams = event.getTriggerParams();
     if (triggerType == null || triggerParams == null) return true;
@@ -62,7 +62,7 @@ public class TriggerConditionChecker {
         .orElse(false);
   }
 
-  private boolean checkStatThreshold(Map<String, Object> triggerParams, User user) {
+  private boolean checkStatThreshold(Map<String, Object> triggerParams, Player user) {
     String stat = TypeUtils.getString(triggerParams, "stat");
     Integer minVal = TypeUtils.getInt(triggerParams, "min");
     if (stat == null || minVal == null) return true;

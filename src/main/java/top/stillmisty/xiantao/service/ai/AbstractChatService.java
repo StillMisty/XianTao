@@ -8,7 +8,6 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
-import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.deepseek.DeepSeekAssistantMessage;
 import top.stillmisty.xiantao.domain.sect.enums.ChatType;
@@ -60,16 +59,6 @@ public abstract class AbstractChatService {
     }
 
     String content = output.getText() != null ? output.getText() : "";
-
-    AssistantMessage assistantMessage;
-    if (reasoning != null && !reasoning.isEmpty()) {
-      assistantMessage =
-          DeepSeekAssistantMessage.builder().content(content).reasoningContent(reasoning).build();
-    } else {
-      assistantMessage = new AssistantMessage(content);
-    }
-
-    chatMemory.add(conversationId, List.of(new UserMessage(userInput), assistantMessage));
 
     return content.isEmpty() ? null : content;
   }

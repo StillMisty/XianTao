@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
@@ -28,8 +28,8 @@ public class UserStateService {
 
   /** 加载用户并自动结算过期状态。使用行锁防止并发状态更新。 */
   @Transactional
-  public User loadUser(Long userId) {
-    User user =
+  public Player loadUser(Long userId) {
+    Player user =
         userRepository
             .findByIdForUpdate(userId)
             .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
@@ -38,40 +38,40 @@ public class UserStateService {
   }
 
   /** 只读加载用户，不获取行锁、不结算状态。适用于仅需读取用户数据的场景。 */
-  public User loadUserReadOnly(Long userId) {
+  public Player loadUserReadOnly(Long userId) {
     return userRepository
         .findById(userId)
         .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
   }
 
   /** 批量加载用户（只读），不获取行锁、不结算状态。 */
-  public Map<Long, User> loadUsersByIdsReadOnly(List<Long> userIds) {
+  public Map<Long, Player> loadUsersByIdsReadOnly(List<Long> userIds) {
     if (userIds == null || userIds.isEmpty()) return Map.of();
     return userRepository.findByIds(userIds).stream()
-        .collect(Collectors.toMap(User::getId, u -> u));
+        .collect(Collectors.toMap(Player::getId, u -> u));
   }
 
   /** 批量加载用户（带行锁），并自动结算过期状态。 */
   @Transactional
-  public Map<Long, User> loadUsersByIds(List<Long> userIds) {
+  public Map<Long, Player> loadUsersByIds(List<Long> userIds) {
     if (userIds == null || userIds.isEmpty()) return Map.of();
-    Map<Long, User> userMap =
-        userRepository.findByIds(userIds).stream().collect(Collectors.toMap(User::getId, u -> u));
+    Map<Long, Player> userMap =
+        userRepository.findByIds(userIds).stream().collect(Collectors.toMap(Player::getId, u -> u));
     // 对每个用户结算状态
-    for (User user : userMap.values()) {
+    for (Player user : userMap.values()) {
       resolveState(user);
     }
     return userMap;
   }
 
   /** 根据道号加载用户，不结算状态。 */
-  public @Nullable User loadUserByNickname(String nickname) {
+  public @Nullable Player loadUserByNickname(String nickname) {
     return userRepository.findByNickname(nickname).orElse(null);
   }
 
   /** 保存用户（全字段）。 */
   @Transactional
-  public User save(User user) {
+  public Player save(Player user) {
     return userRepository.save(user);
   }
 
@@ -83,7 +83,7 @@ public class UserStateService {
 
   /** 仅保存状态/活动相关字段（不碰灵石等数据字段）。 */
   @Transactional
-  public void saveActivity(User user) {
+  public void saveActivity(Player user) {
     if (user.getActivityType() == null) {
       userRepository.clearActivity(user.getId());
     } else {
@@ -98,14 +98,14 @@ public class UserStateService {
 
   /** 仅保存 HP/状态/濒死时间。 */
   @Transactional
-  public void saveHpStatus(User user) {
+  public void saveHpStatus(Player user) {
     userRepository.updateHpStatus(
         user.getId(), user.getHpCurrent(), user.getStatus().getCode(), user.getDyingStartTime());
   }
 
   /** 历练结算后持久化：HP、修为、状态、濒死时间、活动字段。 */
   @Transactional
-  public void saveTrainingEndState(User user) {
+  public void saveTrainingEndState(Player user) {
     userRepository.completeTraining(
         user.getId(),
         user.getHpCurrent(),
@@ -119,7 +119,7 @@ public class UserStateService {
 
   // ===================== 状态结算 =====================
 
-  private void resolveState(User user) {
+  private void resolveState(Player user) {
     // 快速路径：稳定状态下跳过所有 handler
     if (user.isStableState()) return;
 

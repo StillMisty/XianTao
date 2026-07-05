@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 public enum ErrorCode {
 
-  // ===== User / Fudi / System =====
+  // ===== Player / Fudi / System =====
   USER_NOT_FOUND("用户不存在"),
   FUDI_NOT_FOUND("未找到福地"),
   FUDI_ALREADY_EXISTS("用户已拥有福地"),

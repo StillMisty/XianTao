@@ -9,7 +9,7 @@ import top.stillmisty.xiantao.domain.monster.TribulationBoss;
 import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
 import top.stillmisty.xiantao.domain.pill.entity.PlayerBuff;
 import top.stillmisty.xiantao.domain.pill.enums.PlayerBuffType;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
 import top.stillmisty.xiantao.domain.user.enums.TribulationType;
 import top.stillmisty.xiantao.domain.user.vo.*;
@@ -51,7 +51,7 @@ public class CultivationService {
    * @return 突破结果
    */
   public BreakthroughResult attemptBreakthroughInternal(Long userId) {
-    User user = userStateService.loadUser(userId);
+    Player user = userStateService.loadUser(userId);
 
     long expNeeded = user.calculateExpToNextLevel();
     if (user.getExp() < expNeeded) {
@@ -90,7 +90,7 @@ public class CultivationService {
   // ===================== 战斗突破（跨大境界 + 渡劫期） =====================
 
   private BreakthroughResult combatBreakthrough(
-      User user,
+      Player user,
       int newLevel,
       CultivationRealm newRealm,
       boolean isMajor,
@@ -181,7 +181,7 @@ public class CultivationService {
   }
 
   private BreakthroughResult handleCombatBreakthroughSuccess(
-      User user,
+      Player user,
       int newLevel,
       CultivationRealm newRealm,
       boolean isMajor,
@@ -242,7 +242,7 @@ public class CultivationService {
   }
 
   private BreakthroughResult handleCombatBreakthroughFailure(
-      User user,
+      Player user,
       int oldLevel,
       boolean isMajor,
       TribulationType tribulationType,
@@ -270,7 +270,7 @@ public class CultivationService {
 
   // ===================== 原有 RNG 突破逻辑 =====================
 
-  private double calculateFinalBreakthroughRate(User user) {
+  private double calculateFinalBreakthroughRate(Player user) {
     double protectionBonus = protectionHelper.calculateProtectionBonus(user);
     List<PlayerBuff> breakthroughBuffs =
         playerBuffRepository.findActiveByUserIdAndType(user.getId(), PlayerBuffType.BREAKTHROUGH);
@@ -280,7 +280,7 @@ public class CultivationService {
   }
 
   private BreakthroughResult handleBreakthroughSuccess(
-      Long userId, User user, long expNeeded, double finalSuccessRate) {
+      Long userId, Player user, long expNeeded, double finalSuccessRate) {
     int oldLevel = user.getLevel();
     int newLevel = oldLevel + 1;
     boolean isMajor = CultivationRealm.isMajorBreakthrough(oldLevel, newLevel);
@@ -332,7 +332,7 @@ public class CultivationService {
   }
 
   private BreakthroughResult handleBreakthroughFailure(
-      Long userId, User user, long expNeeded, double finalSuccessRate) {
+      Long userId, Player user, long expNeeded, double finalSuccessRate) {
     long newExp = Math.max(0, user.getExp() - expNeeded);
     user.setExp(newExp);
     user.setBreakthroughFailCount(user.getBreakthroughFailCount() + 1);
@@ -355,7 +355,7 @@ public class CultivationService {
   }
 
   /** 跨大境界突破时应用属性加成和灵石奖励 */
-  private void applyMajorBreakthroughBonuses(User user) {
+  private void applyMajorBreakthroughBonuses(Player user) {
     int bonusStr =
         user.getEffectiveStatStr() * CultivationRealm.MAJOR_BREAKTHROUGH_STAT_PERCENT / 100;
     int bonusCon =

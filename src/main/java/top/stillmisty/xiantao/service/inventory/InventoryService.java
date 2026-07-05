@@ -15,7 +15,7 @@ import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.vo.InventorySummaryVO;
 import top.stillmisty.xiantao.domain.item.vo.ItemEntry;
 import top.stillmisty.xiantao.domain.item.vo.StackableItemDetailVO;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.StackableItemRepository;
 import top.stillmisty.xiantao.service.ServiceResult;
@@ -38,7 +38,7 @@ public class InventoryService {
   @Transactional(readOnly = true)
   @Cacheable(cacheNames = "player_inventory", key = "'summary:' + #userId")
   public InventorySummaryVO getInventorySummary(Long userId) {
-    User user = userStateService.loadUserReadOnly(userId);
+    Player user = userStateService.loadUserReadOnly(userId);
 
     List<ItemEntry> equipment = itemResolver.listEquipment(userId);
 

@@ -10,7 +10,7 @@ import top.stillmisty.xiantao.domain.event.enums.ActivityType;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
 import top.stillmisty.xiantao.domain.notification.entity.GameEvent;
 import top.stillmisty.xiantao.domain.notification.enums.GameEventCategory;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.service.GameEventService;
 import top.stillmisty.xiantao.service.worldevent.WorldEventEnvironmentalApplier;
 
@@ -25,7 +25,7 @@ public class TravelCompleter {
   private final WorldEventEnvironmentalApplier worldEventEnvApplier;
 
   @Transactional
-  public void completeTravel(Long userId, User user, MapNode fromMap, MapNode toMap) {
+  public void completeTravel(Long userId, Player user, MapNode fromMap, MapNode toMap) {
     Map<String, Object> arrivalArgs =
         Map.of(
             "from",
@@ -45,11 +45,11 @@ public class TravelCompleter {
     applyEnvironmentalEvents(userId, user, toMap);
   }
 
-  private void applyEnvironmentalEvents(Long userId, User user, MapNode mapNode) {
+  private void applyEnvironmentalEvents(Long userId, Player user, MapNode mapNode) {
     worldEventEnvApplier.apply(userId, user, mapNode);
   }
 
-  private void rollSubEvents(Long userId, User user, MapNode mapNode) {
+  private void rollSubEvents(Long userId, Player user, MapNode mapNode) {
     subEventPipeline.rollSubEvent(
         ActivityType.TRAVEL.getCode(),
         mapNode.getId(),
@@ -60,7 +60,7 @@ public class TravelCompleter {
         fortune -> EventContext.withMapAndFortune(mapNode, fortune));
   }
 
-  private void checkHiddenEvents(Long userId, User user, MapNode mapNode) {
+  private void checkHiddenEvents(Long userId, Player user, MapNode mapNode) {
     subEventPipeline.checkHiddenEvents(
         ActivityType.TRAVEL.getCode(),
         mapNode.getId(),

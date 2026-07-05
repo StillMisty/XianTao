@@ -37,6 +37,16 @@ public class ChatHistoryRepository {
     mapper.deleteByCompositeKey(chatType.getCode(), conversationId, userId);
   }
 
+  public int countByChatTypeAndConversationIdAndUserId(
+      ChatType chatType, Long conversationId, Long userId) {
+    QueryWrapper query =
+        QueryWrapper.create()
+            .where(CHAT_HISTORY.CHAT_TYPE.eq(chatType))
+            .and(CHAT_HISTORY.CONVERSATION_ID.eq(conversationId))
+            .and(CHAT_HISTORY.USER_ID.eq(userId));
+    return (int) mapper.selectCountByQuery(query);
+  }
+
   public void deleteOldestEntries(
       ChatType chatType, Long conversationId, Long userId, int keepCount) {
     mapper.deleteOldestEntries(chatType.getCode(), conversationId, userId, keepCount);

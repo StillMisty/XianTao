@@ -24,7 +24,9 @@ public class SpiritChatService extends AbstractChatService {
   private final SpiritRepository spiritRepository;
   private final SpiritFormRepository spiritFormRepository;
   private final SpiritPromptTemplates promptTemplates;
-  private final SpiritTools spiritTools;
+  private final SpiritCellTools spiritCellTools;
+  private final SpiritBeastTools spiritBeastTools;
+  private final SpiritInteractionTools spiritInteractionTools;
   private final FudiStateBuilder fudiStateBuilder;
 
   public SpiritChatService(
@@ -34,14 +36,18 @@ public class SpiritChatService extends AbstractChatService {
       SpiritRepository spiritRepository,
       SpiritFormRepository spiritFormRepository,
       SpiritPromptTemplates promptTemplates,
-      SpiritTools spiritTools,
+      SpiritCellTools spiritCellTools,
+      SpiritBeastTools spiritBeastTools,
+      SpiritInteractionTools spiritInteractionTools,
       FudiStateBuilder fudiStateBuilder) {
     super(spiritChatClient, chatMemory);
     this.fudiRepository = fudiRepository;
     this.spiritRepository = spiritRepository;
     this.spiritFormRepository = spiritFormRepository;
     this.promptTemplates = promptTemplates;
-    this.spiritTools = spiritTools;
+    this.spiritCellTools = spiritCellTools;
+    this.spiritBeastTools = spiritBeastTools;
+    this.spiritInteractionTools = spiritInteractionTools;
     this.fudiStateBuilder = fudiStateBuilder;
   }
 
@@ -71,13 +77,19 @@ public class SpiritChatService extends AbstractChatService {
     spiritRepository.save(spirit);
 
     String response =
-        callLlm(
-            buildPrompt(fudi, spirit),
-            userInput,
-            ChatType.SPIRIT,
-            userId,
-            fudi.getId(),
-            spiritTools);
+        SpiritChatContext.with(
+            fudi,
+            spirit,
+            () ->
+                callLlm(
+                    buildPrompt(fudi, spirit),
+                    userInput,
+                    ChatType.SPIRIT,
+                    userId,
+                    fudi.getId(),
+                    spiritCellTools,
+                    spiritBeastTools,
+                    spiritInteractionTools));
 
     log.debug("地灵对话成功 - userId: {}, mbti: {}, input: {}", userId, spirit.getMbtiType(), userInput);
     return response;

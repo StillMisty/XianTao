@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
 import top.stillmisty.xiantao.domain.user.vo.PlayerViewVO;
 import top.stillmisty.xiantao.infrastructure.repository.EquipmentRepository;
@@ -29,7 +29,7 @@ public class PlayerViewService {
   }
 
   public PlayerViewVO viewPlayerInternal(Long userId, String targetNickname) {
-    User target =
+    Player target =
         userRepository
             .findByNickname(targetNickname)
             .orElseThrow(() -> new BusinessException(ErrorCode.PLAYER_NOT_FOUND, targetNickname));

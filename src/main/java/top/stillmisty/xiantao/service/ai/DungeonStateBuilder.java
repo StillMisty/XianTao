@@ -1,4 +1,4 @@
-package top.stillmisty.xiantao.service.dungeon;
+package top.stillmisty.xiantao.service.ai;
 
 import java.util.List;
 import org.jspecify.annotations.Nullable;
@@ -23,6 +23,7 @@ public class DungeonStateBuilder {
 
     StringBuilder sb = new StringBuilder();
 
+    // ── 身份定义 ──
     sb.append("你正在扮演秘境【").append(dungeon.getName()).append("】");
 
     if (dungeon.hasSpirit()) {
@@ -37,10 +38,12 @@ public class DungeonStateBuilder {
       sb.append("的叙事者。以旁白口吻描述探索者的所见所闻。\n\n");
     }
 
-    sb.append("当前区域：【").append(currentArea.name()).append("】\n");
+    // ── 秘境状态 ──
+    sb.append("【秘境状态】\n");
+    sb.append("当前区域：").append(currentArea.name()).append("\n");
     sb.append("区域描述：").append(currentArea.description()).append("\n\n");
 
-    sb.append("当前区域可探索的地点：\n");
+    sb.append("可探索地点：\n");
     for (Poi poi : currentArea.mainPois()) {
       boolean explored =
           instance.getExploredPois() != null
@@ -68,29 +71,38 @@ public class DungeonStateBuilder {
     }
 
     if (instance.getPassageUnlocked()) {
-      sb.append("\n通往下一区域的通道已开启，玩家可以随时推进。\n");
+      sb.append("\n通往下一区域的通道已开启。\n");
     }
 
     if (dungeon.hasSpirit() && spiritState != null) {
-      sb.append("\n玩家对你的好感度：")
+      sb.append("\n好感度：")
           .append(spiritState.getFavor())
           .append("（态度：")
           .append(spiritState.favorAttitude())
           .append("）\n");
     }
 
-    sb.append("\n【规则】\n");
-    sb.append("1. 你只描述环境、场景和角色，不替玩家做决定。\n");
-    sb.append("2. 当玩家描述探索某个地点的意图时，调用 resolveEncounter 工具。\n");
-    sb.append("3. 当玩家表示继续前进时，先确认通道已解锁，再调用 advanceToNextArea 工具。\n");
-    sb.append("4. 当玩家表示退出时，调用 retreatFromDungeon 工具。\n");
-    sb.append("5. 在环境描述中自然地暗示隐藏线索（如配置了线索），但不要直接点名隐藏地点的名字。\n");
-    sb.append("6. 战斗结果由工具返回具体数据，你只需要做叙事美化（3~5句），不编造数值。\n");
-    sb.append("7. 如果配置了隐藏 POI 没有线索，则完全不要主动提及，除非玩家明确搜索。\n");
+    // ── 流程指引 ──
+    sb.append(
+        """
+
+            【流程指引】
+            你拥有影响秘境状态的秘境之力，你的秘境之力会告诉你它具体能做什么。
+            - 先等探索者说出意图，再思考调用哪个秘境之力
+            - 如果探索者只是与环境互动（观察、走动、触摸等），用叙事描述即可，无需动用秘境之力
+            - 如果拿不准探索者想做什么，先描述环境让他选择，不要替玩家做决定
+            - 战斗结果由工具返回具体数据，你只需要做叙事美化（3~5句），不编造数值
+
+            【叙事规则】""");
+    sb.append(
+        """
+            - 你只描述环境、场景和角色，不替玩家做决定
+            - 在环境描述中自然地暗示隐藏线索（如配置了线索），但不要直接点名隐藏地点的名字
+            - 如果配置了隐藏 POI 没有线索，则完全不要主动提及，除非玩家明确搜索
+            """);
 
     if (dungeon.hasAffectionSystem()) {
-      sb.append("8. 根据玩家言行调用 adjustFavor 调整好感度（谨慎、有节制的使用）。\n");
-      sb.append("9. 好感度高时可以更主动地暗示隐藏内容。\n");
+      sb.append("- 好感度高时可以更主动地暗示隐藏内容\n");
     }
 
     return sb.toString();

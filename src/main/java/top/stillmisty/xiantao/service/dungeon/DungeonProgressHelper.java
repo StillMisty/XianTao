@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonInstance;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonProgress;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonTemplate;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.infrastructure.repository.DungeonProgressRepository;
 import top.stillmisty.xiantao.infrastructure.repository.DungeonTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
@@ -35,7 +35,7 @@ public class DungeonProgressHelper {
                     new BusinessException(
                         ErrorCode.DUNGEON_NOT_FOUND, String.valueOf(instance.getDungeonId())));
 
-    User user = userStateService.loadUser(userId);
+    Player user = userStateService.loadUser(userId);
     user.clearActivity();
     userStateService.saveActivity(user);
 

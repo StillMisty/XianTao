@@ -3,7 +3,7 @@ package top.stillmisty.xiantao.service.combat;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 
 /** 遇怪/事件计算器 — 根据地图密集度、等级匹配度动态计算触发间隔 */
 @Slf4j
@@ -27,14 +27,14 @@ public class EncounterCalculator {
 
   public record EncounterParams(int slots, double perRollChance) {}
 
-  public EncounterParams compute(Long userId, User user, MapNode mapNode, int durationMinutes) {
+  public EncounterParams compute(Long userId, Player user, MapNode mapNode, int durationMinutes) {
     double interval = calculateInterval(user, mapNode);
     int slots = (int) (durationMinutes / interval);
     double perRollChance = Math.min(1.0, 0.4 * BASE_INTERVAL / interval);
     return new EncounterParams(slots, perRollChance);
   }
 
-  double calculateInterval(User user, MapNode mapNode) {
+  double calculateInterval(Player user, MapNode mapNode) {
     int mapLevel = mapNode.getLevelRequirement();
     int playerLevel = user.getLevel();
     int richness = mapNode.getEncounterRichness();

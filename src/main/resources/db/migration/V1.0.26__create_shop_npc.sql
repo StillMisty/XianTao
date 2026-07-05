@@ -16,7 +16,7 @@ CREATE
         shop_npc(
             id BIGSERIAL PRIMARY KEY,
             name VARCHAR(64) NOT NULL,
-            map_node_id BIGINT NOT NULL REFERENCES xt_map_node(id),
+            map_node_id BIGINT NOT NULL REFERENCES map_node(id),
             personality VARCHAR(16),
             buy_price_modifier NUMERIC(
                 3,

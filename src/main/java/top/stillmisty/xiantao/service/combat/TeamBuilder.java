@@ -6,7 +6,7 @@ import org.jspecify.annotations.Nullable;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.monster.CombatTeam;
 import top.stillmisty.xiantao.domain.skill.entity.Skill;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 
 /**
  * 玩家队伍构建接口
@@ -33,7 +33,7 @@ public interface TeamBuilder {
     }
   }
 
-  CombatTeam buildPlayerTeam(User user);
+  CombatTeam buildPlayerTeam(Player user);
 
-  CombatTeam buildPlayerTeam(User user, BuildOptions options);
+  CombatTeam buildPlayerTeam(Player user, BuildOptions options);
 }

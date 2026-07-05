@@ -1,7 +1,7 @@
 -- 福地主表
 CREATE
     TABLE
-        xt_fudi(
+        fudi(
             id BIGSERIAL PRIMARY KEY,
             user_id BIGINT NOT NULL UNIQUE,
             tribulation_stage INTEGER NOT NULL DEFAULT 0,
@@ -10,7 +10,7 @@ CREATE
             tribulation_win_streak INTEGER NOT NULL DEFAULT 0,
             create_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             update_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            CONSTRAINT fk_fudi_user FOREIGN KEY(user_id) REFERENCES xt_user(id) ON
+            CONSTRAINT fk_fudi_user FOREIGN KEY(user_id) REFERENCES player(id) ON
             DELETE
                 CASCADE,
                 CONSTRAINT chk_tribulation_stage CHECK(
@@ -25,22 +25,22 @@ CREATE
 
 COMMENT ON
 TABLE
-    xt_fudi IS '福地系统核心表';
+    fudi IS '福地系统核心表';
 
 COMMENT ON
-COLUMN xt_fudi.id IS '福地唯一ID';
+COLUMN fudi.id IS '福地唯一ID';
 
 COMMENT ON
-COLUMN xt_fudi.user_id IS '所属玩家ID';
+COLUMN fudi.user_id IS '所属玩家ID';
 
 COMMENT ON
-COLUMN xt_fudi.tribulation_stage IS '当前劫数（每渡过一次天劫+1）';
+COLUMN fudi.tribulation_stage IS '当前劫数（每渡过一次天劫+1）';
 
 COMMENT ON
-COLUMN xt_fudi.last_online_time IS '上次上线时间（用于离线时长计算）';
+COLUMN fudi.last_online_time IS '上次上线时间（用于离线时长计算）';
 
 COMMENT ON
-COLUMN xt_fudi.last_tribulation_time IS '天劫最后发生时间';
+COLUMN fudi.last_tribulation_time IS '天劫最后发生时间';
 
 COMMENT ON
-COLUMN xt_fudi.tribulation_win_streak IS '天劫连续胜利次数';
+COLUMN fudi.tribulation_win_streak IS '天劫连续胜利次数';

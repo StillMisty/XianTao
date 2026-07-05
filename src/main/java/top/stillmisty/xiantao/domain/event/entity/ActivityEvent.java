@@ -16,7 +16,7 @@ import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
 /** 活动事件关联实体 — 子事件/隐藏事件配置 */
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table("xt_activity_event")
+@Table("activity_event")
 @SuppressWarnings("NullAway")
 @NoArgsConstructor
 public class ActivityEvent {

@@ -15,11 +15,11 @@ import top.stillmisty.xiantao.domain.item.enums.WeaponType;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
 
-/** 装备模板实体 独立于 xt_item_template，存储装备专属属性 */
+/** 装备模板实体 独立于 item_template，存储装备专属属性 */
 @SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table("xt_equipment_template")
+@Table("equipment_template")
 public class EquipmentTemplate {
 
   @EqualsAndHashCode.Include

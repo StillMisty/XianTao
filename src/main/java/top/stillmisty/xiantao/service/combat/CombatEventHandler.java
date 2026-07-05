@@ -19,7 +19,7 @@ import top.stillmisty.xiantao.domain.monster.vo.CombatLogEntry;
 import top.stillmisty.xiantao.domain.monster.vo.DropItem;
 import top.stillmisty.xiantao.domain.monster.vo.SkillProc;
 import top.stillmisty.xiantao.domain.skill.entity.Skill;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.infrastructure.repository.BeastRepository;
 import top.stillmisty.xiantao.infrastructure.util.TypeUtils;
 import top.stillmisty.xiantao.infrastructure.util.WeightedRandom;
@@ -46,7 +46,7 @@ public class CombatEventHandler {
   public EncounterResult handle(
       ActivityEvent event,
       Long userId,
-      User user,
+      Player user,
       Map<Long, MonsterTemplate> templateMap,
       Map<Long, Skill> skillMap,
       int encounterIndex,

@@ -13,7 +13,7 @@ import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionType
 @SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table("xt_breeding_recipe")
+@Table("breeding_recipe")
 public class BreedingRecipe {
 
   @EqualsAndHashCode.Include

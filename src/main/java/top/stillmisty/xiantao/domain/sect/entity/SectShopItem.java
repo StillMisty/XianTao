@@ -12,7 +12,7 @@ import lombok.experimental.Accessors;
 
 /** 宗门商店商品 */
 @EqualsAndHashCode
-@Table("xt_sect_shop_item")
+@Table("sect_shop_item")
 @Accessors(chain = true)
 @Data
 @SuppressWarnings("NullAway")

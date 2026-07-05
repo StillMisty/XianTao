@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.event.EffectData;
 import top.stillmisty.xiantao.domain.notification.entity.GameEvent;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.service.activity.SubEventEffectExecutor;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
@@ -66,7 +66,7 @@ public class ChoiceService {
           + options.stream().map(EffectData.Option::key).reduce((a, b) -> a + "/" + b).orElse("");
     }
 
-    User user = userStateService.loadUser(userId);
+    Player user = userStateService.loadUser(userId);
     Map<String, Object> templateArgs = executeOptionEffects(selectedOption, userId, user);
 
     gameEventService.markDelivered(List.of(choiceEvent.getId()));
@@ -76,7 +76,7 @@ public class ChoiceService {
   }
 
   private Map<String, Object> executeOptionEffects(
-      EffectData.Option option, Long userId, User user) {
+      EffectData.Option option, Long userId, Player user) {
     List<Map<String, Object>> effectsList = option.effects();
     if (effectsList == null || effectsList.isEmpty()) return Map.of();
     return effectExecutor.executeEffects(

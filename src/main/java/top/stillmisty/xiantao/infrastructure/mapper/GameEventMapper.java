@@ -11,7 +11,7 @@ public interface GameEventMapper extends BaseMapper<GameEvent> {
 
   @Update(
       "<script>"
-          + "UPDATE xt_game_event SET delivered = TRUE WHERE id IN "
+          + "UPDATE game_event SET delivered = TRUE WHERE id IN "
           + "<foreach collection='ids' item='id' open='(' separator=',' close=')'>#{id}</foreach>"
           + "</script>")
   int markDeliveredByIds(@Param("ids") java.util.List<Long> ids);

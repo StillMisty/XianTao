@@ -1,6 +1,6 @@
 INSERT
     INTO
-        xt_event_type(
+        event_type(
             activity_type,
             code,
             name,

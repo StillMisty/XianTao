@@ -16,7 +16,7 @@ public class AuthenticationService {
   private final UserRepository userRepository;
 
   /**
-   * 仅验证平台绑定（不检查 User 实体是否存在）
+   * 仅验证平台绑定（不检查 Player 实体是否存在）
    *
    * @return 成功时 ServiceResult.Success 携带 userId
    */
@@ -28,7 +28,7 @@ public class AuthenticationService {
   }
 
   /**
-   * 验证平台绑定 + User 实体存在 + 状态校验
+   * 验证平台绑定 + Player 实体存在 + 状态校验
    *
    * @param requiredStatus 要求的状态，null 表示不校验状态
    * @return 成功时 ServiceResult.Success 携带 userId

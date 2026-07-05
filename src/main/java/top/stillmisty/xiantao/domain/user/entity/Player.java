@@ -19,15 +19,15 @@ import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 
 /** 游戏角色核心表实体 */
 @EqualsAndHashCode
-@Table("xt_user")
+@Table("player")
 @Accessors(chain = true)
 @SuppressWarnings("NullAway")
 @Data
 @NoArgsConstructor
-public class User {
+public class Player {
 
-  public static User create() {
-    return new User();
+  public static Player create() {
+    return new Player();
   }
 
   /** 内部唯一角色 ID */

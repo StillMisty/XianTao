@@ -58,7 +58,7 @@ COMMENT ON
 COLUMN shop_product.product_type IS '商品类型：ITEM（堆叠物品）或 EQUIPMENT（装备）';
 
 COMMENT ON
-COLUMN shop_product.template_id IS 'ITEM 类型指向 xt_item_template.id，EQUIPMENT 类型指向 xt_equipment_template.id';
+COLUMN shop_product.template_id IS 'ITEM 类型指向 item_template.id，EQUIPMENT 类型指向 equipment_template.id';
 
 COMMENT ON
 COLUMN shop_product.base_price IS '基准售价（灵石）';

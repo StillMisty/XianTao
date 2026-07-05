@@ -1,14 +1,14 @@
 /* 宗门建筑表 */
 CREATE
     TABLE
-        xt_sect_building(
+        sect_building(
             id BIGSERIAL PRIMARY KEY,
             sect_id BIGINT NOT NULL,
             building_type VARCHAR(24) NOT NULL,
             LEVEL INT NOT NULL DEFAULT 1,
             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            CONSTRAINT fk_sect_building_sect FOREIGN KEY(sect_id) REFERENCES xt_sect(id) ON
+            CONSTRAINT fk_sect_building_sect FOREIGN KEY(sect_id) REFERENCES sect(id) ON
             DELETE
                 CASCADE,
                 CONSTRAINT uq_sect_building UNIQUE(
@@ -33,26 +33,26 @@ CREATE
 
 COMMENT ON
 TABLE
-    xt_sect_building IS '宗门建筑表';
+    sect_building IS '宗门建筑表';
 
 COMMENT ON
-COLUMN xt_sect_building.id IS '建筑记录ID';
+COLUMN sect_building.id IS '建筑记录ID';
 
 COMMENT ON
-COLUMN xt_sect_building.sect_id IS '宗门ID';
+COLUMN sect_building.sect_id IS '宗门ID';
 
 COMMENT ON
-COLUMN xt_sect_building.building_type IS '建筑类型';
+COLUMN sect_building.building_type IS '建筑类型';
 
 COMMENT ON
-COLUMN xt_sect_building.level IS '建筑等级';
+COLUMN sect_building.level IS '建筑等级';
 
 COMMENT ON
-COLUMN xt_sect_building.created_at IS '建造时间';
+COLUMN sect_building.created_at IS '建造时间';
 
 COMMENT ON
-COLUMN xt_sect_building.updated_at IS '更新时间';
+COLUMN sect_building.updated_at IS '更新时间';
 
 CREATE
     INDEX idx_sect_building_sect ON
-    xt_sect_building(sect_id);
+    sect_building(sect_id);

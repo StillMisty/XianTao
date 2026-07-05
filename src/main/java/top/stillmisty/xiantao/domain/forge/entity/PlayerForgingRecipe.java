@@ -13,7 +13,7 @@ import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 @SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table("xt_player_forging_recipe")
+@Table("player_forging_recipe")
 public class PlayerForgingRecipe {
 
   @EqualsAndHashCode.Include

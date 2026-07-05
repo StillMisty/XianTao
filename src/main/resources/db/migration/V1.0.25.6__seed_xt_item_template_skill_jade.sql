@@ -1,7 +1,7 @@
--- 法决玉简种子数据 (xt_item_template, type=SKILL_JADE)
+-- 法决玉简种子数据 (item_template, type=SKILL_JADE)
 INSERT
     INTO
-        xt_item_template(
+        item_template(
             name,
             TYPE,
             properties,
@@ -17,7 +17,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '破风斩'
             )
@@ -34,7 +34,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '清风剑法'
             )
@@ -51,7 +51,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '万剑归宗'
             )
@@ -68,7 +68,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '金刚体'
             )
@@ -85,7 +85,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '轻身术'
             )
@@ -102,7 +102,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '蛮牛劲'
             )
@@ -119,7 +119,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '静心诀'
             )
@@ -136,7 +136,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '烈火掌'
             )
@@ -153,7 +153,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '寒冰掌'
             )
@@ -170,7 +170,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '青木诀'
             )
@@ -187,7 +187,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '金灵剑气'
             )
@@ -204,7 +204,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '霸刀诀'
             )
@@ -221,7 +221,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '诛仙剑诀'
             )
@@ -238,7 +238,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '焚天诀'
             )
@@ -255,7 +255,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '轩辕剑法'
             )
@@ -272,7 +272,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '霸下真身'
             )
@@ -289,7 +289,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '蟠桃仙术'
             )
@@ -306,7 +306,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '射日弓'
             )
@@ -323,7 +323,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '莲华涅槃'
             )
@@ -340,7 +340,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '横刀断岳'
             )
@@ -357,7 +357,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '剑心通明'
             )
@@ -374,7 +374,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '开山斧'
             )
@@ -391,7 +391,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '穿云枪'
             )
@@ -408,7 +408,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '伏魔棍'
             )
@@ -425,7 +425,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '穿杨箭'
             )
@@ -442,7 +442,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '灵蛇鞭'
             )
@@ -459,7 +459,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '方天画戟'
             )
@@ -476,7 +476,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '震地锤'
             )
@@ -493,7 +493,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '影刺'
             )
@@ -510,7 +510,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '清风拂柳'
             )
@@ -527,7 +527,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '拂尘净心'
             )
@@ -544,7 +544,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '金刚圈'
             )
@@ -561,7 +561,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '伏魔钟'
             )
@@ -577,7 +577,7 @@ INSERT
             SELECT
                 id
             FROM
-                xt_skill
+                skill
             WHERE
                 name = '通明心法'
         )
@@ -593,7 +593,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '天人感应'
             )
@@ -610,7 +610,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '道心通明'
             )
@@ -626,7 +626,7 @@ INSERT
             SELECT
                 id
             FROM
-                xt_skill
+                skill
             WHERE
                 name = '刀光如练'
         )
@@ -642,7 +642,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '天刀九式'
             )
@@ -658,7 +658,7 @@ INSERT
             SELECT
                 id
             FROM
-                xt_skill
+                skill
             WHERE
                 name = '飞仙剑法'
         )
@@ -674,7 +674,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '青莲剑歌'
             )
@@ -690,7 +690,7 @@ INSERT
             SELECT
                 id
             FROM
-                xt_skill
+                skill
             WHERE
                 name = '旋风斧'
         )
@@ -706,7 +706,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '碎星斧'
             )
@@ -723,7 +723,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '刑天斧法'
             )
@@ -740,7 +740,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '盘古开天'
             )
@@ -756,7 +756,7 @@ INSERT
             SELECT
                 id
             FROM
-                xt_skill
+                skill
             WHERE
                 name = '游龙枪法'
         )
@@ -772,7 +772,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '寒芒点星'
             )
@@ -789,7 +789,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '回马枪'
             )
@@ -806,7 +806,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '霸王枪'
             )
@@ -823,7 +823,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '破阵枪诀'
             )
@@ -839,7 +839,7 @@ INSERT
             SELECT
                 id
             FROM
-                xt_skill
+                skill
             WHERE
                 name = '横扫千军'
         )
@@ -855,7 +855,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '定海神针'
             )
@@ -872,7 +872,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '翻天棍法'
             )
@@ -889,7 +889,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '菩提棍意'
             )
@@ -905,7 +905,7 @@ INSERT
             SELECT
                 id
             FROM
-                xt_skill
+                skill
             WHERE
                 name = '连珠箭'
         )
@@ -921,7 +921,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '穿心箭'
             )
@@ -938,7 +938,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '流星箭雨'
             )
@@ -955,7 +955,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '追魂箭'
             )
@@ -971,7 +971,7 @@ INSERT
             SELECT
                 id
             FROM
-                xt_skill
+                skill
             WHERE
                 name = '缚龙索'
         )
@@ -987,7 +987,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '天魔鞭法'
             )
@@ -1004,7 +1004,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '修罗鞭'
             )
@@ -1020,7 +1020,7 @@ INSERT
             SELECT
                 id
             FROM
-                xt_skill
+                skill
             WHERE
                 name = '戟破苍穹'
         )
@@ -1036,7 +1036,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '裂天戟'
             )
@@ -1052,7 +1052,7 @@ INSERT
             SELECT
                 id
             FROM
-                xt_skill
+                skill
             WHERE
                 name = '轰天锤'
         )
@@ -1068,7 +1068,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '碎虚锤'
             )
@@ -1084,7 +1084,7 @@ INSERT
             SELECT
                 id
             FROM
-                xt_skill
+                skill
             WHERE
                 name = '暗影杀'
         )
@@ -1100,7 +1100,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '千幻刺杀'
             )
@@ -1117,7 +1117,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '瞬狱杀'
             )
@@ -1133,7 +1133,7 @@ INSERT
             SELECT
                 id
             FROM
-                xt_skill
+                skill
             WHERE
                 name = '霓裳扇舞'
         )
@@ -1149,7 +1149,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '天罡扇'
             )
@@ -1165,7 +1165,7 @@ INSERT
             SELECT
                 id
             FROM
-                xt_skill
+                skill
             WHERE
                 name = '三千烦恼'
         )
@@ -1181,7 +1181,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '太虚拂尘'
             )
@@ -1197,7 +1197,7 @@ INSERT
             SELECT
                 id
             FROM
-                xt_skill
+                skill
             WHERE
                 name = '乾坤圈'
         )
@@ -1213,7 +1213,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '日月双环'
             )
@@ -1229,7 +1229,7 @@ INSERT
             SELECT
                 id
             FROM
-                xt_skill
+                skill
             WHERE
                 name = '镇魂钟声'
         )
@@ -1245,7 +1245,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '混沌钟'
             )
@@ -1261,7 +1261,7 @@ INSERT
             SELECT
                 id
             FROM
-                xt_skill
+                skill
             WHERE
                 name = '兵锋诀'
         )
@@ -1277,7 +1277,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '刀剑无双'
             )
@@ -1294,7 +1294,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '兵主杀伐'
             )
@@ -1310,7 +1310,7 @@ INSERT
             SELECT
                 id
             FROM
-                xt_skill
+                skill
             WHERE
                 name = '长驱直入'
         )
@@ -1326,7 +1326,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '横扫八荒'
             )
@@ -1343,7 +1343,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '枪出如龙'
             )
@@ -1359,7 +1359,7 @@ INSERT
             SELECT
                 id
             FROM
-                xt_skill
+                skill
             WHERE
                 name = '鹰眼术'
         )
@@ -1375,7 +1375,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '百步穿杨'
             )
@@ -1392,7 +1392,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '后羿射日'
             )
@@ -1408,7 +1408,7 @@ INSERT
             SELECT
                 id
             FROM
-                xt_skill
+                skill
             WHERE
                 name = '奇门遁甲'
         )
@@ -1424,7 +1424,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '八门金锁'
             )
@@ -1441,7 +1441,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '逆乱阴阳'
             )
@@ -1457,7 +1457,7 @@ INSERT
             SELECT
                 id
             FROM
-                xt_skill
+                skill
             WHERE
                 name = '金钟罩'
         )
@@ -1473,7 +1473,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '太白斩魔'
             )
@@ -1489,7 +1489,7 @@ INSERT
             SELECT
                 id
             FROM
-                xt_skill
+                skill
             WHERE
                 name = '荆棘缠绕'
         )
@@ -1505,7 +1505,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '万木逢春'
             )
@@ -1521,7 +1521,7 @@ INSERT
             SELECT
                 id
             FROM
-                xt_skill
+                skill
             WHERE
                 name = '水镜术'
         )
@@ -1537,7 +1537,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '冰封万里'
             )
@@ -1553,7 +1553,7 @@ INSERT
             SELECT
                 id
             FROM
-                xt_skill
+                skill
             WHERE
                 name = '三昧真火'
         )
@@ -1568,7 +1568,7 @@ INSERT
             SELECT
                 id
             FROM
-                xt_skill
+                skill
             WHERE
                 name = '厚土盾'
         )
@@ -1584,7 +1584,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '地动术'
             )
@@ -1601,7 +1601,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '泰山压顶'
             )
@@ -1617,7 +1617,7 @@ INSERT
             SELECT
                 id
             FROM
-                xt_skill
+                skill
             WHERE
                 name = '一气化三清'
         )
@@ -1633,7 +1633,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '天罡北斗阵'
             )
@@ -1650,7 +1650,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '袖里乾坤'
             )
@@ -1667,7 +1667,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '五雷正法'
             )
@@ -1684,7 +1684,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '血魔真经'
             )
@@ -1701,7 +1701,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '太乙遁甲'
             )
@@ -1718,7 +1718,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '九天魔音'
             )
@@ -1735,7 +1735,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '养剑术'
             )
@@ -1752,7 +1752,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '混元功'
             )
@@ -1769,7 +1769,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '踏波行'
             )
@@ -1786,7 +1786,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '逆转丹行'
             )
@@ -1803,7 +1803,7 @@ INSERT
                 SELECT
                     id
                 FROM
-                    xt_skill
+                    skill
                 WHERE
                     name = '偷天换日'
             )

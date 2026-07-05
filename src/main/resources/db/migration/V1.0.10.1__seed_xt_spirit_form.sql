@@ -1,8 +1,8 @@
--- 地灵形态种子数据 (xt_spirit_form)
+-- 地灵形态种子数据 (spirit_form)
 -- 各有3-5个喜欢/讨厌的 tag
 INSERT
     INTO
-        xt_spirit_form(
+        spirit_form(
             name,
             description,
             liked_tags,

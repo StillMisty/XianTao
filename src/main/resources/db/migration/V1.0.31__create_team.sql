@@ -12,7 +12,7 @@ CREATE
                 )
             ),
             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            CONSTRAINT fk_team_leader FOREIGN KEY(leader_id) REFERENCES xt_user(id)
+            CONSTRAINT fk_team_leader FOREIGN KEY(leader_id) REFERENCES player(id)
         );
 
 CREATE

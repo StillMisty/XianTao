@@ -12,7 +12,7 @@ import lombok.experimental.Accessors;
 import top.stillmisty.xiantao.domain.sect.enums.SectSharedSkillStatus;
 
 @EqualsAndHashCode
-@Table("xt_sect_shared_skill")
+@Table("sect_shared_skill")
 @Accessors(chain = true)
 @SuppressWarnings("NullAway")
 @Data

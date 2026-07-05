@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
 import top.stillmisty.xiantao.domain.notification.entity.GameEvent;
 import top.stillmisty.xiantao.domain.notification.enums.GameEventCategory;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.domain.worldevent.entity.WorldEvent;
 import top.stillmisty.xiantao.domain.worldevent.enums.WorldEventCategory;
 import top.stillmisty.xiantao.service.GameEventService;
@@ -24,7 +24,7 @@ public class WorldEventEnvironmentalApplier {
   private final GameEventService gameEventService;
 
   @Transactional
-  public void apply(Long userId, User user, MapNode mapNode) {
+  public void apply(Long userId, Player user, MapNode mapNode) {
     List<WorldEvent> regionalEvents = worldEventService.findActiveByRegion(mapNode.getId());
     List<WorldEvent> globalEvents = worldEventService.findActiveGlobalEvents();
 

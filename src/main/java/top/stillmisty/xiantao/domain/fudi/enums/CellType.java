@@ -13,6 +13,9 @@ public enum CellType {
   @EnumValue private final String code;
   private final String chineseName;
 
+  /** 枚举参数描述（供 @ToolParam 引用） */
+  public static final String PARAM_DESCRIPTION = "地块类型: EMPTY(空地) FARM(灵田) PEN(兽栏)";
+
   CellType(String code, String chineseName) {
     this.code = code;
     this.chineseName = chineseName;

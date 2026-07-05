@@ -19,7 +19,7 @@ import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 
 /** 游戏事件实体 — 异步事件队列 */
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table("xt_game_event")
+@Table("game_event")
 @Accessors(chain = true)
 @SuppressWarnings("NullAway")
 @Data

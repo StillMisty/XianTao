@@ -20,7 +20,7 @@ import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Accessors(chain = true)
-@Table("xt_beast")
+@Table("beast")
 public class Beast {
 
   @EqualsAndHashCode.Include

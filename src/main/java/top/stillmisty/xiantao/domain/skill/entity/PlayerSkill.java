@@ -12,7 +12,7 @@ import org.jspecify.annotations.Nullable;
 @SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table("xt_player_skill")
+@Table("player_skill")
 public class PlayerSkill {
 
   @EqualsAndHashCode.Include

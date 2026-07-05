@@ -2,7 +2,7 @@
 CREATE TABLE dungeon_instance(
     id                BIGSERIAL PRIMARY KEY,
     dungeon_id        BIGINT NOT NULL REFERENCES dungeon_template(id),
-    leader_id         BIGINT NOT NULL REFERENCES xt_user(id),
+    leader_id         BIGINT NOT NULL REFERENCES player(id),
     current_area_key  VARCHAR(32) NOT NULL,
     passage_unlocked  BOOLEAN NOT NULL DEFAULT FALSE,
     explored_pois     JSONB NOT NULL DEFAULT '[]'::jsonb,

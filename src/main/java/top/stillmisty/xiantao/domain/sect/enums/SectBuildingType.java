@@ -19,6 +19,11 @@ public enum SectBuildingType {
   private final int buildCost;
   private final int maxLevel;
 
+  /** 枚举参数描述（供 @ToolParam 引用） */
+  public static final String PARAM_DESCRIPTION =
+      "建筑类型: SCRIPTURE_PAVILION(藏经阁) TRAINING_ROOM(练功房) ALCHEMY_CHAMBER(炼丹房)"
+          + " SPIRIT_VEIN(灵脉) FORGE_WORKSHOP(锻造坊) GUARD_ARRAY(护阵) HERB_GARDEN(药园)";
+
   SectBuildingType(String code, String name, int buildCost, int maxLevel) {
     this.code = code;
     this.name = name;

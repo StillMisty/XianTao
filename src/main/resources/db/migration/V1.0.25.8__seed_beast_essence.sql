@@ -1,7 +1,7 @@
 -- 灵兽精华物品模板
 INSERT
     INTO
-        xt_item_template(
+        item_template(
             name,
             TYPE,
             properties,

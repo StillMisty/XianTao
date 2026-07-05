@@ -99,10 +99,29 @@ public class FudiStateBuilder {
                 .append(beast.getGender().getChineseName())
                 .append(")");
           }
+          if (pen.matureTime() != null && TimeUtil.now().isBefore(pen.matureTime())) {
+            long totalSecs =
+                java.time.Duration.between(pen.hatchTime(), pen.matureTime()).toSeconds();
+            long elapsedSecs =
+                java.time.Duration.between(pen.hatchTime(), TimeUtil.now()).toSeconds();
+            if (totalSecs > 0) {
+              int pct = (int) Math.min(100, elapsedSecs * 100 / totalSecs);
+              sb.append(" 孵化中(").append(pct).append("%)");
+            } else {
+              sb.append(" 孵化中");
+            }
+          } else {
+            int stored = pen.totalProductionQuantity();
+            if (stored > 0) {
+              sb.append(" 有产出×").append(stored).append("📦");
+            }
+          }
           if (beast.getBreedingCooldownUntil() != null
               && beast.getBreedingCooldownUntil().isAfter(TimeUtil.now())) {
             sb.append(" 🔥繁育冷却中");
           }
+        } else if (pen.beastId() == null) {
+          sb.append(" 空兽栏");
         }
       }
       sb.append("\n");

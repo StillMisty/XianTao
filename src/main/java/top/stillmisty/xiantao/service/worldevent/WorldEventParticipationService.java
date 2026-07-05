@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.notification.entity.GameEvent;
 import top.stillmisty.xiantao.domain.notification.enums.GameEventCategory;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.domain.worldevent.entity.WorldEvent;
 import top.stillmisty.xiantao.domain.worldevent.enums.WorldEventCategory;
 import top.stillmisty.xiantao.infrastructure.repository.WorldEventRepository;
@@ -57,7 +57,7 @@ public class WorldEventParticipationService {
       throw new BusinessException(ErrorCode.WORLD_EVENT_PARTICIPATION_FULL);
     }
 
-    User user = userStateService.loadUser(userId);
+    Player user = userStateService.loadUser(userId);
 
     List<Map<String, Object>> participationEffects = event.getParticipationEffects();
     String effectDesc = "";

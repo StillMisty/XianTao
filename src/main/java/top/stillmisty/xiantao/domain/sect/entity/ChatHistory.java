@@ -16,7 +16,7 @@ import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
 
 /** 统一对话历史实体（地灵/商铺/宗灵/旅行商人 共用） */
 @EqualsAndHashCode
-@Table("xt_chat_history")
+@Table("chat_history")
 @Accessors(chain = true)
 @Data
 @SuppressWarnings("NullAway")

@@ -1,6 +1,8 @@
 package top.stillmisty.xiantao.service.ai;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -8,23 +10,39 @@ import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.chat.prompt.Prompt;
-import org.springframework.ai.deepseek.DeepSeekChatModel;
-import org.springframework.ai.deepseek.DeepSeekChatOptions;
-import org.springframework.ai.openai.OpenAiChatModel;
-import org.springframework.ai.openai.OpenAiChatOptions;
 
 @Slf4j
 public class FallbackChatModel implements ChatModel {
 
   private final List<ChatModel> delegates;
   @Nullable private final String fallbackModel;
+  private final Map<Class<?>, ChatOptionsAdapter> adapterRegistry;
 
-  public FallbackChatModel(List<ChatModel> delegates, @Nullable String fallbackModel) {
+  public FallbackChatModel(
+      List<ChatModel> delegates,
+      @Nullable String fallbackModel,
+      List<ChatOptionsAdapter> adapters) {
     if (delegates.isEmpty()) {
       throw new IllegalArgumentException("FallbackChatModel requires at least one delegate");
     }
     this.delegates = List.copyOf(delegates);
     this.fallbackModel = fallbackModel;
+    this.adapterRegistry = new HashMap<>();
+    for (ChatOptionsAdapter adapter : adapters) {
+      adapterRegistry.put(adapter.supportedType(), adapter);
+    }
+  }
+
+  public FallbackChatModel(List<ChatModel> delegates, @Nullable String fallbackModel) {
+    this(delegates, fallbackModel, List.of());
+  }
+
+  @Override
+  public ChatOptions getOptions() {
+    // 必须返回第一个委托模型的 options，使其 instanceof ToolCallingChatOptions，
+    // 否则 DefaultChatClientUtils 不会将 .tools() 传进来的回调设置到 Prompt 的选项中，
+    // 导致 ToolCallingAdvisor 跳过自身，最终 HTTP 请求中 tools=null。
+    return delegates.getFirst().getOptions();
   }
 
   @Override
@@ -44,26 +62,25 @@ public class FallbackChatModel implements ChatModel {
   }
 
   private Prompt adaptPrompt(Prompt prompt, ChatModel delegate, @Nullable String overrideModel) {
-    ChatOptions opts = prompt.getOptions();
-    if (delegate instanceof DeepSeekChatModel) {
-      return new Prompt(
-          prompt.getInstructions(),
-          DeepSeekChatOptions.builder()
-              .model(overrideModel != null ? overrideModel : opts != null ? opts.getModel() : null)
-              .maxTokens(opts != null ? opts.getMaxTokens() : null)
-              .temperature(opts != null ? opts.getTemperature() : null)
-              .topP(opts != null ? opts.getTopP() : null)
-              .build());
+    // 降级模型：通过适配器替换 model 名
+    if (overrideModel != null) {
+      ChatOptionsAdapter adapter = adapterRegistry.get(delegate.getClass());
+      if (adapter != null) {
+        return adapter.adaptPrompt(prompt, overrideModel);
+      }
+      log.warn(
+          "No ChatOptionsAdapter found for {}, returning original prompt", delegate.getClass());
+      return prompt;
     }
-    if (delegate instanceof OpenAiChatModel) {
-      return new Prompt(
-          prompt.getInstructions(),
-          OpenAiChatOptions.builder()
-              .model(overrideModel != null ? overrideModel : opts != null ? opts.getModel() : null)
-              .maxTokens(opts != null ? opts.getMaxTokens() : null)
-              .temperature(opts != null ? opts.getTemperature() : null)
-              .topP(opts != null ? opts.getTopP() : null)
-              .build());
+    // 主模型：advisors 可能将 options 包装为 DefaultChatOptions，
+    // 而 DeepSeekChatModel 等实现期望特定 options 类型。
+    // 通过适配器重建正确类型的 options 来避免 ClassCastException。
+    ChatOptionsAdapter adapter = adapterRegistry.get(delegate.getClass());
+    if (adapter != null) {
+      String currentModel = prompt.getOptions() != null ? prompt.getOptions().getModel() : null;
+      if (currentModel != null) {
+        return adapter.adaptPrompt(prompt, currentModel);
+      }
     }
     return prompt;
   }

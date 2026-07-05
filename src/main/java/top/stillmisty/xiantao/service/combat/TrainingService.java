@@ -19,7 +19,7 @@ import top.stillmisty.xiantao.domain.map.vo.TrainingRewardVO;
 import top.stillmisty.xiantao.domain.map.vo.TrainingStartResult;
 import top.stillmisty.xiantao.domain.monster.vo.CombatLogEntry;
 import top.stillmisty.xiantao.domain.monster.vo.DropItem;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.MapNodeRepository;
@@ -66,7 +66,7 @@ public class TrainingService {
 
   @Transactional
   public TrainingStartResult startTrainingInternal(Long userId) {
-    User user = userStateService.loadUser(userId);
+    Player user = userStateService.loadUser(userId);
     if (user.getStatus() != UserStatus.IDLE) {
       throw new BusinessException(ErrorCode.STATUS_BLOCKED, user.getStatus().getName(), "空闲");
     }
@@ -95,7 +95,7 @@ public class TrainingService {
 
   @Transactional
   public TrainingRewardVO endTrainingInternal(Long userId) {
-    User user = userStateService.loadUser(userId);
+    Player user = userStateService.loadUser(userId);
     if (user.getStatus() != UserStatus.TRAINING && user.getStatus() != UserStatus.DYING) {
       throw new BusinessException(ErrorCode.STATUS_BLOCKED, user.getStatus().getName(), "历练");
     }
@@ -109,7 +109,7 @@ public class TrainingService {
   }
 
   @Nullable
-  private TrainingRewardVO checkEndTrainingEarlyExit(Long userId, User user) {
+  private TrainingRewardVO checkEndTrainingEarlyExit(Long userId, Player user) {
     if (user.getActivityStartTime() == null) {
       user.setStatus(UserStatus.IDLE);
       user.clearActivity();
@@ -142,7 +142,7 @@ public class TrainingService {
   }
 
   private TrainingRewardVO processNormalTrainingEnd(
-      Long userId, User user, long minutesTraining, MapNode mapNode) {
+      Long userId, Player user, long minutesTraining, MapNode mapNode) {
     long lastSettled = user.getLastSettlementMinute();
     long remainingMinutes = Math.max(0, minutesTraining - lastSettled);
 

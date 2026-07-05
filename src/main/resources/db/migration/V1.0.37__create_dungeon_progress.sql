@@ -1,7 +1,7 @@
 -- 秘境奖励记录表
 CREATE TABLE dungeon_progress(
     id                BIGSERIAL PRIMARY KEY,
-    user_id           BIGINT NOT NULL REFERENCES xt_user(id),
+    user_id           BIGINT NOT NULL REFERENCES player(id),
     dungeon_id        BIGINT NOT NULL REFERENCES dungeon_template(id),
     last_reward_date  DATE NOT NULL,
     reward_count      INT NOT NULL DEFAULT 0,

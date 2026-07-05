@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 /** 事件类型定义实体 */
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table("xt_event_type")
+@Table("event_type")
 @SuppressWarnings("NullAway")
 @NoArgsConstructor
 public class EventType {

@@ -11,7 +11,7 @@ import top.stillmisty.xiantao.domain.beast.enums.MutationEffectType;
 import top.stillmisty.xiantao.domain.monster.CombatTeam;
 import top.stillmisty.xiantao.domain.monster.Combatant;
 import top.stillmisty.xiantao.domain.monster.PlayerCombatant;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.infrastructure.repository.BeastRepository;
 import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.beast.BeastSkillService;
@@ -26,7 +26,7 @@ public class PostCombatProcessor {
   private final BeastSkillService beastSkillService;
   private final MutationEffectResolver effectResolver;
 
-  public void applyHpToUser(User user, CombatTeam team) {
+  public void applyHpToUser(Player user, CombatTeam team) {
     for (Combatant c : team.members()) {
       if (c instanceof PlayerCombatant pc && pc.getId().equals(user.getId())) {
         if (c.getHp() <= 0) {
@@ -41,7 +41,7 @@ public class PostCombatProcessor {
 
   public void applyHpToBeasts(
       CombatTeam team,
-      User user,
+      Player user,
       boolean playerWon,
       boolean isHighlightBattle,
       Map<Long, Beast> beastCache) {
@@ -73,7 +73,7 @@ public class PostCombatProcessor {
   }
 
   @Transactional
-  public void applyCombatHpToBeasts(CombatTeam team, User user, boolean playerWon) {
+  public void applyCombatHpToBeasts(CombatTeam team, Player user, boolean playerWon) {
     Map<Long, Beast> beastCache = new HashMap<>();
     applyHpToBeasts(team, user, playerWon, false, beastCache);
     beastCache.values().forEach(beastRepository::save);

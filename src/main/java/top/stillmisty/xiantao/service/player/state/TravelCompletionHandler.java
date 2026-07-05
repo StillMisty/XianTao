@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.event.enums.ActivityType;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.repository.MapNodeRepository;
 import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
@@ -22,7 +22,7 @@ class TravelCompletionHandler implements StateHandler {
   private final TravelCompleter travelCompleter;
 
   @Override
-  public boolean tryResolve(User user) {
+  public boolean tryResolve(Player user) {
     if (user.getStatus() != UserStatus.TRAVELING) return false;
     if (user.getActivityType() != ActivityType.TRAVEL) return false;
     if (user.getActivityTargetId() == null) return false;

@@ -12,7 +12,7 @@ import lombok.experimental.Accessors;
 import top.stillmisty.xiantao.domain.sect.enums.SectTaskType;
 
 @EqualsAndHashCode
-@Table("xt_sect_task")
+@Table("sect_task")
 @Accessors(chain = true)
 @Data
 @SuppressWarnings("NullAway")

@@ -19,8 +19,8 @@ CREATE
                 CURRENT_TIMESTAMP + INTERVAL '5 minutes'
             ),
             CONSTRAINT fk_team_invitation_team FOREIGN KEY(team_id) REFERENCES team(id),
-            CONSTRAINT fk_team_invitation_inviter FOREIGN KEY(inviter_id) REFERENCES xt_user(id),
-            CONSTRAINT fk_team_invitation_invitee FOREIGN KEY(invitee_id) REFERENCES xt_user(id)
+            CONSTRAINT fk_team_invitation_inviter FOREIGN KEY(inviter_id) REFERENCES player(id),
+            CONSTRAINT fk_team_invitation_invitee FOREIGN KEY(invitee_id) REFERENCES player(id)
         );
 
 CREATE

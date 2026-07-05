@@ -10,7 +10,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.user.entity.DaoProtection;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
 import top.stillmisty.xiantao.domain.user.vo.DaoProtectionQueryResult;
 import top.stillmisty.xiantao.domain.user.vo.DaoProtectionResult;
@@ -41,9 +41,9 @@ public class DaoProtectionService {
   @Transactional
   @CacheEvict(cacheNames = "dao_protection", key = "#protectorId")
   public DaoProtectionResult establishProtection(Long protectorId, String protegeNickname) {
-    User protector = userStateService.loadUser(protectorId);
+    Player protector = userStateService.loadUser(protectorId);
 
-    Optional<User> protegeOpt = findUserByNickname(protegeNickname);
+    Optional<Player> protegeOpt = findUserByNickname(protegeNickname);
     if (protegeOpt.isEmpty()) {
       return new DaoProtectionResult(
           false,
@@ -59,7 +59,7 @@ public class DaoProtectionService {
           null);
     }
 
-    User protege = protegeOpt.get();
+    Player protege = protegeOpt.get();
 
     if (protector.getLevel() < protege.getLevel()) {
       return new DaoProtectionResult(
@@ -142,7 +142,7 @@ public class DaoProtectionService {
   @Transactional
   @CacheEvict(cacheNames = "dao_protection", key = "#protectorId")
   public DaoProtectionResult removeProtection(Long protectorId, String protegeNickname) {
-    Optional<User> protegeOpt = findUserByNickname(protegeNickname);
+    Optional<Player> protegeOpt = findUserByNickname(protegeNickname);
     if (protegeOpt.isEmpty()) {
       return new DaoProtectionResult(
           false,
@@ -158,7 +158,7 @@ public class DaoProtectionService {
           null);
     }
 
-    User protege = protegeOpt.get();
+    Player protege = protegeOpt.get();
 
     Optional<DaoProtection> protectionOpt =
         daoProtectionRepository.findByProtectorAndProtege(protectorId, protege.getId());
@@ -199,7 +199,7 @@ public class DaoProtectionService {
 
   @Cacheable(cacheNames = "dao_protection", key = "#userId")
   public DaoProtectionQueryResult queryProtectionInfo(Long userId) {
-    User user = userStateService.loadUser(userId);
+    Player user = userStateService.loadUser(userId);
 
     List<ProtectionInfo> protectingInfoList = buildProtectingList(userId, user);
     ProtectionByData protectedByData = buildProtectedByList(userId, user);
@@ -218,7 +218,7 @@ public class DaoProtectionService {
         .build();
   }
 
-  private List<ProtectionInfo> buildProtectingList(Long userId, User user) {
+  private List<ProtectionInfo> buildProtectingList(Long userId, Player user) {
     List<DaoProtection> protectingList = daoProtectionRepository.findByProtectorId(userId);
     List<ProtectionInfo> protectingInfoList = new ArrayList<>();
 
@@ -231,10 +231,10 @@ public class DaoProtectionService {
         userRepository.findByIds(protegeIds).stream()
             .collect(
                 java.util.stream.Collectors.toMap(
-                    top.stillmisty.xiantao.domain.user.entity.User::getId, u -> u));
+                    top.stillmisty.xiantao.domain.user.entity.Player::getId, u -> u));
 
     for (DaoProtection protection : protectingList) {
-      User protege = protegeMap.get(protection.getProtegeId());
+      Player protege = protegeMap.get(protection.getProtegeId());
       if (protege != null) {
         boolean inSameLocation = ProtectionHelper.isInSameLocation(user, protege);
         double bonus = ProtectionHelper.calculateSingleProtectorBonus(user, protege);
@@ -253,7 +253,7 @@ public class DaoProtectionService {
     return protectingInfoList;
   }
 
-  private ProtectionByData buildProtectedByList(Long userId, User user) {
+  private ProtectionByData buildProtectedByList(Long userId, Player user) {
     List<DaoProtection> protectedByList = daoProtectionRepository.findByProtegeId(userId);
     List<ProtectionInfo> protectedByInfoList = new ArrayList<>();
     double totalBonus = 0.0;
@@ -269,10 +269,10 @@ public class DaoProtectionService {
         userRepository.findByIds(protectorIds).stream()
             .collect(
                 java.util.stream.Collectors.toMap(
-                    top.stillmisty.xiantao.domain.user.entity.User::getId, u -> u));
+                    top.stillmisty.xiantao.domain.user.entity.Player::getId, u -> u));
 
     for (DaoProtection protection : protectedByList) {
-      User protector = protectorMap.get(protection.getProtectorId());
+      Player protector = protectorMap.get(protection.getProtectorId());
       if (protector != null) {
         boolean inSameLocation = ProtectionHelper.isInSameLocation(user, protector);
         double bonus = 0.0;
@@ -320,7 +320,7 @@ public class DaoProtectionService {
   private record ProtectionByData(
       List<ProtectionInfo> infoList, double totalBonus, boolean allInSameLocation) {}
 
-  private Optional<User> findUserByNickname(String nickname) {
+  private Optional<Player> findUserByNickname(String nickname) {
     return userRepository.findByNickname(nickname);
   }
 

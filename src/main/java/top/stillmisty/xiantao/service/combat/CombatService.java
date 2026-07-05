@@ -14,7 +14,7 @@ import top.stillmisty.xiantao.domain.monster.CombatTeam;
 import top.stillmisty.xiantao.domain.monster.Combatant;
 import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
 import top.stillmisty.xiantao.domain.skill.entity.Skill;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 
 @Slf4j
 @Service
@@ -33,22 +33,22 @@ public class CombatService {
     return result;
   }
 
-  public CombatTeam buildPlayerTeam(User user) {
+  public CombatTeam buildPlayerTeam(Player user) {
     return teamBuilder.buildPlayerTeam(user);
   }
 
-  public CombatTeam buildPlayerTeam(User user, Map<Long, Skill> skillLookup) {
+  public CombatTeam buildPlayerTeam(Player user, Map<Long, Skill> skillLookup) {
     return teamBuilder.buildPlayerTeam(
         user, new TeamBuilder.BuildOptions(skillLookup, "Player", null));
   }
 
-  public CombatTeam buildPlayerTeam(User user, Map<Long, Skill> skillLookup, String teamName) {
+  public CombatTeam buildPlayerTeam(Player user, Map<Long, Skill> skillLookup, String teamName) {
     return teamBuilder.buildPlayerTeam(
         user, new TeamBuilder.BuildOptions(skillLookup, teamName, null));
   }
 
   public CombatTeam buildPlayerTeam(
-      User user,
+      Player user,
       Map<Long, Skill> skillLookup,
       String teamName,
       @Nullable List<Beast> deployedBeasts) {

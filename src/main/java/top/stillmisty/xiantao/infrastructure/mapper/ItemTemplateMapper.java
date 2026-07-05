@@ -12,7 +12,7 @@ import top.stillmisty.xiantao.domain.item.enums.ItemType;
 public interface ItemTemplateMapper extends BaseMapper<ItemTemplate> {
 
   /** 根据物品类型查找模板（使用PostgreSQL枚举类型过滤） */
-  @Select("SELECT * FROM xt_item_template WHERE type = #{type}")
+  @Select("SELECT * FROM item_template WHERE type = #{type}")
   List<ItemTemplate> selectByType(@Param("type") ItemType type);
 
   /**
@@ -21,7 +21,7 @@ public interface ItemTemplateMapper extends BaseMapper<ItemTemplate> {
    * @param tag 标签名称
    * @return 物品模板列表
    */
-  @Select("SELECT * FROM xt_item_template WHERE tags @> CAST(ARRAY[#{tag}] AS jsonb)")
+  @Select("SELECT * FROM item_template WHERE tags @> CAST(ARRAY[#{tag}] AS jsonb)")
   List<ItemTemplate> selectByTag(@Param("tag") String tag);
 
   /**
@@ -31,7 +31,7 @@ public interface ItemTemplateMapper extends BaseMapper<ItemTemplate> {
    * @return 物品模板列表
    */
   @Select(
-      "<script>SELECT * FROM xt_item_template WHERE tags ?| ARRAY["
+      "<script>SELECT * FROM item_template WHERE tags ?| ARRAY["
           + "<foreach collection='tags' item='tag' separator=','>#{tag}</foreach>"
           + "]</script>")
   List<ItemTemplate> selectByAnyTags(@Param("tags") List<String> tags);
@@ -43,18 +43,18 @@ public interface ItemTemplateMapper extends BaseMapper<ItemTemplate> {
    * @return 物品模板列表
    */
   @Select(
-      "<script>SELECT * FROM xt_item_template WHERE tags ?&amp; ARRAY["
+      "<script>SELECT * FROM item_template WHERE tags ?&amp; ARRAY["
           + "<foreach collection='tags' item='tag' separator=','>#{tag}</foreach>"
           + "]</script>")
   List<ItemTemplate> selectByAllTags(@Param("tags") List<String> tags);
 
   /** 根据物品名称查找模板 */
-  @Select("SELECT * FROM xt_item_template WHERE name = #{name}")
+  @Select("SELECT * FROM item_template WHERE name = #{name}")
   ItemTemplate selectByName(@Param("name") String name);
 
   /** 根据多个物品类型查找模板 */
   @Select(
-      "<script>SELECT * FROM xt_item_template WHERE type IN "
+      "<script>SELECT * FROM item_template WHERE type IN "
           + "<foreach collection='types' item='type' open='(' separator=',' close=')'>#{type}</foreach>"
           + "</script>")
   List<ItemTemplate> selectByTypes(@Param("types") List<ItemType> types);

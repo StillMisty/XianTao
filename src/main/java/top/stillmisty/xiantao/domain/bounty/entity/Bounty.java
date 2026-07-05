@@ -15,7 +15,7 @@ import top.stillmisty.xiantao.infrastructure.mybatis.handler.BountyRewardPoolLis
 @SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table("xt_bounty")
+@Table("bounty")
 public class Bounty {
 
   @EqualsAndHashCode.Include

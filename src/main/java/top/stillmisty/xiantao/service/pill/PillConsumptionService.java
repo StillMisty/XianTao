@@ -16,7 +16,7 @@ import top.stillmisty.xiantao.domain.pill.entity.PillResistance;
 import top.stillmisty.xiantao.domain.pill.entity.PlayerBuff;
 import top.stillmisty.xiantao.domain.pill.enums.PillQuality;
 import top.stillmisty.xiantao.domain.pill.enums.PlayerBuffType;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.domain.user.enums.AttributeType;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
@@ -56,7 +56,7 @@ public class PillConsumptionService {
     if (!(props instanceof ItemProperties.Potion(List<ItemProperties.Effect> effects)))
       return ServiceResult.businessFailure("丹药没有效果");
 
-    User user = userStateService.loadUser(userId);
+    Player user = userStateService.loadUser(userId);
     double qualityMultiplier = PillQuality.fromCode(pill.getQuality()).getMultiplier();
     int grade = getPillGrade(pill);
     String quality = pill.getQuality();
@@ -78,7 +78,7 @@ public class PillConsumptionService {
 
   @Nullable
   private String applyEffect(
-      User user,
+      Player user,
       ItemProperties.Effect effect,
       double qualityMultiplier,
       int grade,
@@ -99,7 +99,7 @@ public class PillConsumptionService {
 
   @Nullable
   private String applyExp(
-      User user,
+      Player user,
       ItemProperties.Effect.Exp e,
       double qualityMultiplier,
       int grade,
@@ -114,7 +114,7 @@ public class PillConsumptionService {
     return "修为增进 " + actualExp;
   }
 
-  private String applyHp(User user, ItemProperties.Effect.Hp e, double qualityMultiplier) {
+  private String applyHp(Player user, ItemProperties.Effect.Hp e, double qualityMultiplier) {
     if (user.getStatus() == UserStatus.DYING) {
       user.setHpCurrent(user.calculateMaxHp());
       user.setStatus(UserStatus.IDLE);
@@ -136,7 +136,7 @@ public class PillConsumptionService {
 
   @Nullable
   private String applyStat(
-      User user,
+      Player user,
       ItemProperties.Effect.Stat e,
       double qualityMultiplier,
       int grade,
@@ -180,7 +180,7 @@ public class PillConsumptionService {
 
   @Nullable
   private String applyBreakthrough(
-      User user, ItemProperties.Effect.Breakthrough e, double qualityMultiplier, int grade) {
+      Player user, ItemProperties.Effect.Breakthrough e, double qualityMultiplier, int grade) {
     double gradeDecay = calcGradeDecay(user.getLevel(), grade, true);
     int bonusValue = (int) (e.rate() * 100 * qualityMultiplier * gradeDecay);
     if (bonusValue <= 0) return null;
@@ -195,7 +195,7 @@ public class PillConsumptionService {
 
   @Nullable
   private String applyBuff(
-      User user, ItemProperties.Effect.Buff e, double qualityMultiplier, int grade) {
+      Player user, ItemProperties.Effect.Buff e, double qualityMultiplier, int grade) {
     double gradeDecay = calcGradeDecay(user.getLevel(), grade, true);
     int actualValue = (int) (e.amount() * qualityMultiplier * gradeDecay);
 
@@ -224,7 +224,7 @@ public class PillConsumptionService {
         + "秒）";
   }
 
-  private String applyCure(User user, ItemProperties.Effect.Cure e) {
+  private String applyCure(Player user, ItemProperties.Effect.Cure e) {
     if (user.getStatus() == UserStatus.DYING) {
       user.setHpCurrent(user.calculateMaxHp());
       user.setStatus(UserStatus.IDLE);

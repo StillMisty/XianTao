@@ -15,7 +15,7 @@ import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionType
 
 /** 地图节点实体 */
 @EqualsAndHashCode
-@Table("xt_map_node")
+@Table("map_node")
 @Data
 @SuppressWarnings("NullAway")
 @NoArgsConstructor

@@ -12,7 +12,7 @@ import top.stillmisty.xiantao.domain.monster.CombatTeam;
 import top.stillmisty.xiantao.domain.monster.Monster;
 import top.stillmisty.xiantao.domain.monster.entity.MonsterTemplate;
 import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.repository.MonsterTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
@@ -42,7 +42,7 @@ public class DungeonCombatHelper {
 
   @Transactional
   public SimpleCombatOutcome executeCombat(
-      Long userId, User user, DungeonTemplate.Poi poi, DungeonTemplate.MonsterEntry monsterEntry) {
+      Long userId, Player user, DungeonTemplate.Poi poi, DungeonTemplate.MonsterEntry monsterEntry) {
 
     MonsterTemplate monsterTmpl =
         monsterTemplateRepository

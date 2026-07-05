@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.event.EventContext;
 import top.stillmisty.xiantao.domain.event.EventContextKeys;
 import top.stillmisty.xiantao.domain.map.entity.SpecialtyEntry;
-import top.stillmisty.xiantao.domain.user.entity.User;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.util.WeightedRandom;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
@@ -26,7 +26,7 @@ public class DropSpecialtyEffect implements SubEventEffect {
 
   @Override
   public Map<String, Object> execute(
-      Long userId, User user, EffectParams params, EventContext context) {
+      Long userId, Player user, EffectParams params, EventContext context) {
     var mapNode = EventContextKeys.MAP_NODE.get(context);
     if (mapNode == null) return Map.of();
     var specialties = mapNode.getSpecialties();

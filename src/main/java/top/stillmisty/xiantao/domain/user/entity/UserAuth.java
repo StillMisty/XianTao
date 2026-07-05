@@ -13,7 +13,7 @@ import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 @SuppressWarnings("NullAway")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table("xt_user_auth")
+@Table("user_auth")
 public class UserAuth {
 
   @EqualsAndHashCode.Include
