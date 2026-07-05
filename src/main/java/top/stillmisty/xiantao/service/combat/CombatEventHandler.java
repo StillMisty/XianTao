@@ -1,7 +1,6 @@
 package top.stillmisty.xiantao.service.combat;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -50,7 +49,8 @@ public class CombatEventHandler {
       User user,
       Map<Long, MonsterTemplate> templateMap,
       Map<Long, Skill> skillMap,
-      int encounterIndex) {
+      int encounterIndex,
+      Map<Long, Beast> beastCache) {
     Map<String, Object> params = event.getParams();
     Long templateId = TypeUtils.getLong(params, "monster_template_id");
     if (templateId == null) return EncounterResult.lost();
@@ -65,7 +65,8 @@ public class CombatEventHandler {
     int recoveryAmount = Math.max(1, user.calculateMaxHp() / 20);
     user.setHpCurrent(Math.min(user.calculateMaxHp(), user.getHpCurrent() + recoveryAmount));
 
-    CombatTeam playerTeam = combatService.buildPlayerTeam(user, skillMap);
+    CombatTeam playerTeam = combatService.buildPlayerTeam(user, skillMap, "Player",
+        new ArrayList<>(beastCache.values()));
     CombatTeam monsterTeam = buildMonsterTeam(tmpl, count, skillMap, userId);
 
     BattleResultVO result = combatService.simulate(playerTeam, monsterTeam, DEFAULT_MAX_ROUNDS);
@@ -113,11 +114,6 @@ public class CombatEventHandler {
 
     postCombatProcessor.applyHpToUser(user, playerTeam);
 
-    Map<Long, Beast> beastCache = new HashMap<>();
-    List<Beast> deployed = beastRepository.findDeployedByUserId(userId);
-    for (Beast beast : deployed) {
-      beastCache.put(beast.getId(), beast);
-    }
     postCombatProcessor.applyHpToBeasts(
         playerTeam, user, playerWon, highlightInfo != null, beastCache);
     for (Beast beast : beastCache.values()) {

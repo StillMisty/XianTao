@@ -275,6 +275,8 @@ public class BountyCombatService {
             null,
             null,
             eventDescription,
+            null,
+            null,
             null);
 
     try {

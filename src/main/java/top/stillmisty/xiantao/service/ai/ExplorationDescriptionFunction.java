@@ -19,15 +19,17 @@ public class ExplorationDescriptionFunction {
 
   private static final String SYSTEM_PROMPT =
       """
-        你是一个仙侠世界的旁白叙述者。
-        根据给出的探索/历练信息，将其改写为一段身临其境的描述。
+         你是一个仙侠世界的旁白叙述者。
+         根据给出的探索/历练信息，将其改写为一段身临其境的描述。
 
-        要求：
-        语言优美，充满仙侠意境与画面感
-        融入探索「从外围逐步深入核心」的推进感
-        如遇高光战斗，细致描绘战斗场景，突出技能交锋与命悬一线的紧张感
-        只返回描述文本，不要添加任何说明、标记或前缀
-        """;
+         要求：
+         语言优美，充满仙侠意境与画面感
+         融入探索「从外围逐步深入核心」的推进感
+         如遇高光战斗，细致描绘战斗场景，突出技能交锋与命悬一线的紧张感
+         如遇战败重伤，用悲壮而不失美感的笔触描绘受伤倒下的场景，体现修仙之路的艰险
+         如有灵兽护主，细致刻画灵兽与主人之间的羁绊与忠诚
+         只返回描述文本，不要添加任何说明、标记或前缀
+         """;
   private final ChatClient chatClient;
 
   /** 将探索结果美化为仙侠风格旁白 */
@@ -78,6 +80,12 @@ public class ExplorationDescriptionFunction {
     if (request.recipeName() != null && !request.recipeName().isEmpty()) {
       sb.append("还意外发现了一份").append(request.recipeName()).append("。\n");
     }
+    if (request.defeatNarrative() != null && !request.defeatNarrative().isEmpty()) {
+      sb.append("\n但").append(request.defeatNarrative()).append("\n");
+    }
+    if (request.beastNarrative() != null && !request.beastNarrative().isEmpty()) {
+      sb.append(request.beastNarrative()).append("\n");
+    }
     if (request.combatHighlight() != null && !request.combatHighlight().isEmpty()) {
       sb.append("\n--- 高光战斗 ---\n");
       sb.append(request.combatHighlight());
@@ -120,6 +128,13 @@ public class ExplorationDescriptionFunction {
       sb.append("\n还发现了一份").append(request.recipeName()).append("配方。");
     }
 
+    if (request.defeatNarrative() != null && !request.defeatNarrative().isEmpty()) {
+      sb.append("\n\n").append(request.defeatNarrative());
+    }
+    if (request.beastNarrative() != null && !request.beastNarrative().isEmpty()) {
+      sb.append("\n").append(request.beastNarrative());
+    }
+
     sb.append("\n\n这次探索让您对").append(request.mapName()).append("有了更深的了解。");
     return sb.toString();
   }
@@ -143,7 +158,11 @@ public class ExplorationDescriptionFunction {
       @JsonProperty(value = "eventDescription") @JsonPropertyDescription("探索中触发的事件描述（如有）")
           @Nullable String eventDescription,
       @JsonProperty(value = "combatHighlight") @JsonPropertyDescription("高光战斗的详细描述（如有）")
-          @Nullable String combatHighlight) {}
+          @Nullable String combatHighlight,
+      @JsonProperty(value = "defeatNarrative") @JsonPropertyDescription("战败叙事文本，描述被何种怪物、何种技能击败（如有）")
+          @Nullable String defeatNarrative,
+      @JsonProperty(value = "beastNarrative") @JsonPropertyDescription("灵兽参与叙事文本，描述灵兽在战斗中的表现（如有）")
+          @Nullable String beastNarrative) {}
 
   @JsonInclude(JsonInclude.Include.NON_NULL)
   public record Response(@JsonPropertyDescription("美化的探索描述文本") String description) {}

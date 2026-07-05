@@ -1,6 +1,7 @@
 package top.stillmisty.xiantao.service.combat;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.event.EffectData;
 import top.stillmisty.xiantao.domain.event.EventContext;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
@@ -23,6 +25,7 @@ import top.stillmisty.xiantao.domain.skill.entity.Skill;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.repository.ActivityEventRepository;
+import top.stillmisty.xiantao.infrastructure.repository.BeastRepository;
 import top.stillmisty.xiantao.infrastructure.repository.MonsterTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SkillRepository;
 import top.stillmisty.xiantao.infrastructure.util.TypeUtils;
@@ -45,12 +48,13 @@ public class TrainingSettler {
   private final SkillRepository skillRepository;
   private final FortuneService fortuneService;
   private final GameEventService gameEventService;
+  private final BeastRepository beastRepository;
 
   /** 对一段历练时间执行统一事件循环（COMBAT + NUMERIC）并返回战斗统计 */
-  public CombatSummary settleChunk(
+  public SettlementResult settleChunk(
       Long userId, User user, MapNode mapNode, long fromMinute, long toMinute) {
     int durationMinutes = (int) (toMinute - fromMinute);
-    if (durationMinutes <= 0) return CombatSummary.empty();
+    if (durationMinutes <= 0) return SettlementResult.empty();
 
     var fortune = fortuneService.calculate(userId);
     return runUnifiedEventLoop(userId, user, mapNode, durationMinutes, fortune);
@@ -64,10 +68,10 @@ public class TrainingSettler {
         GameEvent.create(userId, GameEventCategory.TRAINING_EVENT).withEffectData(choiceData));
   }
 
-  private CombatSummary runUnifiedEventLoop(
+  private SettlementResult runUnifiedEventLoop(
       Long userId, User user, MapNode mapNode, int minutesTraining, FortuneVO fortune) {
     List<ActivityEvent> pool = activityEventRepository.findSubEvents("TRAINING", mapNode.getId());
-    if (pool.isEmpty()) return CombatSummary.empty();
+    if (pool.isEmpty()) return SettlementResult.empty();
 
     var params = encounterCalculator.compute(userId, user, mapNode, minutesTraining);
     CombatSummary combatSummary = CombatSummary.empty();
@@ -99,6 +103,12 @@ public class TrainingSettler {
     double fateMultiplier = fortuneService.getFateMultiplier(fortune.fate());
     double adjustedPerRollChance = Math.min(1.0, params.perRollChance() * fateMultiplier);
 
+    // 预查灵兽，避免每场战斗都重复查询
+    Map<Long, Beast> beastCache = new HashMap<>();
+    for (Beast beast : beastRepository.findDeployedByUserId(userId)) {
+      beastCache.put(beast.getId(), beast);
+    }
+
     for (int i = 0; i < params.slots(); i++) {
       if (ThreadLocalRandom.current().nextDouble() >= adjustedPerRollChance) continue;
 
@@ -108,7 +118,7 @@ public class TrainingSettler {
 
       if (event.getEventType() == EventTypeEnum.COMBAT) {
         EncounterResult result =
-            combatEventHandler.handle(event, userId, user, templateMap, skillMap, i);
+            combatEventHandler.handle(event, userId, user, templateMap, skillMap, i, beastCache);
         combatSummary = combatSummary.merge(result);
         if (user.getStatus() == UserStatus.DYING) break;
       } else if (event.getEventType() == EventTypeEnum.CHOICE) {
@@ -117,6 +127,6 @@ public class TrainingSettler {
         trainingCompleter.handleNumericEvent(userId, user, event, context);
       }
     }
-    return combatSummary;
+    return new SettlementResult(combatSummary, !beastCache.isEmpty());
   }
 }

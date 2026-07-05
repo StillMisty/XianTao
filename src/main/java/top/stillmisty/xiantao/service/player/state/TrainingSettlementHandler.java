@@ -15,9 +15,11 @@ import top.stillmisty.xiantao.infrastructure.repository.MapNodeRepository;
 import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
 import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.GameEventService;
-import top.stillmisty.xiantao.service.combat.CombatSummary;
 import top.stillmisty.xiantao.service.combat.TrainingSettler;
 
+/**
+ * 定期历练结算处理器 — 每 60 分钟自动执行一次中途结算
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -44,8 +46,9 @@ class TrainingSettlementHandler implements StateHandler {
     var mapNode = mapNodeRepository.findById(user.getLocationId()).orElse(null);
     if (mapNode == null) return false;
 
-    CombatSummary combatSummary =
+    var settlementResult =
         trainingSettler.settleChunk(user.getId(), user, mapNode, lastSettled, minutesElapsed);
+    var combatSummary = settlementResult.combatSummary();
 
     long durationMinutes = minutesElapsed;
     if (combatSummary.totalEncounters() > 0) {

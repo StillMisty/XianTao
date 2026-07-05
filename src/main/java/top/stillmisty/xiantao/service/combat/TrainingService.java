@@ -110,13 +110,6 @@ public class TrainingService {
 
   @Nullable
   private TrainingRewardVO checkEndTrainingEarlyExit(Long userId, User user) {
-    if (user.getStatus() == UserStatus.DYING) {
-      return TrainingRewardVO.builder()
-          .userId(userId)
-          .mapId(user.getLocationId())
-          .summary("你正处于重伤濒死中，请等待自动恢复（30 分钟后恢复至 20% HP）")
-          .build();
-    }
     if (user.getActivityStartTime() == null) {
       user.setStatus(UserStatus.IDLE);
       user.clearActivity();
@@ -156,6 +149,7 @@ public class TrainingService {
     CombatSummary combatSummary = CombatSummary.empty();
     long baseExp = 0;
     List<DropItem> trainingItems = List.of();
+    boolean beastDeployed = false;
 
     double efficiencyMultiplier = 1.0;
     double levelDecayMultiplier = 1.0;
@@ -176,40 +170,44 @@ public class TrainingService {
       baseExp = (long) (baseExp * fortuneService.getLuckMultiplier(fortune.luck()));
       trainingItems = calculateItemsReward(remainingMinutes, efficiencyMultiplier, mapNode);
 
-      combatSummary =
+      var settlementResult =
           trainingSettler.settleChunk(userId, user, mapNode, lastSettled, minutesTraining);
+      combatSummary = settlementResult.combatSummary();
+      beastDeployed = settlementResult.beastDeployed();
     }
 
     boolean diedInTraining = user.getStatus() == UserStatus.DYING;
 
     trainingCompleter.checkHiddenEvents(userId, user, mapNode);
 
-    if (!diedInTraining && baseExp > 0) {
+    // 重伤前获取的修为和物品照常发放
+    if (baseExp > 0) {
       user.addExp(baseExp);
     }
-    if (!diedInTraining) {
-      addTrainingItemsToInventory(userId, trainingItems);
-    }
-    if (!diedInTraining) {
+    addTrainingItemsToInventory(userId, trainingItems);
+
+    if (diedInTraining) {
+      user.endActivity();
+      trainingCompleter.produceInterruptedEvent(userId, mapNode);
+    } else {
       user.setStatus(UserStatus.IDLE);
       user.clearActivity();
       trainingCompleter.produceCompletionEvent(userId, user, mapNode, minutesTraining);
       trainingCompleter.applyEnvironmentalEvents(userId, user, mapNode);
-    } else {
-      user.endActivity();
-      trainingCompleter.produceInterruptedEvent(userId, mapNode);
     }
     userStateService.saveTrainingEndState(user);
 
     long totalExp = baseExp + combatSummary.expGained();
     List<String> itemNames =
         trainingItems.stream().map(DropItem::name).filter(Objects::nonNull).toList();
+    @Nullable String defeatNarrative = diedInTraining ? buildDefeatNarrative(combatSummary) : null;
+    @Nullable String beastNarrative = diedInTraining && beastDeployed ? buildBeastNarrative(combatSummary) : null;
     String plainSummary =
         buildEndTrainingSummary(
-            minutesTraining, totalExp, combatSummary, trainingItems, diedInTraining);
+            minutesTraining, totalExp, combatSummary, trainingItems, diedInTraining, defeatNarrative, beastNarrative);
     String summary =
         beautifyTrainingSummary(
-            mapNode, minutesTraining, totalExp, itemNames, combatSummary, plainSummary);
+            mapNode, minutesTraining, totalExp, itemNames, combatSummary, diedInTraining, beastDeployed, plainSummary);
 
     log.info("玩家 {} 结束历练并应用奖励", userId);
     return TrainingRewardVO.builder()
@@ -232,8 +230,12 @@ public class TrainingService {
       long totalExp,
       List<String> itemNames,
       CombatSummary combatSummary,
+      boolean diedInTraining,
+      boolean beastDeployed,
       String fallback) {
     @Nullable String combatHighlight = buildHighlightBattleText(combatSummary);
+    @Nullable String defeatNarrative = diedInTraining ? buildDefeatNarrative(combatSummary) : null;
+    @Nullable String beastNarrative = diedInTraining && beastDeployed ? buildBeastNarrative(combatSummary) : null;
     var request =
         new ExplorationDescriptionFunction.Request(
             mapNode.getName(),
@@ -243,7 +245,9 @@ public class TrainingService {
             totalExp > 0 ? totalExp : null,
             null,
             buildCombatSummaryText(combatSummary),
-            combatHighlight);
+            combatHighlight,
+            defeatNarrative,
+            beastNarrative);
     try {
       var response = explorationDescriptionFunction.beautify(request);
       if (response != null && response.description() != null && !response.description().isEmpty()) {
@@ -298,7 +302,9 @@ public class TrainingService {
       long totalExp,
       CombatSummary combatSummary,
       List<DropItem> trainingItems,
-      boolean diedInTraining) {
+      boolean diedInTraining,
+      @Nullable String defeatNarrative,
+      @Nullable String beastNarrative) {
     StringBuilder summary = new StringBuilder();
     summary.append(String.format("历练时长: %d 分钟\n", minutesTraining));
     if (totalExp > 0) summary.append(String.format("修为: +%d\n", totalExp));
@@ -311,8 +317,42 @@ public class TrainingService {
         summary.append(String.format("  %s x%d\n", item.name(), item.quantity()));
       }
     }
-    if (diedInTraining) summary.append("\n重伤濒死！30 分钟后自动恢复至 20% HP");
+    if (defeatNarrative != null) {
+      summary.append("\n").append(defeatNarrative).append("\n");
+    }
+    if (beastNarrative != null) {
+      summary.append(beastNarrative).append("\n");
+    }
+    if (diedInTraining) {
+      summary.append("\n你力战至脱力昏迷，30 分钟后自愈苏醒。重伤前所获之物已收入囊中。");
+    }
     return summary.toString();
+  }
+
+  @Nullable
+  private String buildDefeatNarrative(CombatSummary cs) {
+    if (cs.lastDefeatMonsterName() == null) return null;
+    var logs = cs.lastDefeatLogs();
+    if (logs == null || logs.isEmpty()) {
+      return "你遭遇了" + cs.lastDefeatMonsterName() + "，一场恶战后不敌落败。";
+    }
+    // 取最后一条有效日志作为"致命一击"
+    CombatLogEntry killingBlow = logs.getLast();
+    if (killingBlow.damageDealt() > 0) {
+      String skillPart = killingBlow.attackType() == CombatLogEntry.AttackType.SKILL
+          && killingBlow.skillName() != null && !killingBlow.skillName().isEmpty()
+          ? "一记「" + killingBlow.skillName() + "」"
+          : "凌厉一击";
+      return killingBlow.attackerName() + skillPart + "正中你的要害，你眼前一黑，重伤倒地。";
+    }
+    return "你与" + cs.lastDefeatMonsterName() + "血战数十回合，终因力竭不敌，重伤倒地。";
+  }
+
+  @Nullable
+  private String buildBeastNarrative(CombatSummary cs) {
+    if (!cs.hasHighlight()) return null;
+    // 高光战斗中如果有 BeastCombatant 参与了，由 LLM 自行生成；这里给 fallback
+    return "你的灵兽一直相伴左右并肩而战，在你昏迷前奋力将你拖出了险境。";
   }
 
   private double calculateEfficiencyMultiplier(int agility) {

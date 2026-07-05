@@ -66,6 +66,13 @@ public class CombatService {
 
   /** 构建玩家队伍，可指定队伍名称（PvP时用于区分双方） */
   public CombatTeam buildPlayerTeam(User user, Map<Long, Skill> skillLookup, String teamName) {
+    return buildPlayerTeam(user, skillLookup, teamName, null);
+  }
+
+  /** 构建玩家队伍，可指定队伍名称（PvP时用于区分双方）并传入预加载的灵兽列表 */
+  public CombatTeam buildPlayerTeam(
+      User user, Map<Long, Skill> skillLookup, String teamName,
+      @Nullable List<Beast> deployedBeasts) {
     CombatTeam team = new CombatTeam(user.getId(), teamName);
 
     BuffValues buffs = loadActiveBuffs(user.getId());
@@ -79,9 +86,9 @@ public class CombatService {
         new PlayerCombatant(user, weapon, attackSpeed, playerSkills)
             .withBuffs(buffs.attack, buffs.defense, buffs.speed));
 
-    List<Beast> deployed = beastRepository.findDeployedByUserId(user.getId());
-    for (int i = 0; i < Math.min(deployed.size(), MAX_BEAST_DEPLOY_COUNT); i++) {
-      Beast beast = deployed.get(i);
+    var beasts = deployedBeasts != null ? deployedBeasts : beastRepository.findDeployedByUserId(user.getId());
+    for (int i = 0; i < Math.min(beasts.size(), MAX_BEAST_DEPLOY_COUNT); i++) {
+      Beast beast = beasts.get(i);
       if (beast.canFight()) {
         List<Skill> beastSkills = List.of();
         if (beast.getSkills() != null && !beast.getSkills().isEmpty()) {
