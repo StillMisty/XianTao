@@ -30,11 +30,6 @@ public class UserService {
 
   @Transactional
   public ServiceResult<String> changeNickname(Long userId, String newNickname) {
-    return new ServiceResult.Success<>(changeNicknameInternal(userId, newNickname));
-  }
-
-  @Transactional
-  public String changeNicknameInternal(Long userId, String newNickname) {
     if (userRepository.existsByNickname(newNickname)) {
       throw new BusinessException(ErrorCode.NICKNAME_TAKEN);
     }
@@ -45,7 +40,7 @@ public class UserService {
     user.setNickname(newNickname);
     userRepository.save(user);
     log.info("改号成功 - UserId: {}, NewNickname: {}", userId, newNickname);
-    return "道号已改为【" + newNickname + "】";
+    return new ServiceResult.Success<>("道号已改为【" + newNickname + "】");
   }
 
   @Transactional

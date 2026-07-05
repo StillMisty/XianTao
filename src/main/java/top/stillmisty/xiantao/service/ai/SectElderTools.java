@@ -1,5 +1,6 @@
 package top.stillmisty.xiantao.service.ai;
 
+import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.tool.annotation.Tool;
@@ -8,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.sect.vo.SkillOperationResultVO;
 import top.stillmisty.xiantao.service.UserContext;
-import top.stillmisty.xiantao.service.ai.sect.*;
 import top.stillmisty.xiantao.service.sect.SectMemberService;
 import top.stillmisty.xiantao.service.sect.SectSharedSkillService;
 
@@ -125,4 +125,22 @@ public class SectElderTools {
           return new PublishSharedSkillResponse(sharedSkillId, r.skillName());
         });
   }
+
+  // === Inlined response records ===
+
+  public record InviteMemberResponse(
+      @JsonPropertyDescription("被邀请加入的目标道号") String targetNickname) {}
+
+  public record ExpelMemberResponse(
+      @JsonPropertyDescription("被逐出的成员道号") String targetNickname) {}
+
+  public record PostNoticeResponse() {}
+
+  public record RemoveSharedSkillResponse(
+      @JsonPropertyDescription("被移除的共享功法编号") long sharedSkillId,
+      @JsonPropertyDescription("被移除的功法名称") String skillName) {}
+
+  public record PublishSharedSkillResponse(
+      @JsonPropertyDescription("上架的共享功法编号") long sharedSkillId,
+      @JsonPropertyDescription("上架的功法名称") String skillName) {}
 }

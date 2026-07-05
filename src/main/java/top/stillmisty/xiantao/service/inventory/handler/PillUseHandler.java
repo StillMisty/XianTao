@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
+import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.pill.PillConsumptionService;
 
 @Component
@@ -21,6 +22,10 @@ public class PillUseHandler implements ItemUseHandler {
 
   @Override
   public String use(Long userId, StackableItem item, @Nullable ItemTemplate template, String args) {
-    return pillConsumptionService.takePillInternal(userId, item.getName());
+    var result = pillConsumptionService.takePill(userId, item.getName());
+    return switch (result) {
+      case ServiceResult.Success<String> s -> s.data();
+      case ServiceResult.Failure<String> f -> f.errorMessage();
+    };
   }
 }

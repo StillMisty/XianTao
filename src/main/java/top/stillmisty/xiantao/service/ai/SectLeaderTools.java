@@ -1,5 +1,6 @@
 package top.stillmisty.xiantao.service.ai;
 
+import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.tool.annotation.Tool;
@@ -13,7 +14,6 @@ import top.stillmisty.xiantao.domain.sect.vo.ExpandMembersResultVO;
 import top.stillmisty.xiantao.domain.sect.vo.UpgradeBuildingResultVO;
 import top.stillmisty.xiantao.domain.sect.vo.UpgradeSectResultVO;
 import top.stillmisty.xiantao.service.UserContext;
-import top.stillmisty.xiantao.service.ai.sect.*;
 import top.stillmisty.xiantao.service.sect.SectBuildingService;
 import top.stillmisty.xiantao.service.sect.SectMemberService;
 
@@ -139,4 +139,37 @@ public class SectLeaderTools {
               r.remainingFunds());
         });
   }
+
+  // === Inlined response records ===
+
+  public record AppointMemberResponse(
+      @JsonPropertyDescription("被任免的成员道号") String targetNickname,
+      @JsonPropertyDescription("新职位代码") String positionCode) {}
+
+  public record UpgradeSectResponse(
+      @JsonPropertyDescription("宗门新等级") int newLevel,
+      @JsonPropertyDescription("新的成员上限") int newMaxMembers,
+      @JsonPropertyDescription("本次消耗的宗门资金") long cost,
+      @JsonPropertyDescription("升级后剩余的宗门资金") long remainingFunds) {}
+
+  public record ExpandMembersResponse(
+      @JsonPropertyDescription("本次扩充增加的槽位数") int addedSlots,
+      @JsonPropertyDescription("新的成员上限") int newMaxMembers,
+      @JsonPropertyDescription("本次消耗的宗门资金") long cost,
+      @JsonPropertyDescription("扩充后剩余的宗门资金") long remainingFunds) {}
+
+  public record BuildStructureResponse(
+      @JsonPropertyDescription("建筑类型代码") String buildingTypeCode,
+      @JsonPropertyDescription("建造的建筑中文名称") String buildingName,
+      @JsonPropertyDescription("建筑当前等级（新建为1）") int level,
+      @JsonPropertyDescription("本次消耗的宗门资金") long cost,
+      @JsonPropertyDescription("建造后剩余的宗门资金") long remainingFunds) {}
+
+  public record UpgradeBuildingResponse(
+      @JsonPropertyDescription("被升级的建筑类型代码") String buildingTypeCode,
+      @JsonPropertyDescription("建筑中文名称") String buildingName,
+      @JsonPropertyDescription("升级前等级") int oldLevel,
+      @JsonPropertyDescription("升级后等级") int newLevel,
+      @JsonPropertyDescription("本次消耗的宗门资金") long cost,
+      @JsonPropertyDescription("升级后剩余的宗门资金") long remainingFunds) {}
 }

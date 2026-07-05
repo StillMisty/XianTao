@@ -9,6 +9,7 @@ import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.dungeon.vo.DungeonListVO;
 import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
+import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.ai.DungeonChatService;
 import top.stillmisty.xiantao.service.dungeon.DungeonService;
@@ -24,12 +25,10 @@ public class DungeonCommandHandler implements CommandGroup {
   public String handleDungeonOrStatus(TextFormat fmt) {
     Long userId = UserContext.requireCurrentUserId();
 
-    var user = tryGetUserStatus(userId);
-    if (user != null) {
-      return CommandHandlerHelper.safeCall(
-          () -> dungeonService.statusInDungeon(userId),
-          fmt,
-          status -> fmt.heading("秘境进度", "") + status + "\n\n" + fmt.tip("输入「秘灵 内容」与秘境之灵/叙事者对话"));
+    var result = dungeonService.statusInDungeon(userId);
+    if (result instanceof ServiceResult.Success<String> s) {
+      return fmt.heading("秘境进度", "") + s.data() + "\n\n"
+          + fmt.tip("输入「秘灵 内容」与秘境之灵/叙事者对话");
     }
 
     log.debug("处理秘境列表 - UserId: {}", userId);
@@ -55,19 +54,6 @@ public class DungeonCommandHandler implements CommandGroup {
     log.debug("处理秘灵对话 - UserId: {}, content: {}", userId, content);
     return CommandHandlerHelper.safeCall(
         () -> dungeonChatService.chatWithDungeon(userId, content), fmt, msg -> msg);
-  }
-
-  @SuppressWarnings("NullAway")
-  private String tryGetUserStatus(Long userId) {
-    try {
-      var result = dungeonService.statusInDungeon(userId);
-      return switch (result) {
-        case top.stillmisty.xiantao.service.ServiceResult.Success<String> s -> s.data();
-        case top.stillmisty.xiantao.service.ServiceResult.Failure<String> ignored -> null;
-      };
-    } catch (Exception e) {
-      return null;
-    }
   }
 
   private String formatDungeonList(List<DungeonListVO> dungeons, TextFormat fmt) {

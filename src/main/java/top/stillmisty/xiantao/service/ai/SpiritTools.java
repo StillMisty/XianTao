@@ -1,5 +1,6 @@
 package top.stillmisty.xiantao.service.ai;
 
+import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.tool.annotation.Tool;
@@ -17,7 +18,7 @@ import top.stillmisty.xiantao.domain.fudi.vo.UpgradeCellVO;
 import top.stillmisty.xiantao.domain.item.enums.InventoryCategory;
 import top.stillmisty.xiantao.domain.item.vo.ItemEntry;
 import top.stillmisty.xiantao.service.UserContext;
-import top.stillmisty.xiantao.service.ai.spirit.*;
+
 import top.stillmisty.xiantao.service.beast.BeastBreedingService;
 import top.stillmisty.xiantao.service.beast.BeastCombatService;
 import top.stillmisty.xiantao.service.fudi.FarmService;
@@ -352,5 +353,73 @@ public class SpiritTools {
               r.inheritedTraits(),
               r.cooldownHours());
         });
+  }
+
+  // === Inlined response records ===
+
+  public record AcceptGiftResponse(
+      @JsonPropertyDescription("收到的礼物物品名称") String itemName,
+      @JsonPropertyDescription("好感度变化值：正数表示上升，负数表示下降") int affectionChange,
+      @JsonPropertyDescription("地灵收到礼物后的反应描述，可直接告诉主人") String reaction) {}
+
+  public record BreedBeastsResponse(
+      @JsonPropertyDescription("父方名称") String parent1Name,
+      @JsonPropertyDescription("父方性别") String parent1Gender,
+      @JsonPropertyDescription("母方名称") String parent2Name,
+      @JsonPropertyDescription("母方性别") String parent2Gender,
+      @JsonPropertyDescription("后代兽卵名称") String offspringEggName,
+      @JsonPropertyDescription("后代品质") String offspringQuality,
+      @JsonPropertyDescription("继承的变异词条") java.util.List<String> inheritedTraits,
+      @JsonPropertyDescription("繁育冷却小时数") long cooldownHours) {}
+
+  public record BuildCellResponse(
+      @JsonPropertyDescription("建造的地块编号") String position,
+      @JsonPropertyDescription("建造后的地块类型：灵田 或 兽栏") String cellType) {}
+
+  public record CheckFudiCellsResponse(
+      @JsonPropertyDescription("福地总地块数") int totalCells,
+      @JsonPropertyDescription("已被占用（灵田/兽栏）的地块数") int occupiedCount,
+      @JsonPropertyDescription("尚未开发可用的空地块数") int emptyCount,
+      @JsonPropertyDescription("可用的空地块编号列表") java.util.List<Integer> emptyCellIds) {}
+
+  public record CheckPlayerBagResponse(
+      @JsonPropertyDescription("查询的类别中文名") String category,
+      @JsonPropertyDescription("物品列表") java.util.List<top.stillmisty.xiantao.domain.item.vo.ItemEntry> items) {}
+
+  public record CollectProduceResponse(
+      @JsonPropertyDescription("收取的地块编号，或 'all' 表示全部") String position,
+      @JsonPropertyDescription("收获的灵田数量") int harvested,
+      @JsonPropertyDescription("收取的兽栏数量") int collected,
+      @JsonPropertyDescription("总产出物品件数") int totalItems) {}
+
+  public record FeelOffendedResponse(
+      @JsonPropertyDescription("触发冒犯的具体原因描述") String reason,
+      @JsonPropertyDescription("冒犯程度（1-5）") int severity) {}
+
+  public record HatchBeastResponse(
+      @JsonPropertyDescription("孵化所在兽栏的地块编号") String position,
+      @JsonPropertyDescription("孵出的灵兽名称") String beastName,
+      @JsonPropertyDescription("灵兽品质") String quality,
+      @JsonPropertyDescription("灵兽阶位（1-10）") int tier,
+      @JsonPropertyDescription("孵化成熟所需小时数") long matureHours) {}
+
+  public record ManageBeastResponse(@JsonPropertyDescription("操作结果描述") String result) {}
+
+  public record PlantCropResponse(
+      @JsonPropertyDescription("播种的地块编号") String position,
+      @JsonPropertyDescription("种下的作物名称") String cropName,
+      @JsonPropertyDescription("基础生长时间（小时）") double baseGrowthHours) {}
+
+  public record RemoveCellResponse(
+      @JsonPropertyDescription("被拆除的地块编号") String position,
+      @JsonPropertyDescription("拆除前的地块类型（灵田/兽栏）") String type) {}
+
+  public record UpgradeCellResponse(
+      @JsonPropertyDescription("被升级的地块编号") String position,
+      @JsonPropertyDescription("升级前等级") int oldLevel,
+      @JsonPropertyDescription("升级后等级") int newLevel) {}
+
+  public enum BeastAction {
+    DEPLOY, EVOLVE, RELEASE, HATCH
   }
 }

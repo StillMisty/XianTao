@@ -219,6 +219,12 @@ public enum ErrorCode {
   WORLD_EVENT_NOT_PARTICIPATORY("该事件不支持玩家参与"),
   WORLD_EVENT_PARTICIPATION_FULL("该事件参与人数已满"),
 
+  // ===== GM =====
+  GM_TARGET_NOT_FOUND("未找到玩家：%s"),
+  GM_LOCATION_NOT_FOUND("未找到地点：%s"),
+  GM_ITEM_NOT_FOUND("未找到物品/装备：%s"),
+  GM_STATUS_NOT_DYING("%s 未处于濒死状态"),
+
   // ===== General =====
   PARAM_INVALID("参数无效：%s"),
 

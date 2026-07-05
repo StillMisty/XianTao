@@ -1,5 +1,6 @@
 package top.stillmisty.xiantao.service.ai;
 
+import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.tool.annotation.Tool;
@@ -8,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.sect.vo.*;
 import top.stillmisty.xiantao.service.UserContext;
-import top.stillmisty.xiantao.service.ai.sect.*;
 import top.stillmisty.xiantao.service.sect.SectBuildingService;
 import top.stillmisty.xiantao.service.sect.SectMemberService;
 import top.stillmisty.xiantao.service.sect.SectSharedSkillService;
@@ -180,4 +180,44 @@ public class SectMemberTools {
           return new CheckSectTasksResponse(vo.tasks());
         });
   }
+
+  // === Inlined response records ===
+
+  public record CheckSectShopResponse(
+      @JsonPropertyDescription("当前弟子的可用贡献值") int myContribution,
+      @JsonPropertyDescription("商品列表") java.util.List<top.stillmisty.xiantao.domain.sect.vo.SectShopItemVO> items) {}
+
+  public record ExchangeShopItemResponse(
+      @JsonPropertyDescription("兑换的商品编号") long shopItemId,
+      @JsonPropertyDescription("兑换到的物品名称") String itemName,
+      @JsonPropertyDescription("兑换后剩余的贡献值") int remainingContribution) {}
+
+  public record CheckSharedSkillsResponse(
+      @JsonPropertyDescription("当前贡献值") int myContribution,
+      @JsonPropertyDescription("已使用的功法槽位") int usedSlots,
+      @JsonPropertyDescription("最大可用功法槽位") int maxSlots,
+      @JsonPropertyDescription("可学习的共享功法列表") java.util.List<top.stillmisty.xiantao.domain.sect.vo.SectSharedSkillVO> skills,
+      @JsonPropertyDescription("已提交玉简但待长老上架的功法数量") int pendingCount) {}
+
+  public record LearnSharedSkillResponse(
+      @JsonPropertyDescription("学习的共享功法编号") long sharedSkillId,
+      @JsonPropertyDescription("学到的功法名称") String skillName,
+      @JsonPropertyDescription("本次学习消耗的贡献值") int cost,
+      @JsonPropertyDescription("学习后剩余的贡献值") int remainingContribution) {}
+
+  public record OfferSkillJadeResponse(
+      @JsonPropertyDescription("献上的玉简名称") String jadeName,
+      @JsonPropertyDescription("玉简中记录的功法名称") String skillName,
+      @JsonPropertyDescription("此次献上获得的贡献值") int contributionGained) {}
+
+  public record OfferSpiritStonesResponse(
+      @JsonPropertyDescription("捐献的灵石数量") long amount,
+      @JsonPropertyDescription("此次捐献获得的贡献值") int contributionGained) {}
+
+  public record CheckSectBuildingsResponse(
+      @JsonPropertyDescription("已建成建筑列表") java.util.List<top.stillmisty.xiantao.domain.sect.vo.BuildingsQueryVO.BuildingEntry> built,
+      @JsonPropertyDescription("可建造建筑列表") java.util.List<top.stillmisty.xiantao.domain.sect.vo.BuildingsQueryVO.BuildingEntry> buildable) {}
+
+  public record CheckSectTasksResponse(
+      @JsonPropertyDescription("宗门任务列表") java.util.List<top.stillmisty.xiantao.domain.sect.vo.SectTaskVO> tasks) {}
 }

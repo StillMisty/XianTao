@@ -46,23 +46,15 @@ public class PillConsumptionService {
 
   @Transactional
   public ServiceResult<String> takePill(Long userId, String pillName) {
-    return new ServiceResult.Success<>(takePillInternal(userId, pillName));
-  }
-
-  // ===================== 内部 API =====================
-
-  /** 服用丹药（内部调用，物品扣减由 ItemUseService 统一处理） */
-  @Transactional
-  public String takePillInternal(Long userId, String pillName) {
     StackableItem pill = findPill(userId, pillName);
-    if (pill == null) return "背包中未找到丹药：" + pillName;
+    if (pill == null) return ServiceResult.businessFailure("背包中未找到丹药：" + pillName);
 
     ItemTemplate template = itemTemplateRepository.findById(pill.getTemplateId()).orElse(null);
-    if (template == null) return "丹药数据错误";
+    if (template == null) return ServiceResult.businessFailure("丹药数据错误");
 
     var props = template.typedProperties();
     if (!(props instanceof ItemProperties.Potion(List<ItemProperties.Effect> effects)))
-      return "丹药没有效果";
+      return ServiceResult.businessFailure("丹药没有效果");
 
     User user = userStateService.loadUser(userId);
     double qualityMultiplier = PillQuality.fromCode(pill.getQuality()).getMultiplier();
@@ -78,8 +70,8 @@ public class PillConsumptionService {
 
     userStateService.save(user);
 
-    if (messages.isEmpty()) return "丹药效果未知";
-    return "服用丹药成功：" + String.join("，", messages);
+    if (messages.isEmpty()) return ServiceResult.businessFailure("丹药效果未知");
+    return new ServiceResult.Success<>("服用丹药成功：" + String.join("，", messages));
   }
 
   // ===================== 效果应用 =====================

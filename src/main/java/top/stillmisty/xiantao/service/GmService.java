@@ -36,67 +36,39 @@ public class GmService {
 
   @Transactional
   public ServiceResult<String> giveSpiritStones(Long userId, String targetNickname, long amount) {
-    String result = giveSpiritStonesInternal(userId, targetNickname, amount);
-    if (result.startsWith("未找到") || result.startsWith("数量必须")) {
-      return ServiceResult.businessFailure(result);
-    }
-    return new ServiceResult.Success<>(result);
+    return new ServiceResult.Success<>(giveSpiritStonesInternal(userId, targetNickname, amount));
   }
 
   @Transactional
   public ServiceResult<String> giveExp(Long userId, String targetNickname, long amount) {
-    String result = giveExpInternal(userId, targetNickname, amount);
-    if (result.startsWith("未找到") || result.startsWith("数量必须")) {
-      return ServiceResult.businessFailure(result);
-    }
-    return new ServiceResult.Success<>(result);
+    return new ServiceResult.Success<>(giveExpInternal(userId, targetNickname, amount));
   }
 
   @Transactional
   public ServiceResult<String> healUser(Long userId, String targetNickname) {
-    String result = healUserInternal(userId, targetNickname);
-    if (result.startsWith("未找到")) {
-      return ServiceResult.businessFailure(result);
-    }
-    return new ServiceResult.Success<>(result);
+    return new ServiceResult.Success<>(healUserInternal(userId, targetNickname));
   }
 
   @Transactional
   public ServiceResult<String> reviveUser(Long userId, String targetNickname) {
-    String result = reviveUserInternal(userId, targetNickname);
-    if (result.startsWith("未找到") || result.contains("未处于")) {
-      return ServiceResult.businessFailure(result);
-    }
-    return new ServiceResult.Success<>(result);
+    return new ServiceResult.Success<>(reviveUserInternal(userId, targetNickname));
   }
 
   @Transactional
   public ServiceResult<String> setLevel(Long userId, String targetNickname, int level) {
-    String result = setLevelInternal(userId, targetNickname, level);
-    if (result.startsWith("未找到") || result.startsWith("等级必须")) {
-      return ServiceResult.businessFailure(result);
-    }
-    return new ServiceResult.Success<>(result);
+    return new ServiceResult.Success<>(setLevelInternal(userId, targetNickname, level));
   }
 
   @Transactional
   public ServiceResult<String> setLocation(
       Long userId, String targetNickname, String locationName) {
-    String result = setLocationInternal(userId, targetNickname, locationName);
-    if (result.startsWith("未找到")) {
-      return ServiceResult.businessFailure(result);
-    }
-    return new ServiceResult.Success<>(result);
+    return new ServiceResult.Success<>(setLocationInternal(userId, targetNickname, locationName));
   }
 
   @Transactional
   public ServiceResult<String> giveItem(
       Long userId, String targetNickname, String itemName, int quantity) {
-    String result = giveItemInternal(userId, targetNickname, itemName, quantity);
-    if (result.startsWith("未找到") || result.startsWith("数量必须")) {
-      return ServiceResult.businessFailure(result);
-    }
-    return new ServiceResult.Success<>(result);
+    return new ServiceResult.Success<>(giveItemInternal(userId, targetNickname, itemName, quantity));
   }
 
   // ===================== 内部 API（需预先完成认证） =====================
@@ -116,9 +88,9 @@ public class GmService {
 
   @Transactional
   String giveSpiritStonesInternal(Long gmUserId, String targetNickname, long amount) {
-    if (amount <= 0) return "数量必须大于0";
+    if (amount <= 0) throw new BusinessException(ErrorCode.PARAM_INVALID, "数量必须大于0");
     User target = getTargetUser(targetNickname);
-    if (target == null) return "未找到玩家：" + targetNickname;
+    if (target == null) throw new BusinessException(ErrorCode.GM_TARGET_NOT_FOUND, targetNickname);
     spiritStoneService.deposit(target.getId(), amount);
     long newBalance = spiritStoneService.getBalance(target.getId());
     log.info("GM {} 给 {} 添加灵石 {}（剩余：{}）", gmUserId, targetNickname, amount, newBalance);
@@ -127,9 +99,9 @@ public class GmService {
 
   @Transactional
   String giveExpInternal(Long gmUserId, String targetNickname, long amount) {
-    if (amount <= 0) return "数量必须大于0";
+    if (amount <= 0) throw new BusinessException(ErrorCode.PARAM_INVALID, "数量必须大于0");
     User target = getTargetUser(targetNickname);
-    if (target == null) return "未找到玩家：" + targetNickname;
+    if (target == null) throw new BusinessException(ErrorCode.GM_TARGET_NOT_FOUND, targetNickname);
     long before = target.getExp();
     target.addExp(amount);
     long actualAdd = target.getExp() - before;
@@ -152,7 +124,7 @@ public class GmService {
   @Transactional
   String healUserInternal(Long gmUserId, String targetNickname) {
     User target = getTargetUser(targetNickname);
-    if (target == null) return "未找到玩家：" + targetNickname;
+    if (target == null) throw new BusinessException(ErrorCode.GM_TARGET_NOT_FOUND, targetNickname);
     int maxHp = target.calculateMaxHp();
     int before = target.getHpCurrent();
     target.setHpCurrent(maxHp);
@@ -164,8 +136,9 @@ public class GmService {
   @Transactional
   String reviveUserInternal(Long gmUserId, String targetNickname) {
     User target = getTargetUser(targetNickname);
-    if (target == null) return "未找到玩家：" + targetNickname;
-    if (target.getStatus() != UserStatus.DYING) return targetNickname + " 未处于濒死状态";
+    if (target == null) throw new BusinessException(ErrorCode.GM_TARGET_NOT_FOUND, targetNickname);
+    if (target.getStatus() != UserStatus.DYING)
+      throw new BusinessException(ErrorCode.GM_STATUS_NOT_DYING, targetNickname);
     int maxHp = target.calculateMaxHp();
     target.setHpCurrent(maxHp);
     target.setStatus(UserStatus.IDLE);
@@ -178,9 +151,9 @@ public class GmService {
 
   @Transactional
   String setLevelInternal(Long gmUserId, String targetNickname, int level) {
-    if (level < 1) return "等级必须大于等于1";
+    if (level < 1) throw new BusinessException(ErrorCode.PARAM_INVALID, "等级必须大于等于1");
     User target = getTargetUser(targetNickname);
-    if (target == null) return "未找到玩家：" + targetNickname;
+    if (target == null) throw new BusinessException(ErrorCode.GM_TARGET_NOT_FOUND, targetNickname);
     int before = target.getLevel();
     target.setLevel(level);
     target.setExp(0L);
@@ -192,9 +165,10 @@ public class GmService {
   @Transactional
   String setLocationInternal(Long gmUserId, String targetNickname, String locationName) {
     User target = getTargetUser(targetNickname);
-    if (target == null) return "未找到玩家：" + targetNickname;
+    if (target == null) throw new BusinessException(ErrorCode.GM_TARGET_NOT_FOUND, targetNickname);
     var mapNode = mapNodeRepository.findByName(locationName);
-    if (mapNode.isEmpty()) return "未找到地点：" + locationName;
+    if (mapNode.isEmpty())
+      throw new BusinessException(ErrorCode.GM_LOCATION_NOT_FOUND, locationName);
     target.setLocationId(mapNode.get().getId());
     target.setStatus(UserStatus.IDLE);
     target.clearActivity();
@@ -205,9 +179,9 @@ public class GmService {
 
   @Transactional
   String giveItemInternal(Long gmUserId, String targetNickname, String itemName, int quantity) {
-    if (quantity <= 0) return "数量必须大于0";
+    if (quantity <= 0) throw new BusinessException(ErrorCode.PARAM_INVALID, "数量必须大于0");
     User target = getTargetUser(targetNickname);
-    if (target == null) return "未找到玩家：" + targetNickname;
+    if (target == null) throw new BusinessException(ErrorCode.GM_TARGET_NOT_FOUND, targetNickname);
 
     var itemTemplate = itemTemplateRepository.findByName(itemName);
     if (itemTemplate.isPresent()) {
@@ -228,7 +202,7 @@ public class GmService {
       return String.format("已给 %s 添加 %s x%d", targetNickname, itemName, quantity);
     }
 
-    return "未找到物品/装备：" + itemName;
+    throw new BusinessException(ErrorCode.GM_ITEM_NOT_FOUND, itemName);
   }
 
   @Nullable
