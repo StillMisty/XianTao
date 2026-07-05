@@ -63,30 +63,6 @@ INSERT
         '["dark","poison","evil","bitter","soul"]'
     ),
     (
-        '玄武',
-        '玄武之灵，虽然是一只龟蛇合的灵体但性格稳重如山。',
-        '["defense","water","earth","tortoise","beast"]',
-        '["fire","chaos","poison","demon","flying"]'
-    ),
-    (
-        '朱雀',
-        '朱雀之火中诞生的炎之灵体，脾气和体温一样高。',
-        '["fire","phoenix","flying","bird","attack"]',
-        '["water","ice","dark","defense","earth"]'
-    ),
-    (
-        '青龙',
-        '青龙之精，掌管生机和风雷，身周总有云雾缭绕。',
-        '["dragon","wood","wind","thunder","healing"]',
-        '["metal","poison","dark","evil","chaos"]'
-    ),
-    (
-        '白虎',
-        '白虎之魄，杀伐果断的行者，看着你战斗时会露出赞许的目光。',
-        '["metal","beast","attack","warrior","blade"]',
-        '["plant","herb","water","healing","silk"]'
-    ),
-    (
         '麒麟',
         '祥瑞之兽麒麟的分灵，不愿看到杀戮，喜欢和平。',
         '["auspicious","healing","wisdom","herb","defense"]',
@@ -117,18 +93,6 @@ INSERT
         '["wood","herb","silk","flower","water"]'
     ),
     (
-        '蚕娘',
-        '养蚕织丝的小仙灵，安静害羞，手上总是拿着一团丝线。',
-        '["silk","wood","seed","herb","craft"]',
-        '["fire","metal","beast","demon","chaos"]'
-    ),
-    (
-        '渔翁',
-        '钓了一辈子鱼的老人家成了灵体，依然喜欢钓鱼聊天。',
-        '["water","fish","peace","wood","herb"]',
-        '["fire","dryness","chaos","demon","warrior"]'
-    ),
-    (
         '铁匠灵',
         '生前是天下第一铁匠的残魂，看到好材料就忍不住想打铁。',
         '["ore","metal","craft","forge","fire"]',
@@ -141,58 +105,10 @@ INSERT
         '["metal","ore","bone","dryness","warrior"]'
     ),
     (
-        '琴灵',
-        '一张遗落在凡间的古琴化出的灵体，指尖轻拨即为仙音。',
-        '["wood","silk","peace","wisdom","beauty"]',
-        '["metal","noise","chaos","demon","warrior"]'
-    ),
-    (
-        '笔仙',
-        '一支仙笔化出的灵体，能把你写的字变成灵气注入物品。',
-        '["wisdom","skill_jade","ink","silk","craft"]',
-        '["beast","blood","chaos","demon","fire"]'
-    ),
-    (
-        '影子',
-        '从阴影中诞生的灵体，不太爱说话但行动无声无息。',
-        '["dark","soul","shadow","dagger","stealth"]',
-        '["light","sun","yang","fire","beauty"]'
-    ),
-    (
         '灯灵',
         '一盏千年长明灯化出的灵体，散发着温暖的光。',
         '["light","fire","wisdom","peace","healing"]',
         '["dark","evil","ghost","undead","chaos"]'
-    ),
-    (
-        '鼓灵',
-        '战鼓中诞生的灵体，一敲鼓就像打了鸡血。',
-        '["warrior","attack","thunder","noise","fire"]',
-        '["peace","silence","herb","healing","silk"]'
-    ),
-    (
-        '棋灵',
-        '从一局残棋中化出的灵体，天天在研究棋路，偶尔会给你出主意。',
-        '["wisdom","strategy","water","peace","knowledge"]',
-        '["chaos","beast","noise","demon","attack"]'
-    ),
-    (
-        '镜子精灵',
-        '一面青铜古镜中醒来的灵体，能映照万物却独独照不见自己。',
-        '["light","beauty","metal","craft","gem"]',
-        '["dark","evil","ghost","poison","ugly"]'
-    ),
-    (
-        '彩鸡',
-        '祥瑞彩鸡之灵，每天天不亮就开始打鸣，想赖床的修士恨死它了。',
-        '["sun","yang","fire","flying","bird"]',
-        '["dark","ice","water","silence","evil"]'
-    ),
-    (
-        '玄蜂',
-        '形如蜜蜂但大如狗的玄蜂之灵，嗡嗡嗡地在灵田里飞来飞去帮忙授粉。',
-        '["herb","seed","flower","sweet","wood"]',
-        '["fire","smoke","metal","poison","evil"]'
     ),
     (
         '天狗',
@@ -213,64 +129,16 @@ INSERT
         '["earth","ore","defense","stillness","metal"]'
     ),
     (
-        '雨师妾',
-        '上古雨师之妾的灵体分灵，悲悯苍生，喜欢润泽万物。',
-        '["water","herb","seed","healing","growth"]',
-        '["fire","dryness","sun","desert","metal"]'
-    ),
-    (
-        '鹿蜀',
-        '《山海经》中的瑞兽之灵，形如马而白首，其音如谣。',
-        '["beast","herb","wood","healing","peace"]',
-        '["metal","warrior","attack","demon","evil"]'
-    ),
-    (
-        '木客',
-        '山林中的木灵精怪，喜欢跟人捉迷藏，会偷偷帮你把灵田浇了。',
-        '["wood","herb","seed","trick","mischief"]',
-        '["metal","axe","fire","ore","forge"]'
-    ),
-    (
         '河童',
         '虽然叫河童但更像个水塘里的小霸王，头顶的圆盘永远盛着水。',
         '["water","fish","herb","cucumber","peace"]',
         '["fire","dryness","metal","sword","attack"]'
     ),
     (
-        '凤凰',
-        '凤凰涅槃后的灰烬中新生的凤灵，虽然小但已经有几分王者之气。',
-        '["phoenix","fire","flying","rebirth","auspicious"]',
-        '["cold","ice","dark","evil","water"]'
-    ),
-    (
         '天禄',
         '辟邪纳财的瑞兽天禄之灵，能为主人带来好运。',
         '["fortune","auspicious","metal","gem","healing"]',
         '["misfortune","evil","curse","chaos","poverty"]'
-    ),
-    (
-        '句芒',
-        '东方木德句芒的分灵，执掌春天和生长，看到灵田就想播种。',
-        '["wood","seed","spring","growth","herb"]',
-        '["autumn","metal","axe","harvest","fire"]'
-    ),
-    (
-        '玄冥',
-        '北方水神玄冥的一缕神念，冷静沉着，喜欢冰雪覆盖的宁静。',
-        '["ice","water","winter","silence","wisdom"]',
-        '["summer","fire","hot","noise","beast"]'
-    ),
-    (
-        '应龙',
-        '助黄帝斩蚩尤的应龙之分灵，虽只是一缕残魂但仍有三分神威。',
-        '["dragon","thunder","rain","warrior","attack"]',
-        '["evil","demon","chaos","coward","dark"]'
-    ),
-    (
-        '夸父',
-        '夸父追日留下的一缕执念化灵，脚力无敌但有点分不清东南西北。',
-        '["sun","running","speed","fire","giant"]',
-        '["slow","rest","dark","water","small"]'
     ),
     (
         '精卫',
@@ -291,40 +159,10 @@ INSERT
         '["raw","cold","ice","water","bitter"]'
     ),
     (
-        '青耕',
-        '《山海经》中的神鸟之灵，形如鹊而白喙，其鸣自叫，可避瘟疫。',
-        '["healing","bird","flying","cure","auspicious"]',
-        '["disease","plague","poison","evil","curse"]'
-    ),
-    (
         '白猿',
         '山中白猿成精，会模仿人打铁炼丹——但成品质量令人担忧。',
         '["beast","mimic","wood","fruit","skill_jade"]',
         '["metal","forge","craft","fire","serious"]'
-    ),
-    (
-        '肥遗',
-        '一首双身的肥遗之灵，出现必有旱灾——不过它会帮你浇水来补救。',
-        '["water","herb","seed","beast","fire"]',
-        '["drought","desert","dryness","sun","heat"]'
-    ),
-    (
-        '巴蛇',
-        '吞象的巴蛇之灵，体量虽大但性格温和，喜欢睡在温暖的矿脉上。',
-        '["beast","snake","earth","ore","warm"]',
-        '["cold","ice","water","bird","flying"]'
-    ),
-    (
-        '狰',
-        '《山海经》中的异兽之灵，形如赤豹而五尾一角，其音如击石。',
-        '["beast","ore","mountain","attack","fire"]',
-        '["water","fish","silk","herb","healing"]'
-    ),
-    (
-        '马交',
-        '《山海经》中的神马之灵，形如白马而黑尾，见则天下安宁。',
-        '["beast","peace","speed","wind","auspicious"]',
-        '["war","chaos","evil","attack","demon"]'
     ),
     (
         '青鸟',
@@ -332,9 +170,375 @@ INSERT
         '["flying","bird","message","wisdom","phoenix"]',
         '["dark","evil","silence","ignorance","demon"]'
     ),
+
+    -- ========== 新增形态 ==========
+
+    -- 禽兽部
     (
-        '旋龟',
-        '《山海经》中的异龟之灵，鸟首虺尾，其音如剖木，佩之不聋。',
-        '["water","tortoise","beast","healing","defense"]',
-        '["fire","loud","noise","speed","flying"]'
+        '捣药兔',
+        '月宫中偷跑下来的玉兔，三瓣嘴永远在嚼着什么药材，偶尔会吐出成型的丹丸。',
+        '["herb","pill","moon","skill_jade","sweet"]',
+        '["fire","beast","metal","warrior","blood"]'
+    ),
+    (
+        '夜瞳',
+        '一只黑猫蹲在暗处，瞳孔里倒映着星辰运转的轨迹，据说能看穿一切虚妄。',
+        '["moon","dark","silk","star","dagger"]',
+        '["water","loud","warrior","metal","light"]'
+    ),
+    (
+        '丹顶翁',
+        '活了不知多少年的丹顶鹤，总是单脚站着闭目养神，开口就是"老夫当年……"。',
+        '["flying","bird","wisdom","herb","star"]',
+        '["beast","poison","dark","metal","chaos"]'
+    ),
+    (
+        '锦鳞君',
+        '一尾五彩锦鲤化形，自称"纵横江湖八百载"，其实只在灵泉池子里游过。',
+        '["water","fish","fortune","gem","beauty"]',
+        '["fire","dryness","metal","beast","flying"]'
+    ),
+    (
+        '偷桃儿',
+        '一只毛手毛脚的猴子，总在偷吃灵果时被抓现行，然后眨巴着眼睛装可怜。',
+        '["fruit","beast","wood","seed","herb"]',
+        '["metal","forge","ore","serious","stillness"]'
+    ),
+    (
+        '衔芝客',
+        '一头角上缠着灵气的白鹿，口中永远衔着一株灵芝，却从不自己吃掉。',
+        '["wood","herb","healing","beast","earth"]',
+        '["metal","fire","chaos","demon","evil"]'
+    ),
+    (
+        '玄甲公',
+        '龟甲上刻着上古卦象的老龟，说话慢到令人抓狂，但每次开口都是箴言。',
+        '["defense","water","wisdom","earth","tortoise"]',
+        '["fire","noise","speed","chaos","flying"]'
+    ),
+    (
+        '霜翅',
+        '一只通体冰蓝的蝴蝶，翅膀所过之处凝出细碎的霜花，美则美矣，冻手。',
+        '["ice","flower","beauty","herb","silk"]',
+        '["fire","summer","beast","warrior","metal"]'
+    ),
+    (
+        '金睛',
+        '一只乌鸦蹲在枝头，金色的眼珠骨碌碌转着，仿佛什么都瞒不过它。',
+        '["flying","bird","wisdom","metal","moon"]',
+        '["dark","evil","ignorance","chaos","water"]'
+    ),
+    (
+        '月影',
+        '一头银白色的狼灵，只在月圆之夜凝实身形，平时像一缕青烟飘忽不定。',
+        '["moon","dark","beast","speed","star"]',
+        '["sun","fire","light","metal","day"]'
+    ),
+    (
+        '玉鸣蝉',
+        '一只通体如白玉雕成的蝉，振动翅膀时发出玉石相击般的清响，闻者心安。',
+        '["wood","summer","peace","healing","wisdom"]',
+        '["winter","cold","ice","noise","water"]'
+    ),
+    (
+        '青羽雀',
+        '一只圆滚滚的小雀，羽毛是最纯粹的天青色，喜欢站在灵田边啄刚冒头的嫩芽。',
+        '["flying","bird","seed","herb","spring"]',
+        '["dark","poison","evil","metal","ore"]'
+    ),
+    (
+        '赤练',
+        '一条筷子长的小蛇，通体赤红如烧红的铁线，看着吓人其实温顺得很。',
+        '["fire","beast","herb","yang","speed"]',
+        '["ice","water","winter","defense","stillness"]'
+    ),
+    (
+        '紫电貂',
+        '一道紫色闪电般的小貂，安静时缩成一团毛球，跑起来连剑修都追不上。',
+        '["speed","beast","flying","wind","thunder"]',
+        '["stillness","earth","defense","water","tortoise"]'
+    ),
+    (
+        '白额客',
+        '一头小白虎不知从哪座山头溜达下来，看着威风凛凛其实还没断奶。',
+        '["beast","attack","metal","warrior","blade"]',
+        '["plant","herb","water","healing","silk"]'
+    ),
+
+    -- 草木部
+    (
+        '参童子',
+        '一个白白胖胖的娃娃，头顶三片绿叶，动不动就往土里钻，说是在"修炼遁地术"。',
+        '["herb","earth","wood","healing","seed"]',
+        '["fire","metal","beast","dryness","poison"]'
+    ),
+    (
+        '雪莲子',
+        '一朵雪莲中诞生的灵体，周身萦绕着凛冽的寒气，靠近三尺便如坠冰窟。',
+        '["ice","herb","water","healing","beauty"]',
+        '["fire","summer","beast","chaos","evil"]'
+    ),
+    (
+        '桃夭夭',
+        '一株千年桃树的花灵，粉衣粉裙，走到哪里都有花瓣无风自落。',
+        '["flower","wood","spring","beauty","sweet"]',
+        '["winter","cold","metal","poison","evil"]'
+    ),
+    (
+        '青莲君',
+        '端坐于莲台之上的青莲化身，神色淡然，开口便是禅机——虽然多半听不懂。',
+        '["flower","water","peace","healing","wisdom"]',
+        '["fire","mud","poison","chaos","evil"]'
+    ),
+    (
+        '翠竹翁',
+        '一竿老竹弯腰驼背成了精，风吹过时浑身噼啪作响，自称"会骨传导养生术"。',
+        '["wood","wind","peace","craft","earth"]',
+        '["fire","metal","beast","chaos","demon"]'
+    ),
+    (
+        '牡丹卿',
+        '一朵牡丹花中诞生的贵女灵体，每天要用灵露梳妆三遍，嫌弃你种的灵田不够气派。',
+        '["flower","beauty","silk","fortune","sweet"]',
+        '["mud","beast","ore","metal","poison"]'
+    ),
+    (
+        '桂香儿',
+        '一个圆脸小姑娘，满身桂花香，喜欢在秋天收集花瓣酿酒。',
+        '["flower","wood","autumn","sweet","food"]',
+        '["summer","beast","metal","poison","evil"]'
+    ),
+    (
+        '寒梅女',
+        '一株雪中红梅化灵，性情清冷寡言，但会在凛冬为你折一枝花色最好的。',
+        '["flower","wood","winter","ice","beauty"]',
+        '["summer","fire","beast","chaos","evil"]'
+    ),
+    (
+        '幽兰客',
+        '生于幽谷的兰草化灵，喜静不喜闹，经常捧着书一看就是一整天。',
+        '["flower","herb","peace","wisdom","beauty"]',
+        '["noise","chaos","beast","metal","fire"]'
+    ),
+    (
+        '秋菊翁',
+        '篱笆下的老菊花成了精，爱喝菊花茶，爱晒太阳，自称"养老界第一人"。',
+        '["flower","herb","autumn","peace","healing"]',
+        '["summer","beast","metal","chaos","evil"]'
+    ),
+    (
+        '苍松公',
+        '一棵千年古松化灵，身姿挺拔如剑，风雪不改其色。',
+        '["wood","winter","earth","defense","peace"]',
+        '["fire","chaos","beast","summer","evil"]'
+    ),
+    (
+        '柳依依',
+        '一株水边垂柳化灵，长发及腰，温柔似水，但被惹急了会用柳条抽人。',
+        '["wood","water","peace","silk","herb"]',
+        '["fire","metal","beast","warrior","attack"]'
+    ),
+    (
+        '藤儿',
+        '一根会走路的藤蔓，喜欢缠着一切温暖的东西——包括你的胳膊和丹炉。',
+        '["wood","herb","seed","water","growth"]',
+        '["fire","metal","axe","dryness","winter"]'
+    ),
+
+    -- 天象部
+    (
+        '雨童子',
+        '一个光脚的小男孩，走到哪里哪里就下毛毛雨，脚下永远跟着一洼清水。',
+        '["water","spring","growth","herb","seed"]',
+        '["fire","dryness","sun","desert","metal"]'
+    ),
+    (
+        '雪姬',
+        '一袭白衣的女子，长发如雪，沉默寡言，但会在你炼丹炉过热时悄悄降下温。',
+        '["ice","winter","water","beauty","peace"]',
+        '["fire","summer","sun","beast","chaos"]'
+    ),
+    (
+        '雾娘',
+        '晨雾中诞生的灵体，身形容貌永远朦朦胧胧，说话也像隔着一层纱。',
+        '["water","mystery","peace","herb","flying"]',
+        '["fire","sun","metal","ore","warrior"]'
+    ),
+    (
+        '虹娘',
+        '雨后彩虹化灵，七色衣裙流光溢彩，性格活泼得像一道小闪电。',
+        '["light","beauty","water","flying","star"]',
+        '["dark","evil","metal","ore","bone"]'
+    ),
+    (
+        '露珠儿',
+        '清晨第一滴露水化灵，晶莹剔透，性子安静，在阳光下会闪闪发光。',
+        '["water","herb","healing","beauty","dawn"]',
+        '["fire","sun","metal","beast","dryness"]'
+    ),
+    (
+        '泉先生',
+        '一眼灵泉中诞生的老成灵体，性情温和，滔滔不绝地讲"当年这泉眼是如何如何"。',
+        '["water","healing","earth","peace","growth"]',
+        '["fire","dryness","chaos","evil","metal"]'
+    ),
+    (
+        '溪丫头',
+        '山涧溪流化灵，蹦蹦跳跳哼着歌，一会儿不停，把石头都磨圆了。',
+        '["water","music","peace","growth","flying"]',
+        '["fire","stillness","metal","ore","dryness"]'
+    ),
+    (
+        '霞姑',
+        '晚霞中诞生的灵体，披着橙红与紫金色的光芒，每天最开心的是日落时分。',
+        '["light","flying","beauty","sun","peace"]',
+        '["dark","evil","metal","beast","water"]'
+    ),
+    (
+        '岚君',
+        '山谷间的雾气化形，一身青白衣袍若隐若现，最喜欢把整座福地罩在云遮雾绕中。',
+        '["water","flying","mystery","peace","wood"]',
+        '["fire","sun","metal","warrior","loud"]'
+    ),
+    (
+        '霜降',
+        '深秋第一场霜化灵，不言不语，但所过之处叶片都镶上了一层银边。',
+        '["ice","autumn","water","beauty","peace"]',
+        '["fire","summer","sun","beast","growth"]'
+    ),
+
+    -- 器物部
+    (
+        '竹笛生',
+        '一支青竹笛化灵，一副书生打扮，吹出的曲子能让灵植加速生长。',
+        '["wood","music","peace","herb","growth"]',
+        '["metal","noise","beast","chaos","fire"]'
+    ),
+    (
+        '玉箫客',
+        '一管古玉箫化灵，青衫落拓，月下独奏时连灵兽都会安静下来聆听。',
+        '["wood","music","peace","moon","wisdom"]',
+        '["noise","loud","beast","chaos","fire"]'
+    ),
+    (
+        '紫金葫',
+        '一个紫金色的葫芦成了精，能把灵气都吸进去再慢慢吐出来，自称"灵气净化器"。',
+        '["herb","potion","wood","craft","storage"]',
+        '["metal","ore","beast","warrior","fire"]'
+    ),
+    (
+        '水墨君',
+        '一幅未干的水墨画成了精，能在墙上、地上、甚至你脸上即兴作画。',
+        '["wisdom","beauty","peace","craft","mystery"]',
+        '["beast","metal","ore","fire","chaos"]'
+    ),
+    (
+        '小丹炉',
+        '一个巴掌大的三足小丹炉，整天蹦蹦跳跳地追着你喊"炼一炉嘛炼一炉嘛"。',
+        '["pill","potion","fire","craft","metal"]',
+        '["water","ice","herb","wood","raw"]'
+    ),
+    (
+        '青瓷盏',
+        '一只天青色的瓷盏化灵，温润如玉，只喝灵泉水泡的茶，劣茶入盏会皱眉。',
+        '["water","peace","craft","herb","beauty"]',
+        '["metal","ore","beast","warrior","fire"]'
+    ),
+    (
+        '油纸伞',
+        '一把老油纸伞成了精，伞面上画着烟雨江南，下雨天撑开就能听见隐约的评弹声。',
+        '["water","silk","craft","wood","beauty"]',
+        '["fire","sun","dryness","metal","beast"]'
+    ),
+    (
+        '碧玉簪',
+        '一根碧玉簪化灵，身姿纤细修长，说话直来直去，从不在背后说人闲话。',
+        '["beauty","silk","gem","craft","defense"]',
+        '["warrior","beast","metal","ore","chaos"]'
+    ),
+    (
+        '沧浪珠',
+        '一颗深海中孕育的明珠化灵，内有潮汐声，靠近它就能闻到海风的味道。',
+        '["water","gem","light","beauty","star"]',
+        '["fire","metal","beast","ore","earth"]'
+    ),
+    (
+        '古玉珮',
+        '一块布满沁色的古玉化灵，温润内敛，挂在哪里就能保哪里一方平安。',
+        '["defense","fortune","beauty","peace","auspicious"]',
+        '["evil","chaos","demon","dark","poison"]'
+    ),
+    (
+        '松烟墨',
+        '一方徽墨化灵，满身松烟香气，最喜欢在空白的纸上龙飞凤舞。',
+        '["wisdom","craft","skill_jade","ink","beauty"]',
+        '["beast","chaos","noise","warrior","fire"]'
+    ),
+    (
+        '老算盘',
+        '一把包了浆的老算盘成了精，噼里啪啦打得飞快，连灵石利息都要算到小数点后三位。',
+        '["craft","wisdom","fortune","metal","wood"]',
+        '["chaos","beast","herb","flower","water"]'
+    ),
+
+    -- 奇趣部
+    (
+        '绣球娘',
+        '一个大红绣球成了精，每天都在蹦蹦跳跳，最喜欢被人抛起来再接住。',
+        '["silk","beauty","fortune","auspicious","craft"]',
+        '["metal","ore","beast","warrior","fire"]'
+    ),
+    (
+        '老蒲扇',
+        '一把豁了边的蒲扇成了精，夏天呼啦呼啦扇风，冬天被塞在角落也不抱怨。',
+        '["summer","wind","peace","wood","craft"]',
+        '["winter","metal","beast","water","chaos"]'
+    ),
+    (
+        '茶宠儿',
+        '一只被茶水养了几十年的紫砂金蟾茶宠化灵，浑身茶香，离了茶汤就犯蔫。',
+        '["water","peace","craft","herb","warm"]',
+        '["metal","ore","beast","warrior","noise"]'
+    ),
+    (
+        '白玉拂尘',
+        '一柄白玉为柄、银丝为尾的拂尘化灵，轻轻一挥便能扫去萦绕的浊气。',
+        '["healing","peace","wisdom","light","craft"]',
+        '["dark","evil","chaos","poison","beast"]'
+    ),
+    (
+        '酒葫芦',
+        '一个不知道装了多少年灵酒的老葫芦，走路摇摇晃晃，说话带着三分醉意。',
+        '["wine","fruit","sweet","herb","water"]',
+        '["metal","ore","dryness","warrior","beast"]'
+    ),
+    (
+        '红灯笼',
+        '一盏大红宫灯成了精，天一黑就自动点亮，把福地照得暖融融的。',
+        '["light","fire","festival","warm","beauty"]',
+        '["dark","evil","water","ice","ghost"]'
+    ),
+    (
+        '残局',
+        '一局下到一半的残棋化灵，每天都在自言自语"这步不该这么走……"。',
+        '["wisdom","strategy","peace","knowledge","water"]',
+        '["chaos","beast","noise","demon","attack"]'
+    ),
+    (
+        '旧蒲团',
+        '一个被修士坐了上百年的蒲团化灵，软绵绵的，谁坐上去都会不知不觉入定。',
+        '["peace","wisdom","healing","wood","earth"]',
+        '["noise","chaos","beast","warrior","fire"]'
+    ),
+    (
+        '半卷书',
+        '一册残破的古籍化灵，内容不全所以说话说一半留一半，急死个人。',
+        '["wisdom","skill_jade","knowledge","mystery","water"]',
+        '["fire","beast","chaos","demon","warrior"]'
+    ),
+    (
+        '断弦琴',
+        '一张断了一根弦的古琴化灵，弹出的曲子略带哀伤，但意外地好听。',
+        '["wood","music","peace","beauty","moon"]',
+        '["metal","noise","chaos","demon","warrior"]'
     );
