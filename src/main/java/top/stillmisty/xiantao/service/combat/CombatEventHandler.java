@@ -65,8 +65,9 @@ public class CombatEventHandler {
     int recoveryAmount = Math.max(1, user.calculateMaxHp() / 20);
     user.setHpCurrent(Math.min(user.calculateMaxHp(), user.getHpCurrent() + recoveryAmount));
 
-    CombatTeam playerTeam = combatService.buildPlayerTeam(user, skillMap, "Player",
-        new ArrayList<>(beastCache.values()));
+    CombatTeam playerTeam =
+        combatService.buildPlayerTeam(
+            user, skillMap, "Player", new ArrayList<>(beastCache.values()));
     CombatTeam monsterTeam = buildMonsterTeam(tmpl, count, skillMap, userId);
 
     BattleResultVO result = combatService.simulate(playerTeam, monsterTeam, DEFAULT_MAX_ROUNDS);

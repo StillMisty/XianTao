@@ -19,18 +19,6 @@ public class BattleContext {
   /** 战斗场景类型 */
   @Builder.Default private final BattleScene scene = BattleScene.TRAINING;
 
-  /** 地图ID（用于掉落归属） */
-  private final Long mapId;
-
-  /** 地图等级（用于动态遇怪计算） */
-  private final Integer mapLevel;
-
-  /** 玩家等级（用于动态遇怪计算） */
-  private final Integer playerLevel;
-
-  /** 装备评分（用于动态遇怪计算） */
-  private final Integer gearScore;
-
   /** 战斗场景枚举 */
   @Getter
   public enum BattleScene {

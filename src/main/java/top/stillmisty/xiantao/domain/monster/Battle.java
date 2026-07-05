@@ -16,22 +16,16 @@ public class Battle {
   private final CombatTeam teamB;
   private final BattleContext.BattleScene scene;
   private final int maxRounds;
-  private final CombatEngine combatEngine;
 
   private @Nullable BattleResultVO result;
   private boolean executed;
 
   private Battle(
-      CombatTeam teamA,
-      CombatTeam teamB,
-      BattleContext.BattleScene scene,
-      int maxRounds,
-      CombatEngine combatEngine) {
+      CombatTeam teamA, CombatTeam teamB, BattleContext.BattleScene scene, int maxRounds) {
     this.teamA = teamA;
     this.teamB = teamB;
     this.scene = scene;
     this.maxRounds = maxRounds;
-    this.combatEngine = combatEngine;
   }
 
   /**
@@ -41,20 +35,15 @@ public class Battle {
    * @param teamB 防守方
    * @param scene 战斗场景
    * @param maxRounds 最大回合数
-   * @param combatEngine 战斗引擎
    */
   public static Battle of(
-      CombatTeam teamA,
-      CombatTeam teamB,
-      BattleContext.BattleScene scene,
-      int maxRounds,
-      CombatEngine combatEngine) {
-    return new Battle(teamA, teamB, scene, maxRounds, combatEngine);
+      CombatTeam teamA, CombatTeam teamB, BattleContext.BattleScene scene, int maxRounds) {
+    return new Battle(teamA, teamB, scene, maxRounds);
   }
 
   /** 执行战斗，返回结果 */
   @Nullable
-  public BattleResultVO execute() {
+  public BattleResultVO execute(CombatEngine combatEngine) {
     if (executed) return result;
     BattleContext context =
         BattleContext.builder().teamA(teamA).teamB(teamB).maxRounds(maxRounds).scene(scene).build();

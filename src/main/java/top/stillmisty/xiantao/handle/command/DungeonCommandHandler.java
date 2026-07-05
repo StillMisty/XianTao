@@ -27,8 +27,7 @@ public class DungeonCommandHandler implements CommandGroup {
 
     var result = dungeonService.statusInDungeon(userId);
     if (result instanceof ServiceResult.Success<String> s) {
-      return fmt.heading("秘境进度", "") + s.data() + "\n\n"
-          + fmt.tip("输入「秘灵 内容」与秘境之灵/叙事者对话");
+      return fmt.heading("秘境进度", "") + s.data() + "\n\n" + fmt.tip("输入「秘灵 内容」与秘境之灵/叙事者对话");
     }
 
     log.debug("处理秘境列表 - UserId: {}", userId);

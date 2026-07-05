@@ -61,7 +61,6 @@ public class DungeonCombatHelper {
             .teamB(monsterTeam)
             .maxRounds(20)
             .scene(BattleContext.BattleScene.DUNGEON)
-            .playerLevel(user.getLevel())
             .build();
     BattleResultVO battleResult = combatEngine.simulate(context);
 
@@ -77,23 +76,11 @@ public class DungeonCombatHelper {
       return new SimpleCombatOutcome(false, 0, monster.getName(), "你被击败了，陷入了濒死状态。", List.of());
     }
 
-    long expGained = battleResult.expGained();
-    if (playerWon && expGained > 0) {
-      user.addExp(expGained);
-    }
-
-    String summary = battleResult.summary();
-    if (summary != null && summary.length() > 200) {
-      summary = summary.substring(0, 200) + "...";
-    }
-
     return new SimpleCombatOutcome(
         playerWon,
-        expGained,
+        0,
         monster.getName(),
-        playerWon
-            ? ("击败了" + monster.getName() + "！\n" + (summary != null ? summary : ""))
-            : "被" + monster.getName() + "击退了...",
+        playerWon ? ("击败了" + monster.getName() + "！") : "被" + monster.getName() + "击退了...",
         List.of());
   }
 

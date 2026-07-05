@@ -1,6 +1,7 @@
 package top.stillmisty.xiantao.domain.monster;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -23,7 +24,7 @@ public class CombatTeam {
   }
 
   public List<Combatant> members() {
-    return members;
+    return Collections.unmodifiableList(members);
   }
 
   public List<Combatant> aliveMembers() {

@@ -26,8 +26,8 @@ public record CombatSummary(
 
   public static CombatSummary empty() {
     return new CombatSummary(
-        0, 0, 0, 0, 0, 0, List.of(), List.of(), List.of(), false, null, List.of(), List.of(),
-        null, List.of());
+        0, 0, 0, 0, 0, 0, List.of(), List.of(), List.of(), false, null, List.of(), List.of(), null,
+        List.of());
   }
 
   public CombatSummary merge(EncounterResult result) {

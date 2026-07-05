@@ -10,7 +10,4 @@ public record BattleResultVO(
     int rounds,
     Map<String, HpChange> playerHpChange,
     List<SkillProc> skillProcs,
-    List<CombatLogEntry> combatLog,
-    List<DropItem> drops,
-    long expGained,
-    String summary) {}
+    List<CombatLogEntry> combatLog) {}

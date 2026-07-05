@@ -18,7 +18,6 @@ import top.stillmisty.xiantao.service.ProtectionHelper;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.SpiritStoneService;
 import top.stillmisty.xiantao.service.combat.CombatService;
-import top.stillmisty.xiantao.service.combat.TribulationCombatExecutor;
 import top.stillmisty.xiantao.service.masterapprentice.MasterApprenticeService;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
@@ -35,7 +34,7 @@ public class CultivationService {
   private final SpiritStoneService spiritStoneService;
   private final MasterApprenticeService masterApprenticeService;
   private final TribulationNarrativeGenerator narrativeGenerator;
-  private final TribulationCombatExecutor tribulationCombatExecutor;
+  private final CombatService combatService;
 
   // ===================== 公开 API =====================
 
@@ -126,8 +125,8 @@ public class CultivationService {
         TribulationType.randomForBreakthrough(targetRealmOrdinal, isTribulationRealm);
 
     // 构建队伍
-    CombatTeam defendingTeam = tribulationCombatExecutor.buildTeamOrReturnNull(user);
-    if (defendingTeam == null) {
+    CombatTeam defendingTeam = combatService.buildPlayerTeam(user);
+    if (defendingTeam.aliveMembers().isEmpty()) {
       return new BreakthroughResult(
           false,
           "⚠️ 没有可出战的单位，雷劫无法降临",
@@ -145,7 +144,7 @@ public class CultivationService {
     // 扣除修为（无论胜败）
     user.setExp(user.getExp() - expNeeded);
 
-    CombatService.TeamStats teamStats = tribulationCombatExecutor.calculateTeamStats(defendingTeam);
+    CombatService.TeamStats teamStats = combatService.calculateTeamStats(defendingTeam);
 
     TribulationBoss boss =
         TribulationBoss.forPlayerBreakthrough(
@@ -160,7 +159,11 @@ public class CultivationService {
             tribulationResist,
             tribulationLevel);
 
-    var battleResult = tribulationCombatExecutor.execute(defendingTeam, boss);
+    // 执行渡劫战斗
+    CombatTeam bossTeam = new CombatTeam(0L, "天劫");
+    bossTeam.addMember(boss);
+    BattleResultVO battleResult = combatService.simulate(defendingTeam, bossTeam, 40);
+    boolean playerWon = "Player".equals(battleResult.winner());
 
     userStateService.saveHpStatus(user);
 
@@ -168,18 +171,12 @@ public class CultivationService {
     daoProtectionService.clearProtegeRelations(user.getId());
     playerBuffRepository.deleteByUserIdAndType(user.getId(), PlayerBuffType.BREAKTHROUGH);
 
-    if (battleResult.playerWon()) {
+    if (playerWon) {
       return handleCombatBreakthroughSuccess(
-          user,
-          newLevel,
-          newRealm,
-          isMajor,
-          isTribulationRealm,
-          tribulationType,
-          battleResult.battleResult());
+          user, newLevel, newRealm, isMajor, isTribulationRealm, tribulationType, battleResult);
     } else {
       return handleCombatBreakthroughFailure(
-          user, oldLevel, isMajor, tribulationType, battleResult.battleResult());
+          user, oldLevel, isMajor, tribulationType, battleResult);
     }
   }
 

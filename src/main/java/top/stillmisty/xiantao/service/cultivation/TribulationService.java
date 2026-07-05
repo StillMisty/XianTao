@@ -13,6 +13,7 @@ import top.stillmisty.xiantao.domain.fudi.entity.Spirit;
 import top.stillmisty.xiantao.domain.fudi.enums.CellType;
 import top.stillmisty.xiantao.domain.monster.CombatTeam;
 import top.stillmisty.xiantao.domain.monster.TribulationBoss;
+import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
 import top.stillmisty.xiantao.domain.user.entity.User;
 import top.stillmisty.xiantao.infrastructure.repository.FudiCellRepository;
 import top.stillmisty.xiantao.infrastructure.repository.FudiRepository;
@@ -20,7 +21,6 @@ import top.stillmisty.xiantao.infrastructure.repository.SpiritRepository;
 import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.SpiritStoneService;
 import top.stillmisty.xiantao.service.combat.CombatService;
-import top.stillmisty.xiantao.service.combat.TribulationCombatExecutor;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
 @Service
@@ -35,7 +35,7 @@ public class TribulationService {
   private final SpiritRepository spiritRepository;
   private final SpiritStoneService spiritStoneService;
   private final UserStateService userStateService;
-  private final TribulationCombatExecutor tribulationCombatExecutor;
+  private final CombatService combatService;
 
   /**
    * 触发天劫 — 使用战斗引擎进行回合制战斗（玩家于福地手动触发）
@@ -61,15 +61,13 @@ public class TribulationService {
     fudiRepository.save(fudi);
 
     // 构建防守方队伍（玩家 + 出战灵兽）
-    CombatTeam defendingTeam = tribulationCombatExecutor.buildTeamOrReturnNull(user);
-
-    // 检查是否有存活成员
-    if (defendingTeam == null) {
+    CombatTeam defendingTeam = combatService.buildPlayerTeam(user);
+    if (defendingTeam.aliveMembers().isEmpty()) {
       return "⚠️ 没有可出战的单位，天劫无法降临";
     }
 
     // 计算防守方队伍总属性（用于 Boss 缩放，天然支持未来多人组队）
-    CombatService.TeamStats teamStats = tribulationCombatExecutor.calculateTeamStats(defendingTeam);
+    CombatService.TeamStats teamStats = combatService.calculateTeamStats(defendingTeam);
 
     // 检查是否触发怜悯
     var spirit = spiritRepository.findByFudiId(fudi.getId()).orElse(null);
@@ -87,9 +85,10 @@ public class TribulationService {
             compassionTriggered);
 
     // 执行战斗
-    var battleResult = tribulationCombatExecutor.execute(defendingTeam, boss);
-
-    boolean playerWon = battleResult.playerWon();
+    CombatTeam bossTeam = new CombatTeam(0L, "天劫");
+    bossTeam.addMember(boss);
+    BattleResultVO battleResult = combatService.simulate(defendingTeam, bossTeam, 40);
+    boolean playerWon = battleResult.winner().equals("Player");
     boolean compassionUsed = compassionTriggered && !playerWon;
 
     // 应用 HP 变化到玩家和灵兽

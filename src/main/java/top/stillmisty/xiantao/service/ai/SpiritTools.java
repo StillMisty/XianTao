@@ -18,7 +18,6 @@ import top.stillmisty.xiantao.domain.fudi.vo.UpgradeCellVO;
 import top.stillmisty.xiantao.domain.item.enums.InventoryCategory;
 import top.stillmisty.xiantao.domain.item.vo.ItemEntry;
 import top.stillmisty.xiantao.service.UserContext;
-
 import top.stillmisty.xiantao.service.beast.BeastBreedingService;
 import top.stillmisty.xiantao.service.beast.BeastCombatService;
 import top.stillmisty.xiantao.service.fudi.FarmService;
@@ -384,7 +383,8 @@ public class SpiritTools {
 
   public record CheckPlayerBagResponse(
       @JsonPropertyDescription("查询的类别中文名") String category,
-      @JsonPropertyDescription("物品列表") java.util.List<top.stillmisty.xiantao.domain.item.vo.ItemEntry> items) {}
+      @JsonPropertyDescription("物品列表")
+          java.util.List<top.stillmisty.xiantao.domain.item.vo.ItemEntry> items) {}
 
   public record CollectProduceResponse(
       @JsonPropertyDescription("收取的地块编号，或 'all' 表示全部") String position,
@@ -420,6 +420,9 @@ public class SpiritTools {
       @JsonPropertyDescription("升级后等级") int newLevel) {}
 
   public enum BeastAction {
-    DEPLOY, EVOLVE, RELEASE, HATCH
+    DEPLOY,
+    EVOLVE,
+    RELEASE,
+    HATCH
   }
 }

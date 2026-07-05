@@ -201,13 +201,27 @@ public class TrainingService {
     List<String> itemNames =
         trainingItems.stream().map(DropItem::name).filter(Objects::nonNull).toList();
     @Nullable String defeatNarrative = diedInTraining ? buildDefeatNarrative(combatSummary) : null;
-    @Nullable String beastNarrative = diedInTraining && beastDeployed ? buildBeastNarrative(combatSummary) : null;
+    @Nullable String beastNarrative =
+        diedInTraining && beastDeployed ? buildBeastNarrative(combatSummary) : null;
     String plainSummary =
         buildEndTrainingSummary(
-            minutesTraining, totalExp, combatSummary, trainingItems, diedInTraining, defeatNarrative, beastNarrative);
+            minutesTraining,
+            totalExp,
+            combatSummary,
+            trainingItems,
+            diedInTraining,
+            defeatNarrative,
+            beastNarrative);
     String summary =
         beautifyTrainingSummary(
-            mapNode, minutesTraining, totalExp, itemNames, combatSummary, diedInTraining, beastDeployed, plainSummary);
+            mapNode,
+            minutesTraining,
+            totalExp,
+            itemNames,
+            combatSummary,
+            diedInTraining,
+            beastDeployed,
+            plainSummary);
 
     log.info("玩家 {} 结束历练并应用奖励", userId);
     return TrainingRewardVO.builder()
@@ -235,7 +249,8 @@ public class TrainingService {
       String fallback) {
     @Nullable String combatHighlight = buildHighlightBattleText(combatSummary);
     @Nullable String defeatNarrative = diedInTraining ? buildDefeatNarrative(combatSummary) : null;
-    @Nullable String beastNarrative = diedInTraining && beastDeployed ? buildBeastNarrative(combatSummary) : null;
+    @Nullable String beastNarrative =
+        diedInTraining && beastDeployed ? buildBeastNarrative(combatSummary) : null;
     var request =
         new ExplorationDescriptionFunction.Request(
             mapNode.getName(),
@@ -339,10 +354,12 @@ public class TrainingService {
     // 取最后一条有效日志作为"致命一击"
     CombatLogEntry killingBlow = logs.getLast();
     if (killingBlow.damageDealt() > 0) {
-      String skillPart = killingBlow.attackType() == CombatLogEntry.AttackType.SKILL
-          && killingBlow.skillName() != null && !killingBlow.skillName().isEmpty()
-          ? "一记「" + killingBlow.skillName() + "」"
-          : "凌厉一击";
+      String skillPart =
+          killingBlow.attackType() == CombatLogEntry.AttackType.SKILL
+                  && killingBlow.skillName() != null
+                  && !killingBlow.skillName().isEmpty()
+              ? "一记「" + killingBlow.skillName() + "」"
+              : "凌厉一击";
       return killingBlow.attackerName() + skillPart + "正中你的要害，你眼前一黑，重伤倒地。";
     }
     return "你与" + cs.lastDefeatMonsterName() + "血战数十回合，终因力竭不敌，重伤倒地。";

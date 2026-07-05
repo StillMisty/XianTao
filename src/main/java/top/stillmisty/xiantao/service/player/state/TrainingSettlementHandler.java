@@ -17,9 +17,7 @@ import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.GameEventService;
 import top.stillmisty.xiantao.service.combat.TrainingSettler;
 
-/**
- * 定期历练结算处理器 — 每 60 分钟自动执行一次中途结算
- */
+/** 定期历练结算处理器 — 每 60 分钟自动执行一次中途结算 */
 @Slf4j
 @Component
 @RequiredArgsConstructor

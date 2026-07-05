@@ -10,11 +10,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.monster.BattleContext;
-import top.stillmisty.xiantao.domain.monster.Buff;
 import top.stillmisty.xiantao.domain.monster.BuffManager;
 import top.stillmisty.xiantao.domain.monster.CombatEngine;
 import top.stillmisty.xiantao.domain.monster.CombatTeam;
 import top.stillmisty.xiantao.domain.monster.Combatant;
+import top.stillmisty.xiantao.domain.monster.SkillSelectionStrategy;
+import top.stillmisty.xiantao.domain.monster.TargetSelectionStrategy;
 import top.stillmisty.xiantao.domain.monster.enums.BuffType;
 import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
 import top.stillmisty.xiantao.domain.monster.vo.CombatLogEntry;
@@ -22,7 +23,6 @@ import top.stillmisty.xiantao.domain.monster.vo.HpChange;
 import top.stillmisty.xiantao.domain.monster.vo.SkillProc;
 import top.stillmisty.xiantao.domain.skill.entity.Skill;
 import top.stillmisty.xiantao.domain.skill.entity.SkillEffect;
-import top.stillmisty.xiantao.domain.skill.enums.EffectType;
 
 @Slf4j
 @Component
@@ -30,6 +30,9 @@ import top.stillmisty.xiantao.domain.skill.enums.EffectType;
 public class DefaultCombatEngine implements CombatEngine {
 
   private final DamageCalculator damageCalculator;
+  private final EffectHandlerRegistry effectHandlerRegistry;
+  private final SkillSelectionStrategy skillSelectionStrategy;
+  private final TargetSelectionStrategy targetSelectionStrategy;
 
   private static String skillKey(Combatant attacker, Skill skill) {
     return attacker.getId() + ":" + skill.getId();
@@ -165,12 +168,10 @@ public class DefaultCombatEngine implements CombatEngine {
     List<Skill> available =
         skills.stream().filter(s -> !cooldowns.containsKey(skillKey(attacker, s))).toList();
 
-    if (available.isEmpty()) return null;
-
-    return available.get(ThreadLocalRandom.current().nextInt(available.size()));
+    return skillSelectionStrategy.selectSkill(attacker, available);
   }
 
-  // ===================== Buff 应用 =====================
+  // ===================== 效果处理 =====================
 
   CombatLogEntry resolveAction(
       Combatant attacker,
@@ -198,137 +199,42 @@ public class DefaultCombatEngine implements CombatEngine {
       skillName = selectedSkill.getName();
 
       List<SkillEffect> effects = selectedSkill.getEffects();
+      boolean anyEffectProcessed = false;
       if (effects != null && !effects.isEmpty()) {
         for (SkillEffect effect : effects) {
           double chance = effect.chance() != null ? effect.chance() : 1.0;
           if (ThreadLocalRandom.current().nextDouble() > chance) continue;
 
-          switch (effect.type()) {
-            case DAMAGE ->
-                damage +=
-                    damageCalculator.calculateEffectDamage(attacker, defender, effect, buffManager);
-            case AOE_DAMAGE -> {
-              int aoeBase =
-                  damageCalculator.calculateEffectDamage(attacker, defender, effect, buffManager);
-              damage += aoeBase;
-              for (Combatant other : defenderTeam.members()) {
-                if (!other.equals(defender) && other.isAlive()) {
-                  int aoeDmg = (int) (aoeBase * 0.6);
-                  other.takeDamage(aoeDmg);
-                  damageDealt.merge(attacker.getName(), aoeDmg, Integer::sum);
-                }
-              }
-            }
-            case MULTI_HIT ->
-                damage +=
-                    damageCalculator.calculateEffectDamage(attacker, defender, effect, buffManager)
-                        * (effect.value() != null ? effect.value().intValue() : 3);
-            case ARMOR_BREAK -> {
-              applyArmorBreak(defender, effect, selectedSkill, buffManager);
-              isControl = true;
-            }
-            case SLOW -> {
-              applySlow(defender, effect, selectedSkill, buffManager);
-              isControl = true;
-            }
-            case DOT -> applyDot(attacker, defender, effect, selectedSkill, buffManager);
-            case DODGE -> {
-              applyBuff(attacker, BuffType.DODGE, effect, selectedSkill, buffManager);
-              isBuff = true;
-            }
-            case COUNTER -> {
-              applyBuff(attacker, BuffType.COUNTER, effect, selectedSkill, buffManager);
-              isBuff = true;
-            }
-            case REFLECT -> {
-              applyBuff(attacker, BuffType.REFLECT, effect, selectedSkill, buffManager);
-              isBuff = true;
-            }
-            case CLEANSE -> {
-              buffManager.removeDebuffs(attacker.getId());
-              isBuff = true;
-            }
-            case RESIST_BUFF, HP_BUFF, SURVIVE_LETHAL -> {
-              // PASSIVE-only effects, should not reach active combat engine
-            }
-            case EXECUTE -> {
-              int baseDmg =
-                  damageCalculator.calculateEffectDamage(attacker, defender, effect, buffManager);
-              int maxHp = defender.getMaxHp();
-              if (maxHp <= 0) maxHp = 1;
-              double hpRatio = (double) defender.getHp() / maxHp;
-              double threshold = effect.value() != null ? effect.value() : 0.3;
-              damage += (int) (baseDmg * (hpRatio < threshold ? 2.0 : 1.0));
-            }
-            case LIFESTEAL -> {
-              int lifestealDmg =
-                  damageCalculator.calculateNormalDamage(attacker, defender, buffManager);
-              damage += lifestealDmg;
-              double ratio = effect.value() != null ? effect.value() : 0.33;
-              attacker.heal((int) (lifestealDmg * ratio));
-            }
-            case HEAL -> {
-              double ratio = effect.value() != null ? effect.value() : 0.5;
-              int maxHp = attacker.getMaxHp();
-              if (maxHp > 0) {
-                attacker.heal((int) (maxHp * ratio));
-              }
-              isBuff = true;
-            }
-            case ATTACK_BUFF -> {
-              applyBuff(attacker, BuffType.ATTACK_BUFF, effect, selectedSkill, buffManager);
-              isBuff = true;
-            }
-            case DEFENSE_BUFF -> {
-              applyBuff(attacker, BuffType.DEFENSE_BUFF, effect, selectedSkill, buffManager);
-              isBuff = true;
-            }
-            case SPEED_BUFF -> {
-              applyBuff(attacker, BuffType.SPEED_BUFF, effect, selectedSkill, buffManager);
-              isBuff = true;
-            }
-            case STUN, FREEZE, SILENCE -> {
-              applyControlBuff(defender, effect.type(), effect, selectedSkill, buffManager);
-              isControl = true;
-            }
-          }
+          EffectHandler handler = effectHandlerRegistry.getHandler(effect.type());
+          if (handler == null) continue;
+
+          var ctx =
+              new EffectHandler.EffectContext(
+                  attacker,
+                  defender,
+                  effect,
+                  selectedSkill,
+                  buffManager,
+                  defenderTeam,
+                  damageCalculator);
+          var result = handler.handle(ctx);
+          damage += result.damage();
+          isControl = isControl || result.isControl();
+          isBuff = isBuff || result.isBuff();
+          anyEffectProcessed =
+              anyEffectProcessed || result.damage() > 0 || result.isControl() || result.isBuff();
         }
       }
-      if (damage == 0 && !isBuff && !isControl) {
-        boolean anyEffectProcessed =
-            selectedSkill.getEffects() != null
-                && selectedSkill.getEffects().stream()
-                    .anyMatch(
-                        e ->
-                            e.type() == EffectType.HEAL
-                                || e.type() == EffectType.ATTACK_BUFF
-                                || e.type() == EffectType.DEFENSE_BUFF
-                                || e.type() == EffectType.SPEED_BUFF
-                                || e.type() == EffectType.DOT
-                                || e.type() == EffectType.STUN
-                                || e.type() == EffectType.FREEZE
-                                || e.type() == EffectType.SILENCE
-                                || e.type() == EffectType.ARMOR_BREAK
-                                || e.type() == EffectType.SLOW
-                                || e.type() == EffectType.LIFESTEAL
-                                || e.type() == EffectType.EXECUTE
-                                || e.type() == EffectType.DODGE
-                                || e.type() == EffectType.COUNTER
-                                || e.type() == EffectType.REFLECT
-                                || e.type() == EffectType.CLEANSE
-                                || e.type() == EffectType.RESIST_BUFF
-                                || e.type() == EffectType.HP_BUFF
-                                || e.type() == EffectType.SURVIVE_LETHAL);
-        if (!anyEffectProcessed) {
-          damage = damageCalculator.calculateNormalDamage(attacker, defender, buffManager);
-        }
+
+      // 如果技能没有任何效果被处理，使用普通攻击
+      if (!anyEffectProcessed) {
+        damage = damageCalculator.calculateNormalDamage(attacker, defender, buffManager);
       }
     } else {
       damage = damageCalculator.calculateNormalDamage(attacker, defender, buffManager);
     }
 
     if (damage > 0) {
-      // 冰冻目标受到额外30%伤害
       if (buffManager.getBuffsByType(defender.getId(), BuffType.FREEZE).stream()
           .anyMatch(b -> !b.isExpired())) {
         damage = (int) (damage * 1.3);
@@ -358,97 +264,11 @@ public class DefaultCombatEngine implements CombatEngine {
         defender.getHp() <= 0);
   }
 
-  private void applyArmorBreak(
-      Combatant defender, SkillEffect effect, Skill skill, BuffManager buffManager) {
-    double value = effect.value() != null ? effect.value() : 0.2;
-    int duration = effect.duration() != null ? effect.duration() : 3;
-    buffManager.addBuff(
-        defender.getId(),
-        Buff.builder()
-            .type(BuffType.ARMOR_BREAK)
-            .value(value)
-            .remainingTurns(duration)
-            .source(skill.getName())
-            .build());
-  }
-
-  private void applySlow(
-      Combatant defender, SkillEffect effect, Skill skill, BuffManager buffManager) {
-    double value = effect.value() != null ? effect.value() : 0.3;
-    int duration = effect.duration() != null ? effect.duration() : 2;
-    buffManager.addBuff(
-        defender.getId(),
-        Buff.builder()
-            .type(BuffType.SLOW)
-            .value(value)
-            .remainingTurns(duration)
-            .source(skill.getName())
-            .build());
-  }
-
-  private void applyDot(
-      Combatant attacker,
-      Combatant defender,
-      SkillEffect effect,
-      Skill skill,
-      BuffManager buffManager) {
-    double value = effect.value() != null ? effect.value() : 0.15;
-    int duration = effect.duration() != null ? effect.duration() : 3;
-    int maxStacks = effect.maxStacks() != null ? effect.maxStacks() : 3;
-    buffManager.addBuff(
-        defender.getId(),
-        Buff.builder()
-            .type(BuffType.DOT)
-            .value(attacker.getAttack() * value)
-            .remainingTurns(duration)
-            .source(skill.getName())
-            .stackable(true)
-            .maxStacks(maxStacks)
-            .build());
-  }
-
-  private void applyBuff(
-      Combatant target, BuffType type, SkillEffect effect, Skill skill, BuffManager buffManager) {
-    double value = effect.value() != null ? effect.value() : 0.2;
-    int duration = effect.duration() != null ? effect.duration() : 3;
-    buffManager.addBuff(
-        target.getId(),
-        Buff.builder()
-            .type(type)
-            .value(value)
-            .remainingTurns(duration)
-            .source(skill.getName())
-            .build());
-  }
-
   // ===================== 辅助方法 =====================
-
-  private void applyControlBuff(
-      Combatant defender,
-      EffectType effectType,
-      SkillEffect effect,
-      Skill skill,
-      BuffManager buffManager) {
-    int duration = effect.duration() != null ? effect.duration() : 1;
-    BuffType buffType =
-        switch (effectType) {
-          case FREEZE -> BuffType.FREEZE;
-          case SILENCE -> BuffType.SILENCE;
-          default -> BuffType.STUN;
-        };
-    buffManager.addBuff(
-        defender.getId(),
-        Buff.builder()
-            .type(buffType)
-            .value(1.0)
-            .remainingTurns(duration)
-            .source(skill.getName())
-            .build());
-  }
 
   @Nullable
   private Combatant selectTarget(CombatTeam defenderTeam) {
-    return defenderTeam.selectTargetForPVE();
+    return targetSelectionStrategy.selectTarget(defenderTeam);
   }
 
   void tickCooldowns(Map<String, Integer> skillCooldowns) {

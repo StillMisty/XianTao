@@ -68,7 +68,8 @@ public class GmService {
   @Transactional
   public ServiceResult<String> giveItem(
       Long userId, String targetNickname, String itemName, int quantity) {
-    return new ServiceResult.Success<>(giveItemInternal(userId, targetNickname, itemName, quantity));
+    return new ServiceResult.Success<>(
+        giveItemInternal(userId, targetNickname, itemName, quantity));
   }
 
   // ===================== 内部 API（需预先完成认证） =====================

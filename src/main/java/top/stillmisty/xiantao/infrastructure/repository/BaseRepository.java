@@ -7,8 +7,7 @@ import java.util.Optional;
 /**
  * 通用基础仓储，提供标准 CRUD 方法。
  *
- * <p>子类只需通过构造函数注入对应的 Mapper，无需重复编写 findById/save/findAll。
- * 自定义查询方法直接在子类中添加。
+ * <p>子类只需通过构造函数注入对应的 Mapper，无需重复编写 findById/save/findAll。 自定义查询方法直接在子类中添加。
  *
  * @param <T> 实体类型
  */

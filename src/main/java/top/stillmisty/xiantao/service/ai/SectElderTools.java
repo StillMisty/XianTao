@@ -131,8 +131,7 @@ public class SectElderTools {
   public record InviteMemberResponse(
       @JsonPropertyDescription("被邀请加入的目标道号") String targetNickname) {}
 
-  public record ExpelMemberResponse(
-      @JsonPropertyDescription("被逐出的成员道号") String targetNickname) {}
+  public record ExpelMemberResponse(@JsonPropertyDescription("被逐出的成员道号") String targetNickname) {}
 
   public record PostNoticeResponse() {}
 
