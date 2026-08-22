@@ -33,7 +33,9 @@ public enum GameEventCategory {
   DUNGEON_ENTER("DUNGEON_ENTER", "秘境探索"),
   DUNGEON_EXPLORE("DUNGEON_EXPLORE", "秘境探索"),
   DUNGEON_HIDDEN("DUNGEON_HIDDEN", "秘境探索"),
-  DUNGEON_COMPLETE("DUNGEON_COMPLETE", "秘境结算");
+  DUNGEON_COMPLETE("DUNGEON_COMPLETE", "秘境结算"),
+
+  GUIDE("GUIDE", "初入仙途");
 
   @EnumValue private final String code;
 
