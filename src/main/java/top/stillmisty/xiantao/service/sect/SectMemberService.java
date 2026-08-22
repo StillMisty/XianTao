@@ -15,7 +15,6 @@ import top.stillmisty.xiantao.domain.sect.enums.SectPosition;
 import top.stillmisty.xiantao.domain.sect.vo.DonateResultVO;
 import top.stillmisty.xiantao.domain.sect.vo.ExpandMembersResultVO;
 import top.stillmisty.xiantao.domain.sect.vo.SectOverviewVO;
-import top.stillmisty.xiantao.domain.sect.vo.TasksQueryVO;
 import top.stillmisty.xiantao.domain.sect.vo.UpgradeSectResultVO;
 import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
@@ -110,12 +109,6 @@ public class SectMemberService {
     DonateResultVO vo = donateStonesInternal(userId, amount);
     return new ServiceResult.Success<>(
         "捐献成功！消耗 " + amount + " 灵石，获得 " + vo.contributionGained() + " 贡献值，宗门资金 +" + amount + "。");
-  }
-
-  public ServiceResult<String> getTasks(Long userId) {
-    TasksQueryVO vo = getTasksInternal(userId);
-    return new ServiceResult.Success<>(
-        vo.tasks().isEmpty() ? "暂无进行中的宗门事件任务。" : "有 " + vo.tasks().size() + " 个进行中的任务。");
   }
 
   @Transactional
@@ -549,11 +542,6 @@ public class SectMemberService {
     sectMemberRepository.save(member);
 
     return new DonateResultVO(contributionGain);
-  }
-
-  public TasksQueryVO getTasksInternal(Long userId) {
-    requireMember(userId);
-    return new TasksQueryVO(java.util.List.of());
   }
 
   @Transactional

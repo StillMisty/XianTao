@@ -180,8 +180,6 @@ public enum ErrorCode {
   SECT_BUILDING_ALREADY_EXISTS("该建筑已建造"),
   SECT_BUILDING_MAX_LEVEL("建筑已达最高等级 Lv%d"),
   SECT_UPGRADE_MAX_LEVEL("宗门已达最高等级 Lv.5"),
-  SECT_TASK_NOT_FOUND("未找到该任务"),
-  SECT_TASK_ALREADY_COMPLETED("已完成该任务"),
   SECT_SHOP_ITEM_INSUFFICIENT_CONTRIBUTION("贡献值不足（需要 %d，当前 %d）"),
 
   // ===== Master-Apprentice =====

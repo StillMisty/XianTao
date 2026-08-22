@@ -1,6 +1,7 @@
 package top.stillmisty.xiantao.service.ai;
 
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.tool.annotation.Tool;
@@ -165,28 +166,11 @@ public class SectMemberTools {
         });
   }
 
-  /**
-   * 查看当前宗门事件对应的宗门任务。
-   *
-   * <p>宗门无事件时返回空列表。任务含名称、需求描述、奖励描述和进度。
-   */
-  @Tool(description = "查看宗门当前事件对应的任务列表。无事件时列表为空")
-  public CheckSectTasksResponse checkSectTasks() {
-    return toolExecutor.execute(
-        "checkSectTasks",
-        () -> {
-          Long userId = UserContext.requireCurrentUserId();
-          TasksQueryVO vo = sectMemberService.getTasksInternal(userId);
-          return new CheckSectTasksResponse(vo.tasks());
-        });
-  }
-
   // === Inlined response records ===
 
   public record CheckSectShopResponse(
       @JsonPropertyDescription("当前弟子的可用贡献值") int myContribution,
-      @JsonPropertyDescription("商品列表")
-          java.util.List<top.stillmisty.xiantao.domain.sect.vo.SectShopItemVO> items) {}
+      @JsonPropertyDescription("商品列表") List<SectShopItemVO> items) {}
 
   public record ExchangeShopItemResponse(
       @JsonPropertyDescription("兑换的商品编号") long shopItemId,
@@ -197,8 +181,7 @@ public class SectMemberTools {
       @JsonPropertyDescription("当前贡献值") int myContribution,
       @JsonPropertyDescription("已使用的功法槽位") int usedSlots,
       @JsonPropertyDescription("最大可用功法槽位") int maxSlots,
-      @JsonPropertyDescription("可学习的共享功法列表")
-          java.util.List<top.stillmisty.xiantao.domain.sect.vo.SectSharedSkillVO> skills,
+      @JsonPropertyDescription("可学习的共享功法列表") List<SectSharedSkillVO> skills,
       @JsonPropertyDescription("已提交玉简但待长老上架的功法数量") int pendingCount) {}
 
   public record LearnSharedSkillResponse(
@@ -217,14 +200,6 @@ public class SectMemberTools {
       @JsonPropertyDescription("此次捐献获得的贡献值") int contributionGained) {}
 
   public record CheckSectBuildingsResponse(
-      @JsonPropertyDescription("已建成建筑列表")
-          java.util.List<top.stillmisty.xiantao.domain.sect.vo.BuildingsQueryVO.BuildingEntry>
-              built,
-      @JsonPropertyDescription("可建造建筑列表")
-          java.util.List<top.stillmisty.xiantao.domain.sect.vo.BuildingsQueryVO.BuildingEntry>
-              buildable) {}
-
-  public record CheckSectTasksResponse(
-      @JsonPropertyDescription("宗门任务列表")
-          java.util.List<top.stillmisty.xiantao.domain.sect.vo.SectTaskVO> tasks) {}
+      @JsonPropertyDescription("已建成建筑列表") List<BuildingsQueryVO.BuildingEntry> built,
+      @JsonPropertyDescription("可建造建筑列表") List<BuildingsQueryVO.BuildingEntry> buildable) {}
 }
