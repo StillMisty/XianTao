@@ -136,19 +136,6 @@ public enum ErrorCode {
   SELL_PRICE_MISMATCH("价格不匹配，请重新报价"),
   WORLD_EVENT_NOT_FOUND("世界事件不存在"),
 
-  // ===== Team =====
-  TEAM_ALREADY_IN("你已经在队伍中了（队伍ID: %d）"),
-  TEAM_INVITATION_NOT_FOUND("未找到编号 %d 的组队邀请"),
-  TEAM_INVITATION_EXPIRED("该邀请已过期"),
-  TEAM_INVITATION_NOT_FOR_YOU("该邀请不是发给你的"),
-  TEAM_INVITEE_ALREADY_IN_TEAM("【%s】已在其他队伍中"),
-  TEAM_FULL("队伍已满（最多 %d 人）"),
-  TEAM_NOT_IN("你不在任何队伍中"),
-  TEAM_NOT_LEADER("只有队长可以执行此操作"),
-  TEAM_CANNOT_INVITE_SELF("不能邀请自己"),
-  TEAM_LEADER_MUST_TRANSFER("队长离队前需转让队长或解散队伍"),
-  TEAM_NO_PENDING_INVITATION("没有待处理的组队邀请"),
-
   // ===== Dungeon =====
   DUNGEON_NOT_FOUND("秘境【%s】不存在"),
   DUNGEON_NOT_ACTIVE("秘境【%s】尚未开放"),
@@ -156,14 +143,12 @@ public enum ErrorCode {
   DUNGEON_NOT_AT_ENTRANCE("你当前不在【%s】所在的位置"),
   DUNGEON_ALREADY_IN("你已在秘境【%s】中，输入「秘境探索」继续探索"),
   DUNGEON_NO_ACTIVE_INSTANCE("当前不在任何秘境中"),
-  DUNGEON_NOT_LEADER("只有队长可以操作秘境"),
   DUNGEON_PASSAGE_LOCKED("前方道路尚未开启，请先探索完当前区域"),
   DUNGEON_AREA_NOT_FOUND("当前区域不存在可探索的建筑"),
   DUNGEON_POI_NOT_FOUND("建筑不存在或已探索完毕"),
   DUNGEON_STATUS_BLOCKED("你当前处于 %s 状态，无法进入秘境"),
   DUNGEON_COMBAT_LOST("战斗失败！你的队伍被击败了"),
   DUNGEON_INSTANCE_EXPIRED("秘境已超时关闭"),
-  DUNGEON_TEAM_SIZE_EXCEED("队伍人数超过秘境限制（最多 %d 人）"),
 
   // ===== Sect =====
   SECT_NOT_FOUND("宗门不存在"),
