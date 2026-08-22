@@ -20,6 +20,7 @@ import top.stillmisty.xiantao.domain.map.vo.TrainingStartResult;
 import top.stillmisty.xiantao.domain.monster.vo.CombatLogEntry;
 import top.stillmisty.xiantao.domain.monster.vo.DropItem;
 import top.stillmisty.xiantao.domain.user.entity.Player;
+import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.MapNodeRepository;
@@ -80,7 +81,7 @@ public class TrainingService {
     if (mapNode.getMapType() != MapType.TRAINING_ZONE) {
       return TrainingStartResult.builder()
           .success(false)
-          .message("当前地图不是历练区域（需要野外历练区），无法开始历练")
+          .message(buildNotTrainingZoneMessage(mapNode))
           .build();
     }
     user.setActivityType(ActivityType.TRAINING);
@@ -180,9 +181,11 @@ public class TrainingService {
 
     trainingCompleter.checkHiddenEvents(userId, user, mapNode);
 
-    // 重伤前获取的修为和物品照常发放
-    if (baseExp > 0) {
-      user.addExp(baseExp);
+    long totalExp = baseExp + combatSummary.expGained();
+
+    // 重伤前获取的修为和物品照常发放（击杀修为一并入账，受存储上限截断）
+    if (totalExp > 0) {
+      user.addExp(totalExp);
     }
     addTrainingItemsToInventory(userId, trainingItems);
 
@@ -197,7 +200,6 @@ public class TrainingService {
     }
     userStateService.saveTrainingEndState(user);
 
-    long totalExp = baseExp + combatSummary.expGained();
     List<String> itemNames =
         trainingItems.stream().map(DropItem::name).filter(Objects::nonNull).toList();
     @Nullable String defeatNarrative = diedInTraining ? buildDefeatNarrative(combatSummary) : null;
@@ -432,5 +434,45 @@ public class TrainingService {
       stackableItemService.addStackableItem(
           userId, item.templateId(), itemType, item.name(), item.quantity());
     }
+  }
+
+  /** 非历练区报错文案 — BFS 指引最近的历练区 */
+  private String buildNotTrainingZoneMessage(MapNode current) {
+    MapNode nearest = findNearestTrainingZone(current.getId());
+    if (nearest == null) {
+      return "「" + current.getName() + "」灵气枯竭，无处可修炼，还是另寻洞天吧";
+    }
+    return "「"
+        + current.getName()
+        + "」人烟稠密，不宜吐纳。可先「前往 "
+        + nearest.getName()
+        + "」（其妖兽多为"
+        + CultivationRealm.realmDisplay(nearest.getLevelRequirement())
+        + "修为），抵达后再行修炼。";
+  }
+
+  /** 广度优先搜索距离最近的历练区 */
+  @Nullable
+  private MapNode findNearestTrainingZone(Long startId) {
+    List<MapNode> allNodes = mapNodeRepository.findAll();
+    Map<Long, MapNode> nodeMap =
+        allNodes.stream().collect(Collectors.toMap(MapNode::getId, n -> n));
+    Set<Long> visited = new HashSet<>();
+    Queue<Long> queue = new ArrayDeque<>();
+    queue.add(startId);
+    visited.add(startId);
+    while (!queue.isEmpty()) {
+      MapNode node = nodeMap.get(queue.poll());
+      if (node == null) continue;
+      for (Long adjacentId : node.getAdjacentMapIds()) {
+        if (!visited.add(adjacentId)) continue;
+        MapNode adjacent = nodeMap.get(adjacentId);
+        if (adjacent != null && adjacent.getMapType() == MapType.TRAINING_ZONE) {
+          return adjacent;
+        }
+        queue.add(adjacentId);
+      }
+    }
+    return null;
   }
 }

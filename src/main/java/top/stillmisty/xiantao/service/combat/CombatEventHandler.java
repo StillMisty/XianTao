@@ -86,6 +86,9 @@ public class CombatEventHandler {
       long expGained = (long) (tmpl.getExpReward() * count * levelModifier);
       List<DropItem> rawDrops = dropProcessor.processMonsterDrops(tmpl, userId);
       List<DropItem> drops = rawDrops != null ? new ArrayList<>(rawDrops) : List.of();
+      if (!drops.isEmpty()) {
+        dropProcessor.distributeDrops(userId, drops);
+      }
       encounterResult =
           new EncounterResult(
               true,

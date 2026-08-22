@@ -48,6 +48,12 @@ class TrainingSettlementHandler implements StateHandler {
         trainingSettler.settleChunk(user.getId(), user, mapNode, lastSettled, minutesElapsed);
     var combatSummary = settlementResult.combatSummary();
 
+    // 击杀修为一并入账（受存储上限截断）
+    long killExp = combatSummary.expGained();
+    if (killExp > 0) {
+      user.addExp(killExp);
+    }
+
     long durationMinutes = minutesElapsed;
     if (combatSummary.totalEncounters() > 0) {
       gameEventService.save(
