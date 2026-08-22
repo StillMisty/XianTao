@@ -50,7 +50,6 @@ public class SectMemberService {
   private final UserStateService userStateService;
   private final PlayerSkillRepository playerSkillRepository;
   private final ChatClient npcChatClient;
-
   private final SpiritStoneService spiritStoneService;
 
   // ===================== 公开 API =====================
@@ -540,7 +539,7 @@ public class SectMemberService {
   @Transactional
   public UpgradeSectResultVO upgradeSectInternal(Long userId) {
     SectMember member = requireMember(userId);
-    if (member.getPosition().canManage()) {
+    if (!member.getPosition().canManage()) {
       throw new BusinessException(ErrorCode.SECT_NOT_LEADER);
     }
 
@@ -576,7 +575,7 @@ public class SectMemberService {
   @Transactional
   public ExpandMembersResultVO expandMembersInternal(Long userId) {
     SectMember member = requireMember(userId);
-    if (member.getPosition().canManage()) {
+    if (!member.getPosition().canManage()) {
       throw new BusinessException(ErrorCode.SECT_NOT_LEADER);
     }
 
