@@ -181,6 +181,8 @@ public enum ErrorCode {
   SECT_BUILDING_MAX_LEVEL("建筑已达最高等级 Lv%d"),
   SECT_UPGRADE_MAX_LEVEL("宗门已达最高等级 Lv.5"),
   SECT_SHOP_ITEM_INSUFFICIENT_CONTRIBUTION("贡献值不足（需要 %d，当前 %d）"),
+  SECT_SHOP_INVALID_PRICE("定价必须为正数"),
+  SECT_SHOP_INVALID_STOCK("库存须为正数，或 -1 表示无限"),
 
   // ===== Master-Apprentice =====
   MASTER_NOT_FOUND("目标师傅不存在"),

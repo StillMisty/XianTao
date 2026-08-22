@@ -1,7 +1,9 @@
 package top.stillmisty.xiantao.service.sect;
 
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,7 @@ import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SectShopService {
@@ -45,6 +48,91 @@ public class SectShopService {
   }
 
   // ===================== 内部 API =====================
+
+  /** 长老上架/改价商品（同物品重复上架时更新定价与库存） */
+  @Transactional
+  @CacheEvict(cacheNames = "sect_shop", key = "#userId")
+  public ShopListingVO listShopItemInternal(
+      Long userId, String itemName, int priceContribution, int stock) {
+    if (priceContribution <= 0) {
+      throw new BusinessException(ErrorCode.SECT_SHOP_INVALID_PRICE);
+    }
+    if (stock < -1 || stock == 0) {
+      throw new BusinessException(ErrorCode.SECT_SHOP_INVALID_STOCK);
+    }
+
+    SectMember member = requireMember(userId);
+    if (!member.getPosition().canManage()) {
+      throw new BusinessException(ErrorCode.SECT_NO_PERMISSION, "长老");
+    }
+
+    ItemTemplate template =
+        itemTemplateRepository
+            .findByName(itemName)
+            .orElseThrow(() -> new BusinessException(ErrorCode.APPRAISE_ITEM_NOT_FOUND, itemName));
+
+    SectShopItem item =
+        sectShopItemRepository
+            .findBySectIdAndItemTemplateId(member.requireSectId(), template.getId())
+            .orElseGet(
+                () ->
+                    SectShopItem.create()
+                        .setSectId(member.requireSectId())
+                        .setItemTemplateId(template.getId()));
+    item.setPriceContribution(priceContribution);
+    item.setStock(stock);
+    sectShopItemRepository.save(item);
+
+    log.info(
+        "宗门 {} 上架商品 {}（{} 贡献/份，库存 {}）", member.getSectId(), itemName, priceContribution, stock);
+    return new ShopListingVO(template.getName(), priceContribution, stock);
+  }
+
+  /** 药园建造/升级时同步上架对应品阶灵药并补满库存。 灵药为宗门商店专属供应渠道，等级越高品类越多。 */
+  @Transactional
+  @CacheEvict(cacheNames = "sect_shop", allEntries = true)
+  public void syncHerbGardenStock(Long sectId, int gardenLevel) {
+    for (int tier = 1; tier <= Math.min(gardenLevel, HERB_GARDEN_TIERS.size()); tier++) {
+      List<HerbStock> herbs = HERB_GARDEN_TIERS.get(tier);
+      if (herbs == null) {
+        continue;
+      }
+      for (HerbStock herb : herbs) {
+        var templateOpt = itemTemplateRepository.findByName(herb.name());
+        if (templateOpt.isEmpty()) {
+          log.warn("药园灵药模板不存在: {}", herb.name());
+          continue;
+        }
+        ItemTemplate template = templateOpt.get();
+        SectShopItem item =
+            sectShopItemRepository
+                .findBySectIdAndItemTemplateId(sectId, template.getId())
+                .orElseGet(
+                    () ->
+                        SectShopItem.create()
+                            .setSectId(sectId)
+                            .setItemTemplateId(template.getId()));
+        item.setPriceContribution(herb.price());
+        item.setStock(HERB_RESTOCK_QTY);
+        sectShopItemRepository.save(item);
+      }
+    }
+    log.info("宗门 {} 药园 Lv.{} 灵药已上架补货", sectId, gardenLevel);
+  }
+
+  /** 药园各品阶自动上架的灵药：tier -> 清单 */
+  private static final Map<Integer, List<HerbStock>> HERB_GARDEN_TIERS =
+      Map.of(
+          1,
+          List.of(new HerbStock("灵芝", 15), new HerbStock("茯苓", 15)),
+          2,
+          List.of(new HerbStock("血参", 40), new HerbStock("金银花", 40)),
+          3,
+          List.of(new HerbStock("雪莲", 60), new HerbStock("紫丹参", 60)));
+
+  private static final int HERB_RESTOCK_QTY = 10;
+
+  private record HerbStock(String name, int price) {}
 
   @Cacheable(cacheNames = "sect_shop", key = "#userId")
   public ShopQueryVO getShopInternal(Long userId) {
@@ -144,4 +232,7 @@ public class SectShopService {
   private SectMember requireMember(Long userId) {
     return sectMemberService.requireMember(userId);
   }
+
+  /** 上架结果 */
+  public record ShopListingVO(String itemName, int priceContribution, int stock) {}
 }

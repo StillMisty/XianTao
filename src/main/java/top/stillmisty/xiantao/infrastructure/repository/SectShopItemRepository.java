@@ -30,6 +30,14 @@ public class SectShopItemRepository {
     return sectShopItemMapper.selectListByQuery(query);
   }
 
+  public Optional<SectShopItem> findBySectIdAndItemTemplateId(Long sectId, Long itemTemplateId) {
+    QueryWrapper query =
+        QueryWrapper.create()
+            .where(SECT_SHOP_ITEM.SECT_ID.eq(sectId))
+            .and(SECT_SHOP_ITEM.ITEM_TEMPLATE_ID.eq(itemTemplateId));
+    return Optional.ofNullable(sectShopItemMapper.selectOneByQuery(query));
+  }
+
   public void deleteById(Long id) {
     sectShopItemMapper.deleteById(id);
   }

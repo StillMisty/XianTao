@@ -37,6 +37,7 @@ public class SectBuildingService {
   private final SectMemberRepository sectMemberRepository;
   private final SectBuildingRepository sectBuildingRepository;
   private final SectMemberService sectMemberService;
+  private final SectShopService sectShopService;
 
   // ===================== 公开 API =====================
 
@@ -146,6 +147,10 @@ public class SectBuildingService {
         SectBuilding.create().setSectId(member.requireSectId()).setBuildingType(type).setLevel(1);
     sectBuildingRepository.save(building);
 
+    if (type == SectBuildingType.HERB_GARDEN) {
+      sectShopService.syncHerbGardenStock(member.requireSectId(), 1);
+    }
+
     log.info("宗门 {} 建造建筑 {} Lv.1", sect.getId(), type.getName());
     return new BuildResultVO(type.getCode(), type.getName(), 1, cost, sect.getFunds());
   }
@@ -185,6 +190,10 @@ public class SectBuildingService {
     int oldLevel = building.getLevel();
     building.setLevel(oldLevel + 1);
     sectBuildingRepository.save(building);
+
+    if (type == SectBuildingType.HERB_GARDEN) {
+      sectShopService.syncHerbGardenStock(member.requireSectId(), building.getLevel());
+    }
 
     log.info(
         "宗门 {} 升级建筑 {} Lv.{} -> Lv.{}",

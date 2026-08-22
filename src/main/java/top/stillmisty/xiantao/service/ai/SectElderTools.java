@@ -11,6 +11,7 @@ import top.stillmisty.xiantao.domain.sect.vo.SkillOperationResultVO;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.sect.SectMemberService;
 import top.stillmisty.xiantao.service.sect.SectSharedSkillService;
+import top.stillmisty.xiantao.service.sect.SectShopService;
 
 /**
  * 宗门长老/执事专属工具（权限高于普通弟子）。
@@ -25,6 +26,7 @@ public class SectElderTools {
   private final ToolExecutor toolExecutor;
   private final SectMemberService sectMemberService;
   private final SectSharedSkillService sectSharedSkillService;
+  private final SectShopService sectShopService;
 
   /**
    * 邀请散修加入宗门。
@@ -126,6 +128,31 @@ public class SectElderTools {
         });
   }
 
+  /**
+   * 将物品上架到宗门贡献商店，以贡献值计价。
+   *
+   * <p>仅长老/执事可操作。同名商品已上架时更新定价与库存。
+   *
+   * @param itemName 物品名称（须与全服物品模板名一致）
+   * @param priceContribution 售价（贡献值/份）
+   * @param stock 上架库存数量，-1 为无限
+   */
+  @Tool(description = "将物品上架到宗门贡献商店（以贡献值计价）。同名商品已上架时更新定价与库存。stock 传 -1 表示无限库存")
+  @Transactional
+  public ListItemResponse listItem(
+      @ToolParam(description = "物品名称") String itemName,
+      @ToolParam(description = "售价（贡献值）") int priceContribution,
+      @ToolParam(description = "库存数量，-1 表示无限") int stock) {
+    return toolExecutor.execute(
+        "listItem",
+        () -> {
+          Long userId = UserContext.requireCurrentUserId();
+          SectShopService.ShopListingVO vo =
+              sectShopService.listShopItemInternal(userId, itemName, priceContribution, stock);
+          return new ListItemResponse(vo.itemName(), vo.priceContribution(), vo.stock());
+        });
+  }
+
   // === Inlined response records ===
 
   public record InviteMemberResponse(
@@ -142,4 +169,9 @@ public class SectElderTools {
   public record PublishSharedSkillResponse(
       @JsonPropertyDescription("上架的共享功法编号") long sharedSkillId,
       @JsonPropertyDescription("上架的功法名称") String skillName) {}
+
+  public record ListItemResponse(
+      @JsonPropertyDescription("商品名称") String itemName,
+      @JsonPropertyDescription("售价（贡献值/份）") int priceContribution,
+      @JsonPropertyDescription("库存数量，-1 为无限") int stock) {}
 }
