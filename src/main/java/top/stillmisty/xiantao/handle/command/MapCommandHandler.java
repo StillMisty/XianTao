@@ -333,7 +333,7 @@ public class MapCommandHandler implements CommandGroup {
 
     sb.append(
         String.format(
-            "【%s】（%s · 适合%s）\n",
+            "【%s】（%s · %s）\n",
             map.getName(),
             map.getMapType().getName(),
             CultivationRealm.realmDisplay(map.getLevelRequirement())));

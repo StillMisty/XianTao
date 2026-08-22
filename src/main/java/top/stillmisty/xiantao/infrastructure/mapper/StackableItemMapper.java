@@ -30,13 +30,11 @@ public interface StackableItemMapper extends BaseMapper<StackableItem> {
   @Update("DELETE FROM inventory_item WHERE id = #{id} AND quantity <= 0")
   int deleteIfZeroQuantity(@Param("id") Long id);
 
-  @Select(
-      "SELECT * FROM inventory_item WHERE user_id = #{userId} AND tags @> #{tagsJson}::jsonb")
+  @Select("SELECT * FROM inventory_item WHERE user_id = #{userId} AND tags @> #{tagsJson}::jsonb")
   List<StackableItem> selectByUserIdAndAllTags(
       @Param("userId") Long userId, @Param("tagsJson") String tagsJson);
 
-  @Select(
-      "SELECT * FROM inventory_item WHERE user_id = #{userId} AND tags ?| #{tagsArray}::text[]")
+  @Select("SELECT * FROM inventory_item WHERE user_id = #{userId} AND tags ?| #{tagsArray}::text[]")
   List<StackableItem> selectByUserIdAndAnyTag(
       @Param("userId") Long userId, @Param("tagsArray") String[] tagsArray);
 }

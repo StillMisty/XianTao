@@ -67,8 +67,7 @@ public class ShopChatService extends AbstractChatService {
 
   private String buildPrompt(ShopNpc npc) {
     String eventsInfo = buildEventsInfo();
-    return promptTemplates.buildShopPrompt(
-        npc.getName(), npc.getSystemPrompt(), eventsInfo);
+    return promptTemplates.buildShopPrompt(npc.getName(), npc.getSystemPrompt(), eventsInfo);
   }
 
   private String buildEventsInfo() {

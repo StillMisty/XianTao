@@ -42,7 +42,10 @@ public class DungeonCombatHelper {
 
   @Transactional
   public SimpleCombatOutcome executeCombat(
-      Long userId, Player user, DungeonTemplate.Poi poi, DungeonTemplate.MonsterEntry monsterEntry) {
+      Long userId,
+      Player user,
+      DungeonTemplate.Poi poi,
+      DungeonTemplate.MonsterEntry monsterEntry) {
 
     MonsterTemplate monsterTmpl =
         monsterTemplateRepository
