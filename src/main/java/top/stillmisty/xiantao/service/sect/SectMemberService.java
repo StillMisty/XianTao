@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.sect.entity.Sect;
@@ -30,7 +29,6 @@ import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.SpiritStoneService;
-import top.stillmisty.xiantao.service.masterapprentice.MasterApprenticeService;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
 @Slf4j
@@ -52,8 +50,6 @@ public class SectMemberService {
   private final UserStateService userStateService;
   private final PlayerSkillRepository playerSkillRepository;
   private final ChatClient npcChatClient;
-
-  @Lazy private final MasterApprenticeService masterApprenticeService;
 
   private final SpiritStoneService spiritStoneService;
 
@@ -357,8 +353,6 @@ public class SectMemberService {
             .setContribution(0);
     sectMemberRepository.save(newMember);
 
-    masterApprenticeService.syncSectForMaster(target.getId(), sect.getId());
-
     log.info("玩家 {} 被 {} 邀请加入宗门 {}", target.getId(), userId, sect.getId());
     return "【" + targetNickname + "】已加入宗门！";
   }
@@ -491,7 +485,6 @@ public class SectMemberService {
     List<SectMember> members = sectMemberRepository.findBySectId(sect.getId());
     for (SectMember m : members) {
       forgetSharedSkills(m.getUserId(), sect.getId());
-      masterApprenticeService.handleMasterSectLeave(m.getUserId());
     }
     for (SectMember m : members) {
       sectMemberRepository.deleteById(m.getId());
@@ -661,7 +654,5 @@ public class SectMemberService {
             .setSectId(null)
             .setContribution(0)
             .setCooldownUntil(TimeUtil.now().plusHours(SECT_COOLDOWN_HOURS)));
-
-    masterApprenticeService.handleMasterSectLeave(userId);
   }
 }

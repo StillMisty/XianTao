@@ -12,21 +12,17 @@ import top.stillmisty.xiantao.domain.masterapprentice.entity.MasterApprentice;
 import top.stillmisty.xiantao.domain.masterapprentice.enums.MasterApprenticeStatus;
 import top.stillmisty.xiantao.domain.masterapprentice.vo.ApprenticeInfoVO;
 import top.stillmisty.xiantao.domain.masterapprentice.vo.MasterApprenticeInfoVO;
-import top.stillmisty.xiantao.domain.sect.entity.SectMember;
-import top.stillmisty.xiantao.domain.sect.enums.SectPosition;
 import top.stillmisty.xiantao.domain.user.entity.DaoProtection;
 import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
 import top.stillmisty.xiantao.infrastructure.repository.DaoProtectionRepository;
 import top.stillmisty.xiantao.infrastructure.repository.MasterApprenticeRepository;
-import top.stillmisty.xiantao.infrastructure.repository.SectMemberRepository;
 import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
 import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.player.UserStateService;
-import top.stillmisty.xiantao.service.sect.SectQueryService;
 
 @Slf4j
 @Service
@@ -39,22 +35,16 @@ public class MasterApprenticeService {
   private final DaoProtectionRepository daoProtectionRepository;
   private final UserRepository userRepository;
   private final UserStateService userStateService;
-  private final SectMemberRepository sectMemberRepository;
-  private final SectQueryService sectQueryService;
 
   public MasterApprenticeService(
       MasterApprenticeRepository masterApprenticeRepository,
       DaoProtectionRepository daoProtectionRepository,
       UserRepository userRepository,
-      UserStateService userStateService,
-      SectMemberRepository sectMemberRepository,
-      SectQueryService sectQueryService) {
+      UserStateService userStateService) {
     this.masterApprenticeRepository = masterApprenticeRepository;
     this.daoProtectionRepository = daoProtectionRepository;
     this.userRepository = userRepository;
     this.userStateService = userStateService;
-    this.sectMemberRepository = sectMemberRepository;
-    this.sectQueryService = sectQueryService;
   }
 
   // ===================== 公开 API =====================
@@ -109,9 +99,6 @@ public class MasterApprenticeService {
     if (isOnCooldown(userId)) {
       throw new BusinessException(ErrorCode.MASTER_COOLDOWN, COOLDOWN_HOURS);
     }
-    if (!isInSameSect(userId, master.getId()) && !areBothRogue(userId, master.getId())) {
-      throw new BusinessException(ErrorCode.MASTER_NOT_SAME_SECT);
-    }
 
     establishMasterApprentice(master.getId(), userId);
 
@@ -142,9 +129,6 @@ public class MasterApprenticeService {
     }
     if (isOnCooldown(apprentice.getId())) {
       throw new BusinessException(ErrorCode.MASTER_COOLDOWN, COOLDOWN_HOURS);
-    }
-    if (!isInSameSect(userId, apprentice.getId()) && !areBothRogue(userId, apprentice.getId())) {
-      throw new BusinessException(ErrorCode.MASTER_NOT_SAME_SECT);
     }
 
     establishMasterApprentice(userId, apprentice.getId());
@@ -230,10 +214,6 @@ public class MasterApprenticeService {
 
     clearDaoProtection(userId, target.getId());
 
-    if (isInSect(target.getId())) {
-      leaveSectInternal(target.getId());
-    }
-
     log.info("玩家 {} 被师傅 {} 逐出师门", target.getId(), userId);
     return "已将【" + targetNickname + "】逐出师门。";
   }
@@ -251,10 +231,6 @@ public class MasterApprenticeService {
     masterApprenticeRepository.save(relation);
 
     clearDaoProtection(relation.getMasterId(), userId);
-
-    if (isInSect(userId)) {
-      leaveSectInternal(userId);
-    }
 
     log.info("玩家 {} 叛师", userId);
     return "你已叛离师门，" + COOLDOWN_HOURS + " 小时内无法拜新师。";
@@ -342,36 +318,6 @@ public class MasterApprenticeService {
     clearDaoProtection(relation.getMasterId(), apprenticeId);
   }
 
-  /** 师傅宗门变更时同步所有徒弟 */
-  @Transactional
-  public void syncSectForMaster(Long masterId, Long targetSectId) {
-    List<MasterApprentice> relations = masterApprenticeRepository.findByMasterId(masterId);
-    for (MasterApprentice relation : relations) {
-      if (relation.isActive()) {
-        joinSectInternal(relation.getApprenticeId(), targetSectId);
-        log.info("徒弟 {} 跟随师傅 {} 加入宗门 {}", relation.getApprenticeId(), masterId, targetSectId);
-      }
-    }
-  }
-
-  /** 师傅退出/被踢出宗门时处理所有徒弟叛师 */
-  @CacheEvict(cacheNames = "dao_protection", key = "#masterId")
-  @Transactional
-  public void handleMasterSectLeave(Long masterId) {
-    List<MasterApprentice> relations = masterApprenticeRepository.findByMasterId(masterId);
-    for (MasterApprentice relation : relations) {
-      if (relation.isActive()) {
-        relation.setStatus(MasterApprenticeStatus.RENEGED);
-        masterApprenticeRepository.save(relation);
-        clearDaoProtection(masterId, relation.getApprenticeId());
-        if (isInSect(relation.getApprenticeId())) {
-          leaveSectInternal(relation.getApprenticeId());
-        }
-        log.info("徒弟 {} 因师傅 {} 退出宗门而叛师", relation.getApprenticeId(), masterId);
-      }
-    }
-  }
-
   // ===================== 私有工具方法 =====================
 
   private boolean isLevelGapSufficient(int higherLevel, int lowerLevel) {
@@ -396,32 +342,5 @@ public class MasterApprenticeService {
     Optional<DaoProtection> protection =
         daoProtectionRepository.findByProtectorAndProtege(protectorId, protegeId);
     protection.ifPresent(p -> daoProtectionRepository.deleteById(p.getId()));
-  }
-
-  private boolean isInSect(Long userId) {
-    return sectQueryService.isInSect(userId);
-  }
-
-  private void leaveSectInternal(Long userId) {
-    sectMemberRepository.deleteByUserId(userId);
-  }
-
-  private void joinSectInternal(Long userId, Long sectId) {
-    sectMemberRepository.deleteByUserId(userId);
-    SectMember member =
-        SectMember.create()
-            .setSectId(sectId)
-            .setUserId(userId)
-            .setPosition(SectPosition.MEMBER)
-            .setContribution(0);
-    sectMemberRepository.save(member);
-  }
-
-  private boolean isInSameSect(Long userIdA, Long userIdB) {
-    return sectQueryService.isInSameSect(userIdA, userIdB);
-  }
-
-  private boolean areBothRogue(Long userIdA, Long userIdB) {
-    return sectQueryService.areBothRogue(userIdA, userIdB);
   }
 }
