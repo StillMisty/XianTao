@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.item.entity.ItemProperties;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
+import top.stillmisty.xiantao.domain.notification.entity.GameEvent;
+import top.stillmisty.xiantao.domain.notification.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.sect.entity.Sect;
 import top.stillmisty.xiantao.domain.sect.entity.SectMember;
 import top.stillmisty.xiantao.domain.sect.entity.SectSharedSkill;
@@ -24,6 +26,7 @@ import top.stillmisty.xiantao.domain.sect.vo.SkillOperationResultVO;
 import top.stillmisty.xiantao.domain.sect.vo.SubmitJadeResultVO;
 import top.stillmisty.xiantao.domain.skill.entity.PlayerSkill;
 import top.stillmisty.xiantao.domain.skill.entity.Skill;
+import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.PlayerSkillRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SectMemberRepository;
@@ -31,8 +34,10 @@ import top.stillmisty.xiantao.infrastructure.repository.SectRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SectSharedSkillRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SkillRepository;
 import top.stillmisty.xiantao.infrastructure.repository.StackableItemRepository;
+import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
+import top.stillmisty.xiantao.service.GameEventService;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
 import top.stillmisty.xiantao.service.player.UserStateService;
@@ -43,6 +48,9 @@ import top.stillmisty.xiantao.service.player.UserStateService;
 public class SectSharedSkillService {
 
   static final int SKILL_SUBMIT_CONTRIBUTION = 300;
+
+  /** 学习他人呈献功法时，学费回流给呈献者的比例（%） */
+  static final int TEACHING_KICKBACK_PERCENT = 15;
 
   private final SectRepository sectRepository;
   private final SectMemberRepository sectMemberRepository;
@@ -55,6 +63,8 @@ public class SectSharedSkillService {
   private final StackableItemRepository stackableItemRepository;
   private final SectBuildingService sectBuildingService;
   private final SectMemberService sectMemberService;
+  private final UserRepository userRepository;
+  private final GameEventService gameEventService;
 
   // ===================== 公开 API =====================
 
@@ -119,6 +129,18 @@ public class SectSharedSkillService {
                 .stream()
                 .collect(java.util.stream.Collectors.toMap(Skill::getId, s -> s));
 
+    List<Long> submitterIds =
+        listedSkills.stream()
+            .map(SectSharedSkill::getSubmitterUserId)
+            .filter(java.util.Objects::nonNull)
+            .distinct()
+            .toList();
+    Map<Long, String> submitterNames =
+        submitterIds.isEmpty()
+            ? Map.of()
+            : userRepository.findByIds(submitterIds).stream()
+                .collect(java.util.stream.Collectors.toMap(Player::getId, Player::getNickname));
+
     List<SectSharedSkillVO> skillVOs =
         listedSkills.stream()
             .map(
@@ -138,7 +160,9 @@ public class SectSharedSkillService {
                       reqLevel,
                       cost,
                       ss.getStatus(),
-                      null);
+                      ss.getSubmitterUserId() != null
+                          ? submitterNames.get(ss.getSubmitterUserId())
+                          : null);
                 })
             .toList();
 
@@ -195,12 +219,44 @@ public class SectSharedSkillService {
     member.setContribution(member.getContribution() - cost);
     sectMemberRepository.save(member);
 
+    rewardSubmitterOnLearn(requireSectId(member), sharedSkill, userId, skill.getName(), cost);
+
     PlayerSkill playerSkill = PlayerSkill.create(userId, skill.getId(), false);
     playerSkill.setSourceSectId(requireSectId(member));
     playerSkillRepository.save(playerSkill);
 
     log.info("玩家 {} 从宗门 {} 学习共享功法 {}", userId, requireSectId(member), skill.getName());
     return new LearnSkillResultVO(skill.getName(), cost, member.getContribution());
+  }
+
+  /** 传功香火：弟子学习他人呈献的功法时，学费的一部分回流给呈献者，并通知之。 呈献者已离宗或学习者即呈献者本人时不回流。 */
+  private void rewardSubmitterOnLearn(
+      Long sectId, SectSharedSkill sharedSkill, Long learnerId, String skillName, int cost) {
+    @Nullable Long submitterUserId = sharedSkill.getSubmitterUserId();
+    if (submitterUserId == null || submitterUserId.equals(learnerId)) {
+      return;
+    }
+
+    var submitterOpt =
+        sectMemberRepository
+            .findByUserId(submitterUserId)
+            .filter(m -> sectId.equals(m.getSectId()));
+    if (submitterOpt.isEmpty()) {
+      return;
+    }
+    SectMember submitter = submitterOpt.get();
+
+    int kickback = Math.max(1, cost * TEACHING_KICKBACK_PERCENT / 100);
+    submitter.setContribution(submitter.getContribution() + kickback);
+    sectMemberRepository.save(submitter);
+
+    var learner = userRepository.findById(learnerId).orElse(null);
+    String learnerName = learner != null ? learner.getNickname() : "一位道友";
+    gameEventService.save(
+        GameEvent.create(submitterUserId, GameEventCategory.SECT_EVENT)
+            .withNarrative(
+                "道友「%s」修习了你呈上的功法「%s」，传功香火 %d 贡献已入账。".formatted(learnerName, skillName, kickback),
+                Map.of()));
   }
 
   @Transactional
@@ -339,7 +395,11 @@ public class SectSharedSkillService {
             .append(s.levelRequirement())
             .append("+ | ")
             .append(s.contributionCost())
-            .append("贡献)\n");
+            .append("贡献");
+        if (s.submitterName() != null && !s.submitterName().isBlank()) {
+          sb.append(" | ").append(s.submitterName()).append(" 呈");
+        }
+        sb.append(")\n");
       }
     }
 
