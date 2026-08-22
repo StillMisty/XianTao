@@ -1,2 +1,0 @@
--- dungeon_first_clear 表已废弃，首通信息合并至 dungeon_progress.first_clear
--- 保留此文件以维持 Flyway 版本号连续性

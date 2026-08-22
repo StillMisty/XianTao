@@ -1,2 +1,0 @@
--- dungeon_poi_config 表已废弃，POI配置合并至 dungeon_template.area_configs JSONB
--- 保留此文件以维持 Flyway 版本号连续性
