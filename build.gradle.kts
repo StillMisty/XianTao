@@ -1,13 +1,12 @@
 import net.ltgt.gradle.errorprone.errorprone
-
-ext["kotlin-coroutines.version"] = "1.11.0"
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 plugins {
     java
     alias(libs.plugins.spring.boot)
-    alias(libs.plugins.dependency.management)
     alias(libs.plugins.spotless)
     alias(libs.plugins.errorprone)
+    alias(libs.plugins.version.catalog.update)
 }
 
 spotless {
@@ -35,11 +34,6 @@ java {
     }
 }
 
-tasks.withType<Test> {
-    useJUnitPlatform()
-    systemProperty("junit.jupiter.execution.parallel.enabled", "false")
-}
-
 tasks.withType<JavaCompile>().configureEach {
     options.errorprone {
         error("NullAway")
@@ -58,29 +52,21 @@ configurations {
 repositories {
     mavenCentral()
     maven { url = uri("https://maven.aliyun.com/repository/public") }
-    gradlePluginPortal()
 }
 
 dependencies {
+    implementation(platform(SpringBootPlugin.BOM_COORDINATES))
     implementation(libs.caffeine)
     implementation(libs.spring.boot.starter.cache)
     implementation(libs.mybatis.flex.spring.boot4.starter)
     annotationProcessor(libs.mybatis.flex.processor)
     implementation(libs.spring.boot.starter.flyway)
     implementation(libs.spring.boot.starter.webmvc)
-    implementation(libs.spring.boot.starter.aop)
-    implementation(libs.spring.boot.starter.jdbc)
-    implementation(libs.jackson.databind)
+    implementation(libs.postgresql)
     implementation(libs.flyway.database.postgresql)
     compileOnly(libs.lombok)
-    developmentOnly(libs.spring.boot.devtools)
-    implementation(libs.postgresql)
     annotationProcessor(libs.lombok)
-    testImplementation(libs.spring.boot.starter.cache.test)
-    testImplementation(libs.spring.boot.starter.flyway.test)
-    testImplementation(libs.spring.boot.starter.webmvc.test)
-    testRuntimeOnly(libs.junit.platform.launcher)
-    implementation(libs.spring.ai.bom)
+    developmentOnly(libs.spring.boot.devtools)
     implementation(libs.spring.ai.starter.model.deepseek)
     implementation(libs.spring.ai.starter.model.openai)
     implementation(libs.simbot.core.spring.boot.starter)
@@ -93,10 +79,15 @@ dependencies {
     annotationProcessor(libs.nullaway)
     testAnnotationProcessor(libs.errorprone.core)
     testAnnotationProcessor(libs.nullaway)
+    testImplementation(libs.spring.boot.starter.cache.test)
+    testImplementation(libs.spring.boot.starter.flyway.test)
+    testImplementation(libs.spring.boot.starter.webmvc.test)
+    testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    systemProperty("junit.jupiter.execution.parallel.enabled", "false")
     jvmArgs("--enable-native-access=ALL-UNNAMED")
 }
 

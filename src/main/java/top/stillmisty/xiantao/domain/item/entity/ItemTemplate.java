@@ -1,6 +1,5 @@
 package top.stillmisty.xiantao.domain.item.entity;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
@@ -12,6 +11,7 @@ import java.util.Set;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.jspecify.annotations.Nullable;
+import tools.jackson.databind.ObjectMapper;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
@@ -23,8 +23,7 @@ import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
 @Table("item_template")
 public class ItemTemplate {
 
-  private static final ObjectMapper OBJECT_MAPPER =
-      new com.fasterxml.jackson.databind.ObjectMapper();
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   @EqualsAndHashCode.Include
   @Id(keyType = KeyType.Auto)

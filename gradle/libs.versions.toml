@@ -1,26 +1,19 @@
 [versions]
-springBoot = "4.+"
-springAi = "2.+"
-# SimBot 相关版本
-simbot = "5.+"
-# Ktor 客户端版本
-ktor = "3.+"
-# 数据库相关版本
-mybatisFlex = "1.+"
-flyway = "12.+"
-postgresql = "42.+"
-# 其他依赖版本
-lombok = "1.+"
-junitLauncher = "1.+"
-dependencyManagement = "1.+"
-spotless = "8.+"
-errorprone = "2.+"
-nullaway = "0.+"
-jspecify = "1.+"
-
+springBoot = "4.1.1"
+springAi = "2.0.1"
+simbot = "5.0.0-Preview5"
+ktor = "3.5.2"
+mybatisFlex = "1.11.8"
+lombok = "1.18.46"
+jspecify = "1.0.1"
+spotless = "8.10.0"
+errorpronePlugin = "4.4.0"
+errorproneCore = "2.50.0"
+nullaway = "0.14.0"
+versionCatalogUpdate = "1.1.1"
 
 [libraries]
-# Spring Boot Starter 库
+# Spring Boot 库（统一由 springBoot 版本驱动）
 spring-boot-starter-cache = { group = "org.springframework.boot", name = "spring-boot-starter-cache", version.ref = "springBoot" }
 spring-boot-starter-flyway = { group = "org.springframework.boot", name = "spring-boot-starter-flyway", version.ref = "springBoot" }
 spring-boot-starter-webmvc = { group = "org.springframework.boot", name = "spring-boot-starter-webmvc", version.ref = "springBoot" }
@@ -28,23 +21,20 @@ spring-boot-devtools = { group = "org.springframework.boot", name = "spring-boot
 spring-boot-starter-cache-test = { group = "org.springframework.boot", name = "spring-boot-starter-cache-test", version.ref = "springBoot" }
 spring-boot-starter-flyway-test = { group = "org.springframework.boot", name = "spring-boot-starter-flyway-test", version.ref = "springBoot" }
 spring-boot-starter-webmvc-test = { group = "org.springframework.boot", name = "spring-boot-starter-webmvc-test", version.ref = "springBoot" }
-spring-boot-starter-jdbc = { group = "org.springframework.boot", name = "spring-boot-starter-jdbc", version.ref = "springBoot" }
-spring-boot-starter-aop = { group = "org.springframework.boot", name = "spring-boot-starter-aop", version.ref = "springBoot" }
 
 # MyBatis Flex 库
 mybatis-flex-spring-boot4-starter = { group = "com.mybatis-flex", name = "mybatis-flex-spring-boot4-starter", version.ref = "mybatisFlex" }
 mybatis-flex-processor = { group = "com.mybatis-flex", name = "mybatis-flex-processor", version.ref = "mybatisFlex" }
 
-# Flyway 库
-flyway-database-postgresql = { group = "org.flywaydb", name = "flyway-database-postgresql", version.ref = "flyway" }
-# PostgreSQL 驱动
-postgresql = { group = "org.postgresql", name = "postgresql", version.ref = "postgresql" }
+flyway-database-postgresql = { group = "org.flywaydb", name = "flyway-database-postgresql" }
+postgresql = { group = "org.postgresql", name = "postgresql" }
+caffeine = { group = "com.github.ben-manes.caffeine", name = "caffeine" }
+junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher" }
 
 # Lombok 库
 lombok = { group = "org.projectlombok", name = "lombok", version.ref = "lombok" }
 
 # Spring AI 库
-spring-ai-bom = { group = "org.springframework.ai", name = "spring-ai-bom", version.ref = "springAi" }
 spring-ai-starter-model-deepseek = { group = "org.springframework.ai", name = "spring-ai-starter-model-deepseek", version.ref = "springAi" }
 spring-ai-starter-model-openai = { group = "org.springframework.ai", name = "spring-ai-starter-model-openai", version.ref = "springAi" }
 
@@ -55,22 +45,13 @@ simbot-component-qq-guild-core = { group = "love.forte.simbot.component", name =
 # Ktor 客户端库
 ktor-client-java = { group = "io.ktor", name = "ktor-client-java", version.ref = "ktor" }
 
-# JUnit 测试库
-junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher", version.ref = "junitLauncher" }
-
-# Caffeine 缓存
-caffeine = { group = "com.github.ben-manes.caffeine", name = "caffeine" }
-
 # NullAway / JSpecify
 jspecify = { group = "org.jspecify", name = "jspecify", version.ref = "jspecify" }
-errorprone-core = { group = "com.google.errorprone", name = "error_prone_core", version.ref = "errorprone" }
+errorprone-core = { group = "com.google.errorprone", name = "error_prone_core", version.ref = "errorproneCore" }
 nullaway = { group = "com.uber.nullaway", name = "nullaway", version.ref = "nullaway" }
-
-# Jackson 库
-jackson-databind = { group = "com.fasterxml.jackson.core", name = "jackson-databind" }
 
 [plugins]
 spring-boot = { id = "org.springframework.boot", version.ref = "springBoot" }
-dependency-management = { id = "io.spring.dependency-management", version.ref = "dependencyManagement" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
-errorprone = { id = "net.ltgt.errorprone", version = "4.+" }
+errorprone = { id = "net.ltgt.errorprone", version.ref = "errorpronePlugin" }
+version-catalog-update = { id = "nl.littlerobots.version-catalog-update", version.ref = "versionCatalogUpdate" }

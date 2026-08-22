@@ -2,14 +2,13 @@ package top.stillmisty.xiantao.domain.fudi.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public sealed interface CellConfig {
@@ -80,10 +79,9 @@ public sealed interface CellConfig {
       @JsonProperty("name") String name,
       @JsonProperty("quantity") int quantity) {}
 
-  class ProductionStoredDeserializer extends JsonDeserializer<List<ProductionItem>> {
+  class ProductionStoredDeserializer extends ValueDeserializer<List<ProductionItem>> {
     @Override
-    public List<ProductionItem> deserialize(JsonParser p, DeserializationContext ctx)
-        throws IOException {
+    public List<ProductionItem> deserialize(JsonParser p, DeserializationContext ctx) {
       if (p.isExpectedStartArrayToken()) {
         return ctx.readValue(
             p, ctx.getTypeFactory().constructCollectionLikeType(List.class, ProductionItem.class));
