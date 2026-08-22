@@ -26,6 +26,7 @@ import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
 import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.ProtectionHelper;
 import top.stillmisty.xiantao.service.ServiceResult;
+import top.stillmisty.xiantao.service.cultivation.CultivationService;
 
 /** 角色状态服务 负责：角色详情查询（HP、属性、装备、突破进度、护道信息） */
 @Slf4j
@@ -40,6 +41,7 @@ public class CharacterStatusService {
   private final EquipmentRepository equipmentRepository;
   private final DaoProtectionRepository daoProtectionRepository;
   private final MapNodeRepository mapNodeRepository;
+  private final CultivationService cultivationService;
 
   public ServiceResult<CharacterStatusResult> getCharacterStatus(Long userId) {
     return new ServiceResult.Success<>(getCharacterStatusInternal(userId));
@@ -103,6 +105,7 @@ public class CharacterStatusService {
         user.getSpiritStones(),
         user.calculateBreakthroughSuccessRate(),
         user.getBreakthroughFailCount(),
+        cultivationService.buildTribulationForecast(user),
         protData.protectingCount,
         MAX_PROTECTOR_DISPLAY,
         protData.protectingList,

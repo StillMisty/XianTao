@@ -66,7 +66,7 @@ public class TribulationService {
       return "⚠️ 没有可出战的单位，天劫无法降临";
     }
 
-    // 计算防守方队伍总属性（用于 Boss 缩放，天然支持未来多人组队）
+    // 计算防守方队伍总属性（用于 Boss 缩放）
     CombatService.TeamStats teamStats = combatService.calculateTeamStats(defendingTeam);
 
     // 检查是否触发怜悯

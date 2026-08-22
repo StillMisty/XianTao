@@ -82,7 +82,34 @@ public class StatusCommandHandler implements CommandGroup {
     sb.append(fmt.heading("战斗属性"));
     sb.append(fmt.listItem("攻击：" + status.attack()));
     sb.append(fmt.listItem("防御：" + status.defense()));
-    if (status.breakthroughSuccessRate() != null) {
+    if (status.tribulationForecast() != null) {
+      var forecast = status.tribulationForecast();
+      sb.append("\n");
+      sb.append(fmt.heading("雷劫将至"));
+      sb.append(
+          fmt.listItem(
+              "修为已臻圆满，可冲击「"
+                  + forecast.targetRealmName()
+                  + "」。然此乃逆天之举，天劫化身必将降临，须以死战破之——败则所耗修为尽付东流。"));
+      sb.append(fmt.listItem("天威难测，降临之劫或为：" + String.join("、", forecast.tribulationNames()) + "。"));
+      sb.append(fmt.listItem("备战之道：服食突破丹可削雷威；邀护道者同地图护法；炼制雷抗丹以硬撼天雷。"));
+      List<String> activeAids = new java.util.ArrayList<>();
+      if (forecast.pillBonusPercent() > 0) {
+        activeAids.add("丹药已备（削劫" + (int) forecast.pillBonusPercent() + "%）");
+      }
+      if (forecast.protectionBonusPercent() > 0) {
+        activeAids.add("道友护法中（削劫" + (int) forecast.protectionBonusPercent() + "%）");
+      }
+      if (forecast.resistPercent() > 0) {
+        activeAids.add("雷抗加身（抗雷" + (int) forecast.resistPercent() + "%）");
+      }
+      if (!activeAids.isEmpty()) {
+        sb.append(fmt.listItem(String.join("；", activeAids) + "。"));
+      }
+      if (forecast.failCount() > 0) {
+        sb.append(fmt.listItem("你已折戟 " + forecast.failCount() + " 次，屡败屡战，天雷之威亦随之稍减。"));
+      }
+    } else if (status.breakthroughSuccessRate() != null) {
       sb.append("\n");
       sb.append(fmt.heading("突破信息"));
       sb.append(fmt.listItem(String.format("突破成功率：%.1f%%", status.breakthroughSuccessRate())));

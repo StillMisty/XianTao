@@ -1,8 +1,10 @@
 package top.stillmisty.xiantao.service.cultivation;
 
+import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.monster.CombatTeam;
 import top.stillmisty.xiantao.domain.monster.TribulationBoss;
@@ -40,6 +42,49 @@ public class CultivationService {
 
   public ServiceResult<BreakthroughResult> attemptBreakthrough(Long userId) {
     return new ServiceResult.Success<>(attemptBreakthroughInternal(userId));
+  }
+
+  /** 大境界雷劫预报 修为足以尝试跨大境界/渡劫期突破时返回情报面板，否则返回 null。仅列候选天劫与削助手段， 不透露概率数值——天数难测，唯备战可恃。 */
+  @Nullable
+  public TribulationForecast buildTribulationForecast(Player user) {
+    long expNeeded = user.calculateExpToNextLevel();
+    if (user.getExp() < expNeeded) {
+      return null;
+    }
+    int newLevel = user.getLevel() + 1;
+    CultivationRealm newRealm = CultivationRealm.fromLevel(newLevel);
+    boolean isMajor = CultivationRealm.isMajorBreakthrough(user.getLevel(), newLevel);
+    boolean isTribulationRealm = newRealm == CultivationRealm.TRIBULATION;
+    if (!isMajor && !isTribulationRealm) {
+      return null;
+    }
+
+    List<String> tribulationNames =
+        Arrays.stream(TribulationType.values())
+            .filter(t -> isTribulationRealm || t.getMinRealmOrdinal() <= newRealm.getRank())
+            .map(TribulationType::getDisplayName)
+            .toList();
+
+    double protectionBonus = protectionHelper.calculateProtectionBonus(user);
+    List<PlayerBuff> breakthroughBuffs =
+        playerBuffRepository.findActiveByUserIdAndType(user.getId(), PlayerBuffType.BREAKTHROUGH);
+    double pillBonus = breakthroughBuffs.stream().mapToInt(PlayerBuff::getValue).sum();
+
+    double resistPercent = 0;
+    List<PlayerBuff> resistBuffs =
+        playerBuffRepository.findActiveByUserIdAndType(
+            user.getId(), PlayerBuffType.TRIBULATION_RESIST);
+    if (!resistBuffs.isEmpty()) {
+      resistPercent = Math.min(90, resistBuffs.stream().mapToInt(PlayerBuff::getValue).sum());
+    }
+
+    return new TribulationForecast(
+        newRealm.getRealmName(),
+        tribulationNames,
+        pillBonus,
+        protectionBonus,
+        resistPercent,
+        user.getBreakthroughFailCount());
   }
 
   // ===================== 内部 API =====================

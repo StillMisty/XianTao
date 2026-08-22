@@ -6,6 +6,7 @@ import org.jspecify.annotations.Nullable;
 import top.stillmisty.xiantao.domain.item.enums.EquipmentSlot;
 import top.stillmisty.xiantao.domain.item.enums.Rarity;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
+import top.stillmisty.xiantao.domain.user.vo.TribulationForecast;
 
 /** 角色状态查看结果 VO 包含：HP、属性、装扮、境界进度、当前状态 */
 public record CharacterStatusResult(
@@ -49,6 +50,7 @@ public record CharacterStatusResult(
     Long spiritStones,
     Double breakthroughSuccessRate,
     Integer breakthroughFailCount,
+    @Nullable TribulationForecast tribulationForecast,
     Integer protectorCount,
     Integer maxProtectorCount,
     List<ProtectionInfoVO> protectingList,
