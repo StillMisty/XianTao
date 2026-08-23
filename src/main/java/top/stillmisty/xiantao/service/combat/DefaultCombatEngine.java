@@ -16,7 +16,6 @@ import top.stillmisty.xiantao.domain.monster.CombatTeam;
 import top.stillmisty.xiantao.domain.monster.Combatant;
 import top.stillmisty.xiantao.domain.monster.SkillSelectionStrategy;
 import top.stillmisty.xiantao.domain.monster.TargetSelectionStrategy;
-import top.stillmisty.xiantao.domain.monster.enums.BuffType;
 import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
 import top.stillmisty.xiantao.domain.monster.vo.CombatLogEntry;
 import top.stillmisty.xiantao.domain.monster.vo.HpChange;
@@ -31,6 +30,7 @@ public class DefaultCombatEngine implements CombatEngine {
 
   private final DamageCalculator damageCalculator;
   private final EffectHandlerRegistry effectHandlerRegistry;
+  private final ReactiveEffectProcessor reactiveEffectProcessor;
   private final SkillSelectionStrategy skillSelectionStrategy;
   private final TargetSelectionStrategy targetSelectionStrategy;
 
@@ -238,34 +238,12 @@ public class DefaultCombatEngine implements CombatEngine {
     }
 
     if (damage > 0) {
-      if (buffManager.getBuffsByType(defender.getId(), BuffType.FREEZE).stream()
-          .anyMatch(b -> !b.isExpired())) {
-        damage = (int) (damage * 1.3);
-      }
-
-      // 闪避判定：闪避成功则本次攻击完全落空
-      if (ThreadLocalRandom.current().nextDouble() < buffManager.getDodgeChance(defender.getId())) {
-        damage = 0;
-        dodged = true;
-      } else {
-        defender.takeDamage(damage);
+      // 受击反应（冰冻易伤/闪避/反伤/反击）统一由反应层结算
+      var applied = reactiveEffectProcessor.apply(attacker, defender, damage, buffManager);
+      damage = applied.damage();
+      dodged = applied.dodged();
+      if (!dodged) {
         damageDealt.merge(attacker.getName(), damage, Integer::sum);
-
-        // 反伤：按反弹比例将所受伤害返还攻击者（攻击者存活时生效）
-        double reflectPercent = buffManager.getReflectPercent(defender.getId());
-        if (reflectPercent > 0 && attacker.isAlive()) {
-          int reflectDamage = Math.max(1, (int) Math.round(damage * reflectPercent));
-          attacker.takeDamage(reflectDamage);
-        }
-
-        // 反击：概率对攻击者追加一次普攻伤害
-        if (attacker.isAlive()
-            && ThreadLocalRandom.current().nextDouble()
-                < buffManager.getCounterChance(defender.getId())) {
-          int counterDamage =
-              Math.max(1, damageCalculator.calculateNormalDamage(defender, attacker, buffManager));
-          attacker.takeDamage(counterDamage);
-        }
       }
     }
 
