@@ -16,22 +16,19 @@ import top.stillmisty.xiantao.domain.bounty.enums.BountyStatus;
 import top.stillmisty.xiantao.domain.bounty.vo.BountyRewardVO;
 import top.stillmisty.xiantao.domain.event.EventContext;
 import top.stillmisty.xiantao.domain.event.EventContextKeys;
-import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
-import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
+import top.stillmisty.xiantao.domain.monster.vo.DropItem;
 import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
-import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.MapNodeRepository;
 import top.stillmisty.xiantao.infrastructure.repository.UserBountyRepository;
 import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.FortuneService;
+import top.stillmisty.xiantao.service.RewardGrant;
 import top.stillmisty.xiantao.service.SpiritStoneService;
 import top.stillmisty.xiantao.service.activity.BountyCompleter;
 import top.stillmisty.xiantao.service.ai.ExplorationDescriptionFunction;
-import top.stillmisty.xiantao.service.inventory.EquipmentService;
-import top.stillmisty.xiantao.service.inventory.StackableItemService;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
 @Service
@@ -42,10 +39,8 @@ public class BountyCombatService {
   private final UserStateService userStateService;
   private final MapNodeRepository mapNodeRepository;
   private final UserBountyRepository userBountyRepository;
-  private final ItemTemplateRepository itemTemplateRepository;
   private final ExplorationDescriptionFunction explorationDescriptionFunction;
-  private final StackableItemService stackableItemService;
-  private final EquipmentService equipmentService;
+  private final RewardGrant rewardGrant;
   private final BountyCompleter bountyCompleter;
   private final SpiritStoneService spiritStoneService;
   private final FortuneService fortuneService;
@@ -121,7 +116,6 @@ public class BountyCombatService {
     record.setStatus(BountyStatus.COMPLETED);
     userBountyRepository.save(record);
 
-    user.setStatus(UserStatus.IDLE);
     user.clearActivity();
     userStateService.saveActivity(user);
 
@@ -186,49 +180,26 @@ public class BountyCombatService {
   }
 
   private void addRewardsToInventory(Long userId, List<BountyRewardItem> items) {
-    var itemRewards =
-        items.stream()
-            .filter(
-                i ->
-                    i instanceof BountyRewardItem.ItemReward
-                        || i instanceof BountyRewardItem.BeastEggReward
-                        || i instanceof BountyRewardItem.EquipmentRewardItem
-                        || i instanceof BountyRewardItem.SkillJadeRewardItem)
-            .toList();
-    if (itemRewards.isEmpty()) return;
+    rewardGrant.grant(userId, toDropItems(items));
+  }
 
-    Set<Long> templateIds = new HashSet<>();
-    for (BountyRewardItem item : itemRewards) {
+  /** 悬赏奖励 → 统一发放模型：灵石奖励不入包（走 SpiritStoneService），此处只转换物品侧。 */
+  private static List<DropItem> toDropItems(List<BountyRewardItem> items) {
+    List<DropItem> drops = new ArrayList<>();
+    for (BountyRewardItem item : items) {
       switch (item) {
-        case BountyRewardItem.ItemReward(var templateId, _, _) -> templateIds.add(templateId);
-        case BountyRewardItem.BeastEggReward(var templateId, _) -> templateIds.add(templateId);
-        case BountyRewardItem.EquipmentRewardItem(var templateId, _) -> templateIds.add(templateId);
-        case BountyRewardItem.SkillJadeRewardItem(var templateId, _) -> templateIds.add(templateId);
-        default -> {}
-      }
-    }
-
-    if (templateIds.isEmpty()) return;
-
-    Map<Long, ItemType> typeMap =
-        itemTemplateRepository.findByIds(new ArrayList<>(templateIds)).stream()
-            .collect(Collectors.toMap(ItemTemplate::getId, ItemTemplate::getType));
-
-    for (BountyRewardItem item : itemRewards) {
-      switch (item) {
-        case BountyRewardItem.ItemReward(var templateId, var name, var quantity) -> {
-          ItemType itemType = typeMap.getOrDefault(templateId, ItemType.MATERIAL);
-          stackableItemService.addStackableItem(userId, templateId, itemType, name, quantity);
-        }
+        case BountyRewardItem.ItemReward(var templateId, var name, var quantity) ->
+            drops.add(new DropItem(DropItem.DropType.ITEM, templateId, name, quantity));
         case BountyRewardItem.BeastEggReward(var templateId, var name) ->
-            stackableItemService.addStackableItem(userId, templateId, ItemType.BEAST_EGG, name, 1);
-        case BountyRewardItem.EquipmentRewardItem(var templateId, var _) ->
-            equipmentService.createEquipment(userId, templateId);
+            drops.add(new DropItem(DropItem.DropType.ITEM, templateId, name, 1));
+        case BountyRewardItem.EquipmentRewardItem(var templateId, var name) ->
+            drops.add(new DropItem(DropItem.DropType.EQUIPMENT, templateId, name, 1));
         case BountyRewardItem.SkillJadeRewardItem(var templateId, var name) ->
-            stackableItemService.addStackableItem(userId, templateId, ItemType.SKILL_JADE, name, 1);
+            drops.add(new DropItem(DropItem.DropType.ITEM, templateId, name, 1));
         default -> {}
       }
     }
+    return drops;
   }
 
   private String buildRewardDescription(
@@ -299,12 +270,7 @@ public class BountyCombatService {
             null,
             null);
 
-    try {
-      var response = explorationDescriptionFunction.beautify(request);
-      return response != null ? response.description() : null;
-    } catch (Exception e) {
-      log.warn("LLM 美化悬赏描述失败", e);
-      return null;
-    }
+    // 叙述模块内部已兜底失败场景，此处不再吞异常
+    return explorationDescriptionFunction.beautify(request).description();
   }
 }

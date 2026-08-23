@@ -9,17 +9,18 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonTemplate;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
+import top.stillmisty.xiantao.domain.monster.vo.DropItem;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.util.WeightedRandom;
+import top.stillmisty.xiantao.service.RewardGrant;
 import top.stillmisty.xiantao.service.SpiritStoneService;
-import top.stillmisty.xiantao.service.inventory.StackableItemService;
 
 @Component
 @RequiredArgsConstructor
 public class DungeonLootHelper {
 
   private final ItemTemplateRepository itemTemplateRepository;
-  private final StackableItemService stackableItemService;
+  private final RewardGrant rewardGrant;
   private final SpiritStoneService spiritStoneService;
 
   public record SimpleLootResult(
@@ -29,7 +30,8 @@ public class DungeonLootHelper {
 
     List<String> descriptions = new ArrayList<>();
     Map<String, ItemTemplate> nameToTemplate = new HashMap<>();
-    long spiritStones = 0;
+    List<DropItem> drops = new ArrayList<>();
+    long spiritStones;
 
     List<DungeonTemplate.LootEntry> lootPool = poi.lootPool();
     if (lootPool != null && !lootPool.isEmpty()) {
@@ -57,13 +59,13 @@ public class DungeonLootHelper {
         int qty = ThreadLocalRandom.current().nextInt(minQty, maxQty + 1);
 
         if (template != null) {
-          stackableItemService.addStackableItem(
-              userId, template.getId(), template.getType(), itemName, qty);
+          drops.add(new DropItem(DropItem.DropType.ITEM, template.getId(), itemName, qty));
           nameToTemplate.put(itemName, template);
         }
 
         descriptions.add(itemName + "×" + qty);
       }
+      rewardGrant.grant(userId, drops);
     }
 
     spiritStones = ThreadLocalRandom.current().nextInt(10, 51);

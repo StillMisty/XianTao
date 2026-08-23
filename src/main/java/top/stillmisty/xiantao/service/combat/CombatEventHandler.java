@@ -25,6 +25,7 @@ import top.stillmisty.xiantao.infrastructure.util.TypeUtils;
 import top.stillmisty.xiantao.infrastructure.util.WeightedRandom;
 import top.stillmisty.xiantao.service.DropProcessor;
 import top.stillmisty.xiantao.service.FortuneService;
+import top.stillmisty.xiantao.service.RewardGrant;
 
 /** COMBAT 事件处理器 — 单次遇怪战斗 */
 @Slf4j
@@ -38,6 +39,7 @@ public class CombatEventHandler {
   private final PostCombatProcessor postCombatProcessor;
   private final HighlightBattleDetector highlightBattleDetector;
   private final DropProcessor dropProcessor;
+  private final RewardGrant rewardGrant;
   private final BeastRepository beastRepository;
   private final EnlightenmentProcessor enlightenmentProcessor;
   private final FortuneService fortuneService;
@@ -86,9 +88,7 @@ public class CombatEventHandler {
       long expGained = (long) (tmpl.getExpReward() * count * levelModifier);
       List<DropItem> rawDrops = dropProcessor.processMonsterDrops(tmpl, userId);
       List<DropItem> drops = rawDrops != null ? new ArrayList<>(rawDrops) : List.of();
-      if (!drops.isEmpty()) {
-        dropProcessor.distributeDrops(userId, drops);
-      }
+      rewardGrant.grant(userId, drops);
       encounterResult =
           new EncounterResult(
               true,

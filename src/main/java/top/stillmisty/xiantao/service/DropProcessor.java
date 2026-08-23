@@ -8,18 +8,14 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.item.entity.EquipmentTemplate;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
-import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.monster.entity.DropTableEntry;
 import top.stillmisty.xiantao.domain.monster.entity.MonsterTemplate;
 import top.stillmisty.xiantao.domain.monster.vo.DropItem;
 import top.stillmisty.xiantao.domain.monster.vo.DropItem.DropType;
 import top.stillmisty.xiantao.infrastructure.repository.EquipmentTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
-import top.stillmisty.xiantao.service.inventory.EquipmentService;
-import top.stillmisty.xiantao.service.inventory.StackableItemService;
 
 @Slf4j
 @Component
@@ -28,8 +24,6 @@ public class DropProcessor {
 
   private final ItemTemplateRepository itemTemplateRepository;
   private final EquipmentTemplateRepository equipmentTemplateRepository;
-  private final EquipmentService equipmentService;
-  private final StackableItemService stackableItemService;
   private final FortuneService fortuneService;
 
   /** 掉落模型：每条掉落表项独立掷骰，weight 即基础掉率百分比（0-100）； 财富加成作用于物品数量而非概率；不做按权重排序截断，避免稀有掉落被高权重条目结构性挤出。 */
@@ -80,31 +74,6 @@ public class DropProcessor {
     if (weightPercent >= 100) return true;
     if (weightPercent <= 0) return false;
     return ThreadLocalRandom.current().nextDouble(100) < weightPercent;
-  }
-
-  @Transactional
-  public void distributeDrops(Long userId, List<DropItem> drops) {
-    List<Long> itemTemplateIds =
-        drops.stream()
-            .filter(d -> d.type() != DropType.EQUIPMENT)
-            .map(DropItem::templateId)
-            .distinct()
-            .toList();
-    Map<Long, ItemTemplate> templateMap =
-        itemTemplateIds.isEmpty()
-            ? Map.of()
-            : itemTemplateRepository.findByIds(itemTemplateIds).stream()
-                .collect(Collectors.toMap(ItemTemplate::getId, t -> t));
-    for (DropItem drop : drops) {
-      if (drop.type() == DropType.EQUIPMENT) {
-        equipmentService.createEquipment(userId, drop.templateId());
-      } else {
-        ItemTemplate tmpl = templateMap.get(drop.templateId());
-        ItemType type = tmpl != null ? tmpl.getType() : ItemType.MATERIAL;
-        stackableItemService.addStackableItem(
-            userId, drop.templateId(), type, drop.name(), drop.quantity());
-      }
-    }
   }
 
   private Map<Long, EquipmentTemplate> loadEquipmentTemplates(List<DropTableEntry> equipmentDrops) {
