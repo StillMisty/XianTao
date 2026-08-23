@@ -112,6 +112,16 @@ public class ShopService {
     if (product.getProductType() != ProductType.ITEM) {
       throw new BusinessException(ErrorCode.SHOP_PRODUCT_NOT_FOUND);
     }
+
+    // 交易前先做懒补货/调价并落库，确保库存与价格校验基于最新值
+    if (priceEngine.applyLazyRestock(product)) {
+      shopProductRepository.updateStockAndPrice(
+          product.getId(),
+          product.getCurrentStock(),
+          product.getCurrentPrice(),
+          product.getLastSaleTime());
+    }
+
     if (product.getCurrentStock() < quantity) {
       throw new BusinessException(ErrorCode.SHOP_PRODUCT_OUT_OF_STOCK);
     }
@@ -250,17 +260,21 @@ public class ShopService {
     }
 
     String itemName = item.getName();
-    double acceptanceRate = 1.0 - (confirmedPrice - minPrice) / (double) (maxPrice - minPrice);
+    double acceptanceRate =
+        maxPrice > minPrice
+            ? 1.0 - (confirmedPrice - minPrice) / (double) (maxPrice - minPrice)
+            : 1.0;
     if (ThreadLocalRandom.current().nextDouble() > acceptanceRate) {
       throw new BusinessException(
           ErrorCode.SELL_PRICE_MISMATCH, "掌柜对你的报价不满意：" + itemName + " 未能售出，试着多降些价吧");
     }
 
-    if (item.reduceQuantity(1)) {
-      stackableItemRepository.deleteById(item.getId());
-    } else {
-      stackableItemRepository.save(item);
+    // 条件原子扣减并检查影响行数，防止并发出售同一物品导致丢失更新/双重收款
+    int deducted = stackableItemRepository.reduceQuantityById(item.getId(), userId, 1);
+    if (deducted == 0) {
+      throw new BusinessException(ErrorCode.ITEM_NOT_IN_BAG);
     }
+    stackableItemRepository.deleteIfZeroQuantity(item.getId());
 
     userRepository.addSpiritStonesAtomically(userId, confirmedPrice);
 
@@ -299,14 +313,22 @@ public class ShopService {
 
     String equipmentName = equipment.getName();
 
-    double acceptanceRate = 1.0 - (confirmedPrice - minPrice) / (double) (maxPrice - minPrice);
+    double acceptanceRate =
+        maxPrice > minPrice
+            ? 1.0 - (confirmedPrice - minPrice) / (double) (maxPrice - minPrice)
+            : 1.0;
     if (ThreadLocalRandom.current().nextDouble() > acceptanceRate) {
       throw new BusinessException(
           ErrorCode.SELL_PRICE_MISMATCH, "掌柜对你的报价不满意：" + equipmentName + " 未能售出，试着多降些价吧");
     }
 
+    // 条件删除未穿戴装备并检查影响行数，防止并发重复变现
+    int deleted = equipmentRepository.deleteUnequippedById(equipment.getId(), userId);
+    if (deleted == 0) {
+      throw new BusinessException(ErrorCode.EQUIPMENT_NOT_FOUND);
+    }
+
     userRepository.addSpiritStonesAtomically(userId, confirmedPrice);
-    equipmentRepository.deleteById(equipment.getId());
 
     return new SellResult(confirmedPrice, equipmentName);
   }

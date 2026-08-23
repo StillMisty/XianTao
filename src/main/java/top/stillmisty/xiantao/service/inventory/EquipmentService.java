@@ -226,10 +226,10 @@ public class EquipmentService {
                 .build());
   }
 
-  /** 通过物品名称/编号卸下装备 */
+  /** 通过物品名称/编号卸下装备（解析范围包含已穿戴装备） */
   @Transactional
   public UnequipResult unequipByItemInput(Long userId, String input) {
-    var result = itemResolver.resolveEquipment(userId, input);
+    var result = itemResolver.resolveAnyEquipment(userId, input);
     if (result instanceof ItemResolver.NotFound<?>(String input1)) {
       return UnequipResult.builder()
           .success(false)

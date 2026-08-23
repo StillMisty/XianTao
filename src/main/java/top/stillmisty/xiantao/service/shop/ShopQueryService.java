@@ -208,6 +208,7 @@ public class ShopQueryService {
     List<Long> itemTemplateIds = new java.util.ArrayList<>();
     List<Long> equipTemplateIds = new java.util.ArrayList<>();
     for (ShopProduct product : products) {
+      // 仅做内存展示调整；持久化统一发生在购买路径（此处为只读事务）
       priceEngine.applyLazyRestock(product);
       if (product.getProductType() == ProductType.ITEM) {
         itemTemplateIds.add(product.getTemplateId());

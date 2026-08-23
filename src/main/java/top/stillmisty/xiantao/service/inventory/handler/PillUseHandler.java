@@ -22,7 +22,7 @@ public class PillUseHandler implements ItemUseHandler {
 
   @Override
   public String use(Long userId, StackableItem item, @Nullable ItemTemplate template, String args) {
-    var result = pillConsumptionService.takePill(userId, item.getName());
+    var result = pillConsumptionService.takePill(userId, item);
     return switch (result) {
       case ServiceResult.Success<String> s -> s.data();
       case ServiceResult.Failure<String> f -> f.errorMessage();

@@ -68,7 +68,7 @@ public class ItemResolver {
   }
 
   public List<ItemEntry> listEquipment(Long userId) {
-    return sortedEquipmentEntries(userId).stream()
+    return sortedEquipmentEntries(userId, false).stream()
         .map(
             e ->
                 new ItemEntry(
@@ -157,8 +157,18 @@ public class ItemResolver {
     return new ItemEntry(index, item.getId(), item.getName(), item.getQuantity(), meta.toString());
   }
 
+  /** 解析未穿戴装备（用于穿戴/丢弃/出售等仅针对背包中装备的场景） */
   public ResolveResult<Equipment> resolveEquipment(Long userId, String input) {
-    var entries = sortedEquipmentEntries(userId);
+    return resolveEquipmentFrom(sortedEquipmentEntries(userId, false), input);
+  }
+
+  /** 解析任意装备（含已穿戴），用于卸下、强化等场景 */
+  public ResolveResult<Equipment> resolveAnyEquipment(Long userId, String input) {
+    return resolveEquipmentFrom(sortedEquipmentEntries(userId, true), input);
+  }
+
+  private ResolveResult<Equipment> resolveEquipmentFrom(
+      List<EquipmentEntry> entries, String input) {
     if (input.matches("\\d+")) {
       int idx = Integer.parseInt(input);
       for (var e : entries) {
@@ -252,9 +262,13 @@ public class ItemResolver {
     return userId -> sortedStackableEntries(userId, ItemType.BEAST_EGG);
   }
 
-  private List<EquipmentEntry> sortedEquipmentEntries(Long userId) {
+  private List<EquipmentEntry> sortedEquipmentEntries(Long userId, boolean includeEquipped) {
+    var source =
+        includeEquipped
+            ? equipmentRepository.findByUserId(userId)
+            : equipmentRepository.findUnequippedByUserId(userId);
     var sorted =
-        equipmentRepository.findUnequippedByUserId(userId).stream()
+        source.stream()
             .sorted(
                 (a, b) -> {
                   int cmp = Integer.compare(b.getRarity().getRank(), a.getRarity().getRank());

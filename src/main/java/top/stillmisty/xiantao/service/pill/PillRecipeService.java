@@ -17,7 +17,6 @@ import top.stillmisty.xiantao.domain.pill.entity.PlayerPillRecipe;
 import top.stillmisty.xiantao.domain.pill.vo.PillRecipeVO;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.PlayerPillRecipeRepository;
-import top.stillmisty.xiantao.infrastructure.repository.StackableItemRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
@@ -29,7 +28,6 @@ import top.stillmisty.xiantao.service.ServiceResult;
 public class PillRecipeService {
 
   private final ItemTemplateRepository itemTemplateRepository;
-  private final StackableItemRepository stackableItemRepository;
   private final PlayerPillRecipeRepository playerPillRecipeRepository;
 
   // ===================== 公开 API =====================
@@ -43,8 +41,8 @@ public class PillRecipeService {
   }
 
   @Transactional
-  public ServiceResult<PillRecipeVO> learnRecipe(Long userId, String recipeName) {
-    return new ServiceResult.Success<>(learnRecipeInternal(userId, recipeName));
+  public ServiceResult<PillRecipeVO> learnRecipe(Long userId, StackableItem recipeItem) {
+    return new ServiceResult.Success<>(learnRecipeInternal(userId, recipeItem));
   }
 
   // ===================== 内部 API =====================
@@ -79,19 +77,12 @@ public class PillRecipeService {
     throw new BusinessException(ErrorCode.ITEM_NOT_FOUND, recipeName);
   }
 
+  /** 学习丹方。卷轴实例由 ItemUseService 解析并传入，本方法不再按名重查背包 （qty=1 时外层扣减后行已删除，按名重查会失败）。 */
   @Transactional
-  public PillRecipeVO learnRecipeInternal(Long userId, String recipeName) {
-    List<StackableItem> items = stackableItemRepository.findByUserId(userId);
-    StackableItem recipeItem = null;
-    for (StackableItem item : items) {
-      if (item.getItemType() == ItemType.RECIPE_SCROLL && item.getName().contains(recipeName)) {
-        recipeItem = item;
-        break;
-      }
+  public PillRecipeVO learnRecipeInternal(Long userId, StackableItem recipeItem) {
+    if (recipeItem.getItemType() != ItemType.RECIPE_SCROLL) {
+      throw new BusinessException(ErrorCode.RECIPE_SCROLL_WRONG_TYPE);
     }
-
-    if (recipeItem == null)
-      throw new BusinessException(ErrorCode.RECIPE_SCROLL_NOT_FOUND, recipeName);
 
     ItemTemplate recipeTemplate =
         itemTemplateRepository.findById(recipeItem.getTemplateId()).orElse(null);

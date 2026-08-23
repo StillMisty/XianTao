@@ -25,6 +25,15 @@ public class EnhancementCore {
   private final StackableItemRepository stackableItemRepository;
   private final ItemResolver itemResolver;
   private final StackableItemService stackableItemService;
+  private final org.springframework.cache.CacheManager cacheManager;
+
+  /** 强化改变装备属性，驱逐装备列表与详情缓存 */
+  private void evictEquipmentCaches(Long userId, Long equipmentId) {
+    var cache = cacheManager.getCache("player_equipment");
+    if (cache == null) return;
+    cache.evict("list:" + userId);
+    cache.evict("detail:" + equipmentId);
+  }
 
   static final int BASE_STONE_COST = 50;
   public static final List<String> FORGE_ATTRIBUTES =
@@ -32,7 +41,7 @@ public class EnhancementCore {
 
   @Nullable
   public Equipment resolveEquipment(Long userId, String input) {
-    var result = itemResolver.resolveEquipment(userId, input);
+    var result = itemResolver.resolveAnyEquipment(userId, input);
     if (result instanceof ItemResolver.Found<Equipment> f) return f.item();
     return null;
   }
@@ -150,6 +159,7 @@ public class EnhancementCore {
 
     String milestoneReward = applyMilestoneReward(equipment, targetLevel);
     equipmentRepository.save(equipment);
+    evictEquipmentCaches(userId, equipment.getId());
 
     return new EnhanceResultVO(
         true,
@@ -179,6 +189,7 @@ public class EnhancementCore {
     int newLevel = currentLevel > 0 ? currentLevel - 1 : 0;
     equipment.setForgeLevel(newLevel);
     equipmentRepository.save(equipment);
+    evictEquipmentCaches(equipment.getUserId(), equipment.getId());
 
     return new EnhanceResultVO(
         false,
@@ -224,6 +235,10 @@ public class EnhancementCore {
 
   @Nullable
   private String applyMilestoneReward(Equipment equipment, int newForgeLevel) {
+    // 历史数据 JSONB 可能为 null
+    if (equipment.getAffixes() == null) {
+      equipment.setAffixes(new LinkedHashMap<>());
+    }
     if (newForgeLevel == 5) {
       var statAffixes =
           new ArrayList<>(

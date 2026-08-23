@@ -45,4 +45,10 @@ public class ShopProductRepository {
   public int deductStockIfAvailable(Long id, int qty) {
     return shopProductMapper.deductStockIfAvailable(id, qty);
   }
+
+  /** 懒补货/调价结果落库（仅更新库存与价格相关列，避免全量覆盖并发修改的其他字段） */
+  public int updateStockAndPrice(
+      Long id, int currentStock, long currentPrice, java.time.LocalDateTime lastSaleTime) {
+    return shopProductMapper.updateStockAndPrice(id, currentStock, currentPrice, lastSaleTime);
+  }
 }

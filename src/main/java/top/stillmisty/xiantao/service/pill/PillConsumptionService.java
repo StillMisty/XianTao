@@ -44,11 +44,9 @@ public class PillConsumptionService {
 
   // ===================== 公开 API =====================
 
+  /** 服用指定丹药。丹药实例由 ItemUseService 解析并传入，本方法不再按名重查背包 （qty=1 时外层扣减后行已删除，按名重查会失败）。 */
   @Transactional
-  public ServiceResult<String> takePill(Long userId, String pillName) {
-    StackableItem pill = findPill(userId, pillName);
-    if (pill == null) return ServiceResult.businessFailure("背包中未找到丹药：" + pillName);
-
+  public ServiceResult<String> takePill(Long userId, StackableItem pill) {
     ItemTemplate template = itemTemplateRepository.findById(pill.getTemplateId()).orElse(null);
     if (template == null) return ServiceResult.businessFailure("丹药数据错误");
 
@@ -57,9 +55,10 @@ public class PillConsumptionService {
       return ServiceResult.businessFailure("丹药没有效果");
 
     Player user = userStateService.loadUser(userId);
-    double qualityMultiplier = PillQuality.fromCode(pill.getQuality()).getMultiplier();
+    // 商店购买的丹药实例可能没有品质属性，默认中成
+    String quality = pill.getQuality() != null ? pill.getQuality() : PillQuality.NORMAL.getCode();
+    double qualityMultiplier = PillQuality.fromCode(quality).getMultiplier();
     int grade = getPillGrade(pill);
-    String quality = pill.getQuality();
     var messages = new ArrayList<String>();
 
     for (var effect : effects) {
@@ -131,6 +130,9 @@ public class PillConsumptionService {
     int oldHp = user.getHpCurrent();
     int actualHealed = Math.min(maxHp - oldHp, healAmount);
     user.setHpCurrent(oldHp + actualHealed);
+    if (actualHealed <= 0) {
+      return "生命值已满，药力散入四肢百骸";
+    }
     return "恢复 " + actualHealed + " 生命值";
   }
 
@@ -204,14 +206,14 @@ public class PillConsumptionService {
     // 雷劫抗性允许负值（招雷散等高风险丹药）
     if (actualValue <= 0 && buffType != PlayerBuffType.TRIBULATION_RESIST) return null;
 
-    int activeCount = playerBuffRepository.countActiveByUserIdAndType(user.getId(), buffType);
-    if (activeCount >= MAX_ACTIVE_BUFFS_PER_TYPE) {
+    // 原子条件插入，防止并发服同类丹药超层
+    LocalDateTime expiresAt = TimeUtil.now().plusSeconds(e.durationSeconds());
+    int inserted =
+        playerBuffRepository.insertIfBelowStackLimit(
+            user.getId(), buffType, actualValue, expiresAt, MAX_ACTIVE_BUFFS_PER_TYPE);
+    if (inserted == 0) {
       return buffType.getDisplayName() + " buff 已达堆叠上限（" + MAX_ACTIVE_BUFFS_PER_TYPE + "层）";
     }
-
-    LocalDateTime expiresAt = TimeUtil.now().plusSeconds(e.durationSeconds());
-    PlayerBuff buff = PlayerBuff.create(user.getId(), buffType, actualValue, expiresAt);
-    playerBuffRepository.save(buff);
 
     String sign = actualValue >= 0 ? "+" : "";
     return "获得 "
@@ -254,24 +256,6 @@ public class PillConsumptionService {
   }
 
   // ===================== 辅助方法 =====================
-
-  @Nullable
-  private StackableItem findPill(Long userId, String pillName) {
-    List<StackableItem> pills =
-        stackableItemRepository.findByUserId(userId).stream()
-            .filter(
-                item ->
-                    item.getItemType() == top.stillmisty.xiantao.domain.item.enums.ItemType.POTION)
-            .toList();
-
-    // 精确匹配优先
-    var exact = pills.stream().filter(p -> p.getName().equals(pillName)).findFirst();
-    if (exact.isPresent()) return exact.get();
-
-    // 模糊匹配兜底
-    var partial = pills.stream().filter(p -> p.getName().contains(pillName)).findFirst();
-    return partial.orElse(null);
-  }
 
   private int getPillGrade(StackableItem pill) {
     ItemTemplate template = itemTemplateRepository.findById(pill.getTemplateId()).orElse(null);

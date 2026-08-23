@@ -48,13 +48,14 @@ public class PillCombinationFinder {
       ItemTemplate recipeTemplate) {
     Map<String, Integer> elementTotals = new HashMap<>();
     Map<String, Integer> usedHerbs = new LinkedHashMap<>();
+    Map<Long, Integer> usedHerbsById = new LinkedHashMap<>();
     Map<StackableItem, Integer> remainingQuantities = new HashMap<>();
     for (StackableItem herb : herbs) {
       remainingQuantities.put(herb, herb.getQuantity());
     }
 
     strategy.tryFindBestCombination(
-        requirements, herbs, elementTotals, usedHerbs, remainingQuantities);
+        requirements, herbs, elementTotals, usedHerbs, usedHerbsById, remainingQuantities);
     List<String> missingElements = strategy.collectMissingAttributes(requirements, elementTotals);
     if (!missingElements.isEmpty()) {
       throw new BusinessException(
@@ -65,26 +66,22 @@ public class PillCombinationFinder {
       String overElement = strategy.findOverMaxAttribute(requirements, elementTotals);
       throw new BusinessException(ErrorCode.PILL_ELEMENT_EXCEED, overElement);
     }
-    return craftPill(userId, herbs, elementTotals, usedHerbs, requirements, recipeTemplate);
+    return craftPill(userId, elementTotals, usedHerbs, usedHerbsById, requirements, recipeTemplate);
   }
 
   private PillRefiningResultVO craftPill(
       Long userId,
-      List<StackableItem> herbs,
       Map<String, Integer> elementTotals,
       Map<String, Integer> usedHerbs,
+      Map<Long, Integer> usedHerbsById,
       Map<String, ElementRange> requirements,
       ItemTemplate recipeTemplate) {
     double qualityScore = strategy.calculateQualityScore(elementTotals, requirements);
     PillQuality quality = determineQuality(qualityScore);
 
-    for (Map.Entry<String, Integer> entry : usedHerbs.entrySet()) {
-      for (StackableItem herb : herbs) {
-        if (herb.getName().equals(entry.getKey())) {
-          stackableItemService.reduceStackableItem(userId, herb.getId(), entry.getValue());
-          break;
-        }
-      }
+    // 按组合阶段记录的物品实例 ID 精确扣减，避免同名多行时错扣
+    for (Map.Entry<Long, Integer> entry : usedHerbsById.entrySet()) {
+      stackableItemService.reduceStackableItem(userId, entry.getKey(), entry.getValue());
     }
 
     var recipeScroll = getRecipeScroll(recipeTemplate);
@@ -131,26 +128,18 @@ public class PillCombinationFinder {
     properties.put("quality", quality.getCode());
     int hash = StackableItem.computeHash(properties);
 
-    Optional<StackableItem> existingItem =
-        stackableItemRepository.findByUserIdAndTemplateIdAndPropertiesHash(
-            userId, resultTemplate.getId(), hash);
-    if (existingItem.isPresent()) {
-      StackableItem item = existingItem.get();
-      item.addQuantity(quantity);
-      stackableItemRepository.save(item);
-    } else {
-      StackableItem newItem =
-          StackableItem.create(
-              userId,
-              resultTemplate.getId(),
-              resultTemplate.getType(),
-              resultTemplate.getName() + "-" + quality.getChineseName(),
-              quantity);
-      newItem.setTags(resultTemplate.getTags());
-      newItem.setProperties(properties);
-      newItem.setPropertiesHash(hash);
-      stackableItemRepository.save(newItem);
-    }
+    // ON CONFLICT 原子累加，避免并发炼制同一丹药时 last-write-wins 丢失产量
+    StackableItem newItem =
+        StackableItem.create(
+            userId,
+            resultTemplate.getId(),
+            resultTemplate.getType(),
+            resultTemplate.getName() + "-" + quality.getChineseName(),
+            quantity);
+    newItem.setTags(resultTemplate.getTags());
+    newItem.setProperties(properties);
+    newItem.setPropertiesHash(hash);
+    stackableItemRepository.upsertIncrementQuantity(newItem);
   }
 
   @SuppressWarnings("unused")

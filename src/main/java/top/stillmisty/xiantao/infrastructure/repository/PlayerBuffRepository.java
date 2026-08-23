@@ -32,6 +32,16 @@ public class PlayerBuffRepository {
     return mapper.countActiveByUserIdAndType(userId, buffType.getCode());
   }
 
+  /** 原子条件插入：仅当同类活跃 buff 数低于上限时写入。返回 0 表示已达堆叠上限。 */
+  public int insertIfBelowStackLimit(
+      Long userId,
+      PlayerBuffType buffType,
+      int value,
+      java.time.LocalDateTime expiresAt,
+      int maxStack) {
+    return mapper.insertIfBelowStackLimit(userId, buffType.getCode(), value, expiresAt, maxStack);
+  }
+
   public PlayerBuff save(PlayerBuff buff) {
     mapper.insertOrUpdateSelective(buff);
     return buff;

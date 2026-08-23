@@ -201,9 +201,16 @@ public class SkillService {
           .build();
     }
 
-    // 5. 装载
+    // 5. 原子条件装载，防止并发装载超额
+    if (playerSkillRepository.equipIfSlotAvailable(matched.getId(), userId, maxSlots) == 0) {
+      return SkillSlotResult.builder()
+          .success(false)
+          .message(String.format("法决槽位已满（%d/%d），请先卸下不需要的法决", maxSlots, maxSlots))
+          .equippedCount(maxSlots)
+          .maxSlots(maxSlots)
+          .build();
+    }
     matched.equip();
-    playerSkillRepository.save(matched);
 
     var skill = skillRepository.findById(matched.getSkillId()).orElse(null);
     if (skill == null) {

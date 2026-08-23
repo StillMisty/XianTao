@@ -45,14 +45,6 @@ public class PriceEngine {
     return calculateBuybackPrice(rawValue, template.getTags(), npc);
   }
 
-  /** 计算商铺商品当前售价（含世界事件和懒调价） */
-  public long calculateSellPrice(ShopProduct product, ShopNpc npc) {
-    applyLazyRestock(product);
-    double basePrice = product.getCurrentPrice().doubleValue();
-    double worldMultiplier = getWorldEventMultiplier(null);
-    return Math.max(1L, Math.round(basePrice * worldMultiplier));
-  }
-
   private long calculateBuybackPrice(double baseValue, Set<String> tags, ShopNpc npc) {
     double modifier = npc.getBuyPriceModifierDouble();
     double worldMultiplier =
@@ -136,9 +128,9 @@ public class PriceEngine {
     return "MATERIAL";
   }
 
-  /** 懒补货 & 懒调价：打开商铺或交易时触发 */
-  public void applyLazyRestock(ShopProduct product) {
-    if (product.getLastSaleTime() == null) return;
+  /** 懒补货 & 懒调价：打开商铺或交易时触发。返回 true 表示库存或价格已调整（调用方需自行持久化）。 */
+  public boolean applyLazyRestock(ShopProduct product) {
+    if (product.getLastSaleTime() == null) return false;
     LocalDateTime now = TimeUtil.now();
 
     int currentStock = product.getCurrentStock();
@@ -154,7 +146,7 @@ public class PriceEngine {
         product.setCurrentStock(newStock);
         product.setCurrentPrice(newPrice);
         product.setLastSaleTime(now);
-        return;
+        return true;
       }
     }
 
@@ -168,7 +160,10 @@ public class PriceEngine {
         product.setCurrentStock(newStock);
         product.setCurrentPrice(newPrice);
         product.setLastSaleTime(now);
+        return true;
       }
     }
+
+    return false;
   }
 }

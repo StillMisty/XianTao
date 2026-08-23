@@ -6,9 +6,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
@@ -34,19 +31,16 @@ public class ItemUseService {
   private final StackableItemRepository stackableItemRepository;
   private final ItemTemplateRepository itemTemplateRepository;
   private final StackableItemService stackableItemService;
-  private final CacheManager cacheManager;
   private final Map<ItemType, ItemUseHandler> handlerMap;
 
   public ItemUseService(
       StackableItemRepository stackableItemRepository,
       ItemTemplateRepository itemTemplateRepository,
       StackableItemService stackableItemService,
-      CacheManager cacheManager,
       List<ItemUseHandler> handlers) {
     this.stackableItemRepository = stackableItemRepository;
     this.itemTemplateRepository = itemTemplateRepository;
     this.stackableItemService = stackableItemService;
-    this.cacheManager = cacheManager;
     this.handlerMap =
         handlers.stream()
             .collect(Collectors.toMap(ItemUseHandler::getItemType, Function.identity()));
@@ -57,23 +51,27 @@ public class ItemUseService {
     return new ServiceResult.Success<>(useItemInternal(userId, itemName, args));
   }
 
-  @Transactional
-  @Caching(
-      evict = {
-        @CacheEvict(cacheNames = "player_inventory", key = "'summary:' + #userId"),
-        @CacheEvict(cacheNames = "player_inventory", key = "'seeds:' + #userId"),
-        @CacheEvict(cacheNames = "player_inventory", key = "'eggs:' + #userId"),
-        @CacheEvict(cacheNames = "player_inventory", key = "'equipment:' + #userId")
-      })
+  /** 使用物品。数量扣减经 {@link StackableItemService#reduceStackableItem}， 背包缓存驱逐也由其集中处理，本类不再自行管理缓存。 */
   public String useItemInternal(Long userId, String itemName, String args) {
     List<StackableItem> exactMatches =
         stackableItemRepository.findByUserIdAndName(userId, itemName);
     StackableItem matchedItem = findFirstWithValidTemplate(exactMatches);
 
     if (matchedItem == null) {
-      List<StackableItem> items =
+      // 模糊匹配：命中多个不同名称时要求玩家精确指定，避免随机消耗
+      List<StackableItem> fuzzyMatches =
           stackableItemRepository.findByUserIdAndNameContaining(userId, itemName);
-      matchedItem = findFirstWithValidTemplate(items);
+      long distinctNameCount = fuzzyMatches.stream().map(StackableItem::getName).distinct().count();
+      if (distinctNameCount > 1) {
+        String candidates =
+            fuzzyMatches.stream()
+                .map(StackableItem::getName)
+                .distinct()
+                .limit(5)
+                .collect(Collectors.joining("、"));
+        throw new BusinessException(ErrorCode.ITEM_MULTIPLE_MATCH, candidates);
+      }
+      matchedItem = findFirstWithValidTemplate(fuzzyMatches);
     }
 
     if (matchedItem == null) {
@@ -92,23 +90,7 @@ public class ItemUseService {
 
     log.debug("使用物品: userId={}, item={}, type={}", userId, matchedItem.getName(), type);
 
-    String result = handler.use(userId, matchedItem, null, args);
-
-    // 手动清除该用户的type缓存
-    clearTypeCacheForUser(userId);
-
-    return result;
-  }
-
-  private void clearTypeCacheForUser(Long userId) {
-    var cache = cacheManager.getCache("player_inventory");
-    if (cache != null) {
-      // 清除该用户的所有type缓存
-      for (ItemType type : ItemType.values()) {
-        String key = "type:" + type.getCode() + ":" + userId;
-        cache.evict(key);
-      }
-    }
+    return handler.use(userId, matchedItem, null, args);
   }
 
   @Nullable

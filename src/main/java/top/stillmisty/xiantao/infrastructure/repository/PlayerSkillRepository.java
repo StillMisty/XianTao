@@ -18,6 +18,11 @@ public class PlayerSkillRepository {
 
   private final PlayerSkillMapper mapper;
 
+  /** 原子条件装载：仅当已装载数低于上限时置为已装载。返回 0 表示槽位已满或法决不存在。 */
+  public int equipIfSlotAvailable(Long id, Long userId, int maxSlots) {
+    return mapper.equipIfSlotAvailable(id, userId, maxSlots);
+  }
+
   public List<PlayerSkill> findByUserId(Long userId) {
     return mapper.selectListByQuery(
         QueryWrapper.create().select().from(PLAYER_SKILL).where(PLAYER_SKILL.USER_ID.eq(userId)));

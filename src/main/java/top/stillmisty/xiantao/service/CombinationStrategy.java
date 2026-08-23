@@ -26,6 +26,20 @@ public class CombinationStrategy {
       Map<String, Integer> totals,
       Map<String, Integer> used,
       Map<StackableItem, Integer> remaining) {
+    tryFindBestCombination(requirements, items, totals, used, new HashMap<>(), remaining);
+  }
+
+  /**
+   * @param used 按物品名聚合的用量（供展示）
+   * @param usedById 按物品实例 ID 记录的用量（供精确扣减，避免同名多行时错扣）
+   */
+  public void tryFindBestCombination(
+      Map<String, ElementRange> requirements,
+      List<StackableItem> items,
+      Map<String, Integer> totals,
+      Map<String, Integer> used,
+      Map<Long, Integer> usedById,
+      Map<StackableItem, Integer> remaining) {
     for (int pass = 0; pass < requirements.size(); pass++) {
       boolean anyProgress = false;
       for (var entry : requirements.entrySet()) {
@@ -61,6 +75,7 @@ public class CombinationStrategy {
           applyAttributes(bestItem, bestQty, totals);
           remaining.merge(bestItem, -bestQty, Integer::sum);
           used.merge(bestItem.getName(), bestQty, Integer::sum);
+          usedById.merge(bestItem.getId(), bestQty, Integer::sum);
           anyProgress = true;
         }
       }

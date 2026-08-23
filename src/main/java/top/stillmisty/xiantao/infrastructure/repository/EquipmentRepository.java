@@ -26,6 +26,11 @@ public class EquipmentRepository {
     return Optional.ofNullable(equipmentMapper.selectOneById(id));
   }
 
+  /** 条件删除未穿戴的装备，返回受影响行数（0=装备已不存在或已被并发处理） */
+  public int deleteUnequippedById(Long id, Long userId) {
+    return equipmentMapper.deleteUnequippedById(id, userId);
+  }
+
   public List<Equipment> findByUserId(Long userId) {
     QueryWrapper query = QueryWrapper.create().where(EQUIPMENT.USER_ID.eq(userId));
     return equipmentMapper.selectListByQuery(query);

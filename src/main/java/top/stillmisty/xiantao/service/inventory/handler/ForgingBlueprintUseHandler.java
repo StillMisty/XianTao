@@ -21,7 +21,7 @@ public class ForgingBlueprintUseHandler implements ItemUseHandler {
 
   @Override
   public String use(Long userId, StackableItem item, @Nullable ItemTemplate template, String args) {
-    var blueprint = forgingService.learnRecipeInternal(userId, item.getName());
-    return blueprint != null ? "学习锻造图纸成功：" + blueprint.blueprintName() : "学习锻造图纸失败，请检查背包中是否有锻造图纸";
+    var blueprint = forgingService.learnRecipeInternal(userId, item);
+    return "学习锻造图纸成功：" + blueprint.blueprintName();
   }
 }

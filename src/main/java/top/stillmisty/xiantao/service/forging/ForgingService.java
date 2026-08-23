@@ -67,8 +67,8 @@ public class ForgingService {
   }
 
   @Transactional
-  public ServiceResult<ForgingRecipeVO> learnRecipe(Long userId, String recipeName) {
-    return new ServiceResult.Success<>(learnRecipeInternal(userId, recipeName));
+  public ServiceResult<ForgingRecipeVO> learnRecipe(Long userId, StackableItem blueprintItem) {
+    return new ServiceResult.Success<>(learnRecipeInternal(userId, blueprintItem));
   }
 
   // ===================== 内部 API =====================
@@ -258,19 +258,12 @@ public class ForgingService {
     return null;
   }
 
+  /** 学习锻造图纸。图纸实例由 ItemUseService 解析并传入，数量扣减由其统一处理， 此处不再按名重查背包或重复消耗（qty=1 时外层扣减后行已删除，重查会失败）。 */
   @Transactional
-  public ForgingRecipeVO learnRecipeInternal(Long userId, String recipeName) {
-    List<StackableItem> items = stackableItemRepository.findByUserId(userId);
-    StackableItem recipeItem = null;
-    for (StackableItem item : items) {
-      if (item.getItemType() == ItemType.FORGING_BLUEPRINT && item.getName().contains(recipeName)) {
-        recipeItem = item;
-        break;
-      }
+  public ForgingRecipeVO learnRecipeInternal(Long userId, StackableItem recipeItem) {
+    if (recipeItem.getItemType() != ItemType.FORGING_BLUEPRINT) {
+      throw new BusinessException(ErrorCode.BLUEPRINT_SCROLL_WRONG_TYPE);
     }
-
-    if (recipeItem == null)
-      throw new BusinessException(ErrorCode.BLUEPRINT_SCROLL_NOT_FOUND, recipeName);
 
     ItemTemplate blueprintTemplate =
         itemTemplateRepository.findById(recipeItem.getTemplateId()).orElse(null);
@@ -285,12 +278,6 @@ public class ForgingService {
     var blueprint = combinationFinder.getForgingBlueprint(blueprintTemplate);
     if (blueprint == null) throw new BusinessException(ErrorCode.BLUEPRINT_SCROLL_WRONG_TYPE);
     long equipmentTemplateId = blueprint.equipmentTemplateId();
-
-    if (recipeItem.reduceQuantity(1)) {
-      stackableItemRepository.deleteById(recipeItem.getId());
-    } else {
-      stackableItemRepository.save(recipeItem);
-    }
 
     PlayerForgingRecipe recipe =
         PlayerForgingRecipe.create(userId, blueprintTemplate.getId(), equipmentTemplateId);

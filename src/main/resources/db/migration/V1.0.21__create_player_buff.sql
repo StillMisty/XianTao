@@ -1,5 +1,6 @@
 -- 玩家 Buff 表
 -- 存储战斗增益和突破加成等时效性 buff
+-- 注：tribulation_resist 允许负值（招雷散等高风险丹药），value 下限 -100
 CREATE
     TABLE
         player_buff(
@@ -19,7 +20,7 @@ CREATE
                 )
             ),
             CONSTRAINT chk_player_buff_value CHECK(
-                value >= 0
+                value >= -100
             )
         );
 

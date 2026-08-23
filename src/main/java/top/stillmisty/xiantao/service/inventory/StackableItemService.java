@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.item.entity.StackableItem;
@@ -18,19 +20,26 @@ import top.stillmisty.xiantao.service.ErrorCode;
  *
  * <p>设计决策：addStackableItem 不调用 UserStateService.loadUser()，调用方应自行确保用户已加载。 这避免了与
  * SubEventEffectExecutor 的循环依赖，消除了对 SimpleItemAdder 的需要。
+ *
+ * <p>缓存策略：本类是背包写路径的唯一入口，写操作后在此集中驱逐 player_inventory 相关缓存， 调用方（商店/炼丹/丢弃/使用等）无需各自处理驱逐。
  */
 @Slf4j
 @Service
 public class StackableItemService {
 
+  private static final String INVENTORY_CACHE = "player_inventory";
+
   private final StackableItemRepository stackableItemRepository;
   private final ItemTemplateRepository itemTemplateRepository;
+  private final CacheManager cacheManager;
 
   public StackableItemService(
       StackableItemRepository stackableItemRepository,
-      ItemTemplateRepository itemTemplateRepository) {
+      ItemTemplateRepository itemTemplateRepository,
+      CacheManager cacheManager) {
     this.stackableItemRepository = stackableItemRepository;
     this.itemTemplateRepository = itemTemplateRepository;
+    this.cacheManager = cacheManager;
   }
 
   /** 添加堆叠物品到背包 */
@@ -64,6 +73,7 @@ public class StackableItemService {
     newItem.setPropertiesHash(hash);
 
     int affected = stackableItemRepository.upsertIncrementQuantity(newItem);
+    evictInventoryCaches(userId, itemType);
     log.debug(
         "添加堆叠物品: userId={}, templateId={}, quantity={}, affected={}",
         userId,
@@ -100,6 +110,7 @@ public class StackableItemService {
     if (item.isPresent() && item.get().getQuantity() != null && item.get().getQuantity() <= 0) {
       stackableItemRepository.deleteIfZeroQuantity(itemId);
     }
+    evictInventoryCaches(userId, item.map(StackableItem::getItemType).orElse(null));
     log.debug("原子减少堆叠物品数量: userId={}, itemId={}, quantity={}", userId, itemId, quantity);
   }
 
@@ -112,6 +123,18 @@ public class StackableItemService {
   }
 
   // ===================== 标签搜索方法（地灵AI联动） =====================
+
+  /** 驱逐该用户背包相关缓存（summary/seeds/eggs/equipment/type:*） */
+  private void evictInventoryCaches(Long userId, @Nullable ItemType itemType) {
+    Cache cache = cacheManager.getCache(INVENTORY_CACHE);
+    if (cache == null) return;
+    cache.evict("summary:" + userId);
+    cache.evict("seeds:" + userId);
+    cache.evict("eggs:" + userId);
+    if (itemType != null) {
+      cache.evict("type:" + itemType.getCode() + ":" + userId);
+    }
+  }
 
   /** 按标签搜索堆叠物品（AND关系，需包含所有标签） */
   public List<StackableItem> searchStackableItemsByTags(Long userId, List<String> tags) {

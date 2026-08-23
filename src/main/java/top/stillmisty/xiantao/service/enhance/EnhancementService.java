@@ -75,6 +75,11 @@ public class EnhancementService {
     Map<String, Integer> usedMaterials = new HashMap<>();
     parseManualMaterials(userId, materialInputs, attributeTotals, usedMaterials);
 
+    // 与自动模式保持一致：安全期（+0→+3）必定成功，避免玩家误操作亏损
+    if (safeRegime.canHandle(targetLevel)) {
+      return safeRegime.executeAuto(
+          userId, resolved.equipment(), currentLevel, targetLevel, resolved.stoneCost());
+    }
     if (targetLevel <= 9) {
       return probabilisticRegime.executeManual(
           userId,
