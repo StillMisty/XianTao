@@ -18,8 +18,14 @@ public record ConversationId(ChatType chatType, Long userId, Long entityId) {
           "conversationId格式应为 chatType:userId:entityId，实际: " + conversationId);
     }
     ChatType chatType = ChatType.fromCode(parts[0]);
-    Long userId = Long.parseLong(parts[1]);
-    Long entityId = Long.parseLong(parts[2]);
-    return new ConversationId(chatType, userId, entityId);
+    try {
+      Long userId = Long.parseLong(parts[1]);
+      Long entityId = Long.parseLong(parts[2]);
+      return new ConversationId(chatType, userId, entityId);
+    } catch (NumberFormatException e) {
+      throw new BusinessException(
+          ErrorCode.PARAM_INVALID,
+          "conversationId格式应为 chatType:userId:entityId，实际: " + conversationId);
+    }
   }
 }

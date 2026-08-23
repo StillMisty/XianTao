@@ -94,7 +94,7 @@ INSERT
         (
             'SELF_HEAL',
             '自愈',
-            '灵脉贯通，伤势自愈。战斗结束恢复10%最大HP',
+            '灵脉贯通，伤势自愈。战斗结束恢复10%最大气血',
             'COMBAT',
             '[{"type":"ON_BATTLE_END_HEAL","value":10}]'::jsonb,
             NULL,
@@ -154,7 +154,7 @@ INSERT
         (
             'LIFESTEAL',
             '吸血',
-            '噬血为生，以杀养命。伤害的10%转化为HP恢复',
+            '噬血为生，以杀养命。伤害的10%转化为气血恢复',
             'COMBAT',
             '[{"type":"LIFESTEAL_PERCENT","value":10}]'::jsonb,
             NULL,
@@ -234,7 +234,7 @@ INSERT
         (
             'REGENERATION',
             '再生',
-            '生生不息，血肉重生。每回合恢复最大HP的3%',
+            '生生不息，血肉重生。每回合恢复最大气血的3%',
             'COMBAT',
             '[{"type":"HP_REGEN_PERCENT","value":3}]'::jsonb,
             NULL,
@@ -354,7 +354,7 @@ INSERT
         (
             'BERSERK',
             '狂暴',
-            '困兽犹斗，背水一战。HP低于30%时攻击+50%',
+            '困兽犹斗，背水一战。气血低于30%时攻击+50%',
             'COMBAT',
             '[{"type":"LOW_HP_ATTACK_BOOST","value":50,"condition":{"trigger":"HP_BELOW","threshold":30}}]'::jsonb,
             '["beast","dragon"]'::jsonb,
@@ -364,7 +364,7 @@ INSERT
         (
             'PHOENIX_REBIRTH',
             '涅槃',
-            '浴火重生，凤凰涅槃。死亡时10%概率复活并恢复30%HP',
+            '浴火重生，凤凰涅槃。死亡时10%概率复活并恢复30%气血',
             'COMBAT',
             '[{"type":"REVIVE_CHANCE","value":10,"condition":{"trigger":"ON_DEATH"}}]'::jsonb,
             '["beast"]'::jsonb,
@@ -514,7 +514,7 @@ INSERT
         (
             'IMMORTAL_BODY',
             '不灭体',
-            '金刚不坏，不死不灭。受到致命伤害时5%概率保留1点HP',
+            '金刚不坏，不死不灭。受到致命伤害时5%概率保留1点气血',
             'COMBAT',
             '[{"type":"SURVIVE_LETHAL_CHANCE","value":5}]'::jsonb,
             '["beast"]'::jsonb,

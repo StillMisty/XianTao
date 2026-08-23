@@ -5,8 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
-import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.service.HelpService;
+import top.stillmisty.xiantao.util.TextFormat;
 
 @Component
 @RequiredArgsConstructor

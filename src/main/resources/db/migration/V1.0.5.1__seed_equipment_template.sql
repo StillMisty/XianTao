@@ -173,7 +173,7 @@ INSERT INTO equipment_template (name, description, tags, slot, equip_level, base
 ('五行符',     '五张分别代表金木水火土的灵符合一，均衡提升各项属性。',          '["accessory","charm","rare","intermediate"]',    'ACCESSORY', 28,  15, 10, 8, 8, 8, 8,  '{"COMMON":30,"RARE":50,"EPIC":15,"LEGENDARY":5}'),
 ('天命符',     '刻有"天"字的紫金符箓，传说得此符者天命所归。',                 '["accessory","charm","epic","destiny"]',         'ACCESSORY', 52,  25, 20, 15, 15, 15, 18, '{"RARE":30,"EPIC":50,"LEGENDARY":20}'),
 -- 特殊饰品
-('玉净瓶',     '观音菩萨的玉净瓶（当然是仿品），插柳枝甘露水可恢复生命力。',   '["accessory","special","rare","buddhist"]',      'ACCESSORY', 45,  20, 20, 5, 25, 5, 25, '{"COMMON":20,"RARE":50,"EPIC":25,"LEGENDARY":5}'),
+('玉净瓶',     '观音菩萨的玉净瓶（当然是仿品），插柳枝甘露水可回复气血。',   '["accessory","special","rare","buddhist"]',      'ACCESSORY', 45,  20, 20, 5, 25, 5, 25, '{"COMMON":20,"RARE":50,"EPIC":25,"LEGENDARY":5}'),
 ('阴阳玉佩',   '一阴一阳两块玉佩，合二为一方显全效。',                          '["accessory","special","rare","intermediate"]',  'ACCESSORY', 35,  28, 15, 10, 10, 12, 12, '{"COMMON":30,"RARE":50,"EPIC":15,"LEGENDARY":5}'),
 ('万魂幡',     '万千魂灵汇聚的幡旗，阴气森森但增加道力惊人（慎用）。',          '["accessory","special","evil","legendary"]',     'ACCESSORY', 65,  45, 30, 30, 20, 5, 35, '{"EPIC":40,"LEGENDARY":60}'),
 ('山河社稷图','传说女娲的山河社稷图碎片，内含一方小世界。',                     '["accessory","special","mythic","legendary"]',   'ACCESSORY', 85,  60, 40, 35, 35, 20, 45, '{"LEGENDARY":100}');

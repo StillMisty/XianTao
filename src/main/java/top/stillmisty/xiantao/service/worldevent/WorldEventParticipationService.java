@@ -91,7 +91,7 @@ public class WorldEventParticipationService {
             } else if (key.contains("spirit_stone")) {
               parts.add("获得灵石 +" + num.intValue());
             } else if (key.contains("heal") || key.contains("hp")) {
-              parts.add("恢复生命 +" + num.intValue());
+              parts.add("气血 +" + num.intValue());
             } else if (key.contains("item")) {
               parts.add("获得物品：" + value);
             } else {

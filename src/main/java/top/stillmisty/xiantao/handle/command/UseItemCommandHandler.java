@@ -6,10 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
-import top.stillmisty.xiantao.handle.CommandHandlerHelper;
-import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.inventory.ItemUseService;
+import top.stillmisty.xiantao.util.CommandHandlerHelper;
+import top.stillmisty.xiantao.util.TextFormat;
 
 /** 统一使用物品命令处理器 支持：丹药、法决玉简、丹方卷轴 */
 @Slf4j

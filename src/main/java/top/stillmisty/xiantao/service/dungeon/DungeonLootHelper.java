@@ -35,13 +35,21 @@ public class DungeonLootHelper {
     if (lootPool != null && !lootPool.isEmpty()) {
       int rollCount = 1 + ThreadLocalRandom.current().nextInt(1, 3);
 
+      // 批量预加载掉落池模板，避免每次 roll 逐条查询
+      Map<Long, ItemTemplate> lootTemplates =
+          itemTemplateRepository
+              .findByIds(
+                  lootPool.stream().map(DungeonTemplate.LootEntry::templateId).distinct().toList())
+              .stream()
+              .collect(java.util.stream.Collectors.toMap(ItemTemplate::getId, t -> t));
+
       for (int i = 0; i < rollCount; i++) {
         DungeonTemplate.LootEntry entry =
             WeightedRandom.select(
                 lootPool, DungeonTemplate.LootEntry::weight, ThreadLocalRandom.current());
         if (entry == null) continue;
 
-        ItemTemplate template = itemTemplateRepository.findById(entry.templateId()).orElse(null);
+        ItemTemplate template = lootTemplates.get(entry.templateId());
         String itemName = template != null ? template.getName() : "未知物品";
 
         int minQty = entry.minQty() != null ? entry.minQty() : 1;

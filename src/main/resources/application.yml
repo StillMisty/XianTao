@@ -15,9 +15,10 @@ spring:
     connection-fetch: lazy
     # HikariCP 连接池配置
     hikari:
-      maximum-pool-size: 50
+      # LLM 调用不占连接，实际 SQL 并发有限；过大连接池 + 过短获取超时高峰易抛异常
+      maximum-pool-size: 25
       max-lifetime: 1800000
-      connection-timeout: 3000
+      connection-timeout: 10000
       pool-name: XianTaoHikariCP
 
   flyway:
@@ -27,7 +28,8 @@ spring:
     validate-on-migrate: true
   ai:
     deepseek:
-      api-key: ${DEEPSEEK_API_KEY:secret-key}
+      # 缺失时启动即失败（SpringAiConfig @Value 无默认值），避免带假 key 打满重试
+      api-key: ${DEEPSEEK_API_KEY}
       base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
     # OpenAI 兼容模型连接配置（降级后备）
     openai:
@@ -43,13 +45,13 @@ xiantao:
     tiers:
       heavy:
         deepseek: ${XIANTAO_AI_HEAVY_DEEPSEEK:deepseek-v4-pro}
-        openai: ${XIANTAO_AI_HEAVY_OPENAI}
+        openai: ${XIANTAO_AI_HEAVY_OPENAI:gpt-4o}
       standard:
         deepseek: ${XIANTAO_AI_STANDARD_DEEPSEEK:deepseek-v4-flash}
-        openai: ${XIANTAO_AI_STANDARD_OPENAI}
+        openai: ${XIANTAO_AI_STANDARD_OPENAI:gpt-4o-mini}
       light:
         deepseek: ${XIANTAO_AI_LIGHT_DEEPSEEK:deepseek-v4-flash}
-        openai: ${XIANTAO_AI_LIGHT_OPENAI}
+        openai: ${XIANTAO_AI_LIGHT_OPENAI:gpt-4o-mini}
 
 # MyBatis-Flex 配置
 mybatis-flex:

@@ -6,11 +6,11 @@ import love.forte.simbot.event.MessageEvent;
 import love.forte.simbot.quantcat.common.interceptor.AnnotationEventInterceptorFactory;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
-import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.handle.platform.PlatformHandler;
 import top.stillmisty.xiantao.handle.platform.PlatformRegistry;
 import top.stillmisty.xiantao.service.AuthenticationService;
 import top.stillmisty.xiantao.service.UserContext;
+import top.stillmisty.xiantao.util.TextFormat;
 
 /** GM权限拦截器工厂 用于在事件监听层面统一处理GM权限验证 */
 @Component

@@ -117,7 +117,7 @@ public class PillConsumptionService {
     if (user.getStatus() == UserStatus.DYING) {
       user.setHpCurrent(user.calculateMaxHp());
       user.setStatus(UserStatus.IDLE);
-      return "复活并回满生命值";
+      return "复活并回满气血";
     }
 
     int maxHp = user.calculateMaxHp();
@@ -131,9 +131,9 @@ public class PillConsumptionService {
     int actualHealed = Math.min(maxHp - oldHp, healAmount);
     user.setHpCurrent(oldHp + actualHealed);
     if (actualHealed <= 0) {
-      return "生命值已满，药力散入四肢百骸";
+      return "气血已满，药力散入四肢百骸";
     }
-    return "恢复 " + actualHealed + " 生命值";
+    return "恢复 " + actualHealed + " 点气血";
   }
 
   @Nullable
@@ -230,7 +230,7 @@ public class PillConsumptionService {
     if (user.getStatus() == UserStatus.DYING) {
       user.setHpCurrent(user.calculateMaxHp());
       user.setStatus(UserStatus.IDLE);
-      return "驱散异常并回满生命值";
+      return "驱散异常并回满气血";
     }
     return "没有可驱散的异常状态";
   }

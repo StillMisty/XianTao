@@ -6,7 +6,6 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonInstance;
-import top.stillmisty.xiantao.domain.dungeon.entity.DungeonProgress;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonSpiritState;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonTemplate;
 import top.stillmisty.xiantao.domain.sect.enums.ChatType;
@@ -15,7 +14,6 @@ import top.stillmisty.xiantao.infrastructure.repository.DungeonInstanceRepositor
 import top.stillmisty.xiantao.infrastructure.repository.DungeonProgressRepository;
 import top.stillmisty.xiantao.infrastructure.repository.DungeonSpiritStateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.DungeonTemplateRepository;
-import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
@@ -35,6 +33,7 @@ public class DungeonChatService extends AbstractChatService {
   private final DungeonFavorTools dungeonFavorTools;
   private final DungeonSpiritStateHelper spiritStateHelper;
   private final UserStateService userStateService;
+  private final AiChatRateLimiter rateLimiter;
 
   public DungeonChatService(
       ChatClient dungeonChatClient,
@@ -48,7 +47,8 @@ public class DungeonChatService extends AbstractChatService {
       DungeonNavigationTools dungeonNavigationTools,
       DungeonFavorTools dungeonFavorTools,
       DungeonSpiritStateHelper spiritStateHelper,
-      UserStateService userStateService) {
+      UserStateService userStateService,
+      AiChatRateLimiter rateLimiter) {
     super(dungeonChatClient, chatMemory);
     this.dungeonTemplateRepository = dungeonTemplateRepository;
     this.instanceRepository = instanceRepository;
@@ -60,9 +60,11 @@ public class DungeonChatService extends AbstractChatService {
     this.dungeonFavorTools = dungeonFavorTools;
     this.spiritStateHelper = spiritStateHelper;
     this.userStateService = userStateService;
+    this.rateLimiter = rateLimiter;
   }
 
   public ServiceResult<String> chatWithDungeon(Long userId, String userInput) {
+    rateLimiter.checkAllowed(userId);
     try {
       String result = chatInternal(userId, userInput);
       return new ServiceResult.Success<>(result != null ? result : "秘境之灵暂时无法回应...");
@@ -115,30 +117,9 @@ public class DungeonChatService extends AbstractChatService {
                     dungeonNavigationTools,
                     dungeonFavorTools));
 
-    if (spiritState != null) {
-      spiritStateRepository.save(spiritState);
-    }
-
-    DungeonProgress progress =
-        progressRepository
-            .findByUserIdAndDungeonId(userId, dungeon.getId())
-            .orElseGet(
-                () -> {
-                  DungeonProgress p = new DungeonProgress();
-                  p.setUserId(userId);
-                  p.setDungeonId(dungeon.getId());
-                  p.setRewardCount(0);
-                  p.setDailyLimit(
-                      DungeonProgress.calculateDailyLimit(
-                          user.getLevel() != null ? user.getLevel() : 1));
-                  p.setFirstClear(false);
-                  p.setLastRewardDate(TimeUtil.today());
-                  p.setInteractionCount(0);
-                  return p;
-                });
-    progress.setInteractionCount(
-        progress.getInteractionCount() != null ? progress.getInteractionCount() + 1 : 1);
-    progressRepository.save(progress);
+    // 精神状态已在 @Tool 事务内持久化，此处不再冗余保存（避免用陈旧副本覆盖）
+    // 互动计数原子累加，无需先查后改
+    progressRepository.incrementInteractionCount(userId, dungeon.getId());
 
     return response;
   }

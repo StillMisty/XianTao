@@ -15,6 +15,7 @@ public class PerTypeChatMemory implements ChatMemory {
   static final int SPIRIT_MAX = 25;
   static final int SECT_MAX = 10;
   static final int DUNGEON_MAX = 25;
+  static final int TRAVELER_MAX = 20;
 
   private final ChatMemoryRepository repository;
   private final Map<String, MessageWindowChatMemory> delegates = new ConcurrentHashMap<>();
@@ -55,7 +56,7 @@ public class PerTypeChatMemory implements ChatMemory {
       case SPIRIT -> SPIRIT_MAX;
       case SECT -> SECT_MAX;
       case DUNGEON -> DUNGEON_MAX;
-      default -> SHOP_MAX;
+      case TRAVELER -> TRAVELER_MAX;
     };
   }
 }

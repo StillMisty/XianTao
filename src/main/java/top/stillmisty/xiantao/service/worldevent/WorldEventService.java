@@ -1,5 +1,6 @@
 package top.stillmisty.xiantao.service.worldevent;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -91,11 +92,16 @@ public class WorldEventService {
       if (upcoming.getParentEventId() != null
           && upcoming.getParentEventId().equals(expiredEvent.getId())) {
         LocalDateTime now = TimeUtil.now();
+        // 沿用子事件原计划时长（来自模板），而非硬编码 6 小时
+        long plannedHours =
+            Duration.between(upcoming.getStartTime(), upcoming.getEndTime()).toHours();
+        if (plannedHours <= 0) plannedHours = 6;
         upcoming.setStartTime(now);
-        upcoming.setEndTime(now.plusHours(6));
+        upcoming.setEndTime(now.plusHours(plannedHours));
         upcoming.setStatus(WorldEventStatus.ACTIVE);
         worldEventRepository.save(upcoming);
-        log.info("事件链触发: {} → {}", expiredEvent.getTitle(), upcoming.getTitle());
+        log.info(
+            "事件链触发: {} → {}（持续{}小时）", expiredEvent.getTitle(), upcoming.getTitle(), plannedHours);
       }
     }
   }

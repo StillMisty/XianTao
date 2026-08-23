@@ -209,7 +209,7 @@ public class TribulationService {
         """
             ⚡ 天劫降临！未能抵挡天劫化身……
                连胜×%d → 中断 ｜ 被毁地块：%d 个
-               Boss剩余HP：%.0f%%
+               天劫化身剩余气血：%.0f%%
                好感度：%d → %d""",
         oldWinStreak,
         clearCount,

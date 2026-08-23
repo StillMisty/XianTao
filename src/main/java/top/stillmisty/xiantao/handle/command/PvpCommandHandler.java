@@ -7,10 +7,10 @@ import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.monster.vo.CombatLogEntry;
 import top.stillmisty.xiantao.domain.pvp.vo.SparResultVO;
-import top.stillmisty.xiantao.handle.CommandHandlerHelper;
-import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.pvp.PvpService;
+import top.stillmisty.xiantao.util.CommandHandlerHelper;
+import top.stillmisty.xiantao.util.TextFormat;
 
 @Component
 @RequiredArgsConstructor
@@ -56,7 +56,7 @@ public class PvpCommandHandler implements CommandGroup {
       if (entry.damageDealt() > 0) {
         line.append(
             String.format(
-                " (-%d, HP %d→%d)",
+                " (-%d，气血 %d→%d)",
                 entry.damageDealt(), entry.defenderHpBefore(), entry.defenderHpAfter()));
       }
       if (entry.isKill()) {
@@ -65,11 +65,12 @@ public class PvpCommandHandler implements CommandGroup {
       sb.append(fmt.listItem(line.toString()));
     }
 
-    sb.append("\n").append(fmt.bold("剩余状态")).append("\n");
+    // 用 char 字面量避免 ErrorProne StringConcatToTextBlock 插件崩溃
+    sb.append('\n').append(fmt.bold("剩余状态")).append('\n');
     sb.append(formatHpSide(vo.attackerNickname(), vo.attackerHpStatus(), fmt));
     sb.append(formatHpSide(vo.defenderNickname(), vo.defenderHpStatus(), fmt));
 
-    sb.append("\n").append(fmt.tip("切磋为模拟战，不实际消耗 HP，双方状态不变"));
+    sb.append('\n').append(fmt.tip("切磋为模拟战，不实际消耗气血，双方状态不变"));
 
     return sb.toString();
   }

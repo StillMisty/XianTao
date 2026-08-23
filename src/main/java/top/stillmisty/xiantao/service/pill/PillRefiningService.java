@@ -52,11 +52,11 @@ public class PillRefiningService {
   @Transactional
   public PillRefiningResultVO refinePillAutoInternal(Long userId, String recipeName) {
     List<PlayerPillRecipe> recipes = playerPillRecipeRepository.findByUserId(userId);
+    Map<Long, ItemTemplate> templateMap = loadRecipeTemplates(recipes);
     PlayerPillRecipe targetRecipe = null;
     ItemTemplate recipeTemplate = null;
     for (PlayerPillRecipe recipe : recipes) {
-      ItemTemplate template =
-          itemTemplateRepository.findById(recipe.getRecipeTemplateId()).orElse(null);
+      ItemTemplate template = templateMap.get(recipe.getRecipeTemplateId());
       if (template != null && template.getName().contains(recipeName)) {
         targetRecipe = recipe;
         recipeTemplate = template;
@@ -116,9 +116,9 @@ public class PillRefiningService {
     }
 
     List<PlayerPillRecipe> recipes = playerPillRecipeRepository.findByUserId(userId);
+    Map<Long, ItemTemplate> templateMap = loadRecipeTemplates(recipes);
     for (PlayerPillRecipe recipe : recipes) {
-      ItemTemplate recipeTemplate =
-          itemTemplateRepository.findById(recipe.getRecipeTemplateId()).orElse(null);
+      ItemTemplate recipeTemplate = templateMap.get(recipe.getRecipeTemplateId());
       if (recipeTemplate == null) continue;
 
       var recipeScroll = combinationFinder.getRecipeScroll(recipeTemplate);
@@ -177,4 +177,13 @@ public class PillRefiningService {
   }
 
   private record HerbInput(StackableItem herb, int quantity) {}
+
+  /** 批量加载丹方模板，避免循环内逐条查询 */
+  private Map<Long, ItemTemplate> loadRecipeTemplates(List<PlayerPillRecipe> recipes) {
+    List<Long> ids =
+        recipes.stream().map(PlayerPillRecipe::getRecipeTemplateId).distinct().toList();
+    if (ids.isEmpty()) return Map.of();
+    return itemTemplateRepository.findByIds(ids).stream()
+        .collect(java.util.stream.Collectors.toMap(ItemTemplate::getId, t -> t));
+  }
 }

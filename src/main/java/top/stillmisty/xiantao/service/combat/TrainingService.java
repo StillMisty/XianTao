@@ -304,7 +304,7 @@ public class TrainingService {
       sb.append(" → ").append(entry.defenderName());
       if (entry.damageDealt() > 0) {
         sb.append(String.format("（%d点伤害", entry.damageDealt()));
-        sb.append("，HP ")
+        sb.append("，气血 ")
             .append(entry.defenderHpBefore())
             .append(" → ")
             .append(entry.defenderHpAfter());

@@ -25,4 +25,16 @@ public final class FormatUtils {
     if (dateTime == null) return "";
     return dateTime.format(DATE_TIME_FORMATTER);
   }
+
+  private static final String[] CHINESE_DIGITS = {"零", "一", "二", "三", "四", "五", "六", "七", "八", "九"};
+
+  /** 将正整数转为中文数字（一、二…十、十一…九十九），超出九十九回退阿拉伯数字。 用于品阶/阶位等展示场景。例: 3 → "三", 12 → "十二", 100 → "100" */
+  public static String toChineseNumber(int number) {
+    if (number < 0 || number > 99) return String.valueOf(number);
+    if (number < 10) return CHINESE_DIGITS[number];
+    int tens = number / 10;
+    int ones = number % 10;
+    String tensPart = tens == 1 ? "十" : CHINESE_DIGITS[tens] + "十";
+    return ones == 0 ? tensPart : tensPart + CHINESE_DIGITS[ones];
+  }
 }

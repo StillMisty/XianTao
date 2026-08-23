@@ -14,8 +14,8 @@ import top.stillmisty.xiantao.domain.event.EffectData;
 import top.stillmisty.xiantao.domain.notification.entity.GameEvent;
 import top.stillmisty.xiantao.domain.notification.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
-import top.stillmisty.xiantao.handle.CommandHandlerHelper;
-import top.stillmisty.xiantao.handle.TextFormat;
+import top.stillmisty.xiantao.util.CommandHandlerHelper;
+import top.stillmisty.xiantao.util.TextFormat;
 
 /** 通知追加器 — 在每条回复发送前查询未投递事件，格式化后追加到回复尾部 */
 @Slf4j
@@ -146,7 +146,7 @@ public class NotificationAppender {
 
     return switch (event.getCategory()) {
       case TRAVEL_ARRIVED -> "你到达了目的地。";
-      case HP_RECOVERED -> "你的生命值已完全恢复。";
+      case HP_RECOVERED -> "你的气血已完全恢复。";
       case DYING_RECOVERED -> "你从重伤中恢复了过来。";
       case BUFF_EXPIRED -> "身上的增益效果已消失。";
       case BOUNTY_READY -> "悬赏任务已完成，请使用「悬赏结算」领取奖励。";

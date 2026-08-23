@@ -63,14 +63,21 @@ public class BeastProductionService {
       beastName = beast.getBeastName();
     }
 
+    // 批量预加载产出模板类型，避免循环内逐条查询
+    java.util.Map<Long, ItemType> typeByTemplateId =
+        itemTemplateRepository
+            .findByIds(
+                productionStored.stream()
+                    .map(CellConfig.ProductionItem::templateId)
+                    .distinct()
+                    .toList())
+            .stream()
+            .collect(java.util.stream.Collectors.toMap(ItemTemplate::getId, ItemTemplate::getType));
+
     int totalItems = 0;
     for (CellConfig.ProductionItem item : productionStored) {
       if (item.quantity() > 0) {
-        ItemType itemType =
-            itemTemplateRepository
-                .findById(item.templateId())
-                .map(ItemTemplate::getType)
-                .orElse(ItemType.HERB);
+        ItemType itemType = typeByTemplateId.getOrDefault(item.templateId(), ItemType.HERB);
         stackableItemService.addStackableItem(
             fudi.getUserId(), item.templateId(), itemType, item.name(), item.quantity());
         totalItems += item.quantity();

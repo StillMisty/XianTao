@@ -1,4 +1,4 @@
-package top.stillmisty.xiantao.handle;
+package top.stillmisty.xiantao.util;
 
 import java.util.function.Function;
 import java.util.function.Supplier;

@@ -21,6 +21,11 @@ public class DungeonProgressRepository {
     return progress;
   }
 
+  /** 原子累加对话互动次数 */
+  public int incrementInteractionCount(Long userId, Long dungeonId) {
+    return mapper.incrementInteractionCount(userId, dungeonId);
+  }
+
   public Optional<DungeonProgress> findByUserIdAndDungeonId(Long userId, Long dungeonId) {
     QueryWrapper qw =
         QueryWrapper.create()

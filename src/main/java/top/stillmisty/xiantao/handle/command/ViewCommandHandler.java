@@ -18,7 +18,7 @@ import top.stillmisty.xiantao.domain.item.vo.EquipmentDetailVO;
 import top.stillmisty.xiantao.domain.item.vo.StackableItemDetailVO;
 import top.stillmisty.xiantao.domain.monster.vo.MonsterDetailVO;
 import top.stillmisty.xiantao.domain.pill.enums.PillQuality;
-import top.stillmisty.xiantao.handle.TextFormat;
+import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
 import top.stillmisty.xiantao.infrastructure.repository.BeastTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.EquipmentTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
@@ -31,6 +31,7 @@ import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.inventory.EquipmentService;
 import top.stillmisty.xiantao.service.inventory.InventoryService;
+import top.stillmisty.xiantao.util.TextFormat;
 
 @Slf4j
 @Component
@@ -357,8 +358,8 @@ public class ViewCommandHandler implements CommandGroup {
     var sb = new StringBuilder();
     sb.append(fmt.subHeading(vo.name()));
     sb.append(fmt.listItem("类型：" + vo.typeName()));
-    sb.append(fmt.listItem("等级：" + vo.baseLevel()));
-    sb.append(fmt.listItem("HP：" + vo.baseHp()));
+    sb.append(fmt.listItem("境界：" + CultivationRealm.realmDisplay(vo.baseLevel())));
+    sb.append(fmt.listItem("气血：" + vo.baseHp()));
     sb.append(fmt.listItem("攻击：" + vo.baseAttack() + " | 防御：" + vo.baseDefense()));
     sb.append(fmt.listItem("速度：" + vo.baseSpeed()));
     sb.append(fmt.listItem("修为奖励：" + vo.expReward()));

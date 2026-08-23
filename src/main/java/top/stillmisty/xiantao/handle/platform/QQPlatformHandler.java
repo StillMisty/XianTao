@@ -7,8 +7,8 @@ import love.forte.simbot.component.qguild.message.QGMarkdown;
 import love.forte.simbot.event.MessageEvent;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
-import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.service.NotificationAppender;
+import top.stillmisty.xiantao.util.TextFormat;
 
 /** QQ 平台处理器 */
 @Component

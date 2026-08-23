@@ -28,6 +28,7 @@ public class SpiritChatService extends AbstractChatService {
   private final SpiritBeastTools spiritBeastTools;
   private final SpiritInteractionTools spiritInteractionTools;
   private final FudiStateBuilder fudiStateBuilder;
+  private final AiChatRateLimiter rateLimiter;
 
   public SpiritChatService(
       ChatClient spiritChatClient,
@@ -39,7 +40,8 @@ public class SpiritChatService extends AbstractChatService {
       SpiritCellTools spiritCellTools,
       SpiritBeastTools spiritBeastTools,
       SpiritInteractionTools spiritInteractionTools,
-      FudiStateBuilder fudiStateBuilder) {
+      FudiStateBuilder fudiStateBuilder,
+      AiChatRateLimiter rateLimiter) {
     super(spiritChatClient, chatMemory);
     this.fudiRepository = fudiRepository;
     this.spiritRepository = spiritRepository;
@@ -49,9 +51,11 @@ public class SpiritChatService extends AbstractChatService {
     this.spiritBeastTools = spiritBeastTools;
     this.spiritInteractionTools = spiritInteractionTools;
     this.fudiStateBuilder = fudiStateBuilder;
+    this.rateLimiter = rateLimiter;
   }
 
   public ServiceResult<String> chatWithSpirit(Long userId, String userInput) {
+    rateLimiter.checkAllowed(userId);
     try {
       String result = chatWithSpiritInternal(userId, userInput);
       return new ServiceResult.Success<>(result != null ? result : "地灵暂时无法回应，请稍后再试。");

@@ -50,7 +50,7 @@ class HpRecoveryHandler implements StateHandler {
     if (user.getHpCurrent() >= maxHp) {
       gameEventService.save(
           GameEvent.create(user.getId(), GameEventCategory.HP_RECOVERED)
-              .withNarrative("你的生命值已完全恢复。", null));
+              .withNarrative("你的气血已完全恢复。", null));
     }
 
     log.debug("玩家 {} HP 自然恢复 {} 格，当前 {}/{}", user.getId(), ticks, user.getHpCurrent(), maxHp);

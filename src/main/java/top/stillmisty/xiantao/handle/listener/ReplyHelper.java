@@ -4,10 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import love.forte.simbot.event.MessageEvent;
 import org.springframework.stereotype.Component;
-import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.handle.platform.PlatformHandler;
 import top.stillmisty.xiantao.handle.platform.PlatformRegistry;
 import top.stillmisty.xiantao.service.UserContext;
+import top.stillmisty.xiantao.util.TextFormat;
 
 /** 平台回复辅助 集中处理多平台回复方式 */
 @Component

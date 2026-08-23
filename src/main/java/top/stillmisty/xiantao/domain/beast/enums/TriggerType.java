@@ -5,7 +5,7 @@ import lombok.Getter;
 /** 变异效果触发条件类型 */
 @Getter
 public enum TriggerType {
-  HP_BELOW("HP_BELOW", "生命值低于阈值"),
+  HP_BELOW("HP_BELOW", "气血低于阈值"),
   ON_KILL("ON_KILL", "击杀时"),
   ON_HIT("ON_HIT", "命中时"),
   ON_ATTACKED("ON_ATTACKED", "被攻击时"),

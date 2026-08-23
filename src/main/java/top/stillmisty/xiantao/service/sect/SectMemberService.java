@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 import top.stillmisty.xiantao.domain.sect.entity.Sect;
 import top.stillmisty.xiantao.domain.sect.entity.SectMember;
 import top.stillmisty.xiantao.domain.sect.enums.SectPosition;
@@ -51,6 +52,7 @@ public class SectMemberService {
   private final PlayerSkillRepository playerSkillRepository;
   private final ChatClient npcChatClient;
   private final SpiritStoneService spiritStoneService;
+  private final TransactionTemplate transactionTemplate;
 
   // ===================== 公开 API =====================
 
@@ -58,14 +60,13 @@ public class SectMemberService {
     return new ServiceResult.Success<>(getSectOverviewInternal(userId));
   }
 
-  @Transactional
+  /** 建宗编排：校验与 LLM 身份生成在事务外执行（LLM 往返可达数十秒，事务内进行会长时间 占用连接并持有扣款行锁），仅落库+扣款在短事务内完成。 */
   public ServiceResult<String> createSect(Long userId, String name) {
-    return new ServiceResult.Success<>(createSectInternal(userId, name, ""));
+    return new ServiceResult.Success<>(createSectFlow(userId, name, ""));
   }
 
-  @Transactional
   public ServiceResult<String> createSectWithEthos(Long userId, String name, String ethosDesc) {
-    return new ServiceResult.Success<>(createSectInternal(userId, name, ethosDesc));
+    return new ServiceResult.Success<>(createSectFlow(userId, name, ethosDesc));
   }
 
   @Transactional
@@ -186,27 +187,35 @@ public class SectMemberService {
         memberEntries);
   }
 
-  @Transactional
-  public String createSectInternal(Long userId, String name, String ethosDesc) {
-    Player user = userStateService.loadUser(userId);
+  private String createSectFlow(Long userId, String name, String ethosDesc) {
+    Player user = userStateService.loadUserReadOnly(userId);
 
     if (CultivationRealm.fromLevel(user.getLevel()).getRank()
         < CultivationRealm.GOLDEN_CORE.getRank()) {
       throw new BusinessException(ErrorCode.SECT_CREATE_LEVEL_INSUFFICIENT);
     }
-
     if (sectMemberRepository.findByUserId(userId).isPresent()) {
       throw new BusinessException(ErrorCode.SECT_ALREADY_IN, "已有宗门");
     }
-
     if (sectRepository.findByName(name).isPresent()) {
       throw new BusinessException(ErrorCode.SECT_NAME_TAKEN, name);
     }
 
-    spiritStoneService.withdraw(userId, SECT_CREATE_COST);
+    // LLM 身份生成在事务外执行；玩家可控文本先净化，防 prompt 注入
+    String safeEthos = ethosDesc == null ? "" : sanitizePromptText(ethosDesc, 200);
+    String[] llmResult = generateSectIdentity(name, safeEthos);
 
-    String[] llmResult = generateSectIdentity(name, ethosDesc);
+    // 短事务：扣款 + 落库（宗门名唯一由 uq_sect_name 兜底并发）
+    String result =
+        transactionTemplate.execute(
+            status -> {
+              spiritStoneService.withdraw(userId, SECT_CREATE_COST);
+              return persistNewSect(userId, name, llmResult);
+            });
+    return result != null ? result : "宗门创建失败，请稍后再试。";
+  }
 
+  private String persistNewSect(Long userId, String name, String[] llmResult) {
     Sect sect =
         Sect.create()
             .setName(name)
@@ -292,6 +301,7 @@ public class SectMemberService {
 
       if (verse.length() > 100) verse = verse.substring(0, 100);
       if (personality.length() > 100) personality = personality.substring(0, 100);
+      if (ethos.length() > 200) ethos = ethos.substring(0, 200);
 
       return new String[] {verse, ethos, personality};
     } catch (Exception e) {
@@ -495,21 +505,33 @@ public class SectMemberService {
     return "宗门【" + sect.getName() + "】已解散。";
   }
 
+  /** 公告长度上限（公告会拼入宗灵 system prompt，过长或含控制字符存在注入与 token 风险） */
+  private static final int NOTICE_MAX_LENGTH = 200;
+
   @Transactional
   public String setNoticeInternal(Long userId, String content) {
     SectMember member = requireMember(userId);
     if (!member.getPosition().canPostNotice()) {
       throw new BusinessException(ErrorCode.SECT_NO_PERMISSION, "发布公告");
     }
+    if (content == null || content.isBlank()) {
+      throw new BusinessException(ErrorCode.PARAM_INVALID, "公告内容不能为空");
+    }
 
     Sect sect =
         sectRepository
             .findById(requireSectId(member))
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_FOUND));
-    sect.setNotice(content);
+    sect.setNotice(sanitizePromptText(content, NOTICE_MAX_LENGTH));
     sectRepository.save(sect);
 
     return "宗门公告已更新。";
+  }
+
+  /** 玩家可控文本进入 LLM prompt 前的净化：剥离控制字符与换行（防伪指令注入），截断至安全长度。 */
+  static String sanitizePromptText(String text, int maxLength) {
+    String cleaned = text.replaceAll("[\\p{Cntrl}\\n\\r\\t]", " ").trim();
+    return cleaned.length() > maxLength ? cleaned.substring(0, maxLength) : cleaned;
   }
 
   @Transactional

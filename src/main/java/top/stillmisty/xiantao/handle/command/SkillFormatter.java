@@ -19,12 +19,12 @@ final class SkillFormatter {
           }
           case EXECUTE -> {
             int threshold = effect.value() != null ? (int) (effect.value() * 100) : 30;
-            yield formatFormula(effect.formula()) + "，血量<" + threshold + "%时双倍";
+            yield formatFormula(effect.formula()) + "，气血<" + threshold + "%时双倍";
           }
           case HEAL -> formatFormula(effect.formula());
           case LIFESTEAL -> {
             int pct = effect.value() != null ? effect.value().intValue() : 25;
-            yield "恢复" + pct + "%伤害为生命";
+            yield "恢复" + pct + "%伤害为气血";
           }
           case ATTACK_BUFF, DEFENSE_BUFF, SPEED_BUFF -> {
             int pct = effect.value() != null ? effect.value().intValue() : 20;

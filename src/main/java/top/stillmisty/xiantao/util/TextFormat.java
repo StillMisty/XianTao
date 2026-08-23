@@ -1,4 +1,4 @@
-package top.stillmisty.xiantao.handle;
+package top.stillmisty.xiantao.util;
 
 /** 文本格式抽象 */
 public interface TextFormat {

@@ -174,7 +174,7 @@ public class BuffManager {
       } else if (buff.getType() == BuffType.HEAL) {
         int heal = (int) (buff.getValue() * buff.getStackCount());
         totalEffect += heal;
-        log.debug("持续治疗: {} 恢复 {} 生命", buff.getSource(), heal);
+        log.debug("持续治疗: {} 恢复 {} 气血", buff.getSource(), heal);
       }
 
       buff.tick();

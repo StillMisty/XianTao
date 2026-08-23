@@ -6,11 +6,13 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.sect.vo.SectOverviewVO;
-import top.stillmisty.xiantao.handle.CommandHandlerHelper;
-import top.stillmisty.xiantao.handle.TextFormat;
+import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
+import top.stillmisty.xiantao.infrastructure.util.FormatUtils;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.ai.SectSpiritChatService;
 import top.stillmisty.xiantao.service.sect.SectMemberService;
+import top.stillmisty.xiantao.util.CommandHandlerHelper;
+import top.stillmisty.xiantao.util.TextFormat;
 
 @Component
 @RequiredArgsConstructor
@@ -64,7 +66,7 @@ public class SectCommandHandler implements CommandGroup {
     if (vo.verse() != null && !vo.verse().isBlank()) {
       sb.append(vo.verse()).append("\n");
     }
-    sb.append(fmt.listItem("等级：Lv." + vo.level()));
+    sb.append(fmt.listItem("品阶：" + FormatUtils.toChineseNumber(vo.level()) + "品"));
     sb.append(fmt.listItem("宗主：" + vo.leaderNickname()));
     sb.append(fmt.listItem("成员：" + vo.memberCount() + "/" + vo.maxMembers()));
     sb.append(fmt.listItem("资金：" + vo.funds() + " 灵石"));
@@ -82,7 +84,13 @@ public class SectCommandHandler implements CommandGroup {
     sb.append(fmt.separator());
     sb.append(fmt.heading("成员列表"));
     for (var m : vo.members()) {
-      var memberLine = m.positionName() + " " + m.nickname() + " (Lv." + m.level() + ")";
+      var memberLine =
+          m.positionName()
+              + " "
+              + m.nickname()
+              + "（"
+              + CultivationRealm.realmDisplay(m.level())
+              + "）";
       if (m.isMe()) memberLine += " [我]";
       sb.append(fmt.listItem(memberLine));
     }
@@ -107,7 +115,7 @@ public class SectCommandHandler implements CommandGroup {
   @Override
   public List<CommandEntry> commands() {
     return List.of(
-        new CommandEntry("宗门", "查看宗门总览（名称、等级、成员、资金、公告、事件）", "宗门"),
+        new CommandEntry("宗门", "查看宗门总览（名称、品阶、成员、资金、公告、事件）", "宗门"),
         new CommandEntry("宗门创建 「名称」 「道统描述?」", "创建宗门（金丹期+5000灵石）", "宗门创建 青云宗 以剑入道"),
         new CommandEntry("宗灵 「内容」", "与宗灵对话，执行所有宗门事务", "宗灵 我想捐献灵石"),
         new CommandEntry("宗门退出", "退出宗门（贡献清零，遗忘共享功法，24h冷却）", "宗门退出"),

@@ -105,12 +105,13 @@ public class ChatMemoryRepositoryAdapter implements ChatMemoryRepository {
   }
 
   private static int maxMessagesFor(ChatType type) {
+    // 与 PerTypeChatMemory 的读取窗口保持一致，避免读不全或裁剪边界抖动
     return switch (type) {
       case SHOP -> PerTypeChatMemory.SHOP_MAX;
       case SPIRIT -> PerTypeChatMemory.SPIRIT_MAX;
       case SECT -> PerTypeChatMemory.SECT_MAX;
       case DUNGEON -> PerTypeChatMemory.DUNGEON_MAX;
-      default -> 25;
+      case TRAVELER -> PerTypeChatMemory.TRAVELER_MAX;
     };
   }
 

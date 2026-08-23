@@ -7,10 +7,10 @@ import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
-import top.stillmisty.xiantao.handle.CommandHandlerHelper;
-import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.player.UserService;
+import top.stillmisty.xiantao.util.CommandHandlerHelper;
+import top.stillmisty.xiantao.util.TextFormat;
 
 @Slf4j
 @Component

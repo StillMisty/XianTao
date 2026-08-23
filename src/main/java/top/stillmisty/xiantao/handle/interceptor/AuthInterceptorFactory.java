@@ -6,11 +6,11 @@ import love.forte.simbot.event.MessageEvent;
 import love.forte.simbot.quantcat.common.interceptor.AnnotationEventInterceptorFactory;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
-import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.handle.platform.PlatformRegistry;
 import top.stillmisty.xiantao.service.AuthenticationService;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
+import top.stillmisty.xiantao.util.TextFormat;
 
 /** 认证拦截器工厂 用于在事件监听层面统一处理认证，消除Service层的双层API */
 @Component

@@ -147,7 +147,7 @@ public class GmService {
     target.setDyingStartTime(null);
     userRepository.save(target);
     log.info("GM {} 复活 {}（HP 恢复至 {}）", gmUserId, targetNickname, maxHp);
-    return String.format("已复活 %s（HP：%d，状态：空闲）", targetNickname, maxHp);
+    return String.format("已复活 %s（气血：%d，状态：空闲）", targetNickname, maxHp);
   }
 
   @Transactional

@@ -10,11 +10,11 @@ import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
 import top.stillmisty.xiantao.domain.user.vo.BreakthroughResult;
 import top.stillmisty.xiantao.domain.user.vo.DaoProtectionQueryResult;
 import top.stillmisty.xiantao.domain.user.vo.DaoProtectionResult;
-import top.stillmisty.xiantao.handle.CommandHandlerHelper;
-import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.cultivation.CultivationService;
 import top.stillmisty.xiantao.service.cultivation.DaoProtectionService;
+import top.stillmisty.xiantao.util.CommandHandlerHelper;
+import top.stillmisty.xiantao.util.TextFormat;
 
 @Slf4j
 @Component
@@ -79,7 +79,7 @@ public class CultivationCommandHandler implements CommandGroup {
                 (name, hp) ->
                     sb.append(
                         fmt.listItem(
-                            String.format("%s HP：%d → %d", name, hp.before(), hp.after()))));
+                            String.format("%s 气血：%d → %d", name, hp.before(), hp.after()))));
       }
     } else {
       if (result.successRate() != null)

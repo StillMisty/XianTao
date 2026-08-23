@@ -54,7 +54,8 @@ public class FallbackChatModel implements ChatModel {
         Prompt p = adaptPrompt(prompt, delegate, i == 0 ? null : fallbackModel);
         return delegate.call(p);
       } catch (Exception e) {
-        log.warn("ChatModel[{}] failed, trying next: {}", i, e.getMessage());
+        // 首个失败即打完整堆栈，便于排障（最终异常只有链尾信息）
+        log.warn("ChatModel[{}] failed, trying next", i, e);
         lastException = e;
       }
     }

@@ -24,8 +24,6 @@ import top.stillmisty.xiantao.domain.map.vo.TrainingRewardVO;
 import top.stillmisty.xiantao.domain.map.vo.TravelResultVO;
 import top.stillmisty.xiantao.domain.monster.vo.DropItem;
 import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
-import top.stillmisty.xiantao.handle.CommandHandlerHelper;
-import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.infrastructure.repository.EquipmentTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.util.FormatUtils;
@@ -37,6 +35,8 @@ import top.stillmisty.xiantao.service.bounty.BountyService;
 import top.stillmisty.xiantao.service.combat.TrainingService;
 import top.stillmisty.xiantao.service.map.MapService;
 import top.stillmisty.xiantao.service.map.TravelService;
+import top.stillmisty.xiantao.util.CommandHandlerHelper;
+import top.stillmisty.xiantao.util.TextFormat;
 
 @Slf4j
 @Component
@@ -241,7 +241,7 @@ public class MapCommandHandler implements CommandGroup {
       if (b.description() != null && !b.description().isEmpty()) {
         sb.append(String.format("  %s\n", b.description()));
       }
-      sb.append(fmt.listItem("推荐等级: " + b.requireLevel()));
+      sb.append(fmt.listItem("推荐境界：" + CultivationRealm.realmDisplay(b.requireLevel())));
       if (b.rewards() != null && !b.rewards().isEmpty()) {
         sb.append(
             fmt.listItem(
@@ -352,11 +352,15 @@ public class MapCommandHandler implements CommandGroup {
             monster.getMinCount() == monster.getMaxCount()
                 ? String.valueOf(monster.getMinCount())
                 : monster.getMinCount() + "~" + monster.getMaxCount();
+        String levelText =
+            monster.getBaseLevel() != null
+                ? CultivationRealm.realmDisplay(monster.getBaseLevel())
+                : "未知";
         sb.append(
             fmt.listItem(
                 String.format(
-                    "%s [%s] Lv%d  数量:%s",
-                    monster.getName(), monster.getTypeName(), monster.getBaseLevel(), countRange)));
+                    "%s [%s·%s]  数量:%s",
+                    monster.getName(), monster.getTypeName(), levelText, countRange)));
       }
     }
     if (map.getAdjacentMapNames() != null && !map.getAdjacentMapNames().isEmpty()) {

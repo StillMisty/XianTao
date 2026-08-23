@@ -1,13 +1,11 @@
 package top.stillmisty.xiantao.service.ai;
 
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.AssistantMessage;
-import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.deepseek.DeepSeekAssistantMessage;
 import top.stillmisty.xiantao.domain.sect.enums.ChatType;
@@ -29,13 +27,11 @@ public abstract class AbstractChatService {
       Object... tools) {
     String conversationId = new ConversationId(chatType, userId, entityId).value();
 
-    List<Message> history = chatMemory.get(conversationId);
-
     ChatResponse chatResponse =
         chatClient
             .prompt()
             .system(systemPrompt)
-            .messages(history)
+            // 历史记忆由 MessageChatMemoryAdvisor 统一加载，此处不再手动 get（避免每轮双查 chat_history）
             .user(userInput)
             .tools(tools)
             .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, conversationId))

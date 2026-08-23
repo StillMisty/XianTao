@@ -29,6 +29,7 @@ public class SectSpiritChatService extends AbstractChatService {
   private final SectBuildingService sectBuildingService;
   private final UserRepository userRepository;
   private final SectPromptTemplates promptTemplates;
+  private final AiChatRateLimiter rateLimiter;
 
   public SectSpiritChatService(
       ChatClient sectChatClient,
@@ -40,7 +41,8 @@ public class SectSpiritChatService extends AbstractChatService {
       SectLeaderTools sectLeaderTools,
       SectBuildingService sectBuildingService,
       UserRepository userRepository,
-      SectPromptTemplates promptTemplates) {
+      SectPromptTemplates promptTemplates,
+      AiChatRateLimiter rateLimiter) {
     super(sectChatClient, chatMemory);
     this.sectRepository = sectRepository;
     this.sectMemberRepository = sectMemberRepository;
@@ -50,9 +52,11 @@ public class SectSpiritChatService extends AbstractChatService {
     this.sectBuildingService = sectBuildingService;
     this.userRepository = userRepository;
     this.promptTemplates = promptTemplates;
+    this.rateLimiter = rateLimiter;
   }
 
   public ServiceResult<String> chatWithSectSpirit(Long userId, String userInput) {
+    rateLimiter.checkAllowed(userId);
     try {
       String result = chatWithSectSpiritInternal(userId, userInput);
       return new ServiceResult.Success<>(result);

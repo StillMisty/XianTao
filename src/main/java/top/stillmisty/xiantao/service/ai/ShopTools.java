@@ -133,7 +133,14 @@ public class ShopTools {
       var matchingItems = shopService.findStackableItemsByName(userId, itemName);
 
       if (matchingEquipment.isEmpty() && matchingItems.isEmpty()) {
-        return new AppraisalResult(false, 0, 0, 0, itemName, "背包中未找到名为「" + itemName + "」的物品");
+        // 玩家输入经定界与净化后回传模型，防伪指令二次注入
+        return new AppraisalResult(
+            false,
+            0,
+            0,
+            0,
+            sanitizeItemName(itemName),
+            "背包中未找到名为「" + sanitizeItemName(itemName) + "」的物品");
       }
 
       int totalMatches = matchingEquipment.size() + matchingItems.size();
@@ -337,5 +344,12 @@ public class ShopTools {
       log.debug("估价堆叠物品失败, fallback: itemId={}", itemId, e);
       return null;
     }
+  }
+
+  /** 玩家输入回传 LLM 前剥离控制字符并限长，防止工具结果中的伪指令注入 */
+  static String sanitizeItemName(String input) {
+    if (input == null) return "";
+    String cleaned = input.replaceAll("[\\p{Cntrl}\\n\\r\\t]", " ").trim();
+    return cleaned.length() > 64 ? cleaned.substring(0, 64) : cleaned;
   }
 }

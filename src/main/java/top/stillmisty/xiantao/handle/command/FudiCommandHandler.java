@@ -4,15 +4,17 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.fudi.enums.CellType;
 import top.stillmisty.xiantao.domain.fudi.vo.FudiStatusVO;
-import top.stillmisty.xiantao.handle.CommandHandlerHelper;
-import top.stillmisty.xiantao.handle.TextFormat;
+import top.stillmisty.xiantao.infrastructure.util.FormatUtils;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.ai.SpiritChatService;
 import top.stillmisty.xiantao.service.fudi.FudiService;
+import top.stillmisty.xiantao.util.CommandHandlerHelper;
+import top.stillmisty.xiantao.util.TextFormat;
 
 @Component
 @Slf4j
@@ -84,7 +86,7 @@ public class FudiCommandHandler implements CommandGroup {
         header.append("No.").append(cell.cellId()).append(" ");
         header.append(cell.type().getChineseName());
         if (cell.cellLevel() != null && cell.cellLevel() > 1) {
-          header.append(" Lv").append(cell.cellLevel());
+          header.append(" ").append(FormatUtils.toChineseNumber(cell.cellLevel())).append("阶");
         }
         if (cell.name() != null) {
           header.append(" - ").append(cell.name());
@@ -106,7 +108,7 @@ public class FudiCommandHandler implements CommandGroup {
               sb.append(fmt.subListItem("品质: " + cell.quality()));
             }
             if (cell.level() != null && cell.level() > 0) {
-              sb.append(fmt.subListItem("等阶: T" + cell.level()));
+              sb.append(fmt.subListItem("等阶：" + Beast.getTierName(cell.level())));
             }
             if (cell.mutationTraits() != null && !cell.mutationTraits().isEmpty()) {
               sb.append(fmt.subListItem("特质: " + String.join(", ", cell.mutationTraits())));

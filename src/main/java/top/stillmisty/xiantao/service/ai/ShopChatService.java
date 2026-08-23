@@ -25,6 +25,7 @@ public class ShopChatService extends AbstractChatService {
   private final WorldEventRepository worldEventRepository;
 
   private final ShopPromptTemplates promptTemplates;
+  private final AiChatRateLimiter rateLimiter;
 
   public ShopChatService(
       ChatClient shopChatClient,
@@ -33,16 +34,19 @@ public class ShopChatService extends AbstractChatService {
       ShopTools shopTools,
       UserStateService userStateService,
       WorldEventRepository worldEventRepository,
-      ShopPromptTemplates promptTemplates) {
+      ShopPromptTemplates promptTemplates,
+      AiChatRateLimiter rateLimiter) {
     super(shopChatClient, chatMemory);
     this.shopService = shopService;
     this.shopTools = shopTools;
     this.userStateService = userStateService;
     this.worldEventRepository = worldEventRepository;
     this.promptTemplates = promptTemplates;
+    this.rateLimiter = rateLimiter;
   }
 
   public ServiceResult<String> chatWithShopkeeper(Long userId, String userInput) {
+    rateLimiter.checkAllowed(userId);
     try {
       String result = chatWithShopkeeperInternal(userId, userInput);
       return new ServiceResult.Success<>(result);

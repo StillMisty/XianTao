@@ -9,11 +9,11 @@ import top.stillmisty.xiantao.domain.command.CommandGroup;
 import top.stillmisty.xiantao.domain.item.vo.CharacterStatusResult;
 import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
-import top.stillmisty.xiantao.handle.CommandHandlerHelper;
-import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.infrastructure.util.FormatUtils;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.player.CharacterStatusService;
+import top.stillmisty.xiantao.util.CommandHandlerHelper;
+import top.stillmisty.xiantao.util.TextFormat;
 
 @Slf4j
 @Component
@@ -71,7 +71,7 @@ public class StatusCommandHandler implements CommandGroup {
     sb.append(
         fmt.listItem(
             String.format(
-                "HP：%d/%d (%.1f%%)", status.hpCurrent(), status.hpMax(), status.hpPercentage())));
+                "气血：%d/%d (%.1f%%)", status.hpCurrent(), status.hpMax(), status.hpPercentage())));
     sb.append("\n");
     sb.append(fmt.heading("基础属性"));
     sb.append(fmt.listItem("力道：" + formatAttrWithBonus(status.statStr(), status.equipStr())));

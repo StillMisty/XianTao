@@ -20,7 +20,7 @@ public enum EffectType {
   SILENCE("SILENCE", "沉默"),
   AOE_DAMAGE("AOE_DAMAGE", "群体伤害"),
   RESIST_BUFF("RESIST_BUFF", "抗性增益"),
-  HP_BUFF("HP_BUFF", "生命增益"),
+  HP_BUFF("HP_BUFF", "气血增益"),
   DODGE("DODGE", "闪避"),
   CLEANSE("CLEANSE", "净化"),
   COUNTER("COUNTER", "反击"),

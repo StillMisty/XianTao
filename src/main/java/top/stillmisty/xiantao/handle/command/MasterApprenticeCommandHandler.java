@@ -5,10 +5,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.command.CommandEntry;
 import top.stillmisty.xiantao.domain.command.CommandGroup;
-import top.stillmisty.xiantao.handle.CommandHandlerHelper;
-import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.masterapprentice.MasterApprenticeService;
+import top.stillmisty.xiantao.util.CommandHandlerHelper;
+import top.stillmisty.xiantao.util.TextFormat;
 
 @Component
 @RequiredArgsConstructor
@@ -72,11 +72,9 @@ public class MasterApprenticeCommandHandler implements CommandGroup {
           fmt.listItem(
               "师傅: "
                   + fmt.bold(info.masterName() != null ? info.masterName() : "未知")
-                  + " (Lv."
-                  + info.masterLevel()
-                  + " "
+                  + "（"
                   + info.masterRealmDisplay()
-                  + ")"));
+                  + "）"));
       sb.append(fmt.listItem("状态: " + info.status()));
     } else {
       sb.append("你尚未拜师，逍遥自在。\n");
@@ -89,11 +87,9 @@ public class MasterApprenticeCommandHandler implements CommandGroup {
         sb.append(
             fmt.listItem(
                 fmt.bold(apprentice.nickname())
-                    + " (Lv."
-                    + apprentice.level()
-                    + " "
+                    + "（"
                     + apprentice.realmDisplay()
-                    + ") "
+                    + "） "
                     + apprentice.status()));
       }
     }

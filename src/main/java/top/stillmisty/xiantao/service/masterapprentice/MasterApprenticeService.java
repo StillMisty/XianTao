@@ -3,6 +3,7 @@ package top.stillmisty.xiantao.service.masterapprentice;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -166,9 +167,17 @@ public class MasterApprenticeService {
       }
     }
 
+    // 展示路径批量读取，无需行锁
+    var apprenticeIds =
+        activeApprentices.stream().map(MasterApprentice::getApprenticeId).distinct().toList();
+    Map<Long, Player> apprenticeMap =
+        userRepository.findByIds(apprenticeIds).stream()
+            .collect(java.util.stream.Collectors.toMap(Player::getId, u -> u));
+
     List<ApprenticeInfoVO> apprentices = new ArrayList<>();
     for (MasterApprentice ma : activeApprentices) {
-      Player apprentice = userStateService.loadUser(ma.getApprenticeId());
+      Player apprentice = apprenticeMap.get(ma.getApprenticeId());
+      if (apprentice == null) continue;
       apprentices.add(
           new ApprenticeInfoVO(
               apprentice.getId(),

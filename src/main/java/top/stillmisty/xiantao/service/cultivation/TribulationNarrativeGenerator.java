@@ -109,7 +109,7 @@ public class TribulationNarrativeGenerator {
           .playerHpChange()
           .forEach(
               (name, hp) ->
-                  sb.append(String.format("%s HP：%d → %d\n", name, hp.before(), hp.after())));
+                  sb.append(String.format("%s 气血：%d → %d\n", name, hp.before(), hp.after())));
     }
 
     if (result.skillProcs() != null && !result.skillProcs().isEmpty()) {
@@ -133,7 +133,7 @@ public class TribulationNarrativeGenerator {
                         : "攻击";
                 String line =
                     String.format(
-                        "  第%d回合：%s%s，对%s造成%d伤害 (HP: %d→%d)",
+                        "  第%d回合：%s%s，对%s造成%d伤害（气血：%d→%d）",
                         e.round(),
                         e.attackerName(),
                         action,

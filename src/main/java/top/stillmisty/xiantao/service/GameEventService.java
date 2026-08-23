@@ -49,7 +49,7 @@ public class GameEventService {
   }
 
   /** 定时清理任务：每天凌晨3点清理7天前的已投递事件 */
-  @Scheduled(cron = "0 0 3 * * ?")
+  @Scheduled(cron = "0 0 3 * * ?", zone = "Asia/Shanghai")
   @Transactional
   public void scheduledCleanup() {
     int deleted = cleanupDelivered(7);

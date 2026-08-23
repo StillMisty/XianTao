@@ -13,13 +13,13 @@ import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.item.vo.AttributeChange;
 import top.stillmisty.xiantao.domain.item.vo.InventorySummaryVO;
 import top.stillmisty.xiantao.domain.item.vo.ItemEntry;
-import top.stillmisty.xiantao.handle.CommandHandlerHelper;
-import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.inventory.DiscardService;
 import top.stillmisty.xiantao.service.inventory.EquipmentService;
 import top.stillmisty.xiantao.service.inventory.InventoryService;
+import top.stillmisty.xiantao.util.CommandHandlerHelper;
+import top.stillmisty.xiantao.util.TextFormat;
 
 @Slf4j
 @Component
@@ -187,7 +187,7 @@ public class InventoryCommandHandler implements CommandGroup {
         sb.append(formatAttrChange("攻击", change.attackChange())).append("\n");
       if (change.defenseChange() != 0)
         sb.append(formatAttrChange("防御", change.defenseChange())).append("\n");
-      if (change.maxHpChange() != 0) sb.append(formatAttrChange("HP上限", change.maxHpChange()));
+      if (change.maxHpChange() != 0) sb.append(formatAttrChange("气血上限", change.maxHpChange()));
     }
     return sb.toString();
   }

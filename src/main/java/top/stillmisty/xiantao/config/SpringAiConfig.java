@@ -1,5 +1,6 @@
 package top.stillmisty.xiantao.config;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -14,11 +15,16 @@ import org.springframework.ai.chat.memory.ChatMemoryRepository;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.deepseek.DeepSeekChatModel;
 import org.springframework.ai.deepseek.DeepSeekChatOptions;
+import org.springframework.ai.deepseek.api.DeepSeekApi;
+import org.springframework.ai.model.SimpleApiKey;
 import org.springframework.ai.model.deepseek.autoconfigure.DeepSeekChatProperties;
 import org.springframework.ai.model.openai.autoconfigure.OpenAiChatProperties;
 import org.springframework.ai.model.tool.ToolCallingManager;
 import org.springframework.ai.openai.OpenAiChatModel;
+import org.springframework.ai.retry.RetryUtils;
+import org.springframework.ai.retry.TransientAiException;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Condition;
@@ -26,7 +32,12 @@ import org.springframework.context.annotation.ConditionContext;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.retry.RetryPolicy;
+import org.springframework.core.retry.RetryTemplate;
 import org.springframework.core.type.AnnotatedTypeMetadata;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestClient;
 import top.stillmisty.xiantao.service.ai.ChatOptionsAdapter;
 import top.stillmisty.xiantao.service.ai.DeepSeekChatOptionsAdapter;
 import top.stillmisty.xiantao.service.ai.FallbackChatModel;
@@ -42,7 +53,21 @@ public class SpringAiConfig {
   private static final int SPIRIT_MAX_TOKENS = 1200;
   private static final int SECT_MAX_TOKENS = 600;
   private static final int DUNGEON_MAX_TOKENS = 1500;
-  private static final int GENERIC_MAX_TOKENS = 150;
+  private static final int GENERIC_MAX_TOKENS = 400;
+
+  /** AI 请求重试：最多 2 次、1s 起步指数退避、上限 5s（框架默认 10 次最长 180s 会长时间阻塞玩家） */
+  private static RetryTemplate aiRetryTemplate() {
+    RetryPolicy retryPolicy =
+        RetryPolicy.builder()
+            .maxRetries(2)
+            .includes(TransientAiException.class)
+            .includes(ResourceAccessException.class)
+            .delay(Duration.ofSeconds(1))
+            .multiplier(2.0)
+            .maxDelay(Duration.ofSeconds(5))
+            .build();
+    return new RetryTemplate(retryPolicy);
+  }
 
   @Bean
   @Primary
@@ -54,10 +79,33 @@ public class SpringAiConfig {
 
   @Bean
   @Conditional(ChatModelConfigured.DeepSeek.class)
-  public DeepSeekChatModel deepSeekChatModel(DeepSeekChatProperties chatProperties) {
-    return DeepSeekChatModel.builder().options(chatProperties.toOptions()).build();
+  public DeepSeekChatModel deepSeekChatModel(
+      DeepSeekChatProperties chatProperties,
+      @Value("${spring.ai.deepseek.base-url:https://api.deepseek.com}") String baseUrl,
+      @Value("${spring.ai.deepseek.api-key}") String apiKey) {
+    // 显式配置 HTTP 超时：默认无超时会导致挂起连接永久占用虚拟线程
+    SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+    requestFactory.setConnectTimeout((int) Duration.ofSeconds(5).toMillis());
+    requestFactory.setReadTimeout((int) Duration.ofSeconds(60).toMillis());
+
+    DeepSeekApi deepSeekApi =
+        DeepSeekApi.builder()
+            .baseUrl(baseUrl)
+            .apiKey(new SimpleApiKey(apiKey))
+            .completionsPath(chatProperties.getCompletionsPath())
+            .betaPrefixPath(chatProperties.getBetaPrefixPath())
+            .restClientBuilder(RestClient.builder().requestFactory(requestFactory))
+            .responseErrorHandler(RetryUtils.DEFAULT_RESPONSE_ERROR_HANDLER)
+            .build();
+
+    return DeepSeekChatModel.builder()
+        .deepSeekApi(deepSeekApi)
+        .options(chatProperties.toOptions())
+        .retryTemplate(aiRetryTemplate())
+        .build();
   }
 
+  // OpenAI 走官方 SDK 客户端，重试由其 max-retries 配置控制
   @Bean
   @Conditional(ChatModelConfigured.OpenAi.class)
   public OpenAiChatModel openAiChatModel(OpenAiChatProperties chatProperties) {

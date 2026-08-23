@@ -15,14 +15,14 @@ public enum BuffType {
   SILENCE("silence", "沉默", "禁止技能"),
 
   // Buff（正面效果）
-  HEAL("heal", "治疗", "恢复生命值"),
+  HEAL("heal", "治疗", "恢复气血"),
   ATTACK_BUFF("attack_buff", "攻击增益", "提升攻击力"),
   DEFENSE_BUFF("defense_buff", "防御增益", "提升防御力"),
   SPEED_BUFF("speed_buff", "速度增益", "提升速度"),
 
   // 特殊Buff
   RESIST_BUFF("resist_buff", "抗性增益", "提升抗性"),
-  HP_BUFF("hp_buff", "生命增益", "提升最大生命值"),
+  HP_BUFF("hp_buff", "气血增益", "提升气血上限"),
   DODGE("dodge", "闪避", "提升闪避率"),
   COUNTER("counter", "反击", "概率反击攻击者"),
   REFLECT("reflect", "反射", "反射部分伤害");

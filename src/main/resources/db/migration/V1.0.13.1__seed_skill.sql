@@ -146,7 +146,7 @@ INSERT
     ),
     (
         '天刀九式',
-        '九式合一，刀意纵横。连斩4次（60%攻击），且对血量低于25%的目标造成250%斩杀伤害。',
+        '九式合一，刀意纵横。连斩4次（60%攻击），且对气血低于25%的目标造成250%斩杀伤害。',
         'ACTIVE',
         '[{"type":"MULTI_HIT","formula":"attack*0.6","value":4,"target":"single"},{"type":"EXECUTE","formula":"attack*2.5","chance":0.25,"target":"single"}]',
         'WEAPON_TYPE',
@@ -217,7 +217,7 @@ INSERT
     ),
     (
         '诛仙剑诀',
-        '传说可屠仙之剑，造成300%攻击的伤害，且对残血目标（HP<30%）造成450%斩杀伤害。',
+        '传说可屠仙之剑，造成300%攻击的伤害，且对残血目标（气血<30%）造成450%斩杀伤害。',
         'ACTIVE',
         '[{"type":"DAMAGE","formula":"attack*3.0","target":"single"},{"type":"EXECUTE","formula":"attack*4.5","chance":0.3,"target":"single"}]',
         'WEAPON_TYPE',
@@ -406,7 +406,7 @@ INSERT
     ),
     (
         '菩提棍意',
-        '以菩提之心运棍，造成230%攻击伤害并吸取25%生命。',
+        '以菩提之心运棍，造成230%攻击伤害并吸取25%气血。',
         'ACTIVE',
         '[{"type":"DAMAGE","formula":"attack*2.3","target":"single"},{"type":"LIFESTEAL","value":25,"target":"single"}]',
         'WEAPON_TYPE',
@@ -524,7 +524,7 @@ INSERT
     ),
     (
         '修罗鞭',
-        '修罗道的狂鞭，造成220%攻击伤害并吸取20%生命。',
+        '修罗道的狂鞭，造成220%攻击伤害并吸取20%气血。',
         'ACTIVE',
         '[{"type":"DAMAGE","formula":"attack*2.2","target":"single"},{"type":"LIFESTEAL","value":20,"target":"single"}]',
         'WEAPON_TYPE',
@@ -617,7 +617,7 @@ INSERT
     ),
     (
         '暗影杀',
-        '暗影中的致命一击，对血量低于40%的目标造成300%斩杀伤害。',
+        '暗影中的致命一击，对气血低于40%的目标造成300%斩杀伤害。',
         'ACTIVE',
         '[{"type":"EXECUTE","formula":"attack*3.0","chance":0.4,"target":"single"}]',
         'WEAPON_TYPE',
@@ -652,7 +652,7 @@ INSERT
         '["dagger","execute","stun","epic"]'
     ),(
         '清风拂柳',
-        '扇引清风，治疗自身悟性×80%+100的生命值。',
+        '扇引清风，治疗自身悟性×80%+100的气血。',
         'ACTIVE',
         '[{"type":"HEAL","formula":"wis*0.8+100","value":80,"target":"single"}]',
         'WEAPON_TYPE',
@@ -687,7 +687,7 @@ INSERT
         '["fan","attack_buff","advanced"]'
     ),(
         '拂尘净心',
-        '拂尘轻扫净心田，治疗悟性×70%+80血量并提升速度15%持续2回合。',
+        '拂尘轻扫净心田，治疗悟性×70%+80气血并提升速度15%持续2回合。',
         'ACTIVE',
         '[{"type":"HEAL","formula":"wis*0.7+80","value":70,"target":"single"},{"type":"SPEED_BUFF","value":15,"duration":2,"target":"single"}]',
         'WEAPON_TYPE',
@@ -816,7 +816,7 @@ INSERT
     ),
     (
         '兵主杀伐',
-        '杀伐之气纵横，造成240%伤害并吸取20%生命。',
+        '杀伐之气纵横，造成240%伤害并吸取20%气血。',
         'ACTIVE',
         '[{"type":"DAMAGE","formula":"attack*2.4","target":"single"},{"type":"LIFESTEAL","value":20,"target":"single"}]',
         'WEAPON_CATEGORY',
@@ -971,7 +971,7 @@ INSERT
     ),
     (
         '青木诀',
-        '引木行生机滋养自身，治疗悟性×90%+120的生命值。',
+        '引木行生机滋养自身，治疗悟性×90%+120的气血。',
         'ACTIVE',
         '[{"type":"HEAL","formula":"wis*0.9+120","value":90,"target":"single"}]',
         'ELEMENT',
@@ -995,7 +995,7 @@ INSERT
     ),
     (
         '万木逢春',
-        '百花齐放万木逢春，治疗全体悟性×60%+100的生命值。',
+        '百花齐放万木逢春，治疗全体悟性×60%+100的气血。',
         'ACTIVE',
         '[{"type":"HEAL","formula":"wis*0.6+100","value":60,"target":"aoe"}]',
         'ELEMENT',
@@ -1138,7 +1138,7 @@ INSERT
     ),
     (
         '蟠桃仙术',
-        '西王母蟠桃仙根所化疗愈术，治疗全体悟性×150%+500生命值。',
+        '西王母蟠桃仙根所化疗愈术，治疗全体悟性×150%+500气血。',
         'ACTIVE',
         '[{"type":"HEAL","formula":"wis*1.5+500","value":150,"target":"aoe"}]',
         'NONE',
@@ -1150,7 +1150,7 @@ INSERT
     ),
     (
         '莲华涅槃',
-        '濒死之际绽莲华涅槃重生，免疫死亡一次并回复50%生命值（被动触发）。',
+        '濒死之际绽莲华涅槃重生，免疫死亡一次并回复50%气血（被动触发）。',
         'PASSIVE',
         '[{"type":"HEAL","value":50,"target":"single"},{"type":"DEFENSE_BUFF","value":50,"duration":1,"target":"single"}]',
         'NONE',
@@ -1210,7 +1210,7 @@ INSERT
     ),
     (
         '血魔真经',
-        '燃烧10%最大生命值，换取攻击提升40%持续5回合，此间吸血30%。',
+        '燃烧10%最大气血，换取攻击提升40%持续5回合，此间吸血30%。',
         'ACTIVE',
         '[{"type":"ATTACK_BUFF","value":40,"duration":5,"target":"single"},{"type":"LIFESTEAL","value":30,"duration":5,"target":"single"}]',
         'NONE',
