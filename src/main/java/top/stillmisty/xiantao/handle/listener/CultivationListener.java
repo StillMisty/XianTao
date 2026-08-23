@@ -29,7 +29,7 @@ public class CultivationListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "护道\\s*{{nickname}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "护道(?!解除|查询)\\s*{{nickname,\\S+}}")
   public void establishProtection(MessageEvent event, @FilterValue("nickname") String nickname) {
     replyHelper.dispatch(
         event, "护道", nickname, cultivationCommandHandler::handleEstablishProtection);
@@ -38,7 +38,7 @@ public class CultivationListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "护道解除\\s*{{nickname}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "护道解除\\s*{{nickname,\\S+}}")
   public void removeProtection(MessageEvent event, @FilterValue("nickname") String nickname) {
     replyHelper.dispatch(
         event, "护道解除", nickname, cultivationCommandHandler::handleRemoveProtection);

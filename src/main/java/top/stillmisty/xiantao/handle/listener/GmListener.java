@@ -113,7 +113,8 @@ public class GmListener {
   @ContentTrim
   @Filter(
       mode = FilterMode.INTERCEPTOR,
-      value = "GM给物品\\s*{{nickname}}\\s+{{itemName}}\\s+{{quantity}}")
+      priority = 50,
+      value = "GM给物品\\s*{{nickname,\\S+}}\\s+{{itemName,\\S+}}\\s+{{quantity,\\d+}}")
   public void giveItem(
       MessageEvent event,
       @FilterValue("nickname") String nickname,

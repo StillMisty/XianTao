@@ -74,13 +74,22 @@ public class ViewCommandHandler implements CommandGroup {
       return switch (call.get()) {
         case ServiceResult.Success<T> s -> onSuccess.apply(s.data());
         case ServiceResult.Failure<T> f -> {
-          if (f.errorCode() == ErrorCode.ITEM_MULTIPLE_MATCH) yield f.errorMessage();
+          if (f.errorCode() == ErrorCode.ITEM_MULTIPLE_MATCH) yield fmtError(f.errorMessage());
           yield null;
         }
       };
     } catch (BusinessException e) {
-      return null;
+      // 仅吞掉「目标不存在」类错误以继续尝试下一类解析，其余异常继续抛出
+      if (e.getErrorCode() == ErrorCode.EQUIPMENT_NOT_FOUND
+          || e.getErrorCode() == ErrorCode.ITEM_NOT_FOUND) {
+        return null;
+      }
+      throw e;
     }
+  }
+
+  private String fmtError(String message) {
+    return TextFormat.get().error(message);
   }
 
   @Nullable

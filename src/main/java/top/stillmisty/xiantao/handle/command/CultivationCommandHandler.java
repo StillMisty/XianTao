@@ -152,7 +152,7 @@ public class CultivationCommandHandler implements CommandGroup {
       for (var info : result.getProtectedByList()) {
         String locationStatus = fmt.locationStatus(info.getIsInSameLocation());
         String bonusText =
-            info.getIsInSameLocation()
+            Boolean.TRUE.equals(info.getIsInSameLocation())
                 ? String.format("加成%.1f%%", info.getBonusPercentage())
                 : "无法提供加成";
         sb.append(

@@ -6,6 +6,7 @@ import love.forte.simbot.event.MessageEvent;
 import love.forte.simbot.quantcat.common.interceptor.AnnotationEventInterceptorFactory;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
+import top.stillmisty.xiantao.handle.TextFormat;
 import top.stillmisty.xiantao.handle.platform.PlatformRegistry;
 import top.stillmisty.xiantao.service.AuthenticationService;
 import top.stillmisty.xiantao.service.ServiceResult;
@@ -63,14 +64,29 @@ public class AuthInterceptorFactory implements AnnotationEventInterceptorFactory
       var openId = handler.extractOpenId(messageEvent);
 
       ServiceResult<Long> auth = authService.authenticate(platform, openId);
-      if (auth instanceof ServiceResult.Failure<Long>(var errorCode, var errorMessage)) {
-        return EventResult.of(errorCode + ": " + errorMessage);
+      if (auth instanceof ServiceResult.Failure<Long>(var _, var errorMessage)) {
+        replyError(handler, messageEvent, errorMessage);
+        return EventResult.empty();
       }
 
-      Long userId = ((ServiceResult.Success<Long>) auth).data();
+      if (!(auth instanceof ServiceResult.Success<Long>(var userId))) {
+        return EventResult.empty();
+      }
 
       UserContext.bindIfAbsent(messageEvent, userId);
       return context.invoke();
+    }
+
+    /** 认证失败时通过平台处理器向玩家显式回复错误信息 */
+    private static void replyError(
+        top.stillmisty.xiantao.handle.platform.PlatformHandler handler,
+        MessageEvent event,
+        String message) {
+      try {
+        handler.replyText(event, TextFormat.get().error(message));
+      } catch (Exception e) {
+        // 回复失败仅记录日志，不阻断拦截流程
+      }
     }
   }
 }

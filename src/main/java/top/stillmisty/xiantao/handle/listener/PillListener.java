@@ -46,7 +46,7 @@ public class PillListener {
   @RequireAuth
   @Listener
   @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "炼\\s*{{herbInput}}")
+  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "炼(?!方)\\s*{{herbInput,.+}}")
   public void refineManual(MessageEvent event, @FilterValue("herbInput") String herbInput) {
     List<String> herbInputs = Arrays.asList(herbInput.split("\\s+"));
     replyHelper.dispatch(

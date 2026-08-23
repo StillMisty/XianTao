@@ -125,7 +125,9 @@ public class StatusCommandHandler implements CommandGroup {
         sb.append(
             fmt.listItem(
                 String.format(
-                    "你正在为 %d/%d 位道友护道", status.protectorCount(), status.maxProtectorCount())));
+                    "你正在为 %d/%d 位道友护道",
+                    status.protectorCount() != null ? status.protectorCount() : 0,
+                    status.maxProtectorCount() != null ? status.maxProtectorCount() : 3)));
         for (var info : status.protectingList()) {
           String locationStatus = fmt.locationStatus(info.isInSameLocation());
           sb.append(

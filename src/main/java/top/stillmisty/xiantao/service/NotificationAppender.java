@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +14,7 @@ import top.stillmisty.xiantao.domain.event.EffectData;
 import top.stillmisty.xiantao.domain.notification.entity.GameEvent;
 import top.stillmisty.xiantao.domain.notification.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.handle.CommandHandlerHelper;
 import top.stillmisty.xiantao.handle.TextFormat;
 
 /** 通知追加器 — 在每条回复发送前查询未投递事件，格式化后追加到回复尾部 */
@@ -31,32 +30,39 @@ public class NotificationAppender {
   @Transactional(readOnly = true)
   public AppendResult prepareAppend(
       PlatformType platform, String openId, String response, TextFormat fmt) {
-    ServiceResult<Long> auth = authenticationService.authenticate(platform, openId);
-    if (auth instanceof ServiceResult.Failure<Long>) {
-      return new AppendResult(response, List.of(), null);
+    // dispatch 链路中认证拦截器已绑定 userId，直接复用；仅兜底场景走二次认证
+    Long userId = UserContext.getCurrentUserId();
+    if (userId == null) {
+      ServiceResult<Long> auth = authenticationService.authenticate(platform, openId);
+      if (!(auth instanceof ServiceResult.Success<Long>(var authenticated))) {
+        return new AppendResult(response, List.of());
+      }
+      userId = authenticated;
     }
-    Long userId = ((ServiceResult.Success<Long>) auth).data();
+    return prepareAppend(userId, response, fmt);
+  }
 
+  /** 查询指定用户的未投递事件，格式化拼接 */
+  @Transactional(readOnly = true)
+  public AppendResult prepareAppend(Long userId, String response, TextFormat fmt) {
     List<GameEvent> events = gameEventService.findUndelivered(userId);
     if (events.isEmpty()) {
-      return new AppendResult(response, List.of(), null);
+      return new AppendResult(response, List.of());
     }
 
     String notificationText = formatEvents(events, fmt);
 
-    // 检测是否有 CHOICE 事件未决，有则只投递到 choice 之前的事件
-    Long pendingChoiceEventId = null;
+    // CHOICE 事件保持未投递状态：在玩家做出选择前每次回复都重新展示选项
     List<Long> deliverableIds = new ArrayList<>();
     for (GameEvent event : events) {
       if (event.isChoiceEvent()) {
-        pendingChoiceEventId = event.getId();
         break;
       }
       deliverableIds.add(event.getId());
     }
 
     if (notificationText.isEmpty()) {
-      return new AppendResult(response, List.of(), null);
+      return new AppendResult(response, List.of());
     }
 
     String combined = response;
@@ -65,7 +71,7 @@ public class NotificationAppender {
     }
     combined += notificationText;
 
-    return new AppendResult(combined, deliverableIds, pendingChoiceEventId);
+    return new AppendResult(combined, deliverableIds);
   }
 
   /** 发送成功后标记事件为已投递 */
@@ -120,15 +126,13 @@ public class NotificationAppender {
     return category.getSectionTitle() != null ? category.getSectionTitle() : "";
   }
 
-  private static final Pattern BRACKET_PATTERN = Pattern.compile("【([^】]+)】");
-
   private String formatSingleEvent(GameEvent event, TextFormat fmt) {
     String narrativeKey = event.getNarrativeKey();
     Map<String, Object> args = event.getNarrativeArgs();
 
     if (narrativeKey != null && args != null) {
       String rendered = renderTemplate(narrativeKey, args);
-      rendered = applyBoldFormatting(rendered, fmt);
+      rendered = CommandHandlerHelper.applyBoldFormatting(rendered, fmt);
       rendered = applyWorldEventBold(rendered, event.getCategory(), fmt);
       if (event.isChoiceEvent()) {
         return rendered + "\n" + renderChoiceOptions(event.getEffectData(), fmt);
@@ -148,23 +152,17 @@ public class NotificationAppender {
       case BOUNTY_READY -> "悬赏任务已完成，请使用「悬赏结算」领取奖励。";
       case TRAINING_INTERRUPTED -> "你在历练中受了重伤，不得不中断。";
       case LEVEL_UP -> "你突破了！";
-      case FORTUNE -> narrativeKey != null ? narrativeKey : "今日运势已更新";
-      default -> "";
+      default -> {
+        // 正常情况下叙事类事件都携带 narrativeKey，缺失说明数据异常；
+        // 返回兜底文案保证事件能被投递，避免僵尸事件反复查询
+        log.warn(
+            "游戏事件缺少叙事模板: id={}, category={}, narrativeKey={}",
+            event.getId(),
+            event.getCategory(),
+            narrativeKey);
+        yield "你有了新的经历。";
+      }
     };
-  }
-
-  private String applyBoldFormatting(String text, TextFormat fmt) {
-    Matcher matcher = BRACKET_PATTERN.matcher(text);
-    if (!matcher.find()) {
-      return text;
-    }
-    matcher.reset();
-    StringBuilder sb = new StringBuilder();
-    while (matcher.find()) {
-      matcher.appendReplacement(sb, Matcher.quoteReplacement(fmt.bold(matcher.group(1))));
-    }
-    matcher.appendTail(sb);
-    return sb.toString();
   }
 
   private String applyWorldEventBold(String text, GameEventCategory category, TextFormat fmt) {
@@ -202,6 +200,5 @@ public class NotificationAppender {
     return result;
   }
 
-  public record AppendResult(
-      String text, List<Long> eventIds, @Nullable Long pendingChoiceEventId) {}
+  public record AppendResult(String text, List<Long> eventIds) {}
 }

@@ -30,6 +30,7 @@ import top.stillmisty.xiantao.infrastructure.repository.EquipmentTemplateReposit
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.util.FormatUtils;
 import top.stillmisty.xiantao.service.BusinessException;
+import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.bounty.BountyService;
@@ -100,7 +101,10 @@ public class MapCommandHandler implements CommandGroup {
         return formatBountyStatus(vo, fmt);
       }
     } catch (BusinessException e) {
-      // Bounty definition missing — fall through to list
+      // 仅当进行中的悬赏定义缺失时降级为列表展示，其余异常继续抛出由兜底处理
+      if (e.getErrorCode() != ErrorCode.BOUNTY_NOT_FOUND) {
+        throw e;
+      }
     }
     return CommandHandlerHelper.safeCall(
         () -> bountyService.listBounties(userId), fmt, vo -> formatBountyList(vo, fmt));
@@ -228,7 +232,8 @@ public class MapCommandHandler implements CommandGroup {
     }
     var resolvers = resolveTemplates(bounties);
     StringBuilder sb = new StringBuilder();
-    for (BountyVO b : bounties) {
+    for (int i = 0; i < bounties.size(); i++) {
+      BountyVO b = bounties.get(i);
       sb.append(
           String.format(
               "%s | %s（%s）\n",
@@ -246,7 +251,7 @@ public class MapCommandHandler implements CommandGroup {
                             r -> r.displayText(resolvers.itemResolver(), resolvers.equipResolver()))
                         .collect(Collectors.joining("、"))));
       }
-      if (bounties.indexOf(b) < bounties.size() - 1) {
+      if (i < bounties.size() - 1) {
         sb.append(fmt.separator());
       }
     }

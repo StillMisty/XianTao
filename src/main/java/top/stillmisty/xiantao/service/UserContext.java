@@ -60,11 +60,6 @@ public class UserContext {
     return EVENT_USER_MAP.get(event);
   }
 
-  /** 解绑事件的 userId。WeakHashMap 会自动清理，此方法仅用于主动清除。 */
-  public static void unbindForEvent(Object event) {
-    EVENT_USER_MAP.remove(event);
-  }
-
   // ==================== GM 检查缓存 ====================
 
   private static final Map<Object, Boolean> GM_CHECK_CACHE =

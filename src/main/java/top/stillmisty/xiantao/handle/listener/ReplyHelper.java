@@ -34,12 +34,22 @@ public class ReplyHelper {
   public void dispatch(MessageEvent event, String command, CommandFn fn) {
     PlatformHandler handler = platformRegistry.getHandler(event);
 
-    log.debug("[{}] {}请求 - AuthorId: {}", "QQ", command, handler.extractOpenId(event));
+    log.debug(
+        "[{}] {}请求 - AuthorId: {}",
+        handler.getPlatformType(),
+        command,
+        handler.extractOpenId(event));
 
     executeWithUserContext(
         event,
         () -> {
-          String text = fn.execute(TextFormat.get());
+          String text;
+          try {
+            text = fn.execute(TextFormat.get());
+          } catch (Exception e) {
+            log.error("[{}] {}执行异常", handler.getPlatformType(), command, e);
+            text = TextFormat.get().error("系统繁忙，请稍后再试");
+          }
           replyWithHandler(handler, event, text);
         });
   }
@@ -48,12 +58,22 @@ public class ReplyHelper {
     PlatformHandler handler = platformRegistry.getHandler(event);
 
     log.debug(
-        "[{}] {}请求 - AuthorId: {}, Arg: {}", "QQ", command, handler.extractOpenId(event), arg);
+        "[{}] {}请求 - AuthorId: {}, Arg: {}",
+        handler.getPlatformType(),
+        command,
+        handler.extractOpenId(event),
+        arg);
 
     executeWithUserContext(
         event,
         () -> {
-          String text = fn.execute(arg, TextFormat.get());
+          String text;
+          try {
+            text = fn.execute(arg, TextFormat.get());
+          } catch (Exception e) {
+            log.error("[{}] {}执行异常", handler.getPlatformType(), command, e);
+            text = TextFormat.get().error("系统繁忙，请稍后再试");
+          }
           replyWithHandler(handler, event, text);
         });
   }

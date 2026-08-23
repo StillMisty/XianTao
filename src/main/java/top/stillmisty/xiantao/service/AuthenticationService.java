@@ -27,6 +27,14 @@ public class AuthenticationService {
         .orElseGet(() -> ServiceResult.authFailure("输入「我要修仙 [道号]」进入仙途吧！"));
   }
 
+  /** 判断指定用户是否为 GM */
+  public boolean isGm(Long userId) {
+    return userRepository
+        .findById(userId)
+        .map(user -> Boolean.TRUE.equals(user.getGm()))
+        .orElse(false);
+  }
+
   /**
    * 验证平台绑定 + Player 实体存在 + 状态校验
    *

@@ -20,7 +20,13 @@ public class HelpService {
     this.triggerIndex = new LinkedHashMap<>();
     for (CommandGroup group : groups) {
       for (CommandEntry entry : group.commands()) {
-        triggerIndex.put(entry.trigger(), entry);
+        CommandEntry previous = triggerIndex.putIfAbsent(entry.trigger(), entry);
+        if (previous != null) {
+          throw new IllegalStateException(
+              String.format(
+                  "命令触发词冲突: 「%s」同时由 %s 与 %s 声明",
+                  entry.trigger(), previous.trigger(), entry.trigger()));
+        }
       }
     }
   }

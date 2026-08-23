@@ -1,5 +1,6 @@
 package top.stillmisty.xiantao.handle.listener;
 
+import lombok.RequiredArgsConstructor;
 import love.forte.simbot.event.MessageEvent;
 import love.forte.simbot.quantcat.common.annotations.ContentTrim;
 import love.forte.simbot.quantcat.common.annotations.Filter;
@@ -11,15 +12,11 @@ import top.stillmisty.xiantao.handle.command.DungeonCommandHandler;
 import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
 
 @Component
+@RequiredArgsConstructor
 public class DungeonListener {
 
   private final DungeonCommandHandler dungeonCommandHandler;
   private final ReplyHelper replyHelper;
-
-  public DungeonListener(DungeonCommandHandler dungeonCommandHandler, ReplyHelper replyHelper) {
-    this.dungeonCommandHandler = dungeonCommandHandler;
-    this.replyHelper = replyHelper;
-  }
 
   @RequireAuth
   @Listener
