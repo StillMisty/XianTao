@@ -216,8 +216,11 @@ public class SectSharedSkillService {
           ErrorCode.SECT_SHOP_ITEM_INSUFFICIENT_CONTRIBUTION, cost, member.getContribution());
     }
 
-    member.setContribution(member.getContribution() - cost);
-    sectMemberRepository.save(member);
+    // 原子扣贡献，防止并发学习双花
+    if (sectMemberRepository.deductContributionIfEnough(userId, cost) == 0) {
+      throw new BusinessException(
+          ErrorCode.SECT_SHOP_ITEM_INSUFFICIENT_CONTRIBUTION, cost, member.getContribution());
+    }
 
     rewardSubmitterOnLearn(requireSectId(member), sharedSkill, userId, skill.getName(), cost);
 
@@ -226,7 +229,7 @@ public class SectSharedSkillService {
     playerSkillRepository.save(playerSkill);
 
     log.info("玩家 {} 从宗门 {} 学习共享功法 {}", userId, requireSectId(member), skill.getName());
-    return new LearnSkillResultVO(skill.getName(), cost, member.getContribution());
+    return new LearnSkillResultVO(skill.getName(), cost, member.getContribution() - cost);
   }
 
   /** 传功香火：弟子学习他人呈献的功法时，学费的一部分回流给呈献者，并通知之。 呈献者已离宗或学习者即呈献者本人时不回流。 */

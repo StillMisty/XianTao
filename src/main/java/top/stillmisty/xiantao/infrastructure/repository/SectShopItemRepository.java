@@ -16,6 +16,11 @@ public class SectShopItemRepository {
 
   private final SectShopItemMapper sectShopItemMapper;
 
+  /** 原子扣减库存（无限囤货不递减），库存不足返回 0 */
+  public int deductStockIfAvailable(Long id) {
+    return sectShopItemMapper.deductStockIfAvailable(id);
+  }
+
   public SectShopItem save(SectShopItem item) {
     sectShopItemMapper.insertOrUpdateSelective(item);
     return item;

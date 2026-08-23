@@ -16,6 +16,16 @@ public class SectMemberRepository {
 
   private final SectMemberMapper sectMemberMapper;
 
+  /** 原子增加成员贡献 */
+  public int addContribution(Long userId, int gain) {
+    return sectMemberMapper.addContribution(userId, gain);
+  }
+
+  /** 原子扣减成员贡献，贡献不足返回 0 */
+  public int deductContributionIfEnough(Long userId, int cost) {
+    return sectMemberMapper.deductContributionIfEnough(userId, cost);
+  }
+
   public SectMember save(SectMember member) {
     sectMemberMapper.insertOrUpdateSelective(member);
     return member;

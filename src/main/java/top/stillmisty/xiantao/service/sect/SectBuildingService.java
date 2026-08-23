@@ -140,8 +140,11 @@ public class SectBuildingService {
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_FOUND));
 
     long cost = type.getBuildCost();
-    sect.deductFundsOrThrow(cost);
-    sectRepository.save(sect);
+    // 原子条件扣款，防止并发建造双花资金
+    if (sectRepository.deductFundsIfEnough(member.requireSectId(), cost) == 0) {
+      throw new BusinessException(ErrorCode.SECT_FUNDS_INSUFFICIENT, cost, sect.getFunds());
+    }
+    sect.setFunds(sect.getFunds() - cost);
 
     SectBuilding building =
         SectBuilding.create().setSectId(member.requireSectId()).setBuildingType(type).setLevel(1);
@@ -263,7 +266,7 @@ public class SectBuildingService {
 
     long income = hoursSinceLast * vein.getLevel() * 100 / 24;
     if (income > 0) {
-      sect.addFunds(income);
+      sectRepository.addFunds(sect.getId(), income);
       sect.setLastVeinPayout(now);
       sectRepository.save(sect);
     }

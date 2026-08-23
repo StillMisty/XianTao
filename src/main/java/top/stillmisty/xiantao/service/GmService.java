@@ -101,7 +101,7 @@ public class GmService {
   @Transactional
   String giveExpInternal(Long gmUserId, String targetNickname, long amount) {
     if (amount <= 0) throw new BusinessException(ErrorCode.PARAM_INVALID, "数量必须大于0");
-    Player target = getTargetUser(targetNickname);
+    Player target = getTargetUserForUpdate(targetNickname);
     if (target == null) throw new BusinessException(ErrorCode.GM_TARGET_NOT_FOUND, targetNickname);
     long before = target.getExp();
     target.addExp(amount);
@@ -209,5 +209,12 @@ public class GmService {
   @Nullable
   private Player getTargetUser(String nickname) {
     return userRepository.findByNickname(nickname).orElse(null);
+  }
+
+  /** 带行锁读取目标玩家，防止与并发状态结算互相覆盖 */
+  private @Nullable Player getTargetUserForUpdate(String nickname) {
+    Player target = userRepository.findByNickname(nickname).orElse(null);
+    if (target == null) return null;
+    return userRepository.findByIdForUpdate(target.getId()).orElse(null);
   }
 }

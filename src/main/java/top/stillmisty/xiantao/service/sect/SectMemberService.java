@@ -522,16 +522,15 @@ public class SectMemberService {
 
     spiritStoneService.withdraw(userId, amount);
 
+    // 原子累加，防止并发捐献互相覆盖资金/贡献
     Sect sect =
         sectRepository
             .findById(requireSectId(member))
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_FOUND));
-    sect.addFunds(amount);
-    sectRepository.save(sect);
+    sectRepository.addFunds(sect.getId(), amount);
 
     int contributionGain = (int) (amount * DONATE_RATE);
-    member.setContribution(member.getContribution() + contributionGain);
-    sectMemberRepository.save(member);
+    sectMemberRepository.addContribution(member.getUserId(), contributionGain);
 
     return new DonateResultVO(contributionGain);
   }
@@ -561,7 +560,10 @@ public class SectMemberService {
           default -> Long.MAX_VALUE;
         };
 
-    sect.deductFundsOrThrow(cost);
+    // 原子条件扣款，防止并发升级双花资金
+    if (sectRepository.deductFundsIfEnough(sect.getId(), cost) == 0) {
+      throw new BusinessException(ErrorCode.SECT_FUNDS_INSUFFICIENT, cost, sect.getFunds());
+    }
 
     int oldLevel = sect.getLevel();
     sect.setLevel(oldLevel + 1);
@@ -569,7 +571,8 @@ public class SectMemberService {
     sectRepository.save(sect);
 
     log.info("宗门 {} 升级至 Lv.{}，消耗 {} 资金", sect.getId(), sect.getLevel(), cost);
-    return new UpgradeSectResultVO(sect.getLevel(), sect.getMaxMembers(), cost, sect.getFunds());
+    return new UpgradeSectResultVO(
+        sect.getLevel(), sect.getMaxMembers(), cost, sect.getFunds() - cost);
   }
 
   @Transactional
@@ -587,13 +590,15 @@ public class SectMemberService {
     int slots = 5;
     long cost = slots * 500L;
 
-    sect.deductFundsOrThrow(cost);
+    if (sectRepository.deductFundsIfEnough(sect.getId(), cost) == 0) {
+      throw new BusinessException(ErrorCode.SECT_FUNDS_INSUFFICIENT, cost, sect.getFunds());
+    }
 
     sect.setMaxMembers(sect.getMaxMembers() + slots);
     sectRepository.save(sect);
 
     log.info("宗门 {} 扩充成员上限至 {}", sect.getId(), sect.getMaxMembers());
-    return new ExpandMembersResultVO(slots, sect.getMaxMembers(), cost, sect.getFunds());
+    return new ExpandMembersResultVO(slots, sect.getMaxMembers(), cost, sect.getFunds() - cost);
   }
 
   // ===================== 跨服务接口 =====================

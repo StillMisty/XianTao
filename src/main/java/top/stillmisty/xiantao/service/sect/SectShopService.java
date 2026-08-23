@@ -186,18 +186,26 @@ public class SectShopService {
             .findById(shopItem.getItemTemplateId())
             .orElseThrow(() -> new BusinessException(ErrorCode.ITEM_NOT_EXISTS));
 
-    member.setContribution(member.getContribution() - shopItem.getPriceContribution());
-    sectMemberRepository.save(member);
+    // 原子扣贡献 + 原子扣库存，防止并发兑换双花贡献或超卖
+    if (sectMemberRepository.deductContributionIfEnough(userId, shopItem.getPriceContribution())
+        == 0) {
+      throw new BusinessException(
+          ErrorCode.SECT_SHOP_ITEM_INSUFFICIENT_CONTRIBUTION,
+          shopItem.getPriceContribution(),
+          member.getContribution());
+    }
 
-    if (!shopItem.deductStock(1)) {
+    if (sectShopItemRepository.deductStockIfAvailable(shopItemId) == 0) {
+      // 贡献已扣，回滚补偿
+      sectMemberRepository.addContribution(userId, shopItem.getPriceContribution());
       throw new BusinessException(ErrorCode.SHOP_PRODUCT_OUT_OF_STOCK);
     }
-    sectShopItemRepository.save(shopItem);
 
     stackableItemService.addStackableItem(
         userId, template.getId(), template.getType(), template.getName(), 1);
 
-    return new ExchangeResultVO(template.getName(), member.getContribution());
+    return new ExchangeResultVO(
+        template.getName(), member.getContribution() - shopItem.getPriceContribution());
   }
 
   // ===================== 工具方法 =====================

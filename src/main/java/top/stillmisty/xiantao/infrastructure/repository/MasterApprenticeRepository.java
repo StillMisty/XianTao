@@ -8,6 +8,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import top.stillmisty.xiantao.domain.masterapprentice.entity.MasterApprentice;
+import top.stillmisty.xiantao.domain.masterapprentice.enums.MasterApprenticeStatus;
 import top.stillmisty.xiantao.infrastructure.mapper.MasterApprenticeMapper;
 
 @Repository
@@ -40,7 +41,7 @@ public class MasterApprenticeRepository {
     QueryWrapper query =
         QueryWrapper.create()
             .where(MASTER_APPRENTICE.MASTER_ID.eq(masterId))
-            .and(MASTER_APPRENTICE.STATUS.eq("ACTIVE"));
+            .and(MASTER_APPRENTICE.STATUS.eq(MasterApprenticeStatus.ACTIVE.getCode()));
     return masterApprenticeMapper.selectCountByQuery(query);
   }
 

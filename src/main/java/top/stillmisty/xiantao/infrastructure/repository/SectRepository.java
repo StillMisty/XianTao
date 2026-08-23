@@ -21,6 +21,16 @@ public class SectRepository {
     return sect;
   }
 
+  /** 原子增加宗门资金 */
+  public int addFunds(Long id, long amount) {
+    return sectMapper.addFunds(id, amount);
+  }
+
+  /** 原子扣减宗门资金，资金不足返回 0 */
+  public int deductFundsIfEnough(Long id, long amount) {
+    return sectMapper.deductFundsIfEnough(id, amount);
+  }
+
   public Optional<Sect> findById(Long id) {
     return Optional.ofNullable(sectMapper.selectOneById(id));
   }

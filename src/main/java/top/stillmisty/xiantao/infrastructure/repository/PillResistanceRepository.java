@@ -19,10 +19,9 @@ public class PillResistanceRepository {
     return mapper.selectByUserIdAndTemplateIdAndQuality(userId, templateId, quality);
   }
 
+  /** upsert 并经 RETURNING 直接返回最新次数，省一次回查 */
   public int incrementCount(Long userId, Long templateId, String quality) {
-    mapper.upsertIncrementCount(userId, templateId, quality);
-    return findByUserIdAndTemplateIdAndQuality(userId, templateId, quality)
-        .map(PillResistance::getCount)
-        .orElse(1);
+    Integer count = mapper.upsertIncrementCount(userId, templateId, quality);
+    return count != null ? count : 1;
   }
 }
