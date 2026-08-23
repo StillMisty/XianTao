@@ -56,3 +56,4 @@ CREATE INDEX idx_inventory_item_user_id ON inventory_item(user_id);
 CREATE INDEX idx_inventory_item_user_type ON inventory_item(user_id, item_type);
 CREATE INDEX idx_inventory_item_name ON inventory_item(name);
 CREATE INDEX idx_inventory_item_template_id ON inventory_item(template_id);
+CREATE INDEX idx_inventory_item_tags ON inventory_item USING gin(tags);

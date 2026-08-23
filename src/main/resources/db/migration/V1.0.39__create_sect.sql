@@ -22,7 +22,7 @@ CREATE
             updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             CONSTRAINT fk_sect_leader FOREIGN KEY(leader_id) REFERENCES player(id) ON
             DELETE
-                CASCADE,
+                RESTRICT,
                 CONSTRAINT uq_sect_name UNIQUE(name),
                 CONSTRAINT chk_sect_level CHECK(
                     LEVEL BETWEEN 1 AND 5

@@ -18,6 +18,8 @@ WHERE status = 'ACTIVE';
 
 CREATE INDEX idx_dungeon_instance_leader ON dungeon_instance(leader_id);
 CREATE INDEX idx_dungeon_instance_dungeon ON dungeon_instance(dungeon_id);
+CREATE INDEX idx_dungeon_instance_expiry ON dungeon_instance(expires_at)
+WHERE status = 'ACTIVE';
 
 COMMENT ON TABLE dungeon_instance IS '秘境运行时实例表';
 COMMENT ON COLUMN dungeon_instance.leader_id IS '队长用户ID';

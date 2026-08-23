@@ -4,7 +4,7 @@
 CREATE TABLE user_auth(
     id BIGSERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL,
-    platform VARCHAR(32) NOT NULL,
+    platform VARCHAR(32) NOT NULL CHECK(platform IN('QQ')),
     platform_open_id VARCHAR(128) NOT NULL,
     create_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT uq_platform_id UNIQUE(platform, platform_open_id),

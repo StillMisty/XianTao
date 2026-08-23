@@ -35,7 +35,7 @@ CREATE
                 AND current_price <= max_price
             ),
             CONSTRAINT chk_stock CHECK(
-                min_stock <= current_stock
+                current_stock >= 0
                 AND current_stock <= max_stock
             )
         );
@@ -73,7 +73,7 @@ COMMENT ON
 COLUMN shop_product.current_price IS '当前售价（会随供需浮动）';
 
 COMMENT ON
-COLUMN shop_product.min_stock IS '最低库存';
+COLUMN shop_product.min_stock IS '最低库存（补货下限目标，购买可使库存低于该值但不低于 0）';
 
 COMMENT ON
 COLUMN shop_product.max_stock IS '最大库存';

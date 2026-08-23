@@ -5,7 +5,9 @@ CREATE
             id BIGSERIAL PRIMARY KEY,
             name VARCHAR(128) NOT NULL,
             description TEXT,
-            map_type VARCHAR(32) NOT NULL,
+            map_type VARCHAR(32) NOT NULL CHECK(
+                map_type IN('SAFE_TOWN', 'TRAINING_ZONE', 'HIDDEN_ZONE')
+            ),
             level_requirement INT NOT NULL DEFAULT 1,
             neighbors JSONB DEFAULT '[]' ::jsonb,
             specialties JSONB DEFAULT '[]' ::jsonb,

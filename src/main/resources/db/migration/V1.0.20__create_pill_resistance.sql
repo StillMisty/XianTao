@@ -16,6 +16,9 @@ CREATE
             ),
             CONSTRAINT chk_pill_resistance_count CHECK(
                 COUNT >= 0
+            ),
+            CONSTRAINT chk_pill_resistance_quality CHECK(
+                quality IN('SUPERIOR', 'NORMAL', 'INFERIOR')
             )
         );
 

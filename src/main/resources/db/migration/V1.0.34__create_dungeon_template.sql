@@ -1,7 +1,7 @@
 -- 秘境模板表
 CREATE TABLE dungeon_template(
     id              BIGSERIAL PRIMARY KEY,
-    name            VARCHAR(64) NOT NULL,
+    name            VARCHAR(64) NOT NULL UNIQUE,
     description     TEXT,
     element_type    VARCHAR(16),
     min_level       INT NOT NULL,

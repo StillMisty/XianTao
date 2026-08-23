@@ -41,11 +41,7 @@ COLUMN dao_protection.create_time IS '建立护道关系的时间';
 COMMENT ON
 COLUMN dao_protection.update_time IS '更新时间';
 
--- 创建索引
-CREATE
-    INDEX idx_dao_protection_protector ON
-    dao_protection(protector_id);
-
+-- 创建索引（protector_id 由 uq_protection 前缀覆盖，无需单独索引）
 CREATE
     INDEX idx_dao_protection_protege ON
     dao_protection(protege_id);

@@ -32,11 +32,7 @@ CREATE
                 )
         );
 
--- 索引
-CREATE
-    INDEX idx_fudi_cell_fudi_id ON
-    fudi_cell(fudi_id);
-
+-- 索引（fudi_id 由 uq_fudi_cell 前缀覆盖，无需单独索引）
 CREATE
     INDEX idx_fudi_cell_type ON
     fudi_cell(

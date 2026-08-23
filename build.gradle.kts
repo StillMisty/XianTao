@@ -57,6 +57,7 @@ repositories {
 dependencies {
     implementation(platform(SpringBootPlugin.BOM_COORDINATES))
     implementation(libs.caffeine)
+    implementation(libs.aspectj.weaver)
     implementation(libs.spring.boot.starter.cache)
     implementation(libs.mybatis.flex.spring.boot4.starter)
     annotationProcessor(libs.mybatis.flex.processor)

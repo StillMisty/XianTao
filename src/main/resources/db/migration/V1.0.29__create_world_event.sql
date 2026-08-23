@@ -50,7 +50,13 @@ CREATE
             CONSTRAINT chk_world_event_chain_order CHECK(
                 chain_order IS NULL
                 OR chain_order > 0
-            )
+            ),
+            CONSTRAINT fk_world_event_region FOREIGN KEY(region_map_node_id) REFERENCES map_node(id) ON
+            DELETE
+                SET NULL,
+                CONSTRAINT fk_world_event_parent FOREIGN KEY(parent_event_id) REFERENCES world_event(id) ON
+                DELETE
+                    SET NULL
         );
 
 CREATE

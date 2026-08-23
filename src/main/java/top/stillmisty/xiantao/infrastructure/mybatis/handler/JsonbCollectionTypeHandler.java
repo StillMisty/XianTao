@@ -22,6 +22,10 @@ public class JsonbCollectionTypeHandler extends BaseTypeHandler<Object> {
   private final Class<?> propertyType;
   private final @Nullable Class<?> genericType;
 
+  /**
+   * 仅供 MyBatis TypeHandlerRegistry 反射实例化（如内联 SQL 写路径）。无泛型信息，读取时元素类型不确定，
+   * 禁止用于查询结果的映射；实体字段请使用双参构造（MyBatis-Flex 自动解析）或 LongList/LongSetJsonbTypeHandler。
+   */
   public JsonbCollectionTypeHandler() {
     this.propertyType = Object.class;
     this.genericType = null;
@@ -78,7 +82,7 @@ public class JsonbCollectionTypeHandler extends BaseTypeHandler<Object> {
             OBJECT_MAPPER.getTypeFactory().constructCollectionLikeType(propertyType, genericType);
         return OBJECT_MAPPER.readValue(jsonString, javaType);
       }
-      if (propertyType.isAssignableFrom(java.util.Set.class)) {
+      if (propertyType == java.util.Set.class) {
         return OBJECT_MAPPER.readValue(
             jsonString,
             OBJECT_MAPPER

@@ -18,7 +18,8 @@ CREATE
                         'SPIRIT',
                         'SHOP',
                         'SECT',
-                        'TRAVELER'
+                        'TRAVELER',
+                        'DUNGEON'
                     )
                 ),
                 CONSTRAINT chk_chat_history_role CHECK(
@@ -39,7 +40,7 @@ COMMENT ON
 COLUMN chat_history.id IS '消息ID';
 
 COMMENT ON
-COLUMN chat_history.chat_type IS '对话类型：SPIRIT/SHOP/SECT/TRAVELER';
+COLUMN chat_history.chat_type IS '对话类型：SPIRIT/SHOP/SECT/TRAVELER/DUNGEON';
 
 COMMENT ON
 COLUMN chat_history.conversation_id IS '对话对象ID（fudi_id / npc_id / sect_id）';
@@ -65,5 +66,6 @@ CREATE
         chat_type,
         conversation_id,
         user_id,
-        create_time DESC
+        create_time DESC,
+        id DESC
     );

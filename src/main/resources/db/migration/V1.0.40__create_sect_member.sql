@@ -56,7 +56,3 @@ COLUMN sect_member.cooldown_until IS '退宗冷却截止时间';
 CREATE
     INDEX idx_sect_member_sect ON
     sect_member(sect_id);
-
-CREATE
-    INDEX idx_sect_member_user ON
-    sect_member(user_id);

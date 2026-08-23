@@ -58,10 +58,4 @@ COLUMN master_apprentice.graduated_at IS '出师时间';
 COMMENT ON
 COLUMN master_apprentice.cooldown_until IS '冷却截止时间';
 
-CREATE
-    INDEX idx_ma_master ON
-    master_apprentice(master_id);
-
-CREATE
-    INDEX idx_ma_apprentice ON
-    master_apprentice(apprentice_id);
+-- master_id/apprentice_id 分别由 uq_ma_pair、uq_ma_apprentice 覆盖，无需单独索引

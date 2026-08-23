@@ -11,6 +11,7 @@ import lombok.EqualsAndHashCode;
 import org.jspecify.annotations.Nullable;
 import top.stillmisty.xiantao.domain.monster.enums.MonsterType;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
+import top.stillmisty.xiantao.infrastructure.mybatis.handler.LongListJsonbTypeHandler;
 
 @SuppressWarnings("NullAway")
 @Data
@@ -38,7 +39,7 @@ public class MonsterTemplate {
 
   private Integer baseSpeed;
 
-  @Column(typeHandler = JsonbCollectionTypeHandler.class)
+  @Column(typeHandler = LongListJsonbTypeHandler.class)
   private List<Long> skills;
 
   private Integer expReward;

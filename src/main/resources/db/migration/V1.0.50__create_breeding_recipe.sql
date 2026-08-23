@@ -2,7 +2,7 @@
 CREATE
     TABLE
         breeding_recipe(
-            id SERIAL PRIMARY KEY,
+            id BIGSERIAL PRIMARY KEY,
             required_tags JSONB NOT NULL,
             result_template_id BIGINT NOT NULL,
             WEIGHT INT NOT NULL DEFAULT 100,

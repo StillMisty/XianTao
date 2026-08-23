@@ -6,7 +6,7 @@ CREATE
             fudi_id BIGINT NOT NULL UNIQUE REFERENCES fudi(id) ON
             DELETE
                 CASCADE,
-                form_id INTEGER NOT NULL REFERENCES spirit_form(id),
+                form_id BIGINT NOT NULL REFERENCES spirit_form(id),
                 affection INTEGER NOT NULL DEFAULT 0,
                 affection_max INTEGER NOT NULL DEFAULT 1000,
                 mbti_type VARCHAR(4) NOT NULL,
@@ -23,10 +23,6 @@ CREATE
                     affection >= 0
                 )
         );
-
-CREATE
-    INDEX idx_spirit_fudi_id ON
-    spirit(fudi_id);
 
 CREATE
     INDEX idx_spirit_form_id ON

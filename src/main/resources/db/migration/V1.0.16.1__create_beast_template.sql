@@ -39,10 +39,7 @@ COLUMN beast_template.tags IS '灵兽标签 JSONB，用于繁育配方匹配和�
 COMMENT ON
 COLUMN beast_template.description IS '灵兽描述';
 
-CREATE
-    INDEX idx_beast_template_name ON
-    beast_template(name);
-
+-- name 已有 UNIQUE 约束自带索引
 CREATE
     INDEX idx_beast_template_tags ON
     beast_template USING GIN(tags);

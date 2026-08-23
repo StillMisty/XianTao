@@ -35,7 +35,7 @@ CREATE TABLE player(
     ),
     CONSTRAINT chk_user_activity_type CHECK(
         activity_type IS NULL
-        OR activity_type IN('TRAVEL', 'TRAINING', 'BOUNTY', 'DUNGEON')
+        OR activity_type IN('TRAVEL', 'TRAINING', 'BOUNTY', 'DUNGEON', 'BOUNTY_SIDE')
     ),
     CONSTRAINT chk_user_level CHECK(LEVEL >= 1),
     CONSTRAINT chk_user_exp CHECK(EXP >= 0),

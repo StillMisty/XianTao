@@ -28,6 +28,12 @@ CREATE
         occurred_at
     );
 
+CREATE
+    INDEX idx_game_event_cleanup ON
+    game_event(occurred_at)
+WHERE
+    delivered = TRUE;
+
 COMMENT ON
 TABLE
     game_event IS '游戏事件表 — 存储所有异步事件，NotificationAppender 投递后标记已送达';

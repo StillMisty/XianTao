@@ -13,7 +13,8 @@ import lombok.experimental.Accessors;
 import org.jspecify.annotations.Nullable;
 import top.stillmisty.xiantao.domain.beast.enums.BeastGender;
 import top.stillmisty.xiantao.domain.fudi.enums.BeastQuality;
-import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbCollectionTypeHandler;
+import top.stillmisty.xiantao.infrastructure.mybatis.handler.LongListJsonbTypeHandler;
+import top.stillmisty.xiantao.infrastructure.mybatis.handler.LongSetJsonbTypeHandler;
 import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 
 @SuppressWarnings("NullAway")
@@ -41,7 +42,7 @@ public class Beast {
 
   private BeastQuality quality;
 
-  @Column(typeHandler = JsonbCollectionTypeHandler.class)
+  @Column(typeHandler = LongSetJsonbTypeHandler.class)
   private Set<Long> mutationTraits;
 
   private Integer level;
@@ -56,7 +57,7 @@ public class Beast {
 
   private Integer hpCurrent;
 
-  @Column(typeHandler = JsonbCollectionTypeHandler.class)
+  @Column(typeHandler = LongListJsonbTypeHandler.class)
   private List<Long> skills;
 
   private Boolean isDeployed;
