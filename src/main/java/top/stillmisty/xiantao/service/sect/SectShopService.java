@@ -32,6 +32,7 @@ public class SectShopService {
   private final ItemTemplateRepository itemTemplateRepository;
   private final StackableItemService stackableItemService;
   private final SectMemberService sectMemberService;
+  private final SectLedger sectLedger;
 
   // ===================== 公开 API =====================
 
@@ -186,9 +187,8 @@ public class SectShopService {
             .findById(shopItem.getItemTemplateId())
             .orElseThrow(() -> new BusinessException(ErrorCode.ITEM_NOT_EXISTS));
 
-    // 原子扣贡献 + 原子扣库存，防止并发兑换双花贡献或超卖
-    if (sectMemberRepository.deductContributionIfEnough(userId, shopItem.getPriceContribution())
-        == 0) {
+    // 原子扣贡献 + 原子扣库存，防止并发兑换双花贡献或超卖；贡献扣减失败随事务回滚
+    if (!sectLedger.deductContributionIfEnough(userId, shopItem.getPriceContribution())) {
       throw new BusinessException(
           ErrorCode.SECT_SHOP_ITEM_INSUFFICIENT_CONTRIBUTION,
           shopItem.getPriceContribution(),
@@ -196,8 +196,6 @@ public class SectShopService {
     }
 
     if (sectShopItemRepository.deductStockIfAvailable(shopItemId) == 0) {
-      // 贡献已扣，回滚补偿
-      sectMemberRepository.addContribution(userId, shopItem.getPriceContribution());
       throw new BusinessException(ErrorCode.SHOP_PRODUCT_OUT_OF_STOCK);
     }
 

@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -30,6 +29,8 @@ import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.SpiritStoneService;
+import top.stillmisty.xiantao.service.ai.PromptSanitizer;
+import top.stillmisty.xiantao.service.ai.SectIdentityGenerator;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
 @Slf4j
@@ -50,8 +51,9 @@ public class SectMemberService {
   private final UserRepository userRepository;
   private final UserStateService userStateService;
   private final PlayerSkillRepository playerSkillRepository;
-  private final ChatClient npcChatClient;
+  private final SectIdentityGenerator sectIdentityGenerator;
   private final SpiritStoneService spiritStoneService;
+  private final SectLedger sectLedger;
   private final TransactionTemplate transactionTemplate;
 
   // ===================== 公开 API =====================
@@ -202,8 +204,8 @@ public class SectMemberService {
     }
 
     // LLM 身份生成在事务外执行；玩家可控文本先净化，防 prompt 注入
-    String safeEthos = ethosDesc == null ? "" : sanitizePromptText(ethosDesc, 200);
-    String[] llmResult = generateSectIdentity(name, safeEthos);
+    String safeEthos = PromptSanitizer.sanitize(ethosDesc == null ? "" : ethosDesc, 200);
+    String[] llmResult = sectIdentityGenerator.generate(name, safeEthos);
 
     // 短事务：扣款 + 落库（宗门名唯一由 uq_sect_name 兜底并发）
     String result =
@@ -246,82 +248,6 @@ public class SectMemberService {
     }
     sb.append("初始资金: ").append(SECT_INITIAL_FUNDS).append(" 灵石。");
     return sb.toString();
-  }
-
-  private String[] generateSectIdentity(String name, String ethosDesc) {
-    try {
-      String prompt =
-          """
-                你是一位修仙世界的宗门命名师。请根据以下信息为宗门生成诗号、道统和宗灵人格。
-
-                宗门名称：%s
-                道统描述：%s
-
-                请严格按以下格式回复（每行一项）：
-                诗号：xxx
-                道统：xxx
-                宗灵人格：xxx
-
-                要求：
-                - 诗号：4-7言对仗句，体现宗门气质
-                - 道统：100字以内的宗门修行理念简述
-                - 宗灵人格：50字以内的宗灵人格种子描述
-                """
-              .formatted(
-                  name,
-                  ethosDesc != null && !ethosDesc.isBlank() ? ethosDesc : "无特殊描述，请根据宗门名称自由发挥");
-
-      String response =
-          npcChatClient.prompt().system("你是修仙世界的宗门命名师，擅长为宗门赋予灵性身份。").user(prompt).call().content();
-
-      if (response == null || response.isBlank()) {
-        return new String[] {
-          "", "以" + name + "之名，问道长生。", "沉稳大气的宗门意志",
-        };
-      }
-
-      String verse = "";
-      String ethos = "";
-      String personality = "";
-
-      for (String line : response.lines().toList()) {
-        String trimmed = line.trim();
-        if (trimmed.startsWith("诗号：") || trimmed.startsWith("诗号:")) {
-          verse = extractSuffix(trimmed);
-        } else if (trimmed.startsWith("道统：") || trimmed.startsWith("道统:")) {
-          ethos = extractSuffix(trimmed);
-        } else if (trimmed.startsWith("宗灵人格：") || trimmed.startsWith("宗灵人格:")) {
-          personality = extractSuffix(trimmed);
-        }
-      }
-
-      if (verse.isBlank()) verse = "";
-      if (ethos.isBlank()) ethos = "以" + name + "之名，问道长生。";
-      if (personality.isBlank()) personality = "沉稳大气的宗门意志";
-
-      if (verse.length() > 100) verse = verse.substring(0, 100);
-      if (personality.length() > 100) personality = personality.substring(0, 100);
-      if (ethos.length() > 200) ethos = ethos.substring(0, 200);
-
-      return new String[] {verse, ethos, personality};
-    } catch (Exception e) {
-      log.warn("LLM 生成宗门身份失败，使用默认值", e);
-      return new String[] {
-        "", "以" + name + "之名，问道长生。", "沉稳大气的宗门意志",
-      };
-    }
-  }
-
-  private static String extractSuffix(String trimmed) {
-    int fullWidthIndex = trimmed.indexOf('：');
-    if (fullWidthIndex >= 0) {
-      return trimmed.substring(fullWidthIndex + 1).trim();
-    }
-    int halfWidthIndex = trimmed.indexOf(':');
-    if (halfWidthIndex >= 0) {
-      return trimmed.substring(halfWidthIndex + 1).trim();
-    }
-    return trimmed;
   }
 
   @Transactional
@@ -522,16 +448,10 @@ public class SectMemberService {
         sectRepository
             .findById(requireSectId(member))
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_FOUND));
-    sect.setNotice(sanitizePromptText(content, NOTICE_MAX_LENGTH));
+    sect.setNotice(PromptSanitizer.sanitize(content, NOTICE_MAX_LENGTH));
     sectRepository.save(sect);
 
     return "宗门公告已更新。";
-  }
-
-  /** 玩家可控文本进入 LLM prompt 前的净化：剥离控制字符与换行（防伪指令注入），截断至安全长度。 */
-  static String sanitizePromptText(String text, int maxLength) {
-    String cleaned = text.replaceAll("[\\p{Cntrl}\\n\\r\\t]", " ").trim();
-    return cleaned.length() > maxLength ? cleaned.substring(0, maxLength) : cleaned;
   }
 
   @Transactional
@@ -549,10 +469,10 @@ public class SectMemberService {
         sectRepository
             .findById(requireSectId(member))
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_FOUND));
-    sectRepository.addFunds(sect.getId(), amount);
+    sectLedger.addFunds(sect.getId(), amount);
 
     int contributionGain = (int) (amount * DONATE_RATE);
-    sectMemberRepository.addContribution(member.getUserId(), contributionGain);
+    sectLedger.addContribution(member.getUserId(), contributionGain);
 
     return new DonateResultVO(contributionGain);
   }
@@ -573,17 +493,10 @@ public class SectMemberService {
       throw new BusinessException(ErrorCode.SECT_UPGRADE_MAX_LEVEL);
     }
 
-    long cost =
-        switch (sect.getLevel()) {
-          case 1 -> 5000;
-          case 2 -> 15000;
-          case 3 -> 30000;
-          case 4 -> 50000;
-          default -> Long.MAX_VALUE;
-        };
+    long cost = SectLedger.upgradeCost(sect.getLevel());
 
     // 原子条件扣款，防止并发升级双花资金
-    if (sectRepository.deductFundsIfEnough(sect.getId(), cost) == 0) {
+    if (!sectLedger.deductFundsIfEnough(sect.getId(), cost)) {
       throw new BusinessException(ErrorCode.SECT_FUNDS_INSUFFICIENT, cost, sect.getFunds());
     }
 
@@ -609,10 +522,10 @@ public class SectMemberService {
             .findById(requireSectId(member))
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_FOUND));
 
-    int slots = 5;
-    long cost = slots * 500L;
+    int slots = SectLedger.EXPAND_SLOTS;
+    long cost = (long) slots * SectLedger.EXPAND_COST_PER_SLOT;
 
-    if (sectRepository.deductFundsIfEnough(sect.getId(), cost) == 0) {
+    if (!sectLedger.deductFundsIfEnough(sect.getId(), cost)) {
       throw new BusinessException(ErrorCode.SECT_FUNDS_INSUFFICIENT, cost, sect.getFunds());
     }
 
