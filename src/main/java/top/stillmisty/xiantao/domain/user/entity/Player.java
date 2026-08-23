@@ -217,10 +217,29 @@ public class Player {
     hpCurrent = Math.min(maxHp, hpCurrent + recoveryPerTick);
   }
 
-  /** 设置为濒死状态 */
-  public void setDying() {
+  /** 开始一项活动：状态、活动类型、开始时间、目标成对设置，并重置历练结算进度 */
+  public void beginActivity(
+      ActivityType type, UserStatus status, LocalDateTime startTime, @Nullable Long targetId) {
+    this.activityType = type;
+    this.activityStartTime = startTime;
+    this.activityTargetId = targetId;
+    this.status = status;
+    this.lastSettlementMinute = 0L;
+  }
+
+  /** 进入濒死状态：气血归一，记录濒死开始时间 */
+  public void setDying(LocalDateTime now) {
     this.status = UserStatus.DYING;
     this.hpCurrent = 1;
+    this.dyingStartTime = now;
+  }
+
+  /** 从濒死恢复：回空闲、清除活动残留与濒死时间、恢复气血 */
+  public void reviveFromDying(int restoredHp) {
+    endActivity();
+    this.status = UserStatus.IDLE;
+    this.dyingStartTime = null;
+    this.hpCurrent = Math.max(1, restoredHp);
   }
 
   /** 清除活动标记，回到空闲 */

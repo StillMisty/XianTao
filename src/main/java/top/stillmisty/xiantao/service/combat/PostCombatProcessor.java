@@ -30,7 +30,7 @@ public class PostCombatProcessor {
     for (Combatant c : team.members()) {
       if (c instanceof PlayerCombatant pc && pc.getId().equals(user.getId())) {
         if (c.getHp() <= 0) {
-          user.setDying();
+          user.setDying(TimeUtil.now());
         } else {
           user.setHpCurrent(c.getHp());
         }

@@ -141,10 +141,7 @@ public class GmService {
     if (target.getStatus() != UserStatus.DYING)
       throw new BusinessException(ErrorCode.GM_STATUS_NOT_DYING, targetNickname);
     int maxHp = target.calculateMaxHp();
-    target.setHpCurrent(maxHp);
-    target.setStatus(UserStatus.IDLE);
-    target.clearActivity();
-    target.setDyingStartTime(null);
+    target.reviveFromDying(maxHp);
     userRepository.save(target);
     log.info("GM {} 复活 {}（HP 恢复至 {}）", gmUserId, targetNickname, maxHp);
     return String.format("已复活 %s（气血：%d，状态：空闲）", targetNickname, maxHp);
@@ -171,7 +168,6 @@ public class GmService {
     if (mapNode.isEmpty())
       throw new BusinessException(ErrorCode.GM_LOCATION_NOT_FOUND, locationName);
     target.setLocationId(mapNode.get().getId());
-    target.setStatus(UserStatus.IDLE);
     target.clearActivity();
     userRepository.save(target);
     log.info("GM {} 传送 {} 到 {}（{}）", gmUserId, targetNickname, locationName, mapNode.get().getId());

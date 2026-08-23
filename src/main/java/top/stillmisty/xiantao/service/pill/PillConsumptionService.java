@@ -115,8 +115,7 @@ public class PillConsumptionService {
 
   private String applyHp(Player user, ItemProperties.Effect.Hp e, double qualityMultiplier) {
     if (user.getStatus() == UserStatus.DYING) {
-      user.setHpCurrent(user.calculateMaxHp());
-      user.setStatus(UserStatus.IDLE);
+      user.reviveFromDying(user.calculateMaxHp());
       return "复活并回满气血";
     }
 
@@ -228,8 +227,7 @@ public class PillConsumptionService {
 
   private String applyCure(Player user, ItemProperties.Effect.Cure e) {
     if (user.getStatus() == UserStatus.DYING) {
-      user.setHpCurrent(user.calculateMaxHp());
-      user.setStatus(UserStatus.IDLE);
+      user.reviveFromDying(user.calculateMaxHp());
       return "驱散异常并回满气血";
     }
     return "没有可驱散的异常状态";

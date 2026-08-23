@@ -217,10 +217,7 @@ public class BountyService {
     record.setHiddenClues(Map.of()); // hidden clues checked at start
     userBountyRepository.save(record);
 
-    user.setStatus(UserStatus.BOUNTY);
-    user.setActivityType(ActivityType.BOUNTY);
-    user.setActivityStartTime(TimeUtil.now());
-    user.setActivityTargetId(record.getId());
+    user.beginActivity(ActivityType.BOUNTY, UserStatus.BOUNTY, TimeUtil.now(), record.getId());
     userStateService.saveActivity(user);
 
     log.info(
@@ -267,7 +264,6 @@ public class BountyService {
     record.setStatus(BountyStatus.ABANDONED);
     userBountyRepository.save(record);
 
-    user.setStatus(UserStatus.IDLE);
     user.clearActivity();
     userStateService.saveActivity(user);
 

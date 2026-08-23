@@ -18,7 +18,6 @@ import top.stillmisty.xiantao.domain.monster.entity.MonsterTemplate;
 import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
 import top.stillmisty.xiantao.domain.skill.entity.Skill;
 import top.stillmisty.xiantao.domain.user.entity.Player;
-import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.repository.MonsterTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SkillRepository;
 import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
@@ -93,8 +92,7 @@ public class DungeonCombatHelper {
     boolean playerWon = "Player".equals(battleResult.winner());
 
     if (!playerWon && playerTeam.aliveMembers().isEmpty()) {
-      user.setStatus(UserStatus.DYING);
-      user.setDyingStartTime(TimeUtil.now());
+      user.setDying(TimeUtil.now());
       userStateService.saveHpStatus(user);
       return new SimpleCombatOutcome(false, 0, monsterTmpl.getName(), "你被击败了，陷入了濒死状态。", List.of());
     }

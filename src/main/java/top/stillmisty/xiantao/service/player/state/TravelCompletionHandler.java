@@ -29,7 +29,6 @@ class TravelCompletionHandler implements StateHandler {
 
     var startTime = user.getActivityStartTime();
     if (startTime == null) {
-      user.setStatus(UserStatus.IDLE);
       user.clearActivity();
       return true;
     }
@@ -42,7 +41,6 @@ class TravelCompletionHandler implements StateHandler {
 
     Integer travelTime = currentMap.get().getTravelTimeTo(destinationMap.get().getId());
     if (travelTime == null) {
-      user.setStatus(UserStatus.IDLE);
       user.clearActivity();
       log.warn(
           "玩家 {} 旅行卡死检测，无路径 {} → {}，已清除状态",
@@ -61,7 +59,6 @@ class TravelCompletionHandler implements StateHandler {
         currentMap.get().getName(),
         destinationMap.get().getName());
 
-    user.setStatus(UserStatus.IDLE);
     user.setLocationId(user.getActivityTargetId());
     user.clearActivity();
 

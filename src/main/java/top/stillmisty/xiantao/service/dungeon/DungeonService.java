@@ -114,10 +114,7 @@ public class DungeonService {
     instance.setExpiresAt(TimeUtil.now().plusHours(dungeon.getTimeoutHours()));
     instanceRepository.save(instance);
 
-    user.setStatus(UserStatus.DUNGEON);
-    user.setActivityType(ActivityType.DUNGEON);
-    user.setActivityStartTime(TimeUtil.now());
-    user.setActivityTargetId(instance.getId());
+    user.beginActivity(ActivityType.DUNGEON, UserStatus.DUNGEON, TimeUtil.now(), instance.getId());
     userStateService.saveActivity(user);
 
     log.info("玩家 {} 进入了秘境 {}", userId, dungeonName);

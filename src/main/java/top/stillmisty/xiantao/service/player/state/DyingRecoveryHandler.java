@@ -39,10 +39,7 @@ class DyingRecoveryHandler implements StateHandler {
     if (elapsedMinutes < DYING_RECOVERY_TIMEOUT_MINUTES) return false;
 
     int recoveryHp = Math.max(1, user.calculateMaxHp() / 5);
-    user.setHpCurrent(recoveryHp);
-    user.setStatus(UserStatus.IDLE);
-    user.clearActivity();
-    user.setDyingStartTime(null);
+    user.reviveFromDying(recoveryHp);
 
     gameEventService.save(
         GameEvent.create(user.getId(), GameEventCategory.DYING_RECOVERED)
