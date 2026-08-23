@@ -54,14 +54,21 @@ public class BountyService {
   private final EquipmentTemplateRepository equipmentTemplateRepository;
   private final BountyCombatService bountyCombatService;
 
+  // 事务/缓存注解必须放在外部调用的 public 方法上，标注在 Internal 方法会因自调用绕过代理而失效
+  @Cacheable(cacheNames = "bounties", key = "#userId")
+  @Transactional(readOnly = true)
   public ServiceResult<List<BountyVO>> listBounties(Long userId) {
     return new ServiceResult.Success<>(listBountiesInternal(userId));
   }
 
+  @Cacheable(cacheNames = "bounties", key = "'status:' + #userId")
+  @Transactional(readOnly = true)
   public ServiceResult<BountyStatusVO> getBountyStatus(Long userId) {
     return new ServiceResult.Success<>(getBountyStatusInternal(userId));
   }
 
+  @Transactional
+  @CacheEvict(cacheNames = "bounties", key = "'status:' + #userId")
   public ServiceResult<String> startBounty(Long userId, String bountyId) {
     long id;
     try {
@@ -72,17 +79,23 @@ public class BountyService {
     return new ServiceResult.Success<>(startBountyInternal(userId, id));
   }
 
+  @Caching(
+      evict = {
+        @CacheEvict(cacheNames = "bounties", key = "#userId"),
+        @CacheEvict(cacheNames = "bounties", key = "'status:' + #userId")
+      })
   public ServiceResult<BountyRewardVO> completeBounty(Long userId) {
     return new ServiceResult.Success<>(completeBountyInternal(userId));
   }
 
+  @Transactional
+  @CacheEvict(cacheNames = "bounties", key = "'status:' + #userId")
   public ServiceResult<String> abandonBounty(Long userId) {
     return new ServiceResult.Success<>(abandonBountyInternal(userId));
   }
 
   // ===================== 内部 API =====================
 
-  @Cacheable(cacheNames = "bounties", key = "#userId")
   public List<BountyVO> listBountiesInternal(Long userId) {
     Player user = userStateService.loadUser(userId);
     MapNode mapNode =
@@ -134,7 +147,6 @@ public class BountyService {
         .toList();
   }
 
-  @Cacheable(cacheNames = "bounties", key = "'status:' + #userId")
   public BountyStatusVO getBountyStatusInternal(Long userId) {
     UserBounty record = userBountyRepository.findActiveByUserId(userId).orElse(null);
     if (record == null) {
@@ -160,7 +172,6 @@ public class BountyService {
         record.getParsedRewardItems());
   }
 
-  @CacheEvict(cacheNames = "bounties", key = "'status:' + #userId")
   public String startBountyInternal(Long userId, Long bountyId) {
     Player user = userStateService.loadUser(userId);
 
@@ -223,17 +234,26 @@ public class BountyService {
     return String.format("已接取悬赏「%s」，预计 %d 分钟后完成。", bounty.getName(), bounty.getDurationMinutes());
   }
 
-  @Caching(
-      evict = {
-        @CacheEvict(cacheNames = "bounties", key = "#userId"),
-        @CacheEvict(cacheNames = "bounties", key = "'status:' + #userId")
-      })
   public BountyRewardVO completeBountyInternal(Long userId) {
-    return bountyCombatService.completeBounty(userId);
+    // 结算事务提交后再做 LLM 美化，避免长时间持有悬赏行锁
+    BountyCombatService.CompletedBounty completed = bountyCombatService.completeBounty(userId);
+    String beautified = bountyCombatService.beautify(completed);
+    if (beautified == null) return completed.vo();
+    var raw = completed.vo();
+    return new BountyRewardVO(
+        raw.userId(),
+        raw.bountyId(),
+        raw.bountyName(),
+        raw.mapName(),
+        raw.durationMinutes(),
+        beautified,
+        raw.eventDescription(),
+        raw.items(),
+        raw.spiritStones(),
+        raw.hasBeastEgg(),
+        raw.hasEquipment());
   }
 
-  @Transactional
-  @CacheEvict(cacheNames = "bounties", key = "'status:' + #userId")
   public String abandonBountyInternal(Long userId) {
     Player user = userStateService.loadUser(userId);
     if (user.getStatus() != UserStatus.BOUNTY) {

@@ -230,13 +230,15 @@ public class EffectHandlerRegistry {
 
   private void applyControl(EffectHandler.EffectContext ctx, BuffType type) {
     int duration = ctx.effect().duration() != null ? ctx.effect().duration() : 1;
+    // 回合开始时的持续效果处理会先 tick 并移除到期 buff，
+    // 因此控制时长 +1 才能真正覆盖 duration 个无法行动的回合
     ctx.buffManager()
         .addBuff(
             ctx.defender().getId(),
             Buff.builder()
                 .type(type)
                 .value(1.0)
-                .remainingTurns(duration)
+                .remainingTurns(duration + 1)
                 .source(ctx.skill().getName())
                 .build());
   }

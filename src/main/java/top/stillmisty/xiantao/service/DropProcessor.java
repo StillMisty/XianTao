@@ -1,7 +1,6 @@
 package top.stillmisty.xiantao.service;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
@@ -33,6 +32,7 @@ public class DropProcessor {
   private final StackableItemService stackableItemService;
   private final FortuneService fortuneService;
 
+  /** 掉落模型：每条掉落表项独立掷骰，weight 即基础掉率百分比（0-100）； 财富加成作用于物品数量而非概率；不做按权重排序截断，避免稀有掉落被高权重条目结构性挤出。 */
   public List<DropItem> processMonsterDrops(MonsterTemplate tmpl, Long userId) {
     var fortune = fortuneService.calculate(userId);
     double wealthMultiplier = fortuneService.getWealthMultiplier(fortune.wealth());
@@ -48,43 +48,38 @@ public class DropProcessor {
     Map<Long, EquipmentTemplate> equipTmplMap = loadEquipmentTemplates(equipmentDrops);
     Map<Long, ItemTemplate> itemTmplMap = loadItemTemplates(itemDrops);
 
-    List<DropItem> candidates = new ArrayList<>();
-
     for (var entry : equipmentDrops) {
-      if (ThreadLocalRandom.current().nextInt(100)
-          < Math.max(1, (int) (entry.weight() * wealthMultiplier))) {
-        EquipmentTemplate tmplEquip = equipTmplMap.get(entry.templateId());
-        if (tmplEquip != null) {
-          candidates.add(
-              new DropItem(DropType.EQUIPMENT, entry.templateId(), tmplEquip.getName(), 1));
-        }
+      if (!roll(entry.weight())) continue;
+      EquipmentTemplate tmplEquip = equipTmplMap.get(entry.templateId());
+      if (tmplEquip != null) {
+        drops.add(new DropItem(DropType.EQUIPMENT, entry.templateId(), tmplEquip.getName(), 1));
       }
     }
 
     for (var entry : itemDrops) {
-      if (ThreadLocalRandom.current().nextInt(100)
-          < Math.max(1, (int) (entry.weight() * wealthMultiplier))) {
-        ItemTemplate tmplItem = itemTmplMap.get(entry.templateId());
-        if (tmplItem != null) {
-          int qty = 1 + ThreadLocalRandom.current().nextInt(3);
-          candidates.add(new DropItem(DropType.ITEM, entry.templateId(), tmplItem.getName(), qty));
-        }
+      if (!roll(entry.weight())) continue;
+      ItemTemplate tmplItem = itemTmplMap.get(entry.templateId());
+      if (tmplItem != null) {
+        int baseQty = 1 + ThreadLocalRandom.current().nextInt(3);
+        int qty = (int) Math.max(1, Math.round(baseQty * Math.max(1.0, wealthMultiplier)));
+        drops.add(new DropItem(DropType.ITEM, entry.templateId(), tmplItem.getName(), qty));
       }
     }
 
-    int maxDrops = 2 + ThreadLocalRandom.current().nextInt(2);
-    candidates.sort(
-        Comparator.comparingInt(
-            a -> {
-              var entry =
-                  dropTable.stream().filter(d -> d.templateId().equals(a.templateId())).findFirst();
-              return entry.map(e -> -e.weight()).orElse(0);
-            }));
-    for (int i = 0; i < Math.min(maxDrops, candidates.size()); i++) {
-      drops.add(candidates.get(i));
+    // 安全上限：超限时随机保留而非按权重保留
+    int maxDrops = 5;
+    if (drops.size() > maxDrops) {
+      java.util.Collections.shuffle(drops);
+      return new ArrayList<>(drops.subList(0, maxDrops));
     }
-
     return drops;
+  }
+
+  /** 独立掉率判定 */
+  private static boolean roll(double weightPercent) {
+    if (weightPercent >= 100) return true;
+    if (weightPercent <= 0) return false;
+    return ThreadLocalRandom.current().nextDouble(100) < weightPercent;
   }
 
   @Transactional

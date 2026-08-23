@@ -24,9 +24,13 @@ public class DungeonProgressHelper {
   private final DungeonProgressRepository progressRepository;
   private final UserStateService userStateService;
   private final SpiritStoneService spiritStoneService;
+  private final DungeonInstanceManager instanceManager;
 
   @Transactional
   public String completeDungeon(Long userId, DungeonInstance instance) {
+    // 关闭秘境实例，否则部分唯一索引会阻止玩家再次进入
+    instanceManager.markCompleted(instance);
+
     DungeonTemplate dungeon =
         dungeonTemplateRepository
             .findById(instance.getDungeonId())
@@ -41,7 +45,7 @@ public class DungeonProgressHelper {
 
     DungeonProgress progress =
         progressRepository
-            .findByUserIdAndDungeonId(userId, dungeon.getId())
+            .findByUserIdAndDungeonIdForUpdate(userId, dungeon.getId())
             .orElseGet(
                 () -> {
                   DungeonProgress p = new DungeonProgress();
@@ -62,11 +66,12 @@ public class DungeonProgressHelper {
 
     progress.setBestArea(instance.getCurrentAreaKey());
 
-    long spiritStonesReward = ThreadLocalRandom.current().nextInt(500, 2001);
-    spiritStoneService.deposit(userId, spiritStonesReward);
-
+    // 灵石奖励必须在每日限额判定之内发放，否则上限形同虚设
+    long spiritStonesReward = 0;
     boolean rewardGiven = false;
     if (progress.canGetReward()) {
+      spiritStonesReward = ThreadLocalRandom.current().nextInt(500, 2001);
+      spiritStoneService.deposit(userId, spiritStonesReward);
       progress.recordReward();
       rewardGiven = true;
     }
@@ -74,12 +79,14 @@ public class DungeonProgressHelper {
 
     StringBuilder sb = new StringBuilder();
     sb.append("恭喜！你成功通关了【").append(dungeon.getName()).append("】！\n");
-    sb.append("获得灵石 ×").append(spiritStonesReward).append("\n");
+    if (rewardGiven) {
+      sb.append("获得灵石 ×").append(spiritStonesReward).append("\n");
+    }
     if (isFirstClear) {
       sb.append("★ 首次通关记录！\n");
     }
     if (!rewardGiven) {
-      sb.append("今日通关奖励次数已达上限。\n");
+      sb.append("今日通关奖励次数已达上限，未获得灵石。\n");
     }
     return sb.toString();
   }

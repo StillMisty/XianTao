@@ -96,7 +96,8 @@ public class BeastCombatService {
       throw new BusinessException(BEAST_IN_RECOVERY);
     }
 
-    List<Beast> allBeasts = beastRepository.findByFudiId(pcb.fudi().getId());
+    // 行锁读取，防止并发出战突破 2 只上限
+    List<Beast> allBeasts = beastRepository.findByFudiIdForUpdate(pcb.fudi().getId());
     long deployedCount =
         allBeasts.stream().filter(b -> Boolean.TRUE.equals(b.getIsDeployed())).count();
     if (deployedCount >= 2) {

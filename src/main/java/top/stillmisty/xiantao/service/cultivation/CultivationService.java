@@ -150,7 +150,8 @@ public class CultivationService {
     List<PlayerBuff> breakthroughBuffs =
         playerBuffRepository.findActiveByUserIdAndType(user.getId(), PlayerBuffType.BREAKTHROUGH);
     double pillBonus = breakthroughBuffs.stream().mapToInt(PlayerBuff::getValue).sum();
-    double bossReduction = Math.min(0.5, (pillBonus + protectionBonus) / 100.0);
+    // 下限 0：护道/丹药加成为负时不得反向增强雷劫
+    double bossReduction = Math.clamp((pillBonus + protectionBonus) / 100.0, 0.0, 0.5);
 
     // 保底削弱
     double pityReduction = Math.min(0.5, user.getBreakthroughFailCount() * 0.05);
@@ -321,7 +322,7 @@ public class CultivationService {
         playerBuffRepository.findActiveByUserIdAndType(user.getId(), PlayerBuffType.BREAKTHROUGH);
     double pillBonus = breakthroughBuffs.stream().mapToInt(PlayerBuff::getValue).sum();
     double baseSuccessRate = user.calculateBreakthroughSuccessRate();
-    return Math.min(100.0, baseSuccessRate + protectionBonus + pillBonus);
+    return Math.clamp(baseSuccessRate + protectionBonus + pillBonus, 0.0, 100.0);
   }
 
   private BreakthroughResult handleBreakthroughSuccess(

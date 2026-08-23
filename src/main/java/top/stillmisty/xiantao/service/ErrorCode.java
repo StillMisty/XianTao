@@ -32,6 +32,7 @@ public enum ErrorCode {
   BEAST_DEAD("灵兽HP为0，请先恢复"),
   BEAST_RECOVERING("灵兽尚在恢复中，预计 %s 后恢复"),
   BEAST_DEPLOY_FULL("出战灵兽已达上限 (2只)，请先召回其他灵兽"),
+  BEAST_DEPLOYED("【%s】正处于出战状态，请先召回再放生"),
   BEAST_MAX_TIER("已是最高等阶归真"),
   BEAST_NEED_MAX_LEVEL("灵兽需要先达到等级上限才能进化"),
   BEAST_EVOLVE_FAILED("进化失败！灵石已消耗"),

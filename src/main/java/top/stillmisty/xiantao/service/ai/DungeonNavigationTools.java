@@ -34,6 +34,14 @@ public class DungeonNavigationTools {
   private final DungeonProgressHelper progressHelper;
   private final UserStateService userStateService;
 
+  /** 在工具事务内重读最新实例，避免陈旧快照覆盖并发写入 */
+  private DungeonInstance reloadInstance(DungeonChatContext ctx) {
+    return instanceRepository
+        .findById(ctx.instance().getId())
+        .filter(DungeonInstance::isActive)
+        .orElseThrow(() -> new BusinessException(ErrorCode.DUNGEON_NO_ACTIVE_INSTANCE));
+  }
+
   @Tool(description = "推进到下一区域。仅在当前区域所有主线 POI 已探索、通道已解锁后调用")
   @Transactional
   public AdvanceAreaResponse advanceToNextArea() {
@@ -41,7 +49,8 @@ public class DungeonNavigationTools {
         "advanceToNextArea",
         () -> {
           DungeonChatContext ctx = requireContext();
-          DungeonInstance instance = ctx.instance();
+          // 工具事务内重读最新实例，防止同一秘境并发对话时用陈旧快照互相覆盖
+          DungeonInstance instance = reloadInstance(ctx);
           DungeonTemplate dungeon = ctx.dungeon();
 
           if (!instance.getPassageUnlocked()) {
@@ -79,7 +88,7 @@ public class DungeonNavigationTools {
         "retreatFromDungeon",
         () -> {
           DungeonChatContext ctx = requireContext();
-          DungeonInstance instance = ctx.instance();
+          DungeonInstance instance = reloadInstance(ctx);
 
           instance.markAbandoned();
           instanceRepository.save(instance);
@@ -116,7 +125,8 @@ public class DungeonNavigationTools {
         "checkCurrentArea",
         () -> {
           DungeonChatContext ctx = requireContext();
-          DungeonInstance instance = ctx.instance();
+          // 工具事务内重读最新实例，防止同一秘境并发对话时用陈旧快照互相覆盖
+          DungeonInstance instance = reloadInstance(ctx);
           DungeonTemplate dungeon = ctx.dungeon();
 
           AreaConfig area = stateBuilder.findArea(dungeon, instance.getCurrentAreaKey());

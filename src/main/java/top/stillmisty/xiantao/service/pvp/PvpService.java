@@ -49,12 +49,14 @@ public class PvpService {
 
     var result = combatService.simulate(teamA, teamB, 50);
 
+    boolean isDraw = "DRAW".equals(result.winner());
     boolean attackerWon = "A".equals(result.winner());
 
     return new SparResultVO(
         attacker.getNickname(),
         defender.getNickname(),
         attackerWon,
+        isDraw,
         result.combatLog(),
         collectHpStatus(teamA),
         collectHpStatus(teamB));

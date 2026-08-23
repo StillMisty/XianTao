@@ -21,7 +21,8 @@ public class Monster implements Combatant {
     this.instanceId = ID_GENERATOR.getAndIncrement();
     this.level = level;
     this.skills = skills != null ? skills : List.of();
-    double levelScale = 1.0 + (level - template.getBaseLevel()) * 0.15;
+    // 缩放下限保护：level 低于 baseLevel 过多时防止属性为负
+    double levelScale = Math.max(0.1, 1.0 + (level - template.getBaseLevel()) * 0.15);
     this.hp = (int) Math.round(template.getBaseHp() * levelScale);
   }
 

@@ -5,6 +5,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonInstance;
@@ -36,6 +37,28 @@ public class DungeonService {
   private final DungeonInstanceManager instanceManager;
   private final DungeonStateBuilder stateBuilder;
   private final UserRepository userRepository;
+
+  /** 定时关闭超时秘境实例并解除玩家秘境状态，防止被部分唯一索引锁死 */
+  @Scheduled(fixedRate = 15 * 60 * 1000, zone = "Asia/Shanghai")
+  @Transactional
+  public void expireStaleInstances() {
+    List<DungeonInstance> actives = instanceRepository.findActiveInstances();
+    if (actives.isEmpty()) return;
+    int expired = 0;
+    for (DungeonInstance instance : actives) {
+      if (!instance.isExpired()) continue;
+      instanceManager.markFailed(instance);
+      Player leader = userStateService.loadUserReadOnly(instance.getLeaderId());
+      if (leader != null && leader.getStatus() == UserStatus.DUNGEON) {
+        leader.clearActivity();
+        userStateService.saveActivity(leader);
+      }
+      expired++;
+    }
+    if (expired > 0) {
+      log.info("已过期秘境实例清理完成: {} 个", expired);
+    }
+  }
 
   @Transactional(readOnly = true)
   public ServiceResult<List<top.stillmisty.xiantao.domain.dungeon.vo.DungeonListVO>> listDungeons(
@@ -73,7 +96,12 @@ public class DungeonService {
             .findByLeaderIdAndDungeonIdAndStatus(userId, dungeon.getId(), DungeonStatus.ACTIVE)
             .orElse(null);
     if (existing != null) {
-      throw new BusinessException(ErrorCode.DUNGEON_ALREADY_IN, dungeonName);
+      if (existing.isExpired()) {
+        // 超时实例自动关闭，避免玩家被永久锁死在秘境外
+        instanceManager.markFailed(existing);
+      } else {
+        throw new BusinessException(ErrorCode.DUNGEON_ALREADY_IN, dungeonName);
+      }
     }
 
     DungeonInstance instance = new DungeonInstance();

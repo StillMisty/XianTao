@@ -1,7 +1,11 @@
 package top.stillmisty.xiantao.service.dungeon;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,9 +16,11 @@ import top.stillmisty.xiantao.domain.monster.CombatTeam;
 import top.stillmisty.xiantao.domain.monster.Monster;
 import top.stillmisty.xiantao.domain.monster.entity.MonsterTemplate;
 import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
+import top.stillmisty.xiantao.domain.skill.entity.Skill;
 import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.repository.MonsterTemplateRepository;
+import top.stillmisty.xiantao.infrastructure.repository.SkillRepository;
 import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.infrastructure.util.WeightedRandom;
 import top.stillmisty.xiantao.service.BusinessException;
@@ -28,6 +34,7 @@ import top.stillmisty.xiantao.service.player.UserStateService;
 public class DungeonCombatHelper {
 
   private final MonsterTemplateRepository monsterTemplateRepository;
+  private final SkillRepository skillRepository;
   private final CombatEngine combatEngine;
   private final CombatService combatService;
   private final PostCombatProcessor postCombatProcessor;
@@ -52,9 +59,22 @@ public class DungeonCombatHelper {
             .findById(monsterEntry.templateId())
             .orElseThrow(() -> new BusinessException(ErrorCode.DUNGEON_POI_NOT_FOUND));
 
-    Monster monster = new Monster(monsterTmpl, 1, List.of());
-    CombatTeam monsterTeam = new CombatTeam(-1L, monster.getName());
-    monsterTeam.addMember(monster);
+    // 按模板等级加载技能并尊重 min/max 数量（原硬编码 1 级无技能导致高阶模板属性为负、开局即胜）
+    List<Skill> monsterSkills = loadMonsterSkills(monsterTmpl);
+    int minCount =
+        monsterEntry.minCount() != null && monsterEntry.minCount() > 0
+            ? monsterEntry.minCount()
+            : 1;
+    int maxCount =
+        monsterEntry.maxCount() != null && monsterEntry.maxCount() >= minCount
+            ? monsterEntry.maxCount()
+            : minCount;
+    int count = ThreadLocalRandom.current().nextInt(minCount, maxCount + 1);
+
+    CombatTeam monsterTeam = new CombatTeam(-1L, monsterTmpl.getName());
+    for (int i = 0; i < count; i++) {
+      monsterTeam.addMember(new Monster(monsterTmpl, monsterTmpl.getBaseLevel(), monsterSkills));
+    }
 
     CombatTeam playerTeam = combatService.buildPlayerTeam(user);
 
@@ -76,15 +96,24 @@ public class DungeonCombatHelper {
       user.setStatus(UserStatus.DYING);
       user.setDyingStartTime(TimeUtil.now());
       userStateService.saveHpStatus(user);
-      return new SimpleCombatOutcome(false, 0, monster.getName(), "你被击败了，陷入了濒死状态。", List.of());
+      return new SimpleCombatOutcome(false, 0, monsterTmpl.getName(), "你被击败了，陷入了濒死状态。", List.of());
     }
 
     return new SimpleCombatOutcome(
         playerWon,
         0,
-        monster.getName(),
-        playerWon ? ("击败了" + monster.getName() + "！") : "被" + monster.getName() + "击退了...",
+        monsterTmpl.getName(),
+        playerWon ? ("击败了" + monsterTmpl.getName() + "！") : "被" + monsterTmpl.getName() + "击退了...",
         List.of());
+  }
+
+  /** 批量加载怪物模板配置的技能 */
+  private List<Skill> loadMonsterSkills(MonsterTemplate tmpl) {
+    if (tmpl.getSkills() == null || tmpl.getSkills().isEmpty()) return List.of();
+    Map<Long, Skill> skillMap =
+        skillRepository.findByIds(tmpl.getSkills()).stream()
+            .collect(Collectors.toMap(Skill::getId, Function.identity()));
+    return tmpl.getSkills().stream().map(skillMap::get).filter(Objects::nonNull).toList();
   }
 
   @SuppressWarnings("NullAway")

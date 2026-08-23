@@ -43,10 +43,10 @@ public class ProtectionHelper {
     return Math.min(MAX_TOTAL_BONUS_PERCENTAGE, totalBonus);
   }
 
-  /** 计算单个护道者的加成 公式：5% + (护道者境界层级 - 突破者境界层级) × 1% */
+  /** 计算单个护道者的加成 公式：5% + (护道者境界层级 - 突破者境界层级) × 1%，下限 0 */
   public static double calculateSingleProtectorBonus(Player protector, Player protege) {
     int levelDiff = protector.getLevel() - protege.getLevel();
-    return 5.0 + (levelDiff * 1.0);
+    return Math.max(0.0, 5.0 + (levelDiff * 1.0));
   }
 
   /** 检查两个用户是否在同一地点 */

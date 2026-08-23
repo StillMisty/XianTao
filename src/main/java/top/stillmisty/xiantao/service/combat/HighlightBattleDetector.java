@@ -38,33 +38,31 @@ public class HighlightBattleDetector {
     // 检查回合数
     boolean isLongBattle = rounds >= HIGHLIGHT_ROUND_THRESHOLD;
 
-    // 检查血量变化
+    // 检查血量变化：任一队员被打到残血即视为势均力敌（原仅取首个成员，多人队伍失真）
     boolean isCloseBattle = false;
     if (playerHpChange != null && !playerHpChange.isEmpty()) {
-      var hpEntry = playerHpChange.entrySet().iterator().next();
-      HpChange hpChange = hpEntry.getValue();
-      if (hpChange.before() > 0) {
-        double hpRatio = (double) hpChange.after() / hpChange.before();
-        isCloseBattle = hpRatio <= HIGHLIGHT_HP_THRESHOLD;
-      }
-    }
-
-    // 检查是否有稀有技能触发
-    boolean hasRareSkillProc = false;
-    List<SkillProc> skillProcs = battleResult.skillProcs();
-    if (skillProcs != null) {
-      for (SkillProc proc : skillProcs) {
-        // 如果某个技能触发了多次，认为是高光
-        if (proc.count() >= 3) {
-          hasRareSkillProc = true;
-          break;
+      for (HpChange hpChange : playerHpChange.values()) {
+        if (hpChange.before() > 0) {
+          double hpRatio = (double) hpChange.after() / hpChange.before();
+          if (hpRatio <= HIGHLIGHT_HP_THRESHOLD) {
+            isCloseBattle = true;
+            break;
+          }
         }
       }
     }
 
+    // 检查技能多样性：≥3 个不同技能登场视为精彩战斗
+    // （原判定「同一技能触发≥3 次」与「稀有」语义相反——常用技能每场都满足）
+    boolean hasSkillVariety = false;
+    List<SkillProc> skillProcs = battleResult.skillProcs();
+    if (skillProcs != null && skillProcs.size() >= 3) {
+      hasSkillVariety = true;
+    }
+
     // 判断是否为高光战斗
-    if (isLongBattle || isCloseBattle || hasRareSkillProc) {
-      String reason = buildHighlightReason(isLongBattle, isCloseBattle, hasRareSkillProc, rounds);
+    if (isLongBattle || isCloseBattle || hasSkillVariety) {
+      String reason = buildHighlightReason(isLongBattle, isCloseBattle, hasSkillVariety, rounds);
       log.info("检测到高光战斗 - 序号: {}, 原因: {}", battleIndex, reason);
       return HighlightInfo.builder().battleIndex(battleIndex).reason(reason).rounds(rounds).build();
     }
@@ -73,7 +71,7 @@ public class HighlightBattleDetector {
   }
 
   private String buildHighlightReason(
-      boolean isLongBattle, boolean isCloseBattle, boolean hasRareSkillProc, int rounds) {
+      boolean isLongBattle, boolean isCloseBattle, boolean hasSkillVariety, int rounds) {
     StringBuilder reason = new StringBuilder();
     if (isLongBattle) {
       reason.append(String.format("战斗持续%d回合", rounds));
@@ -82,9 +80,9 @@ public class HighlightBattleDetector {
       if (!reason.isEmpty()) reason.append("，");
       reason.append("势均力敌");
     }
-    if (hasRareSkillProc) {
+    if (hasSkillVariety) {
       if (!reason.isEmpty()) reason.append("，");
-      reason.append("触发稀有技能");
+      reason.append("技能纷呈");
     }
     return reason.toString();
   }

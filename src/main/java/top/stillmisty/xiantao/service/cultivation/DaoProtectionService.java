@@ -61,6 +61,11 @@ public class DaoProtectionService {
 
     Player protege = protegeOpt.get();
 
+    if (protege.getId().equals(protectorId)) {
+      return new DaoProtectionResult(
+          false, "无法为自己护道", null, null, null, null, null, null, null, null, null);
+    }
+
     if (protector.getLevel() < protege.getLevel()) {
       return new DaoProtectionResult(
           false,
@@ -84,7 +89,7 @@ public class DaoProtectionService {
     if (currentProtectingCount >= MAX_PROTECTOR_COUNT) {
       return new DaoProtectionResult(
           false,
-          String.format("未找到道号为【%s】的修士", protegeNickname),
+          String.format("你已在为 %d 位道友护道，分身乏术。请先使用「护道解除」解除部分关系", MAX_PROTECTOR_COUNT),
           null,
           null,
           null,
@@ -180,8 +185,8 @@ public class DaoProtectionService {
     daoProtectionRepository.deleteById(protectionOpt.get().getId());
 
     return new DaoProtectionResult(
-        false,
-        String.format("未找到道号为【%s】的修士", protegeNickname),
+        true,
+        String.format("已解除与【%s】的护道契约", protege.getNickname()),
         null,
         null,
         null,

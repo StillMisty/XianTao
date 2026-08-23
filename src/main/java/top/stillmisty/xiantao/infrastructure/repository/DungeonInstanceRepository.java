@@ -31,6 +31,12 @@ public class DungeonInstanceRepository {
     return Optional.ofNullable(mapper.selectOneByQuery(qw));
   }
 
+  /** 查询全部 ACTIVE 实例（供定时过期清理） */
+  public List<DungeonInstance> findActiveInstances() {
+    QueryWrapper qw = QueryWrapper.create().where(DUNGEON_INSTANCE.STATUS.eq(DungeonStatus.ACTIVE));
+    return mapper.selectListByQuery(qw);
+  }
+
   public Optional<DungeonInstance> findByLeaderIdAndDungeonIdAndStatus(
       Long leaderId, Long dungeonId, DungeonStatus status) {
     QueryWrapper qw =

@@ -49,6 +49,12 @@ public class BeastRepository {
         QueryWrapper.create().select().from(BEAST).where(BEAST.FUDI_ID.eq(fudiId)));
   }
 
+  /** 带行锁读取福地全部灵兽，用于出战上限等并发校验 */
+  public List<Beast> findByFudiIdForUpdate(Long fudiId) {
+    return mapper.selectListByQuery(
+        QueryWrapper.create().select().from(BEAST).where(BEAST.FUDI_ID.eq(fudiId)).forUpdate());
+  }
+
   public List<Beast> findDeployedByUserId(Long userId) {
     LocalDateTime now = TimeUtil.now();
     return mapper.selectListByQuery(

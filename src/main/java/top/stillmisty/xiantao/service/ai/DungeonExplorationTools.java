@@ -45,7 +45,12 @@ public class DungeonExplorationTools {
         "resolveEncounter",
         () -> {
           DungeonChatContext ctx = requireContext();
-          DungeonInstance instance = ctx.instance();
+          // 工具事务内重读最新实例，防止同一秘境并发对话时用陈旧快照互相覆盖
+          DungeonInstance instance =
+              instanceRepository
+                  .findById(ctx.instance().getId())
+                  .filter(DungeonInstance::isActive)
+                  .orElseThrow(() -> new BusinessException(ErrorCode.DUNGEON_NO_ACTIVE_INSTANCE));
           DungeonTemplate dungeon = ctx.dungeon();
           DungeonSpiritState spiritState = ctx.spiritState();
 

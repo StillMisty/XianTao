@@ -28,8 +28,12 @@ public class PvpCommandHandler implements CommandGroup {
     StringBuilder sb = new StringBuilder();
     sb.append(fmt.heading(vo.attackerNickname() + " 与 " + vo.defenderNickname() + " 切磋！", "⚔️"));
 
-    String winnerName = vo.attackerWon() ? vo.attackerNickname() : vo.defenderNickname();
-    sb.append(fmt.bold(winnerName + " 获胜！"));
+    if (vo.draw()) {
+      sb.append(fmt.bold("激战五十回合，难分伯仲，平局！"));
+    } else {
+      String winnerName = vo.attackerWon() ? vo.attackerNickname() : vo.defenderNickname();
+      sb.append(fmt.bold(winnerName + " 获胜！"));
+    }
     sb.append("\n\n");
 
     sb.append(fmt.bold("战斗记录")).append("\n");

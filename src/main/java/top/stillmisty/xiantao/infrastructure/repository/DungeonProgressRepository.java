@@ -29,6 +29,16 @@ public class DungeonProgressRepository {
     return Optional.ofNullable(mapper.selectOneByQuery(qw));
   }
 
+  /** 带行锁读取，用于通关结算防并发双首通/超额奖励 */
+  public Optional<DungeonProgress> findByUserIdAndDungeonIdForUpdate(Long userId, Long dungeonId) {
+    QueryWrapper qw =
+        QueryWrapper.create()
+            .where(DUNGEON_PROGRESS.USER_ID.eq(userId))
+            .and(DUNGEON_PROGRESS.DUNGEON_ID.eq(dungeonId))
+            .forUpdate();
+    return Optional.ofNullable(mapper.selectOneByQuery(qw));
+  }
+
   public List<DungeonProgress> findByUserIdAndDungeonIds(Long userId, List<Long> dungeonIds) {
     if (dungeonIds == null || dungeonIds.isEmpty()) return List.of();
     QueryWrapper qw =

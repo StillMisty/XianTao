@@ -188,15 +188,13 @@ public class DefaultCombatEngine implements CombatEngine {
     int damage = 0;
     boolean isControl = false;
     boolean isBuff = false;
+    boolean dodged = false;
     String skillName = null;
 
     if (selectedSkill != null) {
       double attackSpeed = Math.max(0.01, attacker.getAttackSpeed());
       Integer cdSeconds = selectedSkill.getCooldownSeconds();
       int cooldownTicks = cdSeconds != null ? (int) Math.max(1, cdSeconds / attackSpeed) : 1;
-      skillCooldowns.put(skillKey(attacker, selectedSkill), cooldownTicks);
-      skillProcs.merge(attacker.getName() + ":" + selectedSkill.getName(), 1, Integer::sum);
-      skillName = selectedSkill.getName();
 
       List<SkillEffect> effects = selectedSkill.getEffects();
       boolean anyEffectProcessed = false;
@@ -226,8 +224,13 @@ public class DefaultCombatEngine implements CombatEngine {
         }
       }
 
-      // 如果技能没有任何效果被处理，使用普通攻击
-      if (!anyEffectProcessed) {
+      // 技能生效才计入冷却与统计；全部效果未命中时退化为普通攻击，不空耗 CD
+      if (anyEffectProcessed) {
+        skillCooldowns.put(skillKey(attacker, selectedSkill), cooldownTicks);
+        skillProcs.merge(attacker.getName() + ":" + selectedSkill.getName(), 1, Integer::sum);
+        skillName = selectedSkill.getName();
+      } else {
+        selectedSkill = null;
         damage = damageCalculator.calculateNormalDamage(attacker, defender, buffManager);
       }
     } else {
@@ -239,14 +242,41 @@ public class DefaultCombatEngine implements CombatEngine {
           .anyMatch(b -> !b.isExpired())) {
         damage = (int) (damage * 1.3);
       }
-      defender.takeDamage(damage);
-      damageDealt.merge(attacker.getName(), damage, Integer::sum);
+
+      // 闪避判定：闪避成功则本次攻击完全落空
+      if (ThreadLocalRandom.current().nextDouble() < buffManager.getDodgeChance(defender.getId())) {
+        damage = 0;
+        dodged = true;
+      } else {
+        defender.takeDamage(damage);
+        damageDealt.merge(attacker.getName(), damage, Integer::sum);
+
+        // 反伤：按反弹比例将所受伤害返还攻击者（攻击者存活时生效）
+        double reflectPercent = buffManager.getReflectPercent(defender.getId());
+        if (reflectPercent > 0 && attacker.isAlive()) {
+          int reflectDamage = Math.max(1, (int) Math.round(damage * reflectPercent));
+          attacker.takeDamage(reflectDamage);
+        }
+
+        // 反击：概率对攻击者追加一次普攻伤害
+        if (attacker.isAlive()
+            && ThreadLocalRandom.current().nextDouble()
+                < buffManager.getCounterChance(defender.getId())) {
+          int counterDamage =
+              Math.max(1, damageCalculator.calculateNormalDamage(defender, attacker, buffManager));
+          attacker.takeDamage(counterDamage);
+        }
+      }
     }
 
     List<String> effectNames =
         selectedSkill != null && selectedSkill.getEffects() != null
-            ? selectedSkill.getEffects().stream().map(e -> e.type().name()).toList()
-            : null;
+            ? new ArrayList<>(
+                selectedSkill.getEffects().stream().map(e -> e.type().name()).toList())
+            : new ArrayList<>();
+    if (dodged) {
+      effectNames.add("DODGED");
+    }
 
     return new CombatLogEntry(
         round,
@@ -255,7 +285,7 @@ public class DefaultCombatEngine implements CombatEngine {
         isBuff ? attacker.getName() : defender.getName(),
         selectedSkill != null ? CombatLogEntry.AttackType.SKILL : CombatLogEntry.AttackType.NORMAL,
         skillName,
-        effectNames,
+        effectNames.isEmpty() ? null : List.copyOf(effectNames),
         isControl || isBuff,
         isBuff ? attacker.getName() : null,
         damage,

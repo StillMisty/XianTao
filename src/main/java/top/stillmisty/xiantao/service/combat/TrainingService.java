@@ -40,6 +40,9 @@ import top.stillmisty.xiantao.service.player.UserStateService;
 @RequiredArgsConstructor
 public class TrainingService {
 
+  /** 单次历练结算的最大分钟数（12 小时），超出部分不参与物品掉落判定 */
+  private static final long MAX_SETTLEMENT_MINUTES = 720;
+
   private static final double AGILITY_EFFICIENCY_COEFFICIENT = 0.01;
   private static final double MAX_EFFICIENCY_BOOST = 2.0;
   private static final double LEVEL_DECAY_RATE = 0.04;
@@ -55,17 +58,19 @@ public class TrainingService {
   private final TrainingSettler trainingSettler;
   private final FortuneService fortuneService;
 
+  // 事务注解必须放在外部调用的 public 方法上，标注在 Internal 方法会因自调用绕过代理而失效
+  @Transactional
   public ServiceResult<TrainingStartResult> startTraining(Long userId) {
     return new ServiceResult.Success<>(startTrainingInternal(userId));
   }
 
+  @Transactional
   public ServiceResult<TrainingRewardVO> endTraining(Long userId) {
     return new ServiceResult.Success<>(endTrainingInternal(userId));
   }
 
   // ===================== 内部 API =====================
 
-  @Transactional
   public TrainingStartResult startTrainingInternal(Long userId) {
     Player user = userStateService.loadUser(userId);
     if (user.getStatus() != UserStatus.IDLE) {
@@ -94,7 +99,6 @@ public class TrainingService {
     return TrainingStartResult.builder().success(true).mapName(mapNode.getName()).build();
   }
 
-  @Transactional
   public TrainingRewardVO endTrainingInternal(Long userId) {
     Player user = userStateService.loadUser(userId);
     if (user.getStatus() != UserStatus.TRAINING && user.getStatus() != UserStatus.DYING) {
@@ -393,7 +397,9 @@ public class TrainingService {
             .findByIds(specialties.stream().map(SpecialtyEntry::templateId).toList())
             .stream()
             .collect(Collectors.toMap(ItemTemplate::getId, t -> t));
-    int dropChances = Math.max(1, (int) ((minutesTraining / 10.0) * efficiencyMultiplier));
+    // 单次结算掉落判定次数封顶（对应最长 12 小时挂机），防止超长离线一次滚动数千次
+    long effectiveMinutes = Math.min(minutesTraining, MAX_SETTLEMENT_MINUTES);
+    int dropChances = Math.max(1, (int) ((effectiveMinutes / 10.0) * efficiencyMultiplier));
     Map<Long, DropItem> merged = new LinkedHashMap<>();
     for (int i = 0; i < dropChances; i++) {
       SpecialtyEntry selectedEntry =

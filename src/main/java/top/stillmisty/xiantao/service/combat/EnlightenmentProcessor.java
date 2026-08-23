@@ -84,7 +84,9 @@ public class EnlightenmentProcessor {
           current
               - (user.getLevel() > 1 ? 100L * (user.getLevel() - 1) * (user.getLevel() - 1) : 0);
       long expNeededForCap = maxStorage - currentInLevel;
-      long expGiven = Math.max(expToNextLevel, expNeededForCap);
+      // 天人交感封顶：至多补足半级修为，防止高悟性玩家升级曲线被打穿
+      long expGiven = Math.min(expToNextLevel / 2, Math.max(0, expNeededForCap));
+      expGiven = Math.max(1, expGiven);
       user.addExp(expGiven);
       Skill learned = tryLearnRandomSkill(userId, user);
       args.put("exp", expGiven);

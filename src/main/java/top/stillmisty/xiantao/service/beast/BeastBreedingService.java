@@ -110,9 +110,10 @@ public class BeastBreedingService {
         stackableItemRepository
             .findByUserIdAndTemplateId(userId, eggTemplate.getId())
             .orElseThrow(() -> new BusinessException(BEAST_EGG_NOT_IN_INVENTORY, eggName));
+    List<Long> inheritedTraits = extractInheritedTraits(stackableItem);
     stackableItemService.reduceStackableItem(userId, stackableItem.getId(), 1);
 
-    return hatchBeastWithTemplate(userId, cellId, eggTemplate);
+    return hatchBeastWithTemplate(userId, cellId, eggTemplate, inheritedTraits);
   }
 
   @Transactional
@@ -126,8 +127,9 @@ public class BeastBreedingService {
                 .findByUserIdAndTemplateId(userId, template.getId())
                 .orElseThrow(
                     () -> new BusinessException(BEAST_EGG_NOT_IN_INVENTORY, template.getName()));
+        List<Long> inheritedTraits = extractInheritedTraits(stackableItem);
         stackableItemService.reduceStackableItem(userId, stackableItem.getId(), 1);
-        yield hatchBeastWithTemplate(userId, cellId, template);
+        yield hatchBeastWithTemplate(userId, cellId, template, inheritedTraits);
       }
       case ItemResolver.NotFound(var name) ->
           throw new BusinessException(BEAST_EGG_NOT_IN_INVENTORY, name);
@@ -138,6 +140,23 @@ public class BeastBreedingService {
 
   @Transactional
   PenCellVO hatchBeastWithTemplate(Long userId, Integer cellId, ItemTemplate eggTemplate) {
+    return hatchBeastWithTemplate(userId, cellId, eggTemplate, List.of());
+  }
+
+  /** 从兽卵物品实例的属性中提取随蛋遗传的特性 ID 列表 */
+  private static List<Long> extractInheritedTraits(
+      top.stillmisty.xiantao.domain.item.entity.StackableItem stackableItem) {
+    if (stackableItem.getProperties() == null) return List.of();
+    Object raw = stackableItem.getProperties().get("inheritedTraits");
+    if (!(raw instanceof List<?> list)) return List.of();
+    return list.stream()
+        .filter(o -> o instanceof Number)
+        .map(o -> ((Number) o).longValue())
+        .toList();
+  }
+
+  PenCellVO hatchBeastWithTemplate(
+      Long userId, Integer cellId, ItemTemplate eggTemplate, List<Long> inheritedTraits) {
     Fudi fudi =
         fudiHelper
             .findAndTouchFudi(userId)
@@ -163,6 +182,14 @@ public class BeastBreedingService {
             setup.beastName,
             cellId,
             now);
+    // 注入随蛋遗传的特性（受特质槽位上限约束）
+    if (!inheritedTraits.isEmpty()) {
+      Set<Long> traits = beast.getMutationTraits();
+      for (Long traitId : inheritedTraits) {
+        if (traits.size() >= beastMutationService.getMaxSlots(beast.getTier())) break;
+        traits.add(traitId);
+      }
+    }
     beastMutationService.attemptMutation(beast, 5);
     beastSkillService.unlockInnateSkills(beast, "birth");
     beastRepository.save(beast);
@@ -260,7 +287,8 @@ public class BeastBreedingService {
 
   @Transactional
   public ReleaseBeastVO releaseBeastInternal(Long userId, String position) {
-    var pcb = beastDisplayHelper.findPenCell(userId, position, false, false);
+    // 拒绝放生孵化中的兽卵（防白嫖高品质精华）
+    var pcb = beastDisplayHelper.findPenCell(userId, position, true, false);
     var cell = pcb.cell();
     var beast = pcb.beast();
     String beastName =
@@ -268,6 +296,10 @@ public class BeastBreedingService {
     int tier = beast != null ? beast.getTier() : 1;
     String qualityStr =
         beast != null ? beast.getQuality().getCode() : BeastQuality.MORTAL.getCode();
+
+    if (beast != null && Boolean.TRUE.equals(beast.getIsDeployed())) {
+      throw new BusinessException(BEAST_DEPLOYED, beastName);
+    }
 
     beastDisplayHelper.clearBeastCell(cell);
     if (beast != null) {
@@ -364,13 +396,13 @@ public class BeastBreedingService {
     BeastQuality offspringQuality = rollOffspringQuality(beast1, beast2);
     List<Long> inheritedTraits = rollInheritedTraits(beast1, beast2);
 
+    // 遗传特性随蛋持久化，孵化时注入后代
+    java.util.Map<String, Object> eggProperties =
+        inheritedTraits.isEmpty()
+            ? java.util.Map.of()
+            : java.util.Map.of("inheritedTraits", inheritedTraits);
     stackableItemService.addStackableItem(
-        userId,
-        eggTemplate.getId(),
-        ItemType.BEAST_EGG,
-        eggTemplate.getName(),
-        1,
-        java.util.Map.of());
+        userId, eggTemplate.getId(), ItemType.BEAST_EGG, eggTemplate.getName(), 1, eggProperties);
 
     LocalDateTime now = TimeUtil.now();
     double cooldownReduce =
@@ -476,8 +508,13 @@ public class BeastBreedingService {
   }
 
   private @Nullable ItemTemplate findEggTemplate(String beastName) {
+    // 孵化时名称剥除「兽卵」，回推需同时兼容「X兽卵」与「X卵」两种命名
     return itemTemplateRepository.findByType(ItemType.BEAST_EGG).stream()
-        .filter(t -> t.getName().equals(beastName + "卵"))
+        .filter(
+            t -> {
+              String n = t.getName();
+              return n.equals(beastName + "兽卵") || n.equals(beastName + "卵");
+            })
         .findFirst()
         .orElse(null);
   }
@@ -512,7 +549,8 @@ public class BeastBreedingService {
 
   private BeastQuality rollOffspringQuality(Beast parent1, Beast parent2) {
     double avg = (parent1.getQuality().getRank() + parent2.getQuality().getRank()) / 2.0;
-    double roll = ThreadLocalRandom.current().nextDouble(-0.5, 1.0);
+    // 品质只在双亲均值基础上提升或持平，不允许反向漂移
+    double roll = ThreadLocalRandom.current().nextDouble(0.0, 1.0);
 
     double qualityBoost =
         effectResolver.sumEffectValue(parent1, MutationEffectType.BREED_QUALITY_BOOST)

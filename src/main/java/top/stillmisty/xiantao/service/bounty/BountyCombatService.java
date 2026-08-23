@@ -50,8 +50,16 @@ public class BountyCombatService {
   private final SpiritStoneService spiritStoneService;
   private final FortuneService fortuneService;
 
+  /** 悬赏完成结果：VO 附带美化所需元数据（LLM 调用须在事务提交后进行） */
+  public record CompletedBounty(
+      BountyRewardVO vo,
+      MapNode mapNode,
+      String bountyName,
+      String rewardDescription,
+      List<BountyRewardItem> items) {}
+
   @Transactional
-  public BountyRewardVO completeBounty(Long userId) {
+  public CompletedBounty completeBounty(Long userId) {
     Player user = userStateService.loadUser(userId);
     if (user.getStatus() != UserStatus.BOUNTY) {
       throw new BusinessException(STATUS_BLOCKED, user.getStatus().getName(), "悬赏");
@@ -75,7 +83,7 @@ public class BountyCombatService {
     return processBountyCompletion(userId, user, record, mapNode, minutesElapsed);
   }
 
-  private BountyRewardVO processBountyCompletion(
+  private CompletedBounty processBountyCompletion(
       Long userId, Player user, UserBounty record, MapNode mapNode, long minutesElapsed) {
     List<BountyRewardItem> rewardItems = record.getParsedRewardItems();
     RewardStats stats = collectRewardStats(rewardItems);
@@ -109,8 +117,6 @@ public class BountyCombatService {
 
     String rewardDescription =
         buildRewardDescription(finalSpiritStones, items, stats.hasBeastEgg, stats.hasEquipment);
-    String beautified =
-        beautifyBountyCompletion(mapNode, record.getBountyName(), rewardDescription, "", items);
 
     record.setStatus(BountyStatus.COMPLETED);
     userBountyRepository.save(record);
@@ -127,18 +133,32 @@ public class BountyCombatService {
         items.size(),
         finalSpiritStones);
 
-    return new BountyRewardVO(
-        userId,
-        record.getBountyId(),
-        record.getBountyName(),
-        mapNode.getName(),
-        minutesElapsed,
-        beautified != null ? beautified : rewardDescription,
-        null,
-        items,
-        finalSpiritStones,
-        stats.hasBeastEgg,
-        stats.hasEquipment);
+    BountyRewardVO vo =
+        new BountyRewardVO(
+            userId,
+            record.getBountyId(),
+            record.getBountyName(),
+            mapNode.getName(),
+            minutesElapsed,
+            rewardDescription,
+            null,
+            items,
+            finalSpiritStones,
+            stats.hasBeastEgg,
+            stats.hasEquipment);
+    return new CompletedBounty(
+        vo, mapNode, record.getBountyName(), rewardDescription, List.copyOf(items));
+  }
+
+  /** LLM 美化悬赏结算描述。必须在 {@link #completeBounty} 的事务提交之后调用， 避免 LLM 往返期间持有 user_bounty 行锁。 */
+  @Nullable
+  public String beautify(CompletedBounty completed) {
+    return beautifyBountyCompletion(
+        completed.mapNode(),
+        completed.bountyName(),
+        completed.rewardDescription(),
+        "",
+        completed.items());
   }
 
   private record RewardStats(long spiritStones, boolean hasBeastEgg, boolean hasEquipment) {}
