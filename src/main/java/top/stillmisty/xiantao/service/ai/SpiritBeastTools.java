@@ -21,12 +21,13 @@ public class SpiritBeastTools {
   private final BeastCombatService beastCombatService;
   private final BeastBreedingService beastBreedingService;
 
-  @Tool(description = "灵兽管理：出战/召回、进化、放生、孵化")
+  @Tool(description = "灵兽管理：出战/召回、入栏（栏外休憩灵兽回归兽栏）、进化、放生、孵化")
   @Transactional
   public ManageBeastResponse manageBeast(
       @ToolParam(description = "兽栏地块编号") String position,
       @ToolParam(description = BEAST_ACTION_DESCRIPTION) BeastAction action,
-      @ToolParam(description = "HATCH 时为兽卵名称，其他操作不需要", required = false) String value) {
+      @ToolParam(description = "HATCH 时为兽卵名称，PEN 时为栏外灵兽名称（可省略取第一只），其他操作不需要", required = false)
+          String value) {
     return toolExecutor.execute(
         "manageBeast",
         () -> {
@@ -34,6 +35,7 @@ public class SpiritBeastTools {
           String result =
               switch (action) {
                 case DEPLOY -> beastCombatService.toggleDeploy(userId, position);
+                case PEN -> beastCombatService.penRestedBeast(userId, position, value);
                 case EVOLVE -> {
                   beastBreedingService.evolveBeastInternal(userId, position);
                   yield "进化成功";
@@ -89,10 +91,11 @@ public class SpiritBeastTools {
 
   /** 枚举参数描述（供 @ToolParam 引用） */
   public static final String BEAST_ACTION_DESCRIPTION =
-      "操作类型: DEPLOY(出战/召回) EVOLVE(进化) RELEASE(放生) HATCH(孵化)";
+      "操作类型: DEPLOY(出战/召回) PEN(栏外休憩灵兽入栏) EVOLVE(进化) RELEASE(放生) HATCH(孵化)";
 
   public enum BeastAction {
     DEPLOY,
+    PEN,
     EVOLVE,
     RELEASE,
     HATCH

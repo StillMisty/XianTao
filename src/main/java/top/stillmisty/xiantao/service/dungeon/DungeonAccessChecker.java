@@ -61,7 +61,7 @@ public class DungeonAccessChecker {
           }
         }
         case "SECT" -> {
-          throw new BusinessException(ErrorCode.DUNGEON_STATUS_BLOCKED, "宗门限制暂未实现");
+          throw new BusinessException(ErrorCode.DUNGEON_SECT_RESTRICTED);
         }
         case "ITEM" -> {
           if (condition.templateId() != null) {
@@ -70,7 +70,7 @@ public class DungeonAccessChecker {
                     .findByUserIdAndTemplateId(user.getId(), condition.templateId())
                     .isPresent();
             if (!hasItem) {
-              throw new BusinessException(ErrorCode.DUNGEON_STATUS_BLOCKED, "你没有进入秘境的钥匙");
+              throw new BusinessException(ErrorCode.DUNGEON_KEY_REQUIRED);
             }
           }
         }
@@ -82,7 +82,7 @@ public class DungeonAccessChecker {
                     .map(p -> Boolean.TRUE.equals(p.getFirstClear()))
                     .orElse(false);
             if (!cleared) {
-              throw new BusinessException(ErrorCode.DUNGEON_STATUS_BLOCKED, "你需要先通关指定秘境");
+              throw new BusinessException(ErrorCode.DUNGEON_CLEAR_REQUIRED);
             }
           }
         }
@@ -91,7 +91,7 @@ public class DungeonAccessChecker {
             boolean completed =
                 hiddenCompletionRepository.existsByCode(user.getId(), condition.code());
             if (!completed) {
-              throw new BusinessException(ErrorCode.DUNGEON_STATUS_BLOCKED, "你需要先完成指定任务");
+              throw new BusinessException(ErrorCode.DUNGEON_TASK_REQUIRED);
             }
           }
         }

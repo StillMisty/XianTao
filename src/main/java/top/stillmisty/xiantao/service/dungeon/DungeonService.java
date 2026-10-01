@@ -9,12 +9,14 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonInstance;
+import top.stillmisty.xiantao.domain.dungeon.entity.DungeonSpiritState;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonTemplate;
 import top.stillmisty.xiantao.domain.dungeon.enums.DungeonStatus;
 import top.stillmisty.xiantao.domain.event.enums.ActivityType;
 import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.repository.DungeonInstanceRepository;
+import top.stillmisty.xiantao.infrastructure.repository.DungeonSpiritStateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.DungeonTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
 import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
@@ -31,6 +33,7 @@ public class DungeonService {
 
   private final DungeonTemplateRepository dungeonTemplateRepository;
   private final DungeonInstanceRepository instanceRepository;
+  private final DungeonSpiritStateRepository spiritStateRepository;
   private final DungeonQueryService dungeonQueryService;
   private final DungeonAccessChecker accessChecker;
   private final UserStateService userStateService;
@@ -169,22 +172,10 @@ public class DungeonService {
       return "秘境数据异常。";
     }
 
-    var area = stateBuilder.findArea(dungeon, instance.getCurrentAreaKey());
-    String areaName = area != null ? area.name() : instance.getCurrentAreaKey();
-    int totalMain = area != null ? area.mainPois().size() : 0;
-    int explored = instance.exploredCount();
-    long elapsedMinutes =
-        java.time.Duration.between(instance.getCreatedAt(), TimeUtil.now()).toMinutes();
+    DungeonSpiritState spiritState =
+        spiritStateRepository.findByInstanceIdAndUserId(instance.getId(), userId).orElse(null);
 
-    return areaName
-        + " | 探索 "
-        + explored
-        + "/"
-        + totalMain
-        + " | 用时 "
-        + elapsedMinutes
-        + "min"
-        + "\n输入「秘灵 内容」探索秘境";
+    return stateBuilder.buildStatusOverview(dungeon, instance, spiritState);
   }
 
   private void checkIdleStatus(Player user) {

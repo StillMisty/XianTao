@@ -13,10 +13,12 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
+import top.stillmisty.xiantao.domain.beast.entity.BeastTemplate;
 import top.stillmisty.xiantao.domain.beast.entity.BreedingRecipe;
 import top.stillmisty.xiantao.domain.beast.entity.MutationTraitConfig;
 import top.stillmisty.xiantao.domain.beast.enums.BeastGender;
 import top.stillmisty.xiantao.domain.beast.enums.MutationEffectType;
+import top.stillmisty.xiantao.domain.beast.enums.SkillUnlock;
 import top.stillmisty.xiantao.domain.beast.vo.ReleaseBeastVO;
 import top.stillmisty.xiantao.domain.fudi.entity.CellConfig;
 import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
@@ -24,6 +26,7 @@ import top.stillmisty.xiantao.domain.fudi.entity.FudiCell;
 import top.stillmisty.xiantao.domain.fudi.enums.BeastQuality;
 import top.stillmisty.xiantao.domain.fudi.enums.CellType;
 import top.stillmisty.xiantao.domain.fudi.vo.PenCellVO;
+import top.stillmisty.xiantao.domain.item.entity.ItemProperties;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.infrastructure.repository.BeastRepository;
@@ -169,14 +172,24 @@ public class BeastBreedingService {
 
     validateCellForHatch(cell, cellId);
 
-    HatchSetup setup = prepareHatchSetup(userId, eggTemplate, cell.getCellLevel(), fudi);
+    // 兽卵属性 beast_template_id 指向 beast_template，而非兽卵自身的 item_template.id
+    if (!(eggTemplate.typedProperties() instanceof ItemProperties.BeastEgg eggProperties)) {
+      throw new BusinessException(BEAST_EGG_NOT_FOUND, eggTemplate.getName());
+    }
+    BeastTemplate beastTemplate =
+        beastTemplateRepository
+            .findById(eggProperties.beastTemplateId())
+            .orElseThrow(() -> new BusinessException(BEAST_EGG_NOT_FOUND, eggTemplate.getName()));
+
+    HatchSetup setup =
+        prepareHatchSetup(userId, eggTemplate, beastTemplate, cell.getCellLevel(), fudi);
     LocalDateTime now = TimeUtil.now();
 
     Beast beast =
         createBeastFromTemplate(
             userId,
             fudi.getId(),
-            eggTemplate,
+            beastTemplate.getId(),
             setup.tier,
             setup.quality,
             setup.beastName,
@@ -191,7 +204,7 @@ public class BeastBreedingService {
       }
     }
     beastMutationService.attemptMutation(beast, 5);
-    beastSkillService.unlockInnateSkills(beast, "birth");
+    beastSkillService.unlockInnateSkills(beast, SkillUnlock.BIRTH);
     beastRepository.save(beast);
 
     configurePenCellForHatch(cell, beast, eggTemplate, setup.hatchHours, now);
@@ -212,7 +225,11 @@ public class BeastBreedingService {
   private record HatchSetup(int tier, BeastQuality quality, double hatchHours, String beastName) {}
 
   private HatchSetup prepareHatchSetup(
-      Long userId, ItemTemplate eggTemplate, int cellLevel, Fudi fudi) {
+      Long userId,
+      ItemTemplate eggTemplate,
+      BeastTemplate beastTemplate,
+      int cellLevel,
+      Fudi fudi) {
     int tier = 1;
 
     int stoneCost = 400;
@@ -223,7 +240,8 @@ public class BeastBreedingService {
     BeastQuality quality = rollBeastQuality(affection, cellLevel);
 
     double levelSpeed = fudiHelper.getLevelSpeedMultiplier(cellLevel, tier);
-    double baseHatchHours = 32;
+    // 孵化时长按兽种模板 grow_time（小时）配置，兽栏等级越高越快
+    double baseHatchHours = beastTemplate.getGrowTime();
     double hatchHours = baseHatchHours / levelSpeed;
 
     String beastName = eggTemplate.getName().replace("兽卵", "").replace("蛋", "灵兽");
@@ -243,7 +261,7 @@ public class BeastBreedingService {
   private Beast createBeastFromTemplate(
       Long userId,
       Long fudiId,
-      ItemTemplate eggTemplate,
+      Long beastTemplateId,
       int tier,
       BeastQuality quality,
       String beastName,
@@ -253,7 +271,7 @@ public class BeastBreedingService {
     Beast beast = new Beast();
     beast.setUserId(userId);
     beast.setFudiId(fudiId);
-    beast.setTemplateId(eggTemplate.getId());
+    beast.setTemplateId(beastTemplateId);
     beast.setBeastName(beastName);
     beast.setGender(ThreadLocalRandom.current().nextBoolean() ? BeastGender.YIN : BeastGender.YANG);
     beast.setTier(tier);

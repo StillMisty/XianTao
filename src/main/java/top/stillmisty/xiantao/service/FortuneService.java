@@ -66,7 +66,8 @@ public class FortuneService {
   }
 
   public int getMonsterLevelOffset(int luck) {
-    return Math.clamp((50 - luck) / 30, -3, 3);
+    // 机缘：幸运越高遭遇怪物等级越低；±3 为设计上限（除数需保证极值可达 ±3，否则 clamp 形同虚设）
+    return Math.clamp((50 - luck) / 10, -3, 3);
   }
 
   private String dimensionLine(String label, int value) {

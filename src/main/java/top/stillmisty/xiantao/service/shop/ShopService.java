@@ -171,6 +171,16 @@ public class ShopService {
     if (product.getProductType() != ProductType.EQUIPMENT) {
       throw new BusinessException(ErrorCode.SHOP_PRODUCT_NOT_FOUND);
     }
+
+    // 交易前先做懒补货/调价并落库，确保库存与价格校验基于最新值（与堆叠物品一致）
+    if (priceEngine.applyLazyRestock(product)) {
+      shopProductRepository.updateStockAndPrice(
+          product.getId(),
+          product.getCurrentStock(),
+          product.getCurrentPrice(),
+          product.getLastSaleTime());
+    }
+
     if (product.getCurrentStock() <= 0) {
       throw new BusinessException(ErrorCode.SHOP_PRODUCT_OUT_OF_STOCK);
     }

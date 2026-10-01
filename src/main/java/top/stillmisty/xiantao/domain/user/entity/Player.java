@@ -193,13 +193,13 @@ public class Player {
     hpCurrent = Math.max(0, hpCurrent - amount);
   }
 
-  /** 添加修为（考虑存储上限） */
+  /** 添加修为（考虑存储上限；负值扣减时下限保护到 0，避免触发 chk_user_exp 约束） */
   public void addExp(long expToAdd) {
     long maxStorage = calculateMaxExpStorage();
     long currentStorage = exp - (level > 1 ? calculateExpToPrevLevel() : 0);
     long availableSpace = maxStorage - currentStorage;
     long actualAdd = Math.min(expToAdd, availableSpace);
-    this.exp += actualAdd;
+    this.exp = Math.max(0, this.exp + actualAdd);
   }
 
   /** 计算从上一级到当前级所需修为 */

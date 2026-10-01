@@ -34,7 +34,15 @@ public sealed interface EffectParams {
   // ===================== 百分比相关 =====================
 
   /** ADD_EXP_PERCENT / TAKE_DAMAGE_PERCENT */
-  record PercentParams(@JsonProperty("percent") @Nullable Double percent) implements EffectParams {}
+  record PercentParams(@JsonProperty("percent") @Nullable Double percent) implements EffectParams {
+
+    // 百分数口径：绝对值 > 1 视为整数百分数（20 → 0.20，-15 → -0.15），否则视为小数倍率。
+    // 世界事件模板用整数百分数，活动事件种子用小数。
+    public double resolveMultiplier() {
+      double value = percent != null ? percent : 0.0;
+      return Math.abs(value) > 1.0 ? value / 100.0 : value;
+    }
+  }
 
   /** MULTIPLY_BOUNTY_REWARD */
   record MultiplierParams(@JsonProperty("multiplier") @Nullable Double multiplier)
@@ -95,7 +103,7 @@ public sealed interface EffectParams {
           new AmountParams(
               getLong(params, "amount"), getLong(params, "min"), getLong(params, "max"));
       case ADD_EXP_PERCENT -> new PercentParams(getDouble(params, "percent"));
-      case TAKE_DAMAGE_PERCENT -> new PercentParams(getDouble(params, "amount"));
+      case TAKE_DAMAGE_PERCENT -> new PercentParams(getDoubleAny(params, "percent", "amount"));
       case MULTIPLY_BOUNTY_REWARD -> new MultiplierParams(getDouble(params, "multiplier"));
       case ADD_ITEM ->
           new AddItemParams(
@@ -135,6 +143,15 @@ public sealed interface EffectParams {
     Object val = map.get(key);
     if (val instanceof Double d) return d;
     if (val instanceof Number n) return n.doubleValue();
+    return null;
+  }
+
+  /** 依次读取多个键，返回首个非空值（兼容历史键名） */
+  private static @Nullable Double getDoubleAny(Map<String, Object> map, String... keys) {
+    for (String key : keys) {
+      Double value = getDouble(map, key);
+      if (value != null) return value;
+    }
     return null;
   }
 

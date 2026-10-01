@@ -116,10 +116,10 @@ public class MasterApprenticeCommandHandler implements CommandGroup {
   @Override
   public List<CommandEntry> commands() {
     return List.of(
-        new CommandEntry("拜师 「道号」", "向目标发出拜师请求", "拜师 张三"),
-        new CommandEntry("收徒 「道号」", "向目标发出收徒邀请", "收徒 李四"),
+        new CommandEntry("拜师 「道号」", "拜目标为师（对方境界须高于你至少一个大境界）", "拜师 张三"),
+        new CommandEntry("收徒 「道号」", "收目标为徒（你的境界须高于对方至少一个大境界）", "收徒 李四"),
         new CommandEntry("师徒", "查看师徒关系信息", "师徒"),
-        new CommandEntry("逐出 「道号」", "师傅将徒弟逐出师门", "逐出师门 李四"),
+        new CommandEntry("逐出师门 「道号」", "将徒弟逐出师门", "逐出师门 李四"),
         new CommandEntry("叛师", "徒弟叛离师门", "叛师"));
   }
 }

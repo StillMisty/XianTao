@@ -55,16 +55,17 @@ public class TribulationService {
       }
     }
 
+    // 构建防守方队伍（玩家 + 出战灵兽）
+    CombatTeam defendingTeam = combatService.buildPlayerTeam(user);
+    if (defendingTeam.aliveMembers().isEmpty()) {
+      // 无出战单位不消耗冷却
+      return "⚠️ 没有可出战的单位，天劫无法降临";
+    }
+
     fudi.setLastTribulationTime(TimeUtil.now());
 
     // 先持久化天劫状态，防止并发重复触发
     fudiRepository.save(fudi);
-
-    // 构建防守方队伍（玩家 + 出战灵兽）
-    CombatTeam defendingTeam = combatService.buildPlayerTeam(user);
-    if (defendingTeam.aliveMembers().isEmpty()) {
-      return "⚠️ 没有可出战的单位，天劫无法降临";
-    }
 
     // 计算防守方队伍总属性（用于 Boss 缩放）
     CombatService.TeamStats teamStats = combatService.calculateTeamStats(defendingTeam);
@@ -149,7 +150,7 @@ public class TribulationService {
         spirit != null ? spirit.getAffection() : 0);
   }
 
-  /** 怜悯：地灵挡劫，进阶但精力归零 */
+  /** 怜悯：地灵挡劫，玩家照常进阶（不消耗精力，精力机制未实现） */
   private String applyTribulationCompassion(
       Fudi fudi, @Nullable Spirit spirit, TribulationBoss boss) {
     TribulationProgress p = advanceTribulation(fudi);
@@ -162,7 +163,7 @@ public class TribulationService {
         🪽⚡ 天劫降临！地灵燃烧灵体为你扛过天雷……
            劫数：%d → %d ｜ 连胜×%d
            灵石奖励：+%d
-           精力归零，地灵陷入疲惫…"""
+           地灵以身挡劫，护你周全。"""
         .formatted(p.oldStage(), p.newStage(), p.newWinStreak(), p.stoneReward());
   }
 
@@ -181,7 +182,10 @@ public class TribulationService {
     int occupiedCount = occupiedCells.size();
 
     int clearCount;
-    if (bossHpRatio >= 0.5) {
+    if (occupiedCount == 0) {
+      // 没有可摧毁的地块（如地块全空或全枯萎已清），仅中断连胜，避免 clamp(min>max) 抛异常
+      clearCount = 0;
+    } else if (bossHpRatio >= 0.5) {
       clearCount = Math.clamp((int) Math.ceil(0.6 * occupiedCount), 1, occupiedCount);
     } else if (bossHpRatio >= 0.2) {
       clearCount = Math.clamp((int) Math.ceil(0.3 * occupiedCount), 1, occupiedCount);

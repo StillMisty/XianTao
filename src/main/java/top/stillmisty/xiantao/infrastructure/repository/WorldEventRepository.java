@@ -1,5 +1,6 @@
 package top.stillmisty.xiantao.infrastructure.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -49,5 +50,10 @@ public class WorldEventRepository {
 
   public int incrementParticipationCount(Long id) {
     return worldEventMapper.incrementParticipationCount(id);
+  }
+
+  /** 指定标题（近似模板标识）在 since 之后是否生成过事件 */
+  public boolean existsByTitleSince(String title, LocalDateTime since) {
+    return worldEventMapper.countByTitleSince(title, since) > 0;
   }
 }

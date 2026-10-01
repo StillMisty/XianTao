@@ -5,6 +5,7 @@ import static top.stillmisty.xiantao.service.ErrorCode.*;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
@@ -12,6 +13,7 @@ import top.stillmisty.xiantao.domain.beast.enums.MutationEffectType;
 import top.stillmisty.xiantao.domain.beast.vo.BeastStatusVO;
 import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
 import top.stillmisty.xiantao.domain.fudi.enums.BeastQuality;
+import top.stillmisty.xiantao.domain.fudi.enums.CellType;
 import top.stillmisty.xiantao.infrastructure.repository.BeastRepository;
 import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.BusinessException;
@@ -107,6 +109,29 @@ public class BeastCombatService {
     beast.setIsDeployed(true);
     beastRepository.save(beast);
     return "灵兽 [%s] 已出战".formatted(beast.getBeastName());
+  }
+
+  /** 栏外休憩灵兽重新入栏：把未绑定兽栏的灵兽放入空兽栏地块。 */
+  @Transactional
+  public String penRestedBeast(Long userId, String position, @Nullable String beastName) {
+    BeastDisplayHelper.PenCellBeast pcb =
+        beastDisplayHelper.findPenCell(userId, position, false, false);
+    if (pcb.cell().getCellType() != CellType.PEN) {
+      throw new BusinessException(CELL_NOT_PEN, pcb.cellId());
+    }
+    if (pcb.beast() != null) {
+      throw new BusinessException(BEAST_PEN_OCCUPIED);
+    }
+    Beast rested =
+        beastRepository.findByFudiId(pcb.fudi().getId()).stream()
+            .filter(b -> b.getPennedCellId() == null)
+            .filter(
+                b -> beastName == null || beastName.isBlank() || beastName.equals(b.getBeastName()))
+            .findFirst()
+            .orElseThrow(() -> new BusinessException(BEAST_NOT_FOUND));
+    rested.setPennedCellId(pcb.cellId());
+    beastRepository.save(rested);
+    return "灵兽 [%s] 已入栏".formatted(rested.getBeastName());
   }
 
   @Transactional

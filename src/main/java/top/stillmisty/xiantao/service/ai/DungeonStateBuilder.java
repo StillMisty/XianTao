@@ -1,6 +1,8 @@
 package top.stillmisty.xiantao.service.ai;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonInstance;
@@ -113,8 +115,21 @@ public class DungeonStateBuilder {
 
     AreaConfig currentArea = findArea(dungeon, instance.getCurrentAreaKey());
     String areaName = currentArea != null ? currentArea.name() : instance.getCurrentAreaKey();
-    int totalMainPois = currentArea != null ? currentArea.mainPois().size() : 0;
-    int exploredCount = instance.exploredCount();
+    List<Poi> explorableMainPois =
+        currentArea != null
+            ? currentArea.mainPois().stream().filter(poi -> !poi.isPassage()).toList()
+            : List.of();
+    int totalMainPois = explorableMainPois.size();
+    Set<String> explorableNames =
+        explorableMainPois.stream().map(Poi::name).collect(Collectors.toSet());
+    List<DungeonInstance.ExploredPoiRecord> exploredPois =
+        instance.getExploredPois() != null ? instance.getExploredPois() : List.of();
+    int exploredCount = 0;
+    for (DungeonInstance.ExploredPoiRecord record : exploredPois) {
+      if (explorableNames.contains(record.poiName())) {
+        exploredCount++;
+      }
+    }
     int favor = spiritState != null && spiritState.getFavor() != null ? spiritState.getFavor() : 0;
     long elapsedMinutes =
         java.time.Duration.between(instance.getCreatedAt(), TimeUtil.now()).toMinutes();

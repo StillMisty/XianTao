@@ -47,15 +47,15 @@ public class UserRepository {
 
   public List<Player> findTopByLevel(int limit) {
     QueryWrapper query =
-        QueryWrapper.create().orderBy(PLAYER.LEVEL.asc()).orderBy(PLAYER.EXP.asc()).limit(limit);
+        QueryWrapper.create().orderBy(PLAYER.LEVEL.desc()).orderBy(PLAYER.EXP.desc()).limit(limit);
     return userMapper.selectListByQuery(query);
   }
 
   public List<Player> findTopBySpiritStones(int limit) {
     QueryWrapper query =
         QueryWrapper.create()
-            .orderBy(PLAYER.SPIRIT_STONES.asc())
-            .orderBy(PLAYER.LEVEL.asc())
+            .orderBy(PLAYER.SPIRIT_STONES.desc())
+            .orderBy(PLAYER.LEVEL.desc())
             .limit(limit);
     return userMapper.selectListByQuery(query);
   }

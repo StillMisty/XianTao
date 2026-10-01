@@ -33,6 +33,16 @@ public enum WeaponType {
     this.description = description;
   }
 
+  /** 法器大类代码：与装备模板 category、法决 WEAPON_CATEGORY 绑定值一致（MELEE/POLEARM/RANGED/EXOTIC）。 */
+  public String categoryCode() {
+    return switch (category) {
+      case "刀兵" -> "MELEE";
+      case "长兵" -> "POLEARM";
+      case "远兵" -> "RANGED";
+      default -> "EXOTIC";
+    };
+  }
+
   public static WeaponType fromCode(String code) {
     for (WeaponType type : values()) {
       if (type.code.equals(code)) return type;

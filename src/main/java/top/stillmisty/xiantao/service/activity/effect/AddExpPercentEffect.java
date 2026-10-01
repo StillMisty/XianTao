@@ -18,7 +18,7 @@ public class AddExpPercentEffect implements SubEventEffect {
       Long userId, Player user, EffectParams params, EventContext context) {
     if (!(params instanceof EffectParams.PercentParams p)) return Map.of();
     if (p.percent() == null) return Map.of();
-    long exp = (long) (user.calculateExpToNextLevel() * p.percent());
+    long exp = (long) (user.calculateExpToNextLevel() * p.resolveMultiplier());
     user.addExp(exp);
     return Map.of("exp", exp);
   }

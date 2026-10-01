@@ -4,7 +4,6 @@ import static top.stillmisty.xiantao.service.ErrorCode.*;
 
 import java.time.*;
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -201,8 +200,8 @@ public class BountyService {
       throw new BusinessException(BOUNTY_ALREADY_COMPLETED);
     }
 
-    long seed =
-        userId * 31 + TimeUtil.today().toEpochDay() + ThreadLocalRandom.current().nextLong();
+    // 同日幂等种子：同一玩家 + 同一悬赏 + 同一天 → 奖励固定，避免「放弃重接」无限重掷
+    long seed = userId * 31 + bountyId * 17 + TimeUtil.today().toEpochDay();
     Random rng = new Random(seed);
     List<BountyRewardItem> predeterminedRewards = determineRewards(bounty, mapNode, rng);
 

@@ -4,6 +4,7 @@ import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -106,6 +107,10 @@ public class Beast {
   public boolean tryAutoHeal() {
     if (Boolean.TRUE.equals(isDeployed)) return false;
     if (hpCurrent >= maxHp) return false;
+    // 时间门槛：以上次保存时间（updateTime）为基准，防止反复访问福地快速刷满
+    if (updateTime != null && Duration.between(updateTime, TimeUtil.now()).toMinutes() < 5) {
+      return false;
+    }
     int heal = Math.max(1, maxHp / 100);
     hpCurrent = Math.min(maxHp, hpCurrent + heal);
     return true;

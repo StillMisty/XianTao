@@ -175,7 +175,7 @@ public class SkillService {
     if (matched == null) {
       return SkillSlotResult.builder()
           .success(false)
-          .message("找不到匹配的法决「" + skillInput + "」，请使用「法决列表」查看")
+          .message("找不到匹配的法决「" + skillInput + "」，请使用「法决」查看")
           .build();
     }
 

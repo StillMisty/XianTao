@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.beast.enums.MutationEffectType;
+import top.stillmisty.xiantao.domain.beast.enums.SkillUnlock;
 import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
 import top.stillmisty.xiantao.domain.fudi.entity.FudiCell;
 import top.stillmisty.xiantao.domain.fudi.enums.BeastQuality;
@@ -85,7 +86,7 @@ public class BeastEvolutionService {
         }
       }
       beast.recalculateAttributes();
-      beastSkillService.unlockInnateSkills(beast, "quality_break");
+      // 品质连带提升不改变等阶：技能池无 quality_break 解锁条件（数据仅有 BIRTH/TIER_2~5）
       qualityUpgraded = true;
     }
 
@@ -93,13 +94,13 @@ public class BeastEvolutionService {
 
     int newTier = beast.getTier();
     if (newTier == 2) {
-      beastSkillService.unlockInnateSkills(beast, "tier_2");
+      beastSkillService.unlockInnateSkills(beast, SkillUnlock.TIER_2);
     } else if (newTier == 3) {
-      beastSkillService.unlockInnateSkills(beast, "tier_3");
+      beastSkillService.unlockInnateSkills(beast, SkillUnlock.TIER_3);
     } else if (newTier == 4) {
-      beastSkillService.unlockInnateSkills(beast, "tier_4");
+      beastSkillService.unlockInnateSkills(beast, SkillUnlock.TIER_4);
     } else if (newTier == 5) {
-      beastSkillService.unlockInnateSkills(beast, "tier_5");
+      beastSkillService.unlockInnateSkills(beast, SkillUnlock.TIER_5);
     }
 
     beastRepository.save(beast);

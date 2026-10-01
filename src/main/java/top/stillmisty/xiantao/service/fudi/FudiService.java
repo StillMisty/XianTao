@@ -500,7 +500,9 @@ public class FudiService {
     if (cell.getCellType() == CellType.PEN) {
       Beast beast = beastDisplayHelper.findBeastByCell(cell);
       if (beast != null) {
+        // 栏外休憩：解除兽栏绑定并释放出战名额，避免继续占用 2 只出战上限
         beast.setPennedCellId(null);
+        beast.setIsDeployed(false);
         beastRepository.save(beast);
       }
     }
@@ -553,8 +555,10 @@ public class FudiService {
 
   // ===================== 地块状态查询 =====================
 
+  @Transactional
   public CellStatusVO getCellStatus(Long userId) {
     Fudi fudi = getFudiOrThrow(userId);
+    autoExpandCells(fudi);
 
     int totalCells = getTotalCellCount(fudi);
     List<CellDetailVO> occupiedCells = new ArrayList<>();

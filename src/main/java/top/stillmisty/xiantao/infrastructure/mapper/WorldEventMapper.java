@@ -1,6 +1,7 @@
 package top.stillmisty.xiantao.infrastructure.mapper;
 
 import com.mybatisflex.core.BaseMapper;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -28,6 +29,10 @@ public interface WorldEventMapper extends BaseMapper<WorldEvent> {
 
   @Update("UPDATE world_event SET status = #{status} WHERE id = #{id}")
   int updateStatus(@Param("id") Long id, @Param("status") String status);
+
+  /** 统计指定标题在 since 之后生成的事件数（world_event 无来源模板列，以标题近似匹配） */
+  @Select("SELECT COUNT(*) FROM world_event WHERE title = #{title} AND created_at >= #{since}")
+  int countByTitleSince(@Param("title") String title, @Param("since") LocalDateTime since);
 
   @Update(
       "UPDATE world_event SET participation_count = participation_count + 1 WHERE id = #{id} AND (participation_limit IS NULL OR participation_count < participation_limit)")

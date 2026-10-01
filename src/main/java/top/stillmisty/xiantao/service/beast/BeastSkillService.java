@@ -8,11 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
+import top.stillmisty.xiantao.domain.beast.enums.SkillUnlock;
 import top.stillmisty.xiantao.domain.beast.vo.BeastSkillPoolVO;
-import top.stillmisty.xiantao.domain.item.entity.ItemProperties;
-import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.infrastructure.repository.BeastTemplateRepository;
-import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 
 /** 灵兽技能：技能池、先天技解锁、后天悟觉醒 */
 @Slf4j
@@ -20,22 +18,14 @@ import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 @RequiredArgsConstructor
 public class BeastSkillService {
 
-  private final ItemTemplateRepository itemTemplateRepository;
   private final BeastTemplateRepository beastTemplateRepository;
 
-  @Nullable BeastSkillPoolVO getBeastSkillPool(Integer templateId) {
-    if (templateId == null) {
+  /** 按灵兽模板 ID 读取技能池（beast.template_id 指向 beast_template.id） */
+  @Nullable BeastSkillPoolVO getBeastSkillPool(Long beastTemplateId) {
+    if (beastTemplateId == null) {
       return null;
     }
-    ItemTemplate template = itemTemplateRepository.findById(templateId.longValue()).orElse(null);
-    if (template == null) {
-      return null;
-    }
-    var props = template.typedProperties();
-    if (!(props instanceof ItemProperties.BeastEgg egg)) {
-      return null;
-    }
-    var beastTemplate = beastTemplateRepository.findById(egg.beastTemplateId()).orElse(null);
+    var beastTemplate = beastTemplateRepository.findById(beastTemplateId).orElse(null);
     if (beastTemplate == null) {
       return null;
     }
@@ -54,17 +44,17 @@ public class BeastSkillService {
     return new BeastSkillPoolVO(innateSkills, awakeningSkills);
   }
 
-  void unlockInnateSkills(Beast beast, String unlockCondition) {
-    BeastSkillPoolVO skillPool = getBeastSkillPool(beast.getTemplateId().intValue());
+  void unlockInnateSkills(Beast beast, SkillUnlock unlockCondition) {
+    BeastSkillPoolVO skillPool = getBeastSkillPool(beast.getTemplateId());
     if (skillPool == null) {
       return;
     }
+    // 技能列表可能是不可变 List.of()，解锁前复制为可变列表
     List<Long> currentSkills = beast.getSkills();
-    if (currentSkills == null) {
-      currentSkills = new ArrayList<>();
-    }
+    currentSkills = currentSkills == null ? new ArrayList<>() : new ArrayList<>(currentSkills);
     for (BeastSkillPoolVO.InnateSkill innateSkill : skillPool.innateSkills()) {
-      if (innateSkill.unlock().equals(unlockCondition)) {
+      // 技能池数据与枚举 code 均为大写（BIRTH / TIER_N）
+      if (unlockCondition.getCode().equals(innateSkill.unlock())) {
         if (!currentSkills.contains(innateSkill.skillId())) {
           currentSkills.add(innateSkill.skillId());
           log.debug("灵兽 {} 解锁先天技: {}", beast.getBeastName(), innateSkill.skillId());
@@ -75,14 +65,12 @@ public class BeastSkillService {
   }
 
   public void tryAwakeningSkill(Beast beast) {
-    BeastSkillPoolVO skillPool = getBeastSkillPool(beast.getTemplateId().intValue());
+    BeastSkillPoolVO skillPool = getBeastSkillPool(beast.getTemplateId());
     if (skillPool == null || skillPool.awakeningSkills().isEmpty()) {
       return;
     }
     List<Long> currentSkills = beast.getSkills();
-    if (currentSkills == null) {
-      currentSkills = new ArrayList<>();
-    }
+    currentSkills = currentSkills == null ? new ArrayList<>() : new ArrayList<>(currentSkills);
     final List<Long> skills = currentSkills;
     if (skills.size() >= 4) {
       return;

@@ -68,6 +68,9 @@ public class InventoryCommandHandler implements CommandGroup {
   public String handleInventoryByCategory(String category, TextFormat fmt) {
     for (var cat : InventoryCategory.values()) {
       if (cat.getChineseName().equals(category)) {
+        if (cat == InventoryCategory.ALL) {
+          return handleInventory(fmt);
+        }
         if (cat == InventoryCategory.EQUIPMENT) {
           return handleEquipmentInventory(fmt);
         }

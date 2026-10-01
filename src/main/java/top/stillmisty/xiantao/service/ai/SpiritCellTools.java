@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Service;
@@ -121,14 +122,18 @@ public class SpiritCellTools {
           Long userId = UserContext.requireCurrentUserId();
           if ("all".equalsIgnoreCase(position)) {
             CollectAllVO r = fudiService.collectAllInternal(userId);
-            return new CollectProduceResponse("all", r.harvested(), r.collected(), r.totalItems());
+            return new CollectProduceResponse(
+                "all", r.harvested(), r.collected(), r.totalItems(), null);
           }
           CollectVO r = fudiService.collectInternal(userId, position);
+          if (r.message() != null) {
+            return new CollectProduceResponse(position, 0, 0, 0, r.message());
+          }
           boolean isFarm = "FARM".equals(r.type());
           int harvested = isFarm ? 1 : 0;
           int collected = isFarm ? 0 : 1;
           int items = isFarm ? r.yield() : r.totalItems();
-          return new CollectProduceResponse(position, harvested, collected, items);
+          return new CollectProduceResponse(position, harvested, collected, items, null);
         });
   }
 
@@ -192,5 +197,6 @@ public class SpiritCellTools {
       @JsonPropertyDescription("收取的地块编号，或 'all' 表示全部") String position,
       @JsonPropertyDescription("收获的灵田数量") int harvested,
       @JsonPropertyDescription("收取的兽栏数量") int collected,
-      @JsonPropertyDescription("总产出物品件数") int totalItems) {}
+      @JsonPropertyDescription("总产出物品件数") int totalItems,
+      @JsonPropertyDescription("附加说明（如枯萎作物已清除），无则为空") @Nullable String message) {}
 }

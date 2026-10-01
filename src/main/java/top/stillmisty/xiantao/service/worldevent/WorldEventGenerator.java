@@ -1,5 +1,6 @@
 package top.stillmisty.xiantao.service.worldevent;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.RequiredArgsConstructor;
@@ -58,6 +59,7 @@ public class WorldEventGenerator {
     List<WorldEventTemplate> available =
         templates.stream()
             .filter(t -> !isCategoryOverrepresented(t.getCategory(), currentActive))
+            .filter(t -> !isOnCooldown(t))
             .toList();
 
     if (available.isEmpty()) return;
@@ -75,8 +77,15 @@ public class WorldEventGenerator {
       }
 
       createFromTemplate(selected);
+      // 同一模板本轮不重复选取（冷却下限保护）
+      available = withoutTemplate(available, selected);
       if (selected.getScope() == WorldEventScope.REGIONAL) currentRegional++;
     }
+  }
+
+  private List<WorldEventTemplate> withoutTemplate(
+      List<WorldEventTemplate> templates, WorldEventTemplate excluded) {
+    return templates.stream().filter(t -> !t.getId().equals(excluded.getId())).toList();
   }
 
   /** 从模板创建事件（含事件链：子事件以 UPCOMING 状态创建） */
@@ -148,5 +157,12 @@ public class WorldEventGenerator {
             .count();
     int maxPerCategory = Math.max(2, totalActive / 3);
     return count >= maxPerCategory;
+  }
+
+  // 模板冷却：同一模板在 cooldown_hours 内生成过事件则跳过。
+  // world_event 未记录来源模板，暂以标题近似匹配（模板标题唯一）；补上模板追踪列后应改为按 ID 匹配（见 world-events/design.md）。
+  private boolean isOnCooldown(WorldEventTemplate template) {
+    LocalDateTime since = TimeUtil.now().minusHours(template.getCooldownHours());
+    return worldEventRepository.existsByTitleSince(template.getTitle(), since);
   }
 }

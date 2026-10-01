@@ -95,12 +95,10 @@ public class DefaultTeamBuilder implements TeamBuilder {
       skills = equippedSkillIds.stream().map(skillLookup::get).filter(Objects::nonNull).toList();
     }
 
-    return skills.stream()
-        .filter(skill -> weapon == null || isSkillCompatibleWithWeapon(skill, weapon))
-        .toList();
+    return skills.stream().filter(skill -> isSkillCompatibleWithWeapon(skill, weapon)).toList();
   }
 
-  private boolean isSkillCompatibleWithWeapon(Skill skill, Equipment weapon) {
+  private boolean isSkillCompatibleWithWeapon(Skill skill, @Nullable Equipment weapon) {
     BindingType bindingType = skill.getBindingType();
     if (bindingType == null || bindingType == BindingType.NONE) return true;
     if (weapon == null) return false;
@@ -110,7 +108,7 @@ public class DefaultTeamBuilder implements TeamBuilder {
 
     return switch (bindingType) {
       case WEAPON_TYPE -> weaponType.getCode().equals(skill.getBindingValue());
-      case WEAPON_CATEGORY -> weaponType.getCategory().equals(skill.getBindingValue());
+      case WEAPON_CATEGORY -> weaponType.categoryCode().equalsIgnoreCase(skill.getBindingValue());
       case ELEMENT -> true;
       default -> true;
     };

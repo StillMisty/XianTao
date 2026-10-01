@@ -8,13 +8,14 @@ public record CollectVO(
     @Nullable String cropName,
     @Nullable String beastName,
     int yield,
-    int totalItems) {
+    int totalItems,
+    @Nullable String message) {
 
   public static CollectVO forFarm(int cellId, String cropName, int yield) {
-    return new CollectVO(cellId, "FARM", cropName, null, yield, yield);
+    return new CollectVO(cellId, "FARM", cropName, null, yield, yield, null);
   }
 
   public static CollectVO forPen(int cellId, String beastName, int totalItems) {
-    return new CollectVO(cellId, "PEN", null, beastName, totalItems, totalItems);
+    return new CollectVO(cellId, "PEN", null, beastName, totalItems, totalItems, null);
   }
 }

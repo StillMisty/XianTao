@@ -67,9 +67,18 @@ public class UserService {
       return ServiceResult.businessFailure("此道号已被他人使用，请另择佳名~");
     }
 
-    var user =
-        userRepository.save(
-            Player.create().setNickname(nickname).setSpiritStones(STARTER_SPIRIT_STONES));
+    Player newUser =
+        Player.create()
+            .setNickname(nickname)
+            .setSpiritStones(STARTER_SPIRIT_STONES)
+            .setLevel(1)
+            .setStatStr(5)
+            .setStatCon(5)
+            .setStatAgi(5)
+            .setStatWis(5);
+    // 新号满血开局：DB 默认 hp_current=200 低于 1 级气血上限，不设置会出生即残血且恢复缓慢
+    newUser.setHpCurrent(newUser.calculateMaxHp());
+    var user = userRepository.save(newUser);
 
     log.info("创建用户成功 - UserId: {}, Nickname: {}", user.getId(), user.getNickname());
 

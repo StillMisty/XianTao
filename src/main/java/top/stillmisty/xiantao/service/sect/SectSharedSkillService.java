@@ -27,6 +27,7 @@ import top.stillmisty.xiantao.domain.sect.vo.SubmitJadeResultVO;
 import top.stillmisty.xiantao.domain.skill.entity.PlayerSkill;
 import top.stillmisty.xiantao.domain.skill.entity.Skill;
 import top.stillmisty.xiantao.domain.user.entity.Player;
+import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.PlayerSkillRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SectMemberRepository;
@@ -207,7 +208,9 @@ public class SectSharedSkillService {
 
     var user = userStateService.loadUser(userId);
     if (skill.getLevelRequirement() != null && user.getLevel() < skill.getLevelRequirement()) {
-      throw new BusinessException(ErrorCode.SECT_CREATE_LEVEL_INSUFFICIENT);
+      throw new BusinessException(
+          ErrorCode.SECT_SKILL_LEVEL_INSUFFICIENT,
+          CultivationRealm.realmDisplay(skill.getLevelRequirement()));
     }
 
     int cost = skill.getLevelRequirement() != null ? skill.getLevelRequirement() * 50 : 50;

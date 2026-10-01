@@ -92,7 +92,7 @@ public class BeastProductionService {
     log.debug("玩家 {} 收取地块 {} 的灵兽产出 {} 件", fudi.getUserId(), cellId, totalItems);
 
     return new CollectVO(
-        cellId, "PEN", null, beastName != null ? beastName : "灵兽", totalItems, totalItems);
+        cellId, "PEN", null, beastName != null ? beastName : "灵兽", totalItems, totalItems, null);
   }
 
   public void updateBeastProduction(FudiCell cell, Fudi fudi) {

@@ -2,6 +2,7 @@ package top.stillmisty.xiantao.service.sect;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +43,7 @@ public class SectMemberService {
   static final int SECT_INITIAL_FUNDS = 2000;
   static final int SECT_COOLDOWN_HOURS = 24;
   static final double DONATE_RATE = 0.1;
+  static final int SECT_DONATE_MIN = 1000;
 
   private final SectRepository sectRepository;
   private final SectMemberRepository sectMemberRepository;
@@ -196,7 +198,7 @@ public class SectMemberService {
         < CultivationRealm.GOLDEN_CORE.getRank()) {
       throw new BusinessException(ErrorCode.SECT_CREATE_LEVEL_INSUFFICIENT);
     }
-    if (sectMemberRepository.findByUserId(userId).isPresent()) {
+    if (findActiveMember(userId).isPresent()) {
       throw new BusinessException(ErrorCode.SECT_ALREADY_IN, "已有宗门");
     }
     if (sectRepository.findByName(name).isPresent()) {
@@ -231,12 +233,13 @@ public class SectMemberService {
             .setDescription(llmResult[1]);
     sectRepository.save(sect);
 
-    SectMember member =
-        SectMember.create()
-            .setSectId(sect.getId())
-            .setUserId(userId)
-            .setPosition(SectPosition.LEADER)
-            .setContribution(0);
+    // 复用可能存在的退宗冷却记录（user_id 唯一），避免插入冲突
+    SectMember member = sectMemberRepository.findByUserId(userId).orElseGet(SectMember::create);
+    member.setSectId(sect.getId());
+    member.setUserId(userId);
+    member.setPosition(SectPosition.LEADER);
+    member.setContribution(0);
+    member.setCooldownUntil(null);
     sectMemberRepository.save(member);
 
     log.info("玩家 {} 创建宗门 {} (id={})", userId, name, sect.getId());
@@ -262,7 +265,7 @@ public class SectMemberService {
       throw new BusinessException(ErrorCode.PLAYER_NOT_FOUND, targetNickname);
     }
 
-    if (sectMemberRepository.findByUserId(target.getId()).isPresent()) {
+    if (findActiveMember(target.getId()).isPresent()) {
       throw new BusinessException(ErrorCode.SECT_ALREADY_IN, "已在他宗");
     }
 
@@ -281,11 +284,12 @@ public class SectMemberService {
     }
 
     SectMember newMember =
-        SectMember.create()
-            .setSectId(sect.getId())
-            .setUserId(target.getId())
-            .setPosition(SectPosition.MEMBER)
-            .setContribution(0);
+        sectMemberRepository.findByUserId(target.getId()).orElseGet(SectMember::create);
+    newMember.setSectId(sect.getId());
+    newMember.setUserId(target.getId());
+    newMember.setPosition(SectPosition.MEMBER);
+    newMember.setContribution(0);
+    newMember.setCooldownUntil(null);
     sectMemberRepository.save(newMember);
 
     log.info("玩家 {} 被 {} 邀请加入宗门 {}", target.getId(), userId, sect.getId());
@@ -306,8 +310,7 @@ public class SectMemberService {
     }
 
     SectMember targetMember =
-        sectMemberRepository
-            .findByUserId(target.getId())
+        findActiveMember(target.getId())
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_SAME));
 
     if (targetMember.getPosition() == SectPosition.LEADER) {
@@ -360,8 +363,7 @@ public class SectMemberService {
     }
 
     SectMember targetMember =
-        sectMemberRepository
-            .findByUserId(target.getId())
+        findActiveMember(target.getId())
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_SAME));
 
     if (!requireSectId(targetMember).equals(requireSectId(actorMember))) {
@@ -458,8 +460,8 @@ public class SectMemberService {
   public DonateResultVO donateStonesInternal(Long userId, long amount) {
     SectMember member = requireMember(userId);
 
-    if (amount <= 0) {
-      throw new BusinessException(ErrorCode.PARAM_INVALID, "捐献灵石必须大于0");
+    if (amount < SECT_DONATE_MIN) {
+      throw new BusinessException(ErrorCode.SECT_DONATE_TOO_LOW, SECT_DONATE_MIN);
     }
 
     spiritStoneService.withdraw(userId, amount);
@@ -558,10 +560,12 @@ public class SectMemberService {
   // ===================== 包内工具方法 =====================
 
   public SectMember requireMember(Long userId) {
-    return sectMemberRepository
-        .findByUserId(userId)
-        .filter(m -> m.getSectId() != null)
-        .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_IN));
+    return findActiveMember(userId).orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_IN));
+  }
+
+  /** 当前有效成员记录：退宗/被踢后保留的冷却记录 sect_id 为空，不计入成员 */
+  private Optional<SectMember> findActiveMember(Long userId) {
+    return sectMemberRepository.findByUserId(userId).filter(m -> m.getSectId() != null);
   }
 
   private Long requireSectId(SectMember member) {

@@ -167,8 +167,11 @@ public class FarmService {
     boolean isPerennial = farm.harvestCount() < getMaxHarvest(farm.cropId());
 
     if (!isPerennial && progress != null && progress > 1.0 && isWilted(cell)) {
+      // 先清除地块再返回结果：抛异常会使事务回滚，导致枯萎地块无法通过单块收取清除
+      String cropName = getCropName(farm.cropId());
       fudiCellRepository.deleteById(cell.getId());
-      throw new BusinessException(ErrorCode.CROP_WITHERED, getCropName(farm.cropId()));
+      log.info("玩家 {} 清除地块 {} 的枯萎作物 {}", fudi.getUserId(), cellId, cropName);
+      return new CollectVO(cellId, "FARM", cropName, null, 0, 0, cropName + " 已枯萎，地块已清除");
     }
 
     if (progress == null || progress < 1.0) {
@@ -191,7 +194,7 @@ public class FarmService {
 
     log.info("玩家 {} 收获地块 {} 的 {}，获得 {}份", fudi.getUserId(), cellId, cropName, yield);
 
-    return new CollectVO(cellId, "FARM", cropName, null, yield, yield);
+    return new CollectVO(cellId, "FARM", cropName, null, yield, yield, null);
   }
 
   void grantHarvestItems(Long userId, Integer cropId, int yield) {

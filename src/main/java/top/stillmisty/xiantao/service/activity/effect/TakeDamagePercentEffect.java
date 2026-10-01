@@ -18,7 +18,7 @@ public class TakeDamagePercentEffect implements SubEventEffect {
       Long userId, Player user, EffectParams params, EventContext context) {
     if (!(params instanceof EffectParams.PercentParams p)) return Map.of();
     if (p.percent() == null) return Map.of();
-    int damage = (int) (user.calculateMaxHp() * p.percent());
+    int damage = Math.max(0, (int) (user.calculateMaxHp() * p.resolveMultiplier()));
     user.takeDamage(damage);
     return Map.of("damage", damage, "hpCurrent", user.getHpCurrent());
   }
