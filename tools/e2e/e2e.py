@@ -335,6 +335,24 @@ class E2e:
             time.sleep(0.2)
         return False
 
+    def wait_settled(self, expected_count, timeout=30, stable=1.0):
+        """等待出站消息达到预期条数并稳定（兼容处理中提示与长回复分段）。"""
+        deadline = time.time() + timeout
+        stable_since = None
+        last = -1
+        while time.time() < deadline:
+            count = self.fake.count()
+            if count >= expected_count and count == last:
+                if stable_since is None:
+                    stable_since = time.time()
+                elif time.time() - stable_since >= stable:
+                    return True
+            else:
+                stable_since = None
+            last = count
+            time.sleep(0.2)
+        return self.fake.count() >= expected_count
+
     # ---------- 场景 ----------
 
     def scenarios(self):

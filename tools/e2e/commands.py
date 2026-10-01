@@ -95,7 +95,7 @@ def sweep(args, runner, openid, nickname, samples, commands):
         before = runner.fake.count()
         started = time.time()
         status, _ = runner.post_event(openid, message)
-        received = runner.wait_for_outbound(before + 1, timeout=args.timeout)
+        received = runner.wait_settled(before + 1, timeout=args.timeout)
         elapsed = time.time() - started
         reply = ""
         if received:

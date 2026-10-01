@@ -41,7 +41,7 @@ class Session:
         started = time.time()
         status, _ = self.runner.post_event(self.openid, command)
         received = (
-            self.runner.wait_for_outbound(before_requests + 1, timeout=timeout) if wait else False
+            self.runner.wait_settled(before_requests + 1, timeout=timeout) if wait else False
         )
         elapsed = time.time() - started
         replies = self.fake.markdowns()[before_md:]
@@ -258,6 +258,10 @@ def phase_midgame(runner, fake):
         session.step("悬赏放弃", "放弃悬赏")
 
     # 学习与炼制：卷轴/图纸/玉简都需先「使用」
+    if scroll:
+        session.step(f"炼方 {scroll}", "未学习时直接炼方（观察引导）")
+    if blueprint:
+        session.step(f"锻造 {blueprint}", "未学习时直接锻造（观察引导）")
     if scroll:
         session.step(f"使用 {scroll}", "用卷轴学丹方")
     recipe_reply = first_reply(session.step("丹方", "查看已学丹方"))
