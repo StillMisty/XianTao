@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>「仙道」玩法可玩性与易用性测试报告</title>
+<style>
+  :root {
+    --bg: #f6f4ef;
+    --card: #ffffff;
+    --ink: #26241f;
+    --muted: #6f6a5e;
+    --line: #e6e1d5;
+    --accent: #8c2f2f;
+    --p0: #b3261e;
+    --p1: #d97706;
+    --p2: #b59a00;
+    --p3: #6b7280;
+    --ok: #2e7d32;
+    --code-bg: #2b2925;
+    --code-ink: #f0ece2;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.75 "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 40px 24px 80px; }
+  header.hero {
+    background: linear-gradient(135deg, #2b2925 0%, #4a3b32 60%, #6b2f2f 100%);
+    color: #f5f1e8; border-radius: 18px; padding: 34px 36px; margin-bottom: 28px;
+  }
+  header.hero h1 { margin: 0 0 8px; font-size: 27px; letter-spacing: 1px; }
+  header.hero p { margin: 0; opacity: .85; }
+  .hero-meta { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 10px; }
+  .hero-meta span {
+    background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
+    padding: 4px 12px; border-radius: 999px; font-size: 13px;
+  }
+  h2 { font-size: 20px; margin: 42px 0 14px; padding-left: 12px; border-left: 4px solid var(--accent); }
+  h3 { font-size: 16px; margin: 26px 0 10px; }
+  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+  .metric {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 16px 18px; text-align: center;
+  }
+  .metric b { display: block; font-size: 26px; color: var(--accent); }
+  .metric span { color: var(--muted); font-size: 13px; }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 18px 20px; margin: 14px 0;
+  }
+  .finding { border-left: 5px solid var(--p3); }
+  .finding.p0 { border-left-color: var(--p0); }
+  .finding.p1 { border-left-color: var(--p1); }
+  .finding.p2 { border-left-color: var(--p2); }
+  .finding.p3 { border-left-color: var(--p3); }
+  .badge {
+    display: inline-block; font-size: 12px; font-weight: 700; color: #fff;
+    border-radius: 6px; padding: 2px 9px; margin-right: 8px; vertical-align: 1px;
+  }
+  .badge.p0 { background: var(--p0); }
+  .badge.p1 { background: var(--p1); }
+  .badge.p2 { background: var(--p2); }
+  .badge.p3 { background: var(--p3); }
+  .badge.ok { background: var(--ok); }
+  .finding h3 { display: inline; margin: 0; font-size: 16px; }
+  .finding dl { margin: 12px 0 0; }
+  .finding dt { font-weight: 700; color: var(--muted); font-size: 13px; margin-top: 10px; }
+  .finding dd { margin: 4px 0 0; }
+  .evidence {
+    background: var(--code-bg); color: var(--code-ink); border-radius: 10px;
+    padding: 12px 14px; font: 13px/1.7 "SF Mono", Menlo, Consolas, monospace;
+    white-space: pre-wrap; word-break: break-word; margin: 6px 0;
+  }
+  .evidence .label { color: #b9b2a1; }
+  code.inline {
+    background: #efe9dc; border-radius: 5px; padding: 1px 6px;
+    font: 13px "SF Mono", Menlo, Consolas, monospace;
+  }
+  table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 12px; overflow: hidden; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; font-size: 14px; }
+  th { background: #efe9dc; font-size: 13px; color: var(--muted); }
+  tr:last-child td { border-bottom: none; }
+  .timeline { list-style: none; padding: 0; margin: 0; }
+  .timeline li { position: relative; padding: 0 0 14px 26px; border-left: 2px solid var(--line); margin-left: 8px; }
+  .timeline li::before {
+    content: ""; position: absolute; left: -7px; top: 6px; width: 12px; height: 12px;
+    border-radius: 50%; background: var(--accent); border: 2px solid var(--bg);
+  }
+  .timeline .cmd { font-weight: 700; }
+  .timeline .note { color: var(--muted); font-size: 13px; }
+  .pos { color: var(--ok); font-weight: 700; }
+  .neg { color: var(--p0); font-weight: 700; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 720px) { .cols { grid-template-columns: 1fr; } }
+  footer { margin-top: 50px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); padding-top: 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <h1>「仙道」玩法可玩性与易用性测试报告</h1>
+  <p>本地 E2E 试玩：假 QQ 平台 + 独立测试库 + 真实应用进程，全程记录真实交互</p>
+  <div class="hero-meta">
+    <span>2026-10-02</span>
+    <span>5 个阶段 · 210 步交互</span>
+    <span>71 条指令已覆盖可用性（前序）</span>
+    <span>AI 全程在线（DeepSeek）</span>
+  </div>
+</header>
+
+<h2>一、测试方法</h2>
+<div class="card">
+  <p>用 <code class="inline">tools/e2e/playtest.py</code> 在独立测试库上模拟真实玩家，逐条发送指令并记录
+  <b>完整回复、延迟、字数、按钮</b>。五个阶段：</p>
+  <ul>
+    <li><b>新手旅程</b>（28 步）：未注册 → 注册 → 帮助 → 地图 → 旅行 → 历练 → 悬赏 → 突破……第一小时体验；</li>
+    <li><b>易用性负路径</b>（15 步）：缺参、错别字、重复注册、非命令消息、越权；</li>
+    <li><b>中期深挖</b>（55 步）：造数据（10/21 级、修为、灵石、药材/卷轴/图纸/玉简/兽卵/装备）后逐系统走通；</li>
+    <li><b>双人社交</b>（13 步）：拜师/收徒/护道/切磋/逐出/叛师；</li>
+    <li><b>补齐深挖</b>（24 步）：早期突破、秘境入口、有境界差的师徒、可参与的世界事件。</li>
+  </ul>
+  <p><b>造数据手段</b>：GM 指令（等级/修为/灵石/物品）+ 测试库 SQL 时间回拨（<code class="inline">player.activity_start_time</code>、<code class="inline">user_bounty.start_time</code>），跳过 15–40 分钟的时间墙。<b>不触碰真实 QQ 与开发库。</b></p>
+</div>
+
+<h2>二、总览</h2>
+<div class="metrics">
+  <div class="metric"><b>210</b><span>步交互记录</span></div>
+  <div class="metric"><b>5</b><span>步无回复（缺参/闲聊）</span></div>
+  <div class="metric"><b>1.1s</b><span>平均响应（AI 命令 2–8s）</span></div>
+  <div class="metric"><b>1198 字</b><span>最长回复（悬赏结算）</span></div>
+  <div class="metric"><b>1 严重</b><span>P0 阻塞</span></div>
+  <div class="metric"><b>4 高 / 5 中 / 5 低</b><span>其余发现</span></div>
+</div>
+
+<h2>三、发现清单</h2>
+
+<div class="card finding p0">
+  <span class="badge p0">P0 阻塞</span><h3>秘境列表永远不可见，核心 PvE 系统实际不可达</h3>
+  <dl>
+    <dt>现象</dt>
+    <dd>不在秘境中时输入「秘境」，永远返回状态文案而不是可进入的秘境列表；文案还自相矛盾地提示「输入「秘境」查看可进入的秘境」。</dd>
+    <dt>证据</dt>
+    <dd class="evidence"><span class="label">秘境（新手/中期/深挖三轮均如此）：</span>
+###  秘境进度
+你当前不在任何秘境中。输入「秘境」查看可进入的秘境。
+> 💡 输入「秘灵 内容」与秘境之灵/叙事者对话</dd>
+    <dt>代码定位</dt>
+    <dd><code class="inline">DungeonService.statusInDungeon</code> 恒返回 <code class="inline">Success(getStatusInternal())</code>；<code class="inline">DungeonCommandHandler.handleDungeonOrStatus</code> 只认 Success 分支 → <code class="inline">formatDungeonList</code> 是死代码。</dd>
+    <dt>影响</dt>
+    <dd>玩家无法发现秘境名称、入口位置与等级门槛（实测「紫府秘境」需站在同名节点、5–30 级）。这是游戏主要的组队 PvE 内容，却只能靠外部信息进入。</dd>
+    <dt>建议</dt>
+    <dd>未在秘境中时返回 <code class="inline">Failure</code>（或 handler 先判断状态）走 <code class="inline">listDungeons</code>；列表中标注入口地图与等级区间。</dd>
+  </dl>
+</div>
+
+<div class="card finding p1">
+  <span class="badge p1">高</span><h3>英文内部键泄漏（一）：世界事件奖励文案</h3>
+  <dl>
+    <dt>证据</dt>
+    <dd class="evidence"><span class="label">参与事件（深挖阶段）：</span>
+你参与了**悬赏缉凶**！
+获得修为 +2000，spiritStones: +80</dd>
+    <dt>代码定位</dt>
+    <dd><code class="inline">WorldEventParticipationService.buildEffectDescription</code> 只匹配 <code class="inline">spirit_stone</code>（下划线）；camelCase 键 <code class="inline">spiritStones</code>（来自 <code class="inline">AddSpiritStonesEffect.description()</code>）落入 else 分支被原样输出。</dd>
+    <dt>建议</dt>
+    <dd>键名归一化后匹配（小写、去下划线），如 <code class="inline">spirit</code>+<code class="inline">stone</code> 判定灵石；并补一个「未识别键不展示」的兜底。</dd>
+  </dl>
+</div>
+
+<div class="card finding p1">
+  <span class="badge p1">高</span><h3>英文内部键泄漏（二）：炼丹五行属性报错</h3>
+  <dl>
+    <dt>证据</dt>
+    <dd class="evidence"><span class="label">炼方（中期深挖）：</span>
+❌ 缺少药材属性：metal</dd>
+    <dt>代码定位</dt>
+    <dd><code class="inline">CombinationStrategy.collectMissingAttributes</code> 返回丹方 requirements 的原始键（<code class="inline">metal/wood/water/fire/earth</code>），<code class="inline">ErrorCode.PILL_ELEMENT_MISSING</code> 直接拼接；锻造的 <code class="inline">ForgingCombinationFinder</code> 同源。代码库中没有 element → 中文映射。</dd>
+    <dt>影响</dt>
+    <dd>玩家看不懂英文属性名，也无法从报错得知「当前药材有什么、还差什么」，五行炼丹的门槛被人为抬高。</dd>
+    <dt>建议</dt>
+    <dd>增加元素中文映射（金/木/水/火/土）；报错同时给出当前药材属性汇总与建议配方。</dd>
+  </dl>
+</div>
+
+<div class="card finding p1">
+  <span class="badge p1">高</span><h3>缺参命令完全静默</h3>
+  <dl>
+    <dt>证据</dt>
+    <dd class="evidence"><span class="label">负路径阶段（每条等待 10 秒，无任何回复）：</span>
+「前往」    → &lt;无回复&gt;
+「装备」    → &lt;无回复&gt;
+「回收」    → &lt;无回复&gt;
+「使用」    → &lt;无回复&gt;</dd>
+    <dt>影响</dt>
+    <dd>「命令打一半」是新手最常见的操作；零反馈会让玩家以为机器人掉线。同类静默还有非命令闲聊（可接受，但新手期可给一次帮助提示）。</dd>
+    <dt>建议</dt>
+    <dd>为高频命令补裸命令兜底（<code class="inline">@Command("前往")</code> → 用法与示例），或在调度层对「前缀唯一命中但缺参」统一回复用法提示。</dd>
+  </dl>
+</div>
+
+<div class="card finding p1">
+  <span class="badge p1">高</span><h3>强化重名装备报「未找到该装备」</h3>
+  <dl>
+    <dt>证据</dt>
+    <dd class="evidence"><span class="label">中期深挖（背包中有两把「砍柴刀」时）：</span>
+强化 砍柴刀 → 未找到该装备
+（首次运行时只有一把，强化成功：「砍柴刀-破旧 → +1，消耗灵石 32」）</dd>
+    <dt>代码定位</dt>
+    <dd><code class="inline">EnhancementCore.resolveEquipment</code> 把 <code class="inline">ItemResolver</code> 的「多匹配」与「未找到」都折叠为 null → 统一抛 <code class="inline">EQUIPMENT_NOT_FOUND</code>；而背包/使用等系统在重名时会用 <code class="inline">ITEM_MULTIPLE_MATCH</code>（「找到多个…」）。</dd>
+    <dt>建议</dt>
+    <dd>区分多匹配与未找到，输出候选（品质/强化等级/编号），与其余系统文案一致。</dd>
+  </dl>
+</div>
+
+<div class="card finding p2">
+  <span class="badge p2">中</span><h3>卷轴/图纸学习引导缺失：直接「炼方/锻造」只会说未找到</h3>
+  <dl>
+    <dt>证据</dt>
+    <dd class="evidence"><span class="label">首轮（卷轴/图纸就在背包里）：</span>
+炼方 小聚灵丹方 → ❌ 未找到丹方：小聚灵丹方
+锻造 砍柴刀图   → 未找到名为「砍柴刀图」的锻造图纸
+
+<span class="label">正确姿势（第二轮验证）：</span>
+使用 小聚灵丹方 → 学习丹方成功：小聚灵丹方
+使用 砍柴刀图   → 学习锻造图纸成功：砍柴刀图</dd>
+    <dt>建议</dt>
+    <dd>报错时检索背包中的同名卷轴/图纸，提示「请先使用「X」学习」；或让「炼方/锻造」自动尝试先学习。</dd>
+  </dl>
+</div>
+
+<div class="card finding p2">
+  <span class="badge p2">中</span><h3>历练结算没有收益数字，文案与实际状态矛盾</h3>
+  <dl>
+    <dt>证据</dt>
+    <dd class="evidence"><span class="label">90 分钟历练结算（无遭遇战）：</span>
+### 历练结算
+翠竹林 | 1小时30分钟 | 效率1.0x
+### 历练收获
+你在翠竹林已修炼 90 分钟，继续精进中。
+<span class="label">追加通知：</span>你在翠竹林历练了 90 分钟，有所收获。</dd>
+    <dt>影响</dt>
+    <dd>没有遭遇战就没有修为（0 收益），但文案说「有所收获」；「继续精进中」与实际结算后状态不一致；玩家无从判断这次历练值不值。</dd>
+    <dt>建议</dt>
+    <dd>结算列出本次收益明细（修为/掉落/遭遇次数）；无收益时如实说明；「继续精进中」仅在真的继续时使用。</dd>
+  </dl>
+</div>
+
+<div class="card finding p2">
+  <span class="badge p2">中</span><h3>修为进度 500% 语义不明</h3>
+  <dl>
+    <dt>证据</dt>
+    <dd class="evidence">状态 → 境界：炼气期 · 圆满 (500.0%)   <span class="label">（修为 50000 / 升级所需 10000，达到 5 倍存储上限）</span></dd>
+    <dt>建议</dt>
+    <dd>溢出时显示「圆满（已达上限）」或直接提示「可突破」，避免百分比被误读。</dd>
+  </dl>
+</div>
+
+<div class="card finding p2">
+  <span class="badge p2">中</span><h3>师徒社交门槛高：新手期同批玩家无法结为师徒</h3>
+  <dl>
+    <dt>证据</dt>
+    <dd class="evidence"><span class="label">两个新号：</span>
+拜师 明月 → 操作失败: 师傅境界必须高于你至少一个大境界
+<span class="label">满足境界差后（师尊 21 级）流程顺畅：</span>
+拜师 → 已拜【师尊】为师！护道关系已自动建立。
+师徒 → 师傅: 师尊（金丹期 · 凝丹）｜我的徒弟 (1人)
+逐出师门 → 已将【小徒】逐出师门。
+再拜师 → 操作失败: 你刚刚脱离了师门，请等待 24 小时后再拜师</dd>
+    <dt>影响</dt>
+    <dd>新服/新手期玩家全是炼气期，师徒玩法不可达；「护道」倒是零门槛（实测任意两人可建立，+5% 突破加成）。</dd>
+    <dt>建议</dt>
+    <dd>新手引导中说明门槛与替代玩法；或提供新手期轻社交（互护道引导、切磋已有且体验良好）。</dd>
+  </dl>
+</div>
+
+<div class="card finding p2">
+  <span class="badge p2">中</span><h3>世界事件奖励量级失衡</h3>
+  <dl>
+    <dt>证据</dt>
+    <dd class="evidence">参与事件 → 获得修为 +2000 <span class="label">（1 级突破仅需 100 修为；一次事件 ≈ 直接跨 20 级）</span></dd>
+    <dt>建议</dt>
+    <dd>奖励按等级/境界缩放，避免跳过前期成长曲线。</dd>
+  </dl>
+</div>
+
+<div class="card finding p3">
+  <span class="badge p3">低</span><h3>帮助搜索无容错</h3>
+  <dl>
+    <dt>证据</dt>
+    <dd class="evidence">帮助 修练 → 未找到命令或子系统：修练   <span class="label">（无「你是不是想找：修炼」提示）</span></dd>
+    <dt>建议</dt>
+    <dd>模糊匹配/同音纠错，或返回最接近的 1–3 条命令。</dd>
+  </dl>
+</div>
+
+<div class="card finding p3">
+  <span class="badge p3">低</span><h3>「查看 自己道号」预期错位</h3>
+  <dl>
+    <dt>证据</dt>
+    <dd class="evidence">查看 云中鹤 → 未找到 [云中鹤]，可输入装备名/编号、怪物名或物品名</dd>
+    <dt>建议</dt>
+    <dd>支持查看玩家（自己/他人）的基础档案，或提示改用「状态」。</dd>
+  </dl>
+</div>
+
+<div class="card finding p3">
+  <span class="badge p3">低</span><h3>丹方命名与直觉不一致</h3>
+  <dl>
+    <dt>证据</dt>
+    <dd class="evidence">丹方列表 → 1. 小聚灵丹方（1品）   <span class="label">（丹药叫「小聚灵丹」，炼方必须输入「小聚灵丹方」）</span></dd>
+    <dt>建议</dt>
+    <dd>统一命名，或让「炼方 小聚灵丹」也能命中。</dd>
+  </dl>
+</div>
+
+<div class="card finding p3">
+  <span class="badge p3">低</span><h3>长回复与 AI 等待感（平台侧风险）</h3>
+  <dl>
+    <dt>证据</dt>
+    <dd class="evidence">最长回复 1198 字（悬赏结算的 AI 美化叙事）；帮助 520 字；状态 476 字
+AI 命令延迟：地灵 2.4–6.1s ｜ 掌柜 2.8s ｜ 秘灵 4.2s ｜ 宗门创建 5.5s ｜ 悬赏结算 7.6s</dd>
+    <dt>建议</dt>
+    <dd>① 待办 B（分段/截断）优先级提高：确认 QQ markdown 上限并对超长回复分段；② AI 命令等待期间考虑即时反馈（如先回「正在推演…」或按钮点击即 ack）。</dd>
+  </dl>
+</div>
+
+<h2>四、可玩性观察</h2>
+<div class="cols">
+  <div class="card">
+    <h3 class="pos">✓ 做得好的</h3>
+    <ul>
+      <li><b>新手引导链顺畅</b>：注册 → 状态 → 背包（提示装备桃木剑）→ 地图 → 前往 → 历练，关键节点都有下一步提示。</li>
+      <li><b>位置门槛有解释</b>：「青石镇人烟稠密，不宜吐纳。可先「前往 翠竹林」（其妖兽多为炼气期 · 启灵修为），抵达后再行修炼。」——原因 + 目的地 + 预期收益俱全。</li>
+      <li><b>AI NPC 在线</b>：地灵会调用工具种田（3.6s 完成播种）、掌柜能报价成交、秘灵会引导探索分支、宗灵有守山人设；语气贴合世界观。</li>
+      <li><b>秘境入口叙事</b>：「你踏入了【紫府秘境】—外围，灵雾缭绕的山门区域…」进入感强。</li>
+      <li><b>师徒/护道闭环完整</b>：拜师自动建护道、面板清晰、24h 冷却提示明确、切磋可用（有完整战斗记录）。</li>
+      <li><b>早期突破正反馈明确</b>：100% 成功率、文案+境界变化即时可见。</li>
+      <li><b>地图按钮已验证</b>：回复附带「翠竹林」按钮，点击即发送「前往 翠竹林」。</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3 class="neg">⚠ 风险与节奏</h3>
+    <ul>
+      <li><b>时间墙偏长</b>：悬赏 15–40 分钟、历练按小时结算；符合 AFK 定位，但缺少「完成提醒」，玩家需要自己记得回来结算（主动推送待办 D）。</li>
+      <li><b>突破难度</b>：10 级突破连续两次被雷劫击败（残血 7%），失败清空所需修为并清除护道；需要评估失败补偿曲线与挫败感。</li>
+      <li><b>福地渡劫可误触</b>：开局即可挑战，失败毁 1 块地块（实测把刚种下的种子一起毁了），没有二次确认或门槛提示。</li>
+      <li><b>五行炼丹门槛高</b>：单味药材报「不匹配」，报错又不给配比方向（见 P1-2）。</li>
+      <li><b>两套「雷劫」容易混淆</b>：境界突破雷劫 vs 福地渡劫，命名与入口都叫「渡劫/天劫」。</li>
+      <li><b>经济循环基本可用</b>：锻造消耗锻材、强化消耗灵石（32/次）、掌柜买卖可用；但买卖全部依赖 AI 对话，无确定性命令兜底（AI 故障时商铺不可用）。</li>
+    </ul>
+  </div>
+</div>
+
+<h2>五、下一步按钮建议（地图已实现，其余留档）</h2>
+<div class="card">
+  <p>本轮已实现并验证：<b>地图 → 可前往地区按钮</b>（点击即发送「前往 X」，选择事件按钮优先，可用 <code class="inline">xiantao.qq.suggestion-buttons</code> 关闭）。其余候选场景按优先级留档，待玩法确认后实施：</p>
+  <table>
+    <tr><th>场景</th><th>建议按钮</th><th>依据</th><th>优先级</th></tr>
+    <tr><td>地图</td><td>前往 &lt;邻接地区&gt;</td><td class="pos">✓ 本轮已实现并验证</td><td>—</td></tr>
+    <tr><td>背包</td><td>装备 &lt;第一件&gt; · 使用 &lt;丹药&gt;</td><td>注册即获桃木剑；装备/使用是最高频下一步</td><td>高</td></tr>
+    <tr><td>悬赏列表</td><td>接取 &lt;ID&gt;（≤3 条）</td><td>列表本身就是为接取服务，免手输编号</td><td>高</td></tr>
+    <tr><td>秘境列表（待修复）</td><td>进入 &lt;秘境名&gt;</td><td>P0 修复后列表即入口</td><td>高</td></tr>
+    <tr><td>突破（修为不足/失败）</td><td>历练 · 悬赏</td><td>直接给出「去哪涨修为」</td><td>中</td></tr>
+    <tr><td>丹方/法决为空</td><td>背包（去学习）· 帮助</td><td>引导到卷轴/玉简的学习入口</td><td>中</td></tr>
+    <tr><td>状态</td><td>背包 · 地图</td><td>面板后的高频动作</td><td>中</td></tr>
+    <tr><td>历练结算后</td><td>突破 · 悬赏</td><td>结算后修为可能已够突破</td><td>低</td></tr>
+    <tr><td>选择事件</td><td>选项按钮</td><td class="pos">✓ 已有机制</td><td>—</td></tr>
+  </table>
+</div>
+
+<h2>六、附录</h2>
+<div class="card">
+  <h3>测试环境与方法</h3>
+  <ul>
+    <li>假 QQ 平台（REST 假 OpenAPI）+ 独立测试库（Flyway 自动迁移）+ 真应用进程（webhook 模式），跑完即删；</li>
+    <li>时间回拨：旅行/历练改 <code class="inline">player.activity_start_time</code>，悬赏改 <code class="inline">user_bounty.start_time</code>（注意：悬赏状态查询有 5 分钟缓存，但结算直接读库，不受影响）；</li>
+    <li>数据文件：<code class="inline">/tmp/play-newbie.json</code>、<code class="inline">play-map.json</code>、<code class="inline">play-midgame.json</code>、<code class="inline">play-mid-social.json</code>、<code class="inline">play-deep.json</code>；工具：<code class="inline">tools/e2e/playtest.py</code>。</li>
+  </ul>
+  <h3>未覆盖边界（需真人抽验）</h3>
+  <ul>
+    <li>真实 QQ 的 markdown 渲染效果与手机一屏体感；</li>
+    <li>真实群聊节奏、@ 交互手感、按钮在客户端的实际表现；</li>
+    <li>多人同时在群内的社交氛围与竞争感。</li>
+  </ul>
+</div>
+
+<footer>
+  报告由本地 E2E 试玩数据生成 · 所有引文均来自真实运行的应用回复（AI 全程在线）· 2026-10-02
+</footer>
+
+</div>
+</body>
+</html>
