@@ -135,7 +135,94 @@
   <div class="metric"><b>4 高 / 5 中 / 5 低</b><span>其余发现</span></div>
 </div>
 
-<h2>三、发现清单</h2>
+<h2>三、修复记录（本报告发现项的处置）</h2>
+<div class="card">
+  <table>
+    <tr><th>发现</th><th>处置</th><th>验证</th></tr>
+    <tr>
+      <td><span class="badge p0">P0</span>秘境列表不可见</td>
+      <td>不在秘境时改为回退到列表；列表新增「入口」与「暂不可入」原因</td>
+      <td class="pos">✓ 三轮复验：青石镇显示入口与门槛，入口节点可直接进入</td>
+    </tr>
+    <tr>
+      <td><span class="badge p1">P1</span>spiritStones 泄漏</td>
+      <td>效果键归一化匹配（spirit+stone）；未识别数值键不再展示；物品与数量去重</td>
+      <td>代码级修复（复验轮世界事件池暂无可参与事件，未复现原路径）</td>
+    </tr>
+    <tr>
+      <td><span class="badge p1">P1</span>metal 泄漏</td>
+      <td>元素编码大小写不敏感 + 错误文案输出中文（金/木/水/火/土）</td>
+      <td class="pos">✓「缺少药材属性：金」</td>
+    </tr>
+    <tr>
+      <td><span class="badge p1">P1</span>缺参静默</td>
+      <td>调度器字面前缀兜底：「X」还需要补充内容，输入「帮助 X」查看用法</td>
+      <td class="pos">✓ 前往 / 装备 / 回收 / 使用 全部有提示</td>
+    </tr>
+    <tr>
+      <td><span class="badge p1">P1</span>强化重名装备</td>
+      <td>多匹配不再折叠为「未找到」，列出候选供选择</td>
+      <td class="pos">✓「找到多件装备，请使用更精确的名称或编号：…」</td>
+    </tr>
+    <tr>
+      <td><span class="badge p2">P2</span>卷轴/图纸引导</td>
+      <td>未学习时检索背包同名卷轴/图纸，提示先「使用」</td>
+      <td class="pos">✓ 炼方 / 锻造 均给出正确姿势</td>
+    </tr>
+    <tr>
+      <td><span class="badge p2">P2</span>历练结算无收益数字</td>
+      <td>无遭遇战时明确「本次未遭遇战斗，暂无收益」；完成通知按实际收益生成</td>
+      <td class="pos">✓ 文案与收益一致</td>
+    </tr>
+    <tr>
+      <td><span class="badge p2">P2</span>修为进度 500%</td>
+      <td>修为满时显示「修为圆满，可突破」</td>
+      <td class="pos">✓</td>
+    </tr>
+    <tr>
+      <td><span class="badge p2">P2</span>师徒门槛提示</td>
+      <td>师徒空态追加「大境界差」说明与「护道」替代引导</td>
+      <td class="pos">✓</td>
+    </tr>
+    <tr>
+      <td><span class="badge p2">P2</span>世界事件奖励量级</td>
+      <td><b>未改</b>：属数值平衡设计决策，待定</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td><span class="badge p3">P3</span>帮助无容错</td>
+      <td>按编辑距离给出近似建议</td>
+      <td class="pos">✓「你是不是想找：修炼、历练」</td>
+    </tr>
+    <tr>
+      <td><span class="badge p3">P3</span>「查看」自己</td>
+      <td>支持查看玩家档案（道号 / 境界 / 所在地 / 状态）</td>
+      <td class="pos">✓</td>
+    </tr>
+    <tr>
+      <td><span class="badge p3">P3</span>丹方命名</td>
+      <td>名称包含匹配 + 学习引导</td>
+      <td class="pos">✓</td>
+    </tr>
+    <tr>
+      <td><span class="badge p3">P3</span>长回复与平台上限</td>
+      <td>按 UTF-8 约 1800 字节分段（≤4 段，超出截断并标注），优先在换行处切分</td>
+      <td class="pos">✓ 单元测试 + 平台处理器测试</td>
+    </tr>
+    <tr>
+      <td><span class="badge p3">P3</span>AI 等待反馈</td>
+      <td><b>不做</b>：产品决定——等待即可，不先发提示消息</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>主动推送（原待办 D）</td>
+      <td><b>永久不做</b>：平台主动推送能力已下线，不具备可行性</td>
+      <td>—</td>
+    </tr>
+  </table>
+</div>
+
+<h2>四、发现清单（原始记录）</h2>
 
 <div class="card finding p0">
   <span class="badge p0">P0 阻塞</span><h3>秘境列表永远不可见，核心 PvE 系统实际不可达</h3>
@@ -322,12 +409,12 @@
     <dt>证据</dt>
     <dd class="evidence">最长回复 1198 字（悬赏结算的 AI 美化叙事）；帮助 520 字；状态 476 字
 AI 命令延迟：地灵 2.4–6.1s ｜ 掌柜 2.8s ｜ 秘灵 4.2s ｜ 宗门创建 5.5s ｜ 悬赏结算 7.6s</dd>
-    <dt>建议</dt>
-    <dd>① 待办 B（分段/截断）优先级提高：确认 QQ markdown 上限并对超长回复分段；② AI 命令等待期间考虑即时反馈（如先回「正在推演…」或按钮点击即 ack）。</dd>
+    <dt>处置</dt>
+    <dd>① 长回复已按 UTF-8 约 1800 字节分段（≤4 段，超出截断并标注），优先在换行处切分；② AI 等待反馈按产品决定<b>不做</b>——等待即可，不先发提示消息。</dd>
   </dl>
 </div>
 
-<h2>四、可玩性观察</h2>
+<h2>五、可玩性观察</h2>
 <div class="cols">
   <div class="card">
     <h3 class="pos">✓ 做得好的</h3>
@@ -344,7 +431,7 @@ AI 命令延迟：地灵 2.4–6.1s ｜ 掌柜 2.8s ｜ 秘灵 4.2s ｜ 宗门�
   <div class="card">
     <h3 class="neg">⚠ 风险与节奏</h3>
     <ul>
-      <li><b>时间墙偏长</b>：悬赏 15–40 分钟、历练按小时结算；符合 AFK 定位，但缺少「完成提醒」，玩家需要自己记得回来结算（主动推送待办 D）。</li>
+      <li><b>时间墙偏长</b>：悬赏 15–40 分钟、历练按小时结算；符合 AFK 定位，但缺少「完成提醒」，玩家需要自己记得回来结算（平台主动推送能力已下线，无法做完成提醒）。</li>
       <li><b>突破难度</b>：10 级突破连续两次被雷劫击败（残血 7%），失败清空所需修为并清除护道；需要评估失败补偿曲线与挫败感。</li>
       <li><b>福地渡劫可误触</b>：开局即可挑战，失败毁 1 块地块（实测把刚种下的种子一起毁了），没有二次确认或门槛提示。</li>
       <li><b>五行炼丹门槛高</b>：单味药材报「不匹配」，报错又不给配比方向（见 P1-2）。</li>
@@ -354,7 +441,7 @@ AI 命令延迟：地灵 2.4–6.1s ｜ 掌柜 2.8s ｜ 秘灵 4.2s ｜ 宗门�
   </div>
 </div>
 
-<h2>五、下一步按钮建议（地图已实现，其余留档）</h2>
+<h2>六、下一步按钮建议（地图已实现，其余留档）</h2>
 <div class="card">
   <p>本轮已实现并验证：<b>地图 → 可前往地区按钮</b>（点击即发送「前往 X」，选择事件按钮优先，可用 <code class="inline">xiantao.qq.suggestion-buttons</code> 关闭）。其余候选场景按优先级留档，待玩法确认后实施：</p>
   <table>
@@ -371,7 +458,7 @@ AI 命令延迟：地灵 2.4–6.1s ｜ 掌柜 2.8s ｜ 秘灵 4.2s ｜ 宗门�
   </table>
 </div>
 
-<h2>六、附录</h2>
+<h2>七、附录</h2>
 <div class="card">
   <h3>测试环境与方法</h3>
   <ul>
