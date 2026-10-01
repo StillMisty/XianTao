@@ -1,6 +1,7 @@
 package top.stillmisty.xiantao.handle.platform;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
@@ -71,6 +72,22 @@ class QQPlatformHandlerTest {
     assertEquals("翠竹林", keyboard.rows().getFirst().buttons().getFirst().label());
     assertEquals("前往 翠竹林", keyboard.rows().getFirst().buttons().getFirst().data());
     assertEquals("前往 黑风岭", keyboard.rows().getFirst().buttons().getLast().data());
+  }
+
+  @Test
+  void suggestionLabelIsTruncatedToPlatformLimit() {
+    NotificationAppender appender = appenderReturning(null);
+    QqMessageSender sender = mock(QqMessageSender.class);
+    QqIncomingMessage message = message();
+    String longName = "极长的地区名称测试用例甲乙丙丁戊己庚辛";
+
+    handler(appender, sender, true, true)
+        .replyText(message, "正文", List.of(new NextActions.Suggestion(longName, "前往 " + longName)));
+
+    ArgumentCaptor<QqKeyboard> captor = ArgumentCaptor.forClass(QqKeyboard.class);
+    verify(sender).replyMarkdown(eq(message), eq("正文"), captor.capture());
+    String label = captor.getValue().rows().getFirst().buttons().getFirst().label();
+    assertTrue(label.codePointCount(0, label.length()) <= 10, label);
   }
 
   @Test

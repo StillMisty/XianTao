@@ -118,11 +118,12 @@ public class NotificationAppender {
   }
 
   private static String truncateLabel(String text) {
-    int maxCodePoints = 20;
+    // 平台限制：按钮文字（render_data.label）最多 10 字符，留一位给省略号
+    int maxCodePoints = 10;
     if (text.codePointCount(0, text.length()) <= maxCodePoints) {
       return text;
     }
-    return text.substring(0, text.offsetByCodePoints(0, maxCodePoints)) + "…";
+    return text.substring(0, text.offsetByCodePoints(0, maxCodePoints - 1)) + "…";
   }
 
   /** 发送成功后标记事件为已投递 */
