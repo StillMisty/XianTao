@@ -194,6 +194,7 @@ public enum ErrorCode {
   MASTER_NO_MASTER("你没有师傅"),
   MASTER_APPRENTICE_NOT_FOUND("未找到该徒弟"),
   MASTER_CANNOT_SELF("不能拜自己为师"),
+  MASTER_APPRENTICE_CANNOT_SELF("不能收自己为徒"),
   MASTER_COOLDOWN("你刚刚脱离了师门，请等待 %d 小时后再拜师"),
   MASTER_APPRENTICE_HAS_MASTER("该玩家已有师门"),
 

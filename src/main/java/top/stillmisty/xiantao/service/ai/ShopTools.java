@@ -236,18 +236,33 @@ public class ShopTools {
    * @param itemId 物品编号（从 checkPlayerItems 或 appraiseItem 的结果中获取）
    * @param confirmedPrice 成交价格（灵石），必须在估价/砍价范围内的价格
    */
-  @Tool(description = "从客人手里收购物品。itemId 是物品编号，confirmedPrice 必须均在估价/砍价的价格范围内")
+  @Tool(description = "从客人手里收购物品。itemId 可留空（按名称自动匹配），仅在重名时才需客人指定编号；confirmedPrice 必须与估价/砍价结果一致")
   @Transactional
   public SellResult buyItem(
       @ToolParam(description = "物品名称") String itemName,
-      @ToolParam(description = "物品编号") String itemId,
+      @ToolParam(description = "物品编号，可留空按名称匹配") String itemId,
       @ToolParam(description = "成交价格（灵石），必须在对估价/砍价得到的价格") long confirmedPrice) {
     try {
       Long userId = UserContext.requireCurrentUserId();
       UserAndNpc resolved = resolveUserAndNpc();
 
       if (itemId == null || itemId.isBlank()) {
-        throw new IllegalArgumentException("需要提供物品编号");
+        // 与 appraiseItem 一致：编号留空时按名称解析，避免模型在「装备/堆叠物品编号空间重叠」时猜错
+        var matchingEquipment = shopService.findEquipmentByName(userId, itemName);
+        var matchingItems = shopService.findStackableItemsByName(userId, itemName);
+        int totalMatches = matchingEquipment.size() + matchingItems.size();
+        if (totalMatches == 0) {
+          throw new BusinessException(ErrorCode.ITEM_NOT_FOUND, sanitizeItemName(itemName));
+        }
+        if (totalMatches > 1) {
+          throw new BusinessException(ErrorCode.ITEM_MULTIPLE_MATCH, sanitizeItemName(itemName));
+        }
+        if (!matchingEquipment.isEmpty()) {
+          return shopService.sellEquipment(
+              userId, resolved.npc(), matchingEquipment.getFirst().getId(), confirmedPrice);
+        }
+        return shopService.sellStackableItem(
+            userId, resolved.npc(), matchingItems.getFirst().getId(), confirmedPrice);
       }
 
       try {

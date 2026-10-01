@@ -49,7 +49,7 @@ public class ShopChatService extends AbstractChatService {
     rateLimiter.checkAllowed(userId);
     try {
       String result = chatWithShopkeeperInternal(userId, userInput);
-      return new ServiceResult.Success<>(result);
+      return new ServiceResult.Success<>(result != null ? result : "掌柜暂时不在，请稍后再来。");
     } catch (BusinessException e) {
       return ServiceResult.businessFailure(e.getMessage() != null ? e.getMessage() : "商铺操作失败");
     } catch (Exception e) {

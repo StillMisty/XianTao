@@ -74,7 +74,7 @@ public class PillRecipeService {
         }
       }
     }
-    throw new BusinessException(ErrorCode.ITEM_NOT_FOUND, recipeName);
+    throw new BusinessException(ErrorCode.RECIPE_NOT_FOUND, recipeName);
   }
 
   /** 学习丹方。卷轴实例由 ItemUseService 解析并传入，本方法不再按名重查背包 （qty=1 时外层扣减后行已删除，按名重查会失败）。 */

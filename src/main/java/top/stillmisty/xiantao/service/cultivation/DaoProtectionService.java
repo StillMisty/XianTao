@@ -170,7 +170,7 @@ public class DaoProtectionService {
     if (protectionOpt.isEmpty()) {
       return new DaoProtectionResult(
           false,
-          String.format("你已在为%s护道", protege.getNickname()),
+          String.format("你并未为%s护道", protege.getNickname()),
           null,
           null,
           null,

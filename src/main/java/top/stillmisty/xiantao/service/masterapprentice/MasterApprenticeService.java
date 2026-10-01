@@ -114,7 +114,7 @@ public class MasterApprenticeService {
       throw new BusinessException(ErrorCode.PLAYER_NOT_FOUND, targetNickname);
     }
     if (apprentice.getId().equals(userId)) {
-      throw new BusinessException(ErrorCode.MASTER_CANNOT_SELF);
+      throw new BusinessException(ErrorCode.MASTER_APPRENTICE_CANNOT_SELF);
     }
     if (masterApprenticeRepository
         .findByApprenticeId(apprentice.getId())
