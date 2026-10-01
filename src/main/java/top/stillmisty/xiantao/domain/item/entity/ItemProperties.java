@@ -3,7 +3,10 @@ package top.stillmisty.xiantao.domain.item.entity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /** 物品属性密封接口，按 ItemType 路由到类型安全子类 */
@@ -63,7 +66,12 @@ public sealed interface ItemProperties {
       @JsonProperty("equipment_template_id") long equipmentTemplateId,
       int grade,
       Map<String, ElementRange> requirements)
-      implements ItemProperties {}
+      implements ItemProperties {
+
+    public ForgingBlueprint {
+      requirements = normalizeRequirementKeys(requirements);
+    }
+  }
 
   record Scroll(@JsonProperty("recipe") Recipe recipe) implements ItemProperties {
     public int grade() {
@@ -86,7 +94,12 @@ public sealed interface ItemProperties {
         int grade,
         @JsonProperty("result_item_id") long resultItemId,
         @JsonProperty("result_quantity") int resultQuantity,
-        Map<String, ElementRange> requirements) {}
+        Map<String, ElementRange> requirements) {
+
+      public Recipe {
+        requirements = normalizeRequirementKeys(requirements);
+      }
+    }
   }
 
   record Herb(@JsonProperty("elements") Map<String, Integer> elements) implements ItemProperties {}
@@ -96,4 +109,15 @@ public sealed interface ItemProperties {
       @JsonProperty("TOUGHNESS") int toughness,
       @JsonProperty("SPIRIT") int spirit)
       implements ItemProperties {}
+
+  /** 需求键统一为大写：丹方数据用小写元素键（metal），锻材数据用大写三性键（RIGIDITY）， 而匹配与累计逻辑统一使用枚举 code（大写）。 */
+  static Map<String, ElementRange> normalizeRequirementKeys(
+      Map<String, ElementRange> requirements) {
+    if (requirements == null || requirements.isEmpty()) {
+      return Map.of();
+    }
+    Map<String, ElementRange> normalized = new LinkedHashMap<>();
+    requirements.forEach((key, value) -> normalized.put(key.toUpperCase(Locale.ROOT), value));
+    return Collections.unmodifiableMap(normalized);
+  }
 }

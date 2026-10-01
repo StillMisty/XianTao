@@ -155,8 +155,14 @@ public class StackableItem {
     if (properties == null || elementCode == null) return 0;
     Object elementsObj = properties.get("elements");
     if (elementsObj instanceof Map<?, ?> elements) {
-      Object val = elements.get(elementCode);
-      return val instanceof Number n ? n.intValue() : 0;
+      // 数据键为小写（wood），代码以大写枚举 code（WOOD）取值，这里做大小写不敏感匹配
+      for (Map.Entry<?, ?> entry : elements.entrySet()) {
+        if (entry.getKey() instanceof String key
+            && key.equalsIgnoreCase(elementCode)
+            && entry.getValue() instanceof Number n) {
+          return n.intValue();
+        }
+      }
     }
     return 0;
   }
