@@ -52,6 +52,8 @@ xiantao:
     webhook-max-event-age: ${QQ_WEBHOOK_MAX_EVENT_AGE:5m}
     # 选择事件是否附带按钮（点击即发送「选 X」，文本选项仍保留作兜底）
     choice-buttons: ${QQ_CHOICE_BUTTONS:true}
+    # 下一步建议按钮（如地图下方推荐可前往的地区），点击即发送对应指令
+    suggestion-buttons: ${QQ_SUGGESTION_BUTTONS:true}
     sandbox: ${QQ_SANDBOX:false}
     # 事件订阅位标记，默认 GROUP_AND_C2C_EVENT (1<<25)
     intents: ${QQ_INTENTS:33554432}

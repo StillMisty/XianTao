@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import top.stillmisty.qqgateway.QqIncomingMessage;
 import top.stillmisty.qqgateway.QqScene;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
+import top.stillmisty.xiantao.handle.NextActions;
 import top.stillmisty.xiantao.handle.platform.PlatformHandler;
 import top.stillmisty.xiantao.handle.platform.PlatformRegistry;
 
@@ -54,6 +55,22 @@ class ReplyHelperTest {
     assertTrue(handler.replies.getFirst().contains("系统繁忙"), handler.replies.getFirst());
   }
 
+  @Test
+  void passesCollectedSuggestionsToPlatform() {
+    StubHandler handler = new StubHandler();
+    helper(handler)
+        .dispatch(
+            message(),
+            "地图",
+            fmt -> {
+              NextActions.suggest("翠竹林", "前往 翠竹林");
+              return "地图正文";
+            });
+
+    assertEquals(
+        List.of(new NextActions.Suggestion("翠竹林", "前往 翠竹林")), handler.suggestions.getFirst());
+  }
+
   private static ReplyHelper helper(PlatformHandler handler) {
     return new ReplyHelper(new PlatformRegistry(List.of(handler)));
   }
@@ -66,6 +83,7 @@ class ReplyHelperTest {
   private static final class StubHandler implements PlatformHandler {
 
     final List<String> replies = new CopyOnWriteArrayList<>();
+    final List<List<NextActions.Suggestion>> suggestions = new CopyOnWriteArrayList<>();
 
     @Override
     public PlatformType getPlatformType() {
@@ -85,6 +103,13 @@ class ReplyHelperTest {
     @Override
     public void replyText(QqIncomingMessage message, String text) {
       replies.add(text);
+    }
+
+    @Override
+    public void replyText(
+        QqIncomingMessage message, String text, List<NextActions.Suggestion> nextActions) {
+      replies.add(text);
+      suggestions.add(nextActions);
     }
   }
 }

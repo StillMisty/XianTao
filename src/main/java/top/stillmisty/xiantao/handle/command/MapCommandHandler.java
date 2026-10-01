@@ -24,6 +24,7 @@ import top.stillmisty.xiantao.domain.map.vo.TrainingRewardVO;
 import top.stillmisty.xiantao.domain.map.vo.TravelResultVO;
 import top.stillmisty.xiantao.domain.monster.vo.DropItem;
 import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
+import top.stillmisty.xiantao.handle.NextActions;
 import top.stillmisty.xiantao.infrastructure.repository.EquipmentTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.util.FormatUtils;
@@ -374,6 +375,7 @@ public class MapCommandHandler implements CommandGroup {
         String timeStr =
             travelTime != null ? "（御剑" + FormatUtils.formatMinutes(travelTime) + "）" : "";
         sb.append(fmt.listItem(adjName + timeStr));
+        NextActions.suggest(adjName, "前往 " + adjName);
       }
     }
     sb.append(fmt.tip("使用「前往 [地名]」启程修行。"));

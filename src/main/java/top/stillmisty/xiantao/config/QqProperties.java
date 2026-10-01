@@ -20,6 +20,7 @@ public record QqProperties(
     String webhookPath,
     Duration webhookMaxEventAge,
     Boolean choiceButtons,
+    Boolean suggestionButtons,
     Boolean sandbox) {
 
   /** 事件通道。 */
@@ -42,6 +43,7 @@ public record QqProperties(
     webhookMaxEventAge =
         webhookMaxEventAge == null ? QqWebhookHandler.DEFAULT_MAX_EVENT_AGE : webhookMaxEventAge;
     choiceButtons = choiceButtons == null ? Boolean.TRUE : choiceButtons;
+    suggestionButtons = suggestionButtons == null ? Boolean.TRUE : suggestionButtons;
     sandbox = sandbox == null ? Boolean.FALSE : sandbox;
   }
 

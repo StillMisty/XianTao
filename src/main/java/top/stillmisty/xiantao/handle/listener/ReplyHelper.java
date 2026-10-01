@@ -1,9 +1,11 @@
 package top.stillmisty.xiantao.handle.listener;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.stillmisty.qqgateway.QqIncomingMessage;
+import top.stillmisty.xiantao.handle.NextActions;
 import top.stillmisty.xiantao.handle.platform.PlatformHandler;
 import top.stillmisty.xiantao.handle.platform.PlatformRegistry;
 import top.stillmisty.xiantao.util.TextFormat;
@@ -39,14 +41,14 @@ public class ReplyHelper {
         command,
         handler.extractOpenId(message));
 
-    String text;
+    NextActions.Collected<String> collected;
     try {
-      text = fn.execute(TextFormat.get());
+      collected = NextActions.collect(() -> fn.execute(TextFormat.get()));
     } catch (Exception e) {
       log.error("[{}] {}执行异常", handler.getPlatformType(), command, e);
-      text = TextFormat.get().error("系统繁忙，请稍后再试");
+      collected = new NextActions.Collected<>(TextFormat.get().error("系统繁忙，请稍后再试"), List.of());
     }
-    reply(handler, message, sanitize(text, command, handler));
+    reply(handler, message, sanitize(collected.value(), command, handler), collected.suggestions());
   }
 
   public void dispatch(QqIncomingMessage message, String command, String arg, CommandFn1 fn) {
@@ -59,14 +61,14 @@ public class ReplyHelper {
         handler.extractOpenId(message),
         arg);
 
-    String text;
+    NextActions.Collected<String> collected;
     try {
-      text = fn.execute(arg, TextFormat.get());
+      collected = NextActions.collect(() -> fn.execute(arg, TextFormat.get()));
     } catch (Exception e) {
       log.error("[{}] {}执行异常", handler.getPlatformType(), command, e);
-      text = TextFormat.get().error("系统繁忙，请稍后再试");
+      collected = new NextActions.Collected<>(TextFormat.get().error("系统繁忙，请稍后再试"), List.of());
     }
-    reply(handler, message, sanitize(text, command, handler));
+    reply(handler, message, sanitize(collected.value(), command, handler), collected.suggestions());
   }
 
   // ===================== 内部辅助方法 =====================
@@ -85,8 +87,17 @@ public class ReplyHelper {
 
   /** 通过平台处理器回复，失败仅记录日志。 */
   public void reply(PlatformHandler handler, QqIncomingMessage message, String text) {
+    reply(handler, message, text, List.of());
+  }
+
+  /** 通过平台处理器回复（附带下一步建议按钮），失败仅记录日志。 */
+  public void reply(
+      PlatformHandler handler,
+      QqIncomingMessage message,
+      String text,
+      List<NextActions.Suggestion> suggestions) {
     try {
-      handler.replyText(message, text);
+      handler.replyText(message, text, suggestions);
     } catch (Exception e) {
       log.warn("{} 回复失败: {}", handler.getPlatformType(), e.getMessage(), e);
     }
