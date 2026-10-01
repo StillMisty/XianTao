@@ -30,6 +30,13 @@ public class HelpCommandHandler {
                         () -> {
                           List<CommandEntry> results = helpService.search(command);
                           if (results.isEmpty()) {
+                            List<String> suggestions = helpService.suggest(command);
+                            if (!suggestions.isEmpty()) {
+                              return "未找到命令或子系统："
+                                  + command
+                                  + "\n你是不是想找："
+                                  + String.join("、", suggestions);
+                            }
                             return "未找到命令或子系统：" + command;
                           }
                           if (results.size() == 1) {

@@ -27,11 +27,37 @@ public class TrainingCompleter {
 
   @Transactional
   public void produceCompletionEvent(
-      Long userId, Player user, MapNode mapNode, long minutesTraining) {
-    Map<String, Object> args = Map.of("mapName", mapNode.getName(), "minutes", minutesTraining);
+      Long userId,
+      Player user,
+      MapNode mapNode,
+      long minutesTraining,
+      long expGained,
+      int itemCount) {
+    StringBuilder narrative = new StringBuilder("你在{{mapName}}历练了 {{minutes}} 分钟");
+    if (expGained > 0 || itemCount > 0) {
+      narrative.append("，");
+      if (expGained > 0) {
+        narrative.append("获得 +{{exp}} 修为");
+      }
+      if (expGained > 0 && itemCount > 0) {
+        narrative.append("、");
+      }
+      if (itemCount > 0) {
+        narrative.append("带回 {{items}} 件物品");
+      }
+      narrative.append("。");
+    } else {
+      narrative.append("，本次未遭遇战斗，无收益。");
+    }
+    Map<String, Object> args =
+        Map.of(
+            "mapName", mapNode.getName(),
+            "minutes", minutesTraining,
+            "exp", expGained,
+            "items", itemCount);
     gameEventService.save(
         GameEvent.create(userId, GameEventCategory.TRAINING_COMPLETE)
-            .withNarrative("你在{{mapName}}历练了 {{minutes}} 分钟，有所收获。", args));
+            .withNarrative(narrative.toString(), args));
   }
 
   @Transactional

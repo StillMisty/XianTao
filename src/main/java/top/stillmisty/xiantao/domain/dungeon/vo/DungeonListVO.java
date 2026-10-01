@@ -11,4 +11,7 @@ public record DungeonListVO(
     boolean hasActiveInstance,
     int rewardCount,
     int dailyLimit,
-    boolean firstClear) {}
+    boolean firstClear,
+    String entrance,
+    boolean accessible,
+    String accessNote) {}

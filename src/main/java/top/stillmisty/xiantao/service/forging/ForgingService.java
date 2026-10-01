@@ -88,6 +88,11 @@ public class ForgingService {
     }
 
     if (targetRecipe == null) {
+      String blueprintInBag = findBlueprintNameInBag(userId, blueprintName);
+      if (blueprintInBag != null) {
+        throw new BusinessException(
+            ErrorCode.BLUEPRINT_SCROLL_NOT_LEARNED, blueprintName, blueprintInBag);
+      }
       throw new BusinessException(ErrorCode.BLUEPRINT_SCROLL_NOT_FOUND, blueprintName);
     }
     if (blueprintTemplate == null) {
@@ -357,6 +362,19 @@ public class ForgingService {
     if (ids.isEmpty()) return Map.of();
     return itemTemplateRepository.findByIds(ids).stream()
         .collect(Collectors.toMap(ItemTemplate::getId, t -> t));
+  }
+
+  /** 背包中是否有与输入同名的锻造图纸（用于提示先「使用」学习）。 */
+  @Nullable
+  private String findBlueprintNameInBag(Long userId, String input) {
+    for (StackableItem item :
+        stackableItemRepository.findByUserIdAndType(userId, ItemType.FORGING_BLUEPRINT)) {
+      ItemTemplate template = itemTemplateRepository.findById(item.getTemplateId()).orElse(null);
+      if (template != null && template.getName().contains(input)) {
+        return template.getName();
+      }
+    }
+    return null;
   }
 
   private Map<Long, top.stillmisty.xiantao.domain.item.entity.EquipmentTemplate>

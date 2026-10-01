@@ -84,6 +84,12 @@ public class DungeonCommandHandler implements CommandGroup {
       } else {
         sb.append(fmt.listItem("奖励：" + d.rewardCount() + "/" + d.dailyLimit()));
       }
+      if (d.entrance() != null && !d.entrance().isBlank()) {
+        sb.append(fmt.listItem("入口：" + d.entrance()));
+      }
+      if (!d.accessible() && d.accessNote() != null && !d.accessNote().isBlank()) {
+        sb.append(fmt.listItem("暂不可入：" + d.accessNote()));
+      }
       sb.append("\n");
     }
 

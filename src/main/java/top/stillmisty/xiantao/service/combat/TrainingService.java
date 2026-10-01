@@ -216,7 +216,8 @@ public class TrainingService {
       trainingCompleter.produceInterruptedEvent(userId, mapNode);
     } else {
       user.clearActivity();
-      trainingCompleter.produceCompletionEvent(userId, user, mapNode, minutesTraining);
+      trainingCompleter.produceCompletionEvent(
+          userId, user, mapNode, minutesTraining, combatSummary.expGained(), trainingItems.size());
       trainingCompleter.applyEnvironmentalEvents(userId, user, mapNode);
     }
     userStateService.saveTrainingEndState(user);

@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.support.AopUtils;
@@ -63,6 +64,14 @@ public class CommandRegistry {
   /** 已注册命令（按匹配顺序）。 */
   public List<RegisteredCommand> commands() {
     return commands;
+  }
+
+  /** 缺参兜底：文本恰好等于某参数化命令的字面前缀时返回该前缀（如「前往」→ 提示补充参数）。 */
+  public Optional<String> partialPrefix(String text) {
+    return commands.stream()
+        .map(command -> command.template().barePrefix())
+        .filter(prefix -> !prefix.isEmpty() && prefix.equals(text))
+        .findFirst();
   }
 
   /**

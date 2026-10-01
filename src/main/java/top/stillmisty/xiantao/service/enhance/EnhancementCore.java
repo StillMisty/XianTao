@@ -14,6 +14,8 @@ import top.stillmisty.xiantao.domain.item.enums.MaterialAttribute;
 import top.stillmisty.xiantao.domain.item.enums.Rarity;
 import top.stillmisty.xiantao.infrastructure.repository.EquipmentRepository;
 import top.stillmisty.xiantao.infrastructure.repository.StackableItemRepository;
+import top.stillmisty.xiantao.service.BusinessException;
+import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.inventory.ItemResolver;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
 
@@ -43,6 +45,17 @@ public class EnhancementCore {
   public Equipment resolveEquipment(Long userId, String input) {
     var result = itemResolver.resolveAnyEquipment(userId, input);
     if (result instanceof ItemResolver.Found<Equipment> f) return f.item();
+    if (result instanceof ItemResolver.Ambiguous<?> ambiguous) {
+      StringBuilder sb = new StringBuilder();
+      for (var candidate : ambiguous.candidates()) {
+        sb.append(candidate.index()).append(". ").append(candidate.name());
+        if (!candidate.metadata().isBlank()) {
+          sb.append(" [").append(candidate.metadata()).append("]");
+        }
+        sb.append("\n");
+      }
+      throw new BusinessException(ErrorCode.EQUIPMENT_MULTIPLE_MATCH, sb.toString().strip());
+    }
     return null;
   }
 

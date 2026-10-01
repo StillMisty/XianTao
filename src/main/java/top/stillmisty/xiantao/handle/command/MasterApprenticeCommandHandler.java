@@ -78,6 +78,7 @@ public class MasterApprenticeCommandHandler implements CommandGroup {
       sb.append(fmt.listItem("状态: " + info.status()));
     } else {
       sb.append("你尚未拜师，逍遥自在。\n");
+      sb.append(fmt.tip("拜师需对方境界高于你至少一个大境界；也可先与道友互结「护道」之缘")).append("\n");
     }
 
     if (info.apprenticeCount() > 0) {

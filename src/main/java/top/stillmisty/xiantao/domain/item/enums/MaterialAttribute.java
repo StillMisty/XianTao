@@ -25,4 +25,14 @@ public enum MaterialAttribute {
     }
     throw new IllegalArgumentException("Unknown MaterialAttribute code: " + code);
   }
+
+  /** 容错显示名：未知编码原样返回。 */
+  public static String displayName(String code) {
+    for (MaterialAttribute attr : values()) {
+      if (attr.code.equalsIgnoreCase(code)) {
+        return attr.name;
+      }
+    }
+    return code;
+  }
 }

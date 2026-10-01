@@ -2,6 +2,7 @@ package top.stillmisty.xiantao.service.worldevent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -83,24 +84,42 @@ public class WorldEventParticipationService {
   private String buildEffectDescription(Map<String, Object> result) {
     if (result.isEmpty()) return "";
     List<String> parts = new ArrayList<>();
-    result.forEach(
-        (key, value) -> {
-          if (value instanceof Number num && num.intValue() > 0) {
-            if (key.contains("exp") || key.contains("EXP")) {
-              parts.add("获得修为 +" + num.intValue());
-            } else if (key.contains("spirit_stone")) {
-              parts.add("获得灵石 +" + num.intValue());
-            } else if (key.contains("heal") || key.contains("hp")) {
-              parts.add("气血 +" + num.intValue());
-            } else if (key.contains("item")) {
-              parts.add("获得物品：" + value);
-            } else {
-              parts.add(key + ": +" + num.intValue());
-            }
-          } else if (value instanceof String s && !s.isBlank()) {
-            parts.add(s);
-          }
-        });
+    String itemName = null;
+    int itemCount = 0;
+    for (Map.Entry<String, Object> entry : result.entrySet()) {
+      // 效果键来自内部实现（如 spiritStones），归一化后再匹配，避免内部字段名泄漏给玩家
+      String key = entry.getKey().toLowerCase(Locale.ROOT).replace("_", "");
+      Object value = entry.getValue();
+      if (value instanceof Number num) {
+        int amount = num.intValue();
+        if (amount <= 0) continue;
+        if (key.contains("exp")) {
+          addOnce(parts, "获得修为 +" + amount);
+        } else if (key.contains("spirit") && key.contains("stone")) {
+          addOnce(parts, "获得灵石 +" + amount);
+        } else if (key.contains("heal") || key.contains("hp")) {
+          addOnce(parts, "气血 +" + amount);
+        } else if (key.contains("count")) {
+          itemCount = amount;
+        }
+        // 其余数值键（damage 等内部字段）不展示
+      } else if (value instanceof String s && !s.isBlank()) {
+        if (key.contains("item") || key.contains("herb")) {
+          if (itemName == null) itemName = s;
+        } else {
+          addOnce(parts, s);
+        }
+      }
+    }
+    if (itemName != null) {
+      parts.add(itemCount > 1 ? "获得物品：" + itemName + " x" + itemCount : "获得物品：" + itemName);
+    }
     return String.join("，", parts);
+  }
+
+  private static void addOnce(List<String> parts, String text) {
+    if (!parts.contains(text)) {
+      parts.add(text);
+    }
   }
 }

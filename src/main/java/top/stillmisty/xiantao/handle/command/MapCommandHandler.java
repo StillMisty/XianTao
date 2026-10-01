@@ -179,6 +179,11 @@ public class MapCommandHandler implements CommandGroup {
       }
       sb.append(fmt.listItem("物品：" + itemsStr));
     }
+    boolean noExp = rewards.getExp() == null || rewards.getExp() <= 0;
+    boolean noItems = rewards.getItems() == null || rewards.getItems().isEmpty();
+    if (noExp && noItems) {
+      sb.append(fmt.listItem("本次未遭遇战斗，暂无收益。"));
+    }
 
     return sb.toString();
   }

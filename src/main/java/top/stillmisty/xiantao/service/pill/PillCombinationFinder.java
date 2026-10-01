@@ -1,6 +1,7 @@
 package top.stillmisty.xiantao.service.pill;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
@@ -59,12 +60,14 @@ public class PillCombinationFinder {
     List<String> missingElements = strategy.collectMissingAttributes(requirements, elementTotals);
     if (!missingElements.isEmpty()) {
       throw new BusinessException(
-          ErrorCode.PILL_ELEMENT_MISSING, String.join(", ", missingElements));
+          ErrorCode.PILL_ELEMENT_MISSING,
+          missingElements.stream().map(ElementType::displayName).collect(Collectors.joining(", ")));
     }
 
     if (strategy.exceedsAttributeMax(requirements, elementTotals)) {
       String overElement = strategy.findOverMaxAttribute(requirements, elementTotals);
-      throw new BusinessException(ErrorCode.PILL_ELEMENT_EXCEED, overElement);
+      throw new BusinessException(
+          ErrorCode.PILL_ELEMENT_EXCEED, ElementType.displayName(overElement));
     }
     return craftPill(userId, elementTotals, usedHerbs, usedHerbsById, requirements, recipeTemplate);
   }

@@ -74,6 +74,11 @@ public class DungeonService {
 
   @Transactional(readOnly = true)
   public ServiceResult<String> statusInDungeon(Long userId) {
+    Player user = userStateService.loadUser(userId);
+    if (user.getActivityTargetId() == null || user.getStatus() != UserStatus.DUNGEON) {
+      // 不在秘境中时返回失败，让「秘境」指令回退到秘境列表（展示入口与门槛）
+      return ServiceResult.businessFailure("你当前不在任何秘境中。");
+    }
     return new ServiceResult.Success<>(getStatusInternal(userId));
   }
 

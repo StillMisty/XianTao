@@ -27,11 +27,13 @@ public final class CommandTemplate {
   private final String source;
   private final Pattern pattern;
   private final List<String> argNames;
+  private final String barePrefix;
 
   private CommandTemplate(String source, Pattern pattern, List<String> argNames) {
     this.source = source;
     this.pattern = pattern;
     this.argNames = argNames;
+    this.barePrefix = computeBarePrefix(source);
   }
 
   /** 编译命令模板。 */
@@ -109,6 +111,27 @@ public final class CommandTemplate {
   /** 捕获组名列表（按声明顺序）。 */
   public List<String> argNames() {
     return argNames;
+  }
+
+  /**
+   * 字面前缀：第一个占位符之前的命令名（如 {@code 前往\s*{{mapName}}} → {@code 前往}）。
+   *
+   * <p>纯字面量命令返回空串（它们能直接匹配，不需要缺参兜底）。
+   */
+  public String barePrefix() {
+    return barePrefix;
+  }
+
+  /** 从模板源码提取字面前缀，去掉结尾的正则修饰（\s*、\s+、负向前瞻）。 */
+  private static String computeBarePrefix(String template) {
+    int placeholder = template.indexOf("{{");
+    if (placeholder < 0) {
+      return "";
+    }
+    String prefix = template.substring(0, placeholder);
+    prefix = prefix.replaceAll("\\\\s[*+]$", "");
+    prefix = prefix.replaceAll("\\(\\?![^)]*\\)$", "");
+    return prefix.strip();
   }
 
   /**

@@ -2,6 +2,7 @@ package top.stillmisty.xiantao.handle.dispatch;
 
 import jakarta.annotation.PreDestroy;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +21,8 @@ import top.stillmisty.xiantao.util.TextFormat;
 /**
  * 命令调度器：QQ 事件 → 虚拟线程 → 模板匹配 → 认证 → 执行。
  *
- * <p>拦截顺序与 ADR-0002 一致：匹配（原 priority = 50）→ 认证（100）→ GM（200）。 未匹配的消息静默忽略；认证失败与执行异常通过 {@link
- * ReplyHelper} 显式回复。
+ * <p>拦截顺序与 ADR-0002 一致：匹配（原 priority = 50）→ 认证（100）→ GM（200）。
+ * 未匹配的消息静默忽略（恰好命中某命令字面前缀时回复缺参提示）；认证失败与执行异常通过 {@link ReplyHelper} 显式回复。
  */
 @Component
 @RequiredArgsConstructor
@@ -61,6 +62,16 @@ public class CommandDispatcher implements QqEventListener {
         }
         String laneKey = handler.getPlatformType().name() + ":" + message.openId();
         lanes.execute(laneKey, () -> runInLane(handler, message, command, text));
+        return;
+      }
+      Optional<String> partial = registry.partialPrefix(text);
+      if (partial.isPresent()) {
+        String name = partial.get();
+        log.debug("[{}] 命令缺参: {}", handler.getPlatformType(), name);
+        replyHelper.reply(
+            handler,
+            message,
+            TextFormat.get().tip("「" + name + "」还需要补充内容，输入「帮助 " + name + "」查看用法"));
         return;
       }
       log.debug("[{}] 消息未匹配任何命令: {}", handler.getPlatformType(), abbreviate(text));

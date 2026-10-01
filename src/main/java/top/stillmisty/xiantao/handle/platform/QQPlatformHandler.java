@@ -21,6 +21,12 @@ import top.stillmisty.xiantao.util.TextFormat;
 @Slf4j
 public class QQPlatformHandler implements PlatformHandler {
 
+  /** 单条 markdown 内容的 UTF-8 字节上限（社区实测平台约 2000 字节，留出安全余量）。 */
+  static final int MAX_SEGMENT_BYTES = 1800;
+
+  /** 单条用户消息最多回复段数（平台被动回复上限 5 次/条，为处理中提示留出余量）。 */
+  static final int MAX_SEGMENTS = 4;
+
   private final NotificationAppender notificationAppender;
   private final ObjectProvider<QqMessageSender> senderProvider;
   private final boolean choiceButtonsEnabled;
@@ -72,8 +78,76 @@ public class QQPlatformHandler implements PlatformHandler {
     if (keyboard == null && suggestionButtonsEnabled) {
       keyboard = suggestionKeyboard(suggestions);
     }
-    sender.replyMarkdown(message, result.text(), keyboard);
+    List<String> segments = splitMessage(result.text());
+    for (int index = 0; index < segments.size(); index++) {
+      boolean lastSegment = index == segments.size() - 1;
+      sender.replyMarkdown(message, segments.get(index), lastSegment ? keyboard : null);
+    }
     notificationAppender.markDelivered(result.eventIds());
+  }
+
+  /**
+   * 按 QQ markdown 内容上限分段：UTF-8 约 1800 字节/段，最多 4 段（被动回复上限 5 次/条），超出截断并标注。
+   *
+   * <p>优先在换行处切分，避免把一行内容劈成两半。
+   */
+  static List<String> splitMessage(String text) {
+    List<String> parts = new ArrayList<>();
+    int start = 0;
+    while (start < text.length()) {
+      int end = byteLimitedEnd(text, start, MAX_SEGMENT_BYTES);
+      if (end >= text.length()) {
+        parts.add(text.substring(start));
+        break;
+      }
+      if (parts.size() == MAX_SEGMENTS - 1) {
+        int keep = byteLimitedEnd(text, start, MAX_SEGMENT_BYTES - 64);
+        parts.add(text.substring(start, keep).stripTrailing() + "\n……（内容过长，后续已省略）");
+        break;
+      }
+      int cut = preferLineBreak(text, start, end);
+      parts.add(text.substring(start, cut).strip());
+      start = cut;
+    }
+    return parts.isEmpty() ? List.of(text) : parts;
+  }
+
+  /** [start, end) 中不超过 maxBytes 的最大结束位置（不切开代理对）。 */
+  private static int byteLimitedEnd(String text, int start, int maxBytes) {
+    int bytes = 0;
+    int index = start;
+    while (index < text.length()) {
+      int codePoint = text.codePointAt(index);
+      int byteCount = utf8Length(codePoint);
+      if (bytes + byteCount > maxBytes) {
+        break;
+      }
+      bytes += byteCount;
+      index += Character.charCount(codePoint);
+    }
+    return index;
+  }
+
+  private static int utf8Length(int codePoint) {
+    if (codePoint < 0x80) {
+      return 1;
+    }
+    if (codePoint < 0x800) {
+      return 2;
+    }
+    if (codePoint < 0x10000) {
+      return 3;
+    }
+    return 4;
+  }
+
+  /** 尽量在靠后的换行处切分（至少保留一半内容，避免切得太碎）。 */
+  private static int preferLineBreak(String text, int start, int end) {
+    int newline = text.lastIndexOf('\n', end - 1);
+    if (newline > start + (end - start) / 2) {
+      return newline + 1;
+    }
+    return end;
   }
 
   /** 由下一步建议构建键盘：点击按钮即发送对应指令文本。 */

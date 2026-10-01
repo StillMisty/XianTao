@@ -67,6 +67,7 @@ public enum ErrorCode {
 
   // ===== Pill / Recipe =====
   RECIPE_SCROLL_NOT_FOUND("未找到名为「%s」的丹方卷轴"),
+  RECIPE_SCROLL_NOT_LEARNED("未找到丹方：%s（背包中有同名卷轴，请先「使用 %s」学习）"),
   RECIPE_SCROLL_DATA_ERROR("丹方卷轴数据异常"),
   RECIPE_ALREADY_LEARNED("已学会该丹方"),
   RECIPE_SCROLL_WRONG_TYPE("该物品不是丹方卷轴"),
@@ -82,6 +83,7 @@ public enum ErrorCode {
 
   // ===== Forging =====
   BLUEPRINT_SCROLL_NOT_FOUND("未找到名为「%s」的锻造图纸"),
+  BLUEPRINT_SCROLL_NOT_LEARNED("未找到名为「%s」的锻造图纸（背包中有同名图纸，请先「使用 %s」学习）"),
   BLUEPRINT_ALREADY_LEARNED("已学会该锻造图纸"),
   BLUEPRINT_SCROLL_WRONG_TYPE("该物品不是锻造图纸"),
   BLUEPRINT_DATA_ERROR("锻造图纸数据异常"),
@@ -128,6 +130,7 @@ public enum ErrorCode {
   SHOP_SPECIAL_ORDER_ALREADY_COLLECTED("该调货订单已取货"),
   SHOP_SPIRIT_STONES_INSUFFICIENT("灵石不足（需要 %d，当前 %d）"),
   EQUIPMENT_NOT_FOUND("未找到该装备"),
+  EQUIPMENT_MULTIPLE_MATCH("找到多件装备，请使用更精确的名称或编号：\n%s"),
   EQUIPMENT_NOT_OWNED("该装备不属于您"),
   EQUIPMENT_ALREADY_EQUIPPED("请先卸下装备再出售"),
   EQUIPMENT_NOT_TRADABLE("此装备已绑定，不可出售"),

@@ -1,6 +1,7 @@
 package top.stillmisty.xiantao.service.forging;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
@@ -52,12 +53,16 @@ public class ForgingCombinationFinder {
 
     if (!cr.missingAttributes().isEmpty()) {
       throw new BusinessException(
-          ErrorCode.FORGING_ATTRIBUTE_MISSING, String.join(", ", cr.missingAttributes()));
+          ErrorCode.FORGING_ATTRIBUTE_MISSING,
+          cr.missingAttributes().stream()
+              .map(MaterialAttribute::displayName)
+              .collect(Collectors.joining(", ")));
     }
 
     if (strategy.exceedsAttributeMax(requirements, attributeTotals)) {
       String overAttribute = strategy.findOverMaxAttribute(requirements, attributeTotals);
-      throw new BusinessException(ErrorCode.FORGING_ATTRIBUTE_EXCEED, overAttribute);
+      throw new BusinessException(
+          ErrorCode.FORGING_ATTRIBUTE_EXCEED, MaterialAttribute.displayName(overAttribute));
     }
 
     return createEquipmentFromForge(

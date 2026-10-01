@@ -13,9 +13,12 @@ import top.stillmisty.xiantao.domain.dungeon.entity.DungeonProgress;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonTemplate;
 import top.stillmisty.xiantao.domain.dungeon.enums.DungeonStatus;
 import top.stillmisty.xiantao.domain.dungeon.vo.DungeonListVO;
+import top.stillmisty.xiantao.domain.map.entity.MapNode;
 import top.stillmisty.xiantao.infrastructure.repository.DungeonInstanceRepository;
 import top.stillmisty.xiantao.infrastructure.repository.DungeonProgressRepository;
 import top.stillmisty.xiantao.infrastructure.repository.DungeonTemplateRepository;
+import top.stillmisty.xiantao.infrastructure.repository.MapNodeRepository;
+import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
@@ -28,6 +31,7 @@ public class DungeonQueryService {
   private final DungeonProgressRepository progressRepository;
   private final UserStateService userStateService;
   private final DungeonAccessChecker accessChecker;
+  private final MapNodeRepository mapNodeRepository;
 
   @Transactional(readOnly = true)
   public ServiceResult<List<DungeonListVO>> listDungeons(Long userId) {
@@ -53,11 +57,18 @@ public class DungeonQueryService {
 
     List<DungeonListVO> result = new ArrayList<>();
     for (DungeonTemplate tmpl : templates) {
-      if (!accessChecker.canAccess(user, tmpl)) {
-        continue;
-      }
       DungeonProgress progress = progressMap.get(tmpl.getId());
       DungeonInstance activeInstance = activeInstances.get(tmpl.getId());
+
+      boolean accessible = accessChecker.canAccess(user, tmpl);
+      String accessNote = "";
+      if (!accessible) {
+        try {
+          accessChecker.checkAccess(user, tmpl);
+        } catch (BusinessException e) {
+          accessNote = e.getMessage() != null ? e.getMessage() : "暂不可进入";
+        }
+      }
 
       result.add(
           new DungeonListVO(
@@ -74,8 +85,29 @@ public class DungeonQueryService {
                   ? progress.getDailyLimit()
                   : DungeonProgress.calculateDailyLimit(
                       user.getLevel() != null ? user.getLevel() : 1),
-              progress != null && Boolean.TRUE.equals(progress.getFirstClear())));
+              progress != null && Boolean.TRUE.equals(progress.getFirstClear()),
+              resolveEntrance(tmpl),
+              accessible,
+              accessNote));
     }
     return result;
+  }
+
+  /** 入口地图名（来自 access_rules 的 MAP_NODE 条件），用于玩家发现秘境位置。 */
+  private String resolveEntrance(DungeonTemplate tmpl) {
+    List<DungeonTemplate.AccessCondition> rules = tmpl.getAccessRules();
+    if (rules == null || rules.isEmpty()) {
+      return "";
+    }
+    List<String> names = new ArrayList<>();
+    for (DungeonTemplate.AccessCondition rule : rules) {
+      if (!"MAP_NODE".equals(rule.type()) || rule.nodeIds() == null) {
+        continue;
+      }
+      for (Long nodeId : rule.nodeIds()) {
+        mapNodeRepository.findById(nodeId).map(MapNode::getName).ifPresent(names::add);
+      }
+    }
+    return String.join("、", names);
   }
 }

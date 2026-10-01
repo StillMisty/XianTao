@@ -3,6 +3,7 @@ package top.stillmisty.xiantao.service.pill;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
@@ -65,6 +66,10 @@ public class PillRefiningService {
     }
 
     if (targetRecipe == null) {
+      String scrollName = findScrollNameInBag(userId, recipeName);
+      if (scrollName != null) {
+        throw new BusinessException(ErrorCode.RECIPE_SCROLL_NOT_LEARNED, recipeName, scrollName);
+      }
       throw new BusinessException(ErrorCode.RECIPE_NOT_FOUND, recipeName);
     }
     if (recipeTemplate == null) {
@@ -177,6 +182,19 @@ public class PillRefiningService {
   }
 
   private record HerbInput(StackableItem herb, int quantity) {}
+
+  /** 背包中是否有与输入同名的丹方卷轴（用于提示先「使用」学习）。 */
+  @Nullable
+  private String findScrollNameInBag(Long userId, String input) {
+    for (StackableItem item :
+        stackableItemRepository.findByUserIdAndType(userId, ItemType.RECIPE_SCROLL)) {
+      ItemTemplate template = itemTemplateRepository.findById(item.getTemplateId()).orElse(null);
+      if (template != null && template.getName().contains(input)) {
+        return template.getName();
+      }
+    }
+    return null;
+  }
 
   /** 批量加载丹方模板，避免循环内逐条查询 */
   private Map<Long, ItemTemplate> loadRecipeTemplates(List<PlayerPillRecipe> recipes) {

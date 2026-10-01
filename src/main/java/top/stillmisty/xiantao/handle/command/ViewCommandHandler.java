@@ -22,8 +22,10 @@ import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
 import top.stillmisty.xiantao.infrastructure.repository.BeastTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.EquipmentTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
+import top.stillmisty.xiantao.infrastructure.repository.MapNodeRepository;
 import top.stillmisty.xiantao.infrastructure.repository.MonsterTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SkillRepository;
+import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
 import top.stillmisty.xiantao.infrastructure.util.TypeUtils;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
@@ -45,6 +47,8 @@ public class ViewCommandHandler implements CommandGroup {
   private final SkillRepository skillRepository;
   private final EquipmentTemplateRepository equipmentTemplateRepository;
   private final BeastTemplateRepository beastTemplateRepository;
+  private final UserRepository userRepository;
+  private final MapNodeRepository mapNodeRepository;
 
   /** 统一「查看」命令 — 依次尝试装备、怪物、物品 */
   public String handleView(String target, TextFormat fmt) {
@@ -66,7 +70,36 @@ public class ViewCommandHandler implements CommandGroup {
             vo -> formatStackableItemDetail(vo, fmt));
     if (result != null) return result;
 
+    String profile = resolvePlayerProfile(target, fmt);
+    if (profile != null) return profile;
+
     return "未找到 [" + target + "]，可输入装备名/编号、怪物名或物品名";
+  }
+
+  /** 玩家档案：道号 / 境界 / 所在地 / 状态（含查看自己）。 */
+  @Nullable
+  private String resolvePlayerProfile(String target, TextFormat fmt) {
+    return userRepository
+        .findByNickname(target)
+        .map(
+            player -> {
+              StringBuilder sb = new StringBuilder(fmt.heading(player.getNickname()));
+              sb.append(
+                  fmt.listItem(
+                      "境界："
+                          + CultivationRealm.realmDisplay(
+                              player.getLevel() != null ? player.getLevel() : 1)));
+              if (player.getLocationId() != null) {
+                mapNodeRepository
+                    .findById(player.getLocationId())
+                    .ifPresent(node -> sb.append(fmt.listItem("所在地：" + node.getName())));
+              }
+              if (player.getStatus() != null) {
+                sb.append(fmt.listItem("状态：" + player.getStatus().getName()));
+              }
+              return sb.toString();
+            })
+        .orElse(null);
   }
 
   @Nullable

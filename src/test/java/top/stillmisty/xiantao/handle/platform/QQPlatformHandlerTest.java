@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -97,10 +98,27 @@ class QQPlatformHandlerTest {
     verify(sender).replyMarkdown(eq(message), eq("正文"), isNull());
   }
 
+  @Test
+  void longReplyIsSplitIntoSegments() {
+    NotificationAppender appender = appenderReturning(null);
+    QqMessageSender sender = mock(QqMessageSender.class);
+    QqIncomingMessage message = message();
+    String text = "测".repeat(1000);
+
+    handler(appender, sender, true, true).replyText(message, text);
+
+    ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+    verify(sender, times(2)).replyMarkdown(eq(message), captor.capture(), isNull());
+    assertEquals(text, String.join("", captor.getAllValues()));
+  }
+
   private static NotificationAppender appenderReturning(@Nullable QqKeyboard keyboard) {
     NotificationAppender appender = mock(NotificationAppender.class);
-    when(appender.prepareAppend(eq(PlatformType.QQ), eq("OPEN-1"), eq("正文"), any()))
-        .thenReturn(new NotificationAppender.AppendResult("正文", List.of(), keyboard));
+    when(appender.prepareAppend(eq(PlatformType.QQ), eq("OPEN-1"), any(), any()))
+        .thenAnswer(
+            invocation ->
+                new NotificationAppender.AppendResult(
+                    invocation.getArgument(2), List.of(), keyboard));
     return appender;
   }
 

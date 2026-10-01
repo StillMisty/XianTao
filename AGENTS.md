@@ -19,6 +19,8 @@ python3 tools/e2e/commands.py        # 全部 71 条指令可用性巡检
 - **NullAway = error**：对 `top.stillmisty.xiantao` 与 `top.stillmisty.qqgateway` 包启用 error 级空检查（JSpecify）。可空性不严谨会直接编译失败；可空参数/返回值必须标 `@Nullable`。
 - **运行前提**：默认激活 `local` profile，需要本地 PostgreSQL（`DB_URL`/`DB_USERNAME`/`DB_PASSWORD`，默认 localhost:5432/xiantao）和 `DEEPSEEK_API_KEY`。QQ 机器人凭证（`QQ_APP_ID`/`QQ_CLIENT_SECRET`）可选：缺失时应用照常启动，机器人不连接。
 - **测试现状**：`qq-gateway` 模块（协议/签名/重连）与 `handle/dispatch`（模板语义/注册/调度）有单测，其余仍以 `build` 编译 + Spotless 为准。Test/JavaExec 已配置 `--enable-native-access=ALL-UNNAMED`。
+- **不做主动推送**：QQ 平台主动消息能力已下线，产品决定**永不使用**——完成提醒/推送类需求不要设计主动消息路径（`qq-gateway` 的主动发送方法仅供协议完整性，游戏侧不调用）。
+- **QQ 消息长度**：markdown 单条内容按 UTF-8 约 1800 字节分段（最多 4 段，超出截断标注），见 `QQPlatformHandler.splitMessage`。
 - **Flyway 迁移**：`src/main/resources/db/migration/V1.0.x__描述.sql`
 
 ## Architecture

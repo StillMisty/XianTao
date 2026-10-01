@@ -65,9 +65,11 @@ public class StatusCommandHandler implements CommandGroup {
       sb.append(fmt.listItem("状态：" + status.statusName()));
     }
 
-    sb.append(
-        fmt.listItem(
-            String.format("境界：%s (%.1f%%)", status.realmDisplay(), status.expPercentage())));
+    String realmLine =
+        status.expPercentage() >= 100.0
+            ? String.format("境界：%s（修为圆满，可突破）", status.realmDisplay())
+            : String.format("境界：%s (%.1f%%)", status.realmDisplay(), status.expPercentage());
+    sb.append(fmt.listItem(realmLine));
     sb.append(
         fmt.listItem(
             String.format(

@@ -21,10 +21,20 @@ public enum ElementType {
 
   public static ElementType fromCode(String code) {
     for (ElementType type : values()) {
-      if (type.code.equals(code)) {
+      if (type.code.equalsIgnoreCase(code)) {
         return type;
       }
     }
     throw new IllegalArgumentException("Unknown ElementType code: " + code);
+  }
+
+  /** 容错显示名：未知编码原样返回（丹方数据里的键为小写，如 metal）。 */
+  public static String displayName(String code) {
+    for (ElementType type : values()) {
+      if (type.code.equalsIgnoreCase(code)) {
+        return type.name;
+      }
+    }
+    return code;
   }
 }
