@@ -1,6 +1,6 @@
 # AGENTS.md — XianTao (仙道)
 
-QQ 群文字修仙 MUD（SimBot 驱动的常驻机器人，非 Web 服务）。Java 25 · Spring Boot 4 · Spring AI 2 · MyBatis-Flex · PostgreSQL 18 · Flyway · SimBot 5。
+QQ 群文字修仙 MUD（SimBot 驱动的常驻机器人，非 Web 服务）。Java 27 · Spring Boot 4 · Spring AI 2 · MyBatis-Flex · PostgreSQL 18 · Flyway · SimBot 5。
 
 ## Commands
 
