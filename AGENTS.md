@@ -73,16 +73,16 @@ src/main/java/top/stillmisty/xiantao/
 
 ### OpenSpec
 
-规格与变更管理（`openspec/`）：`specs/` 为当前行为契约（如 `qq-messaging`、`game-features`），变更走 `changes/` → 校验 → 归档。CLI：`openspec list --specs`、`openspec validate <change>`、`openspec archive <change>`。
+规格与变更管理（`openspec/`）：`specs/` 为当前行为契约——平台侧 `qq-messaging`，玩法侧每个系统一个能力（`user`/`combat`/`alchemy`/`fudi`/`sect`…，契约 `spec.md` + 详细设计 `design.md`）；变更走 `changes/` → 校验 → 归档。CLI：`openspec list --specs`、`openspec validate <change>`、`openspec archive <change>`。
 
 ### Issue tracker
 
-GitHub Issues (`StillMisty/XianTao`). See `docs/agents/issue-tracker.md`.
+GitHub Issues (`StillMisty/XianTao`). See `openspec/agents/issue-tracker.md`.
 
 ### Triage labels
 
-Uses the default canonical labels. See `docs/agents/triage-labels.md`.
+Uses the default canonical labels. See `openspec/agents/triage-labels.md`.
 
 ### Domain docs
 
-Single-context layout (`CONTEXT.md` + `docs/adr/` at repo root). See `docs/agents/domain.md`.
+Single-context layout (`CONTEXT.md` + `openspec/adr/` at repo root). See `openspec/agents/domain.md`.
