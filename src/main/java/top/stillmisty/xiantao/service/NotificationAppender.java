@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import top.stillmisty.qqgateway.QqButton;
+import top.stillmisty.qqgateway.QqKeyboard;
 import top.stillmisty.xiantao.domain.event.EffectData;
 import top.stillmisty.xiantao.domain.notification.entity.GameEvent;
 import top.stillmisty.xiantao.domain.notification.enums.GameEventCategory;
@@ -35,7 +37,7 @@ public class NotificationAppender {
     if (userId == null) {
       ServiceResult<Long> auth = authenticationService.authenticate(platform, openId);
       if (!(auth instanceof ServiceResult.Success<Long>(var authenticated))) {
-        return new AppendResult(response, List.of());
+        return new AppendResult(response, List.of(), null);
       }
       userId = authenticated;
     }
@@ -47,7 +49,7 @@ public class NotificationAppender {
   public AppendResult prepareAppend(Long userId, String response, TextFormat fmt) {
     List<GameEvent> events = gameEventService.findUndelivered(userId);
     if (events.isEmpty()) {
-      return new AppendResult(response, List.of());
+      return new AppendResult(response, List.of(), null);
     }
 
     String notificationText = formatEvents(events, fmt);
@@ -62,7 +64,7 @@ public class NotificationAppender {
     }
 
     if (notificationText.isEmpty()) {
-      return new AppendResult(response, List.of());
+      return new AppendResult(response, List.of(), null);
     }
 
     String combined = response;
@@ -71,7 +73,56 @@ public class NotificationAppender {
     }
     combined += notificationText;
 
-    return new AppendResult(combined, deliverableIds);
+    return new AppendResult(combined, deliverableIds, buildChoiceKeyboard(events));
+  }
+
+  /**
+   * 从首个待选择事件构建按钮键盘：点击即发送「选 X」，与正文里的文本选项互为兜底。
+   *
+   * <p>平台限制最多 5×5 个按钮，超出的选项只保留文本形式。
+   */
+  private static @Nullable QqKeyboard buildChoiceKeyboard(List<GameEvent> events) {
+    for (GameEvent event : events) {
+      if (!event.isChoiceEvent()) {
+        continue;
+      }
+      if (!(event.getEffectData() instanceof EffectData.ChoiceOptions choiceOptions)) {
+        return null;
+      }
+      return choiceKeyboard(choiceOptions.options());
+    }
+    return null;
+  }
+
+  private static @Nullable QqKeyboard choiceKeyboard(List<EffectData.Option> options) {
+    List<QqButton> buttons = new ArrayList<>();
+    int index = 0;
+    for (EffectData.Option option : options) {
+      String key = option.key();
+      if (key == null || key.isBlank()) {
+        continue;
+      }
+      String text = option.text() == null ? "" : option.text().strip();
+      String label = text.isEmpty() ? key : truncateLabel(text);
+      buttons.add(QqButton.command("choice-" + index, label, "选 " + key));
+      index++;
+      if (buttons.size() >= QqKeyboard.MAX_BUTTONS) {
+        log.warn("选择事件选项超过按钮上限（{}），多余选项仅保留文本形式", QqKeyboard.MAX_BUTTONS);
+        break;
+      }
+    }
+    if (buttons.isEmpty()) {
+      return null;
+    }
+    return QqKeyboard.commandGrid(buttons);
+  }
+
+  private static String truncateLabel(String text) {
+    int maxCodePoints = 20;
+    if (text.codePointCount(0, text.length()) <= maxCodePoints) {
+      return text;
+    }
+    return text.substring(0, text.offsetByCodePoints(0, maxCodePoints)) + "…";
   }
 
   /** 发送成功后标记事件为已投递 */
@@ -200,5 +251,12 @@ public class NotificationAppender {
     return result;
   }
 
-  public record AppendResult(String text, List<Long> eventIds) {}
+  /**
+   * 追加结果。
+   *
+   * @param text 拼接后的回复文本
+   * @param eventIds 发送成功后需要标记为已投递的事件 ID
+   * @param keyboard 可选按钮键盘（选择事件）
+   */
+  public record AppendResult(String text, List<Long> eventIds, @Nullable QqKeyboard keyboard) {}
 }

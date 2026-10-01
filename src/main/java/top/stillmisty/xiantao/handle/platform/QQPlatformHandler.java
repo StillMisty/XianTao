@@ -1,23 +1,32 @@
 package top.stillmisty.xiantao.handle.platform;
 
-import love.forte.simbot.component.qguild.event.QGC2CMessageCreateEvent;
-import love.forte.simbot.component.qguild.event.QGGroupAtMessageCreateEvent;
-import love.forte.simbot.component.qguild.event.QGGroupMessageCreateEvent;
-import love.forte.simbot.component.qguild.message.QGMarkdown;
-import love.forte.simbot.event.MessageEvent;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Component;
+import top.stillmisty.qqgateway.QqIncomingMessage;
+import top.stillmisty.qqgateway.QqKeyboard;
+import top.stillmisty.qqgateway.QqMessageSender;
+import top.stillmisty.xiantao.config.QqProperties;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.service.NotificationAppender;
 import top.stillmisty.xiantao.util.TextFormat;
 
 /** QQ 平台处理器 */
 @Component
+@Slf4j
 public class QQPlatformHandler implements PlatformHandler {
 
   private final NotificationAppender notificationAppender;
+  private final ObjectProvider<QqMessageSender> senderProvider;
+  private final boolean choiceButtonsEnabled;
 
-  public QQPlatformHandler(NotificationAppender notificationAppender) {
+  public QQPlatformHandler(
+      NotificationAppender notificationAppender,
+      ObjectProvider<QqMessageSender> senderProvider,
+      QqProperties properties) {
     this.notificationAppender = notificationAppender;
+    this.senderProvider = senderProvider;
+    this.choiceButtonsEnabled = Boolean.TRUE.equals(properties.choiceButtons());
   }
 
   @Override
@@ -26,40 +35,31 @@ public class QQPlatformHandler implements PlatformHandler {
   }
 
   @Override
-  public boolean supports(MessageEvent event) {
-    return event instanceof QGGroupAtMessageCreateEvent
-        || event instanceof QGGroupMessageCreateEvent
-        || event instanceof QGC2CMessageCreateEvent;
+  public boolean supports(QqIncomingMessage message) {
+    return true;
   }
 
   @Override
-  public String extractOpenId(MessageEvent event) {
-    if (event instanceof QGGroupAtMessageCreateEvent qqEvent) {
-      return qqEvent.getAuthorId().toString();
-    }
-    if (event instanceof QGGroupMessageCreateEvent qqEvent) {
-      return qqEvent.getAuthorId().toString();
-    }
-    if (event instanceof QGC2CMessageCreateEvent qqEvent) {
-      return qqEvent.getAuthorId().toString();
-    }
-    throw new IllegalArgumentException("不支持的事件类型: " + event.getClass().getName());
+  public String extractOpenId(QqIncomingMessage message) {
+    return message.openId();
   }
 
   @Override
-  public void replyText(MessageEvent event, String text) {
+  public void replyText(QqIncomingMessage message, String text) {
+    QqMessageSender sender = senderProvider.getIfAvailable();
+    if (sender == null) {
+      log.warn("QQ 机器人未配置（xiantao.qq.* 缺失），回复被丢弃: {}", abbreviate(text));
+      return;
+    }
     var result =
         notificationAppender.prepareAppend(
-            PlatformType.QQ, extractOpenId(event), text, TextFormat.get());
-    if (event instanceof QGGroupAtMessageCreateEvent qqEvent) {
-      qqEvent.replyBlocking(QGMarkdown.create(result.text()));
-    } else if (event instanceof QGGroupMessageCreateEvent qqEvent) {
-      qqEvent.replyBlocking(QGMarkdown.create(result.text()));
-    } else if (event instanceof QGC2CMessageCreateEvent qqEvent) {
-      qqEvent.replyBlocking(QGMarkdown.create(result.text()));
-    } else {
-      throw new IllegalArgumentException("不支持的事件类型: " + event.getClass().getName());
-    }
+            PlatformType.QQ, message.openId(), text, TextFormat.get());
+    QqKeyboard keyboard = choiceButtonsEnabled ? result.keyboard() : null;
+    sender.replyMarkdown(message, result.text(), keyboard);
     notificationAppender.markDelivered(result.eventIds());
+  }
+
+  private static String abbreviate(String text) {
+    return text.length() <= 80 ? text : text.substring(0, 80) + "...";
   }
 }

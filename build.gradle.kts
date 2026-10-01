@@ -56,6 +56,7 @@ repositories {
 
 dependencies {
     implementation(platform(SpringBootPlugin.BOM_COORDINATES))
+    implementation(project(":qq-gateway"))
     implementation(libs.caffeine)
     implementation(libs.aspectj.weaver)
     implementation(libs.spring.boot.starter.cache)
@@ -70,9 +71,6 @@ dependencies {
     developmentOnly(libs.spring.boot.devtools)
     implementation(libs.spring.ai.starter.model.deepseek)
     implementation(libs.spring.ai.starter.model.openai)
-    implementation(libs.simbot.core.spring.boot.starter)
-    implementation(libs.simbot.component.qq.guild.core)
-    implementation(libs.ktor.client.java)
     // NullAway
     implementation(libs.jspecify)
     testImplementation(libs.jspecify)

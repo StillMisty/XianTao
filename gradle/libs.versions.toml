@@ -2,11 +2,9 @@
 errorproneCore = "2.50.0"
 errorpronePlugin = "5.1.1"
 jspecify = "1.0.1"
-ktor = "3.6.0"
 lombok = "1.18.48"
 mybatisFlex = "1.11.8"
 nullaway = "0.14.2"
-simbot = "5.0.0-Preview5"
 spotless = "8.10.3"
 springAi = "2.0.1"
 springBoot = "4.1.1"
@@ -21,8 +19,6 @@ flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql
 # NullAway / JSpecify
 jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
-# Ktor 客户端库
-ktor-client-java = { module = "io.ktor:ktor-client-java", version.ref = "ktor" }
 # Lombok 库
 lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
 mybatis-flex-processor = { module = "com.mybatis-flex:mybatis-flex-processor", version.ref = "mybatisFlex" }
@@ -30,9 +26,6 @@ mybatis-flex-processor = { module = "com.mybatis-flex:mybatis-flex-processor", v
 mybatis-flex-spring-boot4-starter = { module = "com.mybatis-flex:mybatis-flex-spring-boot4-starter", version.ref = "mybatisFlex" }
 nullaway = { module = "com.uber.nullaway:nullaway", version.ref = "nullaway" }
 postgresql = { module = "org.postgresql:postgresql" }
-simbot-component-qq-guild-core = { module = "love.forte.simbot.component:simbot-component-qq-guild-core", version.ref = "simbot" }
-# SimBot 库
-simbot-core-spring-boot-starter = { module = "love.forte.simbot:simbot-core-spring-boot-starter", version.ref = "simbot" }
 # Spring AI 库
 spring-ai-starter-model-deepseek = { module = "org.springframework.ai:spring-ai-starter-model-deepseek", version.ref = "springAi" }
 spring-ai-starter-model-openai = { module = "org.springframework.ai:spring-ai-starter-model-openai", version.ref = "springAi" }

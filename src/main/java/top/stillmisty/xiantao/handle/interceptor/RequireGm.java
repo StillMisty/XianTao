@@ -1,13 +1,13 @@
 package top.stillmisty.xiantao.handle.interceptor;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import love.forte.simbot.quantcat.common.annotations.Interceptor;
 
-/** 要求GM权限的注解 标记在监听方法上，表示该方法需要GM权限才能执行 */
-@Target(ElementType.METHOD)
+/** GM 权限标记：在 {@link RequireAuth} 基础上要求用户具备 GM 权限。 */
+@Documented
+@Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Interceptor(value = GmInterceptorFactory.class, priority = 200)
 public @interface RequireGm {}

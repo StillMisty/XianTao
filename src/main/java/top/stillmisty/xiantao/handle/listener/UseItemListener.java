@@ -1,43 +1,33 @@
 package top.stillmisty.xiantao.handle.listener;
 
 import lombok.RequiredArgsConstructor;
-import love.forte.simbot.event.MessageEvent;
-import love.forte.simbot.quantcat.common.annotations.ContentTrim;
-import love.forte.simbot.quantcat.common.annotations.Filter;
-import love.forte.simbot.quantcat.common.annotations.FilterValue;
-import love.forte.simbot.quantcat.common.annotations.Listener;
-import love.forte.simbot.quantcat.common.filter.FilterMode;
 import org.springframework.stereotype.Component;
+import top.stillmisty.qqgateway.QqIncomingMessage;
 import top.stillmisty.xiantao.handle.command.UseItemCommandHandler;
+import top.stillmisty.xiantao.handle.dispatch.Arg;
+import top.stillmisty.xiantao.handle.dispatch.Command;
+import top.stillmisty.xiantao.handle.dispatch.CommandGroup;
 import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
 
 @Component
 @RequiredArgsConstructor
+@CommandGroup
 public class UseItemListener {
 
   private final UseItemCommandHandler useItemCommandHandler;
   private final ReplyHelper replyHelper;
 
   @RequireAuth
-  @Listener
-  @ContentTrim
-  @Filter(
-      mode = FilterMode.INTERCEPTOR,
-      priority = 50,
-      value = "使用\\s*{{itemName,\\S+}}\\s+{{args,.+}}")
+  @Command("使用\\s*{{itemName,\\S+}}\\s+{{args,.+}}")
   public void useItemWithArgs(
-      MessageEvent event,
-      @FilterValue("itemName") String itemName,
-      @FilterValue("args") String args) {
+      QqIncomingMessage event, @Arg("itemName") String itemName, @Arg("args") String args) {
     replyHelper.dispatch(
         event, "使用物品", fmt -> useItemCommandHandler.handleUseItem(itemName, args, fmt));
   }
 
   @RequireAuth
-  @Listener
-  @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "使用\\s*{{itemName,\\S+}}")
-  public void useItem(MessageEvent event, @FilterValue("itemName") String itemName) {
+  @Command("使用\\s*{{itemName,\\S+}}")
+  public void useItem(QqIncomingMessage event, @Arg("itemName") String itemName) {
     replyHelper.dispatch(
         event, "使用物品", fmt -> useItemCommandHandler.handleUseItem(itemName, "", fmt));
   }

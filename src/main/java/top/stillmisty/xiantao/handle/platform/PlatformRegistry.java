@@ -2,10 +2,11 @@ package top.stillmisty.xiantao.handle.platform;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import love.forte.simbot.event.MessageEvent;
 import org.springframework.stereotype.Component;
+import top.stillmisty.qqgateway.QqIncomingMessage;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 
 /** 平台注册表 管理所有平台处理器，提供统一的平台分发接口 */
@@ -23,15 +24,15 @@ public class PlatformRegistry {
   /**
    * 获取支持指定事件的平台处理器
    *
-   * @param event 消息事件
+   * @param message 消息事件
    * @return 平台处理器
    * @throws IllegalArgumentException 如果没有支持的处理器
    */
-  public PlatformHandler getHandler(MessageEvent event) {
+  public PlatformHandler getHandler(QqIncomingMessage message) {
     return handlers.values().stream()
-        .filter(handler -> handler.supports(event))
+        .filter(handler -> handler.supports(message))
         .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException("不支持的事件类型: " + event.getClass().getName()));
+        .orElseThrow(() -> new IllegalArgumentException("不支持的事件类型: " + message.scene()));
   }
 
   /**
@@ -52,11 +53,11 @@ public class PlatformRegistry {
   /**
    * 检查是否支持指定的事件类型
    *
-   * @param event 消息事件
+   * @param message 消息事件
    * @return 是否支持
    */
-  public boolean supports(MessageEvent event) {
-    return handlers.values().stream().anyMatch(handler -> handler.supports(event));
+  public boolean supports(QqIncomingMessage message) {
+    return handlers.values().stream().anyMatch(handler -> handler.supports(message));
   }
 
   /**
@@ -64,7 +65,7 @@ public class PlatformRegistry {
    *
    * @return 平台类型集合
    */
-  public java.util.Set<PlatformType> getSupportedPlatforms() {
+  public Set<PlatformType> getSupportedPlatforms() {
     return handlers.keySet();
   }
 }

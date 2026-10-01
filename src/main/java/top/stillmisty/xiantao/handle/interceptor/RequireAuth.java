@@ -1,13 +1,13 @@
 package top.stillmisty.xiantao.handle.interceptor;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import love.forte.simbot.quantcat.common.annotations.Interceptor;
 
-/** 要求认证的注解 标记在监听方法上，表示该方法需要认证才能执行 */
-@Target(ElementType.METHOD)
+/** 认证标记：命令执行前要求完成平台账号绑定（未绑定则回复引导文案）。 */
+@Documented
+@Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Interceptor(value = AuthInterceptorFactory.class, priority = 100)
 public @interface RequireAuth {}

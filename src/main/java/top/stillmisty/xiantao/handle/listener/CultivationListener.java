@@ -1,54 +1,45 @@
 package top.stillmisty.xiantao.handle.listener;
 
 import lombok.RequiredArgsConstructor;
-import love.forte.simbot.event.MessageEvent;
-import love.forte.simbot.quantcat.common.annotations.ContentTrim;
-import love.forte.simbot.quantcat.common.annotations.Filter;
-import love.forte.simbot.quantcat.common.annotations.FilterValue;
-import love.forte.simbot.quantcat.common.annotations.Listener;
-import love.forte.simbot.quantcat.common.filter.FilterMode;
 import org.springframework.stereotype.Component;
+import top.stillmisty.qqgateway.QqIncomingMessage;
 import top.stillmisty.xiantao.handle.command.CultivationCommandHandler;
+import top.stillmisty.xiantao.handle.dispatch.Arg;
+import top.stillmisty.xiantao.handle.dispatch.Command;
+import top.stillmisty.xiantao.handle.dispatch.CommandGroup;
 import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
 
 @Component
 @RequiredArgsConstructor
+@CommandGroup
 public class CultivationListener {
 
   private final CultivationCommandHandler cultivationCommandHandler;
   private final ReplyHelper replyHelper;
 
   @RequireAuth
-  @Listener
-  @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "突破")
-  public void breakthrough(MessageEvent event) {
+  @Command("突破")
+  public void breakthrough(QqIncomingMessage event) {
     replyHelper.dispatch(event, "突破", cultivationCommandHandler::handleBreakthrough);
   }
 
   @RequireAuth
-  @Listener
-  @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "护道(?!解除|查询)\\s*{{nickname,\\S+}}")
-  public void establishProtection(MessageEvent event, @FilterValue("nickname") String nickname) {
+  @Command("护道(?!解除|查询)\\s*{{nickname,\\S+}}")
+  public void establishProtection(QqIncomingMessage event, @Arg("nickname") String nickname) {
     replyHelper.dispatch(
         event, "护道", nickname, cultivationCommandHandler::handleEstablishProtection);
   }
 
   @RequireAuth
-  @Listener
-  @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "护道解除\\s*{{nickname,\\S+}}")
-  public void removeProtection(MessageEvent event, @FilterValue("nickname") String nickname) {
+  @Command("护道解除\\s*{{nickname,\\S+}}")
+  public void removeProtection(QqIncomingMessage event, @Arg("nickname") String nickname) {
     replyHelper.dispatch(
         event, "护道解除", nickname, cultivationCommandHandler::handleRemoveProtection);
   }
 
   @RequireAuth
-  @Listener
-  @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "护道查询")
-  public void queryProtection(MessageEvent event) {
+  @Command("护道查询")
+  public void queryProtection(QqIncomingMessage event) {
     replyHelper.dispatch(event, "护道查询", cultivationCommandHandler::handleQueryProtection);
   }
 }

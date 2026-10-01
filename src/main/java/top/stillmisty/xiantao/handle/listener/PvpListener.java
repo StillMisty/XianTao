@@ -1,27 +1,24 @@
 package top.stillmisty.xiantao.handle.listener;
 
 import lombok.RequiredArgsConstructor;
-import love.forte.simbot.event.MessageEvent;
-import love.forte.simbot.quantcat.common.annotations.ContentTrim;
-import love.forte.simbot.quantcat.common.annotations.Filter;
-import love.forte.simbot.quantcat.common.annotations.FilterValue;
-import love.forte.simbot.quantcat.common.annotations.Listener;
-import love.forte.simbot.quantcat.common.filter.FilterMode;
 import org.springframework.stereotype.Component;
+import top.stillmisty.qqgateway.QqIncomingMessage;
 import top.stillmisty.xiantao.handle.command.PvpCommandHandler;
+import top.stillmisty.xiantao.handle.dispatch.Arg;
+import top.stillmisty.xiantao.handle.dispatch.Command;
+import top.stillmisty.xiantao.handle.dispatch.CommandGroup;
 import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
 
 @Component
 @RequiredArgsConstructor
+@CommandGroup
 public class PvpListener {
   private final PvpCommandHandler pvpCommandHandler;
   private final ReplyHelper replyHelper;
 
   @RequireAuth
-  @Listener
-  @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "切磋\\s*{{targetNickname}}")
-  public void spar(MessageEvent event, @FilterValue("targetNickname") String targetNickname) {
+  @Command("切磋\\s*{{targetNickname}}")
+  public void spar(QqIncomingMessage event, @Arg("targetNickname") String targetNickname) {
     replyHelper.dispatch(event, "切磋", targetNickname, pvpCommandHandler::handleSpar);
   }
 }

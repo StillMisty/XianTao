@@ -1,19 +1,18 @@
 package top.stillmisty.xiantao.handle.listener;
 
 import lombok.RequiredArgsConstructor;
-import love.forte.simbot.event.MessageEvent;
-import love.forte.simbot.quantcat.common.annotations.ContentTrim;
-import love.forte.simbot.quantcat.common.annotations.Filter;
-import love.forte.simbot.quantcat.common.annotations.FilterValue;
-import love.forte.simbot.quantcat.common.annotations.Listener;
-import love.forte.simbot.quantcat.common.filter.FilterMode;
 import org.springframework.stereotype.Component;
+import top.stillmisty.qqgateway.QqIncomingMessage;
 import top.stillmisty.xiantao.handle.command.GmCommandHandler;
+import top.stillmisty.xiantao.handle.dispatch.Arg;
+import top.stillmisty.xiantao.handle.dispatch.Command;
+import top.stillmisty.xiantao.handle.dispatch.CommandGroup;
 import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
 import top.stillmisty.xiantao.handle.interceptor.RequireGm;
 
 @Component
 @RequiredArgsConstructor
+@CommandGroup
 public class GmListener {
 
   private final GmCommandHandler gmCommandHandler;
@@ -21,105 +20,71 @@ public class GmListener {
 
   @RequireAuth
   @RequireGm
-  @Listener
-  @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "GM帮助")
-  public void gmHelp(MessageEvent event) {
+  @Command("GM帮助")
+  public void gmHelp(QqIncomingMessage event) {
     replyHelper.dispatch(event, "GM帮助", gmCommandHandler::handleGmHelp);
   }
 
   @RequireAuth
   @RequireGm
-  @Listener
-  @ContentTrim
-  @Filter(
-      mode = FilterMode.INTERCEPTOR,
-      priority = 50,
-      value = "GM给灵石\\s*{{nickname}}\\s+{{amount}}")
+  @Command("GM给灵石\\s*{{nickname}}\\s+{{amount}}")
   public void giveSpiritStones(
-      MessageEvent event,
-      @FilterValue("nickname") String nickname,
-      @FilterValue("amount") String amount) {
+      QqIncomingMessage event, @Arg("nickname") String nickname, @Arg("amount") String amount) {
     replyHelper.dispatch(
         event, "GM给灵石", fmt -> gmCommandHandler.handleGiveSpiritStones(nickname, amount, fmt));
   }
 
   @RequireAuth
   @RequireGm
-  @Listener
-  @ContentTrim
-  @Filter(
-      mode = FilterMode.INTERCEPTOR,
-      priority = 50,
-      value = "GM给修为\\s*{{nickname}}\\s+{{amount}}")
+  @Command("GM给修为\\s*{{nickname}}\\s+{{amount}}")
   public void giveExp(
-      MessageEvent event,
-      @FilterValue("nickname") String nickname,
-      @FilterValue("amount") String amount) {
+      QqIncomingMessage event, @Arg("nickname") String nickname, @Arg("amount") String amount) {
     replyHelper.dispatch(
         event, "GM给修为", fmt -> gmCommandHandler.handleGiveExp(nickname, amount, fmt));
   }
 
   @RequireAuth
   @RequireGm
-  @Listener
-  @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "GM治疗\\s*{{nickname}}")
-  public void healUser(MessageEvent event, @FilterValue("nickname") String nickname) {
+  @Command("GM治疗\\s*{{nickname}}")
+  public void healUser(QqIncomingMessage event, @Arg("nickname") String nickname) {
     replyHelper.dispatch(event, "GM治疗", nickname, gmCommandHandler::handleHealUser);
   }
 
   @RequireAuth
   @RequireGm
-  @Listener
-  @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "GM复活\\s*{{nickname}}")
-  public void reviveUser(MessageEvent event, @FilterValue("nickname") String nickname) {
+  @Command("GM复活\\s*{{nickname}}")
+  public void reviveUser(QqIncomingMessage event, @Arg("nickname") String nickname) {
     replyHelper.dispatch(event, "GM复活", nickname, gmCommandHandler::handleReviveUser);
   }
 
   @RequireAuth
   @RequireGm
-  @Listener
-  @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "GM等级\\s*{{nickname}}\\s+{{level}}")
+  @Command("GM等级\\s*{{nickname}}\\s+{{level}}")
   public void setLevel(
-      MessageEvent event,
-      @FilterValue("nickname") String nickname,
-      @FilterValue("level") String level) {
+      QqIncomingMessage event, @Arg("nickname") String nickname, @Arg("level") String level) {
     replyHelper.dispatch(
         event, "GM等级", fmt -> gmCommandHandler.handleSetLevel(nickname, level, fmt));
   }
 
   @RequireAuth
   @RequireGm
-  @Listener
-  @ContentTrim
-  @Filter(
-      mode = FilterMode.INTERCEPTOR,
-      priority = 50,
-      value = "GM传送\\s*{{nickname}}\\s+{{locationName}}")
+  @Command("GM传送\\s*{{nickname}}\\s+{{locationName}}")
   public void setLocation(
-      MessageEvent event,
-      @FilterValue("nickname") String nickname,
-      @FilterValue("locationName") String locationName) {
+      QqIncomingMessage event,
+      @Arg("nickname") String nickname,
+      @Arg("locationName") String locationName) {
     replyHelper.dispatch(
         event, "GM传送", fmt -> gmCommandHandler.handleSetLocation(nickname, locationName, fmt));
   }
 
   @RequireAuth
   @RequireGm
-  @Listener
-  @ContentTrim
-  @Filter(
-      mode = FilterMode.INTERCEPTOR,
-      priority = 50,
-      value = "GM给物品\\s*{{nickname,\\S+}}\\s+{{itemName,\\S+}}\\s+{{quantity,\\d+}}")
+  @Command("GM给物品\\s*{{nickname,\\S+}}\\s+{{itemName,\\S+}}\\s+{{quantity,\\d+}}")
   public void giveItem(
-      MessageEvent event,
-      @FilterValue("nickname") String nickname,
-      @FilterValue("itemName") String itemName,
-      @FilterValue("quantity") String quantity) {
+      QqIncomingMessage event,
+      @Arg("nickname") String nickname,
+      @Arg("itemName") String itemName,
+      @Arg("quantity") String quantity) {
     replyHelper.dispatch(
         event, "GM给物品", fmt -> gmCommandHandler.handleGiveItem(nickname, itemName, quantity, fmt));
   }

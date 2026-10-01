@@ -3,36 +3,31 @@ package top.stillmisty.xiantao.handle.listener;
 import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import love.forte.simbot.event.MessageEvent;
-import love.forte.simbot.quantcat.common.annotations.ContentTrim;
-import love.forte.simbot.quantcat.common.annotations.Filter;
-import love.forte.simbot.quantcat.common.annotations.FilterValue;
-import love.forte.simbot.quantcat.common.annotations.Listener;
-import love.forte.simbot.quantcat.common.filter.FilterMode;
 import org.springframework.stereotype.Component;
+import top.stillmisty.qqgateway.QqIncomingMessage;
 import top.stillmisty.xiantao.handle.command.ForgingCommandHandler;
+import top.stillmisty.xiantao.handle.dispatch.Arg;
+import top.stillmisty.xiantao.handle.dispatch.Command;
+import top.stillmisty.xiantao.handle.dispatch.CommandGroup;
 import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
 import top.stillmisty.xiantao.util.MaterialParser;
 
 @Component
 @RequiredArgsConstructor
+@CommandGroup
 public class ForgingListener {
   private final ForgingCommandHandler forgingCommandHandler;
   private final ReplyHelper replyHelper;
 
   @RequireAuth
-  @Listener
-  @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "锻造列表")
-  public void recipeList(MessageEvent event) {
+  @Command("锻造列表")
+  public void recipeList(QqIncomingMessage event) {
     replyHelper.dispatch(event, "锻造列表", forgingCommandHandler::handleForgingRecipeList);
   }
 
   @RequireAuth
-  @Listener
-  @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "锻造\\s*{{input}}")
-  public void forge(MessageEvent event, @FilterValue("input") String input) {
+  @Command("锻造\\s*{{input}}")
+  public void forge(QqIncomingMessage event, @Arg("input") String input) {
     replyHelper.dispatch(
         event,
         "锻造",
@@ -48,10 +43,8 @@ public class ForgingListener {
   }
 
   @RequireAuth
-  @Listener
-  @ContentTrim
-  @Filter(mode = FilterMode.INTERCEPTOR, priority = 50, value = "强化\\s*{{input}}")
-  public void enhance(MessageEvent event, @FilterValue("input") String input) {
+  @Command("强化\\s*{{input}}")
+  public void enhance(QqIncomingMessage event, @Arg("input") String input) {
     replyHelper.dispatch(
         event,
         "强化",

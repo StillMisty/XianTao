@@ -38,6 +38,23 @@ spring:
 
 # XianTao AI 分级配置
 xiantao:
+  # QQ 机器人接入（详见 qq-gateway 模块）
+  qq:
+    enabled: ${QQ_BOT_ENABLED:true}
+    app-id: ${QQ_APP_ID:}
+    client-secret: ${QQ_CLIENT_SECRET:}
+    # 仅 ws-token-mode=APP_TICKET 时需要
+    app-token: ${QQ_APP_TOKEN:}
+    # websocket：长连接（默认，零部署变化）；webhook：HTTPS 回调（需要公网地址与 80/443/8080/8443 端口）
+    transport: ${QQ_TRANSPORT:websocket}
+    webhook-path: ${QQ_WEBHOOK_PATH:/qq/webhook}
+    # Webhook 事件新鲜度窗口（防重放），0s 关闭
+    webhook-max-event-age: ${QQ_WEBHOOK_MAX_EVENT_AGE:5m}
+    # 选择事件是否附带按钮（点击即发送「选 X」，文本选项仍保留作兜底）
+    choice-buttons: ${QQ_CHOICE_BUTTONS:true}
+    sandbox: ${QQ_SANDBOX:false}
+    # 事件订阅位标记，默认 GROUP_AND_C2C_EVENT (1<<25)
+    intents: ${QQ_INTENTS:33554432}
   ai:
     # 决定实例化哪些 Model 以及调用时的尝试顺序（列表靠前的优先）
     chat-models: [deepseek, openai]
