@@ -71,6 +71,10 @@ src/main/java/top/stillmisty/xiantao/
 
 ## Agent skills
 
+### OpenSpec
+
+规格与变更管理（`openspec/`）：`specs/` 为当前行为契约（如 `qq-messaging`、`game-features`），变更走 `changes/` → 校验 → 归档。CLI：`openspec list --specs`、`openspec validate <change>`、`openspec archive <change>`。
+
 ### Issue tracker
 
 GitHub Issues (`StillMisty/XianTao`). See `docs/agents/issue-tracker.md`.
