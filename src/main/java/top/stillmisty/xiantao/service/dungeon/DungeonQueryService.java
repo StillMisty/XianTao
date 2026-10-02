@@ -20,7 +20,7 @@ import top.stillmisty.xiantao.infrastructure.repository.DungeonTemplateRepositor
 import top.stillmisty.xiantao.infrastructure.repository.MapNodeRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.player.UserStateService;
+import top.stillmisty.xiantao.service.player.PlayerLoader;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +29,7 @@ public class DungeonQueryService {
   private final DungeonTemplateRepository dungeonTemplateRepository;
   private final DungeonInstanceRepository instanceRepository;
   private final DungeonProgressRepository progressRepository;
-  private final UserStateService userStateService;
+  private final PlayerLoader playerLoader;
   private final DungeonAccessChecker accessChecker;
   private final MapNodeRepository mapNodeRepository;
 
@@ -40,7 +40,7 @@ public class DungeonQueryService {
 
   @Cacheable(cacheNames = "dungeon_list", key = "#userId")
   public List<DungeonListVO> listDungeonsInternal(Long userId) {
-    var user = userStateService.loadUserReadOnly(userId);
+    var user = playerLoader.loadReadOnly(userId);
     List<DungeonTemplate> templates = dungeonTemplateRepository.findActive();
 
     if (templates.isEmpty()) return List.of();

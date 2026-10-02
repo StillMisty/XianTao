@@ -14,6 +14,7 @@ import top.stillmisty.xiantao.domain.pill.enums.PlayerBuffType;
 import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
 import top.stillmisty.xiantao.domain.user.enums.TribulationType;
+import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.domain.user.vo.*;
 import top.stillmisty.xiantao.infrastructure.repository.PlayerBuffRepository;
 import top.stillmisty.xiantao.service.ProtectionHelper;
@@ -22,7 +23,8 @@ import top.stillmisty.xiantao.service.SpiritStoneService;
 import top.stillmisty.xiantao.service.combat.CombatService;
 import top.stillmisty.xiantao.service.combat.PostCombatProcessor;
 import top.stillmisty.xiantao.service.masterapprentice.MasterApprenticeService;
-import top.stillmisty.xiantao.service.player.UserStateService;
+import top.stillmisty.xiantao.service.player.PlayerLoader;
+import top.stillmisty.xiantao.service.player.PlayerWriter;
 
 /** 修仙核心服务 处理突破等核心修仙机制 */
 @Slf4j
@@ -30,7 +32,8 @@ import top.stillmisty.xiantao.service.player.UserStateService;
 @RequiredArgsConstructor
 public class CultivationService {
 
-  private final UserStateService userStateService;
+  private final PlayerLoader playerLoader;
+  private final PlayerWriter playerWriter;
   private final PlayerBuffRepository playerBuffRepository;
   private final ProtectionHelper protectionHelper;
   private final DaoProtectionService daoProtectionService;
@@ -98,7 +101,7 @@ public class CultivationService {
    * @return 突破结果
    */
   public BreakthroughResult attemptBreakthroughInternal(Long userId) {
-    Player user = userStateService.loadUser(userId);
+    Player user = playerLoader.load(userId);
 
     long expNeeded = user.calculateExpToNextLevel();
     if (user.getExp() < expNeeded) {
@@ -210,18 +213,13 @@ public class CultivationService {
             tribulationResist,
             tribulationLevel);
 
-    // 执行渡劫战斗
+    // 执行渡劫战斗并落地气血：角色与灵兽按战斗结果写回（阵亡者卸下出战并进入休养）
     CombatTeam bossTeam = new CombatTeam(0L, "天劫");
     bossTeam.addMember(boss);
-    BattleResultVO battleResult = combatService.simulate(defendingTeam, bossTeam, 40);
-    boolean playerWon = "Player".equals(battleResult.winner());
-
-    // 战后气血写回：战败写回残血/濒死（胜利按设计回满，在成功结算中处理）；
-    // 灵兽按战斗剩余气血写回，阵亡者卸下出战并进入休养，与历练战斗一致
-    if (!playerWon) {
-      postCombatProcessor.applyHpToUser(user, defendingTeam);
-    }
-    postCombatProcessor.applyCombatHpToBeasts(defendingTeam, user, playerWon);
+    PostCombatProcessor.BattleOutcome outcome =
+        postCombatProcessor.resolve(user, defendingTeam, bossTeam, 40, null);
+    BattleResultVO battleResult = outcome.result();
+    boolean playerWon = outcome.playerWon();
 
     // 清除 buff 和护道关系
     daoProtectionService.clearProtegeRelations(user.getId());
@@ -256,7 +254,12 @@ public class CultivationService {
       boolean thunderLureActive) {
     user.setLevel(newLevel);
     user.setBreakthroughFailCount(0);
-    user.setHpCurrent(user.calculateMaxHp());
+    // 雷劫胜利按设计回满气血；若战斗中玩家被打至濒死（由灵兽收尾），一并解除濒死
+    if (user.getStatus() == UserStatus.DYING) {
+      user.reviveFromDying(user.calculateMaxHp());
+    } else {
+      user.setHpCurrent(user.calculateMaxHp());
+    }
 
     // 招雷散补偿：负抗性令雷劫更强，渡过则回馈本次突破消耗修为的 50%（经存储上限截断）
     long thunderLureExp = 0;
@@ -280,7 +283,7 @@ public class CultivationService {
       user.addStatWis(bonusWis);
     }
 
-    userStateService.save(user);
+    playerWriter.save(user);
     masterApprenticeService.checkAndGraduate(user.getId());
 
     String narrative =
@@ -324,7 +327,7 @@ public class CultivationService {
       TribulationType tribulationType,
       BattleResultVO result) {
     user.setBreakthroughFailCount(user.getBreakthroughFailCount() + 1);
-    userStateService.save(user);
+    playerWriter.save(user);
 
     String narrative =
         narrativeGenerator.generateCombatNarrative(
@@ -373,7 +376,7 @@ public class CultivationService {
       applyMajorBreakthroughBonuses(user);
     }
 
-    userStateService.save(user);
+    playerWriter.save(user);
 
     masterApprenticeService.checkAndGraduate(userId);
 
@@ -416,7 +419,7 @@ public class CultivationService {
     daoProtectionService.clearProtegeRelations(userId);
     playerBuffRepository.deleteByUserIdAndType(userId, PlayerBuffType.BREAKTHROUGH);
 
-    userStateService.save(user);
+    playerWriter.save(user);
 
     return new BreakthroughResult(
         false,

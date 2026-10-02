@@ -54,7 +54,7 @@ public class DefaultCombatEngine implements CombatEngine {
     Map<String, Integer> initialHpA = captureHp(teamA);
     Map<String, Integer> initialHpB = captureHp(teamB);
 
-    String winner = "DRAW";
+    String winner = BattleResultVO.DRAW;
     while (round < maxRounds) {
       round++;
 

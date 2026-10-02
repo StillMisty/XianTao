@@ -4,7 +4,7 @@
 
 ## 1. 核心问题
 
-`UserStateService.loadUser()` 是一个"带副作用的读取"——`tryCompleteTravel()`、`tryHpRecovery()` 默默改了 DB，异步反馈没有任何渠道传递给玩家。
+`UserStateService.settle()` 在命令边界执行带副作用的结算——`tryCompleteTravel()`、`tryHpRecovery()` 默默改了 DB，异步反馈没有任何渠道传递给玩家。
 
 **解决：GameEvent 事件总线**——将"后台偷偷完成的事"全部转为"玩家可见的故事"。
 
@@ -73,7 +73,7 @@ CREATE INDEX idx_game_event_cleanup ON game_event(occurred_at) WHERE delivered =
 
 ### 2.3 NotificationAppender
 
-回复拦截器，在每条回复发送前查询该用户的未投递事件，按 category 分组格式化后追加到回复尾部。调用点在平台处理器层：`QQPlatformHandler.replyText` → `prepareAppend` → 发送成功后 `markDelivered`。
+回复拦截器，在每条回复发送前查询该用户的未投递事件，按 category 分组格式化后追加到回复尾部。调用点在回复投递管线：`ReplyDelivery.deliver` → `prepareAppend` → 发送成功后 `markDelivered`。
 
 **投递流程（代码）**：
 
@@ -133,7 +133,7 @@ last_fortune_date   DATE;                           -- 每日运势生成日期
 
 ### 3.3 触发规则
 
-`UserStateService.resolveState()` 在每次加载用户（`loadUser` / `loadUsersByIds`）时按 `@Order` 依次调用 `StateHandler.tryResolve()`；稳定状态快速跳过。处理器顺序：
+`UserStateService.settle()` 在命令边界（`CommandDispatcher` 认证后）按 `@Order` 依次调用 `StateHandler.tryResolve()`；稳定状态快速跳过。处理器顺序：
 
 | Order | Handler | 职责 |
 |---|---|---|
@@ -153,7 +153,7 @@ last_fortune_date   DATE;                           -- 每日运势生成日期
 
 **历练保留主动结算的理由**：核心玩点是"再挂一会儿会不会收益更高？"auto-resolve 会消灭这个 risk/reward tension。战斗中 HP 归零会导致历练中断——角色进入 DYING 状态，`activity_start_time` 清空，结算到死亡点为止的收益，剩余时间丢弃。事件产出 `TRAINING_INTERRUPTED`，归入「历练收获」节。
 
-**代码补充**：历练期间每 60 分钟自动执行一次中途结算（`TrainingSettlementHandler`，结算 `last_settlement_minute` 到当前分钟的增量）并产出 `TRAINING_EVENT`；玩家主动结算时只结算剩余时长。最短历练 ≤ 5 分钟无收获。
+**代码补充**：历练期间每 60 分钟自动执行一次中途结算（`TrainingSettlementHandler`，与最终结算共用 `TrainingSettler.settle`，结算 `last_settlement_minute` 到当前分钟的增量并一并入账基础修为/物品/击杀修为）并产出 `TRAINING_EVENT`；玩家主动结算时只结算剩余时长。最短历练 ≤ 5 分钟无收获。
 
 **限制**：只允许同时接一个悬赏（接取要求空闲状态，活动字段单值）。
 
@@ -593,7 +593,7 @@ CREATE TABLE hidden_completion (
 ```
 玩家发任意命令
   → 命令处理器生成回复
-     → QQPlatformHandler.replyText
+     → ReplyDelivery.deliver
         → NotificationAppender.prepareAppend
            → 查询 game_event WHERE user_id=? AND delivered=false ORDER BY occurred_at ASC
            → 按 category 选择节标题
@@ -670,7 +670,7 @@ CREATE TABLE hidden_completion (
 - **`narrative_key` 存模板文本而非 key**：生成时由 `ActivityEventHelper.resolveNarrativeKey` 把 `event_type.description` 快照写入，投递时直接渲染，无二次查表。
 - **新增 category**：`FORTUNE`（每日运势，纯文本）、`SECT_EVENT`（宗门动态）、`GUIDE`（初入仙途）为文档未列出的类型。
 - **效果类型 13 种**：文档 12 种表缺少 `TAKE_SPIRIT_STONES`（种子中大量使用）。
-- **投递包装位置**：在平台处理器 `QQPlatformHandler.replyText` 中调用 `NotificationAppender`，非 QQ 监听器层。
+- **投递包装位置**：在回复投递管线 `ReplyDelivery` 中调用 `NotificationAppender`，平台适配器只负责 transport 与限额声明。
 - **`activity_type` 取值**：CHECK 还包含 `BOUNTY_SIDE`；`DUNGEON` 的 `activity_target_id` 指向 `dungeon_instance.id`。
 - **`activity_event` 额外字段**：`prerequisite_code`（前置隐藏事件解锁）。
 - **清理任务有定时调度**：每天凌晨 3 点（Asia/Shanghai）清理 7 天前的已投递事件，未投递不清理。

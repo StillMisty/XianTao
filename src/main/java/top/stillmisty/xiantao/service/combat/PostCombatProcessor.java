@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
@@ -11,6 +12,7 @@ import top.stillmisty.xiantao.domain.beast.enums.MutationEffectType;
 import top.stillmisty.xiantao.domain.monster.CombatTeam;
 import top.stillmisty.xiantao.domain.monster.Combatant;
 import top.stillmisty.xiantao.domain.monster.PlayerCombatant;
+import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
 import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.infrastructure.repository.BeastRepository;
 import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
@@ -25,6 +27,35 @@ public class PostCombatProcessor {
   private final BeastRepository beastRepository;
   private final BeastSkillService beastSkillService;
   private final MutationEffectResolver effectResolver;
+  private final CombatService combatService;
+
+  /** 一场战斗的结果 — 原始战报与按队伍名判定的胜负 */
+  public record BattleOutcome(BattleResultVO result, boolean playerWon) {}
+
+  /**
+   * 执行一场战斗并落地后果：按队伍名判定胜负，写回角色气血/濒死与灵兽气血/休养/觉醒。
+   *
+   * @param beastCache 预加载的灵兽缓存；传入时复用其中实体并保存，为 {@code null} 时自行查询
+   */
+  @Transactional
+  public BattleOutcome resolve(
+      Player user,
+      CombatTeam playerTeam,
+      CombatTeam opponentTeam,
+      int maxRounds,
+      @Nullable Map<Long, Beast> beastCache) {
+    BattleResultVO result = combatService.simulate(playerTeam, opponentTeam, maxRounds);
+    boolean playerWon = result.winnerIs(playerTeam.name());
+
+    applyHpToUser(user, playerTeam);
+    if (beastCache == null) {
+      applyCombatHpToBeasts(playerTeam, user, playerWon);
+    } else {
+      applyHpToBeasts(playerTeam, user, playerWon, false, beastCache);
+      beastCache.values().forEach(beastRepository::save);
+    }
+    return new BattleOutcome(result, playerWon);
+  }
 
   public void applyHpToUser(Player user, CombatTeam team) {
     for (Combatant c : team.members()) {

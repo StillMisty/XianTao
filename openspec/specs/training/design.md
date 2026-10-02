@@ -46,12 +46,12 @@
 **TrainingService** — 历练核心服务 + 结算编排
 - `startTraining(userId)` / `startTrainingInternal(userId)` - 开始历练
 - `endTraining(userId)` / `endTrainingFlow(userId)` - 结束历练（短事务内结算与落库 → 事务提交后 LLM 叙述）
-- 修为计算（地图等级 / 悟性 / 身法效率 / 等级衰减 / 运势）、物品掉落判定、中断处理、结算输出组装
+- 调用 `TrainingSettler.settle()` 结算全部未结算时长、中断处理、结算输出组装
 
-**TrainingSettler** — 统一历练事件循环，`TrainingService` 与 `UserStateService`（中途结算）共用
-- `settleChunk(userId, user, mapNode, fromMinute, toMinute)` - 对一段未结算时间执行事件循环
+**TrainingSettler** — 历练结算 module，`TrainingService`（最终结算）与 `TrainingSettlementHandler`（中途结算）共用
+- `settle(userId, user, mapNode, fromMinute, toMinute)` - 结算一段未结算时长的全部收益：基础修为、物品、事件循环、灵兽经验，写入角色修为并推进 `last_settlement_minute`
 - 读 `activity_event`（TRAINING + map_id）统一池 → COMBAT 走 `CombatEventHandler`，NUMERIC 走 `TrainingCompleter.handleNumericEvent`，CHOICE 写入 `game_event`
-- 返回 `SettlementResult`（`CombatSummary` + 灵兽是否参战）
+- 返回 `TrainingSettlement`（基础/击杀修为、物品、`CombatSummary`、效率与衰减倍率）
 
 **CombatEventHandler** — 单次遇怪处理
 - 从 `ActivityEvent.params` 读取 `monster_template_id` / `min_count` / `max_count`
@@ -73,7 +73,7 @@
 
 **TrainingSettlementHandler** — 定期中途结算处理器（`StateHandler`，@Order(5)）
 - 用户状态为 TRAINING 且距上次结算 ≥ 60 分钟时触发
-- 结算后推送通知（有战斗：「你在{地图}已修炼 N 分钟，期间遭遇 M 场战斗，获得 +E 修为，继续精进中。」；无战斗：「你在{地图}已修炼 N 分钟，继续精进中。」）
+- 与最终结算共用 `TrainingSettler.settle`：基础修为、物品与击杀修为按同一口径入账，并推送通知（有战斗：「你在{地图}已修炼 N 分钟，期间遭遇 M 场战斗，获得 +E 修为，继续精进中。」；无战斗：「你在{地图}已修炼 N 分钟，继续精进中。」）
 
 **DropProcessor** - 掉落处理器
 - `processMonsterDrops(MonsterTemplate tmpl, Long userId)` - 从怪物模板计算掉落
@@ -277,7 +277,7 @@ chance = 0.02 + 有效悟性 × 0.0005
 
 - **无灵石奖励**：历练产出修为与物品，灵石由悬赏/世界事件/回收等产出——玩法分工清晰，避免挂机成为无限货币来源；spec 已明确「MUST NOT 发放灵石或铜币」，`TrainingRewardVO.spiritStones` 为兼容保留字段。
 - **等级衰减起点**：与文档 §6.4 公式一致（§2 表格「15 级」为笔误）；+5 级起衰减更早抑制高等级玩家无风险刷低级图。
-- **中途自动结算**：每 60 分钟懒结算并推送通知（增量结算不重复发放），挂机期间有阶段反馈与击杀修入账，不必等最终结算才知道进展。
+- **中途自动结算**：每 60 分钟懒结算并推送通知（增量结算不重复发放），挂机期间有阶段反馈与基础/击杀修为一并入账，不必等最终结算才知道进展。
 - **最短时长与提前退出**：≤5 分钟判定无收获并清活动，防止误触秒结算刷判定；无开始时间/地图缺失各有独立文案，反馈明确。
 - **720 分钟封顶**：物品掉落判定按 12 小时封顶（防超长离线滚动数千次），修为仍按实际时长照常发放，对正常玩家无影响。
 - **修为公式与效率倍率**：悟性决定基础修为、身法决定效率（上限 3.0x）、机缘修正收益，三条养成线都有意义；与 spec「悟性与地图等级取高」一致。

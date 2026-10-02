@@ -39,7 +39,8 @@ import top.stillmisty.xiantao.infrastructure.util.WeightedRandom;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.activity.BountyCompleter;
-import top.stillmisty.xiantao.service.player.UserStateService;
+import top.stillmisty.xiantao.service.player.PlayerLoader;
+import top.stillmisty.xiantao.service.player.PlayerWriter;
 
 /** 悬赏服务 */
 @Slf4j
@@ -47,7 +48,8 @@ import top.stillmisty.xiantao.service.player.UserStateService;
 @RequiredArgsConstructor
 public class BountyService {
 
-  private final UserStateService userStateService;
+  private final PlayerLoader playerLoader;
+  private final PlayerWriter playerWriter;
   private final MapNodeRepository mapNodeRepository;
   private final BountyRepository bountyRepository;
   private final UserBountyRepository userBountyRepository;
@@ -99,7 +101,7 @@ public class BountyService {
   // ===================== 内部 API =====================
 
   public List<BountyVO> listBountiesInternal(Long userId) {
-    Player user = userStateService.loadUser(userId);
+    Player user = playerLoader.load(userId);
     MapNode mapNode =
         mapNodeRepository
             .findById(user.getLocationId())
@@ -153,7 +155,7 @@ public class BountyService {
     UserBounty record = userBountyRepository.findActiveByUserId(userId).orElse(null);
     if (record == null) {
       // 自动完成后记录状态为 COMPLETED（等待领奖），此时仍要展示当前悬赏而非回落到列表
-      Player user = userStateService.loadUserReadOnly(userId);
+      Player user = playerLoader.loadReadOnly(userId);
       if (user.getStatus() == UserStatus.BOUNTY
           && user.getActivityType() == ActivityType.BOUNTY
           && user.getActivityTargetId() != null) {
@@ -188,7 +190,7 @@ public class BountyService {
   }
 
   public String startBountyInternal(Long userId, Long bountyId) {
-    Player user = userStateService.loadUser(userId);
+    Player user = playerLoader.load(userId);
 
     if (user.getStatus() != UserStatus.IDLE) {
       throw new BusinessException(STATUS_BLOCKED, user.getStatus().getName(), "空闲");
@@ -236,7 +238,7 @@ public class BountyService {
     userBountyRepository.save(record);
 
     user.beginActivity(ActivityType.BOUNTY, UserStatus.BOUNTY, TimeUtil.now(), record.getId());
-    userStateService.saveActivity(user);
+    playerWriter.saveActivity(user);
 
     log.info(
         "玩家 {} 接取悬赏: {} (ID={}, 耗时{}分, 预存物品数={}, 隐藏线索={})",
@@ -277,7 +279,7 @@ public class BountyService {
   }
 
   public String abandonBountyInternal(Long userId) {
-    Player user = userStateService.loadUser(userId);
+    Player user = playerLoader.load(userId);
     if (user.getStatus() != UserStatus.BOUNTY) {
       throw new BusinessException(STATUS_BLOCKED, user.getStatus().getName(), "悬赏");
     }
@@ -291,7 +293,7 @@ public class BountyService {
     userBountyRepository.save(record);
 
     user.clearActivity();
-    userStateService.saveActivity(user);
+    playerWriter.saveActivity(user);
 
     log.info("玩家 {} 放弃悬赏: {}", userId, record.getBountyName());
     return String.format("已放弃悬赏「%s」，无任何产出。", record.getBountyName());

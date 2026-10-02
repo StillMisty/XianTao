@@ -105,9 +105,4 @@ public class UserRepository {
         activityStartTime,
         activityTargetId);
   }
-
-  public void updateTrainingSettlement(
-      Long userId, int hpCurrent, long exp, long lastSettlementMinute) {
-    userMapper.updateTrainingSettlement(userId, hpCurrent, exp, lastSettlementMinute);
-  }
 }

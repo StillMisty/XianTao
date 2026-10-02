@@ -12,7 +12,6 @@ import top.stillmisty.xiantao.domain.notification.enums.GameEventCategory;
 import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
 import top.stillmisty.xiantao.infrastructure.repository.MapNodeRepository;
-import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
 import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.GameEventService;
 import top.stillmisty.xiantao.service.combat.TrainingSettler;
@@ -29,7 +28,6 @@ class TrainingSettlementHandler implements StateHandler {
   private final MapNodeRepository mapNodeRepository;
   private final TrainingSettler trainingSettler;
   private final GameEventService gameEventService;
-  private final UserRepository userRepository;
 
   @Override
   public boolean tryResolve(Player user) {
@@ -44,15 +42,10 @@ class TrainingSettlementHandler implements StateHandler {
     var mapNode = mapNodeRepository.findById(user.getLocationId()).orElse(null);
     if (mapNode == null) return false;
 
-    var settlementResult =
-        trainingSettler.settleChunk(user.getId(), user, mapNode, lastSettled, minutesElapsed);
-    var combatSummary = settlementResult.combatSummary();
-
-    // 击杀修为一并入账（受存储上限截断）
-    long killExp = combatSummary.expGained();
-    if (killExp > 0) {
-      user.addExp(killExp);
-    }
+    // 与最终结算共用同一入口：基础修为、物品、事件循环与进度推进都在 settle 内完成
+    var settlement =
+        trainingSettler.settle(user.getId(), user, mapNode, lastSettled, minutesElapsed);
+    var combatSummary = settlement.combatSummary();
 
     long durationMinutes = minutesElapsed;
     if (combatSummary.totalEncounters() > 0) {
@@ -64,7 +57,7 @@ class TrainingSettlementHandler implements StateHandler {
                       "mapName", mapNode.getName(),
                       "duration", durationMinutes,
                       "encounters", combatSummary.totalEncounters(),
-                      "exp", combatSummary.expGained())));
+                      "exp", settlement.totalExp())));
     } else {
       gameEventService.save(
           GameEvent.create(user.getId(), GameEventCategory.TRAINING_EVENT)
@@ -73,9 +66,7 @@ class TrainingSettlementHandler implements StateHandler {
                   Map.of("mapName", mapNode.getName(), "duration", durationMinutes)));
     }
 
-    user.setLastSettlementMinute(minutesElapsed);
-    userRepository.updateTrainingSettlement(
-        user.getId(), user.getHpCurrent(), user.getExp(), minutesElapsed);
+    // settle 已推进 lastSettlementMinute；返回 true 由结算中枢整行落库
     return true;
   }
 }

@@ -10,23 +10,19 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonTemplate;
-import top.stillmisty.xiantao.domain.monster.BattleContext;
-import top.stillmisty.xiantao.domain.monster.CombatEngine;
 import top.stillmisty.xiantao.domain.monster.CombatTeam;
 import top.stillmisty.xiantao.domain.monster.Monster;
 import top.stillmisty.xiantao.domain.monster.entity.MonsterTemplate;
-import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
 import top.stillmisty.xiantao.domain.skill.entity.Skill;
 import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.infrastructure.repository.MonsterTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SkillRepository;
-import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.infrastructure.util.WeightedRandom;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.combat.CombatService;
 import top.stillmisty.xiantao.service.combat.PostCombatProcessor;
-import top.stillmisty.xiantao.service.player.UserStateService;
+import top.stillmisty.xiantao.service.player.PlayerWriter;
 
 @Component
 @RequiredArgsConstructor
@@ -34,10 +30,9 @@ public class DungeonCombatHelper {
 
   private final MonsterTemplateRepository monsterTemplateRepository;
   private final SkillRepository skillRepository;
-  private final CombatEngine combatEngine;
   private final CombatService combatService;
   private final PostCombatProcessor postCombatProcessor;
-  private final UserStateService userStateService;
+  private final PlayerWriter playerWriter;
 
   public record SimpleCombatOutcome(
       boolean playerWon,
@@ -77,23 +72,12 @@ public class DungeonCombatHelper {
 
     CombatTeam playerTeam = combatService.buildPlayerTeam(user);
 
-    BattleContext context =
-        BattleContext.builder()
-            .teamA(playerTeam)
-            .teamB(monsterTeam)
-            .maxRounds(20)
-            .scene(BattleContext.BattleScene.DUNGEON)
-            .build();
-    BattleResultVO battleResult = combatEngine.simulate(context);
-
-    postCombatProcessor.applyHpToUser(user, playerTeam);
-    userStateService.saveHpStatus(user);
-
-    boolean playerWon = "Player".equals(battleResult.winner());
+    PostCombatProcessor.BattleOutcome outcome =
+        postCombatProcessor.resolve(user, playerTeam, monsterTeam, 20, null);
+    boolean playerWon = outcome.playerWon();
+    playerWriter.saveHpStatus(user);
 
     if (!playerWon && playerTeam.aliveMembers().isEmpty()) {
-      user.setDying(TimeUtil.now());
-      userStateService.saveHpStatus(user);
       return new SimpleCombatOutcome(false, 0, monsterTmpl.getName(), "你被击败了，陷入了濒死状态。", List.of());
     }
 

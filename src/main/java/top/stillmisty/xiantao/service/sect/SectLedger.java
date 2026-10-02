@@ -2,8 +2,11 @@ package top.stillmisty.xiantao.service.sect;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import top.stillmisty.xiantao.domain.sect.entity.Sect;
 import top.stillmisty.xiantao.infrastructure.repository.SectMemberRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SectRepository;
+import top.stillmisty.xiantao.service.BusinessException;
+import top.stillmisty.xiantao.service.ErrorCode;
 
 /** 宗门账本 — 宗门资金与成员贡献变动的唯一入口。所有变动均为原子 SQL，防并发双花。 */
 @Component
@@ -24,9 +27,11 @@ public class SectLedger {
     sectRepository.addFunds(sectId, amount);
   }
 
-  /** 原子条件扣减宗门资金，余额不足时返回 false */
-  public boolean deductFundsIfEnough(Long sectId, long amount) {
-    return sectRepository.deductFundsIfEnough(sectId, amount) > 0;
+  /** 原子条件扣减宗门资金；余额不足时抛出 SECT_FUNDS_INSUFFICIENT（携带当前余额） */
+  public void deductFundsOrThrow(Long sectId, long amount) {
+    if (sectRepository.deductFundsIfEnough(sectId, amount) > 0) return;
+    long current = sectRepository.findById(sectId).map(Sect::getFunds).orElse(0L);
+    throw new BusinessException(ErrorCode.SECT_FUNDS_INSUFFICIENT, amount, current);
   }
 
   /** 原子累加成员贡献 */

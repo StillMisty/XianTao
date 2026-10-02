@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -14,9 +15,11 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BooleanSupplier;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.support.GenericApplicationContext;
 import top.stillmisty.qqgateway.QqIncomingMessage;
+import top.stillmisty.qqgateway.QqKeyboard;
 import top.stillmisty.qqgateway.QqScene;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.interceptor.RequireAuth;
@@ -24,7 +27,10 @@ import top.stillmisty.xiantao.handle.interceptor.RequireGm;
 import top.stillmisty.xiantao.handle.listener.ReplyHelper;
 import top.stillmisty.xiantao.handle.platform.PlatformHandler;
 import top.stillmisty.xiantao.handle.platform.PlatformRegistry;
+import top.stillmisty.xiantao.handle.platform.ReplyDelivery;
+import top.stillmisty.xiantao.handle.platform.ReplyLimits;
 import top.stillmisty.xiantao.service.AuthenticationService;
+import top.stillmisty.xiantao.service.NotificationAppender;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.player.UserStateService;
@@ -140,8 +146,14 @@ class CommandDispatcherTest {
     }
 
     @Override
-    public void replyText(QqIncomingMessage message, String text) {
-      replies.add(text);
+    public ReplyLimits replyLimits() {
+      return new ReplyLimits(1800, 4, 10, true, true);
+    }
+
+    @Override
+    public void sendReply(
+        QqIncomingMessage message, List<String> segments, @Nullable QqKeyboard keyboard) {
+      replies.add(String.join("", segments));
     }
   }
 
@@ -265,7 +277,12 @@ class CommandDispatcherTest {
       GenericApplicationContext context, PlatformHandler handler, AuthenticationService auth) {
     CommandRegistry registry = new CommandRegistry(context);
     PlatformRegistry platformRegistry = new PlatformRegistry(List.of(handler));
-    ReplyHelper replyHelper = new ReplyHelper(platformRegistry);
+    NotificationAppender appender = mock(NotificationAppender.class);
+    when(appender.prepareAppend(any(), any(), any(), any()))
+        .thenAnswer(
+            invocation ->
+                new NotificationAppender.AppendResult(invocation.getArgument(2), List.of(), null));
+    ReplyHelper replyHelper = new ReplyHelper(platformRegistry, new ReplyDelivery(appender));
     UserStateService userStateService = mock(UserStateService.class);
     return new CommandDispatcher(registry, auth, platformRegistry, replyHelper, userStateService);
   }

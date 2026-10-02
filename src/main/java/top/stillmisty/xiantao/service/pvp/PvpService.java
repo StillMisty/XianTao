@@ -13,14 +13,14 @@ import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.combat.CombatService;
-import top.stillmisty.xiantao.service.player.UserStateService;
+import top.stillmisty.xiantao.service.player.PlayerLoader;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class PvpService {
 
-  private final UserStateService userStateService;
+  private final PlayerLoader playerLoader;
   private final UserRepository userRepository;
   private final CombatService combatService;
 
@@ -31,7 +31,7 @@ public class PvpService {
 
   @Transactional
   public SparResultVO sparInternal(Long userId, String targetNickname) {
-    Player attacker = userStateService.loadUser(userId);
+    Player attacker = playerLoader.load(userId);
     Player defender =
         userRepository
             .findByNickname(targetNickname)
@@ -49,8 +49,8 @@ public class PvpService {
 
     var result = combatService.simulate(teamA, teamB, 50);
 
-    boolean isDraw = "DRAW".equals(result.winner());
-    boolean attackerWon = "A".equals(result.winner());
+    boolean isDraw = result.isDraw();
+    boolean attackerWon = result.winnerIs(teamA.name());
 
     return new SparResultVO(
         attacker.getNickname(),

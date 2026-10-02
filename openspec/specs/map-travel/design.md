@@ -189,7 +189,7 @@ encounter_richness: 1~10，默认 5
 
 ### 4.2 旅行自动结算
 
-旅行到期后，下一次用户交互时自动结算（懒加载模式，`UserStateService.loadUser` 获取行锁后依次执行 `StateHandler`）：
+旅行到期后，下一次用户交互时自动结算（懒加载模式，命令边界 `UserStateService.settle` 获取行锁后依次执行 `StateHandler`）：
 
 ```
 出发时间 + 当前地图到目的地的旅行耗时 ≤ 当前时间 → 到达目的地
@@ -198,7 +198,7 @@ encounter_richness: 1~10，默认 5
 触发旅行到达流程（到达通知 + 子事件/隐藏事件/环境事件）
 ```
 
-**触发点**：所有经 `loadUser` 加载用户状态的入口（状态查询、前往、历练、悬赏接取等）。只读加载（`loadUserReadOnly`）不结算。
+**触发点**：命令边界 `UserStateService.settle`（状态查询、前往、历练、悬赏接取等命令认证后统一执行）；深层读取（`PlayerLoader`）不结算。
 
 **卡死保护**：若当前地图已无通往目的地的路径，清除活动状态并记录告警，不改变所在地。
 

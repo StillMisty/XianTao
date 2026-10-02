@@ -12,14 +12,14 @@ import top.stillmisty.xiantao.infrastructure.repository.StackableItemRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.player.UserStateService;
+import top.stillmisty.xiantao.service.player.PlayerLoader;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class DiscardService {
 
-  private final UserStateService userStateService;
+  private final PlayerLoader playerLoader;
   private final ItemResolver itemResolver;
   private final EquipmentRepository equipmentRepository;
   private final StackableItemRepository stackableItemRepository;
@@ -32,7 +32,7 @@ public class DiscardService {
 
   @Transactional
   public String discardItemInternal(Long userId, String input) {
-    userStateService.loadUser(userId);
+    playerLoader.load(userId);
 
     var equipResult = itemResolver.resolveEquipment(userId, input);
     if (equipResult instanceof ItemResolver.Found<Equipment> found) {

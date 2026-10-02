@@ -20,7 +20,6 @@ import top.stillmisty.xiantao.domain.monster.vo.DropItem;
 import top.stillmisty.xiantao.domain.monster.vo.SkillProc;
 import top.stillmisty.xiantao.domain.skill.entity.Skill;
 import top.stillmisty.xiantao.domain.user.entity.Player;
-import top.stillmisty.xiantao.infrastructure.repository.BeastRepository;
 import top.stillmisty.xiantao.infrastructure.util.TypeUtils;
 import top.stillmisty.xiantao.infrastructure.util.WeightedRandom;
 import top.stillmisty.xiantao.service.DropProcessor;
@@ -40,7 +39,6 @@ public class CombatEventHandler {
   private final HighlightBattleDetector highlightBattleDetector;
   private final DropProcessor dropProcessor;
   private final RewardGrant rewardGrant;
-  private final BeastRepository beastRepository;
   private final EnlightenmentProcessor enlightenmentProcessor;
   private final FortuneService fortuneService;
 
@@ -72,8 +70,10 @@ public class CombatEventHandler {
             user, skillMap, "Player", new ArrayList<>(beastCache.values()));
     CombatTeam monsterTeam = buildMonsterTeam(tmpl, count, skillMap, userId);
 
-    BattleResultVO result = combatService.simulate(playerTeam, monsterTeam, DEFAULT_MAX_ROUNDS);
-    boolean playerWon = result.winner().equals("Player");
+    PostCombatProcessor.BattleOutcome outcome =
+        postCombatProcessor.resolve(user, playerTeam, monsterTeam, DEFAULT_MAX_ROUNDS, beastCache);
+    BattleResultVO result = outcome.result();
+    boolean playerWon = outcome.playerWon();
 
     List<CombatLogEntry> logs = result.combatLog() != null ? result.combatLog() : List.of();
     List<SkillProc> skillProcs = result.skillProcs() != null ? result.skillProcs() : List.of();
@@ -117,14 +117,6 @@ public class CombatEventHandler {
               skillProcs,
               isHighlight,
               monsterName);
-    }
-
-    postCombatProcessor.applyHpToUser(user, playerTeam);
-
-    postCombatProcessor.applyHpToBeasts(
-        playerTeam, user, playerWon, highlightInfo != null, beastCache);
-    for (Beast beast : beastCache.values()) {
-      beastRepository.save(beast);
     }
 
     if (playerWon) {

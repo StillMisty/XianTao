@@ -2,7 +2,6 @@ package top.stillmisty.xiantao.service.combat;
 
 import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,9 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 import top.stillmisty.xiantao.domain.event.enums.ActivityType;
-import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
-import top.stillmisty.xiantao.domain.map.entity.SpecialtyEntry;
 import top.stillmisty.xiantao.domain.map.enums.MapType;
 import top.stillmisty.xiantao.domain.map.vo.TrainingRewardVO;
 import top.stillmisty.xiantao.domain.map.vo.TrainingStartResult;
@@ -22,45 +19,27 @@ import top.stillmisty.xiantao.domain.monster.vo.DropItem;
 import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
 import top.stillmisty.xiantao.domain.user.enums.UserStatus;
-import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.MapNodeRepository;
 import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
-import top.stillmisty.xiantao.infrastructure.util.WeightedRandom;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
-import top.stillmisty.xiantao.service.FortuneService;
-import top.stillmisty.xiantao.service.RewardGrant;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.activity.TrainingCompleter;
 import top.stillmisty.xiantao.service.ai.ExplorationDescriptionFunction;
-import top.stillmisty.xiantao.service.masterapprentice.MasterApprenticeService;
-import top.stillmisty.xiantao.service.player.UserStateService;
-import top.stillmisty.xiantao.service.sect.SectBuildingService;
+import top.stillmisty.xiantao.service.player.PlayerLoader;
+import top.stillmisty.xiantao.service.player.PlayerWriter;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class TrainingService {
 
-  /** 单次历练结算的最大分钟数（12 小时），超出部分不参与物品掉落判定 */
-  private static final long MAX_SETTLEMENT_MINUTES = 720;
-
-  private static final double AGILITY_EFFICIENCY_COEFFICIENT = 0.01;
-  private static final double MAX_EFFICIENCY_BOOST = 2.0;
-  private static final double LEVEL_DECAY_RATE = 0.04;
-  private static final double MIN_LEVEL_DECAY_MULTIPLIER = 0.1;
-  private static final int LEVEL_DECAY_OFFSET = 5;
-
-  private final UserStateService userStateService;
+  private final PlayerLoader playerLoader;
+  private final PlayerWriter playerWriter;
   private final MapNodeRepository mapNodeRepository;
-  private final ItemTemplateRepository itemTemplateRepository;
-  private final RewardGrant rewardGrant;
   private final TrainingCompleter trainingCompleter;
   private final ExplorationDescriptionFunction explorationDescriptionFunction;
   private final TrainingSettler trainingSettler;
-  private final FortuneService fortuneService;
-  private final MasterApprenticeService masterApprenticeService;
-  private final SectBuildingService sectBuildingService;
   private final TransactionTemplate transactionTemplate;
 
   // 事务注解必须放在外部调用的 public 方法上，标注在 Internal 方法会因自调用绕过代理而失效
@@ -77,7 +56,7 @@ public class TrainingService {
   // ===================== 内部 API =====================
 
   public TrainingStartResult startTrainingInternal(Long userId) {
-    Player user = userStateService.loadUser(userId);
+    Player user = playerLoader.load(userId);
     if (user.getStatus() != UserStatus.IDLE) {
       throw new BusinessException(ErrorCode.STATUS_BLOCKED, user.getStatus().getName(), "空闲");
     }
@@ -95,7 +74,7 @@ public class TrainingService {
           .build();
     }
     user.beginActivity(ActivityType.TRAINING, UserStatus.TRAINING, TimeUtil.now(), mapNode.getId());
-    userStateService.saveActivity(user);
+    playerWriter.saveActivity(user);
     log.info("玩家 {} 开始在 {} 历练", userId, mapNode.getName());
     return TrainingStartResult.builder().success(true).mapName(mapNode.getName()).build();
   }
@@ -122,7 +101,7 @@ public class TrainingService {
       @Nullable String beastNarrative) {}
 
   private TrainingOutcome endTrainingInternal(Long userId) {
-    Player user = userStateService.loadUser(userId);
+    Player user = playerLoader.load(userId);
     if (user.getStatus() != UserStatus.TRAINING && user.getStatus() != UserStatus.DYING) {
       throw new BusinessException(ErrorCode.STATUS_BLOCKED, user.getStatus().getName(), "历练");
     }
@@ -142,7 +121,7 @@ public class TrainingService {
   private TrainingRewardVO checkEndTrainingEarlyExit(Long userId, Player user) {
     if (user.getActivityStartTime() == null) {
       user.clearActivity();
-      userStateService.saveActivity(user);
+      playerWriter.saveActivity(user);
       return TrainingRewardVO.builder()
           .userId(userId)
           .mapId(user.getLocationId())
@@ -153,7 +132,7 @@ public class TrainingService {
         Duration.between(user.getActivityStartTime(), TimeUtil.now()).toMinutes();
     if (minutesTraining <= 5) {
       user.clearActivity();
-      userStateService.saveActivity(user);
+      playerWriter.saveActivity(user);
       return TrainingRewardVO.builder()
           .userId(userId)
           .mapId(user.getLocationId())
@@ -162,7 +141,7 @@ public class TrainingService {
     }
     if (mapNodeRepository.findById(user.getLocationId()).isEmpty()) {
       user.clearActivity();
-      userStateService.saveActivity(user);
+      playerWriter.saveActivity(user);
       return TrainingRewardVO.builder().userId(userId).summary("当前地图不存在").build();
     }
     return null;
@@ -171,57 +150,17 @@ public class TrainingService {
   private TrainingOutcome processNormalTrainingEnd(
       Long userId, Player user, long minutesTraining, MapNode mapNode) {
     long lastSettled = user.getLastSettlementMinute();
-    long remainingMinutes = Math.max(0, minutesTraining - lastSettled);
 
-    CombatSummary combatSummary = CombatSummary.empty();
-    long baseExp = 0;
-    List<DropItem> trainingItems = List.of();
-    boolean beastDeployed = false;
-
-    double efficiencyMultiplier = 1.0;
-    double levelDecayMultiplier = 1.0;
-
-    if (remainingMinutes > 0) {
-      efficiencyMultiplier = calculateEfficiencyMultiplier(user.getEffectiveStatAgi());
-      levelDecayMultiplier =
-          calculateLevelDecayMultiplier(user.getLevel(), mapNode.getLevelRequirement());
-      long baseExpPerMinute =
-          Math.max(
-              mapNode.getLevelRequirement() * 5L,
-              (long) (Math.sqrt(user.getEffectiveStatWis()) * 12));
-
-      // 修炼速度加成：师徒被动（1 + 等级差 × 0.002，上限 1.5）与宗门练功房（+3%/级）
-      double masterBonus = masterApprenticeService.calculateTrainingBonus(userId);
-      double sectBonus = sectBuildingService.getTrainingBonusForUser(userId);
-
-      var fortune = fortuneService.calculate(userId);
-      // 所有乘数用 double 连乘后统一取整，避免中间截断损失精度
-      double expMultiplier =
-          efficiencyMultiplier
-              * levelDecayMultiplier
-              * masterBonus
-              * (1.0 + sectBonus)
-              * fortuneService.getLuckMultiplier(fortune.luck());
-      baseExp = Math.round(baseExpPerMinute * remainingMinutes * expMultiplier);
-      trainingItems = calculateItemsReward(remainingMinutes, efficiencyMultiplier, mapNode);
-
-      var settlementResult =
-          trainingSettler.settleChunk(userId, user, mapNode, lastSettled, minutesTraining);
-      combatSummary = settlementResult.combatSummary();
-      beastDeployed = settlementResult.beastDeployed();
-    }
+    // 结算全部未结算时长：基础修为、物品、事件循环与灵兽经验统一在结算器内完成
+    TrainingSettlement settlement =
+        trainingSettler.settle(userId, user, mapNode, lastSettled, minutesTraining);
 
     boolean diedInTraining = user.getStatus() == UserStatus.DYING;
+    CombatSummary combatSummary = settlement.combatSummary();
+    List<DropItem> trainingItems = settlement.items();
+    long totalExp = settlement.totalExp();
 
     trainingCompleter.checkHiddenEvents(userId, user, mapNode);
-
-    long totalExp = baseExp + combatSummary.expGained();
-
-    // 重伤前获取的修为和物品照常发放（击杀修为一并入账，受存储上限截断）
-    if (totalExp > 0) {
-      user.addExp(totalExp);
-    }
-    rewardGrant.grant(userId, trainingItems);
 
     if (diedInTraining) {
       user.endActivity();
@@ -229,17 +168,17 @@ public class TrainingService {
     } else {
       user.clearActivity();
       trainingCompleter.produceCompletionEvent(
-          userId, user, mapNode, minutesTraining, combatSummary.expGained(), trainingItems.size());
+          userId, user, mapNode, minutesTraining, totalExp, trainingItems.size());
       trainingCompleter.applyEnvironmentalEvents(userId, user, mapNode);
     }
-    userStateService.saveTrainingEndState(user);
+    playerWriter.saveTrainingEndState(user);
 
     List<String> itemNames =
         trainingItems.stream().map(DropItem::name).filter(Objects::nonNull).toList();
     @Nullable String combatHighlight = buildHighlightBattleText(combatSummary);
     @Nullable String defeatNarrative = diedInTraining ? buildDefeatNarrative(combatSummary) : null;
     @Nullable String beastNarrative =
-        diedInTraining && beastDeployed ? buildBeastNarrative(combatSummary) : null;
+        diedInTraining && settlement.beastDeployed() ? buildBeastNarrative(combatSummary) : null;
     String plainSummary =
         buildEndTrainingSummary(
             minutesTraining,
@@ -257,8 +196,8 @@ public class TrainingService {
             .mapId(mapNode.getId())
             .mapName(mapNode.getName())
             .durationMinutes(minutesTraining)
-            .efficiencyMultiplier(efficiencyMultiplier)
-            .levelDecayMultiplier(levelDecayMultiplier)
+            .efficiencyMultiplier(settlement.efficiencyMultiplier())
+            .levelDecayMultiplier(settlement.levelDecayMultiplier())
             .exp(totalExp)
             .items(trainingItems)
             .summary(plainSummary)
@@ -393,56 +332,6 @@ public class TrainingService {
     if (!cs.hasHighlight()) return null;
     // 高光战斗中如果有 BeastCombatant 参与了，由 LLM 自行生成；这里给 fallback
     return "你的灵兽一直相伴左右并肩而战，在你昏迷前奋力将你拖出了险境。";
-  }
-
-  private double calculateEfficiencyMultiplier(int agility) {
-    return (1.0 + Math.min(agility * AGILITY_EFFICIENCY_COEFFICIENT, MAX_EFFICIENCY_BOOST));
-  }
-
-  private double calculateLevelDecayMultiplier(int playerLevel, int mapLevel) {
-    int levelDiff = playerLevel - mapLevel - LEVEL_DECAY_OFFSET;
-    if (levelDiff <= 0) return 1.0;
-    return Math.max(MIN_LEVEL_DECAY_MULTIPLIER, 1.0 - levelDiff * LEVEL_DECAY_RATE);
-  }
-
-  private List<DropItem> calculateItemsReward(
-      long minutesTraining, double efficiencyMultiplier, MapNode mapNode) {
-    var specialties = mapNode.getSpecialties();
-    if (specialties == null || specialties.isEmpty()) return List.of();
-    Map<Long, ItemTemplate> templateMap =
-        itemTemplateRepository
-            .findByIds(specialties.stream().map(SpecialtyEntry::templateId).toList())
-            .stream()
-            .collect(Collectors.toMap(ItemTemplate::getId, t -> t));
-    // 单次结算掉落判定次数封顶（对应最长 12 小时挂机），防止超长离线一次滚动数千次
-    long effectiveMinutes = Math.min(minutesTraining, MAX_SETTLEMENT_MINUTES);
-    int dropChances = Math.max(1, (int) ((effectiveMinutes / 10.0) * efficiencyMultiplier));
-    Map<Long, DropItem> merged = new LinkedHashMap<>();
-    for (int i = 0; i < dropChances; i++) {
-      SpecialtyEntry selectedEntry =
-          WeightedRandom.select(specialties, SpecialtyEntry::weight, ThreadLocalRandom.current());
-      if (selectedEntry == null) continue;
-      Long selectedTemplateId = selectedEntry.templateId();
-      if (selectedTemplateId == null) continue;
-      int quantity = ThreadLocalRandom.current().nextInt(3) + 1;
-      DropItem existing = merged.get(selectedTemplateId);
-      if (existing != null) {
-        merged.put(
-            selectedTemplateId,
-            new DropItem(
-                DropItem.DropType.ITEM,
-                existing.templateId(),
-                existing.name(),
-                existing.quantity() + quantity));
-      } else {
-        ItemTemplate template = templateMap.get(selectedTemplateId);
-        String name = template != null ? template.getName() : "未知物品";
-        merged.put(
-            selectedTemplateId,
-            new DropItem(DropItem.DropType.ITEM, selectedTemplateId, name, quantity));
-      }
-    }
-    return new ArrayList<>(merged.values());
   }
 
   /** 非历练区报错文案 — BFS 指引最近的历练区 */

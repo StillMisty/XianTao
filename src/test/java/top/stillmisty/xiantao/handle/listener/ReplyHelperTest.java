@@ -2,17 +2,26 @@ package top.stillmisty.xiantao.handle.listener;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import top.stillmisty.qqgateway.QqIncomingMessage;
+import top.stillmisty.qqgateway.QqKeyboard;
 import top.stillmisty.qqgateway.QqScene;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
 import top.stillmisty.xiantao.handle.NextActions;
 import top.stillmisty.xiantao.handle.platform.PlatformHandler;
 import top.stillmisty.xiantao.handle.platform.PlatformRegistry;
+import top.stillmisty.xiantao.handle.platform.ReplyDelivery;
+import top.stillmisty.xiantao.handle.platform.ReplyLimits;
+import top.stillmisty.xiantao.service.NotificationAppender;
 
 class ReplyHelperTest {
 
@@ -67,12 +76,17 @@ class ReplyHelperTest {
               return "地图正文";
             });
 
-    assertEquals(
-        List.of(new NextActions.Suggestion("翠竹林", "前往 翠竹林")), handler.suggestions.getFirst());
+    QqKeyboard keyboard = Objects.requireNonNull(handler.keyboard);
+    assertEquals("前往 翠竹林", keyboard.rows().getFirst().buttons().getFirst().data());
   }
 
   private static ReplyHelper helper(PlatformHandler handler) {
-    return new ReplyHelper(new PlatformRegistry(List.of(handler)));
+    NotificationAppender appender = mock(NotificationAppender.class);
+    when(appender.prepareAppend(any(), any(), any(), any()))
+        .thenAnswer(
+            invocation ->
+                new NotificationAppender.AppendResult(invocation.getArgument(2), List.of(), null));
+    return new ReplyHelper(new PlatformRegistry(List.of(handler)), new ReplyDelivery(appender));
   }
 
   private static QqIncomingMessage message() {
@@ -83,7 +97,7 @@ class ReplyHelperTest {
   private static final class StubHandler implements PlatformHandler {
 
     final List<String> replies = new CopyOnWriteArrayList<>();
-    final List<List<NextActions.Suggestion>> suggestions = new CopyOnWriteArrayList<>();
+    @Nullable QqKeyboard keyboard;
 
     @Override
     public PlatformType getPlatformType() {
@@ -101,15 +115,15 @@ class ReplyHelperTest {
     }
 
     @Override
-    public void replyText(QqIncomingMessage message, String text) {
-      replies.add(text);
+    public ReplyLimits replyLimits() {
+      return new ReplyLimits(1800, 4, 10, true, true);
     }
 
     @Override
-    public void replyText(
-        QqIncomingMessage message, String text, List<NextActions.Suggestion> nextActions) {
-      replies.add(text);
-      suggestions.add(nextActions);
+    public void sendReply(
+        QqIncomingMessage message, List<String> segments, @Nullable QqKeyboard keyboard) {
+      replies.add(String.join("", segments));
+      this.keyboard = keyboard;
     }
   }
 }

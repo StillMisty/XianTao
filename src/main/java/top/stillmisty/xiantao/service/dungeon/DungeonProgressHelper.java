@@ -14,7 +14,8 @@ import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.SpiritStoneService;
-import top.stillmisty.xiantao.service.player.UserStateService;
+import top.stillmisty.xiantao.service.player.PlayerLoader;
+import top.stillmisty.xiantao.service.player.PlayerWriter;
 
 @Component
 @RequiredArgsConstructor
@@ -22,7 +23,8 @@ public class DungeonProgressHelper {
 
   private final DungeonTemplateRepository dungeonTemplateRepository;
   private final DungeonProgressRepository progressRepository;
-  private final UserStateService userStateService;
+  private final PlayerLoader playerLoader;
+  private final PlayerWriter playerWriter;
   private final SpiritStoneService spiritStoneService;
   private final DungeonInstanceManager instanceManager;
   private final DungeonEventCompleter dungeonEventCompleter;
@@ -40,9 +42,9 @@ public class DungeonProgressHelper {
                     new BusinessException(
                         ErrorCode.DUNGEON_NOT_FOUND, String.valueOf(instance.getDungeonId())));
 
-    Player user = userStateService.loadUser(userId);
+    Player user = playerLoader.load(userId);
     user.clearActivity();
-    userStateService.saveActivity(user);
+    playerWriter.saveActivity(user);
 
     DungeonProgress progress =
         progressRepository

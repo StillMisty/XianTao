@@ -24,7 +24,8 @@ import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.ai.DungeonStateBuilder;
-import top.stillmisty.xiantao.service.player.UserStateService;
+import top.stillmisty.xiantao.service.player.PlayerLoader;
+import top.stillmisty.xiantao.service.player.PlayerWriter;
 
 @Slf4j
 @Service
@@ -36,7 +37,8 @@ public class DungeonService {
   private final DungeonSpiritStateRepository spiritStateRepository;
   private final DungeonQueryService dungeonQueryService;
   private final DungeonAccessChecker accessChecker;
-  private final UserStateService userStateService;
+  private final PlayerLoader playerLoader;
+  private final PlayerWriter playerWriter;
   private final DungeonInstanceManager instanceManager;
   private final DungeonStateBuilder stateBuilder;
   private final UserRepository userRepository;
@@ -52,10 +54,10 @@ public class DungeonService {
     for (DungeonInstance instance : actives) {
       if (!instance.isExpired()) continue;
       instanceManager.markFailed(instance);
-      Player leader = userStateService.loadUserReadOnly(instance.getLeaderId());
+      Player leader = playerLoader.loadReadOnly(instance.getLeaderId());
       if (leader != null && leader.getStatus() == UserStatus.DUNGEON) {
         leader.clearActivity();
-        userStateService.saveActivity(leader);
+        playerWriter.saveActivity(leader);
       }
       expired++;
     }
@@ -78,7 +80,7 @@ public class DungeonService {
 
   @Transactional(readOnly = true)
   public ServiceResult<String> statusInDungeon(Long userId) {
-    Player user = userStateService.loadUser(userId);
+    Player user = playerLoader.load(userId);
     if (user.getActivityTargetId() == null || user.getStatus() != UserStatus.DUNGEON) {
       // 不在秘境中时返回失败，让「秘境」指令回退到秘境列表（展示入口与门槛）
       return ServiceResult.businessFailure("你当前不在任何秘境中。");
@@ -87,7 +89,7 @@ public class DungeonService {
   }
 
   public String enterDungeonInternal(Long userId, String dungeonName) {
-    Player user = userStateService.loadUser(userId);
+    Player user = playerLoader.load(userId);
     DungeonTemplate dungeon =
         dungeonTemplateRepository
             .findByName(dungeonName)
@@ -124,7 +126,7 @@ public class DungeonService {
     instanceRepository.save(instance);
 
     user.beginActivity(ActivityType.DUNGEON, UserStatus.DUNGEON, TimeUtil.now(), instance.getId());
-    userStateService.saveActivity(user);
+    playerWriter.saveActivity(user);
 
     log.info("玩家 {} 进入了秘境 {}", userId, dungeonName);
 
@@ -155,7 +157,7 @@ public class DungeonService {
   }
 
   public String getStatusInternal(Long userId) {
-    Player user = userStateService.loadUser(userId);
+    Player user = playerLoader.load(userId);
     if (user.getActivityTargetId() == null || user.getStatus() != UserStatus.DUNGEON) {
       return "你当前不在任何秘境中。输入「秘境」查看可进入的秘境。";
     }

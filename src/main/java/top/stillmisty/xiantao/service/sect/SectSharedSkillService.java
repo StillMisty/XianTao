@@ -41,7 +41,7 @@ import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.GameEventService;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
-import top.stillmisty.xiantao.service.player.UserStateService;
+import top.stillmisty.xiantao.service.player.PlayerLoader;
 
 @Slf4j
 @Service
@@ -58,7 +58,7 @@ public class SectSharedSkillService {
   private final SectSharedSkillRepository sectSharedSkillRepository;
   private final SkillRepository skillRepository;
   private final PlayerSkillRepository playerSkillRepository;
-  private final UserStateService userStateService;
+  private final PlayerLoader playerLoader;
   private final ItemTemplateRepository itemTemplateRepository;
   private final StackableItemService stackableItemService;
   private final StackableItemRepository stackableItemRepository;
@@ -208,7 +208,7 @@ public class SectSharedSkillService {
 
     validatePrecursor(userId, skill);
 
-    var user = userStateService.loadUser(userId);
+    var user = playerLoader.load(userId);
     if (skill.getLevelRequirement() != null && user.getLevel() < skill.getLevelRequirement()) {
       throw new BusinessException(
           ErrorCode.SECT_SKILL_LEVEL_INSUFFICIENT,

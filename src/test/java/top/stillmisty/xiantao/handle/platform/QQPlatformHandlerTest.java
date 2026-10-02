@@ -1,12 +1,8 @@
 package top.stillmisty.xiantao.handle.platform;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -14,7 +10,6 @@ import java.time.Instant;
 import java.util.List;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.ObjectProvider;
 import top.stillmisty.qqgateway.QqButton;
 import top.stillmisty.qqgateway.QqGatewayConfig;
@@ -24,134 +19,53 @@ import top.stillmisty.qqgateway.QqMessageSender;
 import top.stillmisty.qqgateway.QqScene;
 import top.stillmisty.qqgateway.QqWebhookHandler;
 import top.stillmisty.xiantao.config.QqProperties;
-import top.stillmisty.xiantao.domain.user.enums.PlatformType;
-import top.stillmisty.xiantao.handle.NextActions;
-import top.stillmisty.xiantao.service.NotificationAppender;
 
+/** QQ 适配器只负责 transport 与能力声明；投递顺序由 ReplyDeliveryTest 覆盖。 */
 class QQPlatformHandlerTest {
 
   @Test
-  void passesChoiceKeyboardWhenEnabled() {
-    QqKeyboard keyboard = choiceKeyboard();
-    NotificationAppender appender = appenderReturning(keyboard);
-    QqMessageSender sender = mock(QqMessageSender.class);
-    QqIncomingMessage message = message();
+  void declaresPlatformLimitsAndButtonSwitches() {
+    ReplyLimits limits = handler(mock(QqMessageSender.class), true, false).replyLimits();
 
-    handler(appender, sender, true, true).replyText(message, "正文");
-
-    verify(sender).replyMarkdown(message, "正文", keyboard);
+    assertEquals(QQPlatformHandler.MAX_SEGMENT_BYTES, limits.maxSegmentBytes());
+    assertEquals(QQPlatformHandler.MAX_SEGMENTS, limits.maxSegments());
+    assertEquals(QQPlatformHandler.MAX_BUTTON_LABEL_CHARS, limits.maxButtonLabelChars());
+    assertEquals(true, limits.choiceButtons());
+    assertEquals(false, limits.suggestionButtons());
   }
 
   @Test
-  void omitsChoiceKeyboardWhenDisabled() {
-    NotificationAppender appender = appenderReturning(choiceKeyboard());
+  void sendsKeyboardOnlyOnLastSegment() {
     QqMessageSender sender = mock(QqMessageSender.class);
     QqIncomingMessage message = message();
+    QqKeyboard keyboard =
+        QqKeyboard.commandGrid(List.of(QqButton.command("choice-0", "进入", "选 A")));
 
-    handler(appender, sender, false, true).replyText(message, "正文");
+    handler(sender, true, true).sendReply(message, List.of("第一段", "第二段"), keyboard);
 
-    verify(sender).replyMarkdown(eq(message), eq("正文"), isNull());
+    verify(sender).replyMarkdown(message, "第一段", null);
+    verify(sender).replyMarkdown(message, "第二段", keyboard);
   }
 
   @Test
-  void buildsSuggestionKeyboardWhenNoChoiceEvent() {
-    NotificationAppender appender = appenderReturning(null);
-    QqMessageSender sender = mock(QqMessageSender.class);
-    QqIncomingMessage message = message();
-    List<NextActions.Suggestion> suggestions =
-        List.of(
-            new NextActions.Suggestion("翠竹林", "前往 翠竹林"),
-            new NextActions.Suggestion("黑风岭", "前往 黑风岭"));
+  void dropsReplyWithoutConfiguredSender() {
+    ObjectProvider<QqMessageSender> provider = provider(null);
+    QQPlatformHandler handler = new QQPlatformHandler(provider, properties(true, true));
 
-    handler(appender, sender, true, true).replyText(message, "正文", suggestions);
-
-    ArgumentCaptor<QqKeyboard> captor = ArgumentCaptor.forClass(QqKeyboard.class);
-    verify(sender).replyMarkdown(eq(message), eq("正文"), captor.capture());
-    QqKeyboard keyboard = captor.getValue();
-    assertEquals(2, keyboard.buttonCount());
-    assertEquals("翠竹林", keyboard.rows().getFirst().buttons().getFirst().label());
-    assertEquals("前往 翠竹林", keyboard.rows().getFirst().buttons().getFirst().data());
-    assertEquals("前往 黑风岭", keyboard.rows().getFirst().buttons().getLast().data());
-  }
-
-  @Test
-  void suggestionLabelIsTruncatedToPlatformLimit() {
-    NotificationAppender appender = appenderReturning(null);
-    QqMessageSender sender = mock(QqMessageSender.class);
-    QqIncomingMessage message = message();
-    String longName = "极长的地区名称测试用例甲乙丙丁戊己庚辛";
-
-    handler(appender, sender, true, true)
-        .replyText(message, "正文", List.of(new NextActions.Suggestion(longName, "前往 " + longName)));
-
-    ArgumentCaptor<QqKeyboard> captor = ArgumentCaptor.forClass(QqKeyboard.class);
-    verify(sender).replyMarkdown(eq(message), eq("正文"), captor.capture());
-    String label = captor.getValue().rows().getFirst().buttons().getFirst().label();
-    assertTrue(label.codePointCount(0, label.length()) <= 10, label);
-  }
-
-  @Test
-  void choiceKeyboardWinsOverSuggestions() {
-    QqKeyboard keyboard = choiceKeyboard();
-    NotificationAppender appender = appenderReturning(keyboard);
-    QqMessageSender sender = mock(QqMessageSender.class);
-    QqIncomingMessage message = message();
-
-    handler(appender, sender, true, true)
-        .replyText(message, "正文", List.of(new NextActions.Suggestion("翠竹林", "前往 翠竹林")));
-
-    verify(sender).replyMarkdown(message, "正文", keyboard);
-  }
-
-  @Test
-  void omitsSuggestionKeyboardWhenDisabled() {
-    NotificationAppender appender = appenderReturning(null);
-    QqMessageSender sender = mock(QqMessageSender.class);
-    QqIncomingMessage message = message();
-
-    handler(appender, sender, true, false)
-        .replyText(message, "正文", List.of(new NextActions.Suggestion("翠竹林", "前往 翠竹林")));
-
-    verify(sender).replyMarkdown(eq(message), eq("正文"), isNull());
-  }
-
-  @Test
-  void longReplyIsSplitIntoSegments() {
-    NotificationAppender appender = appenderReturning(null);
-    QqMessageSender sender = mock(QqMessageSender.class);
-    QqIncomingMessage message = message();
-    String text = "测".repeat(1000);
-
-    handler(appender, sender, true, true).replyText(message, text);
-
-    ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-    verify(sender, times(2)).replyMarkdown(eq(message), captor.capture(), isNull());
-    assertEquals(text, String.join("", captor.getAllValues()));
-  }
-
-  private static NotificationAppender appenderReturning(@Nullable QqKeyboard keyboard) {
-    NotificationAppender appender = mock(NotificationAppender.class);
-    when(appender.prepareAppend(eq(PlatformType.QQ), eq("OPEN-1"), any(), any()))
-        .thenAnswer(
-            invocation ->
-                new NotificationAppender.AppendResult(
-                    invocation.getArgument(2), List.of(), keyboard));
-    return appender;
+    assertDoesNotThrow(() -> handler.sendReply(message(), List.of("正文"), null));
   }
 
   @SuppressWarnings("unchecked")
   private static QQPlatformHandler handler(
-      NotificationAppender appender,
-      QqMessageSender sender,
-      boolean choiceButtons,
-      boolean suggestionButtons) {
-    ObjectProvider<QqMessageSender> provider = mock(ObjectProvider.class);
-    when(provider.getIfAvailable()).thenReturn(sender);
-    return new QQPlatformHandler(appender, provider, properties(choiceButtons, suggestionButtons));
+      QqMessageSender sender, boolean choiceButtons, boolean suggestionButtons) {
+    return new QQPlatformHandler(provider(sender), properties(choiceButtons, suggestionButtons));
   }
 
-  private static QqKeyboard choiceKeyboard() {
-    return QqKeyboard.commandGrid(List.of(QqButton.command("choice-0", "进入洞穴", "选 A")));
+  @SuppressWarnings("unchecked")
+  private static ObjectProvider<QqMessageSender> provider(@Nullable QqMessageSender sender) {
+    ObjectProvider<QqMessageSender> provider = mock(ObjectProvider.class);
+    when(provider.getIfAvailable()).thenReturn(sender);
+    return provider;
   }
 
   private static QqProperties properties(boolean choiceButtons, boolean suggestionButtons) {

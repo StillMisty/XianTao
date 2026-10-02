@@ -500,9 +500,7 @@ public class SectMemberService {
     long cost = SectLedger.upgradeCost(sect.getLevel());
 
     // 原子条件扣款，防止并发升级双花资金
-    if (!sectLedger.deductFundsIfEnough(sect.getId(), cost)) {
-      throw new BusinessException(ErrorCode.SECT_FUNDS_INSUFFICIENT, cost, sect.getFunds());
-    }
+    sectLedger.deductFundsOrThrow(sect.getId(), cost);
 
     int oldLevel = sect.getLevel();
     sect.setLevel(oldLevel + 1);
@@ -529,9 +527,7 @@ public class SectMemberService {
     int slots = SectLedger.EXPAND_SLOTS;
     long cost = (long) slots * SectLedger.EXPAND_COST_PER_SLOT;
 
-    if (!sectLedger.deductFundsIfEnough(sect.getId(), cost)) {
-      throw new BusinessException(ErrorCode.SECT_FUNDS_INSUFFICIENT, cost, sect.getFunds());
-    }
+    sectLedger.deductFundsOrThrow(sect.getId(), cost);
 
     sect.setMaxMembers(sect.getMaxMembers() + slots);
     sectRepository.save(sect);

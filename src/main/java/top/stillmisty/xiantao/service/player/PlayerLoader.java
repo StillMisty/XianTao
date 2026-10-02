@@ -20,7 +20,7 @@ public class PlayerLoader {
 
   private final UserRepository userRepository;
 
-  /** 行锁加载（与 {@link UserStateService#loadUser} 相同的锁语义，但不触发状态结算）。 */
+  /** 行锁加载（{@code SELECT ... FOR UPDATE}），不触发状态结算；结算由 {@link UserStateService#settle} 在命令边界执行。 */
   public Player load(Long userId) {
     return userRepository
         .findByIdForUpdate(userId)

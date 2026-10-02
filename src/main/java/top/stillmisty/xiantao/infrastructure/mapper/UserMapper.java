@@ -30,6 +30,7 @@ public interface UserMapper extends BaseMapper<Player> {
       """
       UPDATE player SET status = #{status}, activity_type = #{activityType},
       activity_start_time = #{activityStartTime}, activity_target_id = #{activityTargetId},
+      last_settlement_minute = 0,
       update_time = now()
       WHERE id = #{userId}""")
   void startActivity(
@@ -66,17 +67,6 @@ public interface UserMapper extends BaseMapper<Player> {
       @Param("activityType") @Nullable String activityType,
       @Param("activityStartTime") @Nullable LocalDateTime activityStartTime,
       @Param("activityTargetId") @Nullable Long activityTargetId);
-
-  @Update(
-      """
-      UPDATE player SET hp_current = #{hpCurrent}, exp = #{exp},
-      last_settlement_minute = #{lastSettlementMinute}, update_time = now()
-      WHERE id = #{userId}""")
-  void updateTrainingSettlement(
-      @Param("userId") Long userId,
-      @Param("hpCurrent") int hpCurrent,
-      @Param("exp") long exp,
-      @Param("lastSettlementMinute") long lastSettlementMinute);
 
   @Select("SELECT * FROM player WHERE id = #{id} FOR UPDATE")
   Player selectByIdForUpdate(@Param("id") Long id);

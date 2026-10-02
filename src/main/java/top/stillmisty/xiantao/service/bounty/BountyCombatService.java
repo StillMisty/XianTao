@@ -29,14 +29,16 @@ import top.stillmisty.xiantao.service.RewardGrant;
 import top.stillmisty.xiantao.service.SpiritStoneService;
 import top.stillmisty.xiantao.service.activity.BountyCompleter;
 import top.stillmisty.xiantao.service.ai.ExplorationDescriptionFunction;
-import top.stillmisty.xiantao.service.player.UserStateService;
+import top.stillmisty.xiantao.service.player.PlayerLoader;
+import top.stillmisty.xiantao.service.player.PlayerWriter;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class BountyCombatService {
 
-  private final UserStateService userStateService;
+  private final PlayerLoader playerLoader;
+  private final PlayerWriter playerWriter;
   private final MapNodeRepository mapNodeRepository;
   private final UserBountyRepository userBountyRepository;
   private final ExplorationDescriptionFunction explorationDescriptionFunction;
@@ -55,7 +57,7 @@ public class BountyCombatService {
 
   @Transactional
   public CompletedBounty completeBounty(Long userId) {
-    Player user = userStateService.loadUser(userId);
+    Player user = playerLoader.load(userId);
     if (user.getStatus() != UserStatus.BOUNTY) {
       throw new BusinessException(STATUS_BLOCKED, user.getStatus().getName(), "悬赏");
     }
@@ -118,7 +120,7 @@ public class BountyCombatService {
     userBountyRepository.save(record);
 
     user.clearActivity();
-    userStateService.saveActivity(user);
+    playerWriter.saveActivity(user);
 
     log.info(
         "玩家 {} 完成悬赏: {} (耗时{}分, 物品数={}, 灵石={})",

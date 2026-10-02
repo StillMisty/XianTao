@@ -276,7 +276,7 @@ TravelCompletionHandler.tryResolve(user)
 | 处理器 | @Order | 行为 |
 |--------|--------|------|
 | `BuffExpiryHandler` | 4 | 单条 DELETE 清理该玩家所有过期 `player_buff`（返回值 false，不触发整行保存） |
-| `TrainingSettlementHandler` | 5 | 历练中每满 60 分钟自动中途结算一段（击杀修为入账、产出 `TRAINING_EVENT` 事件、更新 `last_settlement_minute`） |
+| `TrainingSettlementHandler` | 5 | 历练中每满 60 分钟自动中途结算一段（与最终结算共用 `TrainingSettler.settle`：基础修为/物品/击杀修为入账、产出 `TRAINING_EVENT` 事件、更新 `last_settlement_minute`） |
 | `DailyFortuneHandler` | 6 | 跨天首次加载时生成当日运势并写入 `FORTUNE` 事件 |
 
 ---
@@ -285,17 +285,13 @@ TravelCompletionHandler.tryResolve(user)
 
 ### 8.1 职责
 
-所有服务加载用户时统一走 `UserStateService`，确保状态一致（旅行是否到期、气血是否恢复、濒死是否超时、历练是否需中途结算、Buff 是否过期、运势是否需刷新）。
+过期状态结算收敛在命令边界（`CommandDispatcher` 认证后调用 `UserStateService.settle`），确保状态一致（旅行是否到期、气血是否恢复、濒死是否超时、历练是否需中途结算、Buff 是否过期、运势是否需刷新）；深层服务不做隐式结算。
 
-**公开方法（现状）：**
+**组件分工（现状）：**
 
-- `loadUser(Long userId)` → Player：行锁加载（`SELECT ... FOR UPDATE`）并执行 `resolveState()` 结算
-- `loadUserReadOnly(Long userId)` → Player：只读加载，不结算（仅查询场景）
-- `loadUsersByIds(List<Long>)` → Map：批量加载并逐个结算
-- `loadUsersByIdsReadOnly(List<Long>)` → Map：批量只读加载
-- `loadUserByNickname(String)` → Player 或 null：不结算
-- `save(Player)` → Player：全字段保存
-- `clearActivity(Long)` / `saveActivity(Player)` / `saveHpStatus(Player)` / `saveTrainingEndState(Player)`：定向字段保存，避免覆盖灵石等并发数据
+- `UserStateService.settle(Long)`：行锁加载并执行 `resolveState()`，命令边界唯一入口
+- `PlayerLoader`：纯数据加载叶子组件（`load` 行锁 / `loadReadOnly` / `findByNickname`）
+- `PlayerWriter`：显式写入叶子组件（`save` / `clearActivity` / `saveActivity` / `saveHpStatus` / `saveTrainingEndState`）
 
 **内部结算：**
 
@@ -311,7 +307,7 @@ TravelCompletionHandler.tryResolve(user)
 
 ### 8.2 历史迁移记录（文档原文保留）
 
-文档记录当时将 13 个服务、27 处调用点从 `userRepository.findById()` 迁移至 `userStateService.loadUser(userId)`：
+文档记录当时将 13 个服务、27 处调用点从 `userRepository.findById()` 迁移至带结算的加载入口；后续（结算收敛命令边界）又统一迁移为：读取走 `PlayerLoader`、写入走 `PlayerWriter`，`UserStateService` 只保留 `settle`。以下为当时的迁移清单：
 
 | 服务 | 变更 |
 |------|------|
@@ -394,7 +390,7 @@ TravelCompletionHandler.tryResolve(user)
 - **新增字段/枚举**：`last_settlement_minute`、`last_fortune_date`、`gm`；`ActivityType` 增 `DUNGEON`/`BOUNTY_SIDE`，`UserStatus` 增 `DUNGEON`。
 - **突破成功率数值**：逻辑斯蒂基础概率 `100/(1+(level/65)^4)` + 失败补偿 `5 + 20/(1+(level/50)^2)`，叠加护道/丹药后 clamp [0,100]（保留两位小数）。
 - **突破分流**：跨大境界与渡劫期改为雷劫战斗（RNG 仅用于同大境界小境界），细节见 `breakthrough` 能力。
-- **状态解析实现**：使用数据库列 `last_hp_recovery_time`/`dying_start_time`，由 `StateHandler` 列表（旅行→濒死→气血→过期 Buff→历练结算→运势）结算；`UserStateService` 另提供只读/批量加载与定向保存。
+- **状态解析实现**：使用数据库列 `last_hp_recovery_time`/`dying_start_time`，由 `StateHandler` 列表（旅行→濒死→气血→过期 Buff→历练结算→运势）在命令边界结算；`PlayerLoader`/`PlayerWriter` 提供纯加载与显式写入。
 
 ### B. 保留代码设计
 

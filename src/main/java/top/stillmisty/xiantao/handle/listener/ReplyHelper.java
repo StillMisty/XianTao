@@ -8,6 +8,7 @@ import top.stillmisty.qqgateway.QqIncomingMessage;
 import top.stillmisty.xiantao.handle.NextActions;
 import top.stillmisty.xiantao.handle.platform.PlatformHandler;
 import top.stillmisty.xiantao.handle.platform.PlatformRegistry;
+import top.stillmisty.xiantao.handle.platform.ReplyDelivery;
 import top.stillmisty.xiantao.util.TextFormat;
 
 /** 平台回复辅助 集中处理多平台回复方式 */
@@ -17,6 +18,7 @@ import top.stillmisty.xiantao.util.TextFormat;
 public class ReplyHelper {
 
   private final PlatformRegistry platformRegistry;
+  private final ReplyDelivery replyDelivery;
 
   /** 无额外参数的指令方法签名: (TextFormat) → String */
   @FunctionalInterface
@@ -90,14 +92,14 @@ public class ReplyHelper {
     reply(handler, message, text, List.of());
   }
 
-  /** 通过平台处理器回复（附带下一步建议按钮），失败仅记录日志。 */
+  /** 通过回复投递管线回复（附带下一步建议按钮），失败仅记录日志。 */
   public void reply(
       PlatformHandler handler,
       QqIncomingMessage message,
       String text,
       List<NextActions.Suggestion> suggestions) {
     try {
-      handler.replyText(message, text, suggestions);
+      replyDelivery.deliver(handler, message, text, suggestions);
     } catch (Exception e) {
       log.warn("{} 回复失败: {}", handler.getPlatformType(), e.getMessage(), e);
     }

@@ -27,14 +27,14 @@ import top.stillmisty.xiantao.infrastructure.repository.SkillRepository;
 import top.stillmisty.xiantao.infrastructure.repository.StackableItemRepository;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
-import top.stillmisty.xiantao.service.player.UserStateService;
+import top.stillmisty.xiantao.service.player.PlayerLoader;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class SkillService {
 
-  private final UserStateService userStateService;
+  private final PlayerLoader playerLoader;
   private final SkillRepository skillRepository;
   private final PlayerSkillRepository playerSkillRepository;
   private final StackableItemRepository stackableItemRepository;
@@ -117,7 +117,7 @@ public class SkillService {
           .build();
     }
 
-    var user = userStateService.loadUser(userId);
+    var user = playerLoader.load(userId);
     if (user.getLevel() < skill.getLevelRequirement()) {
       return SkillSlotResult.builder()
           .success(false)
@@ -225,7 +225,7 @@ public class SkillService {
     }
 
     // 5. 检查槽位（被动法决不占槽位，仅统计主动法决）
-    var user = userStateService.loadUser(userId);
+    var user = playerLoader.load(userId);
     int maxSlots = calculateMaxSlots(user.getLevel());
     long equippedCount =
         playerSkills.stream()
@@ -290,7 +290,7 @@ public class SkillService {
     matched.unequip();
     playerSkillRepository.save(matched);
 
-    var user = userStateService.loadUser(userId);
+    var user = playerLoader.load(userId);
     int maxSlots = calculateMaxSlots(user.getLevel());
 
     var skill = skillRepository.findById(matched.getSkillId()).orElse(null);

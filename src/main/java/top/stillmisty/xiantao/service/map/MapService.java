@@ -21,7 +21,7 @@ import top.stillmisty.xiantao.infrastructure.util.TypeUtils;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.player.UserStateService;
+import top.stillmisty.xiantao.service.player.PlayerLoader;
 
 /** 地图服务 */
 @Slf4j
@@ -31,7 +31,7 @@ public class MapService {
 
   private final MapNodeRepository mapNodeRepository;
   private final MonsterTemplateRepository monsterTemplateRepository;
-  private final UserStateService userStateService;
+  private final PlayerLoader playerLoader;
   private final ActivityEventRepository activityEventRepository;
 
   // ===================== 公开 API =====================
@@ -64,7 +64,7 @@ public class MapService {
 
   /** 获取当前所在地图详情 */
   public MapInfoVO loadCurrentMapInfo(Long userId) {
-    Player user = userStateService.loadUser(userId);
+    Player user = playerLoader.load(userId);
     MapNode mapNode =
         mapNodeRepository
             .findById(user.getLocationId())

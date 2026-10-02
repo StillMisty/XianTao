@@ -10,7 +10,7 @@ import top.stillmisty.xiantao.domain.event.EffectData;
 import top.stillmisty.xiantao.domain.notification.entity.GameEvent;
 import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.service.activity.SubEventEffectExecutor;
-import top.stillmisty.xiantao.service.player.UserStateService;
+import top.stillmisty.xiantao.service.player.PlayerLoader;
 import top.stillmisty.xiantao.service.shop.TravelerShopService;
 
 @Slf4j
@@ -20,7 +20,7 @@ public class ChoiceService {
 
   private final GameEventService gameEventService;
   private final SubEventEffectExecutor effectExecutor;
-  private final UserStateService userStateService;
+  private final PlayerLoader playerLoader;
   private final TravelerShopService travelerShopService;
 
   @Transactional
@@ -68,7 +68,7 @@ public class ChoiceService {
           + options.stream().map(EffectData.Option::key).reduce((a, b) -> a + "/" + b).orElse("");
     }
 
-    Player user = userStateService.loadUser(userId);
+    Player user = playerLoader.load(userId);
     Map<String, Object> templateArgs = executeOptionEffects(selectedOption, userId, user);
 
     gameEventService.markDelivered(List.of(choiceEvent.getId()));

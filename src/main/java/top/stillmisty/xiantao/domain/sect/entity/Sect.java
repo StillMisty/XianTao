@@ -32,6 +32,8 @@ public class Sect {
 
   private Integer level;
 
+  /** UPDATE 时不自写，资金变动统一由 SectLedger 原子 SQL 控制 */
+  @Column(onUpdateValue = "funds")
   private Long funds;
 
   private Integer maxMembers;
@@ -64,25 +66,6 @@ public class Sect {
 
   public boolean isLeader(Long userId) {
     return leaderId.equals(userId);
-  }
-
-  public void addFunds(long amount) {
-    this.funds = this.funds + amount;
-  }
-
-  public boolean deductFunds(long amount) {
-    if (this.funds < amount) {
-      return false;
-    }
-    this.funds = this.funds - amount;
-    return true;
-  }
-
-  public void deductFundsOrThrow(long amount) {
-    if (!deductFunds(amount)) {
-      throw new top.stillmisty.xiantao.service.BusinessException(
-          top.stillmisty.xiantao.service.ErrorCode.SECT_FUNDS_INSUFFICIENT, amount, this.funds);
-    }
   }
 
   public boolean isMaxLevel() {

@@ -18,7 +18,7 @@ import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.GameEventService;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.player.UserStateService;
+import top.stillmisty.xiantao.service.player.PlayerLoader;
 
 @Slf4j
 @Service
@@ -28,7 +28,7 @@ public class WorldEventParticipationService {
   private final WorldEventRepository worldEventRepository;
   private final WorldEventEffectApplier worldEventEffectApplier;
   private final GameEventService gameEventService;
-  private final UserStateService userStateService;
+  private final PlayerLoader playerLoader;
 
   public ServiceResult<String> participate(Long userId, Long eventId) {
     return new ServiceResult.Success<>(participateInternal(userId, eventId));
@@ -58,7 +58,7 @@ public class WorldEventParticipationService {
       throw new BusinessException(ErrorCode.WORLD_EVENT_PARTICIPATION_FULL);
     }
 
-    Player user = userStateService.loadUser(userId);
+    Player user = playerLoader.load(userId);
 
     List<Map<String, Object>> participationEffects = event.getParticipationEffects();
     String effectDesc = "";

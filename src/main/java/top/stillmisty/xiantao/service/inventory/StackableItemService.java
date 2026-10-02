@@ -18,7 +18,7 @@ import top.stillmisty.xiantao.service.ErrorCode;
 /**
  * 堆叠物品服务 — 增删查 + 按标签/类型搜索
  *
- * <p>设计决策：addStackableItem 不调用 UserStateService.loadUser()，调用方应自行确保用户已加载。 这避免了与
+ * <p>设计决策：addStackableItem 不做玩家加载，调用方应自行通过 {@code PlayerLoader} 确保用户已加载。 这避免了与
  * SubEventEffectExecutor 的循环依赖，消除了对 SimpleItemAdder 的需要。
  *
  * <p>缓存策略：本类是背包写路径的唯一入口，写操作后在此集中驱逐 player_inventory 相关缓存， 调用方（商店/炼丹/丢弃/使用等）无需各自处理驱逐。

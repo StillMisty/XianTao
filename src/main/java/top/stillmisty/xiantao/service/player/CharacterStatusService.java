@@ -37,7 +37,7 @@ public class CharacterStatusService {
 
   private static final int MAX_PROTECTOR_DISPLAY = 3;
 
-  private final UserStateService userStateService;
+  private final PlayerLoader playerLoader;
   private final UserRepository userRepository;
   private final EquipmentRepository equipmentRepository;
   private final DaoProtectionRepository daoProtectionRepository;
@@ -50,7 +50,7 @@ public class CharacterStatusService {
 
   /** 查看角色状态（状态） 包含：HP、属性、装扮（已穿戴装备）、境界进度（等级修为）、当前状态 */
   public CharacterStatusResult getCharacterStatusInternal(Long userId) {
-    Player user = userStateService.loadUserReadOnly(userId);
+    Player user = playerLoader.loadReadOnly(userId);
 
     EquipData equipData = buildEquipData(userId);
     ProtectionData protData = buildProtectionData(userId, user);

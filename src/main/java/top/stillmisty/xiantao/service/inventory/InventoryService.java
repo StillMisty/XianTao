@@ -19,7 +19,7 @@ import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.StackableItemRepository;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.player.UserStateService;
+import top.stillmisty.xiantao.service.player.PlayerLoader;
 
 /** 背包服务 负责：背包查看（摘要视图、分类列表、种子/装备/兽卵编号列表） */
 @Slf4j
@@ -27,7 +27,7 @@ import top.stillmisty.xiantao.service.player.UserStateService;
 @RequiredArgsConstructor
 public class InventoryService {
 
-  private final UserStateService userStateService;
+  private final PlayerLoader playerLoader;
   private final StackableItemRepository stackableItemRepository;
   private final ItemTemplateRepository itemTemplateRepository;
   private final ItemResolver itemResolver;
@@ -38,7 +38,7 @@ public class InventoryService {
   @Transactional(readOnly = true)
   @Cacheable(cacheNames = "player_inventory", key = "'summary:' + #userId")
   public InventorySummaryVO getInventorySummary(Long userId) {
-    Player user = userStateService.loadUserReadOnly(userId);
+    Player user = playerLoader.loadReadOnly(userId);
 
     List<ItemEntry> equipment = itemResolver.listEquipment(userId);
 

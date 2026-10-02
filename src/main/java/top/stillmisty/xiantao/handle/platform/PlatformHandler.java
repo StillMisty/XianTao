@@ -1,9 +1,10 @@
 package top.stillmisty.xiantao.handle.platform;
 
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 import top.stillmisty.qqgateway.QqIncomingMessage;
+import top.stillmisty.qqgateway.QqKeyboard;
 import top.stillmisty.xiantao.domain.user.enums.PlatformType;
-import top.stillmisty.xiantao.handle.NextActions;
 
 /** 平台处理器接口 每个平台实现此接口，提供平台特定的处理逻辑 */
 public interface PlatformHandler {
@@ -32,22 +33,18 @@ public interface PlatformHandler {
   String extractOpenId(QqIncomingMessage message);
 
   /**
-   * 回复文本消息
+   * 平台回复能力：分段上限、按钮开关与按钮文字上限
    *
-   * @param message 消息事件
-   * @param text 回复文本
+   * @return 平台能力声明
    */
-  void replyText(QqIncomingMessage message, String text);
+  ReplyLimits replyLimits();
 
   /**
-   * 回复文本消息（附带下一步建议按钮，平台可按自身能力忽略）
+   * 发送一条已装配好的回复（transport）。投递顺序、通知追加与标记由 {@link ReplyDelivery} 负责。
    *
    * @param message 消息事件
-   * @param text 回复文本
-   * @param suggestions 下一步建议（可为空列表）
+   * @param segments 已分段的回复文本（至少一段）
+   * @param keyboard 末段附带的可选按钮键盘
    */
-  default void replyText(
-      QqIncomingMessage message, String text, List<NextActions.Suggestion> suggestions) {
-    replyText(message, text);
-  }
+  void sendReply(QqIncomingMessage message, List<String> segments, @Nullable QqKeyboard keyboard);
 }

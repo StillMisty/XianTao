@@ -20,7 +20,7 @@ import top.stillmisty.xiantao.infrastructure.repository.UserRepository;
 import top.stillmisty.xiantao.service.ProtectionHelper;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.map.MapService;
-import top.stillmisty.xiantao.service.player.UserStateService;
+import top.stillmisty.xiantao.service.player.PlayerLoader;
 
 @Slf4j
 @Service
@@ -29,7 +29,7 @@ public class DaoProtectionService {
 
   static final int MAX_PROTECTOR_COUNT = 3;
   private final UserRepository userRepository;
-  private final UserStateService userStateService;
+  private final PlayerLoader playerLoader;
   private final MapService mapService;
   private final DaoProtectionRepository daoProtectionRepository;
 
@@ -41,7 +41,7 @@ public class DaoProtectionService {
   @Transactional
   @CacheEvict(cacheNames = "dao_protection", key = "#protectorId")
   public DaoProtectionResult establishProtection(Long protectorId, String protegeNickname) {
-    Player protector = userStateService.loadUser(protectorId);
+    Player protector = playerLoader.load(protectorId);
 
     Optional<Player> protegeOpt = findUserByNickname(protegeNickname);
     if (protegeOpt.isEmpty()) {
@@ -204,7 +204,7 @@ public class DaoProtectionService {
 
   @Cacheable(cacheNames = "dao_protection", key = "#userId")
   public DaoProtectionQueryResult queryProtectionInfo(Long userId) {
-    Player user = userStateService.loadUser(userId);
+    Player user = playerLoader.load(userId);
 
     List<ProtectionInfo> protectingInfoList = buildProtectingList(userId, user);
     ProtectionByData protectedByData = buildProtectedByList(userId, user);

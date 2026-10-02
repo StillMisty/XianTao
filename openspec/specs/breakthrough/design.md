@@ -183,7 +183,7 @@ combinedReduction = (1 - bossReduction)               // 丹药+护道 (0~0.5)
 ### 7.3 灵兽
 
 - 雷劫战斗中出战灵兽参战（HP > 0 且未休养，上限 2 只）
-- 当前实现**未将战斗后的玩家/灵兽气血写回持久层**（仅保存原状态）；文档所述「复用 `applyCombatHpToBeasts()`」属于 `PostCombatProcessor`，但突破流程未调用
+- 战后经 `PostCombatProcessor.resolve` 落地：败则玩家残血/濒死，胜则回满并解除濒死；灵兽按战斗剩余气血写回，阵亡者卸下出战并进入休养
 
 ### 7.4 LLM 叙事
 

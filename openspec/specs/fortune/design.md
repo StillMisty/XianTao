@@ -39,7 +39,7 @@
 
 ## 4. 数据流
 
-1. 每次 `UserStateService.loadUser` 触发状态结算（`StateHandler` 列表）；`DailyFortuneHandler`（`@Order(6)`）检查 `player.last_fortune_date` 是否为今日。
+1. 每次命令边界 `UserStateService.settle` 触发状态结算（`StateHandler` 列表）；`DailyFortuneHandler`（`@Order(6)`）检查 `player.last_fortune_date` 是否为今日。
 2. 若尚未生成：写入 `player.last_fortune_date = today`，并创建 `GameEventCategory.FORTUNE` 事件（narrative 模板 `{{fortuneText}}` = 运势展示文本）。
 3. 该事件由 `NotificationAppender` 在玩家下一次任意指令回复时追加送达（系统永不主动推送）。
 4. 玩家可随时用「今日运势」主动查询。

@@ -14,7 +14,6 @@ import top.stillmisty.xiantao.domain.fudi.enums.CellType;
 import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
 import top.stillmisty.xiantao.domain.monster.CombatTeam;
 import top.stillmisty.xiantao.domain.monster.TribulationBoss;
-import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
 import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.infrastructure.repository.FudiCellRepository;
 import top.stillmisty.xiantao.infrastructure.repository.FudiRepository;
@@ -22,7 +21,8 @@ import top.stillmisty.xiantao.infrastructure.repository.SpiritRepository;
 import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.SpiritStoneService;
 import top.stillmisty.xiantao.service.combat.CombatService;
-import top.stillmisty.xiantao.service.player.UserStateService;
+import top.stillmisty.xiantao.service.combat.PostCombatProcessor;
+import top.stillmisty.xiantao.service.player.PlayerWriter;
 
 @Service
 @RequiredArgsConstructor
@@ -35,8 +35,9 @@ public class TribulationService {
   private final FudiRepository fudiRepository;
   private final SpiritRepository spiritRepository;
   private final SpiritStoneService spiritStoneService;
-  private final UserStateService userStateService;
+  private final PlayerWriter playerWriter;
   private final CombatService combatService;
+  private final PostCombatProcessor postCombatProcessor;
 
   /**
    * 触发天劫 — 使用战斗引擎进行回合制战斗（玩家于福地手动触发）
@@ -86,15 +87,15 @@ public class TribulationService {
             fudi.getTribulationStage(),
             compassionTriggered);
 
-    // 执行战斗
+    // 执行战斗并落地气血：角色与灵兽按战斗结果写回
     CombatTeam bossTeam = new CombatTeam(0L, "天劫");
     bossTeam.addMember(boss);
-    BattleResultVO battleResult = combatService.simulate(defendingTeam, bossTeam, 40);
-    boolean playerWon = battleResult.winner().equals("Player");
+    PostCombatProcessor.BattleOutcome outcome =
+        postCombatProcessor.resolve(user, defendingTeam, bossTeam, 40, null);
+    boolean playerWon = outcome.playerWon();
     boolean compassionUsed = compassionTriggered && !playerWon;
 
-    // 应用 HP 变化到玩家和灵兽
-    userStateService.saveHpStatus(user);
+    playerWriter.saveHpStatus(user);
 
     String tribulationResult;
     if (playerWon) {

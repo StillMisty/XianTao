@@ -23,7 +23,7 @@ import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.player.UserStateService;
+import top.stillmisty.xiantao.service.player.PlayerLoader;
 
 @Slf4j
 @Service
@@ -35,17 +35,17 @@ public class MasterApprenticeService {
   private final MasterApprenticeRepository masterApprenticeRepository;
   private final DaoProtectionRepository daoProtectionRepository;
   private final UserRepository userRepository;
-  private final UserStateService userStateService;
+  private final PlayerLoader playerLoader;
 
   public MasterApprenticeService(
       MasterApprenticeRepository masterApprenticeRepository,
       DaoProtectionRepository daoProtectionRepository,
       UserRepository userRepository,
-      UserStateService userStateService) {
+      PlayerLoader playerLoader) {
     this.masterApprenticeRepository = masterApprenticeRepository;
     this.daoProtectionRepository = daoProtectionRepository;
     this.userRepository = userRepository;
-    this.userStateService = userStateService;
+    this.playerLoader = playerLoader;
   }
 
   // ===================== 公开 API =====================
@@ -77,8 +77,8 @@ public class MasterApprenticeService {
   // ===================== 内部 API =====================
 
   public String requestMentorInternal(Long userId, String targetNickname) {
-    Player apprentice = userStateService.loadUser(userId);
-    Player master = userStateService.loadUserByNickname(targetNickname);
+    Player apprentice = playerLoader.load(userId);
+    Player master = playerLoader.findByNickname(targetNickname);
     if (master == null) {
       throw new BusinessException(ErrorCode.MASTER_NOT_FOUND);
     }
@@ -108,8 +108,8 @@ public class MasterApprenticeService {
   }
 
   public String requestApprenticeInternal(Long userId, String targetNickname) {
-    Player master = userStateService.loadUser(userId);
-    Player apprentice = userStateService.loadUserByNickname(targetNickname);
+    Player master = playerLoader.load(userId);
+    Player apprentice = playerLoader.findByNickname(targetNickname);
     if (apprentice == null) {
       throw new BusinessException(ErrorCode.PLAYER_NOT_FOUND, targetNickname);
     }
@@ -155,7 +155,7 @@ public class MasterApprenticeService {
     if (asApprenticeOpt.isPresent()) {
       MasterApprentice ma = asApprenticeOpt.get();
       if (ma.isActive()) {
-        Player master = userStateService.loadUser(ma.getMasterId());
+        Player master = playerLoader.load(ma.getMasterId());
         masterId = master.getId();
         masterName = master.getNickname();
         masterLevel = master.getLevel();
@@ -201,7 +201,7 @@ public class MasterApprenticeService {
 
   @CacheEvict(cacheNames = "dao_protection", key = "#userId")
   public String dismissApprenticeInternal(Long userId, String targetNickname) {
-    Player target = userStateService.loadUserByNickname(targetNickname);
+    Player target = playerLoader.findByNickname(targetNickname);
     if (target == null) {
       throw new BusinessException(ErrorCode.PLAYER_NOT_FOUND, targetNickname);
     }

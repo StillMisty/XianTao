@@ -37,6 +37,8 @@ public class SectBuildingService {
   private final SectMemberRepository sectMemberRepository;
   private final SectBuildingRepository sectBuildingRepository;
   private final SectShopService sectShopService;
+  private final SectMemberService sectMemberService;
+  private final SectLedger sectLedger;
 
   // ===================== 公开 API =====================
 
@@ -80,7 +82,7 @@ public class SectBuildingService {
   // ===================== 内部 API =====================
 
   public BuildingsQueryVO getBuildingsInternal(Long userId) {
-    SectMember member = requireMember(userId);
+    SectMember member = sectMemberService.requireMember(userId);
     return getBuildingsBySectId(member.requireSectId());
   }
 
@@ -123,7 +125,7 @@ public class SectBuildingService {
         @CacheEvict(cacheNames = "sect_member_bonuses", allEntries = true)
       })
   public BuildResultVO buildStructureInternal(Long userId, String buildingTypeCode) {
-    SectMember member = requireMember(userId);
+    SectMember member = sectMemberService.requireMember(userId);
     if (!member.getPosition().canManage()) {
       throw new BusinessException(ErrorCode.SECT_NOT_LEADER);
     }
@@ -140,10 +142,8 @@ public class SectBuildingService {
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_FOUND));
 
     long cost = type.getBuildCost();
-    // 原子条件扣款，防止并发建造双花资金
-    if (sectRepository.deductFundsIfEnough(member.requireSectId(), cost) == 0) {
-      throw new BusinessException(ErrorCode.SECT_FUNDS_INSUFFICIENT, cost, sect.getFunds());
-    }
+    // 原子条件扣款统一走宗门账本，防止并发建造双花资金
+    sectLedger.deductFundsOrThrow(member.requireSectId(), cost);
     sect.setFunds(sect.getFunds() - cost);
 
     SectBuilding building =
@@ -166,7 +166,7 @@ public class SectBuildingService {
         @CacheEvict(cacheNames = "sect_member_bonuses", allEntries = true)
       })
   public UpgradeBuildingResultVO upgradeBuildingInternal(Long userId, String buildingTypeCode) {
-    SectMember member = requireMember(userId);
+    SectMember member = sectMemberService.requireMember(userId);
     if (!member.getPosition().canManage()) {
       throw new BusinessException(ErrorCode.SECT_NOT_LEADER);
     }
@@ -188,8 +188,9 @@ public class SectBuildingService {
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_FOUND));
 
     long cost = type.upgradeCost();
-    sect.deductFundsOrThrow(cost);
-    sectRepository.save(sect);
+    // 原子条件扣款统一走宗门账本，防止并发升级双花资金
+    sectLedger.deductFundsOrThrow(member.requireSectId(), cost);
+    sect.setFunds(sect.getFunds() - cost);
 
     int oldLevel = building.getLevel();
     building.setLevel(oldLevel + 1);
@@ -306,7 +307,8 @@ public class SectBuildingService {
 
     long income = hoursSinceLast * vein.getLevel() * 100 / 24;
     if (income > 0) {
-      sectRepository.addFunds(sect.getId(), income);
+      sectLedger.addFunds(sect.getId(), income);
+      sect.setFunds(sect.getFunds() + income);
       sect.setLastVeinPayout(now);
       sectRepository.save(sect);
     }
@@ -349,13 +351,5 @@ public class SectBuildingService {
     } catch (IllegalArgumentException e) {
       throw new BusinessException(ErrorCode.SECT_BUILDING_NOT_FOUND);
     }
-  }
-
-  private SectMember requireMember(Long userId) {
-    // 直接走 repository：SectMemberService 反向依赖 UserStateService，会与战斗链路构成循环依赖
-    return sectMemberRepository
-        .findByUserId(userId)
-        .filter(m -> m.getSectId() != null)
-        .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_IN));
   }
 }

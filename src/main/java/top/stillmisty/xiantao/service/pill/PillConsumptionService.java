@@ -26,7 +26,8 @@ import top.stillmisty.xiantao.infrastructure.repository.StackableItemRepository;
 import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.infrastructure.util.TypeUtils;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.player.UserStateService;
+import top.stillmisty.xiantao.service.player.PlayerLoader;
+import top.stillmisty.xiantao.service.player.PlayerWriter;
 
 /** 丹药服用服务 处理：服用丹药、等级衰减、抗性衰减、效果应用 */
 @Slf4j
@@ -36,7 +37,8 @@ public class PillConsumptionService {
 
   private static final double GRADE_DECAY_COEFFICIENT = 0.2;
   private static final int MAX_ACTIVE_BUFFS_PER_TYPE = 3;
-  private final UserStateService userStateService;
+  private final PlayerLoader playerLoader;
+  private final PlayerWriter playerWriter;
   private final ItemTemplateRepository itemTemplateRepository;
   private final StackableItemRepository stackableItemRepository;
   private final PillResistanceRepository pillResistanceRepository;
@@ -54,7 +56,7 @@ public class PillConsumptionService {
     if (!(props instanceof ItemProperties.Potion(List<ItemProperties.Effect> effects)))
       return ServiceResult.businessFailure("丹药没有效果");
 
-    Player user = userStateService.loadUser(userId);
+    Player user = playerLoader.load(userId);
     // 商店购买的丹药实例可能没有品质属性，默认中成
     String quality = pill.getQuality() != null ? pill.getQuality() : PillQuality.NORMAL.getCode();
     double qualityMultiplier = PillQuality.fromCode(quality).getMultiplier();
@@ -67,7 +69,7 @@ public class PillConsumptionService {
       if (msg != null && !msg.isEmpty()) messages.add(msg);
     }
 
-    userStateService.save(user);
+    playerWriter.save(user);
 
     if (messages.isEmpty()) return ServiceResult.businessFailure("丹药效果未知");
     return new ServiceResult.Success<>("服用丹药成功：" + String.join("，", messages));

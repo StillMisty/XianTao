@@ -16,14 +16,16 @@ import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.player.UserStateService;
+import top.stillmisty.xiantao.service.player.PlayerLoader;
+import top.stillmisty.xiantao.service.player.PlayerWriter;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class TravelService {
 
-  private final UserStateService userStateService;
+  private final PlayerLoader playerLoader;
+  private final PlayerWriter playerWriter;
   private final MapNodeRepository mapNodeRepository;
 
   public ServiceResult<TravelResultVO> startTravel(Long userId, String mapName) {
@@ -32,7 +34,7 @@ public class TravelService {
 
   @Transactional
   public TravelResultVO startTravelInternal(Long userId, String mapName) {
-    Player user = userStateService.loadUser(userId);
+    Player user = playerLoader.load(userId);
 
     if (user.getStatus() != UserStatus.IDLE) {
       throw new BusinessException(ErrorCode.STATUS_BLOCKED, user.getStatus().getName(), "空闲");
@@ -74,7 +76,7 @@ public class TravelService {
 
     user.beginActivity(
         ActivityType.TRAVEL, UserStatus.TRAVELING, TimeUtil.now(), targetMap.getId());
-    userStateService.saveActivity(user);
+    playerWriter.saveActivity(user);
 
     LocalDateTime estimatedArrival = TimeUtil.now().plusMinutes(travelTime);
 

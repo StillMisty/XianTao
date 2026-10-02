@@ -9,16 +9,21 @@ import org.junit.jupiter.api.Test;
 
 class MessageSplitTest {
 
+  private static List<String> split(String text) {
+    return MessageSegments.split(
+        text, QQPlatformHandler.MAX_SEGMENT_BYTES, QQPlatformHandler.MAX_SEGMENTS);
+  }
+
   @Test
   void shortTextStaysSingleSegment() {
-    assertEquals(List.of("正文"), QQPlatformHandler.splitMessage("正文"));
+    assertEquals(List.of("正文"), split("正文"));
   }
 
   @Test
   void splitsChineseTextUnderByteLimit() {
     String text = "测".repeat(1000);
 
-    List<String> parts = QQPlatformHandler.splitMessage(text);
+    List<String> parts = split(text);
 
     assertEquals(2, parts.size());
     for (String part : parts) {
@@ -32,7 +37,7 @@ class MessageSplitTest {
   void prefersLineBreaks() {
     String text = ("测".repeat(300) + "\n").repeat(4);
 
-    List<String> parts = QQPlatformHandler.splitMessage(text);
+    List<String> parts = split(text);
 
     assertTrue(parts.size() >= 2);
     for (String part : parts) {
@@ -45,7 +50,7 @@ class MessageSplitTest {
   void overlongTextIsTruncatedAtSegmentLimit() {
     String text = "测".repeat(5000);
 
-    List<String> parts = QQPlatformHandler.splitMessage(text);
+    List<String> parts = split(text);
 
     assertEquals(QQPlatformHandler.MAX_SEGMENTS, parts.size());
     assertTrue(parts.getLast().contains("后续已省略"));

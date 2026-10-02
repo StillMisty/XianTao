@@ -16,24 +16,22 @@
 
 ```
 TrainingService（历练编排）
-├── 修为计算（地图等级 / 悟性 / 身法效率 / 等级衰减 / 运势）
-├── 调用 TrainingSettler 统一事件循环（COMBAT/NUMERIC/CHOICE）
-├── 战后 HP 回写（PostCombatProcessor）
-├── 灵兽休养/觉醒判定
-├── 掉落分发到背包（RewardGrant）
-└── LLM 历练叙事（事务提交后）
+├── 调用 TrainingSettler.settle() 结算全部未结算时长（基础修为/物品/事件循环）
+├── 结算后隐藏事件、活动收尾、LLM 历练叙事（事务提交后）
+└── 起止与输出组装
 
-TrainingSettler（统一历练事件循环，TrainingService 与 UserStateService 共用）
+TrainingSettler（历练结算 module，TrainingService 与 TrainingSettlementHandler 共用）
+├── 基础修为/物品判定 + 师徒/练功房/运势乘数
 ├── EncounterCalculator.compute() → slots + perRollChance
 ├── 加权选择事件 → CombatEventHandler / CHOICE 事件 / NUMERIC 事件
-└── CombatSummary 累加
+├── 灵兽经验（事件循环后发放）
+└── 入账与 last_settlement_minute 推进
 
 CombatEventHandler（单次遇怪战斗）
 ├── 构建玩家队伍（含出战灵兽）与怪物队伍
-├── CombatService.simulate() → BattleResultVO
+├── PostCombatProcessor.resolve() → 战斗 + 角色/灵兽气血落地
 ├── 高光检测（HighlightBattleDetector）
 ├── 掉落（DropProcessor.processMonsterDrops）
-├── 战后 HP 回写 + 灵兽休养/觉醒（PostCombatProcessor）
 └── 顿悟判定（EnlightenmentProcessor）
 
 CombatService（单场战斗，纯引擎）
@@ -47,11 +45,11 @@ CombatService（单场战斗，纯引擎）
 | 组件 | 位置 | 职责 |
 |------|------|------|
 | `CombatService` | service/combat/ | 单场战斗模拟 + 队伍构建 + 队伍属性统计，无遇敌编排 |
-| `TrainingService` | service/combat/ | 历练编排：起止、修为/物品收益、叙事 |
-| `TrainingSettler` | service/combat/ | 统一事件循环（战斗/数值/选择事件），供历练与状态结算共享 |
-| `CombatEventHandler` | service/combat/ | 单次遇怪战斗编排（队伍、掉落、战后、顿悟） |
+| `TrainingService` | service/combat/ | 历练编排：起止、调用结算 module、叙事 |
+| `TrainingSettler` | service/combat/ | 历练结算 module（基础修为/物品/事件循环/灵兽经验），供最终与中途结算共用 |
+| `CombatEventHandler` | service/combat/ | 单次遇怪战斗编排（队伍、掉落、顿悟） |
 | `DropProcessor` | service/ | 怪物掉落表解析（`DropTableEntry`） + 独立概率判定 |
-| `PostCombatProcessor` | service/combat/ | 纯内存操作：玩家/灵兽 HP 回写、灵兽休养、觉醒判定 |
+| `PostCombatProcessor` | service/combat/ | 战斗落地：`resolve()` 执行战斗并按队伍名判定胜负，回写玩家/灵兽 HP、濒死、休养、觉醒 |
 | `EncounterCalculator` | service/combat/ | 动态遇怪间隔/概率计算 |
 | `HighlightBattleDetector` | service/combat/ | 高光战斗检测 |
 | `DamageCalculator` | service/combat/ | 伤害计算（普攻/技能/法器克制/公式求值） |
@@ -591,15 +589,15 @@ expGained = expReward × 击杀数量 × clamp(1 + (怪物等级 - 玩家等级)
 ## 13. 历练编排与战后结算
 
 - 单次结算封顶 720 分钟（12 小时），超出部分不参与物品掉落判定
-- 每 60 分钟自动中途结算一段（`TrainingSettlementHandler`），`last_settlement_minute` 记录进度
+- 每 60 分钟自动中途结算一段（`TrainingSettlementHandler`），与最终结算共用 `TrainingSettler.settle`，`last_settlement_minute` 记录进度
 - 基础修为/分钟 = `max(地图等级 × 5, √有效悟性 × 12)`
 - 总修为 = `基础修为 × 分钟数 × 身法效率 × 等级衰减 × 运势幸运倍率`
   - 身法效率 = `1 + min(有效身法 × 0.01, 2.0)`
   - 等级衰减 = `max(0.1, 1 - (玩家等级 - 地图等级 - 5) × 0.04)`
 - 地图特产掉落：判定次数 = `max(1, (有效分钟 / 10) × 身法效率)`，加权选取特产、数量 1-3
-- 战后：`PostCombatProcessor` 回写玩家/灵兽气血，全灭进入濒死；`RewardGrant` 分发掉落；产出历练事件与叙事
+- 战后：`PostCombatProcessor.resolve` 按队伍名判定胜负并回写玩家/灵兽气血，全灭进入濒死；`RewardGrant` 分发掉落；产出历练事件与叙事
 - 历练中断（濒死）时：重伤前所获修为与物品照常发放，活动清空并产出中断事件
-- 秘境（DungeonCombatHelper）：20 回合、场景 DUNGEON，战后回写玩家气血
+- 秘境（DungeonCombatHelper）：20 回合，复用 `PostCombatProcessor.resolve` 落地气血
 - PVP（PvpService）：切磋双方战前回满气血，50 回合模拟，不持久化战斗气血
 
 ---
