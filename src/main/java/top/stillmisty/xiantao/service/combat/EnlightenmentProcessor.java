@@ -79,10 +79,7 @@ public class EnlightenmentProcessor {
       }
     } else {
       long maxStorage = user.calculateMaxExpStorage();
-      long current = user.getExp();
-      long currentInLevel =
-          current
-              - (user.getLevel() > 1 ? 100L * (user.getLevel() - 1) * (user.getLevel() - 1) : 0);
+      long currentInLevel = user.getExpInCurrentLevel();
       long expNeededForCap = maxStorage - currentInLevel;
       // 天人交感封顶：至多补足半级修为，防止高悟性玩家升级曲线被打穿
       long expGiven = Math.min(expToNextLevel / 2, Math.max(0, expNeededForCap));

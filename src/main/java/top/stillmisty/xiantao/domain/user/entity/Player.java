@@ -165,9 +165,19 @@ public class Player {
     this.statWis += amount;
   }
 
+  /** 长线挂机构型：修为需求 = 系数 × 等级^指数（标定：无装备基线约 6 个月到大乘圆满）。 */
+  private static final double EXP_REQUIREMENT_COEFFICIENT = 240.0;
+
+  private static final double EXP_REQUIREMENT_EXPONENT = 2.2;
+
   /** 计算升级到下一级所需修为 */
   public long calculateExpToNextLevel() {
-    return 100L * level * level;
+    return expRequirement(level);
+  }
+
+  /** 计算当前等级区间内已积累的修为（总修为 − 达到本级所需修为）。 */
+  public long getExpInCurrentLevel() {
+    return exp - calculateExpToPrevLevel();
   }
 
   /** 计算当前等级可存储的最大修为 */
@@ -196,16 +206,22 @@ public class Player {
   /** 添加修为（考虑存储上限；负值扣减时下限保护到 0，避免触发 chk_user_exp 约束） */
   public void addExp(long expToAdd) {
     long maxStorage = calculateMaxExpStorage();
-    long currentStorage = exp - (level > 1 ? calculateExpToPrevLevel() : 0);
+    long currentStorage = getExpInCurrentLevel();
     long availableSpace = maxStorage - currentStorage;
     long actualAdd = Math.min(expToAdd, availableSpace);
     this.exp = Math.max(0, this.exp + actualAdd);
   }
 
-  /** 计算从上一级到当前级所需修为 */
+  /** 计算从上一级到当前级所需修为（与 {@link #calculateExpToNextLevel()} 同曲线） */
   private long calculateExpToPrevLevel() {
     if (level <= 1) return 0;
-    return 100L * (level - 1) * (level - 1);
+    return expRequirement(level - 1);
+  }
+
+  /** 修为需求曲线：系数 × 等级^指数（标定目标见 tools/balance/README.md） */
+  private static long expRequirement(int targetLevel) {
+    return Math.round(
+        EXP_REQUIREMENT_COEFFICIENT * Math.pow(targetLevel, EXP_REQUIREMENT_EXPONENT));
   }
 
   /** HP 自然恢复 空闲状态每5分钟恢复1%最大HP */
