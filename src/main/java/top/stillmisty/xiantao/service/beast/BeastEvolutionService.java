@@ -55,7 +55,7 @@ public class BeastEvolutionService {
 
     int currentTier = beast.getTier();
     int cost = (currentTier + 1) * 200;
-    spiritStoneService.withdraw(userId, cost);
+    spiritStoneService.withdraw(userId, cost, "beast_evolve");
 
     var spirit = spiritRepository.findByFudiId(fudi.getId()).orElse(null);
     int affectionBonus =

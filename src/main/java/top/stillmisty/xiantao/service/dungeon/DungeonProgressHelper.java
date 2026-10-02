@@ -74,7 +74,7 @@ public class DungeonProgressHelper {
     boolean rewardGiven = false;
     if (progress.canGetReward()) {
       spiritStonesReward = ThreadLocalRandom.current().nextInt(500, 2001);
-      spiritStoneService.deposit(userId, spiritStonesReward);
+      spiritStoneService.deposit(userId, spiritStonesReward, "dungeon");
       progress.recordReward();
       rewardGiven = true;
     }

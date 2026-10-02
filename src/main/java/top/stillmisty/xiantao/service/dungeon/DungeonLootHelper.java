@@ -70,7 +70,7 @@ public class DungeonLootHelper {
 
     spiritStones = ThreadLocalRandom.current().nextInt(10, 51);
     if (spiritStones > 0) {
-      spiritStoneService.deposit(userId, spiritStones);
+      spiritStoneService.deposit(userId, spiritStones, "dungeon");
     }
 
     return new SimpleLootResult(descriptions, spiritStones, nameToTemplate);

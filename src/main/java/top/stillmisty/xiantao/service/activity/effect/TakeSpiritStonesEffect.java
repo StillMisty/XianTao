@@ -24,7 +24,7 @@ public class TakeSpiritStonesEffect implements SubEventEffect {
     if (!(params instanceof EffectParams.AmountParams p)) return Map.of();
     long amount = p.resolveAmount();
     if (amount <= 0) return Map.of();
-    spiritStoneService.withdraw(userId, amount);
+    spiritStoneService.withdraw(userId, amount, "activity_event");
     return Map.of("spiritStones", -amount);
   }
 }

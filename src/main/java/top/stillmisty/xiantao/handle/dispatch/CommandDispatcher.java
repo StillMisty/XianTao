@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import top.stillmisty.qqgateway.QqEventListener;
 import top.stillmisty.qqgateway.QqIncomingMessage;
@@ -16,6 +17,7 @@ import top.stillmisty.xiantao.handle.platform.PlatformRegistry;
 import top.stillmisty.xiantao.service.AuthenticationService;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
+import top.stillmisty.xiantao.service.analytics.AnalyticsService;
 import top.stillmisty.xiantao.service.player.UserStateService;
 import top.stillmisty.xiantao.util.TextFormat;
 
@@ -35,6 +37,7 @@ public class CommandDispatcher implements QqEventListener {
   private final PlatformRegistry platformRegistry;
   private final ReplyHelper replyHelper;
   private final UserStateService userStateService;
+  private final AnalyticsService analyticsService;
 
   /** 每个事件一条虚拟线程，命令内可自由阻塞（数据库、AI 调用）。 */
   private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
@@ -118,8 +121,9 @@ public class CommandDispatcher implements QqEventListener {
       }
     }
 
+    long startedNanos = System.nanoTime();
     if (userId == null) {
-      invoke(handler, message, command, args);
+      invoke(handler, message, command, args, null, startedNanos);
     } else {
       Long boundUserId = userId;
       UserContext.withUser(
@@ -127,7 +131,7 @@ public class CommandDispatcher implements QqEventListener {
           () -> {
             // 命令边界统一结算过期状态：深层服务只做纯数据加载（PlayerLoader），不再各自触发结算
             userStateService.settle(boundUserId);
-            invoke(handler, message, command, args);
+            invoke(handler, message, command, args, boundUserId, startedNanos);
             return null;
           });
     }
@@ -137,13 +141,25 @@ public class CommandDispatcher implements QqEventListener {
       PlatformHandler handler,
       QqIncomingMessage message,
       RegisteredCommand command,
-      Map<String, String> args) {
+      Map<String, String> args,
+      @Nullable Long userId,
+      long startedNanos) {
     try {
       command.invoke(message, args);
+      recordCommand(userId, command, startedNanos, true);
     } catch (Exception e) {
       log.error("[{}] 命令执行异常: {}", handler.getPlatformType(), command.describe(), e);
       replyHelper.reply(handler, message, TextFormat.get().error("系统繁忙，请稍后再试"));
+      recordCommand(userId, command, startedNanos, false);
     }
+  }
+
+  /** 分析事件：指令名 + 耗时（毫秒）+ 成败。 */
+  private void recordCommand(
+      @Nullable Long userId, RegisteredCommand command, long startedNanos, boolean ok) {
+    long elapsedMs = (System.nanoTime() - startedNanos) / 1_000_000;
+    analyticsService.record(
+        "command", userId, abbreviate(command.describe()), elapsedMs, Map.of("ok", ok));
   }
 
   private static String abbreviate(String text) {

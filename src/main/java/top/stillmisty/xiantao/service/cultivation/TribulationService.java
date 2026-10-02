@@ -124,7 +124,7 @@ public class TribulationService {
     fudi.setTribulationStage(newStage);
 
     int stoneReward = newWinStreak * 100;
-    spiritStoneService.deposit(fudi.getUserId(), stoneReward);
+    spiritStoneService.deposit(fudi.getUserId(), stoneReward, "tribulation");
 
     return new TribulationProgress(oldStage, newWinStreak, newStage, stoneReward);
   }

@@ -74,7 +74,7 @@ public class SpecialOrderService {
     }
     int sourcingHours = sourcingHoursFor(unitPrice);
 
-    spiritStoneService.withdraw(userId, deposit);
+    spiritStoneService.withdraw(userId, deposit, "special_order_deposit");
 
     LocalDateTime now = TimeUtil.now();
     ShopSpecialOrder order = new ShopSpecialOrder();
@@ -154,7 +154,7 @@ public class SpecialOrderService {
 
     long tailPayment = tailPayment(order);
     if (tailPayment > 0) {
-      spiritStoneService.withdraw(userId, tailPayment);
+      spiritStoneService.withdraw(userId, tailPayment, "special_order_tail");
     }
     stackableItemService.addStackableItem(
         userId, template.getId(), template.getType(), template.getName(), order.getQuantity());
@@ -195,7 +195,7 @@ public class SpecialOrderService {
     if (from == SpecialOrderStatus.PENDING) {
       refundedDeposit = order.getDeposit();
       if (refundedDeposit > 0) {
-        spiritStoneService.deposit(userId, refundedDeposit);
+        spiritStoneService.deposit(userId, refundedDeposit, "special_order_refund");
       }
     }
 

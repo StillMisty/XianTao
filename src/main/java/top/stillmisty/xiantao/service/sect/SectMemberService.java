@@ -215,7 +215,7 @@ public class SectMemberService {
     String result =
         transactionTemplate.execute(
             status -> {
-              spiritStoneService.withdraw(userId, SECT_CREATE_COST);
+              spiritStoneService.withdraw(userId, SECT_CREATE_COST, "sect_create");
               return persistNewSect(userId, name, llmResult);
             });
     return result != null ? result : "宗门创建失败，请稍后再试。";
@@ -466,7 +466,7 @@ public class SectMemberService {
       throw new BusinessException(ErrorCode.SECT_DONATE_TOO_LOW, SECT_DONATE_MIN);
     }
 
-    spiritStoneService.withdraw(userId, amount);
+    spiritStoneService.withdraw(userId, amount, "sect_donate");
 
     // 原子累加，防止并发捐献互相覆盖资金/贡献
     Sect sect =

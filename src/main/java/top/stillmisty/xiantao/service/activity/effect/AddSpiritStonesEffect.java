@@ -24,7 +24,7 @@ public class AddSpiritStonesEffect implements SubEventEffect {
     if (!(params instanceof EffectParams.AmountParams p)) return Map.of();
     long stones = p.resolveAmount();
     if (stones <= 0) return Map.of();
-    spiritStoneService.deposit(userId, stones);
+    spiritStoneService.deposit(userId, stones, "activity_event");
     return Map.of("spiritStones", stones);
   }
 }

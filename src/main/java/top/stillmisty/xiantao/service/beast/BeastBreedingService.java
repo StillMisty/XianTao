@@ -233,7 +233,7 @@ public class BeastBreedingService {
     int tier = 1;
 
     int stoneCost = 400;
-    spiritStoneService.withdraw(userId, stoneCost);
+    spiritStoneService.withdraw(userId, stoneCost, "beast_hatch");
 
     var spirit = spiritRepository.findByFudiId(fudi.getId()).orElse(null);
     int affection = spirit != null && spirit.getAffection() != null ? spirit.getAffection() : 0;
@@ -408,7 +408,7 @@ public class BeastBreedingService {
     validateBreedPair(beast1, beast2);
 
     int cost = BREED_STONE_COST_BASE + (beast1.getTier() + beast2.getTier()) * 50;
-    spiritStoneService.withdraw(userId, cost);
+    spiritStoneService.withdraw(userId, cost, "beast_breed");
 
     ItemTemplate eggTemplate = resolveOffspring(beast1, beast2);
     BeastQuality offspringQuality = rollOffspringQuality(beast1, beast2);

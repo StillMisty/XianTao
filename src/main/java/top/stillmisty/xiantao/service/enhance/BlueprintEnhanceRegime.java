@@ -47,7 +47,7 @@ public class BlueprintEnhanceRegime {
       throw new BusinessException(ErrorCode.ENHANCE_MATERIAL_NOT_MATCH);
     }
 
-    spiritStoneService.withdraw(userId, stoneCost);
+    spiritStoneService.withdraw(userId, stoneCost, "forge");
     core.consumeMaterials(userId, selection.usedMaterials(), materials);
 
     double successRate =
@@ -79,7 +79,7 @@ public class BlueprintEnhanceRegime {
       throw new BusinessException(ErrorCode.ENHANCE_MATERIAL_NOT_MATCH);
     }
 
-    spiritStoneService.withdraw(userId, stoneCost);
+    spiritStoneService.withdraw(userId, stoneCost, "forge");
     core.consumeMaterialsByName(userId, usedMaterials);
 
     double successRate = combinationFinder.calculateQualityScore(attributeTotals, constraints);

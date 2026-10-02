@@ -1,7 +1,9 @@
 package top.stillmisty.xiantao.service.cultivation;
 
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
@@ -20,6 +22,7 @@ import top.stillmisty.xiantao.infrastructure.repository.PlayerBuffRepository;
 import top.stillmisty.xiantao.service.ProtectionHelper;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.SpiritStoneService;
+import top.stillmisty.xiantao.service.analytics.AnalyticsService;
 import top.stillmisty.xiantao.service.combat.CombatService;
 import top.stillmisty.xiantao.service.combat.PostCombatProcessor;
 import top.stillmisty.xiantao.service.masterapprentice.MasterApprenticeService;
@@ -34,6 +37,7 @@ public class CultivationService {
 
   private final PlayerLoader playerLoader;
   private final PlayerWriter playerWriter;
+  private final AnalyticsService analyticsService;
   private final PlayerBuffRepository playerBuffRepository;
   private final ProtectionHelper protectionHelper;
   private final DaoProtectionService daoProtectionService;
@@ -121,6 +125,18 @@ public class CultivationService {
     CultivationRealm newRealm = CultivationRealm.fromLevel(newLevel);
     boolean isMajor = CultivationRealm.isMajorBreakthrough(user.getLevel(), newLevel);
     boolean isTribulationRealm = newRealm == CultivationRealm.TRIBULATION;
+
+    Map<String, Object> attemptPayload = new LinkedHashMap<>();
+    attemptPayload.put("level", user.getLevel());
+    attemptPayload.put("major", isMajor);
+    attemptPayload.put("tribulation", isTribulationRealm);
+    attemptPayload.put("exp", expNeeded);
+    analyticsService.record(
+        "breakthrough_attempt",
+        userId,
+        "Lv" + user.getLevel(),
+        (long) user.getLevel(),
+        attemptPayload);
 
     if (isMajor || isTribulationRealm) {
       return combatBreakthrough(user, newLevel, newRealm, isMajor, isTribulationRealm, expNeeded);
@@ -261,6 +277,19 @@ public class CultivationService {
       user.setHpCurrent(user.calculateMaxHp());
     }
 
+    analyticsService.record(
+        "level_up",
+        user.getId(),
+        "Lv" + newLevel,
+        (long) newLevel,
+        Map.of("from", newLevel - 1, "major", isMajor, "mode", "combat"));
+    analyticsService.record(
+        "breakthrough_result",
+        user.getId(),
+        "combat",
+        (long) newLevel,
+        Map.of("success", true, "major", isMajor, "tribulation", isTribulationRealm));
+
     // 招雷散补偿：负抗性令雷劫更强，渡过则回馈本次突破消耗修为的 50%（经存储上限截断）
     long thunderLureExp = 0;
     if (thunderLureActive) {
@@ -329,6 +358,13 @@ public class CultivationService {
     user.setBreakthroughFailCount(user.getBreakthroughFailCount() + 1);
     playerWriter.save(user);
 
+    analyticsService.record(
+        "breakthrough_result",
+        user.getId(),
+        "combat",
+        (long) oldLevel,
+        Map.of("success", false, "major", isMajor, "failCount", user.getBreakthroughFailCount()));
+
     String narrative =
         narrativeGenerator.generateCombatNarrative(
             tribulationType, user.getNickname(), result, false);
@@ -378,6 +414,19 @@ public class CultivationService {
 
     playerWriter.save(user);
 
+    analyticsService.record(
+        "level_up",
+        userId,
+        "Lv" + newLevel,
+        (long) newLevel,
+        Map.of("from", oldLevel, "major", isMajor, "mode", "small"));
+    analyticsService.record(
+        "breakthrough_result",
+        userId,
+        "small",
+        (long) oldLevel,
+        Map.of("success", true, "rate", finalSuccessRate));
+
     masterApprenticeService.checkAndGraduate(userId);
 
     String message;
@@ -421,6 +470,19 @@ public class CultivationService {
 
     playerWriter.save(user);
 
+    analyticsService.record(
+        "breakthrough_result",
+        userId,
+        "small",
+        (long) user.getLevel(),
+        Map.of(
+            "success",
+            false,
+            "rate",
+            finalSuccessRate,
+            "failCount",
+            user.getBreakthroughFailCount()));
+
     return new BreakthroughResult(
         false,
         String.format("突破失败！道基反噬，损失 %d 修为，当前修为 %d", expNeeded, newExp),
@@ -451,6 +513,6 @@ public class CultivationService {
 
     CultivationRealm realm = CultivationRealm.fromLevel(user.getLevel());
     long spiritStones = CultivationRealm.breakthroughSpiritStonesReward(realm);
-    spiritStoneService.deposit(user.getId(), spiritStones);
+    spiritStoneService.deposit(user.getId(), spiritStones, "breakthrough_reward");
   }
 }

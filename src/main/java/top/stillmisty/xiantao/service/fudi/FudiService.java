@@ -469,7 +469,7 @@ public class FudiService {
           case PEN -> 100;
           default -> 50;
         };
-    spiritStoneService.withdraw(userId, stoneCost);
+    spiritStoneService.withdraw(userId, stoneCost, "fudi_build");
 
     FudiCell cell = existingCell != null ? existingCell : new FudiCell();
     if (existingCell == null) {
@@ -532,7 +532,7 @@ public class FudiService {
     }
 
     int cost = currentLevel == 1 ? 200 : currentLevel == 2 ? 400 : currentLevel == 3 ? 800 : 1600;
-    spiritStoneService.withdraw(userId, cost);
+    spiritStoneService.withdraw(userId, cost, "fudi_upgrade");
 
     int newLevel = currentLevel + 1;
     cell.setCellLevel(newLevel);

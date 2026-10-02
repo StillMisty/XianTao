@@ -139,7 +139,7 @@ public class TravelerShopService {
             ErrorCode.TRAVELER_STOCK_INSUFFICIENT, quantity, good.getStock());
       }
       totalPrice = good.getUnitPrice() * quantity;
-      spiritStoneService.withdraw(userId, totalPrice);
+      spiritStoneService.withdraw(userId, totalPrice, "traveler");
       stackableItemService.addStackableItem(
           userId, good.getTemplateId(), good.getItemType(), good.getName(), quantity);
       good.reduceStock(quantity);

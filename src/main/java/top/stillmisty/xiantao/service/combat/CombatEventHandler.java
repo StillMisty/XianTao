@@ -25,6 +25,7 @@ import top.stillmisty.xiantao.infrastructure.util.WeightedRandom;
 import top.stillmisty.xiantao.service.DropProcessor;
 import top.stillmisty.xiantao.service.FortuneService;
 import top.stillmisty.xiantao.service.RewardGrant;
+import top.stillmisty.xiantao.service.analytics.AnalyticsService;
 
 /** COMBAT 事件处理器 — 单次遇怪战斗 */
 @Slf4j
@@ -41,6 +42,7 @@ public class CombatEventHandler {
   private final RewardGrant rewardGrant;
   private final EnlightenmentProcessor enlightenmentProcessor;
   private final FortuneService fortuneService;
+  private final AnalyticsService analyticsService;
 
   @Transactional
   public EncounterResult handle(
@@ -135,6 +137,17 @@ public class CombatEventHandler {
               encounterResult.isHighlight(),
               encounterResult.monsterName());
     }
+
+    analyticsService.record(
+        "encounter",
+        userId,
+        encounterResult.monsterName(),
+        (long) encounterResult.rounds(),
+        Map.of(
+            "won", encounterResult.playerWon(),
+            "kills", encounterResult.kills(),
+            "exp", encounterResult.expGained(),
+            "owner", event.getOwnerId() == null ? 0L : event.getOwnerId()));
 
     return encounterResult;
   }

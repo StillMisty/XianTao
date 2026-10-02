@@ -45,7 +45,7 @@ public class ProbabilisticEnhanceRegime {
           ErrorCode.FORGING_ATTRIBUTE_MISSING, String.join(", ", selection.missingAttributes()));
     }
 
-    spiritStoneService.withdraw(userId, stoneCost);
+    spiritStoneService.withdraw(userId, stoneCost, "forge");
     core.consumeMaterials(userId, selection.usedMaterials(), materials);
 
     return rollAndApply(
@@ -66,7 +66,7 @@ public class ProbabilisticEnhanceRegime {
       throw new BusinessException(ErrorCode.ENHANCE_MATERIAL_NOT_MATCH);
     }
 
-    spiritStoneService.withdraw(userId, stoneCost);
+    spiritStoneService.withdraw(userId, stoneCost, "forge");
     core.consumeMaterialsByName(userId, usedMaterials);
 
     return rollAndApply(userId, equipment, currentLevel, targetLevel, stoneCost, usedMaterials);

@@ -92,7 +92,7 @@ public class GmService {
     if (amount <= 0) throw new BusinessException(ErrorCode.PARAM_INVALID, "数量必须大于0");
     Player target = getTargetUser(targetNickname);
     if (target == null) throw new BusinessException(ErrorCode.GM_TARGET_NOT_FOUND, targetNickname);
-    spiritStoneService.deposit(target.getId(), amount);
+    spiritStoneService.deposit(target.getId(), amount, "gm");
     long newBalance = spiritStoneService.getBalance(target.getId());
     log.info("GM {} 给 {} 添加灵石 {}（剩余：{}）", gmUserId, targetNickname, amount, newBalance);
     return String.format("已给 %s 添加 %d 灵石（当前：%d）", targetNickname, amount, newBalance);

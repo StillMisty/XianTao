@@ -103,7 +103,7 @@ public class BountyCombatService {
         (long) (finalSpiritStones * fortuneService.getWealthMultiplier(fortune.wealth()));
 
     if (finalSpiritStones > 0) {
-      spiritStoneService.deposit(userId, finalSpiritStones);
+      spiritStoneService.deposit(userId, finalSpiritStones, "bounty");
     }
 
     // Bounty completion event

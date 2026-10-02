@@ -33,6 +33,7 @@ import top.stillmisty.xiantao.service.AuthenticationService;
 import top.stillmisty.xiantao.service.NotificationAppender;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
+import top.stillmisty.xiantao.service.analytics.AnalyticsService;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
 class CommandDispatcherTest {
@@ -284,7 +285,9 @@ class CommandDispatcherTest {
                 new NotificationAppender.AppendResult(invocation.getArgument(2), List.of(), null));
     ReplyHelper replyHelper = new ReplyHelper(platformRegistry, new ReplyDelivery(appender));
     UserStateService userStateService = mock(UserStateService.class);
-    return new CommandDispatcher(registry, auth, platformRegistry, replyHelper, userStateService);
+    AnalyticsService analyticsService = mock(AnalyticsService.class);
+    return new CommandDispatcher(
+        registry, auth, platformRegistry, replyHelper, userStateService, analyticsService);
   }
 
   private static QqIncomingMessage message(String content) {

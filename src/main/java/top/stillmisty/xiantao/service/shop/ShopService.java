@@ -47,6 +47,7 @@ import top.stillmisty.xiantao.service.FortuneService;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.ai.ChatContext;
 import top.stillmisty.xiantao.service.ai.ShopChatContext;
+import top.stillmisty.xiantao.service.analytics.AnalyticsService;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
 import top.stillmisty.xiantao.service.player.PlayerLoader;
 
@@ -65,6 +66,7 @@ public class ShopService {
   private final PlayerLoader playerLoader;
   private final PriceEngine priceEngine;
   private final StackableItemService stackableItemService;
+  private final AnalyticsService analyticsService;
   private final FortuneService fortuneService;
   private final ShopQueryService shopQueryService;
 
@@ -141,6 +143,7 @@ public class ShopService {
       throw new BusinessException(
           ErrorCode.SHOP_SPIRIT_STONES_INSUFFICIENT, totalPrice, user.getSpiritStones());
     }
+    analyticsService.record("stones_spend", userId, "shop_buy", totalPrice);
 
     rows = shopProductRepository.deductStockIfAvailable(product.getId(), quantity);
     if (rows == 0) {
@@ -199,6 +202,7 @@ public class ShopService {
       throw new BusinessException(
           ErrorCode.SHOP_SPIRIT_STONES_INSUFFICIENT, price, user.getSpiritStones());
     }
+    analyticsService.record("stones_spend", userId, "shop_buy_equipment", price);
 
     rows = shopProductRepository.deductStockIfAvailable(product.getId(), 1);
     if (rows == 0) {
@@ -288,6 +292,7 @@ public class ShopService {
     stackableItemRepository.deleteIfZeroQuantity(item.getId());
 
     userRepository.addSpiritStonesAtomically(userId, confirmedPrice);
+    analyticsService.record("stones_gain", userId, "shop_sell", confirmedPrice);
 
     return new SellResult(confirmedPrice, itemName);
   }
@@ -340,6 +345,7 @@ public class ShopService {
     }
 
     userRepository.addSpiritStonesAtomically(userId, confirmedPrice);
+    analyticsService.record("stones_gain", userId, "shop_sell_equipment", confirmedPrice);
 
     return new SellResult(confirmedPrice, equipmentName);
   }
