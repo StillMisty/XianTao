@@ -45,9 +45,10 @@ import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.FortuneService;
 import top.stillmisty.xiantao.service.ServiceResult;
+import top.stillmisty.xiantao.service.ai.ChatContext;
 import top.stillmisty.xiantao.service.ai.ShopChatContext;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
-import top.stillmisty.xiantao.service.player.UserStateService;
+import top.stillmisty.xiantao.service.player.PlayerLoader;
 
 @Slf4j
 @Service
@@ -61,7 +62,7 @@ public class ShopService {
   private final StackableItemRepository stackableItemRepository;
   private final EquipmentRepository equipmentRepository;
   private final UserRepository userRepository;
-  private final UserStateService userStateService;
+  private final PlayerLoader playerLoader;
   private final PriceEngine priceEngine;
   private final StackableItemService stackableItemService;
   private final FortuneService fortuneService;
@@ -75,14 +76,14 @@ public class ShopService {
 
   @Transactional
   public ServiceResult<PurchaseResult> purchaseItem(Long userId, Long templateId, int quantity) {
-    Player user = userStateService.loadUser(userId);
+    Player user = playerLoader.load(userId);
     ShopNpc npc = findByLocation(user.getLocationId());
     return new ServiceResult.Success<>(purchaseItemInternal(userId, npc, templateId, quantity));
   }
 
   @Transactional
   public ServiceResult<EquipmentPurchaseResult> purchaseEquipment(Long userId, Long templateId) {
-    Player user = userStateService.loadUser(userId);
+    Player user = playerLoader.load(userId);
     ShopNpc npc = findByLocation(user.getLocationId());
     return new ServiceResult.Success<>(purchaseEquipmentInternal(userId, npc, templateId));
   }
@@ -136,7 +137,7 @@ public class ShopService {
 
     int rows = userRepository.deductSpiritStonesIfEnough(userId, totalPrice);
     if (rows == 0) {
-      Player user = userStateService.loadUser(userId);
+      Player user = playerLoader.load(userId);
       throw new BusinessException(
           ErrorCode.SHOP_SPIRIT_STONES_INSUFFICIENT, totalPrice, user.getSpiritStones());
     }
@@ -194,7 +195,7 @@ public class ShopService {
 
     int rows = userRepository.deductSpiritStonesIfEnough(userId, price);
     if (rows == 0) {
-      Player user = userStateService.loadUser(userId);
+      Player user = playerLoader.load(userId);
       throw new BusinessException(
           ErrorCode.SHOP_SPIRIT_STONES_INSUFFICIENT, price, user.getSpiritStones());
     }
@@ -401,11 +402,11 @@ public class ShopService {
   public HaggleResult haggleItem(
       Long userId, ShopNpc npc, long currentPrice, long basePrice, boolean isBuying) {
     Player user;
-    ShopChatContext chatCtx = ShopChatContext.current();
+    ShopChatContext chatCtx = ChatContext.current(ShopChatContext.class);
     if (chatCtx != null) {
       user = chatCtx.user();
     } else {
-      user = userStateService.loadUser(userId);
+      user = playerLoader.load(userId);
     }
     double charmFactor = Math.clamp((user.getEffectiveStatWis() - 10) / 20.0, 0, 0.3);
     double difficulty = npc.getHaggleDifficulty();

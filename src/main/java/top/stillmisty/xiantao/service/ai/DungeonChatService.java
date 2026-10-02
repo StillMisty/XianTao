@@ -1,14 +1,13 @@
 package top.stillmisty.xiantao.service.ai;
 
-import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.Nullable;
+import java.util.List;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.stereotype.Service;
+import top.stillmisty.xiantao.domain.chat.enums.ChatType;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonInstance;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonSpiritState;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonTemplate;
-import top.stillmisty.xiantao.domain.sect.enums.ChatType;
 import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.infrastructure.repository.DungeonInstanceRepository;
 import top.stillmisty.xiantao.infrastructure.repository.DungeonProgressRepository;
@@ -17,11 +16,13 @@ import top.stillmisty.xiantao.infrastructure.repository.DungeonTemplateRepositor
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.player.UserStateService;
+import top.stillmisty.xiantao.service.player.PlayerLoader;
 
-@Slf4j
 @Service
 public class DungeonChatService extends AbstractChatService {
+
+  private static final ChatReplies REPLIES =
+      new ChatReplies("秘境之灵暂时无法回应...", "秘境操作失败", "秘境之灵暂时无法回应，请稍后再试。");
 
   private final DungeonTemplateRepository dungeonTemplateRepository;
   private final DungeonInstanceRepository instanceRepository;
@@ -32,12 +33,12 @@ public class DungeonChatService extends AbstractChatService {
   private final DungeonNavigationTools dungeonNavigationTools;
   private final DungeonFavorTools dungeonFavorTools;
   private final DungeonSpiritStateHelper spiritStateHelper;
-  private final UserStateService userStateService;
-  private final AiChatRateLimiter rateLimiter;
+  private final PlayerLoader playerLoader;
 
   public DungeonChatService(
       ChatClient dungeonChatClient,
       ChatMemory chatMemory,
+      AiChatRateLimiter rateLimiter,
       DungeonTemplateRepository dungeonTemplateRepository,
       DungeonInstanceRepository instanceRepository,
       DungeonSpiritStateRepository spiritStateRepository,
@@ -47,9 +48,8 @@ public class DungeonChatService extends AbstractChatService {
       DungeonNavigationTools dungeonNavigationTools,
       DungeonFavorTools dungeonFavorTools,
       DungeonSpiritStateHelper spiritStateHelper,
-      UserStateService userStateService,
-      AiChatRateLimiter rateLimiter) {
-    super(dungeonChatClient, chatMemory);
+      PlayerLoader playerLoader) {
+    super(dungeonChatClient, chatMemory, rateLimiter);
     this.dungeonTemplateRepository = dungeonTemplateRepository;
     this.instanceRepository = instanceRepository;
     this.spiritStateRepository = spiritStateRepository;
@@ -59,25 +59,15 @@ public class DungeonChatService extends AbstractChatService {
     this.dungeonNavigationTools = dungeonNavigationTools;
     this.dungeonFavorTools = dungeonFavorTools;
     this.spiritStateHelper = spiritStateHelper;
-    this.userStateService = userStateService;
-    this.rateLimiter = rateLimiter;
+    this.playerLoader = playerLoader;
   }
 
   public ServiceResult<String> chatWithDungeon(Long userId, String userInput) {
-    rateLimiter.checkAllowed(userId);
-    try {
-      String result = chatInternal(userId, userInput);
-      return new ServiceResult.Success<>(result != null ? result : "秘境之灵暂时无法回应...");
-    } catch (BusinessException e) {
-      return ServiceResult.businessFailure(e.getMessage() != null ? e.getMessage() : "秘境操作失败");
-    } catch (Exception e) {
-      log.error("秘境对话失败 - userId: {}, error: {}", userId, e.getMessage(), e);
-      return ServiceResult.businessFailure("秘境之灵暂时无法回应，请稍后再试。");
-    }
+    return converse(userId, REPLIES, () -> buildTurn(userId, userInput));
   }
 
-  @Nullable String chatInternal(Long userId, String userInput) {
-    Player user = userStateService.loadUser(userId);
+  private ChatTurn buildTurn(Long userId, String userInput) {
+    Player user = playerLoader.load(userId);
     if (user.getActivityTargetId() == null) {
       throw new BusinessException(ErrorCode.DUNGEON_NO_ACTIVE_INSTANCE);
     }
@@ -99,33 +89,21 @@ public class DungeonChatService extends AbstractChatService {
     }
 
     String systemPrompt = stateBuilder.buildSystemPrompt(dungeon, instance, spiritState);
-
-    String response =
-        DungeonChatContext.with(
-            user,
-            instance,
-            dungeon,
-            spiritState,
-            () ->
-                callLlm(
-                    systemPrompt,
-                    userInput,
-                    ChatType.DUNGEON,
-                    userId,
-                    instance.getId(),
-                    dungeonExplorationTools,
-                    dungeonNavigationTools,
-                    dungeonFavorTools));
-
-    // 精神状态已在 @Tool 事务内持久化，此处不再冗余保存（避免用陈旧副本覆盖）
-    // 互动计数原子累加，无需先查后改
-    progressRepository.incrementInteractionCount(userId, dungeon.getId());
-
-    return response;
+    Long dungeonId = dungeon.getId();
+    return new ChatTurn(
+        ChatType.DUNGEON,
+        userId,
+        instance.getId(),
+        systemPrompt,
+        userInput,
+        List.of(dungeonExplorationTools, dungeonNavigationTools, dungeonFavorTools),
+        new DungeonChatContext(user, instance, dungeon, spiritState),
+        // 互动计数原子累加，无需先查后改；LLM 调用成功后计入
+        () -> progressRepository.incrementInteractionCount(userId, dungeonId));
   }
 
   public String buildStatusOverview(Long userId) {
-    Player user = userStateService.loadUser(userId);
+    Player user = playerLoader.load(userId);
     if (user.getActivityTargetId() == null) {
       return "你当前不在任何秘境中。";
     }

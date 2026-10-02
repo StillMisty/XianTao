@@ -1,4 +1,4 @@
-package top.stillmisty.xiantao.domain.sect.entity;
+package top.stillmisty.xiantao.domain.chat.entity;
 
 import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
@@ -10,8 +10,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import top.stillmisty.xiantao.domain.chat.enums.ChatType;
 import top.stillmisty.xiantao.domain.sect.enums.ChatRole;
-import top.stillmisty.xiantao.domain.sect.enums.ChatType;
 import top.stillmisty.xiantao.infrastructure.mybatis.handler.JsonbTypeHandler;
 
 /** 统一对话历史实体（地灵/商铺/宗灵/旅行商人 共用） */

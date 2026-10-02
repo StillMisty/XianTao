@@ -12,11 +12,11 @@
 玩家: "地灵 你好"
   ↓
 SpiritChatService.chatWithSpirit()
-  ├─ 1. AiChatRateLimiter 频控（每玩家每分钟最多 10 次，超限抛 AI_RATE_LIMITED）
-  ├─ 2. 校验福地与地灵存在（FUDI_NOT_FOUND / SPIRIT_NOT_FOUND）
-  ├─ 3. 更新福地上线时间（fudi.touchOnlineTime）
-  ├─ 4. 组装系统 Prompt（MBTI 人格 + 形态 + 好感度语气 + 劫数 + 地块状态）
-  ├─ 5. 调用 AbstractChatService.callLlm()（统一 LLM 入口）
+  ├─ 1. AbstractChatService.converse 频控（每玩家每分钟最多 10 次，超限抛 AI_RATE_LIMITED）
+  ├─ 2. 构建对话：校验福地与地灵存在（FUDI_NOT_FOUND / SPIRIT_NOT_FOUND）
+  ├─ 3. 刷新福地与地灵状态（FudiHelper.findAndTouchFudi：上线时间 + 情绪档位 + 兽栏回血）
+  ├─ 4. 懒生成福地事件并应用效果；组装系统 Prompt（MBTI 人格 + 形态 + 好感度语气 + 劫数 + 地块状态）
+  ├─ 5. 绑定 SpiritChatContext 后调用 LLM（统一 LLM 入口）
   │     ├─ MessageChatMemoryAdvisor 自动加载历史（25 条窗口）
   │     ├─ LLM 调用（含 tools 参数）
   │     │     └─ LLM 自主判断 → 调用地块/灵兽/互动工具
@@ -46,8 +46,8 @@ SpiritChatService.chatWithSpirit()
 | `SpiritBeastTools` | 灵兽管理工具：出战召回/进化/放生/孵化、繁育（2 个） |
 | `SpiritInteractionTools` | 互动工具：冒犯降好感、接受礼物、触发天劫（3 个） |
 | `FudiStateBuilder` | 将地块/灵兽状态序列化为 LLM 可读文本 |
-| `SpiritChatContext` | ScopedValue 单次对话上下文（预加载福地与地灵，避免工具重复查询） |
-| `AbstractChatService` | 基类——统一 LLM 调用入口、`ConversationId` 构造 |
+| `SpiritChatContext` | 单次对话的预加载数据（福地与地灵/事件），经统一 `ChatContext` 槽位绑定，工具读取复用 |
+| `AbstractChatService` | 对话 module——频控、上下文绑定、LLM 调用、`ConversationId` 与兜底文案 |
 | `PerTypeChatMemory` | 按对话类型限制窗口大小（地灵 25 条） |
 | `ChatMemoryRepositoryAdapter` | 对话历史持久化适配器，自动修剪 DB 超限条目 |
 | `AiChatRateLimiter` | 用户级 AI 对话频控（每分钟 10 次） |
@@ -394,13 +394,13 @@ AND 战斗未取胜
 ## 12. 关键技术决策（以代码为准）
 
 - **统一对话基础设施**：对话历史存入 `chat_history` 表（ChatType=SPIRIT），窗口固定 25 条，由 `PerTypeChatMemory` + `ChatMemoryRepositoryAdapter` 自动管理并修剪 DB 超限条目。详见 [AI对话系统](./AI对话系统.md)
-- **对话上下文**：`SpiritChatContext`（ScopedValue）持有预加载的福地与地灵，工具调用复用，避免重复查询
+- **对话上下文**：`SpiritChatContext` 持有预加载的福地与地灵，经统一 `ChatContext` 槽位绑定，工具调用复用，避免重复查询
 - **好感度 capping**：通过 `Spirit.addAffection(amount)` 统一处理，限制在 `[0, affectionMax]`
 - **形态喜好全量使用**：从 `spirit_form` 直接读取完整标签池，不做随机子集抽取
 - **零 LLM 创建**：注册时形态分配是纯随机 Java 逻辑，不依赖 LLM
 - **工具拆分**：原单一 `SpiritTools` 拆为地块/灵兽/互动三个工具类，按域维护
-- **频控**：地灵/掌柜/宗灵/秘境之灵共用 `AiChatRateLimiter`（每玩家每分钟 10 次）
-- **情绪与福地事件**：原设计中的 AI 情绪系统与懒生成福地事件均未落地，Prompt 明确「没有固定的情绪状态标签」
+- **频控**：地灵/掌柜/宗灵/秘境之灵/旅行商人共用对话 module 的 `AiChatRateLimiter`（每玩家每分钟 10 次）
+- **情绪与福地事件**：地灵情绪档位由 `Spirit.updateEmotionState()` 按好感自动重算并注入 Prompt；福地事件由 `FudiEventGenerator` 对话懒生成、`FudiEventApplier` 应用效果
 
 ---
 

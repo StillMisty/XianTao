@@ -201,11 +201,7 @@ public class DungeonExplorationTools {
   }
 
   private static DungeonChatContext requireContext() {
-    DungeonChatContext ctx = DungeonChatContext.current();
-    if (ctx == null) {
-      throw new BusinessException(ErrorCode.DUNGEON_NO_ACTIVE_INSTANCE);
-    }
-    return ctx;
+    return ChatContext.require(DungeonChatContext.class);
   }
 
   public record ResolveEncounterResponse(

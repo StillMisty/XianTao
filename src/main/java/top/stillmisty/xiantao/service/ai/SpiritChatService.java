@@ -2,21 +2,18 @@ package top.stillmisty.xiantao.service.ai;
 
 import java.util.ArrayList;
 import java.util.List;
-import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.Nullable;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.stereotype.Service;
+import top.stillmisty.xiantao.domain.chat.enums.ChatType;
 import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
 import top.stillmisty.xiantao.domain.fudi.entity.FudiEventTemplate;
 import top.stillmisty.xiantao.domain.fudi.entity.Spirit;
 import top.stillmisty.xiantao.domain.fudi.entity.SpiritForm;
 import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
-import top.stillmisty.xiantao.domain.sect.enums.ChatType;
 import top.stillmisty.xiantao.domain.worldevent.entity.WorldEvent;
 import top.stillmisty.xiantao.domain.worldevent.enums.WorldEventCategory;
 import top.stillmisty.xiantao.domain.worldevent.enums.WorldEventScope;
-import top.stillmisty.xiantao.infrastructure.repository.FudiRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SpiritFormRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SpiritRepository;
 import top.stillmisty.xiantao.infrastructure.repository.WorldEventRepository;
@@ -25,84 +22,73 @@ import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.fudi.FudiEventApplier;
 import top.stillmisty.xiantao.service.fudi.FudiEventGenerator;
-import top.stillmisty.xiantao.service.player.UserStateService;
+import top.stillmisty.xiantao.service.fudi.FudiHelper;
+import top.stillmisty.xiantao.service.player.PlayerLoader;
 
 @Service
-@Slf4j
 public class SpiritChatService extends AbstractChatService {
 
-  private final FudiRepository fudiRepository;
+  private static final ChatReplies REPLIES =
+      new ChatReplies("地灵暂时无法回应，请稍后再试。", "地灵操作失败", "地灵暂时无法回应，请稍后再试。");
+
   private final SpiritRepository spiritRepository;
   private final SpiritFormRepository spiritFormRepository;
   private final WorldEventRepository worldEventRepository;
   private final FudiEventGenerator fudiEventGenerator;
   private final FudiEventApplier fudiEventApplier;
-  private final UserStateService userStateService;
+  private final FudiHelper fudiHelper;
+  private final PlayerLoader playerLoader;
   private final SpiritPromptTemplates promptTemplates;
   private final SpiritCellTools spiritCellTools;
   private final SpiritBeastTools spiritBeastTools;
   private final SpiritInteractionTools spiritInteractionTools;
   private final FudiStateBuilder fudiStateBuilder;
-  private final AiChatRateLimiter rateLimiter;
 
   public SpiritChatService(
       ChatClient spiritChatClient,
       ChatMemory chatMemory,
-      FudiRepository fudiRepository,
+      AiChatRateLimiter rateLimiter,
       SpiritRepository spiritRepository,
       SpiritFormRepository spiritFormRepository,
       WorldEventRepository worldEventRepository,
       FudiEventGenerator fudiEventGenerator,
       FudiEventApplier fudiEventApplier,
-      UserStateService userStateService,
+      FudiHelper fudiHelper,
+      PlayerLoader playerLoader,
       SpiritPromptTemplates promptTemplates,
       SpiritCellTools spiritCellTools,
       SpiritBeastTools spiritBeastTools,
       SpiritInteractionTools spiritInteractionTools,
-      FudiStateBuilder fudiStateBuilder,
-      AiChatRateLimiter rateLimiter) {
-    super(spiritChatClient, chatMemory);
-    this.fudiRepository = fudiRepository;
+      FudiStateBuilder fudiStateBuilder) {
+    super(spiritChatClient, chatMemory, rateLimiter);
     this.spiritRepository = spiritRepository;
     this.spiritFormRepository = spiritFormRepository;
     this.worldEventRepository = worldEventRepository;
     this.fudiEventGenerator = fudiEventGenerator;
     this.fudiEventApplier = fudiEventApplier;
-    this.userStateService = userStateService;
+    this.fudiHelper = fudiHelper;
+    this.playerLoader = playerLoader;
     this.promptTemplates = promptTemplates;
     this.spiritCellTools = spiritCellTools;
     this.spiritBeastTools = spiritBeastTools;
     this.spiritInteractionTools = spiritInteractionTools;
     this.fudiStateBuilder = fudiStateBuilder;
-    this.rateLimiter = rateLimiter;
   }
 
   public ServiceResult<String> chatWithSpirit(Long userId, String userInput) {
-    rateLimiter.checkAllowed(userId);
-    try {
-      String result = chatWithSpiritInternal(userId, userInput);
-      return new ServiceResult.Success<>(result != null ? result : "地灵暂时无法回应，请稍后再试。");
-    } catch (BusinessException e) {
-      return ServiceResult.businessFailure(e.getMessage() != null ? e.getMessage() : "地灵操作失败");
-    } catch (Exception e) {
-      log.error("地灵对话失败 - userId: {}, error: {}", userId, e.getMessage(), e);
-      return ServiceResult.businessFailure("地灵暂时无法回应，请稍后再试。");
-    }
+    return converse(userId, REPLIES, () -> buildTurn(userId, userInput));
   }
 
-  @Nullable String chatWithSpiritInternal(Long userId, String userInput) {
+  private ChatTurn buildTurn(Long userId, String userInput) {
+    // 统一走福地刷新序列：在线时间、地灵情绪与兽栏回血在同一处维护
     Fudi fudi =
-        fudiRepository
-            .findByUserId(userId)
+        fudiHelper
+            .findAndTouchFudi(userId)
             .orElseThrow(() -> new BusinessException(ErrorCode.FUDI_NOT_FOUND));
     Spirit spirit =
         spiritRepository
             .findByFudiId(fudi.getId())
             .orElseThrow(() -> new BusinessException(ErrorCode.SPIRIT_NOT_FOUND));
-
-    fudi.touchOnlineTime();
-    spirit.updateEmotionState();
-    spiritRepository.save(spirit);
 
     List<FudiEventTemplate> fudiEvents = fudiEventGenerator.generateEvents(fudi);
     if (!fudiEvents.isEmpty()) {
@@ -110,29 +96,20 @@ public class SpiritChatService extends AbstractChatService {
     }
 
     List<WorldEvent> activeEvents = loadVisibleEvents(userId);
-    String response =
-        SpiritChatContext.with(
-            fudi,
-            spirit,
-            activeEvents,
-            () ->
-                callLlm(
-                    buildPrompt(fudi, spirit, fudiEvents),
-                    userInput,
-                    ChatType.SPIRIT,
-                    userId,
-                    fudi.getId(),
-                    spiritCellTools,
-                    spiritBeastTools,
-                    spiritInteractionTools));
-
-    log.debug("地灵对话成功 - userId: {}, mbti: {}, input: {}", userId, spirit.getMbtiType(), userInput);
-    return response;
+    return new ChatTurn(
+        ChatType.SPIRIT,
+        userId,
+        fudi.getId(),
+        buildPrompt(fudi, spirit, fudiEvents, activeEvents),
+        userInput,
+        List.of(spiritCellTools, spiritBeastTools, spiritInteractionTools),
+        new SpiritChatContext(fudi, spirit, activeEvents),
+        null);
   }
 
   /** 加载玩家所在位置可见的进行中事件（全局 + 本地区域），供叙事上下文注入。 */
   private List<WorldEvent> loadVisibleEvents(Long userId) {
-    Long locationId = userStateService.loadUserReadOnly(userId).getLocationId();
+    Long locationId = playerLoader.loadReadOnly(userId).getLocationId();
     List<WorldEvent> events =
         new ArrayList<>(worldEventRepository.findActiveByScope(WorldEventScope.GLOBAL));
     if (locationId != null) {
@@ -141,7 +118,8 @@ public class SpiritChatService extends AbstractChatService {
     return events;
   }
 
-  private String buildPrompt(Fudi fudi, Spirit spirit, List<FudiEventTemplate> fudiEvents) {
+  private String buildPrompt(
+      Fudi fudi, Spirit spirit, List<FudiEventTemplate> fudiEvents, List<WorldEvent> activeEvents) {
     String cellDetail = fudiStateBuilder.buildCellDetailForLLM(fudi);
     String formName = null;
     if (spirit.getFormId() != null) {
@@ -158,7 +136,7 @@ public class SpiritChatService extends AbstractChatService {
         emotionState,
         cellDetail,
         formName != null ? formName : "未知形态",
-        buildEventsInfo(),
+        buildEventsInfo(activeEvents),
         buildFudiEventsInfo(fudiEvents));
   }
 
@@ -179,9 +157,7 @@ public class SpiritChatService extends AbstractChatService {
   }
 
   /** 进行中叙事事件上下文 — 与 ShopChatService 的注入方式一致，仅注入 NARRATIVE 类事件。 */
-  private String buildEventsInfo() {
-    SpiritChatContext ctx = SpiritChatContext.current();
-    List<WorldEvent> activeEvents = ctx != null ? ctx.activeEvents() : List.of();
+  private String buildEventsInfo(List<WorldEvent> activeEvents) {
     List<WorldEvent> narrativeEvents =
         activeEvents.stream()
             .filter(event -> event.getCategory() == WorldEventCategory.NARRATIVE)

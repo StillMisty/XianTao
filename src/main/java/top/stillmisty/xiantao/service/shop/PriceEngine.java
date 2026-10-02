@@ -16,6 +16,7 @@ import top.stillmisty.xiantao.domain.worldevent.entity.WorldEvent;
 import top.stillmisty.xiantao.domain.worldevent.enums.WorldEventCategory;
 import top.stillmisty.xiantao.infrastructure.repository.WorldEventRepository;
 import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
+import top.stillmisty.xiantao.service.ai.ChatContext;
 import top.stillmisty.xiantao.service.ai.ShopChatContext;
 
 @Component
@@ -101,7 +102,7 @@ public class PriceEngine {
   }
 
   private double getWorldEventMultiplier(@Nullable Set<String> tags) {
-    ShopChatContext ctx = ShopChatContext.current();
+    ShopChatContext ctx = ChatContext.current(ShopChatContext.class);
     List<WorldEvent> activeEvents =
         ctx != null ? ctx.activeEvents() : worldEventRepository.findActiveEvents();
     double multiplier = 1.0;

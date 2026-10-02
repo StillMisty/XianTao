@@ -1,4 +1,4 @@
-package top.stillmisty.xiantao.domain.sect.enums;
+package top.stillmisty.xiantao.domain.chat.enums;
 
 import com.mybatisflex.annotation.EnumValue;
 import lombok.Getter;

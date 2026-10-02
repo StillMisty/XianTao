@@ -1,12 +1,12 @@
 package top.stillmisty.xiantao.service.ai;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.stereotype.Service;
+import top.stillmisty.xiantao.domain.chat.enums.ChatType;
 import top.stillmisty.xiantao.domain.sect.entity.Sect;
 import top.stillmisty.xiantao.domain.sect.entity.SectMember;
-import top.stillmisty.xiantao.domain.sect.enums.ChatType;
 import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.infrastructure.repository.SectMemberRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SectRepository;
@@ -19,8 +19,10 @@ import top.stillmisty.xiantao.service.sect.SectEventGenerator;
 
 /** 宗灵对话核心服务 宗灵是宗门意志的化身，LLM 驱动，成员通过自然语言与宗灵对话来执行所有宗门操作 */
 @Service
-@Slf4j
 public class SectSpiritChatService extends AbstractChatService {
+
+  private static final ChatReplies REPLIES =
+      new ChatReplies("宗灵暂时无法回应，请稍后再试。", "宗门操作失败", "宗灵暂时无法回应，请稍后再试。");
 
   private final SectRepository sectRepository;
   private final SectMemberRepository sectMemberRepository;
@@ -31,11 +33,11 @@ public class SectSpiritChatService extends AbstractChatService {
   private final SectEventGenerator sectEventGenerator;
   private final UserRepository userRepository;
   private final SectPromptTemplates promptTemplates;
-  private final AiChatRateLimiter rateLimiter;
 
   public SectSpiritChatService(
       ChatClient sectChatClient,
       ChatMemory chatMemory,
+      AiChatRateLimiter rateLimiter,
       SectRepository sectRepository,
       SectMemberRepository sectMemberRepository,
       SectMemberTools sectMemberTools,
@@ -44,9 +46,8 @@ public class SectSpiritChatService extends AbstractChatService {
       SectBuildingService sectBuildingService,
       SectEventGenerator sectEventGenerator,
       UserRepository userRepository,
-      SectPromptTemplates promptTemplates,
-      AiChatRateLimiter rateLimiter) {
-    super(sectChatClient, chatMemory);
+      SectPromptTemplates promptTemplates) {
+    super(sectChatClient, chatMemory, rateLimiter);
     this.sectRepository = sectRepository;
     this.sectMemberRepository = sectMemberRepository;
     this.sectMemberTools = sectMemberTools;
@@ -56,23 +57,13 @@ public class SectSpiritChatService extends AbstractChatService {
     this.sectEventGenerator = sectEventGenerator;
     this.userRepository = userRepository;
     this.promptTemplates = promptTemplates;
-    this.rateLimiter = rateLimiter;
   }
 
   public ServiceResult<String> chatWithSectSpirit(Long userId, String userInput) {
-    rateLimiter.checkAllowed(userId);
-    try {
-      String result = chatWithSectSpiritInternal(userId, userInput);
-      return new ServiceResult.Success<>(result);
-    } catch (BusinessException e) {
-      return ServiceResult.businessFailure(e.getMessage() != null ? e.getMessage() : "宗门操作失败");
-    } catch (Exception e) {
-      log.error("宗灵对话失败 - userId: {}, error: {}", userId, e.getMessage(), e);
-      return ServiceResult.businessFailure("宗灵暂时无法回应，请稍后再试。");
-    }
+    return converse(userId, REPLIES, () -> buildTurn(userId, userInput));
   }
 
-  String chatWithSectSpiritInternal(Long userId, String userInput) {
+  private ChatTurn buildTurn(Long userId, String userInput) {
     SectMember member =
         sectMemberRepository
             .findByUserId(userId)
@@ -86,42 +77,26 @@ public class SectSpiritChatService extends AbstractChatService {
             .findById(sectId)
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_FOUND));
 
+    // 对话前刷新：灵脉结算与宗门动态事件
     sectBuildingService.settleSpiritVein(sect.getId());
     sectEventGenerator.ensureEvent(sect);
 
-    String response =
+    List<Object> tools =
         switch (member.getPosition()) {
-          case MEMBER ->
-              callLlm(
-                  buildPrompt(sect, member),
-                  userInput,
-                  ChatType.SECT,
-                  userId,
-                  sect.getId(),
-                  sectMemberTools);
-          case ELDER ->
-              callLlm(
-                  buildPrompt(sect, member),
-                  userInput,
-                  ChatType.SECT,
-                  userId,
-                  sect.getId(),
-                  sectMemberTools,
-                  sectElderTools);
-          case LEADER ->
-              callLlm(
-                  buildPrompt(sect, member),
-                  userInput,
-                  ChatType.SECT,
-                  userId,
-                  sect.getId(),
-                  sectMemberTools,
-                  sectElderTools,
-                  sectLeaderTools);
+          case MEMBER -> List.of(sectMemberTools);
+          case ELDER -> List.of(sectMemberTools, sectElderTools);
+          case LEADER -> List.of(sectMemberTools, sectElderTools, sectLeaderTools);
         };
 
-    log.debug("宗灵对话成功 - userId: {}, sect: {}, input: {}", userId, sect.getName(), userInput);
-    return response != null ? response : "宗灵暂时无法回应，请稍后再试。";
+    return new ChatTurn(
+        ChatType.SECT,
+        userId,
+        sect.getId(),
+        buildPrompt(sect, member),
+        userInput,
+        tools,
+        null,
+        null);
   }
 
   private String buildPrompt(Sect sect, SectMember member) {

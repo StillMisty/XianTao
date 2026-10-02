@@ -26,8 +26,9 @@ import top.stillmisty.xiantao.infrastructure.repository.StackableItemRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
+import top.stillmisty.xiantao.service.ai.ChatContext;
 import top.stillmisty.xiantao.service.ai.ShopChatContext;
-import top.stillmisty.xiantao.service.player.UserStateService;
+import top.stillmisty.xiantao.service.player.PlayerLoader;
 
 /**
  * 商店查询服务
@@ -44,7 +45,7 @@ public class ShopQueryService {
   private final EquipmentTemplateRepository equipmentTemplateRepository;
   private final StackableItemRepository stackableItemRepository;
   private final EquipmentRepository equipmentRepository;
-  private final UserStateService userStateService;
+  private final PlayerLoader playerLoader;
   private final PriceEngine priceEngine;
 
   /**
@@ -55,7 +56,7 @@ public class ShopQueryService {
    */
   @Transactional(readOnly = true)
   public ServiceResult<ProductListVO> listProducts(Long userId) {
-    var user = userStateService.loadUserReadOnly(userId);
+    var user = playerLoader.loadReadOnly(userId);
     ShopNpc npc = findByLocation(user.getLocationId());
     return new ServiceResult.Success<>(listProducts(npc));
   }
@@ -68,11 +69,11 @@ public class ShopQueryService {
    */
   @Cacheable(cacheNames = "shop_products", key = "#userId")
   public ProductListVO listProductsInternal(Long userId) {
-    ShopChatContext chatCtx = ShopChatContext.current();
+    ShopChatContext chatCtx = ChatContext.current(ShopChatContext.class);
     if (chatCtx != null) {
       return listProducts(chatCtx.npc());
     }
-    var user = userStateService.loadUserReadOnly(userId);
+    var user = playerLoader.loadReadOnly(userId);
     ShopNpc npc = findByLocation(user.getLocationId());
     return listProducts(npc);
   }

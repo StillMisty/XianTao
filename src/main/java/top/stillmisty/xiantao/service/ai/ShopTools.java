@@ -25,7 +25,6 @@ import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.UserContext;
-import top.stillmisty.xiantao.service.player.UserStateService;
 import top.stillmisty.xiantao.service.shop.ShopService;
 import top.stillmisty.xiantao.service.shop.SpecialOrderService;
 
@@ -39,17 +38,10 @@ public class ShopTools {
   private final SpecialOrderService specialOrderService;
   private final ItemTemplateRepository itemTemplateRepository;
   private final EquipmentTemplateRepository equipmentTemplateRepository;
-  private final UserStateService userStateService;
 
   private UserAndNpc resolveUserAndNpc() {
-    ShopChatContext ctx = ShopChatContext.current();
-    if (ctx != null) {
-      return new UserAndNpc(ctx.user(), ctx.npc());
-    }
-    Long userId = UserContext.requireCurrentUserId();
-    Player user = userStateService.loadUser(userId);
-    ShopNpc npc = shopService.findByLocation(user.getLocationId());
-    return new UserAndNpc(user, npc);
+    ShopChatContext ctx = ChatContext.require(ShopChatContext.class);
+    return new UserAndNpc(ctx.user(), ctx.npc());
   }
 
   private record UserAndNpc(Player user, ShopNpc npc) {}
@@ -204,8 +196,8 @@ public class ShopTools {
     return toolExecutor.execute(
         "negotiatePrice",
         () -> {
-          ShopChatContext chatCtx = ShopChatContext.current();
-          if (chatCtx != null && chatCtx.isHaggleUsed()) {
+          ShopChatContext chatCtx = ChatContext.require(ShopChatContext.class);
+          if (chatCtx.isHaggleUsed()) {
             return new HaggleResult(
                 false, currentPrice, 0, isBuying ? "客官，方才已让过利了，这价不能再降了" : "客官，方才已加过价了，这价不能再升了");
           }
@@ -224,9 +216,7 @@ public class ShopTools {
           UserAndNpc resolved = resolveUserAndNpc();
           HaggleResult result =
               shopService.haggleItem(userId, resolved.npc(), currentPrice, basePrice, isBuying);
-          if (chatCtx != null) {
-            chatCtx.markHaggled();
-          }
+          chatCtx.markHaggled();
           return result;
         });
   }

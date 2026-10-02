@@ -20,7 +20,7 @@ import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.SpiritStoneService;
 import top.stillmisty.xiantao.service.dungeon.DungeonEventCompleter;
 import top.stillmisty.xiantao.service.dungeon.DungeonProgressHelper;
-import top.stillmisty.xiantao.service.player.UserStateService;
+import top.stillmisty.xiantao.service.player.PlayerWriter;
 
 /** 秘境导航工具 — 推进区域、撤退、查看区域/玩家状态 */
 @Service
@@ -35,7 +35,7 @@ public class DungeonNavigationTools {
   private final DungeonStateBuilder stateBuilder;
   private final SpiritStoneService spiritStoneService;
   private final DungeonProgressHelper progressHelper;
-  private final UserStateService userStateService;
+  private final PlayerWriter playerWriter;
   private final DungeonEventCompleter dungeonEventCompleter;
 
   /** 在工具事务内重读最新实例，避免陈旧快照覆盖并发写入 */
@@ -101,7 +101,7 @@ public class DungeonNavigationTools {
           instanceRepository.save(instance);
 
           ctx.user().clearActivity();
-          userStateService.saveActivity(ctx.user());
+          playerWriter.saveActivity(ctx.user());
 
           return new RetreatResponse(true, "你已经离开了秘境，已获奖励保留。");
         });
@@ -166,11 +166,7 @@ public class DungeonNavigationTools {
   }
 
   private static DungeonChatContext requireContext() {
-    DungeonChatContext ctx = DungeonChatContext.current();
-    if (ctx == null) {
-      throw new BusinessException(ErrorCode.DUNGEON_NO_ACTIVE_INSTANCE);
-    }
-    return ctx;
+    return ChatContext.require(DungeonChatContext.class);
   }
 
   public record AdvanceAreaResponse(

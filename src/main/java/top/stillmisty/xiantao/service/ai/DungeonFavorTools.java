@@ -15,8 +15,6 @@ import top.stillmisty.xiantao.domain.dungeon.entity.DungeonTemplate.AreaConfig;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonTemplate.Poi;
 import top.stillmisty.xiantao.infrastructure.repository.DungeonInstanceRepository;
 import top.stillmisty.xiantao.infrastructure.repository.DungeonSpiritStateRepository;
-import top.stillmisty.xiantao.service.BusinessException;
-import top.stillmisty.xiantao.service.ErrorCode;
 
 /** 秘境好感系统工具 — 调整好感、获取隐藏线索 */
 @Service
@@ -107,17 +105,13 @@ public class DungeonFavorTools {
   }
 
   private DungeonSpiritState findOrCreateSpiritState(DungeonInstance instance) {
-    DungeonChatContext ctx = DungeonChatContext.current();
-    Long userId = ctx != null ? ctx.user().getId() : null;
-    return spiritStateHelper.findOrCreate(instance.getId(), instance.getDungeonId(), userId);
+    DungeonChatContext ctx = ChatContext.require(DungeonChatContext.class);
+    return spiritStateHelper.findOrCreate(
+        instance.getId(), instance.getDungeonId(), ctx.user().getId());
   }
 
   private static DungeonChatContext requireContext() {
-    DungeonChatContext ctx = DungeonChatContext.current();
-    if (ctx == null) {
-      throw new BusinessException(ErrorCode.DUNGEON_NO_ACTIVE_INSTANCE);
-    }
-    return ctx;
+    return ChatContext.require(DungeonChatContext.class);
   }
 
   public record AdjustFavorResponse(int currentFavor, String attitude, String message) {}

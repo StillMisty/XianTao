@@ -17,9 +17,9 @@ import org.springframework.ai.deepseek.DeepSeekAssistantMessage;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import top.stillmisty.xiantao.domain.sect.entity.ChatHistory;
+import top.stillmisty.xiantao.domain.chat.entity.ChatHistory;
+import top.stillmisty.xiantao.domain.chat.enums.ChatType;
 import top.stillmisty.xiantao.domain.sect.enums.ChatRole;
-import top.stillmisty.xiantao.domain.sect.enums.ChatType;
 import top.stillmisty.xiantao.infrastructure.repository.ChatHistoryRepository;
 
 @Component

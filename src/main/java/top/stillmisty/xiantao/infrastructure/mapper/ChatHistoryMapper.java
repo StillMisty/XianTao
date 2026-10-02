@@ -4,7 +4,7 @@ import com.mybatisflex.core.BaseMapper;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import top.stillmisty.xiantao.domain.sect.entity.ChatHistory;
+import top.stillmisty.xiantao.domain.chat.entity.ChatHistory;
 
 @Mapper
 public interface ChatHistoryMapper extends BaseMapper<ChatHistory> {

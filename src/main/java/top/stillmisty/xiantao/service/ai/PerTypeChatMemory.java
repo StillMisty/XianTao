@@ -7,7 +7,7 @@ import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.ChatMemoryRepository;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.messages.Message;
-import top.stillmisty.xiantao.domain.sect.enums.ChatType;
+import top.stillmisty.xiantao.domain.chat.enums.ChatType;
 
 public class PerTypeChatMemory implements ChatMemory {
 

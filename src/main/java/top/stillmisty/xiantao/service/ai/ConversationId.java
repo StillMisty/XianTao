@@ -1,6 +1,6 @@
 package top.stillmisty.xiantao.service.ai;
 
-import top.stillmisty.xiantao.domain.sect.enums.ChatType;
+import top.stillmisty.xiantao.domain.chat.enums.ChatType;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 

@@ -1,13 +1,13 @@
 package top.stillmisty.xiantao.infrastructure.repository;
 
-import static top.stillmisty.xiantao.domain.sect.entity.table.ChatHistoryTableDef.CHAT_HISTORY;
+import static top.stillmisty.xiantao.domain.chat.entity.table.ChatHistoryTableDef.CHAT_HISTORY;
 
 import com.mybatisflex.core.query.QueryWrapper;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import top.stillmisty.xiantao.domain.sect.entity.ChatHistory;
-import top.stillmisty.xiantao.domain.sect.enums.ChatType;
+import top.stillmisty.xiantao.domain.chat.entity.ChatHistory;
+import top.stillmisty.xiantao.domain.chat.enums.ChatType;
 import top.stillmisty.xiantao.infrastructure.mapper.ChatHistoryMapper;
 
 @Repository

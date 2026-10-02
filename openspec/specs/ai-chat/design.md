@@ -113,24 +113,35 @@ WHERE chat_type = ? AND conversation_id = ? AND user_id = ?
 
 **DeepSeek reasoning 持久化**：`saveAll()` 从消息列表中提取 `DeepSeekAssistantMessage.reasoningContent`，写入 assistant 消息的 `extra_data.reasoning_content`；读取时还原为 `DeepSeekAssistantMessage`。
 
-### 4.4 AbstractChatService
+### 4.4 AbstractChatService（对话 module）
 
-所有对话服务的基类，提供统一的 `callLlm()` 方法（以代码为准）：
+所有对话服务的基类，拥有一次对话的完整生命周期：**频控 → 构建对话（加载/刷新/Prompt）→ 绑定上下文 → LLM 调用 → 兜底文案**。子类只负责「构建这一次对话」：
 
 ```java
-protected String callLlm(
-    String systemPrompt,
-    String userInput,
-    ChatType chatType,
-    Long userId,
-    Long entityId,
-    Object... tools) {
-  String conversationId = new ConversationId(chatType, userId, entityId).value();
+protected ServiceResult<String> converse(
+    Long userId, ChatReplies replies, Supplier<ChatTurn> turnFactory)
+
+protected record ChatTurn(
+    ChatType chatType, Long userId, Long entityId,
+    String systemPrompt, String userInput, List<Object> tools,
+    @Nullable Object context, @Nullable Runnable afterTurn) {}
+
+protected record ChatReplies(String empty, String businessFailure, String error) {}
+```
+
+- 频控在 `turnFactory` 之前执行：被限流的请求不触发加载与对话前刷新
+- `context` 非空时经 `ChatContext.with` 绑定（统一 ScopedValue 槽位），工具用 `ChatContext.require(ShopChatContext.class)` 读取预加载数据，不再回退查库
+- `afterTurn` 在 LLM 返回后执行（如秘境互动计数）
+- 私有 `callLlm(ChatTurn)`：构造 `ConversationId`，经 ChatClient 默认 advisor 调用 LLM，空响应/空内容返回 `null` 由兜底文案接管
+
+```java
+private String callLlm(ChatTurn turn) {
+  String conversationId = new ConversationId(turn.chatType(), turn.userId(), turn.entityId()).value();
   ChatResponse chatResponse =
       chatClient.prompt()
-          .system(systemPrompt)
-          .user(userInput)
-          .tools(tools)
+          .system(turn.systemPrompt())
+          .user(turn.userInput())
+          .tools(turn.tools().toArray())
           .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, conversationId))
           .call()
           .chatResponse();
@@ -170,7 +181,7 @@ protected String callLlm(
 
 - 内存滑动窗口（Caffeine，`expireAfterAccess` 2 分钟），每用户每分钟最多 **10 次** AI 对话
 - 超限抛 `BusinessException(ErrorCode.AI_RATE_LIMITED)` →「道友请稍安勿躁，每分钟最多 %d 次传音」
-- 应用于地灵、掌柜、宗灵、秘境之灵四个对话入口，重启即重置
+- 由对话 module（`AbstractChatService.converse`）统一在构建对话之前执行，覆盖地灵、掌柜、宗灵、秘境之灵与旅行商人五个入口，重启即重置
 
 ---
 
@@ -209,19 +220,19 @@ protected String callLlm(
 ## 6. 对话流程
 
 ```
-玩家: "地灵/掌柜/宗灵/秘灵 xxx"
+玩家: "地灵/掌柜/宗灵/秘灵/游商 xxx"
   ↓
-Service.chat(platform, openId, input)
+Service.chat(userId, input) → AbstractChatService.converse()
   ├─ 0. AiChatRateLimiter 频控（超限直接返回限流提示）
-  ├─ 1. 认证用户身份
-  ├─ 2. 加载业务上下文（福地状态 / 商铺状态 / 宗门状态 / 秘境状态）
-  ├─ 3. 组装系统 Prompt（人格 + 状态 + 规则 + 事件）
-  ├─ 4. 调用 AbstractChatService.callLlm()
+  ├─ 1. 构建对话（turnFactory）：加载业务数据、对话前刷新（福地在线/灵脉结算）、组装系统 Prompt 与上下文
+  ├─ 2. ChatContext.with 绑定上下文（店铺/地灵/秘境），工具经 ChatContext.require 读取
+  ├─ 3. LLM 调用
   │     ├─ 构造 ConversationId
   │     ├─ MessageChatMemoryAdvisor 自动加载历史
   │     ├─ LLM 调用（含 tools 参数；主模型失败自动降级备用模型）
   │     ├─ MessageChatMemoryAdvisor 自动保存新的用户+AI消息
   │     └─ ChatMemoryRepositoryAdapter 修剪 DB 超限条目
+  ├─ 4. afterTurn（如秘境互动计数）
   └─ 5. 返回 LLM 回复（空回复/异常时返回该服务的降级文案）
 ```
 
@@ -235,6 +246,7 @@ Service.chat(platform, openId, input)
 | 宗灵 | `宗灵暂时无法回应，请稍后再试。` |
 | 掌柜 | `掌柜暂时不在，请稍后再来。` |
 | 秘境之灵 | `秘境之灵暂时无法回应，请稍后再试。`（空回复为 `秘境之灵暂时无法回应...`） |
+| 旅行商人 | `旅行商人已经离开了。`（空回复为 `旅行商人摆了摆手：「货源就这些，道友慢慢看。」`） |
 | 宗门创建（身份生成失败） | LLM 失败回退默认身份，不阻断创建 |
 
 `BusinessException`（业务失败，如频控/无福地）优先返回其格式化消息；其他异常返回上述降级文案并记录日志。
@@ -251,6 +263,8 @@ Service.chat(platform, openId, input)
 - **ConversationId 格式校验**：使用统一 `BusinessException(ErrorCode.PARAM_INVALID)` 处理格式错误，符合项目错误处理规范
 - **模型降级**：`FallbackChatModel` + `ChatOptionsAdapter` 支持 DeepSeek/OpenAI 多模型按序降级
 - **用户级频控**：入口统一 `AiChatRateLimiter`，防止连发刷成本与上游限流
+- **对话 module**：`AbstractChatService.converse` 统一频控、上下文绑定、LLM 调用与兜底文案；子类只构建 `ChatTurn`；工具经 `ChatContext.require` 读取预加载数据，不再回退查库
+- **单一上下文槽位**：`ChatContext` 用同一个 ScopedValue 槽位绑定类型化上下文（店铺/地灵/秘境），绑定与读取都经该 module
 
 ---
 
@@ -261,7 +275,7 @@ Service.chat(platform, openId, input)
 ### A. 实现现状（文档已修正）
 
 - **表名与结构**：实际为 `chat_history`（无 `xt_` 前缀）；`role` 为 VARCHAR(16)（非 24）；新增 `extra_data` JSONB（持久化 DeepSeek `reasoning_content`）；索引 `(chat_type, conversation_id, user_id, create_time DESC, id DESC)`；`chat_type` CHECK 含 `DUNGEON`。
-- **ChatType 枚举**：新增 `DUNGEON`（窗口 25）；`TRAVELER` 实际窗口 20（文档标「—」作废）。
+- **ChatType 枚举**：新增 `DUNGEON`（窗口 25）；`TRAVELER` 实际窗口 20（文档标「—」作废）；`ChatType` 与 `ChatHistory` 已迁至中立的 `domain.chat`（对话概念不再挂在宗门域）。
 - **ChatClient maxTokens**：`chatClient` 实际 400（文档写 150）；新增 `dungeonChatClient` 1500；`npcChatClient` 用途扩展为宗门身份生成。
 - **callLlm 实现**：使用 `ChatResponse` 并统一处理空响应/空内容（返回 `null`）；advisor 由 ChatClient 默认注册，非每次调用构造。
 - **saveAll 语义**：实际为 append-only（按 DB 已有条数补插），文档「逐条保存新消息」不准确；修剪用 CTE `ORDER BY create_time DESC, id DESC`。
