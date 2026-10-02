@@ -55,19 +55,19 @@
 
 ## 2. 第二波：大型功能
 
-- [ ] 2.1 skills：PASSIVE 习得即生效、不占槽位；`RESIST_BUFF`/`HP_BUFF`/`SURVIVE_LETHAL` 被动效果
-- [ ] 2.2 skills：`require_skill_id` 法决树前置（种子数据 + 学习校验）
-- [ ] 2.3 game-events：悬赏两阶段隐藏线索（`hidden_clues` 接取写入 + 领奖校验）
-- [ ] 2.4 game-events：秘境事件管道（DUNGEON_ENTER / EXPLORE / HIDDEN / COMPLETE）
-- [ ] 2.5 sect：宗门动态事件（`last_event_*` 写入 + 总览/宗灵展示）
-- [ ] 2.6 trade：调货机制（定金 → 调货时长 → 尾款取货）
-- [ ] 2.7 trade：旅行商人临时商铺（事件触发、价格浮动、LLM 对话）
-- [ ] 2.8 spirit-chat / world-events：福地事件系统（`fudi_event_template` + 地灵对话触发）
-- [ ] 2.9 spirit-chat：情绪状态机（updateEmotion 工具 + Prompt 注入）
-- [ ] 2.10 dungeon：多人组队（当前 `max_team_size=1`，随数据启用）
+- [x] 2.1 skills：PASSIVE 习得即生效、不占槽位；`RESIST_BUFF`/`HP_BUFF`/`SURVIVE_LETHAL` 被动效果
+- [x] 2.2 skills：`require_skill_id` 法决树前置（种子数据 + 学习校验）
+- [x] 2.3 game-events：悬赏两阶段隐藏线索（`hidden_clues` 接取写入 + 领奖校验）
+- [x] 2.4 game-events：秘境事件管道（DUNGEON_ENTER / EXPLORE / HIDDEN / COMPLETE）
+- [x] 2.5 sect：宗门动态事件（`last_event_*` 写入 + 总览/宗灵展示）
+- [x] 2.6 trade：调货机制（定金 → 调货时长 → 尾款取货）
+- [x] 2.7 trade：旅行商人临时商铺（事件触发、价格浮动、LLM 对话）
+- [x] 2.8 spirit-chat / world-events：福地事件系统（`fudi_event_template` + 地灵对话触发）
+- [x] 2.9 spirit-chat：情绪状态机（updateEmotion 工具 + Prompt 注入）
+- [ ] 2.10 dungeon：多人组队（**未做**：当前数据 `max_team_size=1`，属数据门槛，待组队玩法数据启用时另行实现）
 
 ## 3. 契约同步与归档
 
-- [ ] 3.1 为已实现行为补写各能力 spec 增量（ADDED/MODIFIED Requirement）
-- [ ] 3.2 `openspec validate implement-design-gaps` 通过
-- [ ] 3.3 归档变更；`openspec validate --specs` 全绿
+- [x] 3.1 为已实现行为补写各能力 spec 增量（16 个能力：ADDED/MODIFIED，含已知契约修订）
+- [x] 3.2 `openspec validate implement-design-gaps --strict` 通过
+- [x] 3.3 归档变更；`openspec validate --specs` 全绿
