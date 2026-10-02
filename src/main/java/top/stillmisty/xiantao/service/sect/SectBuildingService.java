@@ -36,7 +36,6 @@ public class SectBuildingService {
   private final SectRepository sectRepository;
   private final SectMemberRepository sectMemberRepository;
   private final SectBuildingRepository sectBuildingRepository;
-  private final SectMemberService sectMemberService;
   private final SectShopService sectShopService;
 
   // ===================== 公开 API =====================
@@ -120,7 +119,8 @@ public class SectBuildingService {
   @Caching(
       evict = {
         @CacheEvict(cacheNames = "sect_buildings", key = "#result.sectId()"),
-        @CacheEvict(cacheNames = "sect_overview", key = "#userId")
+        @CacheEvict(cacheNames = "sect_overview", key = "#userId"),
+        @CacheEvict(cacheNames = "sect_member_bonuses", allEntries = true)
       })
   public BuildResultVO buildStructureInternal(Long userId, String buildingTypeCode) {
     SectMember member = requireMember(userId);
@@ -162,7 +162,8 @@ public class SectBuildingService {
   @Caching(
       evict = {
         @CacheEvict(cacheNames = "sect_buildings", key = "#result.sectId()"),
-        @CacheEvict(cacheNames = "sect_overview", key = "#userId")
+        @CacheEvict(cacheNames = "sect_overview", key = "#userId"),
+        @CacheEvict(cacheNames = "sect_member_bonuses", allEntries = true)
       })
   public UpgradeBuildingResultVO upgradeBuildingInternal(Long userId, String buildingTypeCode) {
     SectMember member = requireMember(userId);
@@ -222,9 +223,28 @@ public class SectBuildingService {
     return 1.0 + level * 0.03;
   }
 
+  /** 玩家所属宗门的练功房修炼加成；无宗门返回 0（练功房每级 +3%） */
+  public double getTrainingBonusForUser(Long userId) {
+    return sectMemberRepository
+        .findByUserId(userId)
+        .filter(member -> member.getSectId() != null)
+        .map(member -> getTrainingBonus(member.requireSectId()) - 1.0)
+        .orElse(0.0);
+  }
+
   public double getAlchemyBonus(Long sectId) {
     int level = getBuildingLevel(sectId, SectBuildingType.ALCHEMY_CHAMBER);
     return 1.0 + level * 0.05;
+  }
+
+  /** 玩家所属宗门的炼丹房加成；无宗门或未建造返回基准 1.0（炼丹房每级 +5%）。 */
+  @Cacheable(cacheNames = "sect_member_bonuses", key = "'alchemy:' + #userId")
+  public double getAlchemyBonusForUser(Long userId) {
+    return sectMemberRepository
+        .findByUserId(userId)
+        .filter(member -> member.getSectId() != null)
+        .map(member -> getAlchemyBonus(member.requireSectId()))
+        .orElse(1.0);
   }
 
   public double getForgeDiscount(Long sectId) {
@@ -232,9 +252,29 @@ public class SectBuildingService {
     return 1.0 - level * 0.05;
   }
 
+  /** 玩家所属宗门的锻造坊强化折扣；无宗门或未建造返回基准 1.0（锻造坊每级 -5%）。 */
+  @Cacheable(cacheNames = "sect_member_bonuses", key = "'forge:' + #userId")
+  public double getForgeDiscountForUser(Long userId) {
+    return sectMemberRepository
+        .findByUserId(userId)
+        .filter(member -> member.getSectId() != null)
+        .map(member -> getForgeDiscount(member.requireSectId()))
+        .orElse(1.0);
+  }
+
   public double getGuardDamageReduction(Long sectId) {
     int level = getBuildingLevel(sectId, SectBuildingType.GUARD_ARRAY);
     return 1.0 - level * 0.03;
+  }
+
+  /** 玩家所属宗门的护阵减伤系数；无宗门或未建造返回基准 1.0（护阵每级 -3%）。 */
+  @Cacheable(cacheNames = "sect_member_bonuses", key = "'guard:' + #userId")
+  public double getGuardDamageReductionForUser(Long userId) {
+    return sectMemberRepository
+        .findByUserId(userId)
+        .filter(member -> member.getSectId() != null)
+        .map(member -> getGuardDamageReduction(member.requireSectId()))
+        .orElse(1.0);
   }
 
   public int getScriptureSlotCount(Long sectId) {
@@ -312,6 +352,10 @@ public class SectBuildingService {
   }
 
   private SectMember requireMember(Long userId) {
-    return sectMemberService.requireMember(userId);
+    // 直接走 repository：SectMemberService 反向依赖 UserStateService，会与战斗链路构成循环依赖
+    return sectMemberRepository
+        .findByUserId(userId)
+        .filter(m -> m.getSectId() != null)
+        .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_IN));
   }
 }

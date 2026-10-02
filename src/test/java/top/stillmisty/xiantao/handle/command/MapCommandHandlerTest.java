@@ -47,6 +47,41 @@ class MapCommandHandlerTest {
   }
 
   @Test
+  void mapListShowsMonstersAndNeighbors() {
+    MapService mapService = mock(MapService.class);
+    when(mapService.getAllMaps())
+        .thenReturn(
+            new ServiceResult.Success<>(
+                List.of(
+                    MapInfoVO.builder()
+                        .name("青石镇")
+                        .mapType(MapType.SAFE_TOWN)
+                        .levelRequirement(1)
+                        .adjacentMapNames(List.of("翠竹林"))
+                        .build(),
+                    MapInfoVO.builder()
+                        .name("翠竹林")
+                        .mapType(MapType.TRAINING_ZONE)
+                        .levelRequirement(5)
+                        .monsters(
+                            List.of(
+                                MapInfoVO.MonsterInfoVO.builder()
+                                    .name("青狼")
+                                    .typeName("妖兽")
+                                    .baseLevel(5)
+                                    .build()))
+                        .adjacentMapNames(List.of("青石镇"))
+                        .build())));
+
+    String text = handler(mapService).handleMapList(TextFormat.get());
+
+    assertTrue(text.contains("世界地图"), text);
+    assertTrue(text.contains("青石镇"), text);
+    assertTrue(text.contains("翠竹林"), text);
+    assertTrue(text.contains("青狼"), text);
+  }
+
+  @Test
   void noAdjacentMapsMeansNoSuggestions() {
     MapService mapService = mock(MapService.class);
     when(mapService.getCurrentMapInfo(1L))

@@ -4,6 +4,7 @@ import java.util.List;
 import org.jspecify.annotations.Nullable;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
 import top.stillmisty.xiantao.domain.item.enums.WeaponType;
+import top.stillmisty.xiantao.domain.item.vo.EquipmentStats;
 import top.stillmisty.xiantao.domain.skill.entity.Skill;
 import top.stillmisty.xiantao.domain.user.entity.Player;
 
@@ -13,22 +14,33 @@ public class PlayerCombatant implements Combatant {
   @Nullable private final Equipment weapon;
   private final double attackSpeed;
   private final List<Skill> skills;
+  private final EquipmentStats equipmentStats;
   private int hp;
   private int attackBuff;
   private int defenseBuff;
   private int speedBuff;
 
   public PlayerCombatant(Player user, @Nullable Equipment weapon, double attackSpeed) {
-    this(user, weapon, attackSpeed, List.of());
+    this(user, weapon, attackSpeed, List.of(), EquipmentStats.EMPTY);
   }
 
   public PlayerCombatant(
       Player user, @Nullable Equipment weapon, double attackSpeed, List<Skill> skills) {
+    this(user, weapon, attackSpeed, skills, EquipmentStats.EMPTY);
+  }
+
+  public PlayerCombatant(
+      Player user,
+      @Nullable Equipment weapon,
+      double attackSpeed,
+      List<Skill> skills,
+      EquipmentStats equipmentStats) {
     this.user = user;
     this.hp = user.getHpCurrent();
     this.weapon = weapon;
     this.attackSpeed = attackSpeed;
     this.skills = skills != null ? skills : List.of();
+    this.equipmentStats = equipmentStats;
   }
 
   public PlayerCombatant withBuffs(int attackBuff, int defenseBuff, int speedBuff) {
@@ -50,22 +62,22 @@ public class PlayerCombatant implements Combatant {
 
   @Override
   public int getSpeed() {
-    return user.getEffectiveStatAgi() * 2 + 10 + speedBuff;
+    return (user.getEffectiveStatAgi() + equipmentStats.agi()) * 2 + 10 + speedBuff;
   }
 
   @Override
   public int getAttack() {
-    int statValue = user.getEffectiveStatStr();
-    int equipAttack = 0;
-    if (weapon != null) {
-      equipAttack = weapon.getFinalAttack();
-    }
-    return statValue * 2 + equipAttack + attackBuff;
+    return (user.getEffectiveStatStr() + equipmentStats.str()) * 2
+        + equipmentStats.attack()
+        + attackBuff;
   }
 
   @Override
   public int getDefense() {
-    return user.getEffectiveStatCon() + defenseBuff;
+    return user.getEffectiveStatCon()
+        + equipmentStats.con()
+        + equipmentStats.defense()
+        + defenseBuff;
   }
 
   @Override
@@ -104,15 +116,15 @@ public class PlayerCombatant implements Combatant {
   }
 
   public int getWis() {
-    return user.getEffectiveStatWis();
+    return user.getEffectiveStatWis() + equipmentStats.wis();
   }
 
   public int getStr() {
-    return user.getEffectiveStatStr();
+    return user.getEffectiveStatStr() + equipmentStats.str();
   }
 
   public int getAgi() {
-    return user.getEffectiveStatAgi();
+    return user.getEffectiveStatAgi() + equipmentStats.agi();
   }
 
   @Override

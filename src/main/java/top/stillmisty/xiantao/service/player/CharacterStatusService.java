@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.event.enums.ActivityType;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
 import top.stillmisty.xiantao.domain.item.vo.CharacterStatusResult;
+import top.stillmisty.xiantao.domain.item.vo.EquipmentStats;
 import top.stillmisty.xiantao.domain.map.entity.MapNode;
 import top.stillmisty.xiantao.domain.user.entity.DaoProtection;
 import top.stillmisty.xiantao.domain.user.entity.Player;
@@ -55,13 +56,13 @@ public class CharacterStatusService {
     ProtectionData protData = buildProtectionData(userId, user);
     TravelData travelData = buildTravelData(user);
 
-    int totalStr = user.getEffectiveStatStr() + equipData.equipStr;
-    int totalCon = user.getEffectiveStatCon() + equipData.equipCon;
-    int totalAgi = user.getEffectiveStatAgi() + equipData.equipAgi;
-    int totalWis = user.getEffectiveStatWis() + equipData.equipWis;
+    int totalStr = user.getEffectiveStatStr() + equipData.stats.str();
+    int totalCon = user.getEffectiveStatCon() + equipData.stats.con();
+    int totalAgi = user.getEffectiveStatAgi() + equipData.stats.agi();
+    int totalWis = user.getEffectiveStatWis() + equipData.stats.wis();
 
-    int attack = totalStr * 2 + equipData.equipAttack;
-    int defense = totalCon + equipData.equipDefense;
+    int attack = totalStr * 2 + equipData.stats.attack();
+    int defense = totalCon + equipData.stats.defense();
     int hpMax = user.calculateMaxHp();
 
     return new CharacterStatusResult(
@@ -92,10 +93,10 @@ public class CharacterStatusService {
         user.getEffectiveStatCon(),
         user.getEffectiveStatAgi(),
         user.getEffectiveStatWis(),
-        equipData.equipStr,
-        equipData.equipCon,
-        equipData.equipAgi,
-        equipData.equipWis,
+        equipData.stats.str(),
+        equipData.stats.con(),
+        equipData.stats.agi(),
+        equipData.stats.wis(),
         totalStr,
         totalCon,
         totalAgi,
@@ -116,14 +117,7 @@ public class CharacterStatusService {
 
   // ===================== 主流程提取的辅助方法 =====================
 
-  private record EquipData(
-      CharacterStatusResult.EquipmentSummary summary,
-      int equipStr,
-      int equipCon,
-      int equipAgi,
-      int equipWis,
-      int equipAttack,
-      int equipDefense) {}
+  private record EquipData(CharacterStatusResult.EquipmentSummary summary, EquipmentStats stats) {}
 
   private record ProtectionData(
       List<CharacterStatusResult.ProtectionInfoVO> protectingList,
@@ -143,26 +137,14 @@ public class CharacterStatusService {
 
   private EquipData buildEquipData(Long userId) {
     List<Equipment> equippedItems = equipmentRepository.findEquippedByUserId(userId);
-
-    int equipStr = 0, equipCon = 0, equipAgi = 0, equipWis = 0;
-    int equipAttack = 0, equipDefense = 0;
-
-    for (Equipment equipment : equippedItems) {
-      equipStr += equipment.getStrBonus();
-      equipCon += equipment.getConBonus();
-      equipAgi += equipment.getAgiBonus();
-      equipWis += equipment.getWisBonus();
-      equipAttack += equipment.getFinalAttack();
-      equipDefense += equipment.getFinalDefense();
-    }
+    EquipmentStats stats = EquipmentStats.from(equippedItems);
 
     CharacterStatusResult.EquipmentSummary summary =
         new CharacterStatusResult.EquipmentSummary(
             equippedItems.size(),
             equippedItems.stream().map(this::convertToEquipmentSummaryItem).toList());
 
-    return new EquipData(
-        summary, equipStr, equipCon, equipAgi, equipWis, equipAttack, equipDefense);
+    return new EquipData(summary, stats);
   }
 
   private ProtectionData buildProtectionData(Long userId, Player user) {

@@ -10,6 +10,7 @@ import top.stillmisty.xiantao.domain.beast.entity.Beast;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
 import top.stillmisty.xiantao.domain.item.enums.EquipmentSlot;
 import top.stillmisty.xiantao.domain.item.enums.WeaponType;
+import top.stillmisty.xiantao.domain.item.vo.EquipmentStats;
 import top.stillmisty.xiantao.domain.monster.CombatTeam;
 import top.stillmisty.xiantao.domain.monster.PlayerCombatant;
 import top.stillmisty.xiantao.domain.pill.entity.PlayerBuff;
@@ -49,12 +50,14 @@ public class DefaultTeamBuilder implements TeamBuilder {
     CombatTeam team = new CombatTeam(user.getId(), options.teamName());
 
     BuffValues buffs = loadActiveBuffs(user.getId());
-    Equipment weapon = findWeapon(user.getId());
-    double attackSpeed = getWeaponAttackSpeed(user.getId(), weapon);
+    List<Equipment> equippedItems = equipmentRepository.findEquippedByUserId(user.getId());
+    Equipment weapon = findWeapon(equippedItems);
+    double attackSpeed = getWeaponAttackSpeed(weapon);
     List<Skill> playerSkills = loadEquippedSkills(user.getId(), weapon, options.skillLookup());
 
     team.addMember(
-        new PlayerCombatant(user, weapon, attackSpeed, playerSkills)
+        new PlayerCombatant(
+                user, weapon, attackSpeed, playerSkills, EquipmentStats.from(equippedItems))
             .withBuffs(buffs.attack, buffs.defense, buffs.speed));
 
     List<Beast> beasts =
@@ -114,14 +117,14 @@ public class DefaultTeamBuilder implements TeamBuilder {
     };
   }
 
-  private @Nullable Equipment findWeapon(Long userId) {
-    return equipmentRepository.findEquippedByUserId(userId).stream()
+  private @Nullable Equipment findWeapon(List<Equipment> equippedItems) {
+    return equippedItems.stream()
         .filter(e -> e.getSlot() == EquipmentSlot.WEAPON)
         .findFirst()
         .orElse(null);
   }
 
-  private double getWeaponAttackSpeed(Long userId, @Nullable Equipment weapon) {
+  private double getWeaponAttackSpeed(@Nullable Equipment weapon) {
     if (weapon == null) return 1.0;
     return equipmentTemplateRepository
         .findById(weapon.getTemplateId())

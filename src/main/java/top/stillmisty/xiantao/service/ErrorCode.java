@@ -147,7 +147,7 @@ public enum ErrorCode {
   DUNGEON_LEVEL_INSUFFICIENT("境界不足，无法进入【%s】（需修为达到第 %d~%d 层）"),
   DUNGEON_NOT_AT_ENTRANCE("你当前不在【%s】所在的位置"),
   DUNGEON_ALREADY_IN("你已在秘境【%s】中"),
-  DUNGEON_SECT_RESTRICTED("该秘境暂不开放宗门准入"),
+  DUNGEON_SECT_RESTRICTED("该秘境仅限指定宗门弟子进入"),
   DUNGEON_KEY_REQUIRED("你没有进入秘境的钥匙"),
   DUNGEON_CLEAR_REQUIRED("你需要先通关指定秘境"),
   DUNGEON_TASK_REQUIRED("你需要先完成指定任务"),

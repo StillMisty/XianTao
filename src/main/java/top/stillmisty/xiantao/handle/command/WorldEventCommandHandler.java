@@ -10,6 +10,7 @@ import top.stillmisty.xiantao.domain.worldevent.entity.WorldEvent;
 import top.stillmisty.xiantao.domain.worldevent.enums.WorldEventCategory;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
+import top.stillmisty.xiantao.service.player.UserStateService;
 import top.stillmisty.xiantao.service.worldevent.WorldEventParticipationService;
 import top.stillmisty.xiantao.service.worldevent.WorldEventService;
 import top.stillmisty.xiantao.util.CommandHandlerHelper;
@@ -22,6 +23,7 @@ public class WorldEventCommandHandler implements CommandGroup {
 
   private final WorldEventService worldEventService;
   private final WorldEventParticipationService worldEventParticipationService;
+  private final UserStateService userStateService;
 
   @Override
   public String groupName() {
@@ -49,7 +51,10 @@ public class WorldEventCommandHandler implements CommandGroup {
     Long userId = UserContext.requireCurrentUserId();
     log.debug("查看世界事件列表 - UserId: {}", userId);
     return CommandHandlerHelper.safeCall(
-        () -> new ServiceResult.Success<>(worldEventService.findActiveEvents()),
+        () ->
+            new ServiceResult.Success<>(
+                worldEventService.findActiveEventsForLocation(
+                    userStateService.loadUserReadOnly(userId).getLocationId())),
         fmt,
         events -> formatEventList(events, fmt));
   }

@@ -164,16 +164,62 @@ public class DungeonStateBuilder {
         .orElse(null);
   }
 
+  /**
+   * 查找下一个可进入的区域：跳过未解锁的隐藏区域。
+   *
+   * <p>隐藏区域需先完成 trigger_after_resolve 指定的 POI 才解锁，否则推进时跳过。
+   */
   @Nullable
-  public AreaConfig findNextArea(DungeonTemplate dungeon, String currentAreaKey) {
+  public AreaConfig findNextAccessibleArea(DungeonTemplate dungeon, DungeonInstance instance) {
     List<AreaConfig> areas = dungeon.getAreaConfigs();
     if (areas == null) return null;
-    for (int i = 0; i < areas.size() - 1; i++) {
-      if (areas.get(i).key().equals(currentAreaKey)) {
-        return areas.get(i + 1);
+
+    int currentIndex = -1;
+    for (int i = 0; i < areas.size(); i++) {
+      if (areas.get(i).key().equals(instance.getCurrentAreaKey())) {
+        currentIndex = i;
+        break;
+      }
+    }
+    if (currentIndex < 0) return null;
+
+    for (int i = currentIndex + 1; i < areas.size(); i++) {
+      AreaConfig candidate = areas.get(i);
+      if (isHiddenArea(candidate) && !isHiddenAreaUnlocked(dungeon, instance, candidate.key())) {
+        continue;
+      }
+      return candidate;
+    }
+    return null;
+  }
+
+  /** 隐藏区域解锁判定：未配置触发条件的隐藏区域不设门槛（兼容无 trigger_after_resolve 的数据）。 */
+  public boolean isHiddenAreaUnlocked(
+      DungeonTemplate dungeon, DungeonInstance instance, String areaKey) {
+    List<String> triggerPois = findHiddenAreaTriggers(dungeon, areaKey);
+    if (triggerPois == null || triggerPois.isEmpty()) {
+      return true;
+    }
+    return triggerPois.stream().allMatch(instance::hasExploredPoi);
+  }
+
+  @Nullable
+  private List<String> findHiddenAreaTriggers(DungeonTemplate dungeon, String areaKey) {
+    List<AreaConfig> areas = dungeon.getAreaConfigs();
+    if (areas == null) return null;
+    for (AreaConfig area : areas) {
+      if (area.hiddenAreas() == null) continue;
+      for (DungeonTemplate.HiddenArea hiddenArea : area.hiddenAreas()) {
+        if (hiddenArea.key().equals(areaKey)) {
+          return hiddenArea.triggerAfterResolve();
+        }
       }
     }
     return null;
+  }
+
+  private static boolean isHiddenArea(AreaConfig area) {
+    return "HIDDEN".equals(area.type());
   }
 
   @Nullable

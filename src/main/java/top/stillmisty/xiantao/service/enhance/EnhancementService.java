@@ -13,6 +13,7 @@ import top.stillmisty.xiantao.domain.item.enums.MaterialAttribute;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
+import top.stillmisty.xiantao.service.sect.SectBuildingService;
 import top.stillmisty.xiantao.util.MaterialParser;
 import top.stillmisty.xiantao.util.MaterialParser.ParsedMaterial;
 
@@ -25,6 +26,7 @@ public class EnhancementService {
   private final SafeEnhanceRegime safeRegime;
   private final ProbabilisticEnhanceRegime probabilisticRegime;
   private final BlueprintEnhanceRegime blueprintRegime;
+  private final SectBuildingService sectBuildingService;
 
   // ===================== 公开 API =====================
 
@@ -119,6 +121,9 @@ public class EnhancementService {
     }
 
     int stoneCost = core.calculateSpiritStoneCost(equipment.getRarity(), targetLevel);
+    // 锻造坊（宗门建筑）：强化费 -5%/级，无宗门或未建造时为基准 1.0
+    double forgeDiscount = sectBuildingService.getForgeDiscountForUser(userId);
+    stoneCost = Math.max(1, (int) Math.round(stoneCost * forgeDiscount));
     return new ResolvedEnhance(equipment, currentLevel, stoneCost);
   }
 

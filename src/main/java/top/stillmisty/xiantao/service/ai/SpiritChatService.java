@@ -1,5 +1,7 @@
 package top.stillmisty.xiantao.service.ai;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.ai.chat.client.ChatClient;
@@ -9,12 +11,17 @@ import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
 import top.stillmisty.xiantao.domain.fudi.entity.Spirit;
 import top.stillmisty.xiantao.domain.fudi.entity.SpiritForm;
 import top.stillmisty.xiantao.domain.sect.enums.ChatType;
+import top.stillmisty.xiantao.domain.worldevent.entity.WorldEvent;
+import top.stillmisty.xiantao.domain.worldevent.enums.WorldEventCategory;
+import top.stillmisty.xiantao.domain.worldevent.enums.WorldEventScope;
 import top.stillmisty.xiantao.infrastructure.repository.FudiRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SpiritFormRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SpiritRepository;
+import top.stillmisty.xiantao.infrastructure.repository.WorldEventRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
+import top.stillmisty.xiantao.service.player.UserStateService;
 
 @Service
 @Slf4j
@@ -23,6 +30,8 @@ public class SpiritChatService extends AbstractChatService {
   private final FudiRepository fudiRepository;
   private final SpiritRepository spiritRepository;
   private final SpiritFormRepository spiritFormRepository;
+  private final WorldEventRepository worldEventRepository;
+  private final UserStateService userStateService;
   private final SpiritPromptTemplates promptTemplates;
   private final SpiritCellTools spiritCellTools;
   private final SpiritBeastTools spiritBeastTools;
@@ -36,6 +45,8 @@ public class SpiritChatService extends AbstractChatService {
       FudiRepository fudiRepository,
       SpiritRepository spiritRepository,
       SpiritFormRepository spiritFormRepository,
+      WorldEventRepository worldEventRepository,
+      UserStateService userStateService,
       SpiritPromptTemplates promptTemplates,
       SpiritCellTools spiritCellTools,
       SpiritBeastTools spiritBeastTools,
@@ -46,6 +57,8 @@ public class SpiritChatService extends AbstractChatService {
     this.fudiRepository = fudiRepository;
     this.spiritRepository = spiritRepository;
     this.spiritFormRepository = spiritFormRepository;
+    this.worldEventRepository = worldEventRepository;
+    this.userStateService = userStateService;
     this.promptTemplates = promptTemplates;
     this.spiritCellTools = spiritCellTools;
     this.spiritBeastTools = spiritBeastTools;
@@ -80,10 +93,12 @@ public class SpiritChatService extends AbstractChatService {
     fudi.touchOnlineTime();
     spiritRepository.save(spirit);
 
+    List<WorldEvent> activeEvents = loadVisibleEvents(userId);
     String response =
         SpiritChatContext.with(
             fudi,
             spirit,
+            activeEvents,
             () ->
                 callLlm(
                     buildPrompt(fudi, spirit),
@@ -99,6 +114,17 @@ public class SpiritChatService extends AbstractChatService {
     return response;
   }
 
+  /** 加载玩家所在位置可见的进行中事件（全局 + 本地区域），供叙事上下文注入。 */
+  private List<WorldEvent> loadVisibleEvents(Long userId) {
+    Long locationId = userStateService.loadUserReadOnly(userId).getLocationId();
+    List<WorldEvent> events =
+        new ArrayList<>(worldEventRepository.findActiveByScope(WorldEventScope.GLOBAL));
+    if (locationId != null) {
+      events.addAll(worldEventRepository.findActiveByRegion(locationId));
+    }
+    return events;
+  }
+
   private String buildPrompt(Fudi fudi, Spirit spirit) {
     String cellDetail = fudiStateBuilder.buildCellDetailForLLM(fudi);
     String formName = null;
@@ -112,6 +138,31 @@ public class SpiritChatService extends AbstractChatService {
         fudi.getTribulationStage(),
         spirit.getAffection(),
         cellDetail,
-        formName != null ? formName : "未知形态");
+        formName != null ? formName : "未知形态",
+        buildEventsInfo());
+  }
+
+  /** 进行中叙事事件上下文 — 与 ShopChatService 的注入方式一致，仅注入 NARRATIVE 类事件。 */
+  private String buildEventsInfo() {
+    SpiritChatContext ctx = SpiritChatContext.current();
+    List<WorldEvent> activeEvents = ctx != null ? ctx.activeEvents() : List.of();
+    List<WorldEvent> narrativeEvents =
+        activeEvents.stream()
+            .filter(event -> event.getCategory() == WorldEventCategory.NARRATIVE)
+            .toList();
+    if (narrativeEvents.isEmpty()) {
+      return "";
+    }
+    StringBuilder sb = new StringBuilder("当前世界事件（叙事见闻，可在对话中自然提及）：\n");
+    for (WorldEvent event : narrativeEvents) {
+      sb.append("- [")
+          .append(event.getCategory().getName())
+          .append("] ")
+          .append(event.getTitle())
+          .append("：")
+          .append(event.getDescription())
+          .append("\n");
+    }
+    return sb.toString();
   }
 }

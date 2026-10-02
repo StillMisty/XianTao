@@ -1,12 +1,14 @@
 package top.stillmisty.xiantao.service.dungeon;
 
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.dungeon.entity.DungeonTemplate;
 import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.infrastructure.repository.DungeonProgressRepository;
 import top.stillmisty.xiantao.infrastructure.repository.HiddenCompletionRepository;
+import top.stillmisty.xiantao.infrastructure.repository.SectMemberRepository;
 import top.stillmisty.xiantao.infrastructure.repository.StackableItemRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
@@ -18,6 +20,7 @@ public class DungeonAccessChecker {
   private final StackableItemRepository stackableItemRepository;
   private final DungeonProgressRepository progressRepository;
   private final HiddenCompletionRepository hiddenCompletionRepository;
+  private final SectMemberRepository sectMemberRepository;
 
   public boolean canAccess(Player user, DungeonTemplate dungeon) {
     try {
@@ -61,7 +64,19 @@ public class DungeonAccessChecker {
           }
         }
         case "SECT" -> {
-          throw new BusinessException(ErrorCode.DUNGEON_SECT_RESTRICTED);
+          // sect_id 为空时仅要求是任一宗门成员，否则须属于指定宗门
+          Optional<Long> memberSectId =
+              sectMemberRepository
+                  .findByUserId(user.getId())
+                  .filter(member -> member.getSectId() != null)
+                  .map(member -> member.requireSectId());
+          boolean sectMember =
+              memberSectId
+                  .map(sectId -> condition.sectId() == null || condition.sectId().equals(sectId))
+                  .orElse(false);
+          if (!sectMember) {
+            throw new BusinessException(ErrorCode.DUNGEON_SECT_RESTRICTED);
+          }
         }
         case "ITEM" -> {
           if (condition.templateId() != null) {

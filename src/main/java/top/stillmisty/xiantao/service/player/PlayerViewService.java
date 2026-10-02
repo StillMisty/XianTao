@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
+import top.stillmisty.xiantao.domain.item.vo.EquipmentStats;
 import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
 import top.stillmisty.xiantao.domain.user.vo.PlayerViewVO;
@@ -46,13 +47,9 @@ public class PlayerViewService {
 
     String statusName = target.getStatus() != null ? target.getStatus().getName() : "未知";
 
-    int equipAttack = 0, equipDefense = 0;
-    for (Equipment e : equipped) {
-      equipAttack += e.getFinalAttack();
-      equipDefense += e.getFinalDefense();
-    }
-    int attack = target.getEffectiveStatStr() * 2 + equipAttack;
-    int defense = target.getEffectiveStatCon() + equipDefense;
+    EquipmentStats stats = EquipmentStats.from(equipped);
+    int attack = (target.getEffectiveStatStr() + stats.str()) * 2 + stats.attack();
+    int defense = target.getEffectiveStatCon() + stats.con() + stats.defense();
 
     return new PlayerViewVO(
         target.getNickname(),

@@ -46,6 +46,7 @@ public class CacheConfig {
             accessCache("shop_player_items", DEFAULT_TTL_MINUTES, 200),
             accessCache("sect_overview", DEFAULT_TTL_MINUTES, 100),
             accessCache("sect_buildings", DEFAULT_TTL_MINUTES, 100),
+            accessCache("sect_member_bonuses", VOLATILE_TTL_MINUTES, 200),
             accessCache("sect_shared_skills", DEFAULT_TTL_MINUTES, 100),
             accessCache("sect_shop", DEFAULT_TTL_MINUTES, 100),
             accessCache("dao_protection", DEFAULT_TTL_MINUTES, 100)));

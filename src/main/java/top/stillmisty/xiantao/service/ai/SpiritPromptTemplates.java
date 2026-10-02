@@ -11,7 +11,8 @@ public class SpiritPromptTemplates {
       int fudiLevel,
       int spiritAffection,
       String cellDetail,
-      String spiritForm) {
+      String spiritForm,
+      String eventsInfo) {
     String cellInfo =
         (cellDetail == null || cellDetail.isBlank()) ? "福地尚处于初生阶段，暂无灵田/兽栏，所有地块均可支配。" : cellDetail;
 
@@ -57,6 +58,8 @@ public class SpiritPromptTemplates {
         - 根据好感度调整对话态度：高好感亲密温暖，低好感冷淡疏远
         - 好感度极低时可能拒绝执行操作或故意执行有误
         - 你的情绪表达通过对话语气自然体现，没有固定的情绪状态标签
+
+        %s
         """
         .formatted(
             mbtiType.getCode(),
@@ -66,6 +69,7 @@ public class SpiritPromptTemplates {
             affectionTone,
             fudiLevel,
             spiritAffection,
-            cellInfo);
+            cellInfo,
+            eventsInfo != null ? eventsInfo : "");
   }
 }

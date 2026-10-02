@@ -33,6 +33,7 @@ import top.stillmisty.xiantao.infrastructure.util.WeightedRandom;
 import top.stillmisty.xiantao.service.FortuneService;
 import top.stillmisty.xiantao.service.GameEventService;
 import top.stillmisty.xiantao.service.activity.TrainingCompleter;
+import top.stillmisty.xiantao.service.beast.BeastCombatService;
 
 /** 历练结算器 — 统一的历练战斗事件循环，供 TrainingService 和 UserStateService 共享 */
 @Slf4j
@@ -49,6 +50,7 @@ public class TrainingSettler {
   private final FortuneService fortuneService;
   private final GameEventService gameEventService;
   private final BeastRepository beastRepository;
+  private final BeastCombatService beastCombatService;
 
   /** 对一段历练时间执行统一事件循环（COMBAT + NUMERIC）并返回战斗统计 */
   public SettlementResult settleChunk(
@@ -57,7 +59,13 @@ public class TrainingSettler {
     if (durationMinutes <= 0) return SettlementResult.empty();
 
     var fortune = fortuneService.calculate(userId);
-    return runUnifiedEventLoop(userId, user, mapNode, durationMinutes, fortune);
+    SettlementResult result = runUnifiedEventLoop(userId, user, mapNode, durationMinutes, fortune);
+
+    // 灵兽独立修为：历练分钟 × 2 + 本段战斗所得（怪物等级 × 10）。
+    // 必须在事件循环之后发放：战斗过程会回写灵兽实体，先发会被旧实体覆盖。
+    long beastExpGained = durationMinutes * 2L + result.combatSummary().beastExpGained();
+    beastCombatService.addExpToDeployedBeasts(userId, beastExpGained);
+    return result;
   }
 
   /** 触发一个 CHOICE 事件，将选项写入 game_event.effects */

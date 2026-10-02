@@ -226,7 +226,9 @@ CREATE INDEX idx_player_buff_user_type_expires ON player_buff(user_id, buff_type
 
 ### D. 未实现（待办）
 
-- **过期 Buff 的全局物理清理**：设计意图：为过期 Buff 提供全局清理入口；现状：`PlayerBuffMapper.deleteExpired()` 已实现但无调用方，实际靠 `expires_at > NOW()` 过滤 + `BuffExpiryHandler`（`@Order(4)`，玩家状态结算时按用户懒清理，稳定状态走快速路径跳过）。过期 Buff 在玩法上已不可见，此项仅为存储卫生，低优先级。
+无。
+
+> 已实现（本轮）：`PlayerBuffMapper.deleteExpired()` 挂每小时定时清理（存储卫生；过期 Buff 在玩法上早已不可见）。
 
 ### E. 缺陷修复
 

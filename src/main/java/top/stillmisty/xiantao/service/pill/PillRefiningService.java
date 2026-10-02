@@ -130,7 +130,9 @@ public class PillRefiningService {
       if (recipeScroll == null) continue;
       var requirements = recipeScroll.requirements();
       if (combinationFinder.matchesRequirements(elementTotals, requirements)) {
-        double qualityScore = combinationFinder.calculateQualityScore(elementTotals, requirements);
+        double qualityScore =
+            combinationFinder.calculateQualityScoreWithSectBonus(
+                userId, elementTotals, requirements);
         PillQuality quality = combinationFinder.determineQuality(qualityScore);
 
         long resultItemId = recipeScroll.resultItemId();

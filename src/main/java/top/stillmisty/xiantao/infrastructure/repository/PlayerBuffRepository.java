@@ -28,6 +28,10 @@ public class PlayerBuffRepository {
     return mapper.selectActiveByUserIdAndType(userId, buffType.getCode());
   }
 
+  public List<PlayerBuff> findExpiredByUserId(Long userId) {
+    return mapper.selectExpiredByUserId(userId);
+  }
+
   public int countActiveByUserIdAndType(Long userId, PlayerBuffType buffType) {
     return mapper.countActiveByUserIdAndType(userId, buffType.getCode());
   }
@@ -55,8 +59,9 @@ public class PlayerBuffRepository {
     mapper.deleteByUserIdAndType(userId, buffType.getCode());
   }
 
-  public void deleteExpired() {
-    mapper.deleteExpired();
+  /** 全局清理过期 Buff，返回删除行数。 */
+  public int deleteExpired() {
+    return mapper.deleteExpired();
   }
 
   public void deleteExpiredByUserId(Long userId) {

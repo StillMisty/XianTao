@@ -10,6 +10,7 @@ import top.stillmisty.xiantao.domain.monster.vo.SkillProc;
 public record EncounterResult(
     boolean playerWon,
     long expGained,
+    long beastExpGained,
     int kills,
     int rounds,
     boolean enlightenmentTriggered,
@@ -20,6 +21,7 @@ public record EncounterResult(
     @Nullable String monsterName) {
 
   public static EncounterResult lost() {
-    return new EncounterResult(false, 0, 0, 0, false, List.of(), List.of(), List.of(), false, null);
+    return new EncounterResult(
+        false, 0, 0, 0, 0, false, List.of(), List.of(), List.of(), false, null);
   }
 }

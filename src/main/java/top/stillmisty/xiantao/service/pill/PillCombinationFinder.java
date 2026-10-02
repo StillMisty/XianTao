@@ -19,6 +19,7 @@ import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.CombinationStrategy;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
+import top.stillmisty.xiantao.service.sect.SectBuildingService;
 
 /** 炼丹组合算法 — 自动匹配药材、计算五行配比、成色判定 */
 @Component
@@ -31,6 +32,7 @@ public class PillCombinationFinder {
   private final StackableItemService stackableItemService;
   private final ItemTemplateRepository itemTemplateRepository;
   private final StackableItemRepository stackableItemRepository;
+  private final SectBuildingService sectBuildingService;
 
   private final CombinationStrategy strategy =
       new CombinationStrategy(PILL_ELEMENTS, 5, PillCombinationFinder::getElementValue);
@@ -79,7 +81,7 @@ public class PillCombinationFinder {
       Map<Long, Integer> usedHerbsById,
       Map<String, ElementRange> requirements,
       ItemTemplate recipeTemplate) {
-    double qualityScore = strategy.calculateQualityScore(elementTotals, requirements);
+    double qualityScore = calculateQualityScoreWithSectBonus(userId, elementTotals, requirements);
     PillQuality quality = determineQuality(qualityScore);
 
     // 按组合阶段记录的物品实例 ID 精确扣减，避免同名多行时错扣
@@ -118,6 +120,13 @@ public class PillCombinationFinder {
   public double calculateQualityScore(
       Map<String, Integer> elementTotals, Map<String, ElementRange> requirements) {
     return strategy.calculateQualityScore(elementTotals, requirements);
+  }
+
+  /** 炼丹评分含宗门炼丹房加成：基础评分 ×（1 + 等级 × 5%），无宗门为基准 1.0。 */
+  public double calculateQualityScoreWithSectBonus(
+      Long userId, Map<String, Integer> elementTotals, Map<String, ElementRange> requirements) {
+    return strategy.calculateQualityScore(elementTotals, requirements)
+        * sectBuildingService.getAlchemyBonusForUser(userId);
   }
 
   public PillQuality determineQuality(double score) {

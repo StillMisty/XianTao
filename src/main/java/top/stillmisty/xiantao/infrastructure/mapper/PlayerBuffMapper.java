@@ -17,6 +17,11 @@ public interface PlayerBuffMapper extends BaseMapper<PlayerBuff> {
   List<PlayerBuff> selectActiveByUserId(@Param("userId") Long userId);
 
   @Select(
+      "SELECT * FROM player_buff WHERE user_id = #{userId} AND expires_at <= NOW() ORDER BY"
+          + " expires_at ASC")
+  List<PlayerBuff> selectExpiredByUserId(@Param("userId") Long userId);
+
+  @Select(
       "SELECT * FROM player_buff WHERE user_id = #{userId} AND buff_type = #{buffType} AND expires_at > NOW()")
   List<PlayerBuff> selectActiveByUserIdAndType(
       @Param("userId") Long userId, @Param("buffType") String buffType);
@@ -46,7 +51,7 @@ public interface PlayerBuffMapper extends BaseMapper<PlayerBuff> {
   void deleteByUserIdAndType(@Param("userId") Long userId, @Param("buffType") String buffType);
 
   @Delete("DELETE FROM player_buff WHERE expires_at <= NOW()")
-  void deleteExpired();
+  int deleteExpired();
 
   @Delete("DELETE FROM player_buff WHERE user_id = #{userId} AND expires_at <= NOW()")
   void deleteExpiredByUserId(@Param("userId") Long userId);

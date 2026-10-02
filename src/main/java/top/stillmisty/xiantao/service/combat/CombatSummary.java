@@ -9,6 +9,7 @@ import top.stillmisty.xiantao.domain.monster.vo.SkillProc;
 /** 战斗统计累加器 */
 public record CombatSummary(
     long expGained,
+    long beastExpGained,
     int totalEncounters,
     int totalKills,
     int defeatCount,
@@ -26,8 +27,8 @@ public record CombatSummary(
 
   public static CombatSummary empty() {
     return new CombatSummary(
-        0, 0, 0, 0, 0, 0, List.of(), List.of(), List.of(), false, null, List.of(), List.of(), null,
-        List.of());
+        0, 0, 0, 0, 0, 0, 0, List.of(), List.of(), List.of(), false, null, List.of(), List.of(),
+        null, List.of());
   }
 
   public CombatSummary merge(EncounterResult result) {
@@ -35,6 +36,7 @@ public record CombatSummary(
     boolean isDefeat = !result.playerWon();
     return new CombatSummary(
         expGained + result.expGained(),
+        beastExpGained + result.beastExpGained(),
         totalEncounters + 1,
         totalKills + result.kills(),
         defeatCount + (isDefeat ? 1 : 0),

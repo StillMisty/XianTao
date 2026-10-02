@@ -2,17 +2,23 @@ package top.stillmisty.xiantao.service.worldevent;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import top.stillmisty.xiantao.domain.map.entity.MapNode;
 import top.stillmisty.xiantao.domain.worldevent.entity.WorldEvent;
 import top.stillmisty.xiantao.domain.worldevent.entity.WorldEventTemplate;
 import top.stillmisty.xiantao.domain.worldevent.enums.WorldEventCategory;
 import top.stillmisty.xiantao.domain.worldevent.enums.WorldEventScope;
 import top.stillmisty.xiantao.domain.worldevent.enums.WorldEventStatus;
+import top.stillmisty.xiantao.infrastructure.repository.MapNodeRepository;
 import top.stillmisty.xiantao.infrastructure.repository.WorldEventRepository;
 import top.stillmisty.xiantao.infrastructure.repository.WorldEventTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
@@ -28,6 +34,7 @@ public class WorldEventGenerator {
 
   private final WorldEventTemplateRepository templateRepository;
   private final WorldEventRepository worldEventRepository;
+  private final MapNodeRepository mapNodeRepository;
 
   @Scheduled(fixedRate = 3600000)
   @Transactional
@@ -60,6 +67,8 @@ public class WorldEventGenerator {
         templates.stream()
             .filter(t -> !isCategoryOverrepresented(t.getCategory(), currentActive))
             .filter(t -> !isOnCooldown(t))
+            // 区域模板必须存在满足 valid_region_tags 的地图节点，否则本轮不参与生成
+            .filter(this::hasValidRegion)
             .toList();
 
     if (available.isEmpty()) return;
@@ -116,6 +125,9 @@ public class WorldEventGenerator {
     WorldEvent event = new WorldEvent();
     event.setCategory(template.getCategory());
     event.setScope(template.getScope());
+    if (template.getScope() == WorldEventScope.REGIONAL) {
+      event.setRegionMapNodeId(pickRegionMapNodeId(template));
+    }
     event.setTitle(template.getTitle());
     event.setDescription(template.getDescription());
     event.setStatus(status);
@@ -131,6 +143,36 @@ public class WorldEventGenerator {
     event.setParticipationEffects(template.getParticipationEffects());
     event.setCreatedBy("SYSTEM");
     return event;
+  }
+
+  /**
+   * 区域模板的地图过滤：解析 valid_region_tags 并确认存在匹配的地图节点。
+   *
+   * <p>valid_region_tags 为空表示不限区域（任意地图均可承接）；有标签但无地图匹配时该模板本轮不生成。
+   */
+  private boolean hasValidRegion(WorldEventTemplate template) {
+    if (template.getScope() != WorldEventScope.REGIONAL) return true;
+    return !findMatchingMapNodes(template).isEmpty();
+  }
+
+  /** 为区域事件挑选一个满足标签约束的地图节点；标签为空时从全部地图中随机。 */
+  private @Nullable Long pickRegionMapNodeId(WorldEventTemplate template) {
+    List<MapNode> candidates = findMatchingMapNodes(template);
+    if (candidates.isEmpty()) return null;
+    return candidates.get(ThreadLocalRandom.current().nextInt(candidates.size())).getId();
+  }
+
+  private List<MapNode> findMatchingMapNodes(WorldEventTemplate template) {
+    List<MapNode> nodes = mapNodeRepository.findAll();
+    Set<String> requiredTags = template.getValidRegionTags();
+    if (requiredTags == null || requiredTags.isEmpty()) {
+      return nodes;
+    }
+    Set<String> normalizedTags =
+        requiredTags.stream().map(tag -> tag.toLowerCase(Locale.ROOT)).collect(Collectors.toSet());
+    return nodes.stream()
+        .filter(node -> MapRegionTags.of(node).stream().anyMatch(normalizedTags::contains))
+        .toList();
   }
 
   private WorldEventTemplate weightedRandomSelect(List<WorldEventTemplate> templates) {

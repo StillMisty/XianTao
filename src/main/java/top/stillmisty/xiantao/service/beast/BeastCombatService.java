@@ -136,13 +136,14 @@ public class BeastCombatService {
 
   @Transactional
   public void addBeastExp(Long beastId, long expToAdd) {
+    if (expToAdd <= 0) return;
     beastRepository
         .findById(beastId)
         .ifPresentOrElse(
             beast -> {
               double expBonus =
                   effectResolver.sumEffectValue(beast, MutationEffectType.EXP_PERCENT);
-              long actualExp = (long) (expToAdd * (1 + expBonus / 100));
+              long actualExp = Math.round(expToAdd * (1 + expBonus / 100));
               long consumed = beast.addExp(actualExp);
               beastRepository.save(beast);
               log.debug("灵兽 {} 获得 {} 修为", beastId, consumed);
@@ -150,12 +151,14 @@ public class BeastCombatService {
             () -> log.warn("灵兽 {} 不存在，修为 {} 无法添加", beastId, expToAdd));
   }
 
+  /** 给全部出战灵兽加修为（历练/战斗结算调用，噬灵加成生效） */
   @Transactional
   public void addExpToDeployedBeasts(Long userId, long expToAdd) {
+    if (expToAdd <= 0) return;
     List<Beast> deployedBeasts = beastRepository.findByUserIdAndIsDeployed(userId, true);
     for (Beast beast : deployedBeasts) {
       double expBonus = effectResolver.sumEffectValue(beast, MutationEffectType.EXP_PERCENT);
-      long actualExp = (long) (expToAdd * (1 + expBonus / 100));
+      long actualExp = Math.round(expToAdd * (1 + expBonus / 100));
       long consumed = beast.addExp(actualExp);
       beastRepository.save(beast);
       log.debug("灵兽 {} 获得 {} 修为", beast.getId(), consumed);

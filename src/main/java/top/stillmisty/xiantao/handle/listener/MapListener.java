@@ -23,6 +23,12 @@ public class MapListener {
   }
 
   @RequireAuth
+  @Command("地图列表")
+  public void mapList(QqIncomingMessage event) {
+    replyHelper.dispatch(event, "地图列表", mapCommandHandler::handleMapList);
+  }
+
+  @RequireAuth
   @Command("前往\\s*{{mapName}}")
   public void goTo(QqIncomingMessage event, @Arg("mapName") String mapName) {
     replyHelper.dispatch(event, "前往", mapName, mapCommandHandler::handleGoTo);

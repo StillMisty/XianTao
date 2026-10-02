@@ -67,7 +67,10 @@ public class DungeonInstance {
   public void advanceArea(String nextAreaKey) {
     currentAreaKey = nextAreaKey;
     passageUnlocked = false;
-    exploredPois = new ArrayList<>();
+    // 已探索记录跨区域保留：隐藏区域入口需要校验 trigger_after_resolve 指定的 POI 是否完成
+    if (exploredPois == null) {
+      exploredPois = new ArrayList<>();
+    }
   }
 
   public void markCompleted() {

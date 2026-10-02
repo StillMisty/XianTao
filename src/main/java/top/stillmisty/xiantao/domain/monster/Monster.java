@@ -85,6 +85,10 @@ public class Monster implements Combatant {
     return skills;
   }
 
+  public int getLevel() {
+    return level;
+  }
+
   public MonsterType getMonsterType() {
     return template.getMonsterType();
   }

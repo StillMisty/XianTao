@@ -1,6 +1,8 @@
 package top.stillmisty.xiantao.service.ai;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.tool.annotation.Tool;
@@ -57,7 +59,7 @@ public class DungeonNavigationTools {
             return new AdvanceAreaResponse(false, null, null, "通道尚未解锁，请先探索完当前区域的所有主线地点");
           }
 
-          AreaConfig nextArea = stateBuilder.findNextArea(dungeon, instance.getCurrentAreaKey());
+          AreaConfig nextArea = stateBuilder.findNextAccessibleArea(dungeon, instance);
           if (nextArea == null) {
             progressHelper.completeDungeon(ctx.user().getId(), instance);
             return new AdvanceAreaResponse(true, null, null, "你已经通关了秘境！");
@@ -135,10 +137,14 @@ public class DungeonNavigationTools {
                 instance.getCurrentAreaKey(), List.of(), List.of(), false);
           }
 
+          Set<String> areaPoiNames =
+              area.allPois().stream().map(Poi::name).collect(Collectors.toSet());
           List<String> explored =
               instance.getExploredPois() != null
                   ? instance.getExploredPois().stream()
                       .map(DungeonInstance.ExploredPoiRecord::poiName)
+                      // 探索记录跨区域保留（隐藏区域解锁需要），此处按当前区域过滤展示
+                      .filter(areaPoiNames::contains)
                       .toList()
                   : List.of();
 

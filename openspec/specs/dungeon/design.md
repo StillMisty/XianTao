@@ -420,9 +420,9 @@ CREATE TABLE dungeon_spirit_state(
 
 ### D. 未实现（待办）
 
-- **宗门准入（SECT）**：设计意图为按 `sect_id` 校验宗门成员；现状命中即报「宗门限制暂未实现」，无法作为有效准入条件（当前种子数据未使用）。
-- **隐藏区域解锁**：设计意图为完成 `trigger_after_resolve` 指定的 POI 后解锁隐藏区域入口；现状隐藏区域只是 `area_configs` 中的后续区域，主线清空后按数组顺序进入，`trigger_after_resolve` 与 `triggered_events` 均无消费逻辑。
-- **多人组队**：设计意图为按 `max_team_size` 组队进入；现状实例只有单人 `leader_id`，队伍 = 玩家 + 出战灵兽，`max_team_size` 仅展示（当前数据为 1）。
+- **多人组队**：设计意图为按 `max_team_size` 组队进入；现状实例只有单人 `leader_id`，队伍 = 玩家 + 出战灵兽，`max_team_size` 仅展示（当前数据为 1），随数据启用。
+
+> 已实现（本轮）：SECT 准入按有效宗门成员校验（指定宗门或任意宗门）；隐藏区域按 `trigger_after_resolve` 指定的 POI 探索记录解锁（跨区域保留探索记录，未满足时跳过）。
 
 ### E. 缺陷修复
 

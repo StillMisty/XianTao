@@ -59,13 +59,14 @@ public class BountyCombatService {
     if (user.getStatus() != UserStatus.BOUNTY) {
       throw new BusinessException(STATUS_BLOCKED, user.getStatus().getName(), "悬赏");
     }
+    // 超时后 BountyReadyHandler 可能已把记录标记为 COMPLETED，领奖仍按同一记录进行
     UserBounty record =
         userBountyRepository
-            .findActiveByUserIdForUpdate(userId)
+            .findCurrentForUser(userId, user.getActivityTargetId())
             .orElseThrow(() -> new BusinessException(BOUNTY_NO_ACTIVE));
 
     long minutesElapsed = Duration.between(record.getStartTime(), TimeUtil.now()).toMinutes();
-    if (minutesElapsed < record.getDurationMinutes()) {
+    if (record.getStatus() == BountyStatus.ACTIVE && minutesElapsed < record.getDurationMinutes()) {
       long remaining = record.getDurationMinutes() - minutesElapsed;
       throw new BusinessException(
           BOUNTY_TIME_REMAINING, record.getBountyName(), remaining, record.getDurationMinutes());

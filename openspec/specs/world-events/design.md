@@ -371,10 +371,9 @@ flowchart TD
 
 ### D. 未实现（待办）
 
-- **区域事件绑定地图**：设计意图 = `REGIONAL` 事件绑定 `region_map_node_id`，仅对当地生效；现状 = 生成器不写该字段，`findActiveByRegion` 永远匹配不到，区域环境事件实际不生效，列表仅显示「区域」标记。
-- **`valid_region_tags` 区域过滤**：设计意图 = 按地图标签限定区域模板的生成范围；现状 = 字段有配置但无任何代码读取，依赖上一条绑定能力。
-- **地灵事件集成**：设计意图 = `fudi_event_template` 模板池 + 对话触发 + `applyFudiEventEffects` 接入 SubEventEffect 管线；现状 = 表与相关类均不存在，`SpiritChatService` 未接入。
-- **NARRATIVE 注入灵兽对话**：设计意图 = 叙事事件注入 `SpiritChatService`；现状 = 仅 `ShopChatService` 注入进行中事件上下文。
+- **地灵事件集成**：设计意图 = `fudi_event_template` 模板池 + 对话触发 + `applyFudiEventEffects` 接入 SubEventEffect 管线；现状 = 表与相关类均不存在，`SpiritChatService` 未接入（见 `spirit-chat` 的福地事件系统）。
+
+> 已实现（本轮）：REGIONAL 事件按 `valid_region_tags` 匹配地图并写 `region_map_node_id`；环境效果与「世界事件」列表按玩家所在地过滤（全局 + 当地）；NARRATIVE 事件注入地灵对话。
 
 ### E. 缺陷修复
 

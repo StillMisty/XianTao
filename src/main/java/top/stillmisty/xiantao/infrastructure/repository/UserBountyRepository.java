@@ -6,6 +6,7 @@ import com.mybatisflex.core.query.QueryWrapper;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Repository;
 import top.stillmisty.xiantao.domain.bounty.entity.UserBounty;
 import top.stillmisty.xiantao.domain.bounty.enums.BountyStatus;
@@ -16,6 +17,28 @@ import top.stillmisty.xiantao.infrastructure.mapper.UserBountyMapper;
 public class UserBountyRepository {
 
   private final UserBountyMapper mapper;
+
+  public Optional<UserBounty> findById(Long id) {
+    return Optional.ofNullable(mapper.selectOneById(id));
+  }
+
+  public Optional<UserBounty> findByIdForUpdate(Long id) {
+    return Optional.ofNullable(
+        mapper.selectOneByQuery(QueryWrapper.create().where(USER_BOUNTY.ID.eq(id)).forUpdate()));
+  }
+
+  /** 定位玩家当前的悬赏记录：优先按活动目标取（兼容自动完成后 COMPLETED 的待领奖记录）， 否则回退到进行中的记录。 */
+  public Optional<UserBounty> findCurrentForUser(Long userId, @Nullable Long activityTargetId) {
+    if (activityTargetId != null) {
+      Optional<UserBounty> byId = findByIdForUpdate(activityTargetId);
+      if (byId.isPresent()
+          && userId.equals(byId.get().getUserId())
+          && byId.get().getStatus() != BountyStatus.ABANDONED) {
+        return byId;
+      }
+    }
+    return findActiveByUserIdForUpdate(userId);
+  }
 
   public Optional<UserBounty> findActiveByUserId(Long userId) {
     return Optional.ofNullable(

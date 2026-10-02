@@ -692,11 +692,10 @@ CREATE TABLE hidden_completion (
 
 ### D. 未实现（待办）
 
-- **隐藏事件其余 5 种触发条件**：设计意图 = `HAS_EQUIPMENT` / `LOCATION` / `TIME_OF_DAY` / `BEAST_DEPLOYED` / `LEVEL_RANGE`；现状 = `TriggerConditionChecker` 仅实现 `HAS_SKILL` / `HAS_ITEM` / `STAT_THRESHOLD`（PREVIOUS_COMPLETION 由 `prerequisite_code` 机制实现），未知 `trigger_type` 走 `default -> true` 放行——接入新类型前需改为显式校验（spec 仅要求已实现的 3 种 + 前置）。
-- **悬赏自动完成 + 领奖提示链路**：设计意图 = 时间到自动标记完成并产出 `BOUNTY_READY` 提示，保留「领奖」仪式感；现状 = 无悬赏 StateHandler，`produceReadyEvent` 无调用方，玩家需在时长满后自行发送「悬赏结算」。
-- **`BUFF_EXPIRED` 事件**：设计意图 = 增益到期提醒（枚举与兜底文案已备）；现状 = `BuffExpiryHandler` 仅删除过期 buff，不产事件。
-- **悬赏两阶段隐藏线索**：设计意图 = 接取时按条件写入线索（`user_bounty.hidden_clues`）、领奖时二段校验并给隐藏奖励，制造「这次可能有什么」的期待；现状 = 字段为预留（接取固定写空 Map），隐藏事件仅在领奖时一次性检查。
-- **秘境（DUNGEON）事件管道**：设计意图 = 进入/推进/通关固定叙事 + 探索 POI 概率子事件 + 秘境隐藏事件；现状 = `DUNGEON_*` category 与 `activity_event` 的 DUNGEON 配置存在，但秘境服务不产 GameEvent，`DungeonEventCompleter` 不存在。
+- **悬赏两阶段隐藏线索**：设计意图 = 接取时按条件写入线索（`user_bounty.hidden_clues`）、领奖时二段校验并给隐藏奖励；现状 = 字段为预留（接取固定写空 Map），隐藏事件仅在领奖时一次性检查。
+- **秘境（DUNGEON）事件管道**：设计意图 = 进入/推进/通关固定叙事 + 探索 POI 概率子事件 + 秘境隐藏事件；现状 = `DUNGEON_*` category 与 `activity_event` 配置存在，但秘境服务不产 GameEvent。
+
+> 已实现（本轮）：补 5 种触发条件（HAS_EQUIPMENT / LOCATION / TIME_OF_DAY / BEAST_DEPLOYED / LEVEL_RANGE，未知条件放行）；`BUFF_EXPIRED` 事件（合并一条，走被动回复管道）；悬赏自动完成 + `BOUNTY_READY` 提示（保留「悬赏结算」领奖动作）。
 
 ### E. 缺陷修复
 

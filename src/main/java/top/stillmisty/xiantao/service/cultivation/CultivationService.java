@@ -20,6 +20,7 @@ import top.stillmisty.xiantao.service.ProtectionHelper;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.SpiritStoneService;
 import top.stillmisty.xiantao.service.combat.CombatService;
+import top.stillmisty.xiantao.service.combat.PostCombatProcessor;
 import top.stillmisty.xiantao.service.masterapprentice.MasterApprenticeService;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
@@ -37,6 +38,7 @@ public class CultivationService {
   private final MasterApprenticeService masterApprenticeService;
   private final TribulationNarrativeGenerator narrativeGenerator;
   private final CombatService combatService;
+  private final PostCombatProcessor postCombatProcessor;
 
   // ===================== 公开 API =====================
 
@@ -156,15 +158,18 @@ public class CultivationService {
     // 保底削弱
     double pityReduction = Math.min(0.5, user.getBreakthroughFailCount() * 0.05);
 
-    // 雷劫抗性 buff
+    // 雷劫抗性 buff（招雷散等负值为刻意设计：雷劫增强，但渡过可获得额外修为补偿）
+    int resistSum =
+        playerBuffRepository
+            .findActiveByUserIdAndType(user.getId(), PlayerBuffType.TRIBULATION_RESIST)
+            .stream()
+            .mapToInt(PlayerBuff::getValue)
+            .sum();
     double tribulationResist = 0;
-    List<PlayerBuff> resistBuffs =
-        playerBuffRepository.findActiveByUserIdAndType(
-            user.getId(), PlayerBuffType.TRIBULATION_RESIST);
-    if (!resistBuffs.isEmpty()) {
-      tribulationResist =
-          Math.min(0.9, resistBuffs.stream().mapToInt(PlayerBuff::getValue).sum() / 100.0);
+    if (resistSum != 0) {
+      tribulationResist = Math.min(0.9, resistSum / 100.0);
     }
+    boolean thunderLureActive = resistSum < 0;
 
     // 随机选择雷劫类型
     TribulationType tribulationType =
@@ -211,7 +216,12 @@ public class CultivationService {
     BattleResultVO battleResult = combatService.simulate(defendingTeam, bossTeam, 40);
     boolean playerWon = "Player".equals(battleResult.winner());
 
-    userStateService.saveHpStatus(user);
+    // 战后气血写回：战败写回残血/濒死（胜利按设计回满，在成功结算中处理）；
+    // 灵兽按战斗剩余气血写回，阵亡者卸下出战并进入休养，与历练战斗一致
+    if (!playerWon) {
+      postCombatProcessor.applyHpToUser(user, defendingTeam);
+    }
+    postCombatProcessor.applyCombatHpToBeasts(defendingTeam, user, playerWon);
 
     // 清除 buff 和护道关系
     daoProtectionService.clearProtegeRelations(user.getId());
@@ -219,7 +229,15 @@ public class CultivationService {
 
     if (playerWon) {
       return handleCombatBreakthroughSuccess(
-          user, newLevel, newRealm, isMajor, isTribulationRealm, tribulationType, battleResult);
+          user,
+          newLevel,
+          newRealm,
+          isMajor,
+          isTribulationRealm,
+          tribulationType,
+          battleResult,
+          expNeeded,
+          thunderLureActive);
     } else {
       return handleCombatBreakthroughFailure(
           user, oldLevel, isMajor, tribulationType, battleResult);
@@ -233,10 +251,20 @@ public class CultivationService {
       boolean isMajor,
       boolean isTribulationRealm,
       TribulationType tribulationType,
-      BattleResultVO result) {
+      BattleResultVO result,
+      long expNeeded,
+      boolean thunderLureActive) {
     user.setLevel(newLevel);
     user.setBreakthroughFailCount(0);
     user.setHpCurrent(user.calculateMaxHp());
+
+    // 招雷散补偿：负抗性令雷劫更强，渡过则回馈本次突破消耗修为的 50%（经存储上限截断）
+    long thunderLureExp = 0;
+    if (thunderLureActive) {
+      long beforeExp = user.getExp();
+      user.addExp(expNeeded / 2);
+      thunderLureExp = user.getExp() - beforeExp;
+    }
 
     if (isMajor) {
       applyMajorBreakthroughBonuses(user);
@@ -259,6 +287,7 @@ public class CultivationService {
         narrativeGenerator.generateCombatNarrative(
             tribulationType, user.getNickname(), result, true);
 
+    String thunderLureText = thunderLureExp > 0 ? " | 招雷淬体：修为 +" + thunderLureExp : "";
     String message;
     if (isMajor) {
       message =
@@ -268,9 +297,10 @@ public class CultivationService {
               + CultivationRealm.MAJOR_BREAKTHROUGH_STAT_PERCENT
               + "%"
               + " | 灵石 +"
-              + CultivationRealm.breakthroughSpiritStonesReward(newRealm);
+              + CultivationRealm.breakthroughSpiritStonesReward(newRealm)
+              + thunderLureText;
     } else {
-      message = narrative + "\n\n" + "全属性 +5%";
+      message = narrative + "\n\n" + "全属性 +5%" + thunderLureText;
     }
 
     return new BreakthroughResult(

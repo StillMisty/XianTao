@@ -86,6 +86,7 @@ public class CombatEventHandler {
     if (playerWon) {
       double levelModifier = calculateCombatExpModifier(user.getLevel(), tmpl.getBaseLevel());
       long expGained = (long) (tmpl.getExpReward() * count * levelModifier);
+      long beastExpGained = calculateBeastCombatExp(monsterTeam);
       List<DropItem> rawDrops = dropProcessor.processMonsterDrops(tmpl, userId);
       List<DropItem> drops = rawDrops != null ? new ArrayList<>(rawDrops) : List.of();
       rewardGrant.grant(userId, drops);
@@ -93,6 +94,7 @@ public class CombatEventHandler {
           new EncounterResult(
               true,
               expGained,
+              beastExpGained,
               count,
               result.rounds(),
               false,
@@ -105,6 +107,7 @@ public class CombatEventHandler {
       encounterResult =
           new EncounterResult(
               false,
+              0,
               0,
               0,
               result.rounds(),
@@ -130,6 +133,7 @@ public class CombatEventHandler {
           new EncounterResult(
               true,
               encounterResult.expGained(),
+              encounterResult.beastExpGained(),
               encounterResult.kills(),
               encounterResult.rounds(),
               enlightenmentTriggered,
@@ -141,6 +145,17 @@ public class CombatEventHandler {
     }
 
     return encounterResult;
+  }
+
+  /** 战斗胜利后灵兽获得修为 = Σ 怪物等级 × 10（噬灵加成在发放时生效） */
+  private static long calculateBeastCombatExp(CombatTeam monsterTeam) {
+    long exp = 0;
+    for (var member : monsterTeam.members()) {
+      if (member instanceof Monster monster) {
+        exp += monster.getLevel() * 10L;
+      }
+    }
+    return exp;
   }
 
   private CombatTeam buildMonsterTeam(

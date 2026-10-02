@@ -54,7 +54,7 @@ class AllCommandTemplatesTest {
       }
     }
 
-    assertEquals(71, commandCount, "命令数量变化，请确认迁移完整性");
+    assertEquals(72, commandCount, "命令数量变化，请确认迁移完整性");
     assertTrue(argProblems.isEmpty(), String.join("\n", argProblems));
   }
 

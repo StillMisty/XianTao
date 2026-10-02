@@ -149,6 +149,19 @@ public class BountyService {
   public BountyStatusVO getBountyStatusInternal(Long userId) {
     UserBounty record = userBountyRepository.findActiveByUserId(userId).orElse(null);
     if (record == null) {
+      // 自动完成后记录状态为 COMPLETED（等待领奖），此时仍要展示当前悬赏而非回落到列表
+      Player user = userStateService.loadUserReadOnly(userId);
+      if (user.getStatus() == UserStatus.BOUNTY
+          && user.getActivityType() == ActivityType.BOUNTY
+          && user.getActivityTargetId() != null) {
+        record =
+            userBountyRepository
+                .findById(user.getActivityTargetId())
+                .filter(current -> userId.equals(current.getUserId()))
+                .orElse(null);
+      }
+    }
+    if (record == null) {
       return new BountyStatusVO(null, "无进行中的悬赏", "", null, 0, 0, 0, List.of());
     }
 
@@ -255,9 +268,10 @@ public class BountyService {
     if (user.getStatus() != UserStatus.BOUNTY) {
       throw new BusinessException(STATUS_BLOCKED, user.getStatus().getName(), "悬赏");
     }
+    // 自动完成后记录为 COMPLETED，仍允许放弃领奖，避免玩家卡在悬赏状态
     UserBounty record =
         userBountyRepository
-            .findActiveByUserIdForUpdate(userId)
+            .findCurrentForUser(userId, user.getActivityTargetId())
             .orElseThrow(() -> new BusinessException(BOUNTY_NO_ACTIVE));
 
     record.setStatus(BountyStatus.ABANDONED);

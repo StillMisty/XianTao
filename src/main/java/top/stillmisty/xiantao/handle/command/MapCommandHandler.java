@@ -91,6 +91,12 @@ public class MapCommandHandler implements CommandGroup {
         msg -> fmt.error(msg));
   }
 
+  public String handleMapList(TextFormat fmt) {
+    log.debug("处理世界地图总览查询");
+    return CommandHandlerHelper.safeCall(
+        () -> mapService.getAllMaps(), fmt, maps -> formatMapList(maps, fmt));
+  }
+
   // ===================== 悬赏统一处理方法 =====================
 
   public String handleBounty(TextFormat fmt) {
@@ -383,6 +389,35 @@ public class MapCommandHandler implements CommandGroup {
         NextActions.suggest(adjName, "前往 " + adjName);
       }
     }
+    sb.append(fmt.tip("使用「前往 [地名]」启程修行，或「地图列表」纵览山河。"));
+    return sb.toString();
+  }
+
+  private String formatMapList(List<MapInfoVO> maps, TextFormat fmt) {
+    StringBuilder sb = new StringBuilder();
+    sb.append(fmt.heading("世界地图", ""));
+    for (int i = 0; i < maps.size(); i++) {
+      MapInfoVO map = maps.get(i);
+      sb.append(
+          String.format(
+              "%s（%s · %s）\n",
+              fmt.bold(map.getName()),
+              map.getMapType().getName(),
+              CultivationRealm.realmDisplay(map.getLevelRequirement())));
+      if (map.getMonsters() != null && !map.getMonsters().isEmpty()) {
+        String monsters =
+            map.getMonsters().stream()
+                .map(MapInfoVO.MonsterInfoVO::getName)
+                .collect(Collectors.joining("、"));
+        sb.append(fmt.listItem("妖兽出没：" + monsters));
+      }
+      if (map.getAdjacentMapNames() != null && !map.getAdjacentMapNames().isEmpty()) {
+        sb.append(fmt.listItem("四方可达：" + String.join("、", map.getAdjacentMapNames())));
+      }
+      if (i < maps.size() - 1) {
+        sb.append("\n");
+      }
+    }
     sb.append(fmt.tip("使用「前往 [地名]」启程修行。"));
     return sb.toString();
   }
@@ -405,7 +440,8 @@ public class MapCommandHandler implements CommandGroup {
   @Override
   public List<CommandEntry> commands() {
     return List.of(
-        new CommandEntry("地图", "查看当前地图信息与世界地图", "地图"),
+        new CommandEntry("地图", "查看当前所在地图信息", "地图"),
+        new CommandEntry("地图列表", "纵览世界地图、妖兽与相邻关系", "地图列表"),
         new CommandEntry("前往 「地图名」", "前往相邻地图", "前往 青木林"),
         new CommandEntry("历练", "开始在地图历练", "历练"),
         new CommandEntry("历练结算", "结束历练并结算收益", "历练结算"),

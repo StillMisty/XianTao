@@ -33,7 +33,9 @@ import top.stillmisty.xiantao.service.RewardGrant;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.activity.TrainingCompleter;
 import top.stillmisty.xiantao.service.ai.ExplorationDescriptionFunction;
+import top.stillmisty.xiantao.service.masterapprentice.MasterApprenticeService;
 import top.stillmisty.xiantao.service.player.UserStateService;
+import top.stillmisty.xiantao.service.sect.SectBuildingService;
 
 @Slf4j
 @Service
@@ -57,6 +59,8 @@ public class TrainingService {
   private final ExplorationDescriptionFunction explorationDescriptionFunction;
   private final TrainingSettler trainingSettler;
   private final FortuneService fortuneService;
+  private final MasterApprenticeService masterApprenticeService;
+  private final SectBuildingService sectBuildingService;
   private final TransactionTemplate transactionTemplate;
 
   // 事务注解必须放在外部调用的 public 方法上，标注在 Internal 方法会因自调用绕过代理而失效
@@ -185,12 +189,20 @@ public class TrainingService {
           Math.max(
               mapNode.getLevelRequirement() * 5L,
               (long) (Math.sqrt(user.getEffectiveStatWis()) * 12));
-      baseExp =
-          (long)
-              (baseExpPerMinute * remainingMinutes * efficiencyMultiplier * levelDecayMultiplier);
+
+      // 修炼速度加成：师徒被动（1 + 等级差 × 0.002，上限 1.5）与宗门练功房（+3%/级）
+      double masterBonus = masterApprenticeService.calculateTrainingBonus(userId);
+      double sectBonus = sectBuildingService.getTrainingBonusForUser(userId);
 
       var fortune = fortuneService.calculate(userId);
-      baseExp = (long) (baseExp * fortuneService.getLuckMultiplier(fortune.luck()));
+      // 所有乘数用 double 连乘后统一取整，避免中间截断损失精度
+      double expMultiplier =
+          efficiencyMultiplier
+              * levelDecayMultiplier
+              * masterBonus
+              * (1.0 + sectBonus)
+              * fortuneService.getLuckMultiplier(fortune.luck());
+      baseExp = Math.round(baseExpPerMinute * remainingMinutes * expMultiplier);
       trainingItems = calculateItemsReward(remainingMinutes, efficiencyMultiplier, mapNode);
 
       var settlementResult =

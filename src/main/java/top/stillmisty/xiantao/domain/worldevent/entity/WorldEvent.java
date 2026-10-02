@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jspecify.annotations.Nullable;
 import top.stillmisty.xiantao.domain.worldevent.enums.WorldEventCategory;
 import top.stillmisty.xiantao.domain.worldevent.enums.WorldEventScope;
 import top.stillmisty.xiantao.domain.worldevent.enums.WorldEventStatus;
@@ -34,7 +35,8 @@ public class WorldEvent {
 
   private WorldEventScope scope;
 
-  private Long regionMapNodeId;
+  /** 区域事件绑定的地图节点；全局事件为 null */
+  @Nullable private Long regionMapNodeId;
 
   private String title;
 

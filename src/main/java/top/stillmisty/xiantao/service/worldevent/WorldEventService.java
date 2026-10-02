@@ -2,10 +2,12 @@ package top.stillmisty.xiantao.service.worldevent;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +38,17 @@ public class WorldEventService {
   @Transactional(readOnly = true)
   public List<WorldEvent> findActiveByRegion(Long mapNodeId) {
     return worldEventRepository.findActiveByRegion(mapNodeId);
+  }
+
+  /** 指定位置可见的活跃事件：全局事件 + 绑定该地图节点的区域事件。 */
+  @Transactional(readOnly = true)
+  public List<WorldEvent> findActiveEventsForLocation(@Nullable Long locationId) {
+    List<WorldEvent> events =
+        new ArrayList<>(worldEventRepository.findActiveByScope(WorldEventScope.GLOBAL));
+    if (locationId != null) {
+      events.addAll(worldEventRepository.findActiveByRegion(locationId));
+    }
+    return events;
   }
 
   @Transactional(readOnly = true)
