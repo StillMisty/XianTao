@@ -27,6 +27,7 @@ import top.stillmisty.xiantao.handle.platform.PlatformRegistry;
 import top.stillmisty.xiantao.service.AuthenticationService;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
+import top.stillmisty.xiantao.service.player.UserStateService;
 
 class CommandDispatcherTest {
 
@@ -265,7 +266,8 @@ class CommandDispatcherTest {
     CommandRegistry registry = new CommandRegistry(context);
     PlatformRegistry platformRegistry = new PlatformRegistry(List.of(handler));
     ReplyHelper replyHelper = new ReplyHelper(platformRegistry);
-    return new CommandDispatcher(registry, auth, platformRegistry, replyHelper);
+    UserStateService userStateService = mock(UserStateService.class);
+    return new CommandDispatcher(registry, auth, platformRegistry, replyHelper, userStateService);
   }
 
   private static QqIncomingMessage message(String content) {

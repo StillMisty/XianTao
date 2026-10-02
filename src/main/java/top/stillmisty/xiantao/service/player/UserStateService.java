@@ -37,6 +37,19 @@ public class UserStateService {
     return user;
   }
 
+  /**
+   * 在命令边界统一结算过期状态（幂等；稳定状态走快速路径跳过）。
+   *
+   * <p>结算职责收敛于边界后，深层服务可以只使用 {@link PlayerLoader} 做纯数据加载， 避免「服务 → 结算中枢 → StateHandler → 服务」的构造器循环依赖。
+   */
+  @Transactional
+  public void settle(Long userId) {
+    resolveState(
+        userRepository
+            .findByIdForUpdate(userId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND)));
+  }
+
   /** 只读加载用户，不获取行锁、不结算状态。适用于仅需读取用户数据的场景。 */
   public Player loadUserReadOnly(Long userId) {
     return userRepository

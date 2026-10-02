@@ -11,7 +11,7 @@ QQ 群文字修仙 MUD（常驻机器人，非 Web 服务）。Java 27 · Spring
 ./gradlew spotlessApply              # google-java-format Java + db/migration/*.sql
 ./gradlew installGitHooks            # clone 后执行一次：安装 pre-commit hook（自动格式化暂存的 .java）
 python3 tools/e2e/e2e.py             # 本地端到端自测（假 QQ 平台 + 独立测试库，见 tools/e2e/README.md）
-python3 tools/e2e/commands.py        # 全部 71 条指令可用性巡检
+python3 tools/e2e/commands.py        # 全部 72 条指令可用性巡检
 ```
 
 ## Gotchas
@@ -56,6 +56,7 @@ src/main/java/top/stillmisty/xiantao/
 
 - 所有面向玩家的文本必须符合修仙世界观；术语以根目录 `CONTEXT.md` 为准（避免其 _Avoid_ 列出的同义词）。
 - **Command Dispatch**: 监听器类标 `@CommandGroup`，方法标 `@Command("模板")`（模板语义与旧 SimBot `@Filter` 逐条对齐：`{{name}}`→`(?<name>.+)`、全匹配、字面量引用），参数用 `QqIncomingMessage` + `@Arg("名")`。`CommandDispatcher` 每条消息一条虚拟线程，顺序固定为「匹配 → 认证（@RequireAuth）→ GM（@RequireGm）」，认证后把 userId 绑定到 `ScopedValue`，Service 层用 `UserContext.requireCurrentUserId()` 取当前用户。同一玩家的命令经 `PerKeySerialExecutor` 按到达顺序串行执行（跨玩家并行），避免连点/双击竞态。
+- **State Settlement & Player Loading**: 过期状态结算收敛在命令边界——`CommandDispatcher` 认证后调用 `UserStateService.settle`；深层服务一律注入 `PlayerLoader`（只依赖 `UserRepository` 的叶子组件）做纯数据加载，**不得注入 `UserStateService`**（结算中枢依赖全部 StateHandler，深层注入会构成构造器循环依赖；仓库不使用 `@Lazy` 破环）。
 - **ServiceResult**: sealed `Success<T> | Failure<T>`，命令处理器用 `switch(result)` 模式匹配，不用 instanceof。
 - **选择事件按钮**: 待选择事件（`EffectData.ChoiceOptions`）在回复时自动附带按钮（`QqKeyboard`，点击发送「选 X」），正文里的文本选项保留作兜底；平台限制 5×5，`xiantao.qq.choice-buttons=false` 可全局关闭。
 - **Item Use Strategy**: 每个 ItemType 一个 handler（Pill/SkillJade/RecipeScroll/ForgingBlueprint/BeastEssence），按 `Map<ItemType, ItemUseHandler>` 分发；`consumesInternally()` 决定 `ItemUseService` 是否自动扣减数量（默认 false）。

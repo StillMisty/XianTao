@@ -32,7 +32,7 @@ import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.SpiritStoneService;
 import top.stillmisty.xiantao.service.ai.PromptSanitizer;
 import top.stillmisty.xiantao.service.ai.SectIdentityGenerator;
-import top.stillmisty.xiantao.service.player.UserStateService;
+import top.stillmisty.xiantao.service.player.PlayerLoader;
 
 @Slf4j
 @Service
@@ -51,7 +51,7 @@ public class SectMemberService {
   private final SectSharedSkillRepository sectSharedSkillRepository;
   private final SectBuildingRepository sectBuildingRepository;
   private final UserRepository userRepository;
-  private final UserStateService userStateService;
+  private final PlayerLoader playerLoader;
   private final PlayerSkillRepository playerSkillRepository;
   private final SectIdentityGenerator sectIdentityGenerator;
   private final SpiritStoneService spiritStoneService;
@@ -144,13 +144,13 @@ public class SectMemberService {
   // ===================== 内部 API =====================
 
   public SectOverviewVO getSectOverviewInternal(Long userId) {
-    userStateService.loadUserReadOnly(userId);
+    playerLoader.loadReadOnly(userId);
     SectMember member = requireMember(userId);
     Sect sect =
         sectRepository
             .findById(requireSectId(member))
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_FOUND));
-    Player leader = userStateService.loadUserReadOnly(sect.getLeaderId());
+    Player leader = playerLoader.loadReadOnly(sect.getLeaderId());
     List<SectMember> members = sectMemberRepository.findBySectId(sect.getId());
 
     List<Long> memberUserIds = members.stream().map(SectMember::getUserId).distinct().toList();
@@ -192,7 +192,7 @@ public class SectMemberService {
   }
 
   private String createSectFlow(Long userId, String name, String ethosDesc) {
-    Player user = userStateService.loadUserReadOnly(userId);
+    Player user = playerLoader.loadReadOnly(userId);
 
     if (CultivationRealm.fromLevel(user.getLevel()).getRank()
         < CultivationRealm.GOLDEN_CORE.getRank()) {
@@ -260,7 +260,7 @@ public class SectMemberService {
       throw new BusinessException(ErrorCode.SECT_NO_PERMISSION, "邀请");
     }
 
-    Player target = userStateService.loadUserByNickname(targetNickname);
+    Player target = playerLoader.findByNickname(targetNickname);
     if (target == null) {
       throw new BusinessException(ErrorCode.PLAYER_NOT_FOUND, targetNickname);
     }
@@ -300,7 +300,7 @@ public class SectMemberService {
   public String kickMemberInternal(Long userId, String targetNickname) {
     SectMember actorMember = requireMember(userId);
 
-    Player target = userStateService.loadUserByNickname(targetNickname);
+    Player target = playerLoader.findByNickname(targetNickname);
     if (target == null) {
       throw new BusinessException(ErrorCode.PLAYER_NOT_FOUND, targetNickname);
     }
@@ -357,7 +357,7 @@ public class SectMemberService {
       throw new BusinessException(ErrorCode.SECT_NOT_LEADER);
     }
 
-    Player target = userStateService.loadUserByNickname(targetNickname);
+    Player target = playerLoader.findByNickname(targetNickname);
     if (target == null) {
       throw new BusinessException(ErrorCode.PLAYER_NOT_FOUND, targetNickname);
     }

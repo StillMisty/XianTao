@@ -2,7 +2,6 @@ package top.stillmisty.xiantao.service.fudi;
 
 import java.util.List;
 import java.util.Optional;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.beast.entity.Beast;
@@ -13,17 +12,27 @@ import top.stillmisty.xiantao.infrastructure.repository.FudiRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SpiritRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
-import top.stillmisty.xiantao.service.player.UserStateService;
+import top.stillmisty.xiantao.service.player.PlayerLoader;
 
 /** 福地相关的跨 Service 共享工具组件 */
 @Component
-@RequiredArgsConstructor
 public class FudiHelper {
 
   private final FudiRepository fudiRepository;
   private final SpiritRepository spiritRepository;
   private final BeastRepository beastRepository;
-  private final UserStateService userStateService;
+  private final PlayerLoader playerLoader;
+
+  public FudiHelper(
+      FudiRepository fudiRepository,
+      SpiritRepository spiritRepository,
+      BeastRepository beastRepository,
+      PlayerLoader playerLoader) {
+    this.fudiRepository = fudiRepository;
+    this.spiritRepository = spiritRepository;
+    this.beastRepository = beastRepository;
+    this.playerLoader = playerLoader;
+  }
 
   /**
    * 根据 userId 查找福地（只读）。
@@ -62,7 +71,7 @@ public class FudiHelper {
 
   /** 获取用户信息，不存在则抛出异常 */
   public Player getUserOrThrow(Long userId) {
-    return userStateService.loadUser(userId);
+    return playerLoader.load(userId);
   }
 
   /** 解析地块编号（字符串 → 整数） */

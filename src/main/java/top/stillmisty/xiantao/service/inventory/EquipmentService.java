@@ -6,7 +6,6 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
@@ -22,26 +21,26 @@ import top.stillmisty.xiantao.infrastructure.repository.EquipmentTemplateReposit
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
-import top.stillmisty.xiantao.service.player.UserStateService;
+import top.stillmisty.xiantao.service.player.PlayerLoader;
 
 /** 装备服务 负责：装备穿戴/卸下、装备生成、装备列表/详情查询 */
 @Slf4j
 @Service
 public class EquipmentService {
 
-  private final UserStateService userStateService;
+  private final PlayerLoader playerLoader;
   private final EquipmentRepository equipmentRepository;
   private final EquipmentTemplateRepository equipmentTemplateRepository;
   private final ItemResolver itemResolver;
   private final EquipmentFactory equipmentFactory;
 
   public EquipmentService(
-      @Lazy UserStateService userStateService,
+      PlayerLoader playerLoader,
       EquipmentRepository equipmentRepository,
       EquipmentTemplateRepository equipmentTemplateRepository,
       ItemResolver itemResolver,
       EquipmentFactory equipmentFactory) {
-    this.userStateService = userStateService;
+    this.playerLoader = playerLoader;
     this.equipmentRepository = equipmentRepository;
     this.equipmentTemplateRepository = equipmentTemplateRepository;
     this.itemResolver = itemResolver;
@@ -92,7 +91,7 @@ public class EquipmentService {
         @CacheEvict(cacheNames = "player_inventory", key = "'summary:' + #userId")
       })
   public EquipResult equipItemInternal(Long userId, String input) {
-    Player user = userStateService.loadUser(userId);
+    Player user = playerLoader.load(userId);
 
     var result = itemResolver.resolveEquipment(userId, input);
     if (result instanceof ItemResolver.NotFound<?>(String input1)) {
@@ -297,7 +296,7 @@ public class EquipmentService {
   /** 获取装备列表（展开显示） */
   @Cacheable(cacheNames = "player_equipment", key = "'list:' + #userId")
   public EquipmentListResult getEquipmentList(Long userId) {
-    userStateService.loadUser(userId);
+    playerLoader.load(userId);
 
     List<Equipment> allEquipments = equipmentRepository.findByUserId(userId);
 

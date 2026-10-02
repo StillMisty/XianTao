@@ -1,6 +1,7 @@
 package top.stillmisty.xiantao.service.combat;
 
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.item.enums.WeaponType;
@@ -10,10 +11,17 @@ import top.stillmisty.xiantao.domain.monster.Monster;
 import top.stillmisty.xiantao.domain.monster.PlayerCombatant;
 import top.stillmisty.xiantao.domain.monster.enums.MonsterType;
 import top.stillmisty.xiantao.domain.skill.entity.SkillEffect;
+import top.stillmisty.xiantao.service.sect.SectBuildingService;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class DamageCalculator {
+
+  /** 护阵减伤下限：无论建筑等级多高，受伤不低于原伤害的 50% */
+  private static final double MIN_DAMAGE_TAKEN_MULTIPLIER = 0.5;
+
+  private final SectBuildingService sectBuildingService;
 
   private static final Map<WeaponType, MonsterType> ADVANTAGE_MAP =
       Map.of(
@@ -32,7 +40,7 @@ public class DamageCalculator {
     int rawDamage = (int) Math.round(attacker.getAttack() * advantageMultiplier * attackModifier);
 
     int reduction = calculateReduction(defender, buffManager);
-    return Math.max(1, rawDamage - reduction);
+    return applyGuardReduction(defender, Math.max(1, rawDamage - reduction));
   }
 
   public int calculateEffectDamage(
@@ -54,7 +62,19 @@ public class DamageCalculator {
 
     int rawDamage = (int) Math.round(baseDmg * advantageMultiplier * attackModifier);
     int reduction = calculateReduction(defender, buffManager);
-    return Math.max(1, rawDamage - reduction);
+    return applyGuardReduction(defender, Math.max(1, rawDamage - reduction));
+  }
+
+  /** 护阵（宗门建筑）：玩家受到的伤害 -3%/级，仅作用于玩家防守方，并以原伤害 50% 为下限。 */
+  private int applyGuardReduction(Combatant defender, int damage) {
+    if (!(defender instanceof PlayerCombatant)) {
+      return damage;
+    }
+    double guardMultiplier =
+        Math.max(
+            MIN_DAMAGE_TAKEN_MULTIPLIER,
+            sectBuildingService.getGuardDamageReductionForUser(defender.getId()));
+    return Math.max(1, (int) Math.round(damage * guardMultiplier));
   }
 
   public int calculateReduction(Combatant defender, BuffManager buffManager) {

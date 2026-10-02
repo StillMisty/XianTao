@@ -16,6 +16,7 @@ import top.stillmisty.xiantao.handle.platform.PlatformRegistry;
 import top.stillmisty.xiantao.service.AuthenticationService;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.UserContext;
+import top.stillmisty.xiantao.service.player.UserStateService;
 import top.stillmisty.xiantao.util.TextFormat;
 
 /**
@@ -33,6 +34,7 @@ public class CommandDispatcher implements QqEventListener {
   private final AuthenticationService authService;
   private final PlatformRegistry platformRegistry;
   private final ReplyHelper replyHelper;
+  private final UserStateService userStateService;
 
   /** 每个事件一条虚拟线程，命令内可自由阻塞（数据库、AI 调用）。 */
   private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
@@ -123,6 +125,8 @@ public class CommandDispatcher implements QqEventListener {
       UserContext.withUser(
           boundUserId,
           () -> {
+            // 命令边界统一结算过期状态：深层服务只做纯数据加载（PlayerLoader），不再各自触发结算
+            userStateService.settle(boundUserId);
             invoke(handler, message, command, args);
             return null;
           });
