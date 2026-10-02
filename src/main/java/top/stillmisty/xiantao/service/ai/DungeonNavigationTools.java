@@ -18,6 +18,7 @@ import top.stillmisty.xiantao.infrastructure.repository.DungeonSpiritStateReposi
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.SpiritStoneService;
+import top.stillmisty.xiantao.service.dungeon.DungeonEventCompleter;
 import top.stillmisty.xiantao.service.dungeon.DungeonProgressHelper;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
@@ -35,6 +36,7 @@ public class DungeonNavigationTools {
   private final SpiritStoneService spiritStoneService;
   private final DungeonProgressHelper progressHelper;
   private final UserStateService userStateService;
+  private final DungeonEventCompleter dungeonEventCompleter;
 
   /** 在工具事务内重读最新实例，避免陈旧快照覆盖并发写入 */
   private DungeonInstance reloadInstance(DungeonChatContext ctx) {
@@ -67,6 +69,9 @@ public class DungeonNavigationTools {
 
           instance.advanceArea(nextArea.key());
           instanceRepository.save(instance);
+
+          dungeonEventCompleter.produceAreaAdvanceEvent(
+              ctx.user().getId(), dungeon.getName(), nextArea.name());
 
           List<String> newPoiNames = nextArea.mainPois().stream().map(Poi::name).toList();
 

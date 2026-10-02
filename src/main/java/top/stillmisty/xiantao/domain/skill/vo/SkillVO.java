@@ -9,9 +9,17 @@ public record SkillVO(
     String name,
     String description,
     List<SkillEffect> effects,
+    String skillType,
+    String skillTypeName,
     String bindingType,
     String bindingTypeName,
     String bindingValue,
     int cooldownSeconds,
     int levelRequirement,
-    boolean equipped) {}
+    boolean equipped) {
+
+  /** 被动法决习得即生效、不占槽位 */
+  public boolean isPassive() {
+    return "PASSIVE".equals(skillType);
+  }
+}

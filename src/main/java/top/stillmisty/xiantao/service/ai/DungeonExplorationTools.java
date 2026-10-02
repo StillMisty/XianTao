@@ -19,6 +19,7 @@ import top.stillmisty.xiantao.infrastructure.repository.DungeonSpiritStateReposi
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.dungeon.DungeonCombatHelper;
+import top.stillmisty.xiantao.service.dungeon.DungeonEventCompleter;
 import top.stillmisty.xiantao.service.dungeon.DungeonLootHelper;
 
 /** 秘境探索战斗工具 — 探索 POI、战斗、采集 */
@@ -34,6 +35,7 @@ public class DungeonExplorationTools {
   private final DungeonStateBuilder stateBuilder;
   private final DungeonCombatHelper combatHelper;
   private final DungeonLootHelper lootHelper;
+  private final DungeonEventCompleter dungeonEventCompleter;
 
   @Tool(description = "探索当前区域的指定地点。poiName 是地点名称（精确匹配），approach 是探索方式（可选）")
   @Transactional
@@ -177,6 +179,12 @@ public class DungeonExplorationTools {
           }
 
           instanceRepository.save(instance);
+
+          if (isHiddenPoi) {
+            dungeonEventCompleter.produceHiddenPoiEvent(
+                ctx.user().getId(), poi.name(), poi.description());
+          }
+          dungeonEventCompleter.onPoiExplored(ctx.user().getId(), dungeon.getId());
 
           return new ResolveEncounterResponse(
               poi.type(),

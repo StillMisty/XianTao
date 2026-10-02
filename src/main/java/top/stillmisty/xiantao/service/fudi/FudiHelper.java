@@ -56,7 +56,11 @@ public class FudiHelper {
           fudi.touchOnlineTime();
           spiritRepository
               .findByFudiId(fudi.getId())
-              .ifPresent(spirit -> spiritRepository.save(spirit));
+              .ifPresent(
+                  spirit -> {
+                    spirit.updateEmotionState();
+                    spiritRepository.save(spirit);
+                  });
           fudiRepository.save(fudi);
           // 兽栏内灵兽自动回血
           List<Beast> beasts = beastRepository.findByFudiId(fudi.getId());

@@ -108,8 +108,8 @@ public class BountyCombatService {
     bountyCompleter.produceCompletionEvent(
         userId, record.getBountyName(), items, finalSpiritStones);
 
-    // Check hidden events
-    bountyCompleter.checkHiddenEvents(userId, user, record);
+    // Check hidden events：优先按接取时的线索二段校验，旧数据回退一次性检查
+    bountyCompleter.resolveHiddenEvents(userId, user, record);
 
     String rewardDescription =
         buildRewardDescription(finalSpiritStones, items, stats.hasBeastEgg, stats.hasEquipment);

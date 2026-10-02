@@ -62,7 +62,7 @@ final class SkillFormatter {
           }
           case SURVIVE_LETHAL -> {
             int pct = effect.value() != null ? effect.value().intValue() : 20;
-            yield pct + "%概率";
+            yield "每场战斗免死一次，保留" + pct + "%气血";
           }
         };
     return name + (detail.isEmpty() ? "" : "(" + detail + ")");

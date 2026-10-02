@@ -6,6 +6,7 @@ import top.stillmisty.xiantao.domain.item.entity.Equipment;
 import top.stillmisty.xiantao.domain.item.enums.WeaponType;
 import top.stillmisty.xiantao.domain.item.vo.EquipmentStats;
 import top.stillmisty.xiantao.domain.skill.entity.Skill;
+import top.stillmisty.xiantao.domain.skill.vo.PassiveSkillBonuses;
 import top.stillmisty.xiantao.domain.user.entity.Player;
 
 /** 玩家战斗单位 */
@@ -15,6 +16,8 @@ public class PlayerCombatant implements Combatant {
   private final double attackSpeed;
   private final List<Skill> skills;
   private final EquipmentStats equipmentStats;
+  private PassiveSkillBonuses passiveBonuses = PassiveSkillBonuses.NONE;
+  private boolean surviveLethalUsed;
   private int hp;
   private int attackBuff;
   private int defenseBuff;
@@ -50,6 +53,15 @@ public class PlayerCombatant implements Combatant {
     return this;
   }
 
+  /** 应用已习得被动法决的恒定加成（在构造后调用；气血按上限增幅同步放大，保持当前气血占比）。 */
+  public PlayerCombatant withPassiveBonuses(PassiveSkillBonuses bonuses) {
+    this.passiveBonuses = bonuses;
+    if (bonuses.hpPercent() > 0) {
+      this.hp = Math.min(getMaxHp(), (int) Math.round(this.hp * (1 + bonuses.hpPercent())));
+    }
+    return this;
+  }
+
   @Override
   public Long getId() {
     return user.getId();
@@ -62,22 +74,24 @@ public class PlayerCombatant implements Combatant {
 
   @Override
   public int getSpeed() {
-    return (user.getEffectiveStatAgi() + equipmentStats.agi()) * 2 + 10 + speedBuff;
+    int base = (user.getEffectiveStatAgi() + equipmentStats.agi()) * 2 + 10 + speedBuff;
+    return applyPercent(base, passiveBonuses.speedPercent());
   }
 
   @Override
   public int getAttack() {
-    return (user.getEffectiveStatStr() + equipmentStats.str()) * 2
-        + equipmentStats.attack()
-        + attackBuff;
+    int base =
+        (user.getEffectiveStatStr() + equipmentStats.str()) * 2
+            + equipmentStats.attack()
+            + attackBuff;
+    return applyPercent(base, passiveBonuses.attackPercent());
   }
 
   @Override
   public int getDefense() {
-    return user.getEffectiveStatCon()
-        + equipmentStats.con()
-        + equipmentStats.defense()
-        + defenseBuff;
+    int base =
+        user.getEffectiveStatCon() + equipmentStats.con() + equipmentStats.defense() + defenseBuff;
+    return applyPercent(base, passiveBonuses.defensePercent());
   }
 
   @Override
@@ -87,12 +101,22 @@ public class PlayerCombatant implements Combatant {
 
   @Override
   public int getMaxHp() {
-    return user.calculateMaxHp();
+    return applyPercent(user.calculateMaxHp(), passiveBonuses.hpPercent());
   }
 
   @Override
   public void takeDamage(int amount) {
-    hp = Math.max(0, hp - amount);
+    int remaining = hp - amount;
+    if (hp > 0
+        && remaining <= 0
+        && passiveBonuses.surviveLethalPercent() > 0
+        && !surviveLethalUsed) {
+      // 濒死生存（SURVIVE_LETHAL）：每场战斗一次免死，保留 value% 气血
+      surviveLethalUsed = true;
+      hp = Math.max(1, (int) Math.round(getMaxHp() * passiveBonuses.surviveLethalPercent()));
+      return;
+    }
+    hp = Math.max(0, remaining);
   }
 
   @Override
@@ -117,6 +141,21 @@ public class PlayerCombatant implements Combatant {
 
   public int getWis() {
     return user.getEffectiveStatWis() + equipmentStats.wis();
+  }
+
+  /** 被动法决提供的闪避率（0-1） */
+  public double getPassiveDodgePercent() {
+    return passiveBonuses.dodgePercent();
+  }
+
+  /** 被动法决提供的受击减伤比例（0-1） */
+  public double getPassiveResistPercent() {
+    return passiveBonuses.resistPercent();
+  }
+
+  private static int applyPercent(int base, double percent) {
+    if (percent == 0) return base;
+    return Math.max(1, (int) Math.round(base * (1 + percent)));
   }
 
   public int getStr() {

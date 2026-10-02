@@ -1,8 +1,10 @@
 package top.stillmisty.xiantao.service.activity;
 
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
+import top.stillmisty.xiantao.domain.event.entity.EventType;
 import top.stillmisty.xiantao.infrastructure.repository.EventTypeRepository;
 import top.stillmisty.xiantao.infrastructure.repository.HiddenCompletionRepository;
 
@@ -24,5 +26,10 @@ public class ActivityEventHelper {
   /** 将 event code 解析为叙事描述文本 */
   public String resolveNarrativeKey(String code) {
     return eventTypeRepository.findByCode(code).map(e -> e.getDescription()).orElse(code);
+  }
+
+  /** 解析事件 code 对应的配置名称（两阶段线索等含蓄提示用） */
+  public @Nullable String resolveEventName(String code) {
+    return eventTypeRepository.findByCode(code).map(EventType::getName).orElse(null);
   }
 }

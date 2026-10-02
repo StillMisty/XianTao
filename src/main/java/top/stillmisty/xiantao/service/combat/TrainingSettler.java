@@ -73,7 +73,9 @@ public class TrainingSettler {
   public void fireChoiceEvent(Long userId, String eventCode, Map<String, Object> params) {
     var choiceData = EffectData.ChoiceOptions.fromParamsMap(params);
     gameEventService.save(
-        GameEvent.create(userId, GameEventCategory.TRAINING_EVENT).withEffectData(choiceData));
+        GameEvent.create(userId, GameEventCategory.TRAINING_EVENT)
+            .withSourceEventCode(eventCode)
+            .withEffectData(choiceData));
   }
 
   private SettlementResult runUnifiedEventLoop(

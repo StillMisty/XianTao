@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import top.stillmisty.xiantao.domain.item.entity.Equipment;
 import top.stillmisty.xiantao.domain.item.enums.WeaponType;
 import top.stillmisty.xiantao.domain.item.vo.EquipmentStats;
+import top.stillmisty.xiantao.domain.skill.vo.PassiveSkillBonuses;
 import top.stillmisty.xiantao.domain.user.entity.Player;
 
 class PlayerCombatantTest {
@@ -52,6 +53,35 @@ class PlayerCombatantTest {
 
     assertEquals(78, combatant.getAttack());
     assertEquals(WeaponType.SWORD, combatant.getWeaponType());
+  }
+
+  @Test
+  void passiveBonusesScaleAttackDefenseSpeedAndMaxHp() {
+    PassiveSkillBonuses bonuses = new PassiveSkillBonuses(0.10, 0.10, 0.10, 0, 0, 0.08, 0);
+    PlayerCombatant combatant =
+        new PlayerCombatant(createPlayer(), null, 1.0).withPassiveBonuses(bonuses);
+
+    // 攻击 48×1.1；防御 22×1.1；速度 50×1.1；上限 540×1.08
+    assertEquals(53, combatant.getAttack());
+    assertEquals(24, combatant.getDefense());
+    assertEquals(55, combatant.getSpeed());
+    assertEquals(583, combatant.getMaxHp());
+    // 初始气血按上限增幅同步放大：500×1.08
+    assertEquals(540, combatant.getHp());
+  }
+
+  @Test
+  void surviveLethalTriggersOncePerBattleKeepingConfiguredHpPercent() {
+    PassiveSkillBonuses bonuses = new PassiveSkillBonuses(0, 0, 0, 0, 0, 0, 0.20);
+    PlayerCombatant combatant =
+        new PlayerCombatant(createPlayer(), null, 1.0).withPassiveBonuses(bonuses);
+
+    combatant.takeDamage(9999);
+    // 免死保留 20% 上限气血：540×0.2
+    assertEquals(108, combatant.getHp());
+
+    combatant.takeDamage(9999);
+    assertEquals(0, combatant.getHp());
   }
 
   private static Player createPlayer() {

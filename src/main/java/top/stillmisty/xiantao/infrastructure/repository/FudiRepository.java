@@ -3,6 +3,7 @@ package top.stillmisty.xiantao.infrastructure.repository;
 import static top.stillmisty.xiantao.domain.fudi.entity.table.FudiTableDef.FUDI;
 
 import com.mybatisflex.core.query.QueryWrapper;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -41,6 +42,11 @@ public class FudiRepository {
   public boolean existsByUserId(Long userId) {
     QueryWrapper queryWrapper = QueryWrapper.create().where(FUDI.USER_ID.eq(userId));
     return fudiMapper.selectCountByQuery(queryWrapper) > 0;
+  }
+
+  /** 条件更新占用福地事件生成时点，true 表示本次调用获得生成权。 */
+  public boolean tryClaimEventGeneration(Long fudiId, LocalDateTime notBefore) {
+    return fudiMapper.tryClaimEventGeneration(fudiId, notBefore) > 0;
   }
 
   public void deleteById(Long id) {

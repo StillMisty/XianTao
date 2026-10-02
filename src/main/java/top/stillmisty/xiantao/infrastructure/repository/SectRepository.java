@@ -3,6 +3,7 @@ package top.stillmisty.xiantao.infrastructure.repository;
 import static top.stillmisty.xiantao.domain.sect.entity.table.SectTableDef.SECT;
 
 import com.mybatisflex.core.query.QueryWrapper;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,18 @@ public class SectRepository {
   /** 原子扣减宗门资金，资金不足返回 0 */
   public int deductFundsIfEnough(Long id, long amount) {
     return sectMapper.deductFundsIfEnough(id, amount);
+  }
+
+  /** 仅当距上次事件时间超过 staleBefore 时写入新事件；并发触发下只有一个请求能成功 */
+  public int updateEventIfStale(
+      Long id,
+      String eventType,
+      String eventText,
+      LocalDateTime eventTime,
+      LocalDateTime expiresAt,
+      LocalDateTime staleBefore) {
+    return sectMapper.updateEventIfStale(
+        id, eventType, eventText, eventTime, expiresAt, staleBefore);
   }
 
   public Optional<Sect> findById(Long id) {

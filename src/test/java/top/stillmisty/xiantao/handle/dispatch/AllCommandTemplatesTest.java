@@ -22,7 +22,7 @@ class AllCommandTemplatesTest {
   @Test
   void everyListenerCommandTemplateCompilesAndIsUnique() throws Exception {
     List<Class<?>> groups = scanCommandGroups();
-    assertEquals(22, groups.size(), "监听器命令组数量变化，请同步更新本测试的预期");
+    assertEquals(23, groups.size(), "监听器命令组数量变化，请同步更新本测试的预期");
 
     Set<String> templates = new HashSet<>();
     List<String> argProblems = new ArrayList<>();
@@ -54,7 +54,7 @@ class AllCommandTemplatesTest {
       }
     }
 
-    assertEquals(72, commandCount, "命令数量变化，请确认迁移完整性");
+    assertEquals(73, commandCount, "命令数量变化，请确认迁移完整性");
     assertTrue(argProblems.isEmpty(), String.join("\n", argProblems));
   }
 

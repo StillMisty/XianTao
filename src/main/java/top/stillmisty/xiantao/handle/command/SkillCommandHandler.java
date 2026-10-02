@@ -89,10 +89,12 @@ public class SkillCommandHandler implements CommandGroup {
     for (int i = 0; i < skills.size(); i++) {
       var skill = skills.get(i);
       sb.append(i + 1).append(". ").append(skill.name());
-      if (skill.effects() != null && !skill.effects().isEmpty()) {
+      if (skill.isPassive()) {
+        sb.append(" [被动·习得即生效]");
+      } else if (skill.effects() != null && !skill.effects().isEmpty()) {
         sb.append(" [").append(skill.effects().getFirst().type().getName()).append("]");
       }
-      if (skill.equipped()) sb.append(" ◆");
+      if (skill.equipped() && !skill.isPassive()) sb.append(" ◆");
       sb.append("\n");
     }
     return sb.toString();
@@ -119,6 +121,8 @@ public class SkillCommandHandler implements CommandGroup {
     }
     sb.append(fmt.bold(skill.name()));
     sb.append("\n");
+    String typeText = skill.isPassive() ? "（习得即生效，不占槽位）" : "";
+    sb.append(fmt.listItem("类型：" + skill.skillTypeName() + typeText));
 
     if (skill.effects() != null && !skill.effects().isEmpty()) {
       var effectText = new StringBuilder("效果：");

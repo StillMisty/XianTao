@@ -15,6 +15,7 @@ import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.sect.SectBuildingService;
+import top.stillmisty.xiantao.service.sect.SectEventGenerator;
 
 /** 宗灵对话核心服务 宗灵是宗门意志的化身，LLM 驱动，成员通过自然语言与宗灵对话来执行所有宗门操作 */
 @Service
@@ -27,6 +28,7 @@ public class SectSpiritChatService extends AbstractChatService {
   private final SectElderTools sectElderTools;
   private final SectLeaderTools sectLeaderTools;
   private final SectBuildingService sectBuildingService;
+  private final SectEventGenerator sectEventGenerator;
   private final UserRepository userRepository;
   private final SectPromptTemplates promptTemplates;
   private final AiChatRateLimiter rateLimiter;
@@ -40,6 +42,7 @@ public class SectSpiritChatService extends AbstractChatService {
       SectElderTools sectElderTools,
       SectLeaderTools sectLeaderTools,
       SectBuildingService sectBuildingService,
+      SectEventGenerator sectEventGenerator,
       UserRepository userRepository,
       SectPromptTemplates promptTemplates,
       AiChatRateLimiter rateLimiter) {
@@ -50,6 +53,7 @@ public class SectSpiritChatService extends AbstractChatService {
     this.sectElderTools = sectElderTools;
     this.sectLeaderTools = sectLeaderTools;
     this.sectBuildingService = sectBuildingService;
+    this.sectEventGenerator = sectEventGenerator;
     this.userRepository = userRepository;
     this.promptTemplates = promptTemplates;
     this.rateLimiter = rateLimiter;
@@ -83,6 +87,7 @@ public class SectSpiritChatService extends AbstractChatService {
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_FOUND));
 
     sectBuildingService.settleSpiritVein(sect.getId());
+    sectEventGenerator.ensureEvent(sect);
 
     String response =
         switch (member.getPosition()) {

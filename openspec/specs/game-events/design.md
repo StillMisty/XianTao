@@ -692,10 +692,9 @@ CREATE TABLE hidden_completion (
 
 ### D. 未实现（待办）
 
-- **悬赏两阶段隐藏线索**：设计意图 = 接取时按条件写入线索（`user_bounty.hidden_clues`）、领奖时二段校验并给隐藏奖励；现状 = 字段为预留（接取固定写空 Map），隐藏事件仅在领奖时一次性检查。
-- **秘境（DUNGEON）事件管道**：设计意图 = 进入/推进/通关固定叙事 + 探索 POI 概率子事件 + 秘境隐藏事件；现状 = `DUNGEON_*` category 与 `activity_event` 配置存在，但秘境服务不产 GameEvent。
+无。
 
-> 已实现（本轮）：补 5 种触发条件（HAS_EQUIPMENT / LOCATION / TIME_OF_DAY / BEAST_DEPLOYED / LEVEL_RANGE，未知条件放行）；`BUFF_EXPIRED` 事件（合并一条，走被动回复管道）；悬赏自动完成 + `BOUNTY_READY` 提示（保留「悬赏结算」领奖动作）。
+> 已实现（本轮）：悬赏两阶段隐藏线索（接取时条件命中写入 `hidden_clues` 并给含蓄提示；领奖时按线索二段校验发放，旧数据回退一遍检查；`hidden_completion` 保证每人一次）；秘境事件管道（进入/推进/通关固定叙事 + 探索 POI 概率子事件 0.20×命运倍率 + 隐藏发现，全部走 GameEvent → 被动回复管道）。
 
 ### E. 缺陷修复
 

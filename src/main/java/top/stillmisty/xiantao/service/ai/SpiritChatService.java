@@ -8,8 +8,10 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.stereotype.Service;
 import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
+import top.stillmisty.xiantao.domain.fudi.entity.FudiEventTemplate;
 import top.stillmisty.xiantao.domain.fudi.entity.Spirit;
 import top.stillmisty.xiantao.domain.fudi.entity.SpiritForm;
+import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
 import top.stillmisty.xiantao.domain.sect.enums.ChatType;
 import top.stillmisty.xiantao.domain.worldevent.entity.WorldEvent;
 import top.stillmisty.xiantao.domain.worldevent.enums.WorldEventCategory;
@@ -21,6 +23,8 @@ import top.stillmisty.xiantao.infrastructure.repository.WorldEventRepository;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.ServiceResult;
+import top.stillmisty.xiantao.service.fudi.FudiEventApplier;
+import top.stillmisty.xiantao.service.fudi.FudiEventGenerator;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
 @Service
@@ -31,6 +35,8 @@ public class SpiritChatService extends AbstractChatService {
   private final SpiritRepository spiritRepository;
   private final SpiritFormRepository spiritFormRepository;
   private final WorldEventRepository worldEventRepository;
+  private final FudiEventGenerator fudiEventGenerator;
+  private final FudiEventApplier fudiEventApplier;
   private final UserStateService userStateService;
   private final SpiritPromptTemplates promptTemplates;
   private final SpiritCellTools spiritCellTools;
@@ -46,6 +52,8 @@ public class SpiritChatService extends AbstractChatService {
       SpiritRepository spiritRepository,
       SpiritFormRepository spiritFormRepository,
       WorldEventRepository worldEventRepository,
+      FudiEventGenerator fudiEventGenerator,
+      FudiEventApplier fudiEventApplier,
       UserStateService userStateService,
       SpiritPromptTemplates promptTemplates,
       SpiritCellTools spiritCellTools,
@@ -58,6 +66,8 @@ public class SpiritChatService extends AbstractChatService {
     this.spiritRepository = spiritRepository;
     this.spiritFormRepository = spiritFormRepository;
     this.worldEventRepository = worldEventRepository;
+    this.fudiEventGenerator = fudiEventGenerator;
+    this.fudiEventApplier = fudiEventApplier;
     this.userStateService = userStateService;
     this.promptTemplates = promptTemplates;
     this.spiritCellTools = spiritCellTools;
@@ -91,7 +101,13 @@ public class SpiritChatService extends AbstractChatService {
             .orElseThrow(() -> new BusinessException(ErrorCode.SPIRIT_NOT_FOUND));
 
     fudi.touchOnlineTime();
+    spirit.updateEmotionState();
     spiritRepository.save(spirit);
+
+    List<FudiEventTemplate> fudiEvents = fudiEventGenerator.generateEvents(fudi);
+    if (!fudiEvents.isEmpty()) {
+      fudiEventApplier.applyFudiEventEffects(userId, fudiEvents);
+    }
 
     List<WorldEvent> activeEvents = loadVisibleEvents(userId);
     String response =
@@ -101,7 +117,7 @@ public class SpiritChatService extends AbstractChatService {
             activeEvents,
             () ->
                 callLlm(
-                    buildPrompt(fudi, spirit),
+                    buildPrompt(fudi, spirit, fudiEvents),
                     userInput,
                     ChatType.SPIRIT,
                     userId,
@@ -125,21 +141,41 @@ public class SpiritChatService extends AbstractChatService {
     return events;
   }
 
-  private String buildPrompt(Fudi fudi, Spirit spirit) {
+  private String buildPrompt(Fudi fudi, Spirit spirit, List<FudiEventTemplate> fudiEvents) {
     String cellDetail = fudiStateBuilder.buildCellDetailForLLM(fudi);
     String formName = null;
     if (spirit.getFormId() != null) {
       formName =
           spiritFormRepository.findById(spirit.getFormId()).map(SpiritForm::getName).orElse(null);
     }
+    EmotionState emotionState =
+        spirit.getEmotionState() != null ? spirit.getEmotionState() : EmotionState.NEUTRAL;
 
     return promptTemplates.buildSpiritPrompt(
         spirit.getMbtiType(),
         fudi.getTribulationStage(),
         spirit.getAffection(),
+        emotionState,
         cellDetail,
         formName != null ? formName : "未知形态",
-        buildEventsInfo());
+        buildEventsInfo(),
+        buildFudiEventsInfo(fudiEvents));
+  }
+
+  /** 最近发生的福地事件（对话懒生成），追加到系统 Prompt 末尾；无事件时返回空串。 */
+  private String buildFudiEventsInfo(List<FudiEventTemplate> fudiEvents) {
+    if (fudiEvents.isEmpty()) {
+      return "";
+    }
+    StringBuilder sb = new StringBuilder("【最近发生的事件】\n");
+    for (FudiEventTemplate event : fudiEvents) {
+      sb.append("- ")
+          .append(event.getName())
+          .append("：")
+          .append(event.getDescription())
+          .append("\n");
+    }
+    return sb.toString();
   }
 
   /** 进行中叙事事件上下文 — 与 ShopChatService 的注入方式一致，仅注入 NARRATIVE 类事件。 */

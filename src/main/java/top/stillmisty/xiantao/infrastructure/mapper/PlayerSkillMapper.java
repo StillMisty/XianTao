@@ -16,8 +16,10 @@ public interface PlayerSkillMapper extends BaseMapper<PlayerSkill> {
    */
   @Update(
       "UPDATE player_skill SET is_equipped = true WHERE id = #{id} "
-          + "AND (SELECT COUNT(*) FROM player_skill "
-          + "WHERE user_id = #{userId} AND is_equipped = true) < #{maxSlots}")
+          + "AND (SELECT COUNT(*) FROM player_skill ps "
+          + "JOIN skill s ON s.id = ps.skill_id "
+          + "WHERE ps.user_id = #{userId} AND ps.is_equipped = true "
+          + "AND s.skill_type = 'ACTIVE') < #{maxSlots}")
   int equipIfSlotAvailable(
       @Param("id") Long id, @Param("userId") Long userId, @Param("maxSlots") int maxSlots);
 }

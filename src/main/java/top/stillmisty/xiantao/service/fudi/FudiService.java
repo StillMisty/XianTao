@@ -14,6 +14,7 @@ import top.stillmisty.xiantao.domain.fudi.entity.FudiCell;
 import top.stillmisty.xiantao.domain.fudi.entity.Spirit;
 import top.stillmisty.xiantao.domain.fudi.entity.SpiritForm;
 import top.stillmisty.xiantao.domain.fudi.enums.CellType;
+import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
 import top.stillmisty.xiantao.domain.fudi.enums.MBTIPersonality;
 import top.stillmisty.xiantao.domain.fudi.vo.*;
 import top.stillmisty.xiantao.domain.item.entity.ItemTemplate;
@@ -136,6 +137,7 @@ public class FudiService {
     spirit.setAffection(0);
     spirit.setAffectionMax(1000);
     spirit.setMbtiType(mbtiType);
+    spirit.setEmotionState(EmotionState.NEUTRAL);
 
     if (!allForms.isEmpty()) {
       SpiritForm randomForm = allForms.get(ThreadLocalRandom.current().nextInt(allForms.size()));
@@ -623,5 +625,19 @@ public class FudiService {
     spirit.addAffection(delta);
     spiritRepository.save(spirit);
     log.info("玩家 {} 地灵好感度变化 {} -> {}", userId, delta, spirit.getAffection());
+  }
+
+  /** 更新地灵情绪状态（LLM updateEmotion 工具入口，手动设置覆盖自动档位与事件状态）。 */
+  @Transactional
+  public void updateSpiritEmotion(Long userId, EmotionState emotionState) {
+    Fudi fudi =
+        findAndTouchFudi(userId).orElseThrow(() -> new BusinessException(ErrorCode.FUDI_NOT_FOUND));
+    Spirit spirit =
+        spiritRepository
+            .findByFudiId(fudi.getId())
+            .orElseThrow(() -> new BusinessException(ErrorCode.SPIRIT_NOT_FOUND));
+    spirit.setEmotionState(emotionState);
+    spiritRepository.save(spirit);
+    log.info("玩家 {} 地灵情绪变更为 {}({})", userId, emotionState.getCode(), emotionState.getChineseName());
   }
 }

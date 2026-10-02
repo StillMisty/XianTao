@@ -430,8 +430,9 @@ AND 战斗未取胜
 
 ### D. 未实现（待办）
 
-- **福地事件系统**：设计意图：地灵有自己的生活，按 ≥4 小时间隔懒生成事件（含修为/灵石/回血/材料小效果），注入对话并由 `SubEventEffectExecutor` 执行；现状：无 `FudiEventGenerator`、无 `fudi_event_template` 表、无事件注入与效果执行，§4 全部为设计参考。
-- **情绪状态机**：设计意图：LLM 通过 `updateEmotion` 维护 9 种情绪并注入 Prompt，天劫胜利/失败/怜悯自动切换；现状：无 `EmotionState`、无 `updateEmotion` 工具、无情绪注入，Prompt 明确「没有固定的情绪状态标签」，当前以好感分档语气 + MBTI 语气风格替代。
+无。
+
+> 已实现（本轮）：情绪状态机（`V1.0.55` 加 `spirit.emotion_state`、9 态枚举、好感自动档位不覆盖事件状态、`updateEmotion` 工具、Prompt 注入、天劫胜/败/怜悯钩子）；福地事件系统（`V1.0.56` 建 `fudi_event_template` + `fudi.last_event_time`、12 条模板、≥4h 条件更新原子门控、权重去重 1~2 条、`SubEventEffectExecutor` 结算、`WORLD_EVENT` 被动通知、对话注入）。
 
 ### E. 缺陷修复
 

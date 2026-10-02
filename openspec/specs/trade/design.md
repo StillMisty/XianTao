@@ -557,9 +557,9 @@ CREATE TABLE shop_special_order (
 无。
 
 ### D. 未实现（待办）
+无。
 
-- **调货机制**：设计意图 = 收 10% 定金 → 固定调货时长 → 补尾款取货 → LLM 告知进度；现状 = `shop_special_order` 表/实体/仓库/错误码齐全，但无任何 Service/Tool/命令调用。
-- **旅行商人临时商铺**：设计意图 = 事件触发、价格 0.5x~3.0x、无 `shop_npc` 数据的临时商铺；现状 = 仅 `NpcType.TRAVELER`、`ChatType.TRAVELER` 与 `travel_curious_merchant` CHOICE 事件，无交易实现。
+> 已实现（本轮）：调货机制（掌柜工具下单/查单/取货/取消；定金 10%、按单价 2~12h 调货、到货惰性转 READY、原子取货扣尾款；未到货取消退定金，到货后不退）；旅行商人临时商铺（`travel_curious_merchant` 选择后开摊 30 分钟，4~6 件商品、单价 = 基础价 × 0.5~3.0，新增「游商」指令走 LLM 对话购买，原子扣款发货）。
 
 ### E. 缺陷修复
 

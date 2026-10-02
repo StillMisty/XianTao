@@ -18,6 +18,9 @@ public sealed interface EffectData {
    * 选项效果数据 — GameEvent.effects 的类型安全表示。
    *
    * <p>JSONB 结构: {@code {"choice": {"options": [{"key":"A","text":"...","effects":[...]}, ...]}}}
+   *
+   * <p>兼容两种来源：GameEvent 的 effects 列（外层带 {@code choice}）与 ActivityEvent 的 params 列（直接是 {@code
+   * {"options": [...]}}）。
    */
   record ChoiceOptions(@JsonProperty("choice") @Nullable ChoiceData choice) implements EffectData {
 
@@ -25,12 +28,24 @@ public sealed interface EffectData {
       return choice != null && choice.options() != null ? choice.options() : List.of();
     }
 
-    /** 从原始 Map 构造 ChoiceOptions（params 中含 choice 键） */
-    @SuppressWarnings("unchecked")
+    /** 兼容 ActivityEvent.params 的直接 options 结构 */
+    private record OptionsParams(@JsonProperty("options") @Nullable List<Option> options) {}
+
+    /** 从原始 Map 构造 ChoiceOptions（兼容 choice.options 与直接 options 两种结构） */
     public static ChoiceOptions fromParamsMap(Map<String, Object> params) {
+      tools.jackson.databind.ObjectMapper mapper = new tools.jackson.databind.ObjectMapper();
       try {
-        tools.jackson.databind.ObjectMapper mapper = new tools.jackson.databind.ObjectMapper();
         String json = mapper.writeValueAsString(params);
+        // ActivityEvent.params 结构：{"options": [...]}
+        try {
+          OptionsParams direct = mapper.readValue(json, OptionsParams.class);
+          if (direct.options() != null && !direct.options().isEmpty()) {
+            return new ChoiceOptions(new ChoiceData(direct.options()));
+          }
+        } catch (Exception ignored) {
+          // 不是直接 options 结构，继续尝试嵌套结构
+        }
+        // GameEvent.effects 结构：{"choice": {"options": [...]}}
         return mapper.readValue(json, ChoiceOptions.class);
       } catch (Exception e) {
         return new ChoiceOptions(null);

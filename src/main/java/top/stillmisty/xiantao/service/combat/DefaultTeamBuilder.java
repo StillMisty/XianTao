@@ -17,6 +17,7 @@ import top.stillmisty.xiantao.domain.pill.entity.PlayerBuff;
 import top.stillmisty.xiantao.domain.skill.entity.PlayerSkill;
 import top.stillmisty.xiantao.domain.skill.entity.Skill;
 import top.stillmisty.xiantao.domain.skill.enums.BindingType;
+import top.stillmisty.xiantao.domain.skill.vo.PassiveSkillBonuses;
 import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.infrastructure.repository.BeastRepository;
 import top.stillmisty.xiantao.infrastructure.repository.EquipmentRepository;
@@ -53,12 +54,16 @@ public class DefaultTeamBuilder implements TeamBuilder {
     List<Equipment> equippedItems = equipmentRepository.findEquippedByUserId(user.getId());
     Equipment weapon = findWeapon(equippedItems);
     double attackSpeed = getWeaponAttackSpeed(weapon);
-    List<Skill> playerSkills = loadEquippedSkills(user.getId(), weapon, options.skillLookup());
+    List<PlayerSkill> playerSkills = playerSkillRepository.findByUserId(user.getId());
+    List<Skill> activeSkills =
+        loadEquippedActiveSkills(playerSkills, weapon, options.skillLookup());
+    PassiveSkillBonuses passiveBonuses = loadPassiveBonuses(playerSkills);
 
     team.addMember(
         new PlayerCombatant(
-                user, weapon, attackSpeed, playerSkills, EquipmentStats.from(equippedItems))
-            .withBuffs(buffs.attack, buffs.defense, buffs.speed));
+                user, weapon, attackSpeed, activeSkills, EquipmentStats.from(equippedItems))
+            .withBuffs(buffs.attack, buffs.defense, buffs.speed)
+            .withPassiveBonuses(passiveBonuses));
 
     List<Beast> beasts =
         options.deployedBeasts() != null
@@ -83,12 +88,10 @@ public class DefaultTeamBuilder implements TeamBuilder {
 
   // ===================== 步骤方法 =====================
 
-  private List<Skill> loadEquippedSkills(
-      Long userId, @Nullable Equipment weapon, Map<Long, Skill> skillLookup) {
+  private List<Skill> loadEquippedActiveSkills(
+      List<PlayerSkill> playerSkills, @Nullable Equipment weapon, Map<Long, Skill> skillLookup) {
     List<Long> equippedSkillIds =
-        playerSkillRepository.findEquippedByUserId(userId).stream()
-            .map(PlayerSkill::getSkillId)
-            .toList();
+        playerSkills.stream().filter(PlayerSkill::isEquipped).map(PlayerSkill::getSkillId).toList();
     if (equippedSkillIds.isEmpty()) return List.of();
 
     List<Skill> skills;
@@ -98,7 +101,18 @@ public class DefaultTeamBuilder implements TeamBuilder {
       skills = equippedSkillIds.stream().map(skillLookup::get).filter(Objects::nonNull).toList();
     }
 
-    return skills.stream().filter(skill -> isSkillCompatibleWithWeapon(skill, weapon)).toList();
+    return skills.stream()
+        .filter(Skill::isActive)
+        .filter(skill -> isSkillCompatibleWithWeapon(skill, weapon))
+        .toList();
+  }
+
+  /** 已习得被动法决恒定生效：不装载、不占槽位，直接聚合成战斗加成。 */
+  private PassiveSkillBonuses loadPassiveBonuses(List<PlayerSkill> playerSkills) {
+    List<Long> learnedSkillIds =
+        playerSkills.stream().map(PlayerSkill::getSkillId).distinct().toList();
+    if (learnedSkillIds.isEmpty()) return PassiveSkillBonuses.NONE;
+    return PassiveSkillBonuses.aggregate(skillRepository.findByIds(learnedSkillIds));
   }
 
   private boolean isSkillCompatibleWithWeapon(Skill skill, @Nullable Equipment weapon) {

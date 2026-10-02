@@ -1,12 +1,15 @@
 package top.stillmisty.xiantao.service.activity;
 
+import java.util.Map;
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
+import top.stillmisty.xiantao.domain.event.EffectData;
 import top.stillmisty.xiantao.domain.event.EventContext;
 import top.stillmisty.xiantao.domain.event.entity.ActivityEvent;
 import top.stillmisty.xiantao.domain.event.entity.HiddenCompletion;
+import top.stillmisty.xiantao.domain.event.enums.EventTypeEnum;
 import top.stillmisty.xiantao.domain.event.vo.FortuneVO;
 import top.stillmisty.xiantao.domain.notification.entity.GameEvent;
 import top.stillmisty.xiantao.domain.notification.enums.GameEventCategory;
@@ -43,6 +46,48 @@ public class ActivitySubEventPipeline {
     return processEvent(selected, userId, user, category, contextFactory);
   }
 
+  /**
+   * 预检可触发的隐藏事件（两阶段隐藏线索的第一阶段）：按配置顺序返回第一条满足前置、未完成且条件匹配的事件。
+   *
+   * <p>仅返回事件本身，不执行效果、不写完成记录；线索写入与领奖发放由调用方负责。
+   */
+  public @Nullable ActivityEvent findTriggerableHiddenEvent(
+      String activityType, Long ownerId, Long userId, Player user) {
+    for (ActivityEvent event : subEventSelector.findHiddenEvents(activityType, ownerId)) {
+      if (!activityEventHelper.checkPrerequisite(userId, event)) continue;
+      boolean alreadyDone =
+          hiddenCompletionRepository.exists(userId, activityType, ownerId, event.getCode());
+      if (alreadyDone) continue;
+      if (!triggerConditionChecker.check(event, userId, user)) continue;
+      return event;
+    }
+    return null;
+  }
+
+  /**
+   * 按线索二段校验并执行指定隐藏事件（两阶段隐藏线索的第二阶段）。
+   *
+   * @return 产出的事件；条件不再满足或该事件已完成时返回 null（不发放隐藏奖励）
+   */
+  public @Nullable GameEvent resolveHiddenEvent(
+      String activityType,
+      Long ownerId,
+      String code,
+      Long userId,
+      Player user,
+      GameEventCategory category,
+      Function<FortuneVO, EventContext> contextFactory) {
+    for (ActivityEvent event : subEventSelector.findHiddenEvents(activityType, ownerId)) {
+      if (!event.getCode().equals(code)) continue;
+      if (hiddenCompletionRepository.exists(userId, activityType, ownerId, code)) return null;
+      if (!triggerConditionChecker.check(event, userId, user)) return null;
+
+      hiddenCompletionRepository.save(HiddenCompletion.create(userId, activityType, ownerId, code));
+      return processEvent(event, userId, user, category, contextFactory);
+    }
+    return null;
+  }
+
   /** 检查并执行隐藏事件 */
   public void checkHiddenEvents(
       String activityType,
@@ -75,6 +120,10 @@ public class ActivitySubEventPipeline {
       Player user,
       GameEventCategory category,
       Function<FortuneVO, EventContext> contextFactory) {
+    // CHOICE 事件不立即结算：把选项写入 game_event.effects，等玩家「选 X」后由 ChoiceService 执行
+    if (event.getEventType() == EventTypeEnum.CHOICE) {
+      return saveChoiceEvent(event, userId, category);
+    }
     var fortune = fortuneService.calculate(userId);
     EventContext context = contextFactory.apply(fortune);
     var templateArgs = effectExecutor.execute(event, userId, user, context);
@@ -90,9 +139,23 @@ public class ActivitySubEventPipeline {
       Player user,
       GameEventCategory category,
       EventContext context) {
+    if (event.getEventType() == EventTypeEnum.CHOICE) {
+      return saveChoiceEvent(event, userId, category);
+    }
     var templateArgs = effectExecutor.execute(event, userId, user, context);
     String narrativeKey = activityEventHelper.resolveNarrativeKey(event.getCode());
     return gameEventService.save(
         GameEvent.create(userId, category).withNarrative(narrativeKey, templateArgs));
+  }
+
+  /** 将 CHOICE 活动事件转为等待玩家抉择的 GameEvent（不立即执行选项效果） */
+  private GameEvent saveChoiceEvent(ActivityEvent event, Long userId, GameEventCategory category) {
+    EffectData.ChoiceOptions choiceData = EffectData.ChoiceOptions.fromParamsMap(event.getParams());
+    String narrativeKey = activityEventHelper.resolveNarrativeKey(event.getCode());
+    return gameEventService.save(
+        GameEvent.create(userId, category)
+            .withNarrative(narrativeKey, Map.of())
+            .withSourceEventCode(event.getCode())
+            .withEffectData(choiceData));
   }
 }

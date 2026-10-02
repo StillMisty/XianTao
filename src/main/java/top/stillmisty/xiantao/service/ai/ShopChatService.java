@@ -14,6 +14,7 @@ import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ServiceResult;
 import top.stillmisty.xiantao.service.player.UserStateService;
 import top.stillmisty.xiantao.service.shop.ShopService;
+import top.stillmisty.xiantao.service.shop.SpecialOrderService;
 
 @Slf4j
 @Service
@@ -21,6 +22,7 @@ public class ShopChatService extends AbstractChatService {
 
   private final ShopService shopService;
   private final ShopTools shopTools;
+  private final SpecialOrderService specialOrderService;
   private final UserStateService userStateService;
   private final WorldEventRepository worldEventRepository;
 
@@ -32,6 +34,7 @@ public class ShopChatService extends AbstractChatService {
       ChatMemory chatMemory,
       ShopService shopService,
       ShopTools shopTools,
+      SpecialOrderService specialOrderService,
       UserStateService userStateService,
       WorldEventRepository worldEventRepository,
       ShopPromptTemplates promptTemplates,
@@ -39,6 +42,7 @@ public class ShopChatService extends AbstractChatService {
     super(shopChatClient, chatMemory);
     this.shopService = shopService;
     this.shopTools = shopTools;
+    this.specialOrderService = specialOrderService;
     this.userStateService = userStateService;
     this.worldEventRepository = worldEventRepository;
     this.promptTemplates = promptTemplates;
@@ -66,12 +70,16 @@ public class ShopChatService extends AbstractChatService {
         user,
         npc,
         activeEvents,
-        () -> callLlm(buildPrompt(npc), userInput, ChatType.SHOP, userId, npc.getId(), shopTools));
+        () ->
+            callLlm(
+                buildPrompt(npc, user), userInput, ChatType.SHOP, userId, npc.getId(), shopTools));
   }
 
-  private String buildPrompt(ShopNpc npc) {
+  private String buildPrompt(ShopNpc npc, Player user) {
     String eventsInfo = buildEventsInfo();
-    return promptTemplates.buildShopPrompt(npc.getName(), npc.getSystemPrompt(), eventsInfo);
+    String ordersInfo = specialOrderService.describeOrdersForPrompt(user.getId(), npc.getId());
+    return promptTemplates.buildShopPrompt(
+        npc.getName(), npc.getSystemPrompt(), eventsInfo, ordersInfo);
   }
 
   private String buildEventsInfo() {

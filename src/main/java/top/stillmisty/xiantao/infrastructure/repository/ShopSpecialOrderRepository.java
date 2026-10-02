@@ -38,6 +38,16 @@ public class ShopSpecialOrderRepository {
             .and(SHOP_SPECIAL_ORDER.STATUS.eq(status)));
   }
 
+  /**
+   * 条件更新订单状态（仅当当前状态等于 from 时生效）。
+   *
+   * @return 影响行数，0 表示订单不存在、不属于该玩家或状态已变化
+   */
+  public int updateStatusIf(
+      Long id, Long playerId, SpecialOrderStatus from, SpecialOrderStatus to) {
+    return shopSpecialOrderMapper.updateStatusIf(id, playerId, from.getCode(), to.getCode());
+  }
+
   public void deleteById(Long id) {
     shopSpecialOrderMapper.deleteById(id);
   }

@@ -1,5 +1,6 @@
 package top.stillmisty.xiantao.service.ai;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
@@ -17,6 +18,7 @@ import top.stillmisty.xiantao.domain.shop.vo.PlayerItemsVO;
 import top.stillmisty.xiantao.domain.shop.vo.ProductListVO;
 import top.stillmisty.xiantao.domain.shop.vo.PurchaseResult;
 import top.stillmisty.xiantao.domain.shop.vo.SellResult;
+import top.stillmisty.xiantao.domain.shop.vo.SpecialOrderVO;
 import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.infrastructure.repository.EquipmentTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
@@ -25,6 +27,7 @@ import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.UserContext;
 import top.stillmisty.xiantao.service.player.UserStateService;
 import top.stillmisty.xiantao.service.shop.ShopService;
+import top.stillmisty.xiantao.service.shop.SpecialOrderService;
 
 @Slf4j
 @Service
@@ -33,6 +36,7 @@ public class ShopTools {
 
   private final ToolExecutor toolExecutor;
   private final ShopService shopService;
+  private final SpecialOrderService specialOrderService;
   private final ItemTemplateRepository itemTemplateRepository;
   private final EquipmentTemplateRepository equipmentTemplateRepository;
   private final UserStateService userStateService;
@@ -336,6 +340,71 @@ public class ShopTools {
           }
 
           return shopService.purchaseEquipmentInternal(userId, resolved.npc(), template.getId());
+        });
+  }
+
+  // ===================== 调货工具 =====================
+
+  /**
+   * 调货下单：本店无货或售罄的物品可由掌柜向总号调货。
+   *
+   * <p>收总价 10% 定金；调货时长按单价分档 2~12 小时；到货后客人补尾款取货。
+   *
+   * @param templateName 物品名称（与物品名录中的名称一致）
+   * @param quantity 调货件数，默认 1
+   */
+  @Tool(description = "为客人调货：本店无货或售罄的物品可付总价10%定金下单，约定时辰到货后补尾款取货")
+  @Transactional
+  public SpecialOrderVO orderItem(
+      @ToolParam(description = "物品名称，必须与物品名录中的名称一致") String templateName,
+      @ToolParam(description = "调货件数，通常为1") int quantity) {
+    return toolExecutor.execute(
+        "orderItem",
+        () -> {
+          Long userId = UserContext.requireCurrentUserId();
+          UserAndNpc resolved = resolveUserAndNpc();
+          var template =
+              itemTemplateRepository
+                  .findByName(templateName)
+                  .orElseThrow(() -> new BusinessException(ErrorCode.ITEM_NOT_EXISTS));
+          return specialOrderService.placeOrder(
+              userId, resolved.npc(), template.getId(), quantity <= 0 ? 1 : quantity);
+        });
+  }
+
+  /** 查询客人全部调货订单：状态、预计到货时间、需补尾款 */
+  @Tool(description = "查询客人全部调货订单的进度（调货中/已到货/已取货/已取消）与需补的尾款")
+  public List<SpecialOrderVO> checkSpecialOrders() {
+    return toolExecutor.execute(
+        "checkSpecialOrders",
+        () -> specialOrderService.listOrders(UserContext.requireCurrentUserId()));
+  }
+
+  /** 补尾款取货：仅对已到货订单有效 */
+  @Tool(description = "为客人办理调货取货：仅对已到货(READY)的订单有效，扣尾款后物品入包")
+  @Transactional
+  public SpecialOrderVO collectSpecialOrder(
+      @ToolParam(description = "调货订单编号，从 checkSpecialOrders 获取") long orderId) {
+    return toolExecutor.execute(
+        "collectSpecialOrder",
+        () -> {
+          Long userId = UserContext.requireCurrentUserId();
+          UserAndNpc resolved = resolveUserAndNpc();
+          return specialOrderService.collectOrder(userId, resolved.npc(), orderId);
+        });
+  }
+
+  /** 取消订单：未到货退定金，已到货定金不退 */
+  @Tool(description = "取消客人的调货订单：未到货(PENDING)全额退还定金，已到货(READY)定金不退")
+  @Transactional
+  public SpecialOrderVO cancelSpecialOrder(
+      @ToolParam(description = "调货订单编号，从 checkSpecialOrders 获取") long orderId) {
+    return toolExecutor.execute(
+        "cancelSpecialOrder",
+        () -> {
+          Long userId = UserContext.requireCurrentUserId();
+          UserAndNpc resolved = resolveUserAndNpc();
+          return specialOrderService.cancelOrder(userId, resolved.npc(), orderId);
         });
   }
 

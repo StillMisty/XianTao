@@ -25,6 +25,7 @@ public class DungeonProgressHelper {
   private final UserStateService userStateService;
   private final SpiritStoneService spiritStoneService;
   private final DungeonInstanceManager instanceManager;
+  private final DungeonEventCompleter dungeonEventCompleter;
 
   @Transactional
   public String completeDungeon(Long userId, DungeonInstance instance) {
@@ -76,6 +77,8 @@ public class DungeonProgressHelper {
       rewardGiven = true;
     }
     progressRepository.save(progress);
+
+    dungeonEventCompleter.produceCompleteEvent(userId, dungeon.getName());
 
     StringBuilder sb = new StringBuilder();
     sb.append("恭喜！你成功通关了【").append(dungeon.getName()).append("】！\n");

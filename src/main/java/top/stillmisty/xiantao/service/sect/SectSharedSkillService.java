@@ -206,6 +206,8 @@ public class SectSharedSkillService {
       throw new BusinessException(ErrorCode.SECT_SKILL_ALREADY_LEARNED, skill.getName());
     }
 
+    validatePrecursor(userId, skill);
+
     var user = userStateService.loadUser(userId);
     if (skill.getLevelRequirement() != null && user.getLevel() < skill.getLevelRequirement()) {
       throw new BusinessException(
@@ -233,6 +235,20 @@ public class SectSharedSkillService {
 
     log.info("玩家 {} 从宗门 {} 学习共享功法 {}", userId, requireSectId(member), skill.getName());
     return new LearnSkillResultVO(skill.getName(), cost, member.getContribution() - cost);
+  }
+
+  /** 法决树前置：未修习前置法决时拒绝习得，并提示前置法决名。 */
+  private void validatePrecursor(Long userId, Skill skill) {
+    Long precursorId = skill.getRequireSkillId();
+    if (precursorId == null) return;
+    if (playerSkillRepository.findByUserIdAndSkillId(userId, precursorId).isPresent()) return;
+
+    String precursorName =
+        skillRepository
+            .findById(precursorId)
+            .map(Skill::getName)
+            .orElse(String.valueOf(precursorId));
+    throw new BusinessException(ErrorCode.SKILL_REQUIREMENT_NOT_MET, precursorName);
   }
 
   /** 传功香火：弟子学习他人呈献的功法时，学费的一部分回流给呈献者，并通知之。 呈献者已离宗或学习者即呈献者本人时不回流。 */

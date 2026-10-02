@@ -37,7 +37,7 @@ public class UserBounty {
   @Column(typeHandler = BountyRewardListTypeHandler.class)
   private List<BountyRewardItem> rewards;
 
-  /** 隐藏事件线索 JSONB {code: "FIRE_LING_MINE", hint_key: "bounty.hidden.fire_ling_mine"} */
+  /** 隐藏事件线索 JSONB {code: "...", hint_key: "bounty.hidden.<code>", hint: "..."}，接取时写入、领奖时二段校验 */
   @Column(typeHandler = JsonbTypeHandler.class)
   private Map<String, Object> hiddenClues;
 

@@ -40,6 +40,7 @@ public class DungeonService {
   private final DungeonInstanceManager instanceManager;
   private final DungeonStateBuilder stateBuilder;
   private final UserRepository userRepository;
+  private final DungeonEventCompleter dungeonEventCompleter;
 
   /** 定时关闭超时秘境实例并解除玩家秘境状态，防止被部分唯一索引锁死 */
   @Scheduled(fixedRate = 15 * 60 * 1000, zone = "Asia/Shanghai")
@@ -128,6 +129,8 @@ public class DungeonService {
     log.info("玩家 {} 进入了秘境 {}", userId, dungeonName);
 
     var area = dungeon.getAreaConfigs().get(0);
+    dungeonEventCompleter.produceEnterEvent(userId, dungeon.getName(), area.name());
+
     StringBuilder sb = new StringBuilder();
     sb.append("你踏入了【").append(dungeon.getName()).append("】—").append(area.name()).append("\n");
     sb.append(area.description()).append("\n");

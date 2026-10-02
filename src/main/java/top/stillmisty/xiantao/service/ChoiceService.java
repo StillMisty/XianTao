@@ -11,6 +11,7 @@ import top.stillmisty.xiantao.domain.notification.entity.GameEvent;
 import top.stillmisty.xiantao.domain.user.entity.Player;
 import top.stillmisty.xiantao.service.activity.SubEventEffectExecutor;
 import top.stillmisty.xiantao.service.player.UserStateService;
+import top.stillmisty.xiantao.service.shop.TravelerShopService;
 
 @Slf4j
 @Service
@@ -20,6 +21,7 @@ public class ChoiceService {
   private final GameEventService gameEventService;
   private final SubEventEffectExecutor effectExecutor;
   private final UserStateService userStateService;
+  private final TravelerShopService travelerShopService;
 
   @Transactional
   public ServiceResult<String> handleChoice(Long userId, String choiceText) {
@@ -72,7 +74,22 @@ public class ChoiceService {
     gameEventService.markDelivered(List.of(choiceEvent.getId()));
 
     String optionText = selectedOption.text();
-    return "你选择了【" + key + "】" + optionText + "。\n" + formatEffectResults(templateArgs);
+    StringBuilder reply =
+        new StringBuilder("你选择了【")
+            .append(key)
+            .append("】")
+            .append(optionText)
+            .append("。\n")
+            .append(formatEffectResults(templateArgs));
+
+    // 旅行商人：选择任一选项后他就在原地开摊，可用「游商」继续交易
+    if (TravelerShopService.TRAVEL_MERCHANT_EVENT_CODE.equals(choiceEvent.sourceEventCode())) {
+      var session = travelerShopService.openSession(userId);
+      if (session != null) {
+        reply.append("\n").append(TravelerShopService.sessionHint());
+      }
+    }
+    return reply.toString();
   }
 
   private Map<String, Object> executeOptionEffects(

@@ -371,9 +371,9 @@ flowchart TD
 
 ### D. 未实现（待办）
 
-- **地灵事件集成**：设计意图 = `fudi_event_template` 模板池 + 对话触发 + `applyFudiEventEffects` 接入 SubEventEffect 管线；现状 = 表与相关类均不存在，`SpiritChatService` 未接入（见 `spirit-chat` 的福地事件系统）。
+无。
 
-> 已实现（本轮）：REGIONAL 事件按 `valid_region_tags` 匹配地图并写 `region_map_node_id`；环境效果与「世界事件」列表按玩家所在地过滤（全局 + 当地）；NARRATIVE 事件注入地灵对话。
+> 已实现（本轮）：REGIONAL 事件按 `valid_region_tags` 匹配地图并写 `region_map_node_id`，环境效果与列表按所在地过滤；NARRATIVE 注入地灵对话；地灵事件集成由 `spirit-chat` 的福地事件系统承接（`fudi_event_template` + 地灵对话触发 + 效果管线 + 被动通知）。
 
 ### E. 缺陷修复
 

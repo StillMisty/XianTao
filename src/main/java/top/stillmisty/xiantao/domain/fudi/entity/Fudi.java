@@ -42,6 +42,9 @@ public class Fudi {
   /** 天劫连续胜利次数 */
   private Integer tribulationWinStreak;
 
+  /** 上次福地事件生成时间（地灵对话懒生成节流，至少间隔 4 小时） */
+  @Nullable private LocalDateTime lastEventTime;
+
   @Column(onInsertValue = "now()")
   private LocalDateTime createTime;
 
@@ -53,5 +56,10 @@ public class Fudi {
   /** 更新在线时间 */
   public void touchOnlineTime() {
     lastOnlineTime = TimeUtil.now();
+  }
+
+  /** 记录本次福地事件生成时间（与条件 UPDATE 的占用共同构成懒生成节流） */
+  public void touchEventTime() {
+    lastEventTime = TimeUtil.now();
   }
 }

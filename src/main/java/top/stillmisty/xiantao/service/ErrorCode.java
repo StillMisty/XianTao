@@ -126,9 +126,16 @@ public enum ErrorCode {
   SHOP_PRODUCT_OUT_OF_STOCK("商品已售罄"),
   SHOP_PRODUCT_PRICE_CHANGED("商品价格已变动，请重新查看"),
   SHOP_SPECIAL_ORDER_NOT_FOUND("未找到调货订单"),
-  SHOP_SPECIAL_ORDER_NOT_READY("调货尚未到货（还需等待）"),
+  SHOP_SPECIAL_ORDER_NOT_READY("调货尚未到货（还需等待约 %s）"),
   SHOP_SPECIAL_ORDER_ALREADY_COLLECTED("该调货订单已取货"),
+  SHOP_SPECIAL_ORDER_CANCELLED("该调货订单已取消"),
   SHOP_SPIRIT_STONES_INSUFFICIENT("灵石不足（需要 %d，当前 %d）"),
+
+  // ===== Traveler =====
+  TRAVELER_NOT_FOUND("此地没有旅行商人"),
+  TRAVELER_GOODS_NOT_FOUND("旅行商人的货摊上没有「%s」"),
+  TRAVELER_STOCK_INSUFFICIENT("旅行商人的货不够了（需要 %d，仅剩 %d）"),
+  TRAVELER_GOODS_AMBIGUOUS("货摊上有多个相近的货物：%s，请使用完整名称"),
   EQUIPMENT_NOT_FOUND("未找到该装备"),
   EQUIPMENT_MULTIPLE_MATCH("找到多件装备，请使用更精确的名称或编号：\n%s"),
   EQUIPMENT_NOT_OWNED("该装备不属于您"),
@@ -158,6 +165,9 @@ public enum ErrorCode {
   DUNGEON_STATUS_BLOCKED("你当前处于 %s 状态，无法进入秘境"),
   DUNGEON_COMBAT_LOST("战斗失败！你的队伍被击败了"),
   DUNGEON_INSTANCE_EXPIRED("秘境已超时关闭"),
+
+  // ===== Skill =====
+  SKILL_REQUIREMENT_NOT_MET("需要先修习「%s」"),
 
   // ===== Sect =====
   SECT_NOT_FOUND("宗门不存在"),

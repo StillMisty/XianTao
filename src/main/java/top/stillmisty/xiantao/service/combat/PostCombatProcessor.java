@@ -32,7 +32,8 @@ public class PostCombatProcessor {
         if (c.getHp() <= 0) {
           user.setDying(TimeUtil.now());
         } else {
-          user.setHpCurrent(c.getHp());
+          // 被动法决可能提高战斗内气血上限，写回时以基础上限截断
+          user.setHpCurrent(Math.min(user.calculateMaxHp(), c.getHp()));
         }
         break;
       }

@@ -79,7 +79,7 @@ public class SectCommandHandler implements CommandGroup {
       sb.append(fmt.listItem("公告：" + vo.notice()));
     }
     if (vo.currentEvent() != null && !vo.currentEvent().isBlank()) {
-      sb.append(fmt.listItem("当前事件：" + vo.currentEvent()));
+      sb.append(fmt.listItem("最近大事：" + vo.currentEvent()));
     }
     sb.append(fmt.separator());
     sb.append(fmt.heading("成员列表"));
@@ -115,7 +115,7 @@ public class SectCommandHandler implements CommandGroup {
   @Override
   public List<CommandEntry> commands() {
     return List.of(
-        new CommandEntry("宗门", "查看宗门总览（名称、品阶、成员、资金、公告、事件）", "宗门"),
+        new CommandEntry("宗门", "查看宗门总览（名称、品阶、成员、资金、公告、最近大事）", "宗门"),
         new CommandEntry("宗门创建 「名称」 「道统描述?」", "创建宗门（金丹期+5000灵石）", "宗门创建 青云宗 以剑入道"),
         new CommandEntry("宗灵 「内容」", "与宗灵对话，执行所有宗门事务", "宗灵 我想捐献灵石"),
         new CommandEntry("宗门退出", "退出宗门（贡献清零，遗忘共享功法，24h冷却）", "宗门退出"),

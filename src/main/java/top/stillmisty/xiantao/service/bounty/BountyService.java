@@ -34,9 +34,11 @@ import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.MapNodeRepository;
 import top.stillmisty.xiantao.infrastructure.repository.UserBountyRepository;
 import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
+import top.stillmisty.xiantao.infrastructure.util.TypeUtils;
 import top.stillmisty.xiantao.infrastructure.util.WeightedRandom;
 import top.stillmisty.xiantao.service.BusinessException;
 import top.stillmisty.xiantao.service.ServiceResult;
+import top.stillmisty.xiantao.service.activity.BountyCompleter;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
 /** 悬赏服务 */
@@ -52,6 +54,7 @@ public class BountyService {
   private final ItemTemplateRepository itemTemplateRepository;
   private final EquipmentTemplateRepository equipmentTemplateRepository;
   private final BountyCombatService bountyCombatService;
+  private final BountyCompleter bountyCompleter;
 
   // 事务/缓存注解必须放在外部调用的 public 方法上，标注在 Internal 方法会因自调用绕过代理而失效
   @Cacheable(cacheNames = "bounties", key = "#userId")
@@ -218,6 +221,9 @@ public class BountyService {
     Random rng = new Random(seed);
     List<BountyRewardItem> predeterminedRewards = determineRewards(bounty, mapNode, rng);
 
+    // 两阶段隐藏事件第一阶段：条件匹配则记录线索，领奖时按线索二段校验发放
+    Map<String, Object> hiddenClues = bountyCompleter.prepareHiddenClue(userId, user, bountyId);
+
     UserBounty record = new UserBounty();
     record.setUserId(userId);
     record.setBountyId(bountyId);
@@ -226,21 +232,28 @@ public class BountyService {
     record.setDurationMinutes(bounty.getDurationMinutes());
     record.setRewards(predeterminedRewards);
     record.setStatus(BountyStatus.ACTIVE);
-    record.setHiddenClues(Map.of()); // hidden clues checked at start
+    record.setHiddenClues(hiddenClues);
     userBountyRepository.save(record);
 
     user.beginActivity(ActivityType.BOUNTY, UserStatus.BOUNTY, TimeUtil.now(), record.getId());
     userStateService.saveActivity(user);
 
     log.info(
-        "玩家 {} 接取悬赏: {} (ID={}, 耗时{}分, 预存物品数={})",
+        "玩家 {} 接取悬赏: {} (ID={}, 耗时{}分, 预存物品数={}, 隐藏线索={})",
         userId,
         bounty.getName(),
         bountyId,
         bounty.getDurationMinutes(),
-        predeterminedRewards.size());
+        predeterminedRewards.size(),
+        hiddenClues.get("code"));
 
-    return String.format("已接取悬赏「%s」，预计 %d 分钟后完成。", bounty.getName(), bounty.getDurationMinutes());
+    String message =
+        String.format("已接取悬赏「%s」，预计 %d 分钟后完成。", bounty.getName(), bounty.getDurationMinutes());
+    String hint = TypeUtils.getString(hiddenClues, "hint");
+    if (hint != null && !hint.isBlank()) {
+      message += "\n发布人似乎话里有话：" + hint;
+    }
+    return message;
   }
 
   public BountyRewardVO completeBountyInternal(Long userId) {

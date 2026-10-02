@@ -56,6 +56,7 @@ public class SectMemberService {
   private final SectIdentityGenerator sectIdentityGenerator;
   private final SpiritStoneService spiritStoneService;
   private final SectLedger sectLedger;
+  private final SectEventGenerator sectEventGenerator;
   private final TransactionTemplate transactionTemplate;
 
   // ===================== 公开 API =====================
@@ -150,6 +151,7 @@ public class SectMemberService {
         sectRepository
             .findById(requireSectId(member))
             .orElseThrow(() -> new BusinessException(ErrorCode.SECT_NOT_FOUND));
+    sectEventGenerator.ensureEvent(sect);
     Player leader = playerLoader.loadReadOnly(sect.getLeaderId());
     List<SectMember> members = sectMemberRepository.findBySectId(sect.getId());
 

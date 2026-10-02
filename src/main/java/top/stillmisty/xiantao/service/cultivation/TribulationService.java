@@ -11,6 +11,7 @@ import top.stillmisty.xiantao.domain.fudi.entity.Fudi;
 import top.stillmisty.xiantao.domain.fudi.entity.FudiCell;
 import top.stillmisty.xiantao.domain.fudi.entity.Spirit;
 import top.stillmisty.xiantao.domain.fudi.enums.CellType;
+import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
 import top.stillmisty.xiantao.domain.monster.CombatTeam;
 import top.stillmisty.xiantao.domain.monster.TribulationBoss;
 import top.stillmisty.xiantao.domain.monster.vo.BattleResultVO;
@@ -134,6 +135,8 @@ public class TribulationService {
     int oldAffection = spirit != null ? spirit.getAffection() : 0;
     if (spirit != null) {
       spirit.addAffection(5);
+      // 事件情绪：击退天劫后地灵兴奋难平（覆盖好感自动档位）
+      spirit.setEmotionState(EmotionState.EXCITED);
       spiritRepository.save(spirit);
     }
 
@@ -156,6 +159,8 @@ public class TribulationService {
     TribulationProgress p = advanceTribulation(fudi);
 
     if (spirit != null) {
+      // 事件情绪：燃烧灵体挡劫后陷入虚弱
+      spirit.setEmotionState(EmotionState.EXHAUSTED);
       spiritRepository.save(spirit);
     }
 
@@ -206,6 +211,8 @@ public class TribulationService {
     int oldAffection = spirit != null ? spirit.getAffection() : 0;
     if (spirit != null) {
       spirit.addAffection(-clearCount);
+      // 事件情绪：渡劫失败后地灵余怒难平
+      spirit.setEmotionState(EmotionState.ANGRY);
       spiritRepository.save(spirit);
     }
 

@@ -2,6 +2,7 @@ package top.stillmisty.xiantao.service.skill;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import top.stillmisty.xiantao.domain.item.entity.StackableItem;
 import top.stillmisty.xiantao.domain.item.enums.ItemType;
 import top.stillmisty.xiantao.domain.skill.entity.PlayerSkill;
 import top.stillmisty.xiantao.domain.skill.entity.Skill;
+import top.stillmisty.xiantao.domain.skill.enums.SkillType;
 import top.stillmisty.xiantao.domain.skill.vo.SkillSlotResult;
 import top.stillmisty.xiantao.domain.skill.vo.SkillVO;
 import top.stillmisty.xiantao.domain.user.enums.CultivationRealm;
@@ -23,6 +25,7 @@ import top.stillmisty.xiantao.infrastructure.repository.ItemTemplateRepository;
 import top.stillmisty.xiantao.infrastructure.repository.PlayerSkillRepository;
 import top.stillmisty.xiantao.infrastructure.repository.SkillRepository;
 import top.stillmisty.xiantao.infrastructure.repository.StackableItemRepository;
+import top.stillmisty.xiantao.service.ErrorCode;
 import top.stillmisty.xiantao.service.inventory.StackableItemService;
 import top.stillmisty.xiantao.service.player.UserStateService;
 
@@ -74,9 +77,10 @@ public class SkillService {
 
     log.info("学习法决成功: userId={}, skillId={}, skillName={}", userId, skill.getId(), skill.getName());
 
+    String passiveNote = skill.isPassive() ? "（被动法决，习得即生效，不占法决槽位）" : "";
     return SkillSlotResult.builder()
         .success(true)
-        .message("你成功学会了「" + skill.getName() + "」！")
+        .message("你成功学会了「" + skill.getName() + "」！" + passiveNote)
         .skill(toSkillVO(playerSkill, skill))
         .build();
   }
@@ -125,7 +129,27 @@ public class SkillService {
                   CultivationRealm.realmDisplay(user.getLevel())))
           .build();
     }
-    return null;
+
+    return validatePrecursor(userId, skill);
+  }
+
+  /** 法决树前置：未修习前置法决时拒绝学习，并提示前置法决名。 */
+  @Nullable
+  private SkillSlotResult validatePrecursor(Long userId, Skill skill) {
+    Long precursorId = skill.getRequireSkillId();
+    if (precursorId == null) return null;
+    if (playerSkillRepository.findByUserIdAndSkillId(userId, precursorId).isPresent()) return null;
+
+    String precursorName =
+        skillRepository
+            .findById(precursorId)
+            .map(Skill::getName)
+            .orElse(String.valueOf(precursorId));
+    String requirement = ErrorCode.SKILL_REQUIREMENT_NOT_MET.format(precursorName);
+    return SkillSlotResult.builder()
+        .success(false)
+        .message("学习「" + skill.getName() + "」前，" + requirement)
+        .build();
   }
 
   private void consumeJade(StackableItem matchedJade, Long userId, Long skillId) {
@@ -144,17 +168,16 @@ public class SkillService {
 
   @Cacheable(cacheNames = "player_skills", key = "'equipped:' + #userId")
   public List<SkillVO> getEquippedSkills(Long userId) {
-    return toSkillVOList(playerSkillRepository.findEquippedByUserId(userId));
+    // 被动法决习得即生效、不占槽位，不属于装载列表
+    return toSkillVOList(playerSkillRepository.findEquippedByUserId(userId)).stream()
+        .filter(skill -> !skill.isPassive())
+        .toList();
   }
 
   private List<SkillVO> toSkillVOList(List<PlayerSkill> playerSkills) {
     if (playerSkills.isEmpty()) return List.of();
 
-    var skillIds = playerSkills.stream().map(PlayerSkill::getSkillId).toList();
-    var skillMap =
-        skillRepository.findByIds(skillIds).stream()
-            .collect(Collectors.toMap(Skill::getId, s -> s));
-
+    var skillMap = loadSkillMap(playerSkills);
     return playerSkills.stream()
         .map(ps -> toSkillVO(ps, skillMap.get(ps.getSkillId())))
         .filter(Objects::nonNull)
@@ -171,7 +194,8 @@ public class SkillService {
     }
 
     // 2. 解析要去装载的法决
-    var matched = resolvePlayerSkill(playerSkills, skillInput);
+    var skillMap = loadSkillMap(playerSkills);
+    var matched = resolvePlayerSkill(playerSkills, skillInput, skillMap);
     if (matched == null) {
       return SkillSlotResult.builder()
           .success(false)
@@ -179,19 +203,35 @@ public class SkillService {
           .build();
     }
 
-    // 3. 检查是否已装载
-    if (matched.isEquipped()) {
-      var skill = skillRepository.findById(matched.getSkillId()).orElse(null);
+    var skill = skillMap.get(matched.getSkillId());
+    if (skill == null) {
+      return SkillSlotResult.builder().success(false).message("法决数据异常").build();
+    }
+
+    // 3. 被动法决习得即生效，不进入槽位
+    if (skill.isPassive()) {
       return SkillSlotResult.builder()
           .success(false)
-          .message("「" + (skill != null ? skill.getName() : matched.getSkillId()) + "」已经在槽位中")
+          .message("「" + skill.getName() + "」为被动法决，习得即生效，无需装载")
           .build();
     }
 
-    // 4. 检查槽位
+    // 4. 检查是否已装载
+    if (matched.isEquipped()) {
+      return SkillSlotResult.builder()
+          .success(false)
+          .message("「" + skill.getName() + "」已经在槽位中")
+          .build();
+    }
+
+    // 5. 检查槽位（被动法决不占槽位，仅统计主动法决）
     var user = userStateService.loadUser(userId);
     int maxSlots = calculateMaxSlots(user.getLevel());
-    long equippedCount = playerSkills.stream().filter(PlayerSkill::isEquipped).count();
+    long equippedCount =
+        playerSkills.stream()
+            .filter(PlayerSkill::isEquipped)
+            .filter(ps -> isActiveSkill(ps, skillMap))
+            .count();
     if (equippedCount >= maxSlots) {
       return SkillSlotResult.builder()
           .success(false)
@@ -201,7 +241,7 @@ public class SkillService {
           .build();
     }
 
-    // 5. 原子条件装载，防止并发装载超额
+    // 6. 原子条件装载，防止并发装载超额
     if (playerSkillRepository.equipIfSlotAvailable(matched.getId(), userId, maxSlots) == 0) {
       return SkillSlotResult.builder()
           .success(false)
@@ -212,11 +252,6 @@ public class SkillService {
     }
     matched.equip();
 
-    var skill = skillRepository.findById(matched.getSkillId()).orElse(null);
-    if (skill == null) {
-      return SkillSlotResult.builder().success(false).message("法决数据异常").build();
-    }
-
     log.debug("装载法决: userId={}, skillId={}, skillName={}", userId, skill.getId(), skill.getName());
 
     return SkillSlotResult.builder()
@@ -226,6 +261,11 @@ public class SkillService {
         .equippedCount((int) equippedCount + 1)
         .maxSlots(maxSlots)
         .build();
+  }
+
+  private boolean isActiveSkill(PlayerSkill playerSkill, Map<Long, Skill> skillMap) {
+    Skill skill = skillMap.get(playerSkill.getSkillId());
+    return skill == null || !skill.isPassive();
   }
 
   @Transactional
@@ -278,6 +318,8 @@ public class SkillService {
         skill.getName(),
         skill.getDescription() != null ? skill.getDescription() : "",
         skill.getEffects(),
+        skill.getSkillType() != null ? skill.getSkillType().getCode() : SkillType.ACTIVE.getCode(),
+        skill.getSkillType() != null ? skill.getSkillType().getName() : SkillType.ACTIVE.getName(),
         skill.getBindingType() != null ? skill.getBindingType().getCode() : "NONE",
         skill.getBindingType() != null ? skill.getBindingType().getName() : "无",
         skill.getBindingValue() != null ? skill.getBindingValue() : "",
@@ -301,10 +343,12 @@ public class SkillService {
 
   @Nullable
   private PlayerSkill resolvePlayerSkill(List<PlayerSkill> playerSkills, String input) {
-    var skillIds = playerSkills.stream().map(PlayerSkill::getSkillId).toList();
-    var skillMap =
-        skillRepository.findByIds(skillIds).stream()
-            .collect(Collectors.toMap(Skill::getId, s -> s));
+    return resolvePlayerSkill(playerSkills, input, loadSkillMap(playerSkills));
+  }
+
+  @Nullable
+  private PlayerSkill resolvePlayerSkill(
+      List<PlayerSkill> playerSkills, String input, Map<Long, Skill> skillMap) {
     return resolveByIndexOrName(
         playerSkills,
         input,
@@ -312,6 +356,12 @@ public class SkillService {
           var skill = skillMap.get(ps.getSkillId());
           return skill != null ? skill.getName() : "";
         });
+  }
+
+  private Map<Long, Skill> loadSkillMap(List<PlayerSkill> playerSkills) {
+    var skillIds = playerSkills.stream().map(PlayerSkill::getSkillId).distinct().toList();
+    return skillRepository.findByIds(skillIds).stream()
+        .collect(Collectors.toMap(Skill::getId, s -> s));
   }
 
   /** 按编号→精确名称→模糊名称三级解析 */

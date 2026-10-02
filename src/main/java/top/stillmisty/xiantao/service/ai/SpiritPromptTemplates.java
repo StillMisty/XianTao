@@ -1,6 +1,7 @@
 package top.stillmisty.xiantao.service.ai;
 
 import org.springframework.stereotype.Component;
+import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
 import top.stillmisty.xiantao.domain.fudi.enums.MBTIPersonality;
 
 @Component
@@ -10,9 +11,11 @@ public class SpiritPromptTemplates {
       MBTIPersonality mbtiType,
       int fudiLevel,
       int spiritAffection,
+      EmotionState emotionState,
       String cellDetail,
       String spiritForm,
-      String eventsInfo) {
+      String eventsInfo,
+      String fudiEventsInfo) {
     String cellInfo =
         (cellDetail == null || cellDetail.isBlank()) ? "福地尚处于初生阶段，暂无灵田/兽栏，所有地块均可支配。" : cellDetail;
 
@@ -38,6 +41,7 @@ public class SpiritPromptTemplates {
         当前形态：%s
         语气风格：%s
         好感度：%d → %s
+        当前情绪：%s —— %s
 
         【福地状态】
         - 劫数：%d
@@ -57,7 +61,9 @@ public class SpiritPromptTemplates {
         - 严格保持语气风格中描述的人格特点
         - 根据好感度调整对话态度：高好感亲密温暖，低好感冷淡疏远
         - 好感度极低时可能拒绝执行操作或故意执行有误
-        - 你的情绪表达通过对话语气自然体现，没有固定的情绪状态标签
+        - 对话语气应符合当前情绪，也可随对话发展用仙术调整情绪状态
+
+        %s
 
         %s
         """
@@ -67,9 +73,12 @@ public class SpiritPromptTemplates {
             mbtiType.getToneStyle(),
             spiritAffection,
             affectionTone,
+            emotionState.getChineseName(),
+            emotionState.getToneHint(),
             fudiLevel,
             spiritAffection,
             cellInfo,
-            eventsInfo != null ? eventsInfo : "");
+            eventsInfo != null ? eventsInfo : "",
+            fudiEventsInfo != null ? fudiEventsInfo : "");
   }
 }

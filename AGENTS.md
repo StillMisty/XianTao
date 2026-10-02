@@ -11,7 +11,7 @@ QQ 群文字修仙 MUD（常驻机器人，非 Web 服务）。Java 27 · Spring
 ./gradlew spotlessApply              # google-java-format Java + db/migration/*.sql
 ./gradlew installGitHooks            # clone 后执行一次：安装 pre-commit hook（自动格式化暂存的 .java）
 python3 tools/e2e/e2e.py             # 本地端到端自测（假 QQ 平台 + 独立测试库，见 tools/e2e/README.md）
-python3 tools/e2e/commands.py        # 全部 72 条指令可用性巡检
+python3 tools/e2e/commands.py        # 全部 73 条指令可用性巡检
 ```
 
 ## Gotchas

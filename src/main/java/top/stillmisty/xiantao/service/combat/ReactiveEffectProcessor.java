@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import top.stillmisty.xiantao.domain.monster.BuffManager;
 import top.stillmisty.xiantao.domain.monster.Combatant;
+import top.stillmisty.xiantao.domain.monster.PlayerCombatant;
 import top.stillmisty.xiantao.domain.monster.enums.BuffType;
 
 /** 受击反应层 — 冰冻易伤、闪避、反伤、反击等防御侧规则的唯一归属，供战斗引擎在伤害落地时调用。 */
@@ -35,8 +36,18 @@ public class ReactiveEffectProcessor {
       damage = (int) (damage * FROZEN_VULNERABILITY);
     }
 
-    // 闪避判定：闪避成功则本次攻击完全落空
-    if (ThreadLocalRandom.current().nextDouble() < buffManager.getDodgeChance(defender.getId())) {
+    // 被动抗性（RESIST_BUFF）：按比例削减所受伤害，上限 90%
+    if (defender instanceof PlayerCombatant player && player.getPassiveResistPercent() > 0) {
+      double resist = Math.min(0.9, player.getPassiveResistPercent());
+      damage = Math.max(1, (int) Math.round(damage * (1 - resist)));
+    }
+
+    // 闪避判定：闪避成功则本次攻击完全落空（被动法决闪避与战斗增益叠加）
+    double dodgeChance = buffManager.getDodgeChance(defender.getId());
+    if (defender instanceof PlayerCombatant player) {
+      dodgeChance = Math.min(1.0, dodgeChance + player.getPassiveDodgePercent());
+    }
+    if (ThreadLocalRandom.current().nextDouble() < dodgeChance) {
       return new AppliedDamage(0, true);
     }
 
@@ -64,7 +75,10 @@ public class ReactiveEffectProcessor {
         && ThreadLocalRandom.current().nextDouble()
             < buffManager.getCounterChance(defender.getId())) {
       int counterDamage =
-          Math.max(1, damageCalculator.calculateNormalDamage(defender, attacker, buffManager));
+          Math.max(
+              1,
+              damageCalculator.calculateNormalDamage(
+                  /* attacker= */ defender, /* defender= */ attacker, buffManager));
       attacker.takeDamage(counterDamage);
     }
   }

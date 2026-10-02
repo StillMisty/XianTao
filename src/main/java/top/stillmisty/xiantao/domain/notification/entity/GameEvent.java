@@ -26,6 +26,9 @@ import top.stillmisty.xiantao.infrastructure.util.TimeUtil;
 @NoArgsConstructor
 public class GameEvent {
 
+  /** 隐藏元数据键：来源活动事件 code（仅程序读取，不参与叙事渲染） */
+  public static final String SOURCE_EVENT_CODE_KEY = "source_event_code";
+
   @EqualsAndHashCode.Include
   @Id(keyType = KeyType.Auto)
   private Long id;
@@ -67,6 +70,22 @@ public class GameEvent {
   public GameEvent withEffectData(@Nullable EffectData effectData) {
     this.effectData = effectData;
     return this;
+  }
+
+  /** 记录来源活动事件 code（放在 narrativeArgs 中传递，不渲染给玩家） */
+  public GameEvent withSourceEventCode(String eventCode) {
+    Map<String, Object> args =
+        new java.util.HashMap<>(narrativeArgs != null ? narrativeArgs : Map.of());
+    args.put(SOURCE_EVENT_CODE_KEY, eventCode);
+    this.narrativeArgs = Map.copyOf(args);
+    return this;
+  }
+
+  /** 来源活动事件 code；非活动事件来源时返回 null */
+  public @Nullable String sourceEventCode() {
+    if (narrativeArgs == null) return null;
+    Object value = narrativeArgs.get(SOURCE_EVENT_CODE_KEY);
+    return value instanceof String code ? code : null;
   }
 
   public boolean isChoiceEvent() {

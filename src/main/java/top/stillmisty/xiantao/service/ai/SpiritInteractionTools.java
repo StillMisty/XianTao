@@ -7,6 +7,7 @@ import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import top.stillmisty.xiantao.domain.fudi.enums.EmotionState;
 import top.stillmisty.xiantao.domain.fudi.vo.GiveGiftVO;
 import top.stillmisty.xiantao.domain.fudi.vo.TriggerTribulationVO;
 import top.stillmisty.xiantao.service.UserContext;
@@ -59,7 +60,26 @@ public class SpiritInteractionTools {
         });
   }
 
+  @Tool(description = "调整你当前的情绪状态（九选一），情绪会随好感度自动变化，也可由你主动切换。" + EmotionState.PARAM_DESCRIPTION)
+  @Transactional
+  public UpdateEmotionResponse updateEmotion(
+      @ToolParam(description = EmotionState.PARAM_DESCRIPTION) EmotionState emotionState) {
+    return toolExecutor.execute(
+        "updateEmotion",
+        () -> {
+          Long userId = UserContext.requireCurrentUserId();
+          fudiService.updateSpiritEmotion(userId, emotionState);
+          return new UpdateEmotionResponse(
+              emotionState.getCode(), emotionState.getChineseName(), emotionState.getToneHint());
+        });
+  }
+
   // ===== Response records =====
+
+  public record UpdateEmotionResponse(
+      @JsonPropertyDescription("更新后的情绪状态 code") String emotionState,
+      @JsonPropertyDescription("更新后的情绪状态中文名") String emotionName,
+      @JsonPropertyDescription("该情绪下的语气提示，可用于组织回复") String toneHint) {}
 
   public record AcceptGiftResponse(
       @JsonPropertyDescription("收到的礼物物品名称") String itemName,
